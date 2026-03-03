@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Field Day Lab
-  productName: Aquatic Invasive Species Prototype
+  productName: Spacefab
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -718,7 +718,7 @@ PlayerSettings:
     Stadia: 1
     Standalone: 2
     VisionOS: 1
-    WebGL: 4
+    WebGL: 2
     Windows Store Apps: 1
     XboxOne: 1
     iPhone: 1

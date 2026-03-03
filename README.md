@@ -1,2 +1,2 @@
-# ais-prototype
-Prototype for the Aquatic Invasive Species project
+# Spacefab
+Repo for the Spacefab project
