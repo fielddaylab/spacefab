@@ -1,0 +1,2161 @@
+#if (UNITY_EDITOR && !IGNORE_UNITY_EDITOR) || DEVELOPMENT_BUILD
+#define DEVELOPMENT
+#endif // (UNITY_EDITOR && !IGNORE_UNITY_EDITOR) || DEVELOPMENT_BUILD
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using BeauRoutine;
+using BeauUtil;
+using BeauUtil.Debugger;
+using BeauUtil.Variants;
+using EasyAssetStreaming;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using FieldDay.Rendering;
+using FieldDay.Assets;
+using FieldDay.Debugging;
+using FieldDay.Threading;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif // UNITY_EDITOR
+
+namespace FieldDay.Scenes {
+    public sealed class SceneMgr {
+        #region Operations
+
+        private struct LoadSceneArgs {
+            public string ScenePath;
+            public StringHash32 Tag;
+            public SceneImportFlags Flags;
+            public SceneType Type;
+            public Matrix4x4? Transform;
+            public SceneDataExt Parent;
+            public RingBuffer<SceneDataExt> Queue;
+            public CounterHandle Counter;
+        }
+
+        private struct TransformSceneArgs {
+            public SceneDataExt Data;
+            public Scene Scene;
+            public Matrix4x4 Transform;
+            public CounterHandle Counter;
+        }
+
+        private struct QueueSubScenesArgs {
+            public SceneDataExt Data;
+            public RingBuffer<SceneDataExt> Queue;
+            public CounterHandle Counter;
+        }
+
+        private struct ImportLightingArgs {
+            public SceneDataExt Data;
+            public SceneImportFlags Flags;
+            public CounterHandle Counter;
+        }
+
+        private struct PreloadArgs {
+            public PreloadManifest[] Manifests;
+            public CounterHandle Counter;
+        }
+
+        private struct LateEnableArgs {
+            public SceneDataExt Data;
+            public CounterHandle Counter;
+        }
+
+        private struct UnloadSceneArgs {
+            public SceneDataExt Data;
+            public UnloadSceneOptions Options;
+            public bool UnloadTree;
+            public CounterHandle Counter;
+        }
+
+        private struct OperationSlot<T> where T : struct {
+            public T Args;
+            public AsyncOperation UnityOp;
+            public bool Active;
+
+            public bool TryFill(RingBuffer<T> queue) {
+                if (Active = queue.TryPopFront(out Args)) {
+                    UnityOp = null;
+                    return true;
+                }
+                return false;
+            }
+
+            public void Fill(T args) {
+                Active = true;
+                Args = args;
+                UnityOp = null;
+            }
+
+            public void Clear() {
+                Args = default;
+                UnityOp = null;
+                Active = false;
+            }
+        }
+
+        private struct PreloadOperationSlot {
+            public PreloadManifest.Reader Reader;
+            public WorkSlicer.EnumeratedState WorkState;
+            public RingBuffer<IScenePreload> Preloads;
+            public CounterHandle Counter;
+            public bool Active;
+
+            public void Create() {
+                Reader = new PreloadManifest.Reader();
+                Preloads = new RingBuffer<IScenePreload>(64, RingBufferMode.Expand);
+            }
+
+            public void Clear() {
+                Reader.Clear();
+                WorkState.Clear();
+                Preloads.Clear();
+                Counter = default;
+                Active = false;
+            }
+        }
+
+        #endregion // Operations
+
+        #region Types
+
+        private struct LoadProcessArgs {
+            public string Path;
+            public StringHash32 Tag;
+            public SceneType Type;
+            public SceneImportFlags Flags;
+            public Matrix4x4? Transform;
+            public MainSceneTransitionArgs Transition;
+        }
+
+        private struct UninitializedSceneCallback {
+            public Scene Scene;
+            public Action Action;
+
+            public UninitializedSceneCallback(Scene scene, Action action) {
+                Scene = scene;
+                Action = action;
+            }
+        }
+
+        private struct QueuedRequestContext {
+            public StringHash32 PathHash;
+            public SceneRequestContext Data;
+        }
+
+        private struct TaggedRequestContext {
+            public StringHash32 Tag;
+            public bool WasUsed;
+            public SceneRequestContext Data;
+        }
+
+        #endregion // Types
+
+        #region State
+
+        // dummy scene
+        private Scene m_DummyScene;
+
+        // current state
+        private SceneDataExt m_MainScene;
+        private readonly RingBuffer<SceneDataExt> m_AuxScenes = new RingBuffer<SceneDataExt>(16, RingBufferMode.Expand);
+        private readonly RingBuffer<SceneDataExt> m_PersistentScenes = new RingBuffer<SceneDataExt>(16, RingBufferMode.Expand);
+        private readonly RingBuffer<int> m_MainSceneIndexHistory = new RingBuffer<int>(4, RingBufferMode.Overwrite);
+        private readonly HashSet<int> m_TrackedScenes = new HashSet<int>(16, CompareUtils.DefaultEquals<int>());
+        private readonly RingBuffer<QueuedRequestContext> m_QueuedContexts = new RingBuffer<QueuedRequestContext>(4, RingBufferMode.Expand);
+        private readonly RingBuffer<TaggedRequestContext> m_TaggedContexts = new RingBuffer<TaggedRequestContext>(4, RingBufferMode.Fixed);
+
+        // queues
+        private readonly RingBuffer<LoadProcessArgs> m_LoadProcessQueue = new RingBuffer<LoadProcessArgs>();
+        private readonly RingBuffer<LoadSceneArgs> m_LoadQueue = new RingBuffer<LoadSceneArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<TransformSceneArgs> m_TransformRootsQueue = new RingBuffer<TransformSceneArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<QueueSubScenesArgs> m_SubSceneQueue = new RingBuffer<QueueSubScenesArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<ImportLightingArgs> m_LightingCopyQueue = new RingBuffer<ImportLightingArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<PreloadArgs> m_PreloadQueue = new RingBuffer<PreloadArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<UnloadSceneArgs> m_UnloadQueue = new RingBuffer<UnloadSceneArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<LateEnableArgs> m_LateEnableQueue = new RingBuffer<LateEnableArgs>(8, RingBufferMode.Expand);
+
+        private readonly WorkSlicer.StepOperation CachedUpdateStep;
+        private float m_UpdateStepTimeSlice = 2;
+        private LightingImportFlags m_LightImportFlags = LightingImportFlags.All;
+
+        // operation slots
+        private OperationSlot<LoadSceneArgs> m_CurrentLoadOperation;
+        private OperationSlot<UnloadSceneArgs> m_CurrentUnloadOperation;
+        private PreloadOperationSlot m_CurrentPreloadOperation;
+
+        // ongoing loads
+        private Routine m_MainSceneLoadProcess;
+        private Routine m_AdditionalSceneLoadProcess;
+        private Routine m_MainSceneTransition;
+        private int m_AssetUnloadLock;
+        private bool m_InitialSceneWasRedirected = true;
+
+        // handlers
+        private SceneTransitionHandler m_MainTransitionUnload;
+        private SceneTransitionHandler m_MainTransitionLoad;
+
+        // dependencies
+        private RingBuffer<ISceneLoadDependency> m_Dependencies = new RingBuffer<ISceneLoadDependency>(8, RingBufferMode.Expand);
+        private RingBuffer<AsyncHandle> m_DependencyHandles = new RingBuffer<AsyncHandle>(8, RingBufferMode.Expand);
+
+        // temp queues
+        private RingBuffer<UninitializedSceneCallback> m_TempOnLateEnableQueue = new RingBuffer<UninitializedSceneCallback>(4, RingBufferMode.Expand);
+        private RingBuffer<UninitializedSceneCallback> m_TempOnLoadQueue = new RingBuffer<UninitializedSceneCallback>(4, RingBufferMode.Expand);
+        private RingBuffer<UninitializedSceneCallback> m_TempOnUnloadQueue = new RingBuffer<UninitializedSceneCallback>(4, RingBufferMode.Expand);
+
+        #endregion // State
+
+        #region Exposed Events
+
+        public readonly CastableEvent<SceneCallbackArgs> OnPrepareScene = new CastableEvent<SceneCallbackArgs>();
+        public readonly CastableEvent<SceneCallbackArgs> OnScenePreload = new CastableEvent<SceneCallbackArgs>();
+        public readonly CastableEvent<SceneCallbackArgs> OnSceneReady = new CastableEvent<SceneCallbackArgs>();
+        public readonly ActionEvent OnMainSceneLateEnable = new ActionEvent();
+        public readonly ActionEvent OnMainSceneReady = new ActionEvent();
+        public readonly ActionEvent OnMainSceneUnloading = new ActionEvent();
+        public readonly ActionEvent OnMainSceneUnloaded = new ActionEvent();
+        public readonly CastableEvent<SceneCallbackArgs> OnSceneUnload = new CastableEvent<SceneCallbackArgs>();
+        public readonly ActionEvent OnAnySceneUnloaded = new ActionEvent();
+        public readonly ActionEvent OnAnySceneEnabled = new ActionEvent();
+
+#if DEVELOPMENT
+        private readonly ActionEvent m_OnDebugSceneLoad = new ActionEvent();
+#endif // DEVELOPMENT
+
+        #endregion // Exposed Events
+
+        internal SceneMgr() {
+            CachedUpdateStep = UpdateStep;
+            m_CurrentPreloadOperation.Create();
+
+            SceneHelper.IgnoreSceneByName("*_PERSISTENT");
+            SceneHelper.IgnoreSceneByName("*_LAYER");
+            SceneHelper.IgnoreSceneByName("*_AUX");
+            SceneHelper.IgnoreSceneByName("*_LAYOUT");
+            SceneHelper.IgnoreSceneByName("*_ASSETS");
+            SceneHelper.IgnoreSceneByName("Boot");
+            SceneHelper.IgnoreSceneByName("_ResourceDump");
+        }
+
+        #region Public API
+
+        /// <summary>
+        /// Amount of time, in millisecs, that scene loading operations are allowed
+        /// to operate per frame.
+        /// </summary>
+        public float TimeSlice {
+            get { return m_UpdateStepTimeSlice; }
+            set {
+                if (value <= 0) {
+                    throw new ArgumentOutOfRangeException("value", "Time slice cannot be set to 0 or less");
+                }
+                m_UpdateStepTimeSlice = value;
+            }
+        }
+
+        /// <summary>
+        /// Flags to apply for lighting import.
+        /// </summary>
+        public LightingImportFlags LightingImport {
+            get { return m_LightImportFlags; }
+            set { m_LightImportFlags = value; }
+        }
+
+        #region Checks
+
+        /// <summary>
+        /// Returns if the main scene is currently loading.
+        /// </summary>
+        public bool IsMainLoading() {
+            return m_MainSceneLoadProcess || IsLoadQueued(SceneType.Main);
+        }
+
+        /// <summary>
+        /// Returns if the main scene is currently loaded.
+        /// </summary>
+        public bool IsMainLoaded() {
+            return m_MainScene && m_MainScene.IsVisited(SceneDataExt.VisitFlags.Loaded) && !m_MainScene.IsVisited(SceneDataExt.VisitFlags.Unloaded);
+        }
+
+        /// <summary>
+        /// Returns if any scene is currently loading.
+        /// </summary>
+        public bool IsLoadingAnyScene() {
+            return m_MainSceneLoadProcess || m_AdditionalSceneLoadProcess || m_LoadProcessQueue.Count > 0;
+        }
+
+        /// <summary>
+        /// Returns if any auxillary scene is currently loading.
+        /// </summary>
+        public bool IsAuxLoading() {
+            return m_AdditionalSceneLoadProcess || IsLoadQueued(SceneType.Aux);
+        }
+
+        /// <summary>
+        /// Returns if the given scene is loading.
+        /// </summary>
+        public bool IsLoading(SceneReference scene) {
+            return IsLoading(scene.Path);
+        }
+
+        /// <summary>
+        /// Returns if the given scene is loading.
+        /// </summary>
+        public bool IsLoading(string scenePath) {
+            SceneDataExt data = SceneDataExt.GetByPath(scenePath);
+            if (data) {
+                return !data.IsVisited(SceneDataExt.VisitFlags.Loaded);
+            }
+
+            for (int i = 0; i < m_LoadProcessQueue.Count; i++) {
+                if (m_LoadProcessQueue[i].Path == scenePath) {
+                    return true;
+                }
+            }
+
+            for(int i = 0; i < m_LoadQueue.Count; i++) {
+                if (m_LoadQueue[i].ScenePath == scenePath) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns if the given scene is loading.
+        /// </summary>
+        public bool IsLoading(Scene scene) {
+            if (!scene.IsValid()) {
+                return false;
+            }
+
+            SceneDataExt data = SceneDataExt.Get(scene);
+            if (data) {
+                return !data.IsVisited(SceneDataExt.VisitFlags.Loaded);
+            }
+
+            string scenePath = scene.path;
+            for (int i = 0; i < m_LoadProcessQueue.Count; i++) {
+                if (m_LoadProcessQueue[i].Path == scenePath) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns if the given scene is loaded.
+        /// </summary>
+        public bool IsLoaded(SceneReference scene) {
+            return IsLoaded(scene.Path);
+        }
+
+        /// <summary>
+        /// Returns if the given scene is loaded.
+        /// </summary>
+        public bool IsLoaded(string scenePath) {
+            SceneDataExt data = SceneDataExt.GetByPath(scenePath);
+            return data && data.IsVisited(SceneDataExt.VisitFlags.Loaded);
+        }
+
+        /// <summary>
+        /// Returns if the given scene is loaded.
+        /// </summary>
+        public bool IsLoaded(Scene scene) {
+            SceneDataExt data = SceneDataExt.Get(scene);
+            return data && data.IsVisited(SceneDataExt.VisitFlags.Loaded);
+        }
+
+        /// <summary>
+        /// Returns if a load of the given type is queued.
+        /// </summary>
+        public bool IsLoadQueued(SceneType sceneType) {
+            foreach (var process in m_LoadProcessQueue) {
+                if (process.Type == sceneType) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns if any unloads are processing.
+        /// </summary>
+        public bool IsUnloading() {
+            return m_UnloadQueue.Count > 0 || m_CurrentUnloadOperation.Active || IsLoadQueued(SceneType.Main);
+        }
+
+        /// <summary>
+        /// Returns if it is safe to unload any assets.
+        /// </summary>
+        public bool IsSafeToUnloadAssets() {
+            return m_AssetUnloadLock == 0 && !IsLoadQueued(SceneType.Main) && m_LoadQueue.Count == 0 && !m_CurrentLoadOperation.Active
+                && m_PreloadQueue.Count == 0 && !m_CurrentPreloadOperation.Active
+                && m_UnloadQueue.Count == 0 && !m_CurrentUnloadOperation.Active;
+        }
+
+        /// <summary>
+        /// Returns the previous main scene index.
+        /// </summary>
+        public int GetPreviousMainSceneIndex() {
+            return m_MainSceneIndexHistory.Count > 1 ? m_MainSceneIndexHistory[m_MainSceneIndexHistory.Count - 2] : -1;
+        }
+
+        #endregion // Checks
+
+        #region Main Load
+
+        public void LoadMainScene(string scenePath) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(scenePath, true, false, default);
+        }
+
+        public void LoadMainScene(string scenePath, bool forceReload) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(scenePath, true, forceReload, default);
+        }
+
+        public void LoadMainScene(string scenePath, bool forceReload, in MainSceneTransitionArgs transition) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(scenePath, true, forceReload, transition);
+        }
+
+        public void LoadMainScene(SceneReference scene) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(scene.Path, true, false, default);
+        }
+
+        public void LoadMainScene(SceneReference scene, bool forceReload) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(scene.Path, true, forceReload, default);
+        }
+
+        public void LoadMainScene(SceneReference scene, bool forceReload, in MainSceneTransitionArgs transition) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(scene.Path, true, forceReload, transition);
+        }
+
+        public void ReloadMainScene() {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(m_MainScene.Scene.path, true, true, default);
+        }
+
+        public void ReloadMainScene(in MainSceneTransitionArgs transition) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot load main during main scene loading");
+            QueueMainLoadInternal(m_MainScene.Scene.path, true, true, transition);
+        }
+
+        /// <summary>
+        /// Returns a reference to the main scene.
+        /// </summary>
+        public SceneBinding MainScene() {
+            if (m_MainScene != null) {
+                return m_MainScene.SceneBinding;
+            } else {
+                return default(SceneBinding);
+            }
+        }
+
+        #endregion // Main Load
+
+        #region Aux Load
+
+        public void LoadAuxScene(string scenePath, StringHash32 tag, Matrix4x4? transformBy = null, SceneImportFlags flags = 0) {
+            QueueSceneLoadInternal(scenePath, tag, SceneType.Aux, flags, transformBy, SceneLoadPriority.Default);
+        }
+
+        public void LoadAuxScene(string scenePath, StringHash32 tag, SceneRequestContext context, Matrix4x4? transformBy = null, SceneImportFlags flags = 0) {
+            QueueSceneLoadInternal(scenePath, tag, SceneType.Aux, flags, transformBy, SceneLoadPriority.Default);
+        }
+
+        public void LoadAuxScene(string scenePath, StringHash32 tag, Matrix4x4? transformBy = null) {
+            QueueSceneLoadInternal(scenePath, tag, SceneType.Aux, 0, transformBy, SceneLoadPriority.Default);
+        }
+
+        public void LoadAuxScene(SceneReference scene, StringHash32 tag, Matrix4x4? transformBy = null) {
+            QueueSceneLoadInternal(scene.Path, tag, SceneType.Aux, 0, transformBy, SceneLoadPriority.Default);
+        }
+
+        #endregion // Aux Load
+
+        #region Persistent Load
+
+        public void LoadPersistentScene(string scenePath, StringHash32 tag = default) {
+            QueueSceneLoadInternal(scenePath, tag, SceneType.Persistent, SceneImportFlags.Persistent, null, SceneLoadPriority.High);
+        }
+
+        public void LoadPersistentScene(SceneReference reference, StringHash32 tag = default) {
+            QueueSceneLoadInternal(reference.Path, tag, SceneType.Persistent, SceneImportFlags.Persistent, null, SceneLoadPriority.High);
+        }
+
+        #endregion // Persistent Load
+
+        #region Unload
+
+        // TODO: Handle unloading a scene that is currently being loaded
+
+        /// <summary>
+        /// Unloads the given scene.
+        /// </summary>
+        public void UnloadScene(SceneReference reference, bool unloadTree = true) {
+            UnloadScene(reference.Path, unloadTree);
+        }
+
+        /// <summary>
+        /// Unloads the given scene.
+        /// </summary>
+        public void UnloadScene(string scenePath, bool unloadTree = true) {
+            SceneDataExt data = SceneDataExt.GetByPath(scenePath);
+
+            if (data != null) {
+                switch (data.SceneType) {
+                    case SceneType.Main: {
+                            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot unload main scene during main scene load");
+                            if (m_MainScene == data) {
+                                m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                                    Data = m_MainScene,
+                                    Options = 0,
+                                    UnloadTree = unloadTree
+                                });
+                                m_MainScene = null;
+                            }
+                            break;
+                        }
+
+                    case SceneType.Aux: {
+                            if (m_AuxScenes.FastRemove(data)) {
+                                m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                                    Data = data,
+                                    UnloadTree = unloadTree,
+                                    Options = 0,
+                                });
+                            }
+                            break;
+                        }
+
+                    case SceneType.Persistent: {
+                            if (m_PersistentScenes.FastRemove(data)) {
+                                m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                                    Data = data,
+                                    UnloadTree = unloadTree,
+                                    Options = 0,
+                                });
+                            }
+                            break;
+                        }
+                }
+            }
+
+            // TODO: account for scene loads that are in progress but not yet SceneDataExt
+
+            for (int i = m_LoadProcessQueue.Count - 1; i >= 0; i--) {
+                if (m_LoadProcessQueue[i].Path == scenePath) {
+                    Log.Warn("[SceneMgr] Cancelling scene load '{0}'", scenePath);
+                    m_LoadProcessQueue.RemoveAt(i);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unloads all scenes with the given tag.
+        /// </summary>
+        public void UnloadScenesByTag(StringHash32 tag) {
+            Assert.False(m_MainSceneLoadProcess.Exists(), "Cannot unload by tag during main scene loading");
+            if (m_MainScene != null && m_MainScene.SceneTag == tag) {
+                m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                    Data = m_MainScene,
+                    Options = 0,
+                    UnloadTree = false
+                });
+                m_MainScene.TryVisit(SceneDataExt.VisitFlags.Unloading);
+                m_MainScene = null;
+            }
+
+            for (int i = m_AuxScenes.Count - 1; i >= 0; i--) {
+                var aux = m_AuxScenes[i];
+                if (aux.SceneTag == tag) {
+                    m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                        Data = aux,
+                        UnloadTree = false,
+                        Options = 0,
+                    });
+                    aux.TryVisit(SceneDataExt.VisitFlags.Unloading);
+                    m_AuxScenes.FastRemoveAt(i);
+                }
+            }
+
+            for (int i = m_PersistentScenes.Count - 1; i >= 0; i--) {
+                var persist = m_PersistentScenes[i];
+                if (persist.SceneTag == tag) {
+                    m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                        Data = persist,
+                        UnloadTree = false,
+                        Options = 0,
+                    });
+                    persist.TryVisit(SceneDataExt.VisitFlags.Unloading);
+                    m_PersistentScenes.FastRemoveAt(i);
+                }
+            }
+
+            // TODO: account for scene loads that are in progress but not yet SceneDataExt
+
+            for (int i = m_LoadProcessQueue.Count - 1; i >= 0; i--) {
+                if (m_LoadProcessQueue[i].Tag == tag) {
+                    Log.Warn("[SceneMgr] Cancelling scene load '{0}'", m_LoadProcessQueue[i].Path);
+                    m_LoadProcessQueue.RemoveAt(i);
+                }
+            }
+        }
+
+        #endregion // Unload
+
+        #region Callbacks
+
+        /// <summary>
+        /// Queues a callback for when the main scene is enabled.
+        /// </summary>
+        public void QueueOnEnable(Action action) {
+            SceneDataExt data = m_MainScene;
+            if (data != null) {
+                if (data.IsVisited(SceneDataExt.VisitFlags.LateEnabled)) {
+                    action();
+                } else {
+                    data.LateEnableCallbackQueue.PushBack(action);
+                }
+            } else {
+                m_TempOnLateEnableQueue.PushBack(new UninitializedSceneCallback(default, action));
+            }
+        }
+
+        /// <summary>
+        /// Queues a callback for when the given scene is enabled.
+        /// </summary>
+        public void QueueOnEnable(Scene scene, Action action) {
+            SceneDataExt data = SceneDataExt.Get(scene);
+            if (data != null) {
+                if (data.IsVisited(SceneDataExt.VisitFlags.LateEnabled)) {
+                    action();
+                } else {
+                    data.LateEnableCallbackQueue.PushBack(action);
+                }
+            } else {
+                m_TempOnLateEnableQueue.PushBack(new UninitializedSceneCallback(scene, action));
+            }
+        }
+
+        /// <summary>
+        /// Queues a callback for when the scene for the given object is enabled.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void QueueOnEnable(GameObject gameObject, Action action) {
+            QueueOnEnable(gameObject.scene, action);
+        }
+
+        /// <summary>
+        /// Queues a callback for when the scene for the given object is enabled.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void QueueOnEnable(Component component, Action action) {
+            QueueOnEnable(component.gameObject.scene, action);
+        }
+
+        /// <summary>
+        /// Queues a callback for when the main scene is loaded.
+        /// </summary>
+        public void QueueOnLoad(Action action) {
+            SceneDataExt data = m_MainScene;
+            if (data != null) {
+                if (data.IsVisited(SceneDataExt.VisitFlags.Readied)) {
+                    action();
+                } else {
+                    data.LoadedCallbackQueue.PushBack(action);
+                }
+            } else {
+                m_TempOnLoadQueue.PushBack(new UninitializedSceneCallback(default, action));
+            }
+        }
+
+        /// <summary>
+        /// Queues a callback for when the given scene is loaded.
+        /// </summary>
+        public void QueueOnLoad(Scene scene, Action action) {
+            SceneDataExt data = SceneDataExt.Get(scene);
+            if (data != null) {
+                if (data.IsVisited(SceneDataExt.VisitFlags.Readied)) {
+                    action();
+                } else {
+                    data.LoadedCallbackQueue.PushBack(action);
+                }
+            } else {
+                m_TempOnLoadQueue.PushBack(new UninitializedSceneCallback(scene, action));
+            }
+        }
+
+        /// <summary>
+        /// Queues a callback for when the scene for the given object is loaded.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void QueueOnLoad(GameObject gameObject, Action action) {
+            QueueOnLoad(gameObject.scene, action);
+        }
+
+        /// <summary>
+        /// Queues a callback for when the scene for the given object is loaded.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void QueueOnLoad(Component component, Action action) {
+            QueueOnLoad(component.gameObject.scene, action);
+        }
+
+        /// <summary>
+        /// Queues a callback for when the main scene is unloaded.
+        /// </summary>
+        public void QueueOnUnload(Action action) {
+            SceneDataExt data = m_MainScene;
+            if (data != null) {
+                if (data.IsVisited(SceneDataExt.VisitFlags.Unloading)) {
+                    action();
+                } else {
+                    data.UnloadingCallbackQueue.PushBack(action);
+                }
+            } else {
+                m_TempOnUnloadQueue.PushBack(new UninitializedSceneCallback(default, action));
+            }
+        }
+
+        /// <summary>
+        /// Queues a callback for when the given scene is unloaded.
+        /// </summary>
+        public void QueueOnUnload(Scene scene, Action action) {
+            SceneDataExt data = SceneDataExt.Get(scene);
+            if (data != null) {
+                if (data.IsVisited(SceneDataExt.VisitFlags.Unloading)) {
+                    action();
+                } else {
+                    data.UnloadingCallbackQueue.PushBack(action);
+                }
+            } else {
+                m_TempOnUnloadQueue.PushBack(new UninitializedSceneCallback(scene, action));
+            }
+        }
+
+        /// <summary>
+        /// Queues a callback for when the scene for the given object is unloaded.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void QueueOnUnload(GameObject gameObject, Action action) {
+            QueueOnUnload(gameObject.scene, action);
+        }
+
+        /// <summary>
+        /// Queues a callback for when the scene for the given object is unloaded.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void QueueOnUnload(Component component, Action action) {
+            QueueOnUnload(component.gameObject.scene, action);
+        }
+
+        /// <summary>
+        /// Registers handlers for dealing with transitions.
+        /// </summary>
+        public void RegisterTransitionHandlers(SceneTransitionHandler unload, SceneTransitionHandler load) {
+            m_MainTransitionUnload = unload;
+            m_MainTransitionLoad = load;
+        }
+
+        #endregion // Callbacks
+
+        #region Contexts
+
+        /// <summary>
+        /// Sets request context data for the given scene load.
+        /// </summary>
+        public void QueueLoadContext(string path, in SceneRequestContext context) {
+            Assert.True(!string.IsNullOrEmpty(path), "Cannot submit an invalid scene path");
+            QueueLoadContextWithPathHash(StringHash32.Fast(path), context);
+        }
+
+        /// <summary>
+        /// Sets request context data for the given scene load.
+        /// </summary>
+        public void QueueLoadContext(SceneReference sceneReference, in SceneRequestContext context) {
+            Assert.True(sceneReference.IsValid, "Cannot submit an invalid scene path");
+            QueueLoadContextWithPathHash(StringHash32.Fast(sceneReference.Path), context);
+        }
+
+        /// <summary>
+        /// Sets request context data for the given scene load.
+        /// </summary>
+        public void QueueMainLoadContext(in SceneRequestContext context) {
+            QueueLoadContextWithPathHash(null, context);
+        }
+
+        private void QueueLoadContextWithPathHash(StringHash32 pathHash, in SceneRequestContext context) {
+            for (int i = 0; i < m_QueuedContexts.Count; i++) {
+                ref QueuedRequestContext test = ref m_QueuedContexts[i];
+                if (test.PathHash == pathHash) {
+                    test.Data = context;
+                    return;
+                }
+            }
+
+            m_QueuedContexts.PushBack(new QueuedRequestContext() {
+                PathHash = pathHash,
+                Data = context
+            });
+        }
+
+        /// <summary>
+        /// Sets request context data for all scene loads with the given tag.
+        /// </summary>
+        public void SetTaggedLoadContext(StringHash32 tag, in SceneRequestContext context) {
+            Assert.True(!tag.IsEmpty, "Cannot set tagged request context for an empty tag");
+
+            for(int i = 0; i < m_TaggedContexts.Count; i++) {
+                ref TaggedRequestContext test = ref m_TaggedContexts[i];
+                if (test.Tag == tag) {
+                    test.Data = context;
+                    test.WasUsed = false;
+                    return;
+                }
+            }
+
+            Assert.True(!m_TaggedContexts.IsFull(), "Cannot have more than {0} tagged contexts at once", m_TaggedContexts.Capacity);
+            m_TaggedContexts.PushBack(new TaggedRequestContext() {
+                Tag = tag,
+                Data = context
+            });
+        }
+
+        /// <summary>
+        /// Returns the main scene load context.
+        /// </summary>
+        public bool GetLoadContext(out SceneRequestContext context) {
+            if (m_MainScene) {
+                context = m_MainScene.Context;
+                return true;
+            }
+
+            context = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the load context for the given scene.
+        /// </summary>
+        public bool GetLoadContext(Scene scene, out SceneRequestContext context) {
+            SceneDataExt data = SceneDataExt.Get(scene);
+            if (data) {
+                context = data.Context;
+                return true;
+            }
+
+            context = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the load context for the given scene.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool GetLoadContext(GameObject gameObject, out SceneRequestContext context) {
+            return GetLoadContext(gameObject.scene, out context);
+        }
+
+        /// <summary>
+        /// Returns the load context for the given scene.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool GetLoadContext(Component component, out SceneRequestContext context) {
+            return GetLoadContext(component.gameObject.scene, out context);
+        }
+
+        #endregion // Contexts
+
+        #endregion // Public API
+
+        #region Events
+
+        internal void Prepare() {
+            if (m_MainScene == null && !m_MainSceneLoadProcess && !IsLoadQueued(SceneType.Main)) {
+                m_InitialSceneWasRedirected = false;
+                QueueMainLoadInternal(SceneManager.GetActiveScene().path, false, true, default, true);
+            }
+
+            // need to ensure we still have a scene remaining when unloading,
+            // even if it's just an empty dummy scene
+            Scene dummyScene = SceneManager.CreateScene("__DummyScene");
+            m_DummyScene = dummyScene;
+            TrackScene(dummyScene);
+        }
+
+        internal void Update() {
+            CleanLists();
+            ProcessLoadProcessQueue();
+            WorkSlicer.TimeSliced(CachedUpdateStep, m_UpdateStepTimeSlice);
+        }
+
+        private void CleanLists() {
+            for (int i = m_AuxScenes.Count - 1; i >= 0; i--) {
+                if (!m_AuxScenes[i]) {
+                    m_AuxScenes.FastRemoveAt(i);
+                }
+            }
+
+            for (int i = m_PersistentScenes.Count - 1; i >= 0; i--) {
+                if (!m_PersistentScenes[i]) {
+                    m_PersistentScenes.FastRemoveAt(i);
+                }
+            }
+
+            if (m_AssetUnloadLock == 0 && m_LoadProcessQueue.Count == 0 && m_LoadQueue.Count == 0 && m_SubSceneQueue.Count == 0) {
+                if (m_QueuedContexts.Count > 0) {
+#if DEVELOPMENT
+                    for (int i = m_QueuedContexts.Count; i-- > 0;) {
+                        Log.Warn("[SceneMgr] Context for scene '{0}' was unused, discarding", m_QueuedContexts[i].PathHash.ToDebugString());
+                    }
+#else
+                    Log.Warn("[SceneMgr] Contexts for {0} scenes were unused, discarding", m_QueuedContexts.Count);
+#endif // DEVELOPMENT
+                    m_QueuedContexts.Clear();
+                }
+
+                if (m_TaggedContexts.Count > 0) {
+#if DEVELOPMENT
+                    Log.Msg("[SceneMgr] Clearing {0} tagged request contexts", m_TaggedContexts.Count);
+#endif // DEVELOPMENT
+                    m_TaggedContexts.Clear();
+                }
+            }
+        }
+
+        private WorkSlicer.Result UpdateStep() {
+#if DEVELOPMENT
+            if (s_DEBUGLoadSlowdown > 0 && RNG.Instance.NextFloat() < s_DEBUGLoadSlowdown) {
+                return WorkSlicer.Result.HaltForFrame;
+            }
+#endif // DEVELOPMENT
+
+            if (ProcessUnloadQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessLoadQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessTransformSceneQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessImportLightingQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessSubSceneImportQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessPreloadQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessLateEnableQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            return WorkSlicer.Result.OutOfData;
+
+        }
+
+        internal void Shutdown() {
+            m_LateEnableQueue.Clear();
+            m_LightingCopyQueue.Clear();
+            m_LoadProcessQueue.Clear();
+            m_LoadQueue.Clear();
+            m_PreloadQueue.Clear();
+            m_SubSceneQueue.Clear();
+            m_TransformRootsQueue.Clear();
+            m_UnloadQueue.Clear();
+
+            m_CurrentLoadOperation.Clear();
+            m_CurrentPreloadOperation.Clear();
+            m_CurrentUnloadOperation.Clear();
+
+            m_MainSceneLoadProcess.Stop();
+            m_AdditionalSceneLoadProcess.Stop();
+
+            OnPrepareScene.Clear();
+            OnScenePreload.Clear();
+            OnSceneReady.Clear();
+            OnMainSceneLateEnable.Clear();
+            OnMainSceneReady.Clear();
+            OnMainSceneUnloading.Clear();
+            OnMainSceneUnloaded.Clear();
+            OnSceneUnload.Clear();
+            OnAnySceneUnloaded.Clear();
+            OnAnySceneEnabled.Clear();
+
+#if DEVELOPMENT
+            m_OnDebugSceneLoad.Clear();
+#endif // DEVELOPMENT
+        }
+
+#endregion // Events
+
+        #region Internal
+
+        private bool IsSceneTracked(Scene scene) {
+            return scene.buildIndex < 0 || m_TrackedScenes.Contains(scene.handle);
+        }
+
+        private void TrackScene(Scene scene) {
+            //Log.Msg("[SceneMgr] Tracking scene {0}...", scene.name);
+            bool inserted = m_TrackedScenes.Add(scene.handle);
+            Assert.True(inserted, "Tracked scene '{0}' tracked multiple times", scene.name);
+        }
+
+        private void TryTrackScene(Scene scene) {
+            if (m_TrackedScenes.Add(scene.handle)) {
+                //Log.Msg("[SceneMgr] Tracking scene {0}...", scene.name);
+            }
+        }
+
+        private void UntrackScene(Scene scene) {
+            //Log.Msg("[SceneMgr] Untracking scene {0}...", scene.name);
+            bool removed = m_TrackedScenes.Remove(scene.handle);
+            Assert.True(removed, "Tracked scene '{0}' removed multiple times", scene.name);
+        }
+
+        static private bool IsLoadingOrLoaded(Scene scene) {
+            SceneHelper.LoadingState loadingState = scene.GetLoadingState();
+            return loadingState == SceneHelper.LoadingState.Loading || loadingState == SceneHelper.LoadingState.Loaded;
+        }
+
+        static private bool IsDoneLoading(AsyncOperation operation, in LoadSceneArgs args, out Scene scene) {
+            if (SceneUtils.Editor.AreDelayedSceneProcessorsRunning()) {
+                scene = default;
+                return false;
+            }
+
+            if (operation != null) {
+                if (operation.isDone) {
+                    scene = SafeGetSceneByPath(args.ScenePath);
+                    return true;
+                } else {
+                    scene = default;
+                    return false;
+                }
+            } else {
+                scene = SafeGetSceneByPath(args.ScenePath);
+                return scene.isLoaded;
+            }
+        }
+
+        private void QueueMainLoadInternal(string path, bool killNonPersistentLoads, bool forceReload, in MainSceneTransitionArgs transition, bool isDefaultScene = false) {
+            SceneDataExt data = SceneDataExt.GetByPath(path);
+
+            if (!forceReload && data != null && data.IsVisited(SceneDataExt.VisitFlags.Loaded)) {
+                return;
+            }
+
+            LoadProcessArgs args = new LoadProcessArgs() {
+                Path = path,
+                Type = SceneType.Main,
+                Flags = forceReload ? SceneImportFlags.ForceReload : 0,
+                Transition = transition,
+                Tag = default,
+                Transform = null
+            };
+
+            if (killNonPersistentLoads) {
+                ClearNonPersistentLoadProcesses();
+            }
+            m_LoadProcessQueue.PushFront(args);
+
+            if (!isDefaultScene) {
+                DebugFlags.MarkNewSceneLoaded();
+            }
+        }
+
+        private void QueueSceneLoadInternal(string path, StringHash32 tag, SceneType type, SceneImportFlags flags, Matrix4x4? transform, SceneLoadPriority priority) {
+            Assert.True(type != SceneType.Main);
+            SceneDataExt data = SceneDataExt.GetByPath(path);
+
+            if (data != null && data.IsVisited(SceneDataExt.VisitFlags.Loaded)) {
+                return;
+            }
+
+            LoadProcessArgs args = new LoadProcessArgs() {
+                Path = path,
+                Type = type,
+                Flags = flags,
+                Tag = tag,
+                Transform = transform
+            };
+
+            if (priority == SceneLoadPriority.High) {
+                m_LoadProcessQueue.PushFront(args);
+            } else {
+                m_LoadProcessQueue.PushBack(args);
+            }
+        }
+
+        private void FlushSceneLoadCallbacks(SceneDataExt ext, Scene scene, bool isMain) {
+            FlushSceneLoadCallbacks(ext, scene, isMain, m_TempOnLateEnableQueue, ext.LateEnableCallbackQueue);
+            FlushSceneLoadCallbacks(ext, scene, isMain, m_TempOnLoadQueue, ext.LoadedCallbackQueue);
+            FlushSceneLoadCallbacks(ext, scene, isMain, m_TempOnUnloadQueue, ext.UnloadingCallbackQueue);
+        }
+
+        static private void FlushSceneLoadCallbacks(SceneDataExt ext, Scene scene, bool isMain, RingBuffer<UninitializedSceneCallback> src, RingBuffer<Action> dest) {
+            int count = src.Count;
+            while (count-- > 0) {
+                var callback = src.PopFront();
+                if ((isMain && callback.Scene == default) || ext.Scene == scene) {
+                    dest.PushBack(callback.Action);
+                } else {
+                    src.PushBack(callback);
+                }
+            }
+        }
+
+        static private Scene SafeGetSceneByPath(string path) {
+            SceneBinding scene = SceneHelper.FindSceneByPath(path, SceneCategories.AllBuild);
+            Assert.True(scene.IsValid(), "Scene '{0}' is not valid", path);
+            return scene;
+        }
+
+        #endregion // Internal
+
+        #region Operations
+
+        private void ProcessLoadProcessQueue() {
+            if (m_LoadProcessQueue.TryPeekFront(out var args)) {
+                Assert.True(!string.IsNullOrEmpty(args.Path), "Empty path provided to scene loader");
+                Assert.True(SceneHelper.FindSceneByPath(args.Path, SceneCategories.AllBuild).IsValid(), "No scene with path '{0}' found", args.Path);
+
+                if (args.Type == SceneType.Main) {
+                    if (m_MainSceneLoadProcess) {
+                        Log.Error("Multiple main scene load processes at once.");
+                        m_LoadProcessQueue.PopFront();
+                    } else {
+                        m_MainSceneLoadProcess = Routine.Start(SceneLoadProcess(args));
+                        m_LoadProcessQueue.PopFront();
+                        m_AssetUnloadLock++;
+                    }
+                } else {
+                    if (!m_AdditionalSceneLoadProcess) {
+                        SceneDataExt data = SceneDataExt.GetByPath(args.Path);
+                        if (data == null || !data.IsVisited(SceneDataExt.VisitFlags.Unloading)) {
+                            m_AdditionalSceneLoadProcess = Routine.Start(SceneLoadProcess(args));
+                            m_LoadProcessQueue.PopFront();
+                            m_AssetUnloadLock++;
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool ProcessLoadQueue() {
+            if (m_CurrentLoadOperation.Active) {
+                ref LoadSceneArgs args = ref m_CurrentLoadOperation.Args;
+                if (IsDoneLoading(m_CurrentLoadOperation.UnityOp, args, out Scene scene)) {
+                    Log.Msg("[SceneMgr] Additive load of '{0}' (build index {1}) complete", args.ScenePath, scene.buildIndex);
+                    TrackScene(scene);
+                    EnqueueSceneProcessors(scene, args);
+                    m_CurrentLoadOperation.Clear();
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (m_CurrentLoadOperation.TryFill(m_LoadQueue)) {
+                ref LoadSceneArgs args = ref m_CurrentLoadOperation.Args;
+                Scene currentScene = SafeGetSceneByPath(args.ScenePath);
+                if (!IsLoadingOrLoaded(currentScene)) {
+                    Log.Msg("[SceneMgr] Starting additive load of '{0}'", args.ScenePath);
+                    // NOTE: EditorSceneManager.LoadSceneAsyncInPlayMode will mess up buildIndex, that's why we aren't using it
+                    m_CurrentLoadOperation.UnityOp = SceneManager.LoadSceneAsync(args.ScenePath, LoadSceneMode.Additive);
+                } else if (currentScene.isLoaded) {
+                    Log.Msg("[SceneMgr] Scene '{0}' already loaded", args.ScenePath);
+                    TryTrackScene(currentScene);
+                    EnqueueSceneProcessors(currentScene, args);
+                    m_CurrentLoadOperation.Clear();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private void EnqueueSceneProcessors(Scene scene, in LoadSceneArgs args) {
+            SceneDataExt data = SceneDataExt.Get(scene);
+            Assert.True(data);
+            Assert.NotNull(args.Queue);
+
+            if (!data.TryVisit(SceneDataExt.VisitFlags.Loaded)) {
+                args.Counter.Decrement();
+                return;
+            }
+
+            data.SceneTag = args.Tag;
+            data.SceneType = args.Type;
+
+            CheckForQueuedRequestContext(data.SceneBinding.Id, args.Tag, args.Type, out data.Context);
+            
+            if (args.Parent != null && args.Type != SceneType.Persistent && (args.Flags & SceneImportFlags.AttachAsChild) != 0) {
+                args.Parent.Children.PushBack(data);
+            }
+
+            args.Queue.PushBack(data);
+
+            switch (args.Type) {
+                case SceneType.Main: {
+                        m_MainScene = data;
+                        SceneManager.SetActiveScene(scene);
+                        m_MainSceneIndexHistory.PushBack(scene.buildIndex);
+                        break;
+                    }
+
+                case SceneType.Aux: {
+                        m_AuxScenes.PushBack(data); ;
+                        break;
+                    }
+
+                case SceneType.Persistent: {
+                        m_PersistentScenes.PushBack(data);
+                        break;
+                    }
+            }
+
+            if (!data.IsVisited(SceneDataExt.VisitFlags.LightCopied)) {
+                if ((args.Flags & (SceneImportFlags.ImportLightingSettings | SceneImportFlags.MergeLightmaps)) != 0) {
+                    m_LightingCopyQueue.PushBack(new ImportLightingArgs() {
+                        Counter = args.Counter,
+                        Flags = args.Flags,
+                        Data = data
+                    });
+                    args.Counter.Increment();
+                } else {
+                    data.TryVisit(SceneDataExt.VisitFlags.LightCopied);
+                }
+            }
+
+            if (!data.IsVisited(SceneDataExt.VisitFlags.Transformed)) {
+                if (args.Transform.HasValue) {
+                    m_TransformRootsQueue.PushBack(new TransformSceneArgs() {
+                        Counter = args.Counter,
+                        Scene = scene,
+                        Data = data,
+                        Transform = args.Transform.Value
+                    });
+                    args.Counter.Increment();
+                } else {
+                    data.TryVisit(SceneDataExt.VisitFlags.Transformed);
+                }
+            }
+
+            if (!data.IsVisited(SceneDataExt.VisitFlags.Subscenes)) {
+                if (data.DynamicSubscenes.Length + data.SubScenes.Length > 0) {
+                    m_SubSceneQueue.PushBack(new QueueSubScenesArgs() {
+                        Data = data,
+                        Counter = args.Counter,
+                        Queue = args.Queue
+                    });
+                    args.Counter.Increment();
+                } else {
+                    data.TryVisit(SceneDataExt.VisitFlags.Subscenes);
+                }
+            }
+
+            FlushSceneLoadCallbacks(data, scene, args.Type == SceneType.Main);
+
+            args.Counter.Decrement();
+
+            if (!OnPrepareScene.IsEmpty) {
+                OnPrepareScene.Invoke(new SceneCallbackArgs() {
+                    LoadType = args.Type,
+                    Scene = scene
+                });
+            }
+        }
+
+        private bool CheckForQueuedRequestContext(StringHash32 pathHash, StringHash32 tag, SceneType type, out SceneRequestContext context) {
+            for (int i = m_QueuedContexts.Count; i-- > 0;) {
+                ref QueuedRequestContext test = ref m_QueuedContexts[i];
+                if ((type == SceneType.Main && test.PathHash.IsEmpty) || test.PathHash == pathHash) {
+                    context = test.Data;
+                    m_QueuedContexts.FastRemoveAt(i);
+                    return true;
+                }
+            }
+
+            if (!tag.IsEmpty) {
+                for (int i = m_TaggedContexts.Count; i-- > 0;) {
+                    ref TaggedRequestContext test = ref m_TaggedContexts[i];
+                    if (test.Tag == tag) {
+                        test.WasUsed = true;
+                        context = test.Data;
+                        return true;
+                    }
+                }
+            }
+
+            context = default;
+            return false;
+        }
+
+        private bool ProcessUnloadQueue() {
+            if (m_CurrentUnloadOperation.Active) {
+                if (m_CurrentUnloadOperation.UnityOp == null || m_CurrentUnloadOperation.UnityOp.isDone) {
+                    Log.Msg("[SceneMgr] Unload complete");
+                    m_CurrentUnloadOperation.Args.Counter.Decrement();
+
+                    if (!OnAnySceneUnloaded.IsEmpty) {
+                        OnAnySceneUnloaded.Invoke();
+                    }
+
+                    m_CurrentUnloadOperation.Clear();
+                    Game.Events?.CleanupDeadReferences();
+                    Game.Components.SanityCheckComponentLists();
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (m_UnloadQueue.TryPopFront(out UnloadSceneArgs args)) {
+                if (args.Data) {
+                    // if the scene hasn't finished loading, then push this off until later
+                    if (!args.Data.IsVisited(SceneDataExt.VisitFlags.Loaded)) {
+                        m_CurrentUnloadOperation.Fill(args);
+                        //UntrackScene(args.Data.Scene);
+                        Log.Msg("[SceneMgr] Unloading '{0}'", args.Data.Scene.path);
+                        m_CurrentUnloadOperation.UnityOp = SceneManager.UnloadSceneAsync(args.Data.Scene, args.Options);
+                        return true;
+                    }
+                    // if the scene hasn't finished loading, then push this off until later
+                    else if (!args.Data.IsVisited(SceneDataExt.VisitFlags.Readied)) {
+                        Log.Warn("[SceneMgr] Delaying unload of scene '{0}' until scene is finished with load process", args.Data.Scene.path);
+                        m_UnloadQueue.PushBack(args);
+                        return false;
+                    } else if (args.Data.TryVisit(SceneDataExt.VisitFlags.Unloaded)) { // otherwise, if it hasn't already been unloaded
+                        m_CurrentUnloadOperation.Fill(args);
+                        var scene = args.Data.Scene;
+                        FlushCallbacks(args.Data.UnloadingCallbackQueue);
+                        foreach (ISceneCustomData custom in args.Data.CustomData) {
+                            custom.OnUnload();
+                        }
+                        SceneHelper.OnUnload(scene);
+                        if (!OnSceneUnload.IsEmpty) {
+                            OnSceneUnload.Invoke(new SceneCallbackArgs() {
+                                LoadType = args.Data.SceneType,
+                                Scene = args.Data.Scene
+                            });
+                        }
+
+                        // if the whole tree should be unloaded
+                        if (args.UnloadTree) {
+                            foreach (var child in args.Data.Children) {
+                                m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                                    Data = child,
+                                    Options = args.Options,
+                                    UnloadTree = args.UnloadTree,
+                                    Counter = args.Counter
+                                });
+                                args.Counter.Increment();
+                            }
+                        }
+                        UntrackScene(scene);
+                        Log.Msg("[SceneMgr] Unloading '{0}'", args.Data.Scene.path);
+                        m_CurrentUnloadOperation.UnityOp = SceneManager.UnloadSceneAsync(scene, args.Options);
+                    } else { // otherwise, it's already done and we can move on
+                        m_CurrentUnloadOperation.Clear();
+                        args.Counter.Decrement();
+                    }
+                } else {
+                    m_CurrentUnloadOperation.Clear();
+                    args.Counter.Decrement();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private bool ProcessImportLightingQueue() {
+            if (m_LightingCopyQueue.TryPopFront(out var args)) {
+                if (args.Data.TryVisit(SceneDataExt.VisitFlags.LightCopied)) {
+                    LightUtility.CopySettingsToActive(args.Data.Scene, m_LightImportFlags);
+                    Log.Msg("[SceneMgr] Copied lighting settings from '{0}'", args.Data.Scene.path);
+                }
+                args.Counter.Decrement();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private bool ProcessTransformSceneQueue() {
+            if (m_TransformRootsQueue.TryPopFront(out var args)) {
+                if (args.Data.TryVisit(SceneDataExt.VisitFlags.Transformed)) {
+                    ImportScene.TransformRoots(args.Scene, args.Transform);
+                    Log.Msg("[SceneMgr] Transformed roots of '{0}'", args.Data.Scene.path);
+                }
+                args.Counter.Decrement();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private bool ProcessSubSceneImportQueue() {
+            if (m_SubSceneQueue.TryPopFront(out var args)) {
+                if (args.Data.TryVisit(SceneDataExt.VisitFlags.Subscenes)) {
+                    // queue subscenes
+                    foreach (var subscene in args.Data.SubScenes) {
+                        SceneImportSettings import = subscene.GetImportSettings();
+                        m_LoadQueue.PushBack(new LoadSceneArgs() {
+                            Counter = args.Counter,
+                            Flags = import.Flags,
+                            Type = args.Data.SceneType == SceneType.Persistent ? SceneType.Persistent : import.LoadType,
+                            Parent = args.Data,
+                            Tag = import.Tag,
+                            ScenePath = import.Path,
+                            Queue = args.Queue
+                        });
+                        args.Counter.Increment();
+                    }
+
+                    // queue dynamic subscenes
+                    foreach (IDynamicSceneImport resolver in args.Data.DynamicSubscenes) {
+                        foreach (var import in resolver.GetSubscenes()) {
+                            m_LoadQueue.PushBack(new LoadSceneArgs() {
+                                Counter = args.Counter,
+                                Flags = import.Flags,
+                                Type = args.Data.SceneType == SceneType.Persistent ? SceneType.Persistent : import.LoadType,
+                                Parent = args.Data,
+                                Tag = import.Tag.IsEmpty ? args.Data.tag : import.Tag,
+                                ScenePath = import.Path,
+                                Queue = args.Queue
+                            });
+                            args.Counter.Increment();
+                        }
+                    }
+
+                    Log.Msg("[SceneMgr] Subscenes from '{0}' evaluated", args.Data.Scene.path);
+                }
+
+                args.Counter.Decrement();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private bool ProcessPreloadQueue() {
+            if (m_CurrentPreloadOperation.Active) {
+                var result = WorkSlicer.Step(m_CurrentPreloadOperation.Preloads, PreloadManifest.ExecutePreloader, ref m_CurrentPreloadOperation.WorkState);
+                if (result == WorkSlicer.Result.OutOfData) {
+                    int nextCount = m_CurrentPreloadOperation.Reader.Read(m_CurrentPreloadOperation.Preloads);
+                    if (nextCount == 0) {
+                        m_CurrentPreloadOperation.Counter.Decrement();
+                        m_CurrentPreloadOperation.Clear();
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                if (m_PreloadQueue.TryPopFront(out var args)) {
+                    m_CurrentPreloadOperation.WorkState.Clear();
+                    m_CurrentPreloadOperation.Preloads.Clear();
+                    m_CurrentPreloadOperation.Reader.Init(args.Manifests);
+                    Log.Msg("[SceneMgr] Starting preload");
+                    m_CurrentPreloadOperation.Counter = args.Counter;
+                    m_CurrentPreloadOperation.Active = true;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        private bool ProcessLateEnableQueue() {
+            if (m_LateEnableQueue.Count > 0) {
+                while (m_LateEnableQueue.TryPopFront(out var args)) {
+                    if (args.Data.TryVisit(SceneDataExt.VisitFlags.LateEnabled)) {
+                        foreach (var obj in args.Data.LateEnable) {
+                            obj.SetActive(true);
+                        }
+                        foreach (ISceneCustomData custom in args.Data.CustomData) {
+                            custom.OnLateEnable();
+                        }
+                        FlushCallbacks(args.Data.LateEnableCallbackQueue);
+                        if (!OnAnySceneEnabled.IsEmpty) {
+                            OnAnySceneEnabled.Invoke();
+                        }
+                        Log.Msg("[SceneMgr] LateEnable processed for '{0}'", args.Data.Scene.path);
+                    }
+                    args.Counter.Decrement();
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        private void FlushCallbacks(RingBuffer<Action> callbacks) {
+            while (callbacks.TryPopFront(out Action act)) {
+                act();
+            }
+        }
+
+        private void UnloadUntrackedScenes(CounterHandle counter) {
+            // unload all untracked scenes
+            int sceneCount = SceneManager.sceneCount;
+            while (sceneCount-- > 0) {
+                var potentialScene = SceneManager.GetSceneAt(sceneCount);
+                if (!IsSceneTracked(potentialScene)) {
+                    m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                        Data = SceneDataExt.Get(potentialScene),
+                        Options = UnloadSceneOptions.None,
+                        Counter = counter
+                    });
+                    counter.Increment();
+                }
+            }
+        }
+
+        #endregion // Operations
+
+        #region Routines
+
+        private void ClearNonPersistentLoadProcesses() {
+            for (int i = m_LoadProcessQueue.Count - 1; i >= 0; i--) {
+                if (m_LoadProcessQueue[i].Type != SceneType.Persistent) {
+                    m_LoadProcessQueue.RemoveAt(i);
+                }
+            }
+        }
+
+        private IEnumerator SceneLoadProcess(LoadProcessArgs args) {
+            bool isRedirect = m_InitialSceneWasRedirected;
+            m_InitialSceneWasRedirected = false;
+
+            using (CounterHandle counter = CounterHandle.Alloc()) {
+
+                // validate
+                SceneDataExt existing = SceneDataExt.GetByPath(args.Path);
+                if ((args.Flags & SceneImportFlags.ForceReload) == 0 && existing != null && existing.IsVisited(SceneDataExt.VisitFlags.Loaded)) {
+                    yield break;
+                }
+
+                while (SceneUtils.Editor.AreDelayedSceneProcessorsRunning()) {
+                    yield return null;
+                }
+
+                RingBuffer<SceneDataExt> linearizedScenes = new RingBuffer<SceneDataExt>(4, RingBufferMode.Expand);
+
+                // unloading
+
+                if (args.Type == SceneType.Main) {
+                    m_MainSceneTransition.Stop();
+
+                    Game.Events.Dispatch(SceneUtils.Events.PreUnload);
+                    OnMainSceneUnloading.Invoke();
+
+                    if (m_MainTransitionUnload != null) {
+                        if (m_MainScene != null || m_AuxScenes.Count > 0) {
+                            Scene targetScene = SafeGetSceneByPath(args.Path);
+                            IEnumerator wait = m_MainTransitionUnload(targetScene, args.Tag, args.Transition);
+                            if (wait != null) {
+                                yield return wait;
+                            }
+                        }
+                    }
+
+                    if (m_MainScene != null) {
+                        m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                            Data = m_MainScene,
+                            Options = UnloadSceneOptions.None,
+                            Counter = counter
+                        });
+                        counter.Increment();
+
+                        m_MainScene = null;
+                    }
+
+                    while (m_AuxScenes.TryPopFront(out var aux)) {
+                        m_UnloadQueue.PushBack(new UnloadSceneArgs() {
+                            Data = aux,
+                            Options = UnloadSceneOptions.None,
+                            Counter = counter
+                        });
+                        counter.Increment();
+                    }
+
+                    if (isRedirect) {
+                        UnloadUntrackedScenes(counter);
+                    }
+
+                    while (!counter.IsDone()) {
+                        yield return null;
+                    }
+
+                    OnMainSceneUnloaded.Invoke();
+                }
+
+                // load main scene and traverse graph
+
+                counter.Reset();
+
+                m_LoadQueue.PushBack(new LoadSceneArgs() {
+                    Counter = counter,
+                    Flags = args.Flags,
+                    Parent = null,
+                    ScenePath = args.Path,
+                    Type = args.Type,
+                    Transform = args.Transform,
+                    Tag = args.Tag,
+                    Queue = linearizedScenes
+                });
+                counter.Increment();
+
+                while (!counter.IsDone()) {
+                    yield return null;
+                }
+
+                // preloads
+
+                counter.Reset();
+
+                Log.Trace("[SceneMgr] Processing PreloadManifests...");
+
+                PreloadManifest[] manifests = new PreloadManifest[linearizedScenes.Count];
+
+                for (int i = 0; i < manifests.Length; i++) {
+                    manifests[i] = linearizedScenes[i].Preload;
+                    if (!OnScenePreload.IsEmpty) {
+                        OnScenePreload.Invoke(new SceneCallbackArgs() {
+                            Scene = linearizedScenes[i].Scene,
+                            LoadType = linearizedScenes[i].SceneType
+                        });
+                    }
+                }
+
+                m_PreloadQueue.PushBack(new PreloadArgs() {
+                    Manifests = manifests,
+                    Counter = counter
+                });
+                counter.Increment();
+
+                while (!counter.IsDone()) {
+                    yield return null;
+                }
+
+                // child scenes
+
+                if (args.Type == SceneType.Main) {
+                    if (m_AdditionalSceneLoadProcess || m_LoadProcessQueue.Count > 0) {
+                        Log.Trace("[SceneMgr] Main load waiting for additional loads to complete...");
+                        do {
+                            yield return null;
+                        } while (m_AdditionalSceneLoadProcess || m_LoadProcessQueue.Count > 0);
+                    }
+                }
+
+                // dependencies
+
+                Log.Trace("[SceneMgr] Waiting for dependencies and streaming load...");
+
+                while (!AreDependenciesAndStreamingLoaded(SceneLoadPhase.BeforeLateEnable)) {
+                    yield return null;
+                }
+
+                // unload unused assets
+
+                Log.Trace("[SceneMgr] Unloading unused assets...");
+
+                m_AssetUnloadLock--;
+                yield return AssetUtility.UnloadUnused();
+
+                Log.Trace("[SceneMgr] Unloading unused streaming assets (pass 1)...");
+
+                Streaming.UnloadUnusedAsync(30);
+                Game.Rendering.TetrahedralizeLightProbes();
+
+                if (args.Type == SceneType.Main) {
+
+                    Log.Trace("[SceneMgr] Collecting garbage...");
+                    using (Profiling.Time("gc collect", ProfileTimeUnits.Microseconds)) {
+                        GC.Collect();
+                    }
+
+                    while (Streaming.IsUnloading()) {
+                        yield return null;
+                    }
+
+                    while(Game.Rendering.AreLightProbesDirty()) {
+                        yield return null;
+                    }
+                }
+
+                // late enable
+
+                counter.Reset();
+
+                Log.Trace("[SceneMgr] Processing LateEnable...");
+
+                foreach (var data in linearizedScenes) {
+                    if (data.LateEnable.Length > 0 && !data.IsVisited(SceneDataExt.VisitFlags.LateEnabled)) {
+                        m_LateEnableQueue.PushBack(new LateEnableArgs() {
+                            Data = data,
+                            Counter = counter
+                        });
+                        counter.Increment();
+                    } else {
+                        data.TryVisit(SceneDataExt.VisitFlags.LateEnabled);
+                        foreach (ISceneCustomData custom in data.CustomData) {
+                            custom.OnLateEnable();
+                        }
+                        FlushCallbacks(data.LateEnableCallbackQueue);
+                        if (!OnAnySceneEnabled.IsEmpty) {
+                            OnAnySceneEnabled.Invoke();
+                        }
+                    }
+                }
+
+                while (!counter.IsDone()) {
+                    yield return null;
+                }
+
+                if (args.Type == SceneType.Main) {
+                    OnMainSceneLateEnable.Invoke();
+                    Game.Events.Dispatch(SceneUtils.Events.LateEnable);
+                }
+
+                // one more check for dependencies
+
+                Log.Trace("[SceneMgr] Unloading unused streaming assets (pass 2)...");
+
+                Streaming.UnloadUnusedAsync();
+
+                Log.Trace("[SceneMgr] Waiting for remaining dependencies...");
+
+                while (!AreDependenciesAndStreamingLoaded(SceneLoadPhase.BeforeReady)) {
+                    yield return null;
+                }
+
+                // broadcast ready
+
+                Log.Msg("[SceneMgr] Scene '{0}' is ready", args.Path);
+
+                foreach (var data in linearizedScenes) {
+                    data.TryVisit(SceneDataExt.VisitFlags.Readied);
+                    OnSceneReady.Invoke(new SceneCallbackArgs() {
+                        Scene = data.Scene,
+                        LoadType = data.SceneType
+                    });
+                    foreach (ISceneCustomData custom in data.CustomData) {
+                        custom.OnReady();
+                    }
+                    FlushCallbacks(data.LoadedCallbackQueue);
+                }
+
+                if (args.Type == SceneType.Main) {
+                    OnMainSceneReady.Invoke();
+
+                    if (m_MainTransitionLoad != null) {
+                        Scene targetScene = SafeGetSceneByPath(args.Path);
+                        IEnumerator wait = m_MainTransitionLoad(targetScene, args.Tag, args.Transition);
+                        m_MainSceneTransition.Replace(wait);
+                    }
+                }
+
+                Game.Events.Dispatch(SceneUtils.Events.Ready);
+            }
+        }
+
+        #endregion // Routines
+
+        #region Dependencies
+
+        private bool AreDependenciesAndStreamingLoaded(SceneLoadPhase phase) {
+            if (BuildInfo.IsLoading()) {
+                return false;
+            }
+
+            for (int i = 0; i < m_Dependencies.Count; i++) {
+                if (!m_Dependencies[i].IsLoaded(phase)) {
+                    return false;
+                }
+            }
+
+            while (m_DependencyHandles.TryPeekFront(out AsyncHandle handle)) {
+                if (handle.IsRunning()) {
+                    return false;
+                }
+                m_DependencyHandles.PopFront();
+            }
+
+            if (Streaming.IsLoading()) {
+                return false;
+            }
+
+            if (Game.Files.AnyHighPriorityRequestsLoading()) {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns if all load dependencies loaded.
+        /// </summary>
+        public bool AreLoadDependenciesLoaded(SceneLoadPhase phase = SceneLoadPhase.Any) {
+            if (BuildInfo.IsLoading()) {
+                return false;
+            }
+
+            for (int i = 0; i < m_Dependencies.Count; i++) {
+                if (!m_Dependencies[i].IsLoaded(phase)) {
+                    return false;
+                }
+            }
+
+            while (m_DependencyHandles.TryPeekFront(out AsyncHandle handle)) {
+                if (handle.IsRunning()) {
+                    return false;
+                }
+                m_DependencyHandles.PopFront();
+            }
+
+            if (Streaming.IsLoading()) {
+                return false;
+            }
+
+            if (Game.Files.AnyHighPriorityRequestsLoading()) {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Registers a dependency, which must be completed before scenes can be late-enabled and readied.
+        /// </summary>
+        public void RegisterLoadDependency(ISceneLoadDependency loadDependency) {
+            Assert.NotNull(loadDependency);
+            if (!m_Dependencies.Contains(loadDependency)) {
+                m_Dependencies.PushBack(loadDependency);
+                Log.Msg("[SceneMgr] Registered scene load dependency '{0}'", AssetUtility.NameOf(loadDependency));
+            }
+        }
+
+        /// <summary>
+        /// Registers a dependency, which must be completed before scenes can be late-enabled and readied.
+        /// </summary>
+        public void RegisterLoadDependency(AsyncHandle loadDependency) {
+            if (loadDependency.IsRunning() && !m_DependencyHandles.Contains(loadDependency)) {
+                m_DependencyHandles.PushBack(loadDependency);
+                Log.Msg("[SceneMgr] Registered scene load dependency async handle");
+            }
+        }
+
+        /// <summary>
+        /// Deregisters a load dependency.
+        /// </summary>
+        public void DeregisterLoadDependency(ISceneLoadDependency loadDependency) {
+            Assert.NotNull(loadDependency);
+            if (m_Dependencies.FastRemove(loadDependency)) {
+                Log.Msg("[SceneMgr] Deregistered scene load dependency async handle");
+            }
+        }
+
+        #endregion // Dependencies
+
+        #region SceneManager API Override
+
+        // TODO: implement?
+        private sealed class UnityAPIOverride : SceneManagerAPI {
+
+        }
+
+        #endregion // SceneManager API Override
+
+        #region Debug
+
+#if DEVELOPMENT
+
+        static private float s_DEBUGLoadSlowdown = 0;
+
+        [EngineMenuFactory]
+        static private DMInfo CreateDebugMenu() {
+            DMInfo menu = new DMInfo("Scenes", 16);
+            DMPredicate loadPredicate = () => !Game.Scenes.IsMainLoading();
+            menu.AddButton("Reload Current Scene", () => { Game.Scenes.ReloadMainScene(); InvokeDebugSceneLoad(); }, loadPredicate);
+            menu.AddDivider();
+
+            foreach(var scene in SceneHelper.AllBuildScenes()) {
+                SceneReference cachedRef = scene;
+                menu.AddButton(scene.Name, () => { Game.Scenes.LoadMainScene(cachedRef); InvokeDebugSceneLoad(); }, loadPredicate);
+            }
+
+            menu.AddDivider();
+            menu.AddSlider("Simulate Load Slowdown", () => s_DEBUGLoadSlowdown,
+                (f) => s_DEBUGLoadSlowdown = f, 0, 1, 0.05f);
+
+            return menu;
+        }
+
+        static private void InvokeDebugSceneLoad() {
+            Game.Scenes.m_OnDebugSceneLoad.Invoke();
+        }
+
+#endif // DEVELOPMENT
+
+        [Conditional("DEVELOPMENT")]
+        static public void RegisterDebugLoadCallback(Action action) {
+#if DEVELOPMENT
+            Game.Scenes.m_OnDebugSceneLoad.Register(action);
+#endif // DEVELOPMENT
+        }
+
+        [Conditional("DEVELOPMENT")]
+        static public void DeregisterDebugLoadCallback(Action action) {
+#if DEVELOPMENT
+            Game.Scenes.m_OnDebugSceneLoad.Deregister(action);
+#endif // DEVELOPMENT
+        }
+
+        #endregion // Debug
+    }
+
+    /// <summary>
+    /// Scene callback arguments.
+    /// </summary>
+    public struct SceneCallbackArgs {
+        public Scene Scene;
+        public SceneType LoadType;
+    }
+
+    /// <summary>
+    /// Load priority for non-main scene loads.
+    /// </summary>
+    public enum SceneLoadPriority {
+        Default,
+        High
+    }
+
+    /// <summary>
+    /// Scene utility methods.
+    /// </summary>
+    static public class SceneUtils {
+        static public class Events {
+            static public readonly StringHash32 LateEnable = "SceneMgr::LateEnable";
+            static public readonly StringHash32 Ready = "SceneMgr::Ready";
+            static public readonly StringHash32 PreUnload = "SceneMgr::PreUnload";
+        }
+
+        /// <summary>
+        /// Returns the active scene's build index.
+        /// </summary>
+        static public int ActiveSceneIndex() {
+            return SceneManager.GetActiveScene().buildIndex;
+        }
+
+        /// <summary>
+        /// Returns the active scene's name.
+        /// </summary>
+        static public string ActiveSceneName() {
+            return SceneManager.GetActiveScene().name;
+        }
+
+        /// <summary>
+        /// Returns a reference to the scene with the given name.
+        /// </summary>
+        static public SceneReference GetSceneByName(string sceneName) {
+            return SceneHelper.FindSceneByName(sceneName, SceneCategories.AllBuild);
+        }
+
+        /// <summary>
+        /// Retrieves additional baked scene data for the current scene.
+        /// </summary>
+        static public TData GetActiveSceneBakedData<TData>() where TData : MonoBehaviour, ISceneCustomData {
+            var sceneData = SceneDataExt.Get(SceneManager.GetActiveScene());
+            if (sceneData) {
+                return sceneData.GetComponent<TData>();
+            } else {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns if the given GameObject will persist across scenes.
+        /// </summary>
+        static public bool IsPersistent(GameObject gameObject) {
+            return gameObject.TryGetComponent(out Persist _);
+        }
+
+        /// <summary>
+        /// Returns if the given component's GameObject will persist across scenes.
+        /// </summary>
+        static public bool IsPersistent(Component component) {
+            return component.TryGetComponent(out Persist _);
+        }
+
+        /// <summary>
+        /// Returns if any scenes are baking.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public bool IsBaking() {
+#if UNITY_EDITOR
+            return Editor.AreDelayedSceneProcessorsRunning();
+#else
+            return false;
+#endif // UNITY_EDITOR
+        }
+
+        static public class Editor {
+#if UNITY_EDITOR
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static public bool AreDelayedSceneProcessorsRunning() {
+                return s_DelayedSceneProcessorsRunning;
+            }
+
+            static private bool s_DelayedSceneProcessorsRunning;
+
+            static internal void SetDelayedSceneProcessorsRunning(bool running) {
+                s_DelayedSceneProcessorsRunning = running;
+            }
+#else
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static public bool AreDelayedSceneProcessorsRunning() {
+                return false;
+            }
+#endif // UNITY_EDITOR
+        }
+    }
+
+    /// <summary>
+    /// Delegate for handling scene transitions.
+    /// </summary>
+    public delegate IEnumerator SceneTransitionHandler(Scene scene, StringHash32 tag, MainSceneTransitionArgs transitionArgs);
+
+    /// <summary>
+    /// Scene loading dependency.
+    /// </summary>
+    public interface ISceneLoadDependency {
+        bool IsLoaded(SceneLoadPhase loadPhase);
+    }
+
+    /// <summary>
+    /// Scene load phase.
+    /// </summary>
+    [Flags]
+    public enum SceneLoadPhase {
+        Any = 0,
+        BeforeLateEnable = 0x1,
+        BeforeReady = 0x2,
+    }
+
+    /// <summary>
+    /// Load flags.
+    /// </summary>
+    public enum SceneTransitionFlags : ushort {
+        HintSkipTransition = 0x01,
+        HintFastTransition = 0x02,
+    }
+
+    /// <summary>
+    /// Custom context data for a scene load.
+    /// </summary>
+    public struct SceneRequestContext {
+        private const int Capacity = 16;
+
+        [StructLayout(LayoutKind.Explicit)]
+        public struct Identifier {
+            [FieldOffset(0)] public int Index;
+            [FieldOffset(0)] public StringHash32 Name;
+
+            static public implicit operator Identifier(int index) {
+                return new Identifier() { Index = index };
+            }
+
+            static public implicit operator Identifier(StringHash32 name) {
+                return new Identifier() { Name = name };
+            }
+        }
+
+        public Identifier Task;
+        public Identifier Entrance;
+        public ushort Flags;
+
+        private byte m_CustomCount;
+        private unsafe fixed uint m_CustomKeys[Capacity];
+        private unsafe fixed ulong m_CustomValues[Capacity];
+
+        public readonly bool Contains(StringHash32 key) {
+            unsafe {
+                for (int i = 0; i < m_CustomCount; i++) {
+                    if (m_CustomKeys[i] == key.HashValue) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        public readonly Variant Get(StringHash32 key, Variant defaultValue = default) {
+            unsafe {
+                for (int i = 0; i < m_CustomCount; i++) {
+                    if (m_CustomKeys[i] == key.HashValue) {
+                        fixed(ulong* ptr = &m_CustomValues[0]) {
+                            return *(Variant*)(ptr + i);
+                        }
+                    }
+                }
+
+                return defaultValue;
+            }
+        }
+
+        public void Set(StringHash32 key, Variant value) {
+            unsafe {
+                ulong raw = *(ulong*)&value;
+                for (int i = 0; i < m_CustomCount; i++) {
+                    if (m_CustomKeys[i] == key.HashValue) {
+                        m_CustomValues[i] = raw;
+                    }
+                }
+
+                Assert.True(m_CustomCount < Capacity, "Max parameter count {0} reached", Capacity);
+                m_CustomKeys[m_CustomCount] = key.HashValue;
+                m_CustomValues[m_CustomCount] = raw;
+                m_CustomCount++;
+            }
+        }
+    }
+
+    public struct MainSceneTransitionArgs {
+        public StringHash32 TransitionType;
+        public SceneTransitionFlags Flags;
+
+        public readonly bool ShouldSkip {
+            get { return (Flags & SceneTransitionFlags.HintSkipTransition) != 0; }
+        }
+
+        public readonly bool ShouldSpeedUp {
+            get { return (Flags & SceneTransitionFlags.HintFastTransition) != 0; }
+        }
+    }
+}
