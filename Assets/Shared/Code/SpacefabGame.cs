@@ -5,15 +5,17 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Processes;
 using FieldDay.Systems;
+using Spacefab.Save;
+using Spacefab.Shared;
 using UnityEngine;
 
-namespace Spacefab.Shared
+namespace Spacefab
 {
     public sealed class SpacefabGame : Game
     {
         static public new EventDispatcher<EvtArgs> Events { get; private set; }
         static public TransitionStateMgr TransitionState { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; internal set; }
-
+        static public SaveMgr SaveBuffer { get; private set; }
 
         [InvokePreBoot]
         static private void OnPreBoot()
@@ -23,6 +25,9 @@ namespace Spacefab.Shared
 
             Log.Msg("[SpacefabGame] Creating TransitionState manager...");
             TransitionState = new TransitionStateMgr();
+
+            Log.Msg("[SpacefabGame] Creating Save manager...");
+            SaveBuffer = new SaveMgr();
         }
 
         [InvokeOnBoot]

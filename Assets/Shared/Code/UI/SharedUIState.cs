@@ -28,6 +28,7 @@ namespace Spacefab.Shared
 
         public static void Init(SharedUIState ui)
         {
+            ui.FaderGroup.blocksRaycasts = false;
             ui.FaderGroup.alpha = 0;
             SetLoadIconVisible(ui.LoadIcon, false);
         }
@@ -38,12 +39,14 @@ namespace Spacefab.Shared
 
         public static IEnumerator FadeIn(SharedUIState ui, float inTime)
         {
+            ui.FaderGroup.blocksRaycasts = true;
             yield return ui.FaderGroup.FadeTo(1, inTime);
         }
 
         public static IEnumerator FadeOut(SharedUIState ui, float inTime)
         {
             yield return ui.FaderGroup.FadeTo(0, inTime);
+            ui.FaderGroup.blocksRaycasts = false;
         }
 
         private static void SetLoadIconVisible(LoadIcon icon, bool isVisible)
@@ -69,7 +72,8 @@ namespace Spacefab.Shared
 
         public static IEnumerator OnBeginLoading(SharedUIState uiState)
         {
-            yield return FadeIn(uiState, 0);
+            uiState.FaderGroup.blocksRaycasts = true;
+            uiState.FaderGroup.alpha = 1;
 
             // TODO: begin loading animation
             yield return FadeInIcon(uiState, 0.25f);
