@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using FieldDay;
 using UnityEngine;
 
-public sealed class SpacefabGame : Game {
-    static public new EventDispatcher<EvtArgs> Events { get; private set; }
-
-    [InvokePreBoot]
-    static private void OnPreBoot()
+namespace Spacefab
+{
+    public sealed class SpacefabGame : Game
     {
-        Events = new EventDispatcher<EvtArgs>();
-        SetEventDispatcher(Events);
-    }
+        static public new EventDispatcher<EvtArgs> Events { get; private set; }
 
-    [InvokeOnBoot]
-    static private void OnBoot() {
+        [InvokePreBoot]
+        static private void OnPreBoot()
+        {
+            Events = new EventDispatcher<EvtArgs>();
+            SetEventDispatcher(Events);
+        }
+
+        [InvokeOnBoot]
+        static private void OnBoot()
+        {
+        }
     }
 }
