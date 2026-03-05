@@ -25,7 +25,7 @@ TagManager:
   - 
   - 
   - 
-  - ModelTag
+  - 
   - 
   - 
   - 
@@ -40,4 +40,13 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 264871581
+    locked: 0
+  - name: Pop-Up UI
+    uniqueID: 1568843517
+    locked: 0
+  - name: Shared UI
+    uniqueID: 1447053067
     locked: 0
