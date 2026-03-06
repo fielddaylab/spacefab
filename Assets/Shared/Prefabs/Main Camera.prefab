@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8992895106522935944}
   - component: {fileID: 3110039191308168076}
   - component: {fileID: 2764213085952864982}
+  - component: {fileID: 7398129498418910399}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: Untagged
@@ -119,3 +120,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DepthTest: 8
+--- !u!114 &7398129498418910399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948482176560961253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79f7361c92bab3549b90a3f29592d8ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Viewport:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  MinPadding: {x: 0, y: 0}
+  MaxPadding: {x: 0, y: 0}
