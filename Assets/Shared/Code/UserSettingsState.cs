@@ -23,7 +23,6 @@ namespace Spacefab
         [NonSerialized] public bool CameraDriftEnabled = true;
         [NonSerialized] public bool HighQualityMode;
         [NonSerialized] public bool FullscreenEnabled = false;
-        [NonSerialized] public bool SubtitlesEnabled = true;
 
         public void OnDeregister()
         {
@@ -44,36 +43,11 @@ namespace Spacefab
             float volume = reader.Read<float>();
             SettingsUtility.SetMasterVolume(this, volume);
 
-            if (consts.Version >= 2)
-            {
-                // Version 2 added individual audio bus settings
-                float musicVol = reader.Read<float>();
-                SettingsUtility.SetAudioBusVolume(this, SettingsUtility.MUSIC_BUS_ID, musicVol);
+            float musicVol = reader.Read<float>();
+            SettingsUtility.SetAudioBusVolume(this, SettingsUtility.MUSIC_BUS_ID, musicVol);
 
-                float sfxVol = reader.Read<float>();
-                SettingsUtility.SetAudioBusVolume(this, SettingsUtility.SFX_BUS_ID, sfxVol);
-
-                float voVol = reader.Read<float>();
-                SettingsUtility.SetAudioBusVolume(this, SettingsUtility.VO_BUS_ID, voVol);
-            }
-            else
-            {
-                float musicVol = DefaultMusicVol;
-                SettingsUtility.SetAudioBusVolume(this, SettingsUtility.MUSIC_BUS_ID, musicVol);
-
-                float sfxVol = DefaultSFXVol;
-                SettingsUtility.SetAudioBusVolume(this, SettingsUtility.SFX_BUS_ID, sfxVol);
-            }
-
-            if (consts.Version >= 3)
-            {
-                bool subtitlesEnabled = reader.Read<bool>();
-                SettingsUtility.SetSubtitlesEnabled(this, subtitlesEnabled);
-            }
-            else
-            {
-                SettingsUtility.SetSubtitlesEnabled(this, true);
-            }
+            float sfxVol = reader.Read<float>();
+            SettingsUtility.SetAudioBusVolume(this, SettingsUtility.SFX_BUS_ID, sfxVol);
 
             bool cameraDrift = reader.Read<bool>();
             SettingsUtility.SetCameraDrift(this, cameraDrift);
@@ -91,13 +65,10 @@ namespace Spacefab
 
             writer.Write((float)MusicVolume);
             writer.Write((float)SFXVolume);
-            writer.Write((float)MusicVolume);
 
             writer.Write((bool)CameraDriftEnabled);
             writer.Write((bool)HighQualityMode);
             writer.Write((bool)FullscreenEnabled);
-
-            writer.Write((bool)SubtitlesEnabled);
         }
     }
 
@@ -105,7 +76,6 @@ namespace Spacefab
     {
         public static StringHash32 MUSIC_BUS_ID = "Music";
         public static StringHash32 SFX_BUS_ID = "Sfx";
-        public static StringHash32 VO_BUS_ID = "VO";
 
         static public readonly CastableEvent<bool> OnSubtitlesEnabledUpdated = new CastableEvent<bool>();
 
@@ -154,12 +124,6 @@ namespace Spacefab
             {
                 state.SFXVolume = set;
             }
-        }
-
-        public static void SetSubtitlesEnabled(UserSettingsState state, bool enabled)
-        {
-            state.SubtitlesEnabled = enabled;
-            OnSubtitlesEnabledUpdated.Invoke(enabled);
         }
     }
 }

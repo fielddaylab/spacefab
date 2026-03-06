@@ -22,7 +22,12 @@ namespace Spacefab.Title
             Main,
             NewGame,
             ContinueGame,
+            Options,
         }
+
+        [Header("Shared")]
+        [SerializeField] private CanvasGroup m_SharedGroup;
+        [SerializeField] private Button m_BackButton;
 
         [Header("Main Panel")]
         [SerializeField] private CanvasGroup m_MainGroup;
@@ -36,27 +41,35 @@ namespace Spacefab.Title
         [SerializeField] private TMP_InputField m_PlayerCodeInput;
         [SerializeField] private Button m_StartButton;
         [SerializeField] private TMP_Text m_StartButtonText;
-        [SerializeField] private Button m_BackButton;
         [SerializeField] private CanvasGroup m_NotFoundGroup;
+
+        [Header("Options Panel")]
+        [SerializeField] private CanvasGroup m_OptionsGroup;
+
 
         private GroupType m_CurrGroupType = GroupType.Main;
 
+        [NonSerialized] private Routine m_SharedGroupRoutine;
         [NonSerialized] private Routine m_MainGroupRoutine;
         [NonSerialized] private Routine m_PlayerCodeGroupRoutine;
+        [NonSerialized] private Routine m_OptionsGroupRoutine;
         [NonSerialized] private Routine m_NotFoundRoutine;
 
         public IEnumerator<WorkSlicer.Result?> Preload()
         {
             m_NewGameGroupButton.onClick.AddListener(HandleNewGameGroupClicked);
             m_ContinueGroupButton.onClick.AddListener(HandleContinueGroupClicked);
+            m_OptionsButton.onClick.AddListener(HandleOptionsClicked);
             
             m_BackButton.onClick.AddListener(HandleBackButton);
             m_StartButton.onClick.AddListener(HandleStartButton);
 
             m_MainGroup.alpha = 1;
 
+            DisableGroup(m_SharedGroup);
             DisableGroup(m_PlayerCodeGroup);
             DisableGroup(m_NotFoundGroup);
+            DisableGroup(m_OptionsGroup);
 
             return null;
         }
@@ -67,6 +80,7 @@ namespace Spacefab.Title
 
             m_NewGameGroupButton.onClick.RemoveListener(HandleNewGameGroupClicked);
             m_ContinueGroupButton.onClick.RemoveListener(HandleContinueGroupClicked);
+            m_OptionsButton.onClick.RemoveListener(HandleOptionsClicked);
 
             m_BackButton.onClick.RemoveListener(HandleBackButton);
             m_StartButton.onClick.RemoveListener(HandleStartButton);
@@ -97,6 +111,7 @@ namespace Spacefab.Title
 
             m_StartButtonText.SetText(NEW_GAME_LABEL);
             m_PlayerCodeGroupRoutine.Replace(this, ShowGroupRoutine(m_PlayerCodeGroup));
+            m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
 
             m_NotFoundGroup.alpha = 0;
             m_NotFoundRoutine.Stop();
@@ -116,6 +131,7 @@ namespace Spacefab.Title
 
             m_StartButtonText.SetText(CONTINUE_GAME_LABEL);
             m_PlayerCodeGroupRoutine.Replace(this, ShowGroupRoutine(m_PlayerCodeGroup));
+            m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
 
             m_NotFoundGroup.alpha = 0;
             m_NotFoundRoutine.Stop();
@@ -137,13 +153,29 @@ namespace Spacefab.Title
             }
         }
 
+        private void HandleOptionsClicked()
+        {
+            m_CurrGroupType = GroupType.Options;
+
+            m_MainGroupRoutine.Replace(this, HideGroupRoutine(m_MainGroup));
+
+            m_OptionsGroupRoutine.Replace(this, ShowGroupRoutine(m_OptionsGroup));
+            m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
+        }
+
         private void HandleBackButton()
         {
+            if (m_CurrGroupType == GroupType.Options) {
+                m_OptionsGroupRoutine.Replace(this, HideGroupRoutine(m_OptionsGroup));
+            }
+            else {
+                m_PlayerCodeGroupRoutine.Replace(this, HideGroupRoutine(m_PlayerCodeGroup));
+            }
+            m_SharedGroupRoutine.Replace(this, HideGroupRoutine(m_SharedGroup));
+
             m_CurrGroupType = GroupType.Main;
 
             m_MainGroupRoutine.Replace(this, ShowGroupRoutine(m_MainGroup));
-
-            m_PlayerCodeGroupRoutine.Replace(this, HideGroupRoutine(m_PlayerCodeGroup));
         }
 
         private void HandlePlayerCodeUpdated(string text)
@@ -166,6 +198,9 @@ namespace Spacefab.Title
 
         private IEnumerator ShowGroupRoutine(CanvasGroup group)
         {
+            // wait for hide group to complete
+            yield return 0.2f;
+
             group.blocksRaycasts = false;
             group.gameObject.SetActive(true);
             yield return group.FadeTo(1, 0.2f);
