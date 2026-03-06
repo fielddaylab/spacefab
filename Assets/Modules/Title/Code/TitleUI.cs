@@ -26,6 +26,7 @@ namespace Spacefab.Title
         }
 
         public SceneReference m_NextScene;
+        public SceneReference m_CreditsScene;
 
         [Header("Shared")]
         [SerializeField] private CanvasGroup m_SharedGroup;
@@ -62,6 +63,7 @@ namespace Spacefab.Title
             m_NewGameGroupButton.onClick.AddListener(HandleNewGameGroupClicked);
             m_ContinueGroupButton.onClick.AddListener(HandleContinueGroupClicked);
             m_OptionsButton.onClick.AddListener(HandleOptionsClicked);
+            m_CreditsButton.onClick.AddListener(HandleCreditsClicked);
             
             m_BackButton.onClick.AddListener(HandleBackButton);
             m_StartButton.onClick.AddListener(HandleStartButton);
@@ -85,6 +87,7 @@ namespace Spacefab.Title
             m_NewGameGroupButton.onClick.RemoveListener(HandleNewGameGroupClicked);
             m_ContinueGroupButton.onClick.RemoveListener(HandleContinueGroupClicked);
             m_OptionsButton.onClick.RemoveListener(HandleOptionsClicked);
+            m_CreditsButton.onClick.RemoveListener(HandleCreditsClicked);
 
             m_BackButton.onClick.RemoveListener(HandleBackButton);
             m_StartButton.onClick.RemoveListener(HandleStartButton);
@@ -165,6 +168,11 @@ namespace Spacefab.Title
 
             m_OptionsGroupRoutine.Replace(this, ShowGroupRoutine(m_OptionsGroup));
             m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
+        }
+
+        private void HandleCreditsClicked()
+        {
+            Game.Scenes.LoadMainScene(m_CreditsScene);
         }
 
         private void HandleBackButton()
