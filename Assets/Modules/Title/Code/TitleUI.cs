@@ -25,6 +25,8 @@ namespace Spacefab.Title
             Options,
         }
 
+        public SceneReference m_NextScene;
+
         [Header("Shared")]
         [SerializeField] private CanvasGroup m_SharedGroup;
         [SerializeField] private Button m_BackButton;
@@ -95,7 +97,6 @@ namespace Spacefab.Title
         private void OpenSecondaryGroup(string playerCode)
         {
             m_PlayerCodeInput.SetTextWithoutNotify(playerCode);
-            m_PlayerCodeInput.readOnly = true;
             HandlePlayerCodeUpdated(m_PlayerCodeInput.text);
 
             m_MainGroupRoutine.Replace(this, HideGroupRoutine(m_MainGroup));
@@ -123,6 +124,7 @@ namespace Spacefab.Title
             m_CurrGroupType = GroupType.NewGame;
 
             OpenSecondaryGroup(string.Empty);
+            m_PlayerCodeInput.readOnly = true;
 
             m_StartButtonText.SetText(NEW_GAME_LABEL);
 
@@ -134,6 +136,7 @@ namespace Spacefab.Title
             m_CurrGroupType = GroupType.ContinueGame;
 
             OpenSecondaryGroup(Game.SharedState.Get<UserSettingsState>().PlayerCode);
+            m_PlayerCodeInput.readOnly = false;
 
             m_StartButtonText.SetText(CONTINUE_GAME_LABEL);
         }
@@ -245,7 +248,9 @@ namespace Spacefab.Title
             
             // TODO: set this in OGD
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
-            // Game.Scenes.LoadMainScene(m_MainScene);
+            Game.Scenes.LoadMainScene(m_NextScene);
+            // TODO: enable saves
+            // SaveUtility.Save(SaveSlot.Main);
         }
 
         private void HandleClaimNewIdError(OGD.Core.Error err)

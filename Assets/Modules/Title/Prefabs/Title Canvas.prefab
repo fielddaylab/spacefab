@@ -379,6 +379,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 500a6531a26a53649a82c051179b72e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_NextScene:
+    m_ScenePath: Assets/Modules/Overarching/Scenes/Overarching.unity
+    m_GUID: e7f14cd189ad9e747a51a3c21ee45e32
   m_SharedGroup: {fileID: 1475481042488912118}
   m_BackButton: {fileID: 5024080719916224477}
   m_MainGroup: {fileID: 1685434544328921563}

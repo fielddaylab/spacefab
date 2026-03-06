@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Modules/Title/Scenes/Title.unity
     guid: e5275853e706400408323e2f868f2c0b
+  - enabled: 1
+    path: Assets/Modules/Credits/Scenes/Credits.unity
+    guid: c0311ec26348df54aa1e44b94b3c1d02
+  - enabled: 1
+    path: Assets/Modules/Overarching/Scenes/Overarching.unity
+    guid: e7f14cd189ad9e747a51a3c21ee45e32
   m_configObjects: {}

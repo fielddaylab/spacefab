@@ -99,3 +99,6 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 /.vsconfig
 /bin
+
+# Local save files
+[Ss]aves/*
