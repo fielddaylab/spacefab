@@ -38,7 +38,7 @@ namespace Spacefab
             SpacefabGame.SaveBuffer.RegisterHandler("UserSettingsState", this);
         }
 
-        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts, ref SaveScratchpad scratch)
+        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
             float volume = reader.Read<float>();
             SettingsUtility.SetMasterVolume(this, volume);
@@ -59,7 +59,7 @@ namespace Spacefab
             SettingsUtility.SetFullscreen(this, fullscreen);
         }
 
-        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts, ref SaveScratchpad scratch)
+        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
             writer.Write((float)MasterVolume);
 

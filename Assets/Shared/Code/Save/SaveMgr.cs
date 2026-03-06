@@ -44,16 +44,14 @@ namespace Spacefab.Save
 
         public const int MainBufferSize = 80 * Unsafe.KiB; // 80k buffer
         public const int ChunkBufferSize = 64 * Unsafe.KiB; // 64k buffer
-        public const int ScratchBufferSize = 32 * Unsafe.KiB; // 32k buffer
         public const int CharBufferSize = 256 * Unsafe.KiB; // 256k for chars
-        public const int TotalBufferSize = (MainBufferSize * 2) + ChunkBufferSize + ScratchBufferSize + CharBufferSize;
+        public const int TotalBufferSize = (MainBufferSize * 2) + ChunkBufferSize + CharBufferSize;
 
         private Unsafe.ArenaHandle m_BufferArena;
         private unsafe byte* m_MainBuffer;
         private unsafe byte* m_UncommittedBuffer;
         private unsafe byte* m_ChunkBuffer;
         private unsafe char* m_CharBuffer;
-        private unsafe Unsafe.ArenaHandle m_ScratchBuffer;
 
         private int m_UsedSize;
         private int m_CharsWritten;
@@ -61,7 +59,6 @@ namespace Spacefab.Save
 
         private SaveStateHeader m_CurrentHeader;
         private SaveStateChunkConsts m_CurrentConsts;
-        private SaveScratchpad m_CurrentScratch;
         private RingBuffer<ChunkRecord> m_ChunkRecords = new RingBuffer<ChunkRecord>(32, RingBufferMode.Expand);
         private StringHash32 m_ActiveChunk;
 
@@ -85,7 +82,6 @@ namespace Spacefab.Save
             m_UncommittedBuffer = (byte*)m_BufferArena.AllocAligned(MainBufferSize, 8);
             m_ChunkBuffer = (byte*)m_BufferArena.AllocAligned(ChunkBufferSize, 8);
             m_CharBuffer = m_BufferArena.AllocArray<char>(CharBufferSize / 2);
-            m_ScratchBuffer = Unsafe.CreateArena(m_BufferArena, ScratchBufferSize);
         }
 
         public unsafe void Free()
@@ -96,7 +92,6 @@ namespace Spacefab.Save
                 m_UncommittedBuffer = null;
                 m_ChunkBuffer = null;
                 m_CharBuffer = null;
-                m_ScratchBuffer = default;
             }
         }
 
@@ -212,14 +207,6 @@ namespace Spacefab.Save
                 writer.Write((byte)0);
             }
 
-            m_ScratchBuffer.Reset();
-
-            SaveScratchpad scratch;
-            scratch.Allocator = m_ScratchBuffer;
-            scratch.BlockCount = 0;
-            scratch.Blocks = m_ScratchBuffer.AllocSpan<SaveScratchBlock>(32);
-            m_CurrentScratch = scratch;
-
             byte* manifestLengthChecksumMarker = writer.Head;
             int manifestLengthCalcMarker = writer.Written;
 
@@ -239,7 +226,7 @@ namespace Spacefab.Save
                 chunkWriter.Written = 0;
                 chunkWriter.Capacity = ChunkBufferSize;
 
-                chunk.Writer(chunk.Context, ref chunkWriter, consts, ref m_CurrentScratch);
+                chunk.Writer(chunk.Context, ref chunkWriter, consts);
 
                 byte* chunkDataStart = writer.Head;
                 int compressedSize;
@@ -380,13 +367,6 @@ namespace Spacefab.Save
             consts.Version = header.Version;
             m_CurrentConsts = consts;
 
-            SaveScratchpad scratch;
-            scratch.Allocator = m_ScratchBuffer;
-            m_ScratchBuffer.Reset();
-            scratch.BlockCount = 0;
-            scratch.Blocks = m_ScratchBuffer.AllocSpan<SaveScratchBlock>(32);
-            m_CurrentScratch = scratch;
-
             SaveStateManifest manifest = reader.Read<SaveStateManifest>();
             reader.Skip(manifest.Padding);
 
@@ -442,7 +422,7 @@ namespace Spacefab.Save
                 if (m_ChunkReaders.TryGetValue(chunk.Id, out ChunkReader reader))
                 {
                     ByteReader bytes = UnpackChunkRecord(chunk);
-                    reader.Reader(reader.Context, ref bytes, m_CurrentConsts, ref m_CurrentScratch);
+                    reader.Reader(reader.Context, ref bytes, m_CurrentConsts);
                     Assert.True(bytes.Remaining == 0);
                     ReleaseChunk(bytes);
                 }
@@ -453,7 +433,7 @@ namespace Spacefab.Save
         {
             foreach (var postLoad in m_PostLoadHandlers)
             {
-                postLoad.PostLoad(m_CurrentConsts, ref m_CurrentScratch);
+                postLoad.PostLoad(m_CurrentConsts);
             }
         }
 

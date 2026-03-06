@@ -1,0 +1,28 @@
+using FieldDay.Data;
+using FieldDay.SharedState;
+using Spacefab.Save;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace SpaceFab
+{
+    public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject
+    {
+        #region Interfaces
+
+        // ISaveStateChunkObject
+
+        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
+        {
+
+        }
+
+        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        {
+
+        }
+
+        #endregion // Interfaces
+    }
+}
