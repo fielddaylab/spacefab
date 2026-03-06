@@ -113,9 +113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d429ae1e2227b534fad2047bebd0df62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultMasterVol: 1
-  DefaultMusicVol: 1
-  DefaultSFXVol: 1
+  DefaultMasterVol: 0.6
+  DefaultMusicVol: 0.6
+  DefaultSFXVol: 0.6
 --- !u!114 &1403977988126329862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344,7 +344,9 @@ MonoBehaviour:
     DisplayConfig: {fileID: 11400000, guid: 9cd30efe7c4b4c14ca24640095b47a4e, type: 2}
   m_ShadingConfig:
     DefaultGraphicMaterial: {fileID: 2100000, guid: f7122e1f658491340a2fb026127f9f84, type: 2}
-  m_GlobalAssetPacks: []
+  m_GlobalAssetPacks:
+  - {fileID: 11400000, guid: 08403a9c2fd3a984ba9ece7ea3ce0f97, type: 2}
+  - {fileID: 11400000, guid: 206b0f38edac49e4c934adfcab2ef87f, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:
   m_ObjectHideFlags: 0

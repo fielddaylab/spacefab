@@ -64,6 +64,8 @@ namespace Spacefab.Title
             m_BackButton.onClick.AddListener(HandleBackButton);
             m_StartButton.onClick.AddListener(HandleStartButton);
 
+            m_PlayerCodeInput.onValueChanged.AddListener(HandlePlayerCodeUpdated);
+
             m_MainGroup.alpha = 1;
 
             DisableGroup(m_SharedGroup);
@@ -84,9 +86,26 @@ namespace Spacefab.Title
 
             m_BackButton.onClick.RemoveListener(HandleBackButton);
             m_StartButton.onClick.RemoveListener(HandleStartButton);
+
+            m_PlayerCodeInput.onValueChanged.RemoveListener(HandlePlayerCodeUpdated);
         }
 
         #region Helpers
+
+        private void OpenSecondaryGroup(string playerCode)
+        {
+            m_PlayerCodeInput.SetTextWithoutNotify(playerCode);
+            m_PlayerCodeInput.readOnly = true;
+            HandlePlayerCodeUpdated(m_PlayerCodeInput.text);
+
+            m_MainGroupRoutine.Replace(this, HideGroupRoutine(m_MainGroup));
+
+            m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
+            m_PlayerCodeGroupRoutine.Replace(this, ShowGroupRoutine(m_PlayerCodeGroup));
+
+            m_NotFoundGroup.alpha = 0;
+            m_NotFoundRoutine.Stop();
+        }
 
         private void DisableGroup(CanvasGroup group)
         {
@@ -103,18 +122,9 @@ namespace Spacefab.Title
         {
             m_CurrGroupType = GroupType.NewGame;
 
-            m_PlayerCodeInput.SetTextWithoutNotify(string.Empty);
-            m_PlayerCodeInput.readOnly = true;
-            m_StartButton.interactable = false;
-
-            m_MainGroupRoutine.Replace(this, HideGroupRoutine(m_MainGroup));
+            OpenSecondaryGroup(string.Empty);
 
             m_StartButtonText.SetText(NEW_GAME_LABEL);
-            m_PlayerCodeGroupRoutine.Replace(this, ShowGroupRoutine(m_PlayerCodeGroup));
-            m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
-
-            m_NotFoundGroup.alpha = 0;
-            m_NotFoundRoutine.Stop();
 
             OGD.Player.NewId(HandleNewPlayerId, HandleNewPlayerIdError);
         }
@@ -123,18 +133,9 @@ namespace Spacefab.Title
         {
             m_CurrGroupType = GroupType.ContinueGame;
 
-            m_PlayerCodeInput.SetTextWithoutNotify(Game.SharedState.Get<UserSettingsState>().PlayerCode);
-            m_PlayerCodeInput.readOnly = false;
-            m_StartButton.interactable = true;
-
-            m_MainGroupRoutine.Replace(this, HideGroupRoutine(m_MainGroup));
+            OpenSecondaryGroup(Game.SharedState.Get<UserSettingsState>().PlayerCode);
 
             m_StartButtonText.SetText(CONTINUE_GAME_LABEL);
-            m_PlayerCodeGroupRoutine.Replace(this, ShowGroupRoutine(m_PlayerCodeGroup));
-            m_SharedGroupRoutine.Replace(this, ShowGroupRoutine(m_SharedGroup));
-
-            m_NotFoundGroup.alpha = 0;
-            m_NotFoundRoutine.Stop();
         }
 
         private void HandleStartButton()
