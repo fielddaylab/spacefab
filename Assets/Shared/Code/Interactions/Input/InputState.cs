@@ -3,11 +3,7 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.UI;
-using SpaceFab;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
