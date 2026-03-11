@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
+using FieldDay.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace SpaceFab
     {
         public CanvasGroup FaderGroup;
         public LoadIcon LoadIcon;
+        public CursorHint LoadingCursor;
 
         public void OnDeregister()
         {
@@ -75,6 +77,7 @@ namespace SpaceFab
             InputState input = Find.State<InputState>();
             Game.Input.PauseRaycasts();
             InputUtility.SetInputEnabled(input, false);
+            CursorHint.TryLock(uiState.LoadingCursor);
 
             uiState.FaderGroup.blocksRaycasts = true;
             uiState.FaderGroup.alpha = 1;
@@ -95,6 +98,7 @@ namespace SpaceFab
             InputState input = Find.State<InputState>();
             Game.Input.ResumeRaycasts();
             InputUtility.SetInputEnabled(input, true);
+            CursorHint.Unlock(uiState.LoadingCursor);
         }
 
         #endregion // Specific

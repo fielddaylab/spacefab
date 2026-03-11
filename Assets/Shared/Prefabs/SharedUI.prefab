@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 570774223413002966}
   - component: {fileID: 3485994008709272910}
   - component: {fileID: 8668866439077660819}
+  - component: {fileID: 7931595944060875362}
   m_Layer: 5
   m_Name: SharedUI
   m_TagString: Untagged
@@ -76,6 +77,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FaderGroup: {fileID: 5751654342893696890}
   LoadIcon: {fileID: 2840171565894083882}
+  LoadingCursor: {fileID: 7931595944060875362}
+--- !u!114 &7931595944060875362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1832665277168067162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 49918466
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
 --- !u!1 &2115447731249382538
 GameObject:
   m_ObjectHideFlags: 0
