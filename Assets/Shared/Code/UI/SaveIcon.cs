@@ -7,10 +7,10 @@ using UnityEngine.UI;
 
 namespace SpaceFab
 {
-    public class LoadIcon : BatchedComponent
+    public class SaveIcon : BatchedComponent
     {
         public CanvasGroup Group;
         public Image Icon;
-        public TMP_Text LoadingText;
+        public TMP_Text SavingText;
     }
 }

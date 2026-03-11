@@ -16,14 +16,19 @@ namespace SpaceFab
 {
     public class TransitionStateMgr
     {
-        private Routine m_SharedUIRoutine;
+        private Routine m_SceneLoadRoutine;
+        private Routine m_SaveRoutine;
 
-        #region Constuctor
+        #region Constructor
 
         public TransitionStateMgr()
         {
             Game.Scenes.OnPrepareScene.Register(HandlePrepareScene);
             Game.Scenes.OnSceneReady.Register(HandleSceneReady);
+
+            Game.Events.Register(GameEvents.ProfileSaveBegin, HandleProfileSaveBegin);
+            Game.Events.Register(GameEvents.ProfileSaveSuccess, HandleProfileSaveSuccess);
+            Game.Events.Register(GameEvents.ProfileSaveError, HandleProfileSaveError);
         }
 
         #endregion // Constructor
@@ -35,10 +40,10 @@ namespace SpaceFab
             // Skip SharedUI behavior in Boot scene
             SceneBinding active = SceneManager.GetActiveScene();
             if (active.BuildIndex != GameConsts.StartGameSceneIndex) {
-                m_SharedUIRoutine.Stop();
+                m_SceneLoadRoutine.Stop();
 
                 SharedUIState uiState = Find.State<SharedUIState>();
-                m_SharedUIRoutine.Replace(SharedUIUtility.OnBeginLoading(uiState));
+                m_SceneLoadRoutine.Replace(SharedUIUtility.OnBeginLoading(uiState));
             }
         }
 
@@ -48,14 +53,46 @@ namespace SpaceFab
             SceneBinding active = SceneManager.GetActiveScene();
             if (active.BuildIndex != GameConsts.StartGameSceneIndex)
             {
-                if (m_SharedUIRoutine.Exists())
+                if (m_SceneLoadRoutine.Exists())
                 {
-                    m_SharedUIRoutine.OnComplete(() =>
+                    m_SceneLoadRoutine.OnComplete(() =>
                     {
                         SharedUIState uiState = Find.State<SharedUIState>();
-                        m_SharedUIRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
+                        m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
                     });
                 }
+            }
+        }
+
+        private void HandleProfileSaveBegin()
+        {
+            m_SaveRoutine.Stop();
+
+            SharedUIState uiState = Find.State<SharedUIState>();
+            m_SaveRoutine.Replace(SharedUIUtility.OnBeginSave(uiState));
+        }
+
+        private void HandleProfileSaveSuccess()
+        {
+            if (m_SaveRoutine.Exists())
+            {
+                m_SaveRoutine.OnComplete(() =>
+                {
+                    SharedUIState uiState = Find.State<SharedUIState>();
+                    m_SaveRoutine.Replace(SharedUIUtility.OnSaveSuccess(uiState));
+                });
+            }
+        }
+
+        private void HandleProfileSaveError()
+        {
+            if (m_SaveRoutine.Exists())
+            {
+                m_SaveRoutine.OnComplete(() =>
+                {
+                    SharedUIState uiState = Find.State<SharedUIState>();
+                    m_SaveRoutine.Replace(SharedUIUtility.OnSaveError(uiState));
+                });
             }
         }
 
