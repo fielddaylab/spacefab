@@ -148,7 +148,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1517188196729749788}
   - component: {fileID: 6492145351809003384}
-  m_Layer: 0
+  m_Layer: 24
   m_Name: Pause Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}

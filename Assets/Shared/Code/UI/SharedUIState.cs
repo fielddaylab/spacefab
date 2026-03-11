@@ -72,6 +72,10 @@ namespace SpaceFab
 
         public static IEnumerator OnBeginLoading(SharedUIState uiState)
         {
+            InputState input = Find.State<InputState>();
+            Game.Input.PauseRaycasts();
+            InputUtility.SetInputEnabled(input, false);
+
             uiState.FaderGroup.blocksRaycasts = true;
             uiState.FaderGroup.alpha = 1;
 
@@ -87,6 +91,10 @@ namespace SpaceFab
 
             // disperse fader
             yield return FadeOut(uiState, 1.5f);
+
+            InputState input = Find.State<InputState>();
+            Game.Input.ResumeRaycasts();
+            InputUtility.SetInputEnabled(input, true);
         }
 
         #endregion // Specific

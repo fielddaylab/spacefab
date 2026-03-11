@@ -1,6 +1,7 @@
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.HID;
 using FieldDay.SharedState;
 using FieldDay.UI;
 using System;
@@ -30,37 +31,29 @@ namespace SpaceFab
 
         public void OnRegister()
         {
-            ReassignRaycaster();
+            InputUtility.TryReassignRaycaster(this);
             InputUtility.SetClickableMaskDefault(this);
         }
 
         private void Start()
         {
-            ReassignRaycaster();
-        }
-
-        private void ReassignRaycaster()
-        {
-            if (Raycaster == null)
-            {
-                if (TransformHelper.TryGetCameraFromLayer(transform, out Camera camera))
-                {
-                    Raycaster = camera.GetComponent<PhysicsRaycaster>();
-                }
-            }
+            InputUtility.TryReassignRaycaster(this);
         }
     }
 
     public static class InputUtility
     {
-        public const int DefaultLayerMask = LayerMasks.Default_Mask;
+        public const int DefaultLayerMask = LayerMasks.Default_Mask | LayerMasks.Interrupt_UI_Mask;
 
         public static void SetInputEnabled(InputState state, bool enabled)
         {
+            EnsureRaycasterAssigned(state);
+
             // Log.Msg("[InputState] called SetInputEnabled({0})", enabled);
             bool changed = Ref.Replace(ref state.InputEnabled, enabled);
-            if (!changed) return;
 
+            if (!changed) return;
+            // disable main camera raycaster
             state.Raycaster.enabled = state.InputEnabled;
 
             if (enabled)
@@ -71,12 +64,13 @@ namespace SpaceFab
             else
             {
                 Log.Msg("[InputState > SetInputEnabled] PauseRaycasts");
-                // SetClickableMaskCustom(state, LayerMasks.UI_Mask);
+                SetClickableMaskCustom(state, 0);
             }
         }
 
         public static void SetClickableMaskDefault(InputState state)
         {
+            EnsureRaycasterAssigned(state);
             state.DesiredLayerMask = DefaultLayerMask;
             state.AppliedLayerMask = CalculateFinalMask(state.DesiredLayerMask, state.LayerMaskFilter);
             state.Raycaster.eventMask = state.AppliedLayerMask;
@@ -84,6 +78,7 @@ namespace SpaceFab
 
         public static void SetClickableMaskCustom(InputState state, LayerMask mask)
         {
+            EnsureRaycasterAssigned(state);
             state.DesiredLayerMask = mask;
             state.AppliedLayerMask = CalculateFinalMask(state.DesiredLayerMask, state.LayerMaskFilter);
             state.Raycaster.eventMask = state.AppliedLayerMask;
@@ -91,6 +86,7 @@ namespace SpaceFab
 
         public static void SetClickableMaskFilter(InputState state, LayerMask filter)
         {
+            EnsureRaycasterAssigned(state);
             state.LayerMaskFilter = filter;
             state.AppliedLayerMask = CalculateFinalMask(state.DesiredLayerMask, state.LayerMaskFilter);
             state.Raycaster.eventMask = state.AppliedLayerMask;
@@ -105,6 +101,28 @@ namespace SpaceFab
         public static bool IsClickable(InputState state, GameObject gameObject)
         {
             return RaycastUtility.IsInteractableByRaycaster(gameObject, state.Raycaster);
+        }
+
+        public static bool TryReassignRaycaster(InputState state)
+        {
+            if (state.Raycaster == null)
+            {
+                if (TransformHelper.TryGetCameraFromLayer(state.transform, out Camera camera))
+                {
+                    state.Raycaster = camera.GetComponent<PhysicsRaycaster>();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static void EnsureRaycasterAssigned(InputState state)
+        {
+            if (state.Raycaster == null) 
+            {
+                TryReassignRaycaster(state);
+            }
         }
     }
 }

@@ -188,6 +188,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508177945}
     m_Modifications:
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_GUID
+      value: 79ca403f924321f4b8bb6edd6399951e
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_ScenePath
+      value: Assets/Modules/Supply/Scenes/Supply.unity
+      objectReference: {fileID: 0}
     - target: {fileID: 6647263500822826055, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.19
@@ -487,6 +495,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508177945}
     m_Modifications:
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_GUID
+      value: afca99bc1d285fa409336ad60445568f
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_ScenePath
+      value: Assets/Modules/Design/Scenes/Design.unity
+      objectReference: {fileID: 0}
     - target: {fileID: 6647263500822826055, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.47
@@ -564,6 +580,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508177945}
     m_Modifications:
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_GUID
+      value: 8fa7bf6efe4210c4cb6f6dc5c1a6602d
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_ScenePath
+      value: Assets/Modules/Fabrication/Scenes/Fabrication.unity
+      objectReference: {fileID: 0}
     - target: {fileID: 6647263500822826055, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.82
@@ -698,6 +722,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508177945}
     m_Modifications:
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_GUID
+      value: 97d523d0140735349a8156319e1862ca
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519104967692260173, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
+      propertyPath: MinigameScene.m_ScenePath
+      value: Assets/Modules/Research/Scenes/Research.unity
+      objectReference: {fileID: 0}
     - target: {fileID: 6647263500822826055, guid: 108974047d4973543ab11ead6c271dc7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.16
