@@ -36,7 +36,8 @@ namespace SpaceFab
     {
         public static void OnReturnClicked(ReturnMenuState state)
         {
-            Game.Scenes.LoadMainScene(state.ReturnScene);
+            var exitState = Find.State<MinigameLoadExitState>();
+            exitState.Phase = MinigameLoadExitPhase.Exiting;
         }
     }
 }

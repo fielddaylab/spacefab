@@ -15,7 +15,13 @@ namespace SpaceFab.Overarching
 
         private void Start()
         {
-            PointerListener.onClick.AddListener(() => { Game.Scenes.LoadMainScene(MinigameScene); });
+            // TEMP
+            PointerListener.onClick.AddListener(() => {
+                GameLoop.SuspendUpdates(Bits.All32);
+                GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
+                Game.Scenes.LoadMainScene(MinigameScene);
+                Game.Events.Dispatch(GameEvents.OnMinigameLoad);
+            });
             PointerListener.onPointerEnter.AddListener(() => { Debug.Log("enter"); });
         }
     }

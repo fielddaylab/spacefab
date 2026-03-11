@@ -34,11 +34,20 @@ namespace SpaceFab
         public static readonly StringHash32 OnGamePaused = "shared:on-game-paused";
         public static readonly StringHash32 ClickResumeGame = "shared:click-resume-game";
         public static readonly StringHash32 OnGameResumed = "shared:on-game-resumed";
+
+        // Minigame Navigation
+        public static readonly StringHash32 OnMinigameLoad = "shared:on-minigame-load";
+        public static readonly StringHash32 OnMinigameExit = "shared:on-minigame-exit";
     }
 
     public static class UpdateMasks
     {
         public const int PauseUpdateMask = 1 << 0;
+        public const int MinigameTransitionMask = 1 << 1;
+        public const int ResearchMask = 1 << 2;
+        public const int DesignMask = 1 << 3;
+        public const int SupplyMask = 1 << 4;
+        public const int FabricationMask = 1 << 5;
     }
 
     static public class LayerMasks

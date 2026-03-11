@@ -1,0 +1,60 @@
+using FieldDay;
+using FieldDay.SharedState;
+using SpaceFab.Save;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace SpaceFab.Design
+{
+    public class DesignMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
+    {
+        #region Saved State
+
+        // TODO: Save State
+
+
+        #endregion // Saved State
+
+        #region Interfaces
+
+        // IRegistrationCallbacks
+
+        public void OnDeregister()
+        {
+        }
+
+        public void OnRegister()
+        {
+            DefaultUpdateMask = UpdateMasks.DesignMask;
+        }
+
+        // IMinigameState
+
+        public override void ImportState(MinigameSaveStates saveStates)
+        {
+            DesignStateUtility.ImportState(saveStates.Design, this);
+        }
+
+        public override void ExportState(ref MinigameSaveStates saveStates)
+        {
+            DesignStateUtility.ExportState(ref saveStates.Design, this);
+        }
+
+        #endregion // Interfaces
+    }
+
+    public static class DesignStateUtility
+    {
+        public static void ImportState(DesignSaveState saveState, DesignMinigameState designState)
+        {
+            
+        }
+
+        public static void ExportState(ref DesignSaveState saveState, DesignMinigameState designState)
+        {
+
+        }
+    }
+}
