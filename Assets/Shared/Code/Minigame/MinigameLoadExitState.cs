@@ -12,6 +12,7 @@ namespace SpaceFab
         Loading,
         Loaded,
         Exiting,
+        SavingOnExit,
         Exited,
     }
 

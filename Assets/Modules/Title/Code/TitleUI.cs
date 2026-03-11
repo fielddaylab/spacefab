@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using FieldDay.Debugging;
 
 namespace SpaceFab.Title
 {
@@ -150,8 +151,18 @@ namespace SpaceFab.Title
             // m_Raycaster.blocksRaycasts = false;
             if (m_CurrGroupType == GroupType.NewGame)
             {
-                SpacefabGame.SaveBuffer.Clear();
-                OGD.Player.ClaimId(m_PlayerCodeInput.text, null, HandleStartAccepted, HandleClaimNewIdError);
+                if (Game.IsDevBuild && DebugInput.IsDown(KeyCode.LeftShift))
+                {
+                    SaveUtility.SetDebugFlag(true);
+                    SpacefabGame.SaveBuffer.Clear();
+                    HandleStartAccepted();
+                }
+                else
+                {
+                    SaveUtility.SetDebugFlag(false);
+                    SpacefabGame.SaveBuffer.Clear();
+                    OGD.Player.ClaimId(m_PlayerCodeInput.text, null, HandleStartAccepted, HandleClaimNewIdError);
+                }
             }
             else
             {
@@ -258,8 +269,7 @@ namespace SpaceFab.Title
             // TODO: set this in OGD
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
             Game.Scenes.LoadMainScene(m_NextScene);
-            // TODO: enable saves
-            // SaveUtility.Save(SaveSlot.Main);
+            SaveUtility.Save(SaveSlot.Main);
         }
 
         private void HandleClaimNewIdError(OGD.Core.Error err)

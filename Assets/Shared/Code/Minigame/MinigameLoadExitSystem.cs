@@ -9,7 +9,7 @@ using UnityEngine;
 namespace SpaceFab
 {
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.MinigameTransitionMask)]
-    public class MinigameLoadExitSystem : SharedStateSystemBehaviour<MinigameLoadExitState, MinigameStateInterfacer, MinigameSaveStates, ReturnMenuState>
+    public class MinigameLoadExitSystem : SharedStateSystemBehaviour<MinigameLoadExitState, MinigameStateInterfacer, MinigameSaveStates, ReturnMenuState, SaveLoadState>
     {
         public override bool HasWork()
         {
@@ -30,7 +30,14 @@ namespace SpaceFab
                     break;
                 case MinigameLoadExitPhase.Exiting:
                     m_StateB.MinigameState.ExportState(ref m_StateC);
-                    m_StateA.Phase = MinigameLoadExitPhase.Exited;
+                    SaveUtility.Save(SaveSlot.Main);
+                    m_StateA.Phase = MinigameLoadExitPhase.SavingOnExit;
+                    break;
+                case MinigameLoadExitPhase.SavingOnExit:
+                    if (!m_StateE.Operation) {
+                        // saving completed
+                        m_StateA.Phase = MinigameLoadExitPhase.Exited;
+                    }
                     break;
                 case MinigameLoadExitPhase.Exited:
                     //TODO: resume updates of overarching scene
