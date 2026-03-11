@@ -194,7 +194,7 @@ MonoBehaviour:
   ButtonImage: {fileID: 7370610135476486154}
   PauseSprite: {fileID: 21300000, guid: 7893c234b7f80ae46ba844e6f93bca93, type: 3}
   ResumeSprite: {fileID: -3760002390248772565, guid: f1a248dd27f294143a662712673230a3, type: 3}
-  Fader: {fileID: 3533226033359458821}
+  Fader: {fileID: 8410021478170285949}
   TransitionTime: 0.1
 --- !u!1 &1809040050839040263
 GameObject:

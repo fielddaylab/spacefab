@@ -28,7 +28,7 @@ namespace SpaceFab
         public Sprite PauseSprite;
         public Sprite ResumeSprite;
         [Header("Fader")]
-        public FadeGroup Fader;
+        public CanvasGroup Fader;
         public float TransitionTime;
 
         #endregion // Inspector
@@ -37,6 +37,7 @@ namespace SpaceFab
         [NonSerialized] public int StashedEventMask;
         [NonSerialized] public bool GamePaused;
         [NonSerialized] public Routine ButtonRoutine;
+        [NonSerialized] public Routine FadeRoutine;
 
         public void OnRegister()
         {
@@ -47,6 +48,9 @@ namespace SpaceFab
         public void OnDeregister()
         {
             Button.onClick.RemoveListener(HandleStartTogglePause);
+
+            FadeRoutine.Stop();
+            ButtonRoutine.Stop();
         }
 
         private void HandleStartTogglePause()
@@ -69,12 +73,12 @@ namespace SpaceFab
             if (state.GamePaused)
             {
                 TogglePaused(state);
-                state.Fader.Hide();
+                state.FadeRoutine.Replace(FadeGroupOut(state));
                 state.ButtonRoutine.Replace(SlideButtonOut(state));
             }
             else
             {
-                state.Fader.Show();
+                state.FadeRoutine.Replace(FadeGroupIn(state));
                 state.ButtonRoutine.Replace(SlideButtonIn(state))
                     .OnComplete(() => TogglePaused(state));
             }
@@ -140,6 +144,22 @@ namespace SpaceFab
             yield return state.Button.transform.ScaleTo(1.0f, state.TransitionTime, Axis.XY).Ease(Curve.CubeIn);
             state.ButtonImage.sprite = state.PauseSprite;
             state.Button.interactable = true;
+        }
+
+        private static IEnumerator FadeGroupOut(PauseMenuState state)
+        {
+            state.Fader.alpha = 1;
+            yield return state.Fader.FadeTo(0, state.TransitionTime);
+            state.Fader.gameObject.SetActive(false);
+            state.Fader.alpha = 0;
+        }
+
+        private static IEnumerator FadeGroupIn(PauseMenuState state)
+        {
+            state.Fader.alpha = 0;
+            state.Fader.gameObject.SetActive(true);
+            yield return state.Fader.FadeTo(1, state.TransitionTime);
+            state.Fader.alpha = 1;
         }
     }
 }

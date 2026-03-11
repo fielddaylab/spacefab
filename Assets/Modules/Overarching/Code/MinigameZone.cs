@@ -22,7 +22,6 @@ namespace SpaceFab.Overarching
                 Game.Scenes.LoadMainScene(MinigameScene);
                 Game.Events.Dispatch(GameEvents.OnMinigameLoad);
             });
-            PointerListener.onPointerEnter.AddListener(() => { Debug.Log("enter"); });
         }
     }
 }
