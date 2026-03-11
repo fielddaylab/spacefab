@@ -33,8 +33,8 @@ namespace SpaceFab
 
         #endregion // Inspector
 
-        [NonSerialized] public int CurrentUpdateMask;
-        [NonSerialized] public int CurrentEventMask;
+        [NonSerialized] public int StashedUpdateMask;
+        [NonSerialized] public int StashedEventMask;
         [NonSerialized] public bool GamePaused;
         [NonSerialized] public Routine ButtonRoutine;
 
@@ -107,27 +107,23 @@ namespace SpaceFab
             AudioListener.pause = paused;
             Sfx.SetBusPaused(AudioBus.Master, paused);
 
-            /*
             InputState input = Find.State<InputState>();
             if (paused)
             {
-                state.CurrentUpdateMask = GameLoop.UpdateMask;
+                state.StashedUpdateMask = GameLoop.UpdateMask;
                 GameLoop.SuspendUpdates(Bits.All32);
                 GameLoop.ResumeUpdates(UpdateMasks.PauseUpdateMask);
-                //PauseCutscenes();
-                state.CurrentEventMask = input.Raycaster.eventMask;
-                InputUtility.SetClickableMaskCustom(input, LayerMasks.UI_Mask);
+                state.StashedEventMask = input.Raycaster.eventMask;
+                InputUtility.SetClickableMaskCustom(input, LayerMasks.Interrupt_UI_Mask);
                 Game.Events.Dispatch(GameEvents.OnGamePaused);
             }
             else
             {
                 InputUtility.SetClickableMaskDefault(input);
-                InputUtility.SetClickableMaskCustom(input, state.CurrentEventMask);
-                GameLoop.ResumeUpdates(state.CurrentUpdateMask);
-                //ResumeCutscenes();
+                InputUtility.SetClickableMaskCustom(input, state.StashedEventMask);
+                GameLoop.ResumeUpdates(state.StashedUpdateMask);
                 Game.Events.Dispatch(GameEvents.OnGameResumed);
             }
-            */
         }
 
         private static IEnumerator SlideButtonIn(PauseMenuState state)
