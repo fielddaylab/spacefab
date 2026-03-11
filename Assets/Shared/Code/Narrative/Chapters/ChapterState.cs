@@ -1,4 +1,5 @@
 using BeauUtil;
+using FieldDay.Assets;
 using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Save;
@@ -8,10 +9,11 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject
+    public class ChapterState : SharedStateComponent, ISaveStateChunkObject
     {
-        public HashSet<StringHash32> AvailableMaterials;
-        public HashSet<StringHash32> ResearchedMaterials;
+        [AssetName(typeof(ChapterAsset))] public StringHash32[] Chapters;
+
+        public int CurrChapterIndex;
 
         #region Interfaces
 
@@ -28,5 +30,15 @@ namespace SpaceFab
         }
 
         #endregion // Interfaces
+    }
+
+    public static class ChapterUtility
+    {
+        public static void LoadNextChapter(ChapterState state)
+        {
+
+            // TODO
+            state.CurrChapterIndex++;
+        }
     }
 }

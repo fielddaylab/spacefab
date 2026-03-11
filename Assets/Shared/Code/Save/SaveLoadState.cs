@@ -10,10 +10,10 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Debugging;
 using FieldDay.SharedState;
-using Spacefab.Save;
-using Spacefab;
+using SpaceFab.Save;
+using SpaceFab;
 
-namespace Spacefab.Save
+namespace SpaceFab.Save
 {
     public class SaveLoadState : SharedStateComponent
     {

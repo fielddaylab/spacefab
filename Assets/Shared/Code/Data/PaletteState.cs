@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Spacefab
+namespace SpaceFab
 {
 
     [Serializable]

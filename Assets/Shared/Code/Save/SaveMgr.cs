@@ -5,12 +5,12 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Data;
 using FieldDay.Debugging;
-using Spacefab.Save;
-using Spacefab;
+using SpaceFab.Save;
+using SpaceFab;
 using UnityEngine;
-using Spacefab;
+using SpaceFab;
 
-namespace Spacefab.Save
+namespace SpaceFab.Save
 {
     public class SaveMgr
     {

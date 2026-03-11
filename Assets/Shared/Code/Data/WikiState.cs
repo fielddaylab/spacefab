@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using FieldDay.SharedState;
 
-namespace Spacefab
+namespace SpaceFab
 {
     public class WikiState : SharedStateComponent
     {

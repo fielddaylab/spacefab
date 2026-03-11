@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Spacefab
+namespace SpaceFab
 {
     public class LoadIcon : MonoBehaviour
     {

@@ -2,7 +2,7 @@ using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay.Data;
 
-namespace Spacefab.Save
+namespace SpaceFab.Save
 {
     public struct SaveStateHeader
     {

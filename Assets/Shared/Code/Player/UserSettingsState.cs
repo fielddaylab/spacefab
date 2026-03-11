@@ -4,12 +4,12 @@ using FieldDay.Audio;
 using FieldDay.Data;
 using FieldDay.Rendering;
 using FieldDay.SharedState;
-using Spacefab.Save;
-using Spacefab;
+using SpaceFab.Save;
+using SpaceFab;
 using System;
 using UnityEngine;
 
-namespace Spacefab
+namespace SpaceFab
 {
     public class UserSettingsState : SharedStateComponent, IRegistrationCallbacks, ISaveStateChunkObject
     {

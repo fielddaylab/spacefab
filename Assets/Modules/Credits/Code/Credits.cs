@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Spacefab.Credits
+namespace SpaceFab.Credits
 {
     public class Credits : BatchedComponent, IScenePreload
     {

@@ -5,7 +5,7 @@ using FieldDay.Components;
 using FieldDay.Rendering;
 using UnityEngine.UI;
 
-namespace Spacefab.Shared
+namespace SpaceFab
 {
     public class SettingsMenu : BatchedComponent, IRegistrationCallbacks
     {

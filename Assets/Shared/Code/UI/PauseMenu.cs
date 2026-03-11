@@ -13,7 +13,7 @@ using FieldDay.Audio;
 using FieldDay.SharedState;
 using UnityEngine.Events;
 
-namespace Spacefab.Shared
+namespace SpaceFab
 {
     public class PauseMenuState : SharedStateComponent, IRegistrationCallbacks
     {

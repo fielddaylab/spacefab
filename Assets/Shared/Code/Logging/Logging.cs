@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace Spacefab.Logging
+namespace SpaceFab.Logging
 {
     public class Logging : MonoBehaviour
     {

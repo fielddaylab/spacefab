@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Spacefab.Shared
+namespace SpaceFab
 {
     public class TransitionStateMgr
     {

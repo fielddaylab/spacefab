@@ -5,11 +5,11 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Processes;
 using FieldDay.Systems;
-using Spacefab.Save;
-using Spacefab.Shared;
+using SpaceFab.Save;
+using SpaceFab;
 using UnityEngine;
 
-namespace Spacefab
+namespace SpaceFab
 {
     public sealed class SpacefabGame : Game
     {

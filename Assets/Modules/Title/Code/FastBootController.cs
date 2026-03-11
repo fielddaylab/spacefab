@@ -11,7 +11,7 @@ using FieldDay;
 using FieldDay.Scenes;
 using UnityEngine.SceneManagement;
 
-namespace Spacefab.Title
+namespace SpaceFab.Title
 {
     public class FastBootController : MonoBehaviour
     {
