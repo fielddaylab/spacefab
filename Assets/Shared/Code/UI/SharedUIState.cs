@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Spacefab.Shared
+namespace Spacefab
 {
     public class SharedUIState : SharedStateComponent, IRegistrationCallbacks
     {

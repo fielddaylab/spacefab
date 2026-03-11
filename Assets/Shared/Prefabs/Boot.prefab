@@ -79,8 +79,11 @@ GameObject:
   - component: {fileID: 3592766179047247135}
   - component: {fileID: 354077145758741014}
   - component: {fileID: 1403977988126329862}
+  - component: {fileID: 7355588358547199947}
   - component: {fileID: 518234563781450344}
   - component: {fileID: 8902631178501730816}
+  - component: {fileID: 7655658781834560961}
+  - component: {fileID: 4917964265796252707}
   m_Layer: 0
   m_Name: State
   m_TagString: Untagged
@@ -131,6 +134,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ServerURL: https://fieldday-web.wcer.wisc.edu/wsgi-bin/opengamedata.wsgi
+--- !u!114 &7355588358547199947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702368520693917882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b0b8656bb88aa449d05ae6aa85f7fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &518234563781450344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,6 +168,39 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f6a35430c492ad4469d57f9b450d0cb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7655658781834560961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702368520693917882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff98ae4df4f5de4687f8956867aff0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MainPalette:
+    Money: {r: 1, g: 0.85098046, b: 0.40000004, a: 1}
+    Time: {r: 0.46274513, g: 0.64705884, b: 0.6862745, a: 1}
+    Metal: {r: 0.40000004, g: 0.40000004, b: 0.40000004, a: 1}
+    Semiconductor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+    Insulator: {r: 0.95294124, g: 0.95294124, b: 0.95294124, a: 1}
+    NType: {r: 0.78823537, g: 0.854902, b: 0.9725491, a: 1}
+    PType: {r: 0.9568628, g: 0.8000001, b: 0.8000001, a: 1}
+    Risk: {r: 1, g: 0.6, b: 0, a: 1}
+--- !u!114 &4917964265796252707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702368520693917882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f26965848ab8e5f4db802a0c46bfd75a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &4107408674079076998
@@ -373,6 +421,7 @@ MonoBehaviour:
   m_GlobalAssetPacks:
   - {fileID: 11400000, guid: 08403a9c2fd3a984ba9ece7ea3ce0f97, type: 2}
   - {fileID: 11400000, guid: 206b0f38edac49e4c934adfcab2ef87f, type: 2}
+  - {fileID: 11400000, guid: be0517bfe41a33441bbfa2ccbfe53159, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:
   m_ObjectHideFlags: 0

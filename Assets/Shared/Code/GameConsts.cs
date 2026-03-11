@@ -28,5 +28,24 @@ namespace Spacefab
         public static readonly StringHash32 ProfileSaveError = "save:profile-save-error";
         public static readonly StringHash32 ProfileSaveSuccess = "save:profile-save-success";
         public static readonly StringHash32 ProfileSaveAttemptCompleted = "save:profile-save-attempt-completed";
+
+        // Shared
+        public static readonly StringHash32 ClickPauseGame = "shared:click-pause-game";
+        public static readonly StringHash32 OnGamePaused = "shared:on-game-paused";
+        public static readonly StringHash32 ClickResumeGame = "shared:click-resume-game";
+        public static readonly StringHash32 OnGameResumed = "shared:on-game-resumed";
+    }
+
+    public static class UpdateMasks
+    {
+        public const int PauseUpdateMask = 1 << 0;
+    }
+
+    static public class LayerMasks
+    {
+
+        // Layer 0: Default
+        public const int Default_Index = 0;
+        public const int Default_Mask = 1;
     }
 }

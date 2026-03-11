@@ -3,6 +3,7 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Scenes;
 using Spacefab.Save;
+using Spacefab.Shared;
 using System;
 using System.Collections;
 using System.Collections.Generic;
