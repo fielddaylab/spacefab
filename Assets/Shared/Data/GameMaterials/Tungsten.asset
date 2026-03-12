@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Tungsten
   m_EditorClassIdentifier: 
   DisplayName: Tungsten
-  Stage: 0
   ValenceElectronCounts: 02000000
-  AtomicRadius:
-    PM: 193
-    Calculated: -1
+  AtomicRadii: c1000000

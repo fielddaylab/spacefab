@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: SiliconCarbide
   m_EditorClassIdentifier: 
   DisplayName: Silicon Carbide
-  Stage: 0
   ValenceElectronCounts: 0400000004000000
-  AtomicRadius:
-    PM: 111
-    Calculated: 67
+  AtomicRadii: 6f00000043000000

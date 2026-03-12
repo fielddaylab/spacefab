@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Copper
   m_EditorClassIdentifier: 
   DisplayName: Copper
-  Stage: 0
   ValenceElectronCounts: 01000000
-  AtomicRadius:
-    PM: 145
-    Calculated: -1
+  AtomicRadii: 91000000

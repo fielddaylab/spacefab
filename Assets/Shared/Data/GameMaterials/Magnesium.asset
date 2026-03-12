@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Magnesium
   m_EditorClassIdentifier: 
   DisplayName: Magnesium
-  Stage: 0
   ValenceElectronCounts: 02000000
-  AtomicRadius:
-    PM: 145
-    Calculated: -1
+  AtomicRadii: 91000000

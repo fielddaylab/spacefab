@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: GalliumNitride
   m_EditorClassIdentifier: 
   DisplayName: GalliumNitride
-  Stage: 0
   ValenceElectronCounts: 0300000005000000
-  AtomicRadius:
-    PM: 136
-    Calculated: 56
+  AtomicRadii: 8800000038000000

@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Phosphorus
   m_EditorClassIdentifier: 
   DisplayName: Phosphorus
-  Stage: 0
   ValenceElectronCounts: 05000000
-  AtomicRadius:
-    PM: 98
-    Calculated: -1
+  AtomicRadii: 62000000

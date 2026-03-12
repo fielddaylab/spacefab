@@ -10,11 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3fa937c2c803464d8f0eaff2033531d, type: 3}
-  m_Name: Diamond_Raw
+  m_Name: Diamond
   m_EditorClassIdentifier: 
   DisplayName: Diamond
-  Stage: 1
   ValenceElectronCounts: 04000000
-  AtomicRadius:
-    PM: 67
-    Calculated: -1
+  AtomicRadii: 43000000

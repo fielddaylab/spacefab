@@ -10,11 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3fa937c2c803464d8f0eaff2033531d, type: 3}
-  m_Name: SiliconDioxide_Fused
+  m_Name: Silicon
   m_EditorClassIdentifier: 
-  DisplayName: Silicon Dioxide
-  Stage: 3
-  ValenceElectronCounts: 0400000002000000
-  AtomicRadius:
-    PM: 111
-    Calculated: 60
+  DisplayName: Silicon
+  ValenceElectronCounts: 04000000
+  AtomicRadii: 6f000000

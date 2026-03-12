@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Boron
   m_EditorClassIdentifier: 
   DisplayName: Boron
-  Stage: 0
   ValenceElectronCounts: 03000000
-  AtomicRadius:
-    PM: 87
-    Calculated: -1
+  AtomicRadii: 57000000
