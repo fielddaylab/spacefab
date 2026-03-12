@@ -18,11 +18,15 @@ namespace SpaceFab
         public Color NType;
         public Color PType;
         public Color Risk;
+
+        [Header("Highlights")]
+        public Color SoftHighlight;
+        public Color HardHighlight;
     }
 
     public class PaletteState : SharedStateComponent, IRegistrationCallbacks
     {
-        public GamePalette MainPalette;
+        [SerializeField] private GamePalette MainPalette;
         public GamePalette CurrPalette { get; private set; }
 
         public void OnDeregister()
