@@ -9,6 +9,8 @@ namespace SpaceFab
     [CreateAssetMenu(menuName = "SpaceFab/Chapter Asset")]
     public class ChapterAsset : NamedAsset
     {
-        [AssetName(typeof(ContractAsset))] public StringHash32[] Contracts;
+        // TODO: load contract assets on chapter start
+        public AssetPack ContractAssets;
+        // [AssetName(typeof(ContractAsset))] public StringHash32[] Contracts;
     }
 }

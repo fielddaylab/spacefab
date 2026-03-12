@@ -9,7 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
-  m_Name: Chapter1
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: Chapter1Contracts
   m_EditorClassIdentifier: 
-  ContractAssets: {fileID: 11400000, guid: d9e2b4b449278d44887d344550ce4839, type: 2}
+  m_GlobalAssets: []
+  m_NamedAssets:
+  - {fileID: 11400000, guid: 758a9c13342f2264099d9fa9ec2acea9, type: 2}
+  m_LiteAssets: []

@@ -287,6 +287,8 @@ GameObject:
   - component: {fileID: 963110157}
   - component: {fileID: 963110156}
   - component: {fileID: 963110158}
+  - component: {fileID: 963110160}
+  - component: {fileID: 963110159}
   m_Layer: 0
   m_Name: Overarching States
   m_TagString: Untagged
@@ -340,6 +342,30 @@ MonoBehaviour:
   - {fileID: 1527852734}
   CurrSelectedIndex: 0
   CurrHoverIndex: 0
+--- !u!114 &963110159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963110155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb5a578214af3cc4d8f1705a84756d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &963110160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963110155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a73daba7043dd743992a3f918758e1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -574,6 +600,7 @@ GameObject:
   - component: {fileID: 1164620736}
   - component: {fileID: 1164620738}
   - component: {fileID: 1164620739}
+  - component: {fileID: 1164620740}
   m_Layer: 0
   m_Name: Overarching Systems
   m_TagString: Untagged
@@ -634,6 +661,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InitialCapacity: 4
+--- !u!114 &1164620740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1164620735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daae2dd589c23c247bd0e4979378f62e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1247831362
 PrefabInstance:
   m_ObjectHideFlags: 0

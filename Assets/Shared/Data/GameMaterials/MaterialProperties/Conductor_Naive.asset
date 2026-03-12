@@ -9,7 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
-  m_Name: Chapter1
+  m_Script: {fileID: 11500000, guid: f43422ee47823964a955a9909c3ee88c, type: 3}
+  m_Name: Conductor_Naive
   m_EditorClassIdentifier: 
-  ContractAssets: {fileID: 11400000, guid: d9e2b4b449278d44887d344550ce4839, type: 2}
+  Label: 12
+  RequiredObservations:
+  - {fileID: 11400000, guid: 2659b6587a0af8a4ea667324a920fd74, type: 2}
+  InComparisonTo:
+    m_HashValue: 0

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.GameMaterials
+namespace SpaceFab.Materials
 {
     [Serializable]
     public struct AtomicRadius
