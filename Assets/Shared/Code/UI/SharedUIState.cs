@@ -15,6 +15,8 @@ namespace SpaceFab
         public SaveIcon SaveIcon;
         public CursorHint LoadingCursor;
 
+        public bool CursorWasLocked;
+
         public void OnDeregister()
         {
         }
@@ -93,6 +95,7 @@ namespace SpaceFab
 
         public static IEnumerator OnBeginLoading(SharedUIState uiState)
         {
+            uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
             InputState input = Find.State<InputState>();
             Game.Input.PauseRaycasts();
             InputUtility.SetInputEnabled(input, false);
@@ -119,7 +122,11 @@ namespace SpaceFab
             InputState input = Find.State<InputState>();
             Game.Input.ResumeRaycasts();
             InputUtility.SetInputEnabled(input, true);
-            CursorHint.Unlock(uiState.LoadingCursor);
+            if (!uiState.CursorWasLocked)
+            {
+                CursorHint.Unlock(uiState.LoadingCursor);
+            }
+            uiState.CursorWasLocked = false;
         }
 
         #endregion // Loading
@@ -128,6 +135,7 @@ namespace SpaceFab
 
         public static IEnumerator OnBeginSave(SharedUIState uiState)
         {
+            uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
             InputState input = Find.State<InputState>();
             Game.Input.PauseRaycasts();
             // InputUtility.SetInputEnabled(input, false);
@@ -154,7 +162,11 @@ namespace SpaceFab
             InputState input = Find.State<InputState>();
             Game.Input.ResumeRaycasts();
             // InputUtility.SetInputEnabled(input, true);
-            CursorHint.Unlock(uiState.LoadingCursor);
+            if (!uiState.CursorWasLocked)
+            {
+                CursorHint.Unlock(uiState.LoadingCursor);
+            }
+            uiState.CursorWasLocked = false;
         }
 
         public static IEnumerator OnSaveError(SharedUIState uiState)
@@ -170,7 +182,11 @@ namespace SpaceFab
             InputState input = Find.State<InputState>();
             Game.Input.ResumeRaycasts();
             InputUtility.SetInputEnabled(input, true);
-            CursorHint.Unlock(uiState.LoadingCursor);
+            if (!uiState.CursorWasLocked)
+            {
+                CursorHint.Unlock(uiState.LoadingCursor);
+            }
+            uiState.CursorWasLocked = false;
         }
 
         #endregion // Saving

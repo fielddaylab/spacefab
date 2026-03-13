@@ -1,3 +1,4 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Design;
@@ -25,6 +26,7 @@ namespace SpaceFab
                     m_StateA.Phase = MinigameLoadExitPhase.Loaded;
                     break;
                 case MinigameLoadExitPhase.Loaded:
+                    GameLoop.SuspendUpdates(Bits.All32);
                     GameLoop.ResumeUpdates(m_StateB.MinigameState.DefaultUpdateMask);
                     m_StateA.Phase = MinigameLoadExitPhase.None;
                     break;
@@ -40,7 +42,6 @@ namespace SpaceFab
                     }
                     break;
                 case MinigameLoadExitPhase.Exited:
-                    //TODO: resume updates of overarching scene
                     Game.Events.Dispatch(GameEvents.OnMinigameExit);
                     Game.Scenes.LoadMainScene(m_StateD.ReturnScene);
                     m_StateA.Phase = MinigameLoadExitPhase.None;

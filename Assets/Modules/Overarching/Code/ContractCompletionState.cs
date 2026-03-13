@@ -5,16 +5,18 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
+    public enum ContractCompletionPhase
+    {
+        Waiting,
+        Loading,
+        EnterPreviousContract,
+        EvaluatePreviousContract,
+        HidePreviousContract,
+        Completed
+    }
+
     public class ContractCompletionState : SharedStateComponent
     {
-        public enum ContractCompletionPhase
-        {
-            Loading, // wait for chapter load
-            EnterPreviousContract, // if from end of level
-            EvaluatePreviousContract, // if from end of level
-            HidePreviousContract, // if from end of level
-        }
-
         public ContractCompletionPhase Phase;
     }
 }

@@ -48,6 +48,9 @@ namespace SpaceFab
         public const int DesignMask = 1 << 3;
         public const int SupplyMask = 1 << 4;
         public const int FabricationMask = 1 << 5;
+        public const int OverarchingMask = 1 << 6;
+        public const int ContractSystemsMask = 1 << 7;
+        public const int ChapterMask = 1 << 8;
     }
 
     static public class LayerMasks

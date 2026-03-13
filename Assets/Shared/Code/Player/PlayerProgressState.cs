@@ -15,6 +15,7 @@ namespace SpaceFab
         public HashSet<StringHash32> ResearchedMaterials;
 
         [AssetName(typeof(ContractAsset))] public StringHash32 LastSelectedContract;
+        public bool RecentlyCompletedLevel;
 
         #region Interfaces
 

@@ -7,6 +7,9 @@ namespace SpaceFab.Overarching
 {
     public class ContractLayoutState : SharedStateComponent
     {
+        public RectTransform FocusedContractZone;
+        public RectTransform ContractOptionsZone;
 
+        public ContractOptionButton[] OptionButtons;
     }
 }
