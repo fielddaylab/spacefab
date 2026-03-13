@@ -13,7 +13,6 @@ namespace SpaceFab.Logging
 {
     public class Logging : MonoBehaviour
     {
-        /* TODO: implement once Field Day's override of TMP is sorted
         private const ushort CLIENT_LOG_VERSION = 0;
         private readonly JsonBuilder m_JsonBuilder = new JsonBuilder(Unsafe.KiB * 64); // json allocation capacity
         private OGDLog m_Log;
@@ -102,6 +101,8 @@ namespace SpaceFab.Logging
         #region Event Registration
         private void RegisterEvents()
         {
+            SpacefabGame.Events.Register<string>(GameEvents.TitleProfileStarting, SetAnalyticsUserCode);
+
             // TODO: Logging events
 
         }
@@ -118,6 +119,5 @@ namespace SpaceFab.Logging
         #region Logging
 
         #endregion // Logging
-        */
     }
 }

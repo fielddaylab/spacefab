@@ -1,4 +1,5 @@
 using BeauUtil;
+using FieldDay.Assets;
 using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Save;
@@ -12,6 +13,8 @@ namespace SpaceFab
     {
         public HashSet<StringHash32> AvailableMaterials;
         public HashSet<StringHash32> ResearchedMaterials;
+
+        [AssetName(typeof(ContractAsset))] public StringHash32 LastSelectedContract;
 
         #region Interfaces
 
