@@ -8,7 +8,7 @@ using UnityEngine;
 namespace SpaceFab
 {
     [CreateAssetMenu(menuName = "SpaceFab/Contract Asset")]
-    public class ContractAsset : NamedAsset
+    public class ContractDef : NamedAsset
     {
         [SerializeField] private int m_value;
         [SerializeField] private MaterialPropertyCheck[] m_requiredMaterialProperties;
@@ -18,6 +18,7 @@ namespace SpaceFab
         [SerializeField] private string m_client;
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
+        [SerializeField] private AssetPack m_contractAssets;
 
         public int Value() { return m_value; }
         public MaterialPropertyCheck[] RequiredMaterials() { return m_requiredMaterialProperties; }
@@ -27,5 +28,6 @@ namespace SpaceFab
         public string Client() { return m_client; }
         public int ExpectedDuration() { return m_expectedDuration; }
         public int ExpectedProfit() { return m_expectedProfit; }
+        public AssetPack ContractAssets() { return m_contractAssets; }
     }
 }

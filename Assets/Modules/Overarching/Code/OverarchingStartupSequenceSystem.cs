@@ -8,7 +8,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.OverarchingMask)]
-    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState>
+    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState>
     {
         public override bool HasWork()
         {
@@ -47,24 +47,34 @@ namespace SpaceFab.Overarching
             if (progress.LastSelectedContract.Equals(StringHash32.Null) || progress.RecentlyCompletedLevel)
             {
                 m_StateA.Phase = OverarchingStartupSequencePhase.ChapterLoad;
+                m_StateB.Phase = ChapterLoadPhase.Waiting;
             }
             else
             {
+                LoadAvailableContracts();
                 Complete();
             }
         }
 
         private void ProcessChapterLoad()
         {
-            GameLoop.ResumeUpdates(UpdateMasks.ChapterMask);
-            Debug.Log("[OverarchingStartupSequenceSystem] Begin ChapterLoadSystem");
-
-            // TODO: begin and await completion
-            // m_StateB.Phase 
-            m_StateC.Phase = ContractCompletionPhase.Waiting;
-
-            // Move to next phase after chapter load
-            m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+            if (m_StateB.Phase == ChapterLoadPhase.Waiting)
+            {
+                // begin ChapterLoadSystem
+                GameLoop.ResumeUpdates(UpdateMasks.ChapterMask);
+                Debug.Log("[OverarchingStartupSequenceSystem] Begin ChapterLoadSystem");
+                m_StateB.Phase = ChapterLoadPhase.Loading;
+            }
+            else
+            {
+                // wait for ContractCompletionSystem to complete
+                if (m_StateB.Phase == ChapterLoadPhase.Completed)
+                {
+                    // Move to next phase after chapter load
+                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+                    m_StateC.Phase = ContractCompletionPhase.Waiting;
+                }
+            }
         }
 
         private void ProcessContractCompletion()
@@ -92,6 +102,7 @@ namespace SpaceFab.Overarching
         {
             if (m_StateD.Phase == ContractSelectPhase.Waiting)
             {
+                LoadAvailableContracts();
                 // begin ContractSelectSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractSelectSystem");
                 m_StateC.Phase = ContractCompletionPhase.Waiting;
@@ -106,6 +117,13 @@ namespace SpaceFab.Overarching
                     GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
                 }
             }
+        }
+
+        private void LoadAvailableContracts()
+        {
+            // loaded whenever entering overarching scene (TODO: unload on exit overarching scene)
+            Game.Assets.LoadPackage(m_StateE.CurrAvailableContractAssetsPack);
+            m_StateE.CurrAvailableContractsBundle = Find.NamedAsset<ContractsBundle>("ContractsBundle");
         }
 
         private void Complete()

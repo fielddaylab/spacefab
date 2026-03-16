@@ -165,6 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LastSelectedContract:
     m_HashValue: 0
+  RecentlyCompletedLevel: 0
 --- !u!114 &8902631178501730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,7 +462,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 08403a9c2fd3a984ba9ece7ea3ce0f97, type: 2}
   - {fileID: 11400000, guid: 206b0f38edac49e4c934adfcab2ef87f, type: 2}
   - {fileID: 11400000, guid: be0517bfe41a33441bbfa2ccbfe53159, type: 2}
-  - {fileID: 11400000, guid: e705ef90347700d4d9bb6e01c3e2d96b, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:
   m_ObjectHideFlags: 0

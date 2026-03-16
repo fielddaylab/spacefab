@@ -8,12 +8,13 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
-    public class ContractCompletionSystem : SharedStateSystemBehaviour<ContractCompletionState, ContractLayoutState, PlayerProgressState>
+    public class ContractCompletionSystem : SharedStateSystemBehaviour<ContractCompletionState, ContractLayoutState, PlayerProgressState, ChapterState>
     {
         public override bool HasWork()
         {
             return base.HasWork() && m_StateA.Phase != ContractCompletionPhase.Waiting;
         }
+
         public override void ProcessWork(float deltaTime)
         {
             base.ProcessWork(deltaTime);
@@ -30,6 +31,11 @@ namespace SpaceFab.Overarching
                     break;
                 case ContractCompletionPhase.HidePreviousContract:
                     // TODO
+                    if (m_StateD.PrevSelectedContractAssetPack != null)
+                    {
+                        // Unload previous chapter assets
+                        Game.Assets.UnloadPackage(m_StateD.PrevSelectedContractAssetPack);
+                    }
                     // Complete
                     m_StateA.Phase = ContractCompletionPhase.Completed;
                     break;

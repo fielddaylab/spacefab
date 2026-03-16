@@ -356,6 +356,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a73daba7043dd743992a3f918758e1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Phase: 0
+  Chapters:
+  - {fileID: 11400000, guid: f59ecbe6627c97e4c850be6e80dfd6fc, type: 2}
+  PrevChapterAsset: {fileID: 0}
+  CurrChapterAsset: {fileID: 0}
+  PrevChapterAssetPack: {fileID: 0}
+  PrevAvailableContractAssetsPack: {fileID: 0}
+  PrevSelectedContractAssetPack: {fileID: 0}
+  CurrChapterAssetPack: {fileID: 0}
+  CurrAvailableContractAssetsPack: {fileID: 0}
+  CurrSelectedContractAssetPack: {fileID: 0}
 --- !u!114 &963110161
 MonoBehaviour:
   m_ObjectHideFlags: 0

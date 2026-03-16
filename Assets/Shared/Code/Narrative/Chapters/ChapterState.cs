@@ -11,9 +11,18 @@ namespace SpaceFab
 {
     public class ChapterState : SharedStateComponent, ISaveStateChunkObject
     {
-        [AssetName(typeof(ChapterAsset))] public StringHash32[] Chapters;
-
         public int CurrChapterIndex;
+
+        public ChapterDef PrevChapterDef;
+        public ChapterDef CurrChapterDef;
+        public ContractsBundle CurrAvailableContractsBundle;
+
+        public AssetPack PrevSelectedContractAssetPack;     // unloaded in ContractCompletionSystem
+        public AssetPack CurrSelectedContractAssetPack;     // assigned to PrevSelectedContractAssetPack, then unloaded in ContractCompletionSystem
+
+        public AssetPack CurrChapterAssetPack;              // unloaded in ChapterLoadSystem
+        public AssetPack CurrAvailableContractAssetsPack;   // TODO: unloaded at end of OverarchingScene
+
 
         #region Interfaces
 

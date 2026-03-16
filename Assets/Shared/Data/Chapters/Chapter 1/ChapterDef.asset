@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
-  m_Name: Chapter1
+  m_Name: ChapterDef
   m_EditorClassIdentifier: 
-  ContractAssets: {fileID: 11400000, guid: d9e2b4b449278d44887d344550ce4839, type: 2}
+  AvailableContracts: {fileID: 11400000, guid: de7644da1e072a74991215bd9dfbd480, type: 2}

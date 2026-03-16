@@ -22,3 +22,4 @@ MonoBehaviour:
   m_client: '[Client Name]'
   m_expectedDuration: 4
   m_expectedProfit: 3
+  m_contractAssets: {fileID: 11400000, guid: 76425ec876d280d43a2ea3b021ad25a1, type: 2}
