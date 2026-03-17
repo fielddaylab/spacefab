@@ -12,7 +12,7 @@ namespace SpaceFab.Overarching
     {
         public override bool HasWork()
         {
-            return base.HasWork() && m_StateA.Phase != OverarchingStartupSequencePhase.Completed;
+            return base.HasWork() && m_StateA.Phase != OverarchingStartupSequencePhase.Completed && !Find.State<SharedUIState>().IsLoading;
         }
 
         public override void ProcessWork(float deltaTime)

@@ -19,31 +19,41 @@ namespace SpaceFab.Overarching
         {
             base.ProcessWork(deltaTime);
 
-            // TODO: implement
             switch (m_StateA.Phase)
             {
                 case ContractCompletionPhase.Loading:
-                    // ensure chapter load is complete
+                    m_StateB.CompletionRoutine.Replace(ContractLayoutUtility.EnterPreviousRoutine(m_StateA, m_StateB));
+                    m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
+                    if (!m_StateB.CompletionRoutine.Exists()) {
+                        m_StateB.CompletionRoutine.Replace(ContractLayoutUtility.EvaluatePreviousRoutine(m_StateA, m_StateB));
+                        m_StateA.Phase = ContractCompletionPhase.EvaluatePreviousContract;
+                    }
                     break;
                 case ContractCompletionPhase.EvaluatePreviousContract:
+                    if (!m_StateB.CompletionRoutine.Exists())
+                    {
+                        m_StateB.CompletionRoutine.Replace(ContractLayoutUtility.HidePreviousRoutine(m_StateA, m_StateB));
+                        m_StateA.Phase = ContractCompletionPhase.HidePreviousContract;
+                    }
                     break;
                 case ContractCompletionPhase.HidePreviousContract:
-                    // TODO
-                    if (m_StateD.PrevSelectedContractAssetPack != null)
+                    if (!m_StateB.CompletionRoutine.Exists())
                     {
-                        // Unload previous chapter assets
-                        Game.Assets.UnloadPackage(m_StateD.PrevSelectedContractAssetPack);
+                        if (m_StateD.PrevSelectedContractAssetPack != null)
+                        {
+                            // Unload previous chapter assets
+                            Game.Assets.UnloadPackage(m_StateD.PrevSelectedContractAssetPack);
+                        }
+                        // Complete
+                        m_StateA.Phase = ContractCompletionPhase.Completed;
                     }
-                    // Complete
-                    m_StateA.Phase = ContractCompletionPhase.Completed;
                     break;
                 default:
                     break;
             }
 
-            m_StateA.Phase = ContractCompletionPhase.Completed;
         }
     }
 }

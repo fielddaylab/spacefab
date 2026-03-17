@@ -359,14 +359,6 @@ MonoBehaviour:
   Phase: 0
   Chapters:
   - {fileID: 11400000, guid: f59ecbe6627c97e4c850be6e80dfd6fc, type: 2}
-  PrevChapterAsset: {fileID: 0}
-  CurrChapterAsset: {fileID: 0}
-  PrevChapterAssetPack: {fileID: 0}
-  PrevAvailableContractAssetsPack: {fileID: 0}
-  PrevSelectedContractAssetPack: {fileID: 0}
-  CurrChapterAssetPack: {fileID: 0}
-  CurrAvailableContractAssetsPack: {fileID: 0}
-  CurrSelectedContractAssetPack: {fileID: 0}
 --- !u!114 &963110161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -809,6 +801,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 771a732e1ff93b948a069661d616802e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1248874235 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6263945198864655278, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df80812ebf25dfa469a073c75d74eb49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!225 &1503251007 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 8005732862304439558, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1527852732
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -905,6 +913,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 771a732e1ff93b948a069661d616802e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &1571798444 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4936318006479472727, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1597943304
 GameObject:
   m_ObjectHideFlags: 0
@@ -962,6 +975,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8b3f0df00f580c4db42ac7f573008f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!225 &1798265855 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 7386836286221549102, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2025114820
 GameObject:
   m_ObjectHideFlags: 0
@@ -1022,6 +1040,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ecb790c360d2b043a6316c7576700b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CompletionCanvasGroup: {fileID: 1503251007}
+  CompletedContractZone: {fileID: 1571798444}
+  CompletedContractUI: {fileID: 1248874235}
+  CompletedContractStartPos: {x: 0, y: 700, z: 0}
+  SelectionCanvasGroup: {fileID: 1798265855}
   FocusedContractZone: {fileID: 2892304983068427013}
   ContractOptionsZone: {fileID: 2892304983068427012}
   OptionButtons:

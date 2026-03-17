@@ -16,6 +16,7 @@ namespace SpaceFab
         public CursorHint LoadingCursor;
 
         public bool CursorWasLocked;
+        public bool IsLoading;
 
         public void OnDeregister()
         {
@@ -95,6 +96,7 @@ namespace SpaceFab
 
         public static IEnumerator OnBeginLoading(SharedUIState uiState)
         {
+            uiState.IsLoading = true;
             uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
             InputState input = Find.State<InputState>();
             Game.Input.PauseRaycasts();
@@ -127,6 +129,7 @@ namespace SpaceFab
                 CursorHint.Unlock(uiState.LoadingCursor);
             }
             uiState.CursorWasLocked = false;
+            uiState.IsLoading = false;
         }
 
         #endregion // Loading
