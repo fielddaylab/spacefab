@@ -1,4 +1,5 @@
 using FieldDay.Components;
+using FieldDay.SharedState;
 using SpaceFab.Save;
 using System;
 using System.Collections;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    public abstract class MinigameStateBase : BatchedComponent, IMinigameState
+    public abstract class MinigameStateBase : SharedStateComponent, IMinigameState
     {
         [NonSerialized] public int DefaultUpdateMask;
 

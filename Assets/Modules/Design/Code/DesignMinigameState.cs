@@ -13,7 +13,7 @@ namespace SpaceFab.Design
         #region Saved State
 
         // TODO: Save State
-
+        public GridStack GridStack;
 
         #endregion // Saved State
 
@@ -27,7 +27,7 @@ namespace SpaceFab.Design
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.DesignMask;
+            DefaultUpdateMask = UpdateMasks.DesignMask | UpdateMasks.SetupMask;
         }
 
         // IMinigameState
@@ -49,12 +49,15 @@ namespace SpaceFab.Design
     {
         public static void ImportState(DesignSaveState saveState, DesignMinigameState designState)
         {
-            
+            if (saveState.GridStack != null)
+            {
+                designState.GridStack = saveState.GridStack;
+            }
         }
 
         public static void ExportState(ref DesignSaveState saveState, DesignMinigameState designState)
         {
-
+            saveState.GridStack = designState.GridStack;
         }
     }
 }

@@ -9,10 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-  m_Name: Contract
+  m_Script: {fileID: 11500000, guid: be2b5b6395503174db99560628ec866b, type: 3}
+  m_Name: TestSuite_Test
   m_EditorClassIdentifier: 
-  m_GlobalAssets: []
-  m_NamedAssets:
-  - {fileID: 11400000, guid: 326a9a6590209834c87fbbc514ae13e7, type: 2}
-  m_LiteAssets: []
+  Tests:
+  - Bundle:
+    - Id: 4
+      State: 1
+    - Id: 64
+      State: 1
