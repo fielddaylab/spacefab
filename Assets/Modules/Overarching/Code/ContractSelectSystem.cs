@@ -32,7 +32,7 @@ namespace SpaceFab.Overarching
                     }
                     if (m_StateA.SelectionConfirmed)
                     {
-                        m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateE));
+                        m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateC, m_StateE));
                         m_StateA.Phase = ContractSelectPhase.ConfirmContract;
                     }
                     break;

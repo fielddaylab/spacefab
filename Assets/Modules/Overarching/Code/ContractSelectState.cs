@@ -62,7 +62,7 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
         }
 
-        public static IEnumerator ConfirmContractRoutine(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState)
+        public static IEnumerator ConfirmContractRoutine(ContractSelectState selectState, ContractLayoutState layoutState, PlayerProgressState progressState, ChapterState chapterState)
         {
             chapterState.CurrSelectedContractAssetPack = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].ContractAssets();
             Game.Assets.LoadPackage(chapterState.CurrSelectedContractAssetPack);
@@ -74,6 +74,8 @@ namespace SpaceFab.Overarching
             var minigameSaveState = Find.State<MinigameSaveStates>();
             minigameSaveState.Design.GridStack = new GridStack();
             GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
+
+            progressState.LastSelectedContract = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].AssetId;
 
             yield return 0.5f;
 
