@@ -68,7 +68,8 @@ namespace SpaceFab.Overarching
             Game.Assets.LoadPackage(chapterState.CurrSelectedContractAssetPack);
 
             // Unpack further
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>("ContractAssetsWrapper");
+            StringHash32 assetsWrapperId = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].ContractAssetsWrapperId;
+            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
             minigameSaveState.Design.GridStack = new GridStack();

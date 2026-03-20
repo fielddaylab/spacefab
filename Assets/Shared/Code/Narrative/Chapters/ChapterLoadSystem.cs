@@ -60,9 +60,9 @@ namespace SpaceFab
         private void LoadNextState()
         {
             // loaded until next chapter begins
-            m_StateB.CurrChapterAssetPack = m_StateA.Chapters[m_StateB.CurrChapterIndex];
+            m_StateB.CurrChapterAssetPack = m_StateA.Chapters[m_StateB.CurrChapterIndex].ChapterAssetPack;
             Game.Assets.LoadPackage(m_StateB.CurrChapterAssetPack);
-            m_StateB.CurrChapterDef = Find.NamedAsset<ChapterDef>("ChapterDef");
+            m_StateB.CurrChapterDef = Find.NamedAsset<ChapterDef>(m_StateA.Chapters[m_StateB.CurrChapterIndex].ChapterDefId);
 
             // loaded whenever in overarching scene
             m_StateB.CurrAvailableContractAssetsPack = m_StateB.CurrChapterDef.AvailableContracts;

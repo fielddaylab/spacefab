@@ -123,7 +123,7 @@ namespace SpaceFab.Overarching
         {
             // loaded whenever entering overarching scene (TODO: unload on exit overarching scene)
             Game.Assets.LoadPackage(m_StateE.CurrAvailableContractAssetsPack);
-            m_StateE.CurrAvailableContractsBundle = Find.NamedAsset<ContractsBundle>("ContractsBundle");
+            m_StateE.CurrAvailableContractsBundle = Find.NamedAsset<ContractsBundle>(m_StateE.CurrChapterDef.AvailableContractsBundleId);
         }
 
         private void Complete()

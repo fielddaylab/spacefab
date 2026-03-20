@@ -359,7 +359,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Phase: 0
   Chapters:
-  - {fileID: 11400000, guid: f59ecbe6627c97e4c850be6e80dfd6fc, type: 2}
+  - ChapterDefId:
+      m_HashValue: 570083838
+    ChapterAssetPack: {fileID: 11400000, guid: f59ecbe6627c97e4c850be6e80dfd6fc, type: 2}
 --- !u!114 &963110161
 MonoBehaviour:
   m_ObjectHideFlags: 0

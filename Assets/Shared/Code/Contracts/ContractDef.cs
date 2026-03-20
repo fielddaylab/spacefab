@@ -1,7 +1,6 @@
 using BeauUtil;
 using FieldDay.Assets;
 using SpaceFab.Design;
-using SpaceFab.Design;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -20,6 +19,8 @@ namespace SpaceFab
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
         [SerializeField] private AssetPack m_contractAssets;
+        [AssetName(typeof(ContractAssetsWrapper))][SerializeField] public StringHash32 ContractAssetsWrapperId;
+
 
         public int Value() { return m_value; }
         public MaterialPropertyCheck[] RequiredMaterials() { return m_requiredMaterialProperties; }
