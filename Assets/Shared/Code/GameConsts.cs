@@ -52,6 +52,7 @@ namespace SpaceFab
         public const int ContractSystemsMask = 1 << 7;
         public const int ChapterMask = 1 << 8;
         public const int SetupMask = 1 << 9;
+        public const int ShutdownMask = 1 << 10;
     }
 
     static public class LayerMasks

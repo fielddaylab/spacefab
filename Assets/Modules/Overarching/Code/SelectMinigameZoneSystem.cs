@@ -11,7 +11,7 @@ namespace SpaceFab.Overarching
     /// PointerEvents get set AFTER Update. So this system checks for them before update,
     /// then refreshes the fields on Update (see MinigameZoneRefreshSystem)
     /// </summary>
-    [SysUpdate(GameLoopPhase.PreUpdate, 0)]
+    [SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.OverarchingMask)]
     public class SelectMinigameZoneSystem : ComponentSystemBehaviour<MinigameZone>
     {
         public override bool HasWork()

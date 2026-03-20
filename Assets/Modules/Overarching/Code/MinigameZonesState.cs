@@ -120,11 +120,8 @@ namespace SpaceFab.Overarching
 
         public static void ConfirmEnterMinigame(MinigameZonesState state)
         {
-            GameLoop.SuspendUpdates(Bits.All32);
-            GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
-            // TODO: OverarchingToMinigameSystem (unload available contracts)
-            Game.Scenes.LoadMainScene(state.Zones[state.CurrSelectedIndex].MinigameScene);
-            Game.Events.Dispatch(GameEvents.OnMinigameLoad);
+            GameLoop.ResumeUpdates(UpdateMasks.ShutdownMask);
+            Find.State<OverarchingShutdownSequenceState>().Phase = OverarchingShutdownPhase.ShuttingDown;
         }
     }
 }

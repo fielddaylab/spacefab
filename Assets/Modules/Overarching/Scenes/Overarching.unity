@@ -290,6 +290,7 @@ GameObject:
   - component: {fileID: 963110161}
   - component: {fileID: 963110158}
   - component: {fileID: 963110160}
+  - component: {fileID: 963110163}
   m_Layer: 0
   m_Name: Overarching States
   m_TagString: Untagged
@@ -384,6 +385,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 259ced326717ecf4a9afef7609c5859f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &963110163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963110155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff83ab069d1f33408fa3af92331edf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Phase: 0
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -625,6 +639,7 @@ GameObject:
   - component: {fileID: 1164620738}
   - component: {fileID: 1164620739}
   - component: {fileID: 1164620740}
+  - component: {fileID: 1164620742}
   m_Layer: 0
   m_Name: Overarching Systems
   m_TagString: Untagged
@@ -708,6 +723,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 491d8bbd4c1d21f418ecfcb824fc4d6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1164620742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1164620735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e0e303f0ee13da4cb57ca91cb74a525, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1247831362
@@ -815,6 +842,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df80812ebf25dfa469a073c75d74eb49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1401743225 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6551175549919702267, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!225 &1503251007 stripped
@@ -1053,6 +1091,9 @@ MonoBehaviour:
   SelectionCanvasGroup: {fileID: 1798265855}
   FocusedContractZone: {fileID: 2892304983068427013}
   ContractOptionsZone: {fileID: 2892304983068427012}
+  ContractOptionsStartPos: {x: -800, y: 0, z: 0}
+  ContractOptionsEndPos: {x: -255, y: 0, z: 0}
+  ConfirmContractButton: {fileID: 1401743225}
   OptionButtons:
   - {fileID: 2892304983068427011}
   - {fileID: 2892304983068427010}

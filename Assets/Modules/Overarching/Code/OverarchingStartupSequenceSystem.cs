@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.OverarchingMask)]
+    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
     public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState>
     {
         public override bool HasWork()
@@ -129,6 +129,7 @@ namespace SpaceFab.Overarching
         private void Complete()
         {
             m_StateA.Phase = OverarchingStartupSequencePhase.Completed;
+            GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }
 

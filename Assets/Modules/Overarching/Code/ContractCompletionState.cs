@@ -27,6 +27,7 @@ namespace SpaceFab.Overarching
         public static IEnumerator EnterPreviousRoutine(ContractLayoutState layoutState)
         {
             layoutState.FaderGroup.alpha = 1;
+            layoutState.FaderGroup.blocksRaycasts = true;
             layoutState.CompletedContractZone.anchoredPosition = layoutState.CompletedContractStartPos;
             layoutState.CompletionCanvasGroup.alpha = 0;
             layoutState.CompletedContractUI.gameObject.SetActive(true);

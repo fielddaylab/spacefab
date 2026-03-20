@@ -16,7 +16,7 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractSelectPhase.Loading:
-                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB));
+                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB, m_StateE));
                     m_StateA.Phase = ContractSelectPhase.PresentAvailableContracts;
                     break;
                 case ContractSelectPhase.PresentAvailableContracts:
@@ -26,6 +26,10 @@ namespace SpaceFab.Overarching
                     }
                     break;
                 case ContractSelectPhase.SelectContract:
+                    if (m_StateA.SelectedContractIndex != -1 && m_StateB.ConfirmContractButton.interactable == false)
+                    {
+                        m_StateB.ConfirmContractButton.interactable = true;
+                    }
                     // TODO
                     // m_StateA.SelectedContractIndex = 0;
                     if (m_StateA.SelectionConfirmed)
