@@ -64,18 +64,10 @@ namespace SpaceFab.Overarching
 
         public static IEnumerator ConfirmContractRoutine(ContractSelectState selectState, ContractLayoutState layoutState, PlayerProgressState progressState, ChapterState chapterState)
         {
-            chapterState.CurrSelectedContractAssetPack = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].ContractAssets();
-            Game.Assets.LoadPackage(chapterState.CurrSelectedContractAssetPack);
+            chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
+            ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, selectState.SelectedContractIndex);
 
-            // Unpack further
-            StringHash32 assetsWrapperId = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].ContractAssetsWrapperId;
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
-            // design level starts as initial config by default
-            var minigameSaveState = Find.State<MinigameSaveStates>();
-            minigameSaveState.Design.GridStack = new GridStack();
-            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
-
-            progressState.LastSelectedContract = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].AssetId;
+            SaveUtility.Save(SaveSlot.Main);
 
             yield return 0.5f;
 

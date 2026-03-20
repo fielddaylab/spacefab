@@ -13,7 +13,7 @@ namespace SpaceFab
     /// 
     /// </summary>
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ChapterMask)]
-    public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState>
+    public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState, PlayerProgressState>
     {
         public override bool HasWork()
         {
@@ -24,12 +24,13 @@ namespace SpaceFab
         {
             base.ProcessWork(deltaTime);
 
-            // TODO: implement
             switch (m_StateA.Phase)
             {
                 case ChapterLoadPhase.Loading:
-                    MoveFromPreviousState();
-                    LoadNextState();
+                    if (m_StateC.RecentlyCompletedLevel) {
+                        ChapterUtility.MoveFromPreviousState(m_StateB);
+                    }
+                    ChapterUtility.LoadCurrState(m_StateB, m_StateA, m_StateC);
                     // Complete
                     m_StateA.Phase = ChapterLoadPhase.Completed;
                     break;
@@ -42,31 +43,6 @@ namespace SpaceFab
 
         #region Helpers
 
-        private void MoveFromPreviousState()
-        {
-            m_StateB.PrevSelectedContractAssetPack = m_StateB.CurrSelectedContractAssetPack;
-
-            if (m_StateB.CurrChapterAssetPack != null)
-            {
-                Game.Assets.UnloadPackage(m_StateB.CurrChapterAssetPack);
-                // Unload PrevSelectedContractAsset AFTER ContractCompletionSystem
-            }
-
-            m_StateB.CurrChapterAssetPack = null;
-            m_StateB.CurrAvailableContractAssetsPack = null;
-            // m_StateA.CurrSelectedContractAssetPack = null;
-        }
-
-        private void LoadNextState()
-        {
-            // loaded until next chapter begins
-            m_StateB.CurrChapterAssetPack = m_StateA.Chapters[m_StateB.CurrChapterIndex].ChapterAssetPack;
-            Game.Assets.LoadPackage(m_StateB.CurrChapterAssetPack);
-            m_StateB.CurrChapterDef = Find.NamedAsset<ChapterDef>(m_StateA.Chapters[m_StateB.CurrChapterIndex].ChapterDefId);
-
-            // loaded whenever in overarching scene
-            m_StateB.CurrAvailableContractAssetsPack = m_StateB.CurrChapterDef.AvailableContracts;
-        }
 
         #endregion // Helpers
     }

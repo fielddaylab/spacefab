@@ -190,6 +190,7 @@ namespace SpaceFab.Save
             if (SpacefabGame.SaveBuffer.HasSave)
             {
                 SpacefabGame.SaveBuffer.Read();
+                SpacefabGame.SaveBuffer.HandleChunks();
             }
             Game.Scenes.ReloadMainScene();
         }
@@ -211,6 +212,7 @@ namespace SpaceFab.Save
                         if (bSuccess)
                         {
                             bSuccess = SpacefabGame.SaveBuffer.Read();
+                            SpacefabGame.SaveBuffer.HandleChunks();
                         }
                     }
 

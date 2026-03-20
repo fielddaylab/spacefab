@@ -156,12 +156,14 @@ namespace SpaceFab.Title
                     SaveUtility.SetDebugFlag(true);
                     SpacefabGame.SaveBuffer.Clear();
                     HandleStartAccepted();
+                    SaveUtility.Save(SaveSlot.Main);
                 }
                 else
                 {
                     SaveUtility.SetDebugFlag(false);
                     SpacefabGame.SaveBuffer.Clear();
                     OGD.Player.ClaimId(m_PlayerCodeInput.text, null, HandleStartAccepted, HandleClaimNewIdError);
+                    SaveUtility.Save(SaveSlot.Main);
                 }
             }
             else
@@ -269,7 +271,6 @@ namespace SpaceFab.Title
             // TODO: set this in OGD
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
             Game.Scenes.LoadMainScene(m_NextScene);
-            SaveUtility.Save(SaveSlot.Main);
         }
 
         private void HandleClaimNewIdError(OGD.Core.Error err)

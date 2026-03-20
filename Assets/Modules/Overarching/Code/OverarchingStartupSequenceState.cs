@@ -17,5 +17,6 @@ namespace SpaceFab.Overarching
     public class OverarchingStartupSequenceState : SharedStateComponent
     {
         public OverarchingStartupSequencePhase Phase;
+        public bool CompleteAfterLoad;
     }
 }

@@ -1,27 +1,37 @@
 using BeauUtil;
+using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Save;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab
 {
-    public class ChapterState : SharedStateComponent, ISaveStateChunkObject
+    public class ChapterState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks
     {
         public int CurrChapterIndex;
+        public int LastSelectedContractIndex;
 
-        public ChapterDef PrevChapterDef;
-        public ChapterDef CurrChapterDef;
-        public ContractsBundle CurrAvailableContractsBundle;
+        [HideInInspector] public ChapterDef PrevChapterDef;
+        [HideInInspector] public ChapterDef CurrChapterDef;
+        [HideInInspector] public ContractsBundle CurrAvailableContractsBundle;
 
-        public AssetPack PrevSelectedContractAssetPack;     // unloaded in ContractCompletionSystem
-        public AssetPack CurrSelectedContractAssetPack;     // assigned to PrevSelectedContractAssetPack, then unloaded in ContractCompletionSystem
+        [HideInInspector] public AssetPack PrevSelectedContractAssetPack;     // unloaded in ContractCompletionSystem
+        [HideInInspector] public AssetPack CurrSelectedContractAssetPack;     // assigned to PrevSelectedContractAssetPack, then unloaded in ContractCompletionSystem
 
-        public AssetPack CurrChapterAssetPack;              // unloaded in ChapterLoadSystem
-        public AssetPack CurrAvailableContractAssetsPack;   // unloaded at end of OverarchingScene
+        [HideInInspector] public AssetPack CurrChapterAssetPack;              // unloaded in ChapterLoadSystem
+        [HideInInspector] public AssetPack CurrAvailableContractAssetsPack;   // unloaded at end of OverarchingScene
+
+        public void OnDeregister()
+        {
+        }
+
+        public void OnRegister()
+        {
+            LastSelectedContractIndex = -1;
+            SpacefabGame.SaveBuffer.RegisterHandler("ChapterState", this);
+        }
 
 
         #region Interfaces
@@ -30,12 +40,14 @@ namespace SpaceFab
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-
+            reader.Read(ref CurrChapterIndex);
+            reader.Read(ref LastSelectedContractIndex);
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
-
+            writer.Write(CurrChapterIndex);
+            writer.Write(LastSelectedContractIndex);
         }
 
         #endregion // Interfaces
@@ -49,5 +61,39 @@ namespace SpaceFab
             // TODO
             state.CurrChapterIndex++;
         }
+
+        public static void MoveFromPreviousState(ChapterState chapterState)
+        {
+            chapterState.PrevSelectedContractAssetPack = chapterState.CurrSelectedContractAssetPack;
+
+            if (chapterState.CurrChapterAssetPack != null)
+            {
+                Game.Assets.UnloadPackage(chapterState.CurrChapterAssetPack);
+                // Unload PrevSelectedContractAsset AFTER ContractCompletionSystem
+            }
+
+            chapterState.CurrChapterAssetPack = null;
+            chapterState.CurrAvailableContractAssetsPack = null;
+            // m_StateA.CurrSelectedContractAssetPack = null;
+        }
+
+        public static void LoadCurrState(ChapterState chapterState, ChapterLoadState chapterLoadState, PlayerProgressState progressState)
+        {
+            // loaded until next chapter begins
+            chapterState.CurrChapterAssetPack = chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterAssetPack;
+            Game.Assets.LoadPackage(chapterState.CurrChapterAssetPack);
+            chapterState.CurrChapterDef = Find.NamedAsset<ChapterDef>(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterDefId);
+
+            // loaded whenever in overarching scene
+            chapterState.CurrAvailableContractAssetsPack = chapterState.CurrChapterDef.AvailableContracts;
+
+            ChapterLoadUtility.LoadAvailableContracts(chapterState);
+
+            if (chapterState.LastSelectedContractIndex != -1)
+            {
+                ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, chapterState.LastSelectedContractIndex);
+            }
+        }
+
     }
 }

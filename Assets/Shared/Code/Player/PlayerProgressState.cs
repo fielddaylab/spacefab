@@ -1,4 +1,5 @@
 using BeauUtil;
+using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Data;
 using FieldDay.SharedState;
@@ -9,13 +10,22 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject
+    public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks
     {
         public HashSet<StringHash32> AvailableMaterials;
         public HashSet<StringHash32> ResearchedMaterials;
 
         [AssetName(typeof(ContractDef))] public StringHash32 LastSelectedContract = StringHash32.Null;
         public bool RecentlyCompletedLevel;
+
+        public void OnDeregister()
+        {
+        }
+
+        public void OnRegister()
+        {
+            SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
+        }
 
         #region Interfaces
 

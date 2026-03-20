@@ -44,15 +44,17 @@ namespace SpaceFab.Overarching
         {
             // if player has no contract OR player just completed a level, trigger startup sequence
             var progress = Find.State<PlayerProgressState>();
-            if (progress.LastSelectedContract.Equals(StringHash32.Null) || progress.RecentlyCompletedLevel)
+            if (m_StateE.LastSelectedContractIndex == -1 || progress.RecentlyCompletedLevel)
             {
+                // next contract must be selected
                 m_StateA.Phase = OverarchingStartupSequencePhase.ChapterLoad;
-                m_StateB.Phase = ChapterLoadPhase.Waiting;
+                m_StateA.CompleteAfterLoad = false;
             }
             else
             {
-                LoadAvailableContracts();
-                Complete();
+                // skip contract completion/selection
+                m_StateA.Phase = OverarchingStartupSequencePhase.ChapterLoad;
+                m_StateA.CompleteAfterLoad = true;
             }
         }
 
@@ -70,9 +72,17 @@ namespace SpaceFab.Overarching
                 // wait for ContractCompletionSystem to complete
                 if (m_StateB.Phase == ChapterLoadPhase.Completed)
                 {
-                    // Move to next phase after chapter load
-                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
-                    m_StateC.Phase = ContractCompletionPhase.Waiting;
+                    if (m_StateA.CompleteAfterLoad)
+                    {
+                        LoadAvailableContracts();
+                        Complete();
+                    }
+                    else
+                    {
+                        // Move to next phase after chapter load
+                        m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+                        m_StateC.Phase = ContractCompletionPhase.Waiting;
+                    }
                 }
             }
         }
@@ -121,9 +131,7 @@ namespace SpaceFab.Overarching
 
         private void LoadAvailableContracts()
         {
-            // loaded whenever entering overarching scene (TODO: unload on exit overarching scene)
-            Game.Assets.LoadPackage(m_StateE.CurrAvailableContractAssetsPack);
-            m_StateE.CurrAvailableContractsBundle = Find.NamedAsset<ContractsBundle>(m_StateE.CurrChapterDef.AvailableContractsBundleId);
+            ChapterLoadUtility.LoadAvailableContracts(m_StateE);
         }
 
         private void Complete()
