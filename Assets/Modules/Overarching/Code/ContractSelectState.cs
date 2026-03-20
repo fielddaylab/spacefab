@@ -3,6 +3,8 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.SharedState;
+using SpaceFab.Design;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -64,6 +66,13 @@ namespace SpaceFab.Overarching
         {
             chapterState.CurrSelectedContractAssetPack = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].ContractAssets();
             Game.Assets.LoadPackage(chapterState.CurrSelectedContractAssetPack);
+
+            // Unpack further
+            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>("ContractAssetsWrapper");
+            // design level starts as initial config by default
+            var minigameSaveState = Find.State<MinigameSaveStates>();
+            minigameSaveState.Design.GridStack = new GridStack();
+            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
 
             yield return 0.5f;
 

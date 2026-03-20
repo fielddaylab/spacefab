@@ -30,8 +30,6 @@ namespace SpaceFab.Overarching
                     {
                         m_StateB.ConfirmContractButton.interactable = true;
                     }
-                    // TODO
-                    // m_StateA.SelectedContractIndex = 0;
                     if (m_StateA.SelectionConfirmed)
                     {
                         m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateE));

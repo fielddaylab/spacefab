@@ -67,7 +67,7 @@ namespace SpaceFab.Design
     {
         public CellType CellType;
         public InputOutputNodeTypeFlags SubtypeLabel;
-        public EdgeStateData[] Edges; //  = new EdgeStateData[6]; // one for each edge dir
+        public EdgeStateData[] Edges = new EdgeStateData[6]; // one for each edge dir
         public TransferType TransferType; // informs how data is transferred between layers when either ASCEND or DESCEND edges are connected
 
         public FlowState FlowState;

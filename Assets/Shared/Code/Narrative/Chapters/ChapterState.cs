@@ -21,7 +21,7 @@ namespace SpaceFab
         public AssetPack CurrSelectedContractAssetPack;     // assigned to PrevSelectedContractAssetPack, then unloaded in ContractCompletionSystem
 
         public AssetPack CurrChapterAssetPack;              // unloaded in ChapterLoadSystem
-        public AssetPack CurrAvailableContractAssetsPack;   // TODO: unloaded at end of OverarchingScene
+        public AssetPack CurrAvailableContractAssetsPack;   // unloaded at end of OverarchingScene
 
 
         #region Interfaces

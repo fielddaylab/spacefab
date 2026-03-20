@@ -26,25 +26,25 @@ namespace SpaceFab.Design
     {
         #region Loading
 
-        public static void LoadConfig(GridStackState state, GridStackConfig config)
+        public static void LoadConfig(ref GridStack gridStack, GridStackConfig config)
         {
-            state.GridStack.LayerDims = config.LayerDims;
-            state.GridStack.GridLayers = new GridLayer[2]
+            gridStack.LayerDims = config.LayerDims;
+            gridStack.GridLayers = new GridLayer[2]
             {
-                new GridLayer(state.GridStack.LayerDims.X, state.GridStack.LayerDims.Y, (int)StackLayer.Metal),  // metal layer (highest)
-                new GridLayer(state.GridStack.LayerDims.X, state.GridStack.LayerDims.Y, (int)StackLayer.Transistor)   // transistor layer (lowest)
+                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y, (int)StackLayer.Metal),  // metal layer (highest)
+                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y, (int)StackLayer.Transistor)   // transistor layer (lowest)
             };
             for (int i = 0; i < config.Cells.Length; i++)
             {
-                LoadCellConfig(state, config.Cells[i]);
+                LoadCellConfig(ref gridStack, config.Cells[i]);
             }
         }
 
-        public static void LoadCellConfig(GridStackState state, GridCellConfig config)
+        public static void LoadCellConfig(ref GridStack gridStack, GridCellConfig config)
         {
-            var cell = state.GridStack.GridLayers[(int)config.LayerIndex].GetCell(config.ColumnIndex, config.RowIndex);
+            var cell = gridStack.GridLayers[(int)config.LayerIndex].GetCell(config.ColumnIndex, config.RowIndex);
             cell.LoadCellConfig(config);
-            state.GridStack.GridLayers[(int)config.LayerIndex].SetCell(config.ColumnIndex, config.RowIndex, cell);
+            gridStack.GridLayers[(int)config.LayerIndex].SetCell(config.ColumnIndex, config.RowIndex, cell);
         }
 
         #endregion // Loading
