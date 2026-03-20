@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay.Assets;
-using SpaceFab.ChipDesign;
+using SpaceFab.Design;
+using SpaceFab.Design;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;

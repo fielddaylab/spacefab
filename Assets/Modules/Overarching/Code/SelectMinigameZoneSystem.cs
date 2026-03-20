@@ -14,6 +14,12 @@ namespace SpaceFab.Overarching
     [SysUpdate(GameLoopPhase.PreUpdate, 0)]
     public class SelectMinigameZoneSystem : ComponentSystemBehaviour<MinigameZone>
     {
+        public override bool HasWork()
+        {
+            return base.HasWork();
+        }
+
+
         public override void ProcessWork(float deltaTime)
         {
             base.ProcessWork(deltaTime);

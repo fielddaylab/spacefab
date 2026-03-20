@@ -22,15 +22,18 @@ namespace SpaceFab
             switch (m_StateA.Phase)
             {
                 case MinigameLoadExitPhase.Loading:
+                    Debug.Log("[MinigameLoadExitSystem] Importing state...");
                     m_StateB.MinigameState.ImportState(m_StateC);
                     m_StateA.Phase = MinigameLoadExitPhase.Loaded;
                     break;
                 case MinigameLoadExitPhase.Loaded:
+                    Debug.Log("[MinigameLoadExitSystem] Imported!");
                     GameLoop.SuspendUpdates(Bits.All32);
                     GameLoop.ResumeUpdates(m_StateB.MinigameState.DefaultUpdateMask);
                     m_StateA.Phase = MinigameLoadExitPhase.None;
                     break;
                 case MinigameLoadExitPhase.Exiting:
+                    Debug.Log("[MinigameLoadExitSystem] Exporting state...");
                     m_StateB.MinigameState.ExportState(ref m_StateC);
                     SaveUtility.Save(SaveSlot.Main);
                     m_StateA.Phase = MinigameLoadExitPhase.SavingOnExit;
@@ -42,6 +45,7 @@ namespace SpaceFab
                     }
                     break;
                 case MinigameLoadExitPhase.Exited:
+                    Debug.Log("[MinigameLoadExitSystem] Exported!");
                     Game.Events.Dispatch(GameEvents.OnMinigameExit);
                     Game.Scenes.LoadMainScene(m_StateD.ReturnScene);
                     m_StateA.Phase = MinigameLoadExitPhase.None;
