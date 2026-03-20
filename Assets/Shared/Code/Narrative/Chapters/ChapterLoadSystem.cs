@@ -28,6 +28,7 @@ namespace SpaceFab
             {
                 case ChapterLoadPhase.Loading:
                     if (m_StateC.RecentlyCompletedLevel) {
+                        // ChapterUtility.LoadPreviousState(m_StateB);
                         ChapterUtility.MoveFromPreviousState(m_StateB);
                     }
                     ChapterUtility.LoadCurrState(m_StateB, m_StateA, m_StateC);

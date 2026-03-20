@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Data;
 using FieldDay.SharedState;
+using SpaceFab.Design;
 using SpaceFab.Save;
 using UnityEngine;
 
@@ -60,6 +61,20 @@ namespace SpaceFab
 
             // TODO
             state.CurrChapterIndex++;
+        }
+
+        public static void LoadPreviousState(ChapterState chapterState, PlayerProgressState progressState, int selectedContractIndex)
+        {
+            // load contract asset from previous chapter
+            // ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, selectedContractIndex)
+            ChapterLoadUtility.LoadAvailableContracts(chapterState);
+
+            chapterState.CurrSelectedContractAssetPack = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectedContractIndex].ContractAssets();
+            Game.Assets.LoadPackage(chapterState.CurrSelectedContractAssetPack);
+
+            // Unpack further
+            StringHash32 assetsWrapperId = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectedContractIndex].ContractAssetsWrapperId;
+            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
         }
 
         public static void MoveFromPreviousState(ChapterState chapterState)
