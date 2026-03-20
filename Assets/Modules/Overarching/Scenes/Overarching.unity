@@ -606,6 +606,11 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 3467204504102956007, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
   m_PrefabInstance: {fileID: 994501227}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &1036893079 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 7015921497713535981, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1164620735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1040,6 +1045,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ecb790c360d2b043a6316c7576700b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FaderGroup: {fileID: 1036893079}
   CompletionCanvasGroup: {fileID: 1503251007}
   CompletedContractZone: {fileID: 1571798444}
   CompletedContractUI: {fileID: 1248874235}
@@ -1065,6 +1071,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Phase: 0
+  SelectedContractIndex: 0
+  SelectionConfirmed: 0
 --- !u!114 &2025114825
 MonoBehaviour:
   m_ObjectHideFlags: 0

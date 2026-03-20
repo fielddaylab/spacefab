@@ -7,23 +7,42 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
-    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, PlayerProgressState, ChapterLoadState>
+    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, PlayerProgressState, ChapterLoadState, ChapterState>
     {
         public override void ProcessWork(float deltaTime)
         {
             base.ProcessWork(deltaTime);
 
-            // TODO
             switch (m_StateA.Phase)
             {
+                case ContractSelectPhase.Loading:
+                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB));
+                    m_StateA.Phase = ContractSelectPhase.PresentAvailableContracts;
+                    break;
+                case ContractSelectPhase.PresentAvailableContracts:
+                    if (!m_StateB.SelectionRoutine.Exists())
+                    {
+                        m_StateA.Phase = ContractSelectPhase.SelectContract;
+                    }
+                    break;
+                case ContractSelectPhase.SelectContract:
+                    // TODO
+                    // m_StateA.SelectedContractIndex = 0;
+                    if (m_StateA.SelectionConfirmed)
+                    {
+                        m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateE));
+                        m_StateA.Phase = ContractSelectPhase.ConfirmContract;
+                    }
+                    break;
                 case ContractSelectPhase.ConfirmContract:
-                    // Game.Assets.LoadPackage(m_StateD.CurrAvailableContractAssets[0]);
+                    if (!m_StateB.SelectionRoutine.Exists())
+                    {
+                        m_StateA.Phase = ContractSelectPhase.Completed;
+                    }
                     break;
                 default:
                     break;
             }
-
-            m_StateA.Phase = ContractSelectPhase.Completed;
         }
     }
 }

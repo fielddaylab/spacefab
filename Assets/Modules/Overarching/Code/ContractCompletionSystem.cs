@@ -1,3 +1,4 @@
+using BeauRoutine;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
@@ -22,19 +23,19 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractCompletionPhase.Loading:
-                    m_StateB.CompletionRoutine.Replace(ContractLayoutUtility.EnterPreviousRoutine(m_StateA, m_StateB));
+                    m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
                     m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
                     if (!m_StateB.CompletionRoutine.Exists()) {
-                        m_StateB.CompletionRoutine.Replace(ContractLayoutUtility.EvaluatePreviousRoutine(m_StateA, m_StateB));
+                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(m_StateB));
                         m_StateA.Phase = ContractCompletionPhase.EvaluatePreviousContract;
                     }
                     break;
                 case ContractCompletionPhase.EvaluatePreviousContract:
                     if (!m_StateB.CompletionRoutine.Exists())
                     {
-                        m_StateB.CompletionRoutine.Replace(ContractLayoutUtility.HidePreviousRoutine(m_StateA, m_StateB));
+                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.HidePreviousRoutine(m_StateB));
                         m_StateA.Phase = ContractCompletionPhase.HidePreviousContract;
                     }
                     break;
