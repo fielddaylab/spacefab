@@ -1,8 +1,10 @@
+using BeauRoutine;
 using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.SharedState;
 using SpaceFab.Design;
+using SpaceFab.Overarching;
 using SpaceFab.Save;
 using System;
 using System.Collections;
@@ -14,25 +16,104 @@ namespace SpaceFab
     public enum ChapterLoadPhase
     {
         Waiting,
-        Loading,
+        LoadingChapter,
+        LoadingAvailableContracts,
         Completed
     }
 
     [Serializable]
     public struct ChapterLoadBundle
     {
-        [AssetName(typeof(ChapterDef))][SerializeField] public StringHash32 ChapterDefId;
-        public AssetPack ChapterAssetPack;
+        public SceneReference ChapterScene;
     }
 
     public class ChapterLoadState : SharedStateComponent
     {
         public ChapterLoadPhase Phase;
         public ChapterLoadBundle[] Chapters;
+
+        public Routine LoadRoutine;
     }
 
     public static class ChapterLoadUtility
     {
+        public static IEnumerator LoadCurrChapter(ChapterState chapterState, ChapterLoadState chapterLoadState)
+        {
+            if (Game.Scenes.IsLoaded(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterScene))
+            {
+                chapterLoadState.Phase = ChapterLoadPhase.Completed;
+                yield break;
+            }
+
+            // Unload prev chapter, if applicable
+            if (chapterState.CurrChapterIndex > 0)
+            {
+                var prevChapterScene = chapterLoadState.Chapters[chapterState.CurrChapterIndex - 1].ChapterScene;
+                if (Game.Scenes.IsLoaded(prevChapterScene))
+                {
+                    Game.Scenes.UnloadScene(prevChapterScene);
+
+                    while (Game.Scenes.IsUnloading())
+                    {
+                        yield return null;
+                    }
+                }
+            }
+
+            // loaded until next chapter begins
+            Game.Scenes.LoadPersistentScene(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterScene);
+            //chapterState.CurrChapterAssetPack = chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterAssetPack;
+            //Game.Assets.LoadPackage(chapterState.CurrChapterAssetPack);
+
+            while (Game.Scenes.IsLoading(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterScene))
+            {
+                yield return null;
+            }
+
+            chapterLoadState.Phase = ChapterLoadPhase.Completed;
+
+            // chapterState.CurrChapterDef = Find.NamedAsset<ChapterDef>(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterDefId);
+
+            /*
+            // loaded whenever in overarching scene
+            chapterState.CurrAvailableContractAssetsPack = chapterState.CurrChapterDef.AvailableContracts;
+
+            ChapterLoadUtility.LoadAvailableContracts(chapterState);
+
+            if (chapterState.LastSelectedContractIndex != -1)
+            {
+                ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, chapterState.LastSelectedContractIndex);
+            }
+            */
+        }
+
+        public static IEnumerator LoadCurrAvailableContracts(ChapterState chapterState, ChapterLoadState chapterLoadState, AvailableContractsLookup lookup)
+        {
+            var availableContractsScene = lookup.Entries[chapterState.CurrChapterIndex].Scene;
+            Game.Scenes.LoadPersistentScene(availableContractsScene);
+
+            while (Game.Scenes.IsLoading(availableContractsScene))
+            {
+                yield return null;
+            }
+
+            chapterLoadState.Phase = ChapterLoadPhase.Completed;
+
+            // chapterState.CurrChapterDef = Find.NamedAsset<ChapterDef>(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterDefId);
+
+            /*
+            // loaded whenever in overarching scene
+            chapterState.CurrAvailableContractAssetsPack = chapterState.CurrChapterDef.AvailableContracts;
+
+            ChapterLoadUtility.LoadAvailableContracts(chapterState);
+
+            if (chapterState.LastSelectedContractIndex != -1)
+            {
+                ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, chapterState.LastSelectedContractIndex);
+            }
+            */
+        }
+
         public static void LoadAvailableContracts(ChapterState chapterState)
         {
             // loaded whenever entering overarching scene

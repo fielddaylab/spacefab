@@ -13,11 +13,11 @@ namespace SpaceFab
     /// 
     /// </summary>
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ChapterMask)]
-    public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState, PlayerProgressState>
+    public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState, AvailableContractsLookup>
     {
         public override bool HasWork()
         {
-            return base.HasWork() && m_StateA.Phase != ChapterLoadPhase.Waiting;
+            return base.HasWork() && m_StateA.Phase != ChapterLoadPhase.Waiting && m_StateA.Phase != ChapterLoadPhase.Completed;
         }
 
         public override void ProcessWork(float deltaTime)
@@ -26,20 +26,23 @@ namespace SpaceFab
 
             switch (m_StateA.Phase)
             {
-                case ChapterLoadPhase.Loading:
-                    if (m_StateC.RecentlyCompletedLevel) {
-                        // ChapterUtility.LoadPreviousState(m_StateB);
-                        ChapterUtility.MoveFromPreviousState(m_StateB);
+                case ChapterLoadPhase.LoadingChapter:
+                    if (!m_StateA.LoadRoutine.Exists())
+                    {
+                        // load curr chapter
+                        m_StateA.LoadRoutine.Replace(ChapterLoadUtility.LoadCurrChapter(m_StateB, m_StateA));
                     }
-                    ChapterUtility.LoadCurrState(m_StateB, m_StateA, m_StateC);
-                    // Complete
-                    m_StateA.Phase = ChapterLoadPhase.Completed;
+                    break;
+                case ChapterLoadPhase.LoadingAvailableContracts:
+                    if (!m_StateA.LoadRoutine.Exists())
+                    {
+                        // load chapter in parallel with other systems
+                        m_StateA.LoadRoutine.Replace(ChapterLoadUtility.LoadCurrAvailableContracts(m_StateB, m_StateA, m_StateC));
+                    }
                     break;
                 default:
                     break;
             }
-
-            m_StateA.Phase = ChapterLoadPhase.Completed;
         }
 
         #region Helpers

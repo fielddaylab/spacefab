@@ -7,16 +7,25 @@ namespace SpaceFab.Overarching
 {
     public enum OverarchingStartupSequencePhase
     {
-        DetermineSequence,
-        ChapterLoad,
+        // If not already loaded
+        LoadCurrChapter,
+
+        // If coming from prev chapter
         ContractCompletionSystem,
+
+        // Always
+        LoadCurrAvailableContracts,
+
+        // If curr contract not yet selected
         ContractSelectSystem,
+
+        // ALways
+        LoadSelectedContract,
         Completed,
     }
 
     public class OverarchingStartupSequenceState : SharedStateComponent
     {
         public OverarchingStartupSequencePhase Phase;
-        public bool CompleteAfterLoad;
     }
 }

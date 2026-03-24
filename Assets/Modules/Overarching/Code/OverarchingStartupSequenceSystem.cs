@@ -7,6 +7,15 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
+    /// <summary>
+    /// 1. Load the present chapter
+    /// 2. Load current available contracts (in parallel with completion sequence)
+    /// 2. If coming from previous chapter:
+    ///     b. Perform completion sequence (in parallel with loading available contracts)
+    /// 3. If Selected Contract not selected yet:
+    ///     a. Select contract sequence
+    /// 4. Load Selected Contract
+    /// </summary>
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
     public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState>
     {
@@ -21,17 +30,21 @@ namespace SpaceFab.Overarching
 
             switch (m_StateA.Phase)
             {
-                case OverarchingStartupSequencePhase.DetermineSequence:
-                    ProcessDetermineSequence();
+                case OverarchingStartupSequencePhase.LoadCurrChapter:
+                    ProcessLoadCurrChapter();
                     break;
-                case OverarchingStartupSequencePhase.ChapterLoad:
-                    ProcessChapterLoad();
+                case OverarchingStartupSequencePhase.LoadCurrAvailableContracts:
+                    //start loading before contract completion routine, must complete before contract select system
+                    ProcessLoadCurrAvailableContracts();
                     break;
                 case OverarchingStartupSequencePhase.ContractCompletionSystem:
                     ProcessContractCompletion();
                     break;
                 case OverarchingStartupSequencePhase.ContractSelectSystem:
-                    ProcessContractSelect();
+                    ProcessContractSelectSystem();
+                    break;
+                case OverarchingStartupSequencePhase.LoadSelectedContract:
+                    ProcessLoadSelectedContract();
                     break;
                 default:
                     break;
@@ -40,6 +53,76 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
+        private void ProcessLoadCurrChapter()
+        {
+            if (m_StateB.Phase == ChapterLoadPhase.Waiting)
+            {
+                // begin ChapterLoadSystem
+                GameLoop.ResumeUpdates(UpdateMasks.ChapterMask);
+                Debug.Log("[OverarchingStartupSequenceSystem] Begin ChapterLoadSystem");
+                m_StateB.Phase = ChapterLoadPhase.LoadingChapter;
+            }
+            else
+            {
+                if (m_StateB.Phase == ChapterLoadPhase.Completed) 
+                { 
+                    // Move to next phase after chapter load
+                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
+                }
+            }
+        }
+
+        private void ProcessLoadCurrAvailableContracts()
+        {
+            // start load available contracts
+            m_StateB.Phase = ChapterLoadPhase.LoadingAvailableContracts;
+
+            // determine if contract completion is next
+            var progress = Find.State<PlayerProgressState>();
+            if (m_StateE.LastSelectedContractIndex == -1 || progress.RecentlyCompletedLevel)
+            {
+                // next contract must be selected
+                m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+                m_StateC.Phase = ContractCompletionPhase.Waiting;
+            }
+            else
+            {
+                // skip contract completion/selection
+                // TODO: determine if contract selection must happen next
+                bool isSelected = false;
+                if (!isSelected)
+                {
+                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
+                    m_StateD.Phase = ContractSelectPhase.Waiting;
+                }
+                else
+                {
+                    // load selected contract
+                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
+                }
+            }
+        }
+
+        private void ProcessContractCompletion()
+        {
+
+        }
+
+
+        private void ProcessContractSelectSystem()
+        {
+            // wait for LoadAvailableContracts routine to complete
+            if (m_StateB.LoadRoutine.Exists()) { return; }
+
+
+        }
+
+        private void ProcessLoadSelectedContract()
+        {
+            m_StateA.Phase = OverarchingStartupSequencePhase.Completed;
+        }
+
+        /*
         private void ProcessDetermineSequence()
         {
             // if player has no contract OR player just completed a level, trigger startup sequence
@@ -140,6 +223,7 @@ namespace SpaceFab.Overarching
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }
+        */
 
         #endregion // Helpers
     }

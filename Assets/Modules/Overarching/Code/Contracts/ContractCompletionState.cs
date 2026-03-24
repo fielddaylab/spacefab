@@ -10,10 +10,12 @@ namespace SpaceFab.Overarching
     public enum ContractCompletionPhase
     {
         Waiting,
-        Loading,
+        BeginLoadFromPrevChapter,
+        LoadFromPrevChapter,
         EnterPreviousContract,
         EvaluatePreviousContract,
         HidePreviousContract,
+        UnloadFromPrevChapter,
         Completed
     }
 
@@ -24,6 +26,16 @@ namespace SpaceFab.Overarching
 
     public static class ContractCompletionUtility
     {
+        public static IEnumerator LoadFromPrevChapterRoutine()
+        {
+            yield break;
+        }
+
+        public static IEnumerator UnloadFromPrevChapterRoutine()
+        {
+            yield break;
+        }
+
         public static IEnumerator EnterPreviousRoutine(ContractLayoutState layoutState)
         {
             layoutState.FaderGroup.alpha = 1;

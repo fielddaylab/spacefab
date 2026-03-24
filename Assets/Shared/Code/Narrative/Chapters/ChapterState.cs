@@ -5,6 +5,7 @@ using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Design;
 using SpaceFab.Save;
+using System.Collections;
 using UnityEngine;
 
 namespace SpaceFab
@@ -91,24 +92,5 @@ namespace SpaceFab
             chapterState.CurrAvailableContractAssetsPack = null;
             // m_StateA.CurrSelectedContractAssetPack = null;
         }
-
-        public static void LoadCurrState(ChapterState chapterState, ChapterLoadState chapterLoadState, PlayerProgressState progressState)
-        {
-            // loaded until next chapter begins
-            chapterState.CurrChapterAssetPack = chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterAssetPack;
-            Game.Assets.LoadPackage(chapterState.CurrChapterAssetPack);
-            chapterState.CurrChapterDef = Find.NamedAsset<ChapterDef>(chapterLoadState.Chapters[chapterState.CurrChapterIndex].ChapterDefId);
-
-            // loaded whenever in overarching scene
-            chapterState.CurrAvailableContractAssetsPack = chapterState.CurrChapterDef.AvailableContracts;
-
-            ChapterLoadUtility.LoadAvailableContracts(chapterState);
-
-            if (chapterState.LastSelectedContractIndex != -1)
-            {
-                ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, chapterState.LastSelectedContractIndex);
-            }
-        }
-
     }
 }

@@ -22,9 +22,16 @@ namespace SpaceFab.Overarching
 
             switch (m_StateA.Phase)
             {
-                case ContractCompletionPhase.Loading:
-                    m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
-                    m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
+                case ContractCompletionPhase.BeginLoadFromPrevChapter:
+                    m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine());
+                    m_StateA.Phase = ContractCompletionPhase.LoadFromPrevChapter;
+                    break;
+                case ContractCompletionPhase.LoadFromPrevChapter:
+                    if (!m_StateB.CompletionRoutine.Exists())
+                    {
+                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
+                        m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
+                    }
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
                     if (!m_StateB.CompletionRoutine.Exists()) {
@@ -42,11 +49,14 @@ namespace SpaceFab.Overarching
                 case ContractCompletionPhase.HidePreviousContract:
                     if (!m_StateB.CompletionRoutine.Exists())
                     {
-                        if (m_StateD.PrevSelectedContractAssetPack != null)
-                        {
-                            // Unload previous chapter assets
-                            Game.Assets.UnloadPackage(m_StateD.PrevSelectedContractAssetPack);
-                        }
+                        // Unload
+                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine());
+                        m_StateA.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
+                    }
+                    break;
+                case ContractCompletionPhase.UnloadFromPrevChapter:
+                    if (!m_StateB.CompletionRoutine.Exists())
+                    {
                         // Complete
                         m_StateA.Phase = ContractCompletionPhase.Completed;
                     }
