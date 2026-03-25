@@ -9,7 +9,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
-    public class ContractCompletionSystem : SharedStateSystemBehaviour<ContractCompletionState, ContractLayoutState, PlayerProgressState, ChapterState>
+    public class ContractCompletionSystem : SharedStateSystemBehaviour<ContractCompletionState, ContractLayoutState, PlayerProgressState, ChapterState, AvailableContractsLookup>
     {
         public override bool HasWork()
         {
@@ -23,12 +23,13 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractCompletionPhase.BeginLoadFromPrevChapter:
-                    m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine());
+                    m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
                     m_StateA.Phase = ContractCompletionPhase.LoadFromPrevChapter;
                     break;
                 case ContractCompletionPhase.LoadFromPrevChapter:
                     if (!m_StateB.CompletionRoutine.Exists())
                     {
+                        ContractCompletionUtility.PopulateContractUI(m_StateA, m_StateB, m_StateD, m_StateE);
                         m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
                         m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
                     }
@@ -49,8 +50,9 @@ namespace SpaceFab.Overarching
                 case ContractCompletionPhase.HidePreviousContract:
                     if (!m_StateB.CompletionRoutine.Exists())
                     {
+                        m_StateD.LastSelectedContractIndex = -1;
                         // Unload
-                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine());
+                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
                         m_StateA.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
                     }
                     break;

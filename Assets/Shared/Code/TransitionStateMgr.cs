@@ -37,13 +37,16 @@ namespace SpaceFab
 
         private void HandlePrepareScene(SceneCallbackArgs args)
         {
-            // Skip SharedUI behavior in Boot scene
+            // Skip SharedUI behavior in Boot scene, and when loading aux / persistent scenes
             SceneBinding active = SceneManager.GetActiveScene();
             if (active.BuildIndex != GameConsts.StartGameSceneIndex) {
-                m_SceneLoadRoutine.Stop();
+                if ((args.LoadType != SceneType.Aux) && (args.LoadType != SceneType.Persistent))
+                {
+                    m_SceneLoadRoutine.Stop();
 
-                SharedUIState uiState = Find.State<SharedUIState>();
-                m_SceneLoadRoutine.Replace(SharedUIUtility.OnBeginLoading(uiState));
+                    SharedUIState uiState = Find.State<SharedUIState>();
+                    m_SceneLoadRoutine.Replace(SharedUIUtility.OnBeginLoading(uiState));
+                }
             }
         }
 
@@ -53,13 +56,16 @@ namespace SpaceFab
             SceneBinding active = SceneManager.GetActiveScene();
             if (active.BuildIndex != GameConsts.StartGameSceneIndex)
             {
-                if (m_SceneLoadRoutine.Exists())
+                if ((args.LoadType != SceneType.Aux) && (args.LoadType != SceneType.Persistent))
                 {
-                    m_SceneLoadRoutine.OnComplete(() =>
+                    if (m_SceneLoadRoutine.Exists())
                     {
-                        SharedUIState uiState = Find.State<SharedUIState>();
-                        m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
-                    });
+                        m_SceneLoadRoutine.OnComplete(() =>
+                        {
+                            SharedUIState uiState = Find.State<SharedUIState>();
+                            m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
+                        });
+                    }
                 }
             }
         }

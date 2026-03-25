@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
-    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, PlayerProgressState, ChapterLoadState, ChapterState>
+    [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
+    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ContractAssetsLookup, ChapterLoadState, ChapterState>
     {
         public override void ProcessWork(float deltaTime)
         {
@@ -32,7 +32,7 @@ namespace SpaceFab.Overarching
                     }
                     if (m_StateA.SelectionConfirmed)
                     {
-                        m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateC, m_StateE));
+                        m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateE, m_StateC));
                         m_StateA.Phase = ContractSelectPhase.ConfirmContract;
                     }
                     break;

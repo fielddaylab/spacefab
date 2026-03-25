@@ -17,7 +17,7 @@ namespace SpaceFab.Overarching
     /// 4. Load Selected Contract
     /// </summary>
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
-    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState>
+    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState, ContractLoadState>
     {
         public override bool HasWork()
         {
@@ -79,142 +79,94 @@ namespace SpaceFab.Overarching
 
             // determine if contract completion is next
             var progress = Find.State<PlayerProgressState>();
-            if (m_StateE.LastSelectedContractIndex == -1 || progress.RecentlyCompletedLevel)
+            if (progress.RecentlyCompletedChapter)
             {
-                // next contract must be selected
                 m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
                 m_StateC.Phase = ContractCompletionPhase.Waiting;
             }
             else
             {
-                // skip contract completion/selection
-                // TODO: determine if contract selection must happen next
-                bool isSelected = false;
-                if (!isSelected)
-                {
-                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
-                    m_StateD.Phase = ContractSelectPhase.Waiting;
-                }
-                else
-                {
-                    // load selected contract
-                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
-                }
+                // skip contract completion
+                MoveToContractSelect();
             }
-        }
 
-        private void ProcessContractCompletion()
-        {
-
-        }
-
-
-        private void ProcessContractSelectSystem()
-        {
-            // wait for LoadAvailableContracts routine to complete
-            if (m_StateB.LoadRoutine.Exists()) { return; }
-
-
-        }
-
-        private void ProcessLoadSelectedContract()
-        {
-            m_StateA.Phase = OverarchingStartupSequencePhase.Completed;
-        }
-
-        /*
-        private void ProcessDetermineSequence()
-        {
-            // if player has no contract OR player just completed a level, trigger startup sequence
-            var progress = Find.State<PlayerProgressState>();
-            if (m_StateE.LastSelectedContractIndex == -1 || progress.RecentlyCompletedLevel)
-            {
-                // next contract must be selected
-                m_StateA.Phase = OverarchingStartupSequencePhase.ChapterLoad;
-                m_StateA.CompleteAfterLoad = false;
-            }
-            else
-            {
-                // skip contract completion/selection
-                m_StateA.Phase = OverarchingStartupSequencePhase.ChapterLoad;
-                m_StateA.CompleteAfterLoad = true;
-            }
-        }
-
-        private void ProcessChapterLoad()
-        {
-            if (m_StateB.Phase == ChapterLoadPhase.Waiting)
-            {
-                // begin ChapterLoadSystem
-                GameLoop.ResumeUpdates(UpdateMasks.ChapterMask);
-                Debug.Log("[OverarchingStartupSequenceSystem] Begin ChapterLoadSystem");
-                m_StateB.Phase = ChapterLoadPhase.Loading;
-            }
-            else
-            {
-                // wait for ContractCompletionSystem to complete
-                if (m_StateB.Phase == ChapterLoadPhase.Completed)
-                {
-                    if (m_StateA.CompleteAfterLoad)
-                    {
-                        LoadAvailableContracts();
-                        Complete();
-                    }
-                    else
-                    {
-                        // Move to next phase after chapter load
-                        m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
-                        m_StateC.Phase = ContractCompletionPhase.Waiting;
-                    }
-                }
-            }
+            GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
         }
 
         private void ProcessContractCompletion()
         {
             if (m_StateC.Phase == ContractCompletionPhase.Waiting)
             {
-                // begin ContractCompletionSystem
+                // begin ChapterCompletionSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractCompletionSystem");
-                GameLoop.SuspendUpdates(UpdateMasks.ChapterMask);
-                GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
-                m_StateC.Phase = ContractCompletionPhase.Loading;
-                m_StateD.Phase = ContractSelectPhase.Waiting;
+
+                m_StateC.Phase = ContractCompletionPhase.BeginLoadFromPrevChapter;
             }
             else
             {
-                // wait for ContractCompletionSystem to complete
                 if (m_StateC.Phase == ContractCompletionPhase.Completed)
                 {
-                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
+                    MoveToContractSelect();
                 }
             }
         }
 
-        private void ProcessContractSelect()
+        private void MoveToContractSelect()
         {
+            // determine if contract selection must happen next
+            if (m_StateE.LastSelectedContractIndex == -1)
+            {
+                m_StateA.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
+                m_StateD.Phase = ContractSelectPhase.Waiting;
+            }
+            else
+            {
+                // load selected contract
+                m_StateA.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
+            }
+        }
+
+        private void ProcessContractSelectSystem()
+        {
+            // wait for LoadAvailableContracts routine to complete
+            if (m_StateB.LoadRoutine.Exists() || m_StateB.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
+
             if (m_StateD.Phase == ContractSelectPhase.Waiting)
             {
-                LoadAvailableContracts();
-                // begin ContractSelectSystem
+                // begin ChapterCompletionSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractSelectSystem");
-                m_StateC.Phase = ContractCompletionPhase.Waiting;
                 m_StateD.Phase = ContractSelectPhase.Loading;
             }
             else
             {
-                // wait for ContractSelectSystem to complete
                 if (m_StateD.Phase == ContractSelectPhase.Completed)
+                {
+                    // load selected contract
+                    m_StateF.Phase = ContractLoadPhase.Waiting;
+                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
+                }
+            }
+        }
+
+        private void ProcessLoadSelectedContract()
+        {
+            if (m_StateB.LoadRoutine.Exists() || m_StateB.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
+
+            if (m_StateF.Phase == ContractLoadPhase.Waiting)
+            {
+                // begin ContractLoadSystem
+                Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractLoadSystem");
+                m_StateF.Phase = ContractLoadPhase.BeginLoad;
+                GameLoop.SuspendUpdates(UpdateMasks.ChapterMask);
+            }
+            else
+            {
+                if (m_StateF.Phase == ContractLoadPhase.Completed)
                 {
                     Complete();
                     GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
                 }
             }
-        }
-
-        private void LoadAvailableContracts()
-        {
-            ChapterLoadUtility.LoadAvailableContracts(m_StateE);
         }
 
         private void Complete()
@@ -223,7 +175,6 @@ namespace SpaceFab.Overarching
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }
-        */
 
         #endregion // Helpers
     }

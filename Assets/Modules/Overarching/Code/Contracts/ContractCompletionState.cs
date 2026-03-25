@@ -1,4 +1,5 @@
 using BeauRoutine;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using System.Collections;
@@ -22,18 +23,43 @@ namespace SpaceFab.Overarching
     public class ContractCompletionState : SharedStateComponent
     {
         public ContractCompletionPhase Phase;
+
+        public Routine LoadRoutine;
     }
 
     public static class ContractCompletionUtility
     {
-        public static IEnumerator LoadFromPrevChapterRoutine()
+        public static IEnumerator LoadFromPrevChapterRoutine(ContractCompletionState completionState, ChapterState chapterState, AvailableContractsLookup lookup)
         {
+            if (chapterState.CurrChapterIndex <= 0) {
+                Log.Error("ContractCompletionState] Attempted to load a previous chapter when none exists!");
+                yield break;
+            }
+
+            // Load previously available contracts
+            completionState.LoadRoutine.Replace(ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1));
+
             yield break;
         }
 
-        public static IEnumerator UnloadFromPrevChapterRoutine()
+        public static IEnumerator UnloadFromPrevChapterRoutine(ContractCompletionState completionState, ChapterState chapterState, AvailableContractsLookup lookup)
         {
+            if (chapterState.CurrChapterIndex <= 0)
+            {
+                Log.Error("ContractCompletionState] Attempted to unload a previous chapter when none exists!");
+                yield break;
+            }
+
+            // Load previously available contracts
+            completionState.LoadRoutine.Replace(ContractsLookupUtility.UnloadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1));
+
             yield break;
+        }
+
+        public static void PopulateContractUI(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup lookup)
+        {
+            ContractDef contractDef = Find.NamedAsset<ContractsBundle>("ContractsBundle").AvailableContracts[chapterState.LastSelectedContractIndex];
+            ContractUtility.LoadContractData(layoutState.CompletedContractUI, contractDef);
         }
 
         public static IEnumerator EnterPreviousRoutine(ContractLayoutState layoutState)

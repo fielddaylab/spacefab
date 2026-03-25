@@ -1,3 +1,4 @@
+using BeauRoutine;
 using FieldDay.SharedState;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ namespace SpaceFab.Overarching
     public enum OverarchingShutdownPhase
     {
         Waiting,
+        BeginShutdown,
         ShuttingDown,
         ShutdownComplete
     }
@@ -15,5 +17,7 @@ namespace SpaceFab.Overarching
     public class OverarchingShutdownSequenceState : SharedStateComponent
     {
         public OverarchingShutdownPhase Phase;
+
+        public Routine ShutdownRoutine;
     }
 }

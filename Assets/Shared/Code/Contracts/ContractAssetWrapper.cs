@@ -1,11 +1,12 @@
 using FieldDay.Assets;
+using SpaceFab.Design;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Design
+namespace SpaceFab
 {
-    [CreateAssetMenu(menuName ="SpaceFab/Design/Contract Asset Wrapper")]
+    [CreateAssetMenu(menuName ="SpaceFab/Overarching/Contract Asset Wrapper")]
     public class ContractAssetsWrapper : NamedAsset
     {
         public LevelData DesignLevelData;

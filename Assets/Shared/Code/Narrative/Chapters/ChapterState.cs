@@ -15,15 +15,7 @@ namespace SpaceFab
         public int CurrChapterIndex;
         public int LastSelectedContractIndex;
 
-        [HideInInspector] public ChapterDef PrevChapterDef;
-        [HideInInspector] public ChapterDef CurrChapterDef;
         [HideInInspector] public ContractsBundle CurrAvailableContractsBundle;
-
-        [HideInInspector] public AssetPack PrevSelectedContractAssetPack;     // unloaded in ContractCompletionSystem
-        [HideInInspector] public AssetPack CurrSelectedContractAssetPack;     // assigned to PrevSelectedContractAssetPack, then unloaded in ContractCompletionSystem
-
-        [HideInInspector] public AssetPack CurrChapterAssetPack;              // unloaded in ChapterLoadSystem
-        [HideInInspector] public AssetPack CurrAvailableContractAssetsPack;   // unloaded at end of OverarchingScene
 
         public void OnDeregister()
         {
@@ -59,11 +51,11 @@ namespace SpaceFab
     {
         public static void LoadNextChapter(ChapterState state)
         {
-
             // TODO
             state.CurrChapterIndex++;
         }
 
+        /*
         public static void LoadPreviousState(ChapterState chapterState, PlayerProgressState progressState, int selectedContractIndex)
         {
             // load contract asset from previous chapter
@@ -92,5 +84,6 @@ namespace SpaceFab
             chapterState.CurrAvailableContractAssetsPack = null;
             // m_StateA.CurrSelectedContractAssetPack = null;
         }
+        */
     }
 }

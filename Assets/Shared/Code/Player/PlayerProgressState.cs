@@ -15,8 +15,7 @@ namespace SpaceFab
         public HashSet<StringHash32> AvailableMaterials;
         public HashSet<StringHash32> ResearchedMaterials;
 
-        [AssetName(typeof(ContractDef))] public StringHash32 LastSelectedContract = StringHash32.Null;
-        public bool RecentlyCompletedLevel;
+        public bool RecentlyCompletedChapter;
 
         public void OnDeregister()
         {

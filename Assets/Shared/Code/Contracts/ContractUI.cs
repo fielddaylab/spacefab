@@ -12,9 +12,9 @@ namespace SpaceFab {
     public static class ContractUtility
     {
         // TODO
-        public static void LoadContractData(ContractUI contract, string title)
+        public static void LoadContractData(ContractUI contract, ContractDef def)
         {
-            contract.Title.SetText(title);
+            contract.Title.SetText(def.Title());
         }
     }
 }

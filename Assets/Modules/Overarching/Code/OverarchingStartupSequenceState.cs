@@ -19,7 +19,7 @@ namespace SpaceFab.Overarching
         // If curr contract not yet selected
         ContractSelectSystem,
 
-        // ALways
+        // Always
         LoadSelectedContract,
         Completed,
     }

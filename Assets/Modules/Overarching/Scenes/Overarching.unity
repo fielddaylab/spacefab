@@ -362,9 +362,6 @@ MonoBehaviour:
   - ChapterScene:
       m_ScenePath: Assets/Shared/Scenes/ChapterAssets/Chapter1_Assets.unity
       m_GUID: 654dfb704b792fe4e9bea91e4a1bad1c
-    ChapterDefId:
-      m_HashValue: 570083838
-    ChapterAssetPack: {fileID: 11400000, guid: f59ecbe6627c97e4c850be6e80dfd6fc, type: 2}
 --- !u!114 &963110161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -378,7 +375,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Phase: 0
-  CompleteAfterLoad: 0
 --- !u!114 &963110162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -978,6 +974,7 @@ GameObject:
   - component: {fileID: 1597943305}
   - component: {fileID: 1597943307}
   - component: {fileID: 1597943306}
+  - component: {fileID: 1597943308}
   m_Layer: 0
   m_Name: Contracts
   m_TagString: Untagged
@@ -1024,6 +1021,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8b3f0df00f580c4db42ac7f573008f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1597943308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1597943304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 911ddf1e8e3240b4e9dc1b9169700649, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!225 &1798265855 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 7386836286221549102, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
@@ -1039,7 +1048,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2025114821}
   - component: {fileID: 2025114827}
-  - component: {fileID: 2025114826}
   - component: {fileID: 2025114825}
   - component: {fileID: 2025114824}
   - component: {fileID: 2025114823}
@@ -1134,24 +1142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb5a578214af3cc4d8f1705a84756d3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2025114826
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2025114820}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 076608e9069e9ce4ca97d301ff5fdd4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Entries:
-  - ContractId:
-      m_HashValue: 2704112848
-    Scene:
-      m_ScenePath: Assets/Shared/Scenes/ContractAssets/Contract_Test_Ch1_Assets.unity
-      m_GUID: 3c5d37bcd1d6bd1429a23b9124286ca4
+  Phase: 0
 --- !u!114 &2025114827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1165,10 +1156,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Entries:
-  - ChapterIndex: 1
-    Scene:
+  - Scene:
       m_ScenePath: Assets/Shared/Scenes/AvailableContracts/Chapter1_AvailableContracts.unity
       m_GUID: 09eb9699306b03f4bb368f11f6c56ff4
+    BundleId:
+      m_HashValue: 3906590269
 --- !u!1001 &2054010281
 PrefabInstance:
   m_ObjectHideFlags: 0

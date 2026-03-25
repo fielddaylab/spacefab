@@ -32,6 +32,9 @@ namespace SpaceFab.Overarching
     {
         public static IEnumerator PresentAvailableRoutine(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState)
         {
+            layoutState.FaderGroup.alpha = 1;
+            layoutState.FaderGroup.blocksRaycasts = true;
+
             yield return 0.5f;
 
             selectState.SelectedContractIndex = -1;
@@ -62,10 +65,20 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
         }
 
-        public static IEnumerator ConfirmContractRoutine(ContractSelectState selectState, ContractLayoutState layoutState, PlayerProgressState progressState, ChapterState chapterState)
+        public static IEnumerator ConfirmContractRoutine(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup)
         {
             chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
-            ChapterLoadUtility.OnCurrContractKnown(chapterState, progressState, selectState.SelectedContractIndex);
+            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
+
+            yield return ContractsLookupUtility.LoadContract(lookup, contractId);
+            ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
+
+            // Extract assets into game states
+            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
+            // design level starts as initial config by default
+            var minigameSaveState = Find.State<MinigameSaveStates>();
+            minigameSaveState.Design.GridStack = new GridStack();
+            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
 
             SaveUtility.Save(SaveSlot.Main);
 

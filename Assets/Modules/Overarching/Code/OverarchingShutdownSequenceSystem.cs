@@ -8,7 +8,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
-    public class OverarchingShutdownSequenceSystem : SharedStateSystemBehaviour<OverarchingShutdownSequenceState, MinigameZonesState, ChapterState>
+    public class OverarchingShutdownSequenceSystem : SharedStateSystemBehaviour<OverarchingShutdownSequenceState, MinigameZonesState, ChapterState, AvailableContractsLookup>
     {
         public override bool HasWork()
         {
@@ -21,15 +21,19 @@ namespace SpaceFab.Overarching
 
             switch (m_StateA.Phase)
             {
+                case OverarchingShutdownPhase.BeginShutdown:
+                    m_StateA.ShutdownRoutine.Replace(ContractsLookupUtility.UnloadAvailableContractsAtChapter(m_StateD, m_StateC, m_StateC.CurrChapterIndex));
+                    m_StateA.Phase = OverarchingShutdownPhase.ShuttingDown;
+                    break;
                 case OverarchingShutdownPhase.ShuttingDown:
-                    // unload available contracts
-                    Game.Assets.UnloadPackage(m_StateC.CurrAvailableContractAssetsPack);
-                    m_StateA.Phase = OverarchingShutdownPhase.ShutdownComplete;
-
-                    GameLoop.SuspendUpdates(Bits.All32);
-                    GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
-                    Game.Scenes.LoadMainScene(m_StateB.Zones[m_StateB.CurrSelectedIndex].MinigameScene);
-                    Game.Events.Dispatch(GameEvents.OnMinigameLoad);
+                    if (!m_StateA.ShutdownRoutine.Exists())
+                    {
+                        GameLoop.SuspendUpdates(Bits.All32);
+                        GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
+                        Game.Scenes.LoadMainScene(m_StateB.Zones[m_StateB.CurrSelectedIndex].MinigameScene);
+                        Game.Events.Dispatch(GameEvents.OnMinigameLoad);
+                        m_StateA.Phase = OverarchingShutdownPhase.ShutdownComplete;
+                    }
                     break;
                 default:
                     break;
