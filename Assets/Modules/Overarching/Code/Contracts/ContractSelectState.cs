@@ -24,6 +24,7 @@ namespace SpaceFab.Overarching
     {
         public ContractSelectPhase Phase;
         public int SelectedContractIndex;
+        public bool SelectedContractIndexChanged;
         public bool SelectionConfirmed;
     }
 
@@ -56,8 +57,12 @@ namespace SpaceFab.Overarching
                 else
                 {
                     layoutState.OptionButtons[i].gameObject.SetActive(true);
+                    LoadAvailableContractIntoOptionButton(layoutState.OptionButtons[i], chapterState.CurrAvailableContractsBundle.AvailableContracts[i]);
                 }
             }
+
+            ContractUtility.LoadContractData(layoutState.SelectionContractUI, null);
+            layoutState.SelectionContractUI.gameObject.SetActive(true);
 
             yield return Routine.Combine(
                 layoutState.SelectionCanvasGroup.FadeTo(1, 1f),
@@ -65,6 +70,11 @@ namespace SpaceFab.Overarching
                 );
 
             yield return 0.5f;
+        }
+
+        public static void LoadAvailableContractIntoOptionButton(ContractOptionButton optionBtn, ContractDef contract) 
+        {
+            optionBtn.ContractTitle.SetText(contract.Title());
         }
     }
 }

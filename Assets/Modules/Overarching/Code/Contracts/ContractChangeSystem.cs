@@ -20,7 +20,7 @@ namespace SpaceFab.Overarching
                     Debug.Log("[ContractChangeSystem] Starting");
                     m_StateB.Phase = ContractSelectPhase.Waiting;
                     m_StateA.ChangeDoubleConfirmed = false;
-                    m_StateA.TransitionRoutine.Replace(ContractChangeUtility.ViewCurrentRoutine(m_StateA, m_StateB, m_StateC));
+                    m_StateA.TransitionRoutine.Replace(ContractChangeUtility.ViewCurrentRoutine(m_StateA, m_StateB, m_StateC, m_StateF));
                     m_StateA.Phase = ContractChangePhase.Viewing;
                     break;
                 case ContractChangePhase.Viewing:
@@ -36,9 +36,17 @@ namespace SpaceFab.Overarching
                     }
                     else if (m_StateB.Phase == ContractSelectPhase.Completed)
                     {
-                        m_StateC.DoubleConfirmCanvasGroup.alpha = 1;
-                        Debug.Log("[ContractChangeSystem] Double Confirming Change");
-                        m_StateA.Phase = ContractChangePhase.DoubleConfirmContract;
+                        if (m_StateB.SelectedContractIndex == m_StateA.StashedSelectedContractIndex)
+                        {
+                            // no change
+                            m_StateA.Phase = ContractChangePhase.Docking;
+                        }
+                        else
+                        {
+                            m_StateC.DoubleConfirmCanvasGroup.alpha = 1;
+                            Debug.Log("[ContractChangeSystem] Double Confirming Change");
+                            m_StateA.Phase = ContractChangePhase.DoubleConfirmContract;
+                        }
                     }
                     break;
                 case ContractChangePhase.DoubleConfirmContract:

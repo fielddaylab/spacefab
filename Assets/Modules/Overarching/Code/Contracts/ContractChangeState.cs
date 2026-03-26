@@ -45,7 +45,7 @@ namespace SpaceFab.Overarching
 
     public static class ContractChangeUtility
     {
-        public static IEnumerator ViewCurrentRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState)
+        public static IEnumerator ViewCurrentRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState)
         {
 
             layoutState.ViewCurrContractButton.gameObject.SetActive(false);
@@ -57,6 +57,9 @@ namespace SpaceFab.Overarching
             layoutState.ContractOptionsZone.anchoredPosition = layoutState.ContractOptionsStartPos;
             layoutState.ConfirmContractButton.gameObject.SetActive(false);
             layoutState.ChangeContractButton.gameObject.SetActive(true);
+
+            ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex]);
+            layoutState.SelectionContractUI.gameObject.SetActive(true);
 
             yield return 0.5f;
 
@@ -71,6 +74,8 @@ namespace SpaceFab.Overarching
 
         public static IEnumerator DockContractRoutine(ContractChangeState changeState, ContractLayoutState layoutState)
         {
+            layoutState.SelectionContractUI.gameObject.SetActive(false);
+
             yield return Routine.Combine(
                 layoutState.DoubleConfirmCanvasGroup.FadeTo(0, 1f),
                 layoutState.SelectionCanvasGroup.FadeTo(0, 1f),
@@ -85,34 +90,6 @@ namespace SpaceFab.Overarching
             layoutState.HideCurrContractButton.gameObject.SetActive(false);
 
             changeState.Phase = ContractChangePhase.Completed;
-            /*
-            chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
-            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
-
-            yield return ContractsLookupUtility.LoadContract(lookup, contractId);
-            ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
-
-            // Extract assets into game states
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
-            // design level starts as initial config by default
-            var minigameSaveState = Find.State<MinigameSaveStates>();
-            minigameSaveState.Design.GridStack = new GridStack();
-            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
-
-            SaveUtility.Save(SaveSlot.Main);
-
-            yield return 0.5f;
-
-            yield return Routine.Combine(
-                layoutState.SelectionCanvasGroup.FadeTo(0, 1f)
-            );
-
-            yield return 0.5f;
-
-            layoutState.FaderGroup.alpha = 0;
-            layoutState.FaderGroup.blocksRaycasts = false;
-            */
-            yield break;
         }
 
         public static IEnumerator CancelChangeRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState)

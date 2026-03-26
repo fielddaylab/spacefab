@@ -26,6 +26,7 @@ namespace SpaceFab.Overarching
         public RectTransform ContractOptionsZone;
         public Vector3 ContractOptionsStartPos;
         public Vector3 ContractOptionsEndPos;
+        public ContractUI SelectionContractUI;
         public DynamicButton ConfirmContractButton;
 
         public ContractOptionButton[] OptionButtons;
@@ -65,8 +66,14 @@ namespace SpaceFab.Overarching
             for (int i = 0; i < OptionButtons.Length; i++)
             {
                 int tempI = i;
-                OptionButtons[i].Button.onClick.AddListener(() => {
-                        Find.State<ContractSelectState>().SelectedContractIndex = tempI;
+                OptionButtons[i].Button.onClick.AddListener(() =>
+                    {
+                        var selectState = Find.State<ContractSelectState>();
+                        if (selectState.SelectedContractIndex != tempI)
+                        {
+                            selectState.SelectedContractIndex = tempI;
+                            selectState.SelectedContractIndexChanged = true;
+                        }
                     });
             }
 

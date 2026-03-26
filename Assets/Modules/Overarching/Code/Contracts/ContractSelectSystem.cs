@@ -30,6 +30,11 @@ namespace SpaceFab.Overarching
                     {
                         m_StateB.ConfirmContractButton.interactable = true;
                     }
+                    if (m_StateA.SelectedContractIndexChanged)
+                    {
+                        ContractUtility.LoadContractData(m_StateB.SelectionContractUI, m_StateC.CurrAvailableContractsBundle.AvailableContracts[m_StateA.SelectedContractIndex]);
+                        m_StateA.SelectedContractIndexChanged = false;
+                    }
                     if (m_StateA.SelectionConfirmed)
                     {
                         m_StateC.LastSelectedContractIndex = m_StateA.SelectedContractIndex;
