@@ -58,7 +58,7 @@ namespace SpaceFab.Overarching
             layoutState.ConfirmContractButton.gameObject.SetActive(false);
             layoutState.ChangeContractButton.gameObject.SetActive(true);
 
-            ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex]);
+            ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex]);
             layoutState.SelectionContractUI.gameObject.SetActive(true);
 
             yield return 0.5f;

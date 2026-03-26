@@ -36,7 +36,7 @@ namespace SpaceFab.Overarching
                     }
                     else if (m_StateB.Phase == ContractSelectPhase.Completed)
                     {
-                        if (m_StateB.SelectedContractIndex == m_StateA.StashedSelectedContractIndex)
+                        if (m_StateB.SelectedContractIndex == m_StateF.LastSelectedContractIndex)
                         {
                             // no change
                             m_StateA.Phase = ContractChangePhase.Docking;

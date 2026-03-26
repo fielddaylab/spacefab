@@ -37,7 +37,6 @@ namespace SpaceFab.Overarching
                     }
                     if (m_StateA.SelectionConfirmed)
                     {
-                        m_StateC.LastSelectedContractIndex = m_StateA.SelectedContractIndex;
                         m_StateA.Phase = ContractSelectPhase.Completed;
                     }
                     break;
