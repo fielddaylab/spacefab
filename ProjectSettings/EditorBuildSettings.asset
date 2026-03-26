@@ -38,4 +38,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Shared/Scenes/AvailableContracts/Chapter1_AvailableContracts.unity
     guid: 09eb9699306b03f4bb368f11f6c56ff4
+  - enabled: 1
+    path: Assets/Shared/Scenes/ContractAssets/Contract_Test_2_Ch1_Assets.unity
+    guid: a43c57988ab076d43b3ddb5a870dd3c6
+  - enabled: 1
+    path: Assets/Shared/Scenes/AvailableContracts/Chapter2_AvailableContracts.unity
+    guid: 205cdf6ee1a6d364c9dd60a611a082f6
+  - enabled: 1
+    path: Assets/Shared/Scenes/ContractAssets/Contract_Test_3_Ch2_Assets.unity
+    guid: f7d6d465c742bb74b98888fddf56c0de
   m_configObjects: {}

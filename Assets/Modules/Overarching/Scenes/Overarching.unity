@@ -383,6 +383,9 @@ MonoBehaviour:
   - ChapterScene:
       m_ScenePath: Assets/Shared/Scenes/ChapterAssets/Chapter1_Assets.unity
       m_GUID: 654dfb704b792fe4e9bea91e4a1bad1c
+  - ChapterScene:
+      m_ScenePath: Assets/Shared/Scenes/ChapterAssets/Chapter2_Assets.unity
+      m_GUID: 18d66b3ce6d7a2845b2a5b6ca804460a
 --- !u!114 &963110161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1287,6 +1290,11 @@ MonoBehaviour:
       m_GUID: 09eb9699306b03f4bb368f11f6c56ff4
     BundleId:
       m_HashValue: 3906590269
+  - Scene:
+      m_ScenePath: Assets/Shared/Scenes/AvailableContracts/Chapter2_AvailableContracts.unity
+      m_GUID: 205cdf6ee1a6d364c9dd60a611a082f6
+    BundleId:
+      m_HashValue: 3856257412
 --- !u!114 &2025114828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1316,6 +1324,14 @@ MonoBehaviour:
         m_GUID: a43c57988ab076d43b3ddb5a870dd3c6
       AssetsWrapperId:
         m_HashValue: 995270672
+  - ContractId:
+      m_HashValue: 220354410
+    Data:
+      Scene:
+        m_ScenePath: Assets/Shared/Scenes/ContractAssets/Contract_Test_3_Ch2_Assets.unity
+        m_GUID: f7d6d465c742bb74b98888fddf56c0de
+      AssetsWrapperId:
+        m_HashValue: 1012048291
 --- !u!114 &2025114829
 MonoBehaviour:
   m_ObjectHideFlags: 0

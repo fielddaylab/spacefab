@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
-    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ChapterState>
+    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ChapterState, PlayerProgressState>
     {
         public override void ProcessWork(float deltaTime)
         {
@@ -16,7 +16,7 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractSelectPhase.Loading:
-                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB, m_StateC));
+                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB, m_StateC, m_StateD));
                     m_StateA.Phase = ContractSelectPhase.PresentAvailableContracts;
                     break;
                 case ContractSelectPhase.PresentAvailableContracts:

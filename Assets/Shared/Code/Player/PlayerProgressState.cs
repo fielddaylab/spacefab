@@ -16,6 +16,7 @@ namespace SpaceFab
         public HashSet<StringHash32> ResearchedMaterials;
 
         public bool RecentlyCompletedChapter;
+        public List<StringHash32> CompletedContractIds;
 
         public void OnDeregister()
         {
@@ -41,5 +42,18 @@ namespace SpaceFab
         }
 
         #endregion // Interfaces
+    }
+
+    public static class PlayerProgressUtility
+    {
+        public static bool HasCompletedContract(PlayerProgressState progressState, StringHash32 contractId)
+        {
+            if (progressState.CompletedContractIds.Contains(contractId))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

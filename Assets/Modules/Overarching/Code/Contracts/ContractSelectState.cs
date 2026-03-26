@@ -30,7 +30,7 @@ namespace SpaceFab.Overarching
 
     public static class ContractSelectUtility
     {
-        public static IEnumerator PresentAvailableRoutine(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState)
+        public static IEnumerator PresentAvailableRoutine(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, PlayerProgressState playerProgress)
         {
             layoutState.FaderGroup.alpha = 1;
             layoutState.FaderGroup.blocksRaycasts = true;
@@ -50,14 +50,23 @@ namespace SpaceFab.Overarching
             // filter active based on number of available contracts
             for (int i = 0; i < layoutState.OptionButtons.Length; i++)
             {
+                ;
                 if (i >= chapterState.CurrAvailableContractsBundle.AvailableContracts.Length)
                 {
                     layoutState.OptionButtons[i].gameObject.SetActive(false);
                 }
                 else
                 {
-                    layoutState.OptionButtons[i].gameObject.SetActive(true);
-                    LoadAvailableContractIntoOptionButton(layoutState.OptionButtons[i], chapterState.CurrAvailableContractsBundle.AvailableContracts[i]);
+                    // filter out completed contracts
+                    if (PlayerProgressUtility.HasCompletedContract(playerProgress, chapterState.CurrAvailableContractsBundle.AvailableContracts[i].AssetId))
+                    {
+                        layoutState.OptionButtons[i].gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        layoutState.OptionButtons[i].gameObject.SetActive(true);
+                        LoadAvailableContractIntoOptionButton(layoutState.OptionButtons[i], chapterState.CurrAvailableContractsBundle.AvailableContracts[i]);
+                    }
                 }
             }
 

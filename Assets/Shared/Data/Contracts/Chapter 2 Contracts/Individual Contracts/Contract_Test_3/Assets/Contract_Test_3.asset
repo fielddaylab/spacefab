@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-  m_Name: Contract_Test_2
+  m_Name: Contract_Test_3
   m_EditorClassIdentifier: 
   m_GlobalAssets: []
   m_NamedAssets:
-  - {fileID: 11400000, guid: be5708d1b0ba1db4e84c06e94e8d983e, type: 2}
+  - {fileID: 11400000, guid: 7dfc897bc79d65d4f827662b8b019478, type: 2}
   m_LiteAssets: []
