@@ -43,6 +43,7 @@ namespace SpaceFab.Overarching
                         }
                         else
                         {
+                            m_StateC.DoubleConfirmCanvasGroup.blocksRaycasts = true;
                             m_StateC.DoubleConfirmCanvasGroup.alpha = 1;
                             Debug.Log("[ContractChangeSystem] Double Confirming Change");
                             m_StateA.Phase = ContractChangePhase.DoubleConfirmContract;
@@ -52,7 +53,8 @@ namespace SpaceFab.Overarching
                 case ContractChangePhase.DoubleConfirmContract:
                     if (m_StateA.ChangeDoubleConfirmed)
                     {
-                        m_StateA.Phase = ContractChangePhase.Docking;
+                        m_StateA.Phase = ContractChangePhase.ContractConfirmSystem;
+                        m_StateG.Phase = ContractConfirmPhase.Waiting;
                     }
                     break;
                 case ContractChangePhase.DoubleCancelContract:
@@ -66,6 +68,8 @@ namespace SpaceFab.Overarching
                     if (m_StateG.Phase == ContractConfirmPhase.Waiting)
                     {
                         Debug.Log("[ContractChangeSystem] Deferring to ContractConfirmSystem");
+                        m_StateG.Phase = ContractConfirmPhase.Confirming;
+
                     }
                     else if (m_StateG.Phase == ContractConfirmPhase.Completed)
                     {

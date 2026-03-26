@@ -49,10 +49,13 @@ namespace SpaceFab.Overarching
                 layoutState.SelectionCanvasGroup.FadeTo(0, 1f)
             );
 
+            layoutState.SelectionCanvasGroup.blocksRaycasts = false;
+
             yield return 0.5f;
 
             layoutState.FaderGroup.alpha = 0;
             layoutState.FaderGroup.blocksRaycasts = false;
+
 
             confirmState.Phase = ContractConfirmPhase.Completed;
         }

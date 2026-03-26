@@ -57,6 +57,7 @@ namespace SpaceFab.Overarching
             SelectionCanvasGroup.alpha = 0;
             ChangeCanvasGroup.alpha = 0;
             DoubleConfirmCanvasGroup.alpha = 0;
+            DoubleConfirmCanvasGroup.blocksRaycasts = false;
 
             CompletedContractUI.gameObject.SetActive(false);
             ViewCurrContractButton.gameObject.SetActive(false);

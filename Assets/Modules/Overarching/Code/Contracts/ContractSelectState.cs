@@ -63,6 +63,7 @@ namespace SpaceFab.Overarching
 
             ContractUtility.LoadContractData(layoutState.SelectionContractUI, null);
             layoutState.SelectionContractUI.gameObject.SetActive(true);
+            layoutState.SelectionCanvasGroup.blocksRaycasts = true;
 
             yield return Routine.Combine(
                 layoutState.SelectionCanvasGroup.FadeTo(1, 1f),

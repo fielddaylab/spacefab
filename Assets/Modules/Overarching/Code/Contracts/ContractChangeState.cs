@@ -64,6 +64,7 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
 
             layoutState.SelectionCanvasGroup.alpha = 0;
+            layoutState.SelectionCanvasGroup.blocksRaycasts = true;
 
             yield return Routine.Combine(
                 layoutState.SelectionCanvasGroup.FadeTo(1, 1f)
@@ -85,6 +86,9 @@ namespace SpaceFab.Overarching
             layoutState.FaderGroup.alpha = 0;
             layoutState.FaderGroup.blocksRaycasts = false;
 
+            layoutState.DoubleConfirmCanvasGroup.blocksRaycasts = false;
+            layoutState.SelectionCanvasGroup.blocksRaycasts = false;
+
             GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
             layoutState.ViewCurrContractButton.gameObject.SetActive(true);
             layoutState.HideCurrContractButton.gameObject.SetActive(false);
@@ -98,6 +102,7 @@ namespace SpaceFab.Overarching
             selectState.SelectedContractIndex = changeState.StashedSelectedContractIndex;
             changeState.StashedSelectedContractIndex = -1;
             layoutState.DoubleConfirmCanvasGroup.alpha = 0;
+            layoutState.DoubleConfirmCanvasGroup.blocksRaycasts = false;
 
             yield return 0.5f;
 

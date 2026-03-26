@@ -1254,6 +1254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Phase: 0
   SelectedContractIndex: 0
+  SelectedContractIndexChanged: 0
   SelectionConfirmed: 0
 --- !u!114 &2025114825
 MonoBehaviour:
@@ -1307,6 +1308,14 @@ MonoBehaviour:
         m_GUID: 3c5d37bcd1d6bd1429a23b9124286ca4
       AssetsWrapperId:
         m_HashValue: 650160617
+  - ContractId:
+      m_HashValue: 237132029
+    Data:
+      Scene:
+        m_ScenePath: Assets/Shared/Scenes/ContractAssets/Contract_Test_2_Ch1_Assets.unity
+        m_GUID: a43c57988ab076d43b3ddb5a870dd3c6
+      AssetsWrapperId:
+        m_HashValue: 995270672
 --- !u!114 &2025114829
 MonoBehaviour:
   m_ObjectHideFlags: 0
