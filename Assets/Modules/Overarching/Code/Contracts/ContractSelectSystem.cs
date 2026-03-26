@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
-    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ContractAssetsLookup, ChapterLoadState, ChapterState>
+    public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ChapterState>
     {
         public override void ProcessWork(float deltaTime)
         {
@@ -16,7 +16,7 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractSelectPhase.Loading:
-                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB, m_StateE));
+                    m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB, m_StateC));
                     m_StateA.Phase = ContractSelectPhase.PresentAvailableContracts;
                     break;
                 case ContractSelectPhase.PresentAvailableContracts:
@@ -32,13 +32,7 @@ namespace SpaceFab.Overarching
                     }
                     if (m_StateA.SelectionConfirmed)
                     {
-                        m_StateB.SelectionRoutine.Replace(ContractSelectUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateE, m_StateC));
-                        m_StateA.Phase = ContractSelectPhase.ConfirmContract;
-                    }
-                    break;
-                case ContractSelectPhase.ConfirmContract:
-                    if (!m_StateB.SelectionRoutine.Exists())
-                    {
+                        m_StateC.LastSelectedContractIndex = m_StateA.SelectedContractIndex;
                         m_StateA.Phase = ContractSelectPhase.Completed;
                     }
                     break;

@@ -17,7 +17,6 @@ namespace SpaceFab.Overarching
         Loading,
         PresentAvailableContracts,
         SelectContract,
-        ConfirmContract,
         Completed
     }
 
@@ -40,7 +39,10 @@ namespace SpaceFab.Overarching
             selectState.SelectedContractIndex = -1;
             selectState.SelectionConfirmed = false;
             layoutState.ConfirmContractButton.interactable = false;
-            
+
+            layoutState.ConfirmContractButton.gameObject.SetActive(true);
+            layoutState.ChangeContractButton.gameObject.SetActive(false);
+
             layoutState.ContractOptionsZone.anchoredPosition = layoutState.ContractOptionsStartPos;
             layoutState.SelectionCanvasGroup.alpha = 0;
 
@@ -63,35 +65,6 @@ namespace SpaceFab.Overarching
                 );
 
             yield return 0.5f;
-        }
-
-        public static IEnumerator ConfirmContractRoutine(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup)
-        {
-            chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
-            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
-
-            yield return ContractsLookupUtility.LoadContract(lookup, contractId);
-            ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
-
-            // Extract assets into game states
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
-            // design level starts as initial config by default
-            var minigameSaveState = Find.State<MinigameSaveStates>();
-            minigameSaveState.Design.GridStack = new GridStack();
-            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
-
-            SaveUtility.Save(SaveSlot.Main);
-
-            yield return 0.5f;
-
-            yield return Routine.Combine(
-                layoutState.SelectionCanvasGroup.FadeTo(0, 1f)
-            );
-
-            yield return 0.5f;
-
-            layoutState.FaderGroup.alpha = 0;
-            layoutState.FaderGroup.blocksRaycasts = false;
         }
     }
 }

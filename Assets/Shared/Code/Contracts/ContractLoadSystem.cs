@@ -8,7 +8,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
-    public class ContractLoadSystem : SharedStateSystemBehaviour<ContractLoadState, ContractAssetsLookup, ChapterState>
+    public class ContractLoadSystem : SharedStateSystemBehaviour<ContractLoadState, ContractAssetsLookup, ChapterState, ContractLayoutState>
     {
         public override void ProcessWork(float deltaTime)
         {
@@ -24,6 +24,7 @@ namespace SpaceFab.Overarching
                 case ContractLoadPhase.Loading:
                     if (!m_StateA.LoadRoutine.Exists())
                     {
+                        m_StateD.ViewCurrContractButton.gameObject.SetActive(true);
                         m_StateA.Phase = ContractLoadPhase.Completed;
                     }
                     break;

@@ -17,7 +17,7 @@ namespace SpaceFab.Overarching
     /// 4. Load Selected Contract
     /// </summary>
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
-    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState, ContractLoadState>
+    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState, ContractLoadState, ContractConfirmState>
     {
         public override bool HasWork()
         {
@@ -42,6 +42,9 @@ namespace SpaceFab.Overarching
                     break;
                 case OverarchingStartupSequencePhase.ContractSelectSystem:
                     ProcessContractSelectSystem();
+                    break;
+                case OverarchingStartupSequencePhase.ContractConfirmSystem:
+                    ProcessContractConfirmSystem();
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
                     ProcessLoadSelectedContract();
@@ -140,6 +143,26 @@ namespace SpaceFab.Overarching
             else
             {
                 if (m_StateD.Phase == ContractSelectPhase.Completed)
+                {
+                    //  confirm selected contract
+                    m_StateG.Phase = ContractConfirmPhase.Waiting;
+                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractConfirmSystem;
+                }
+            }
+        }
+
+        private void ProcessContractConfirmSystem()
+        {
+            if (m_StateG.Phase == ContractConfirmPhase.Waiting)
+            {
+                // begin contract confirmation
+                Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractConfirmSystem");
+
+                m_StateG.Phase = ContractConfirmPhase.Confirming;
+            }
+            else
+            {
+                if (m_StateG.Phase == ContractConfirmPhase.Completed)
                 {
                     // load selected contract
                     m_StateF.Phase = ContractLoadPhase.Waiting;

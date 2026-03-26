@@ -86,7 +86,6 @@ GameObject:
   - component: {fileID: 4917964265796252707}
   - component: {fileID: 1807206960674959543}
   - component: {fileID: 9068859788299082105}
-  - component: {fileID: 2959397298751275734}
   m_Layer: 0
   m_Name: State
   m_TagString: Untagged
@@ -240,27 +239,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrComic: {fileID: 0}
---- !u!114 &2959397298751275734
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 702368520693917882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 076608e9069e9ce4ca97d301ff5fdd4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Entries:
-  - ContractId:
-      m_HashValue: 2704112848
-    Data:
-      Scene:
-        m_ScenePath: Assets/Shared/Scenes/ContractAssets/Contract_Test_Ch1_Assets.unity
-        m_GUID: 3c5d37bcd1d6bd1429a23b9124286ca4
-      AssetsWrapperId:
-        m_HashValue: 650160617
 --- !u!1 &4107408674079076998
 GameObject:
   m_ObjectHideFlags: 0

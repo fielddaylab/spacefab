@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 2032501481813494579}
   - component: {fileID: 4270634009124650409}
   - component: {fileID: 2890653013004698143}
-  - component: {fileID: 3801101528963883666}
   - component: {fileID: 1210240523371063737}
+  - component: {fileID: 5914778441188143568}
   m_Layer: 5
   m_Name: Contract Option Button
   m_TagString: Untagged
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3801101528963883666
+--- !u!114 &1210240523371063737
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -87,7 +87,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 7249377586081323420}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 1519262de42479b4f98328c4fcc70ae9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ContractTitle: {fileID: 361209514899827322}
+  Button: {fileID: 5914778441188143568}
+--- !u!114 &5914778441188143568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7249377586081323420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eee9c2c266d7b04086359698c88f959, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -122,20 +136,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1210240523371063737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7249377586081323420}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1519262de42479b4f98328c4fcc70ae9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ContractTitle: {fileID: 361209514899827322}
-  Button: {fileID: 3801101528963883666}
+  onClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7253411254466438478
 GameObject:
   m_ObjectHideFlags: 0

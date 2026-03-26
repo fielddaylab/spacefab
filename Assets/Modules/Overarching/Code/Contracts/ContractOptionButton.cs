@@ -1,4 +1,5 @@
 using FieldDay.Components;
+using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -10,6 +11,6 @@ namespace SpaceFab.Overarching
     public class ContractOptionButton : BatchedComponent
     {
         public TMP_Text ContractTitle;
-        public Button Button;
+        public DynamicButton Button;
     }
 }
