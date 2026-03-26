@@ -168,13 +168,13 @@ namespace SpaceFab.Save
                         if (attempts > 0)
                         {
                             Log.Warn("[SaveUtility] Retrying server save...", attempts);
-                            Game.Events.Dispatch(GameEvents.ProfileSaveError);
                             yield return 1;
                             ++retryCount;
                         }
                         else
                         {
                             Log.Error("[SaveUtility] Server save failed after {0} attempts", 8 + 1);
+                            Game.Events.Dispatch(GameEvents.ProfileSaveError);
                         }
                     }
                 }
