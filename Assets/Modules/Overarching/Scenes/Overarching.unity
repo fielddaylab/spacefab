@@ -312,6 +312,7 @@ GameObject:
   - component: {fileID: 963110158}
   - component: {fileID: 963110160}
   - component: {fileID: 963110163}
+  - component: {fileID: 963110164}
   m_Layer: 0
   m_Name: Overarching States
   m_TagString: Untagged
@@ -424,6 +425,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Phase: 0
+--- !u!114 &963110164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963110155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc8a9eda5a0f8d48a2558156be85821, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -688,6 +701,7 @@ GameObject:
   - component: {fileID: 1164620739}
   - component: {fileID: 1164620740}
   - component: {fileID: 1164620742}
+  - component: {fileID: 1164620743}
   m_Layer: 0
   m_Name: Overarching Systems
   m_TagString: Untagged
@@ -783,6 +797,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e0e303f0ee13da4cb57ca91cb74a525, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1164620743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1164620735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13706ad4aedae9846997f3593ebbcdee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1247831362

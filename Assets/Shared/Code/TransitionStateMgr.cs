@@ -88,6 +88,11 @@ namespace SpaceFab
                     m_SaveRoutine.Replace(SharedUIUtility.OnSaveSuccess(uiState));
                 });
             }
+            else
+            {
+                SharedUIState uiState = Find.State<SharedUIState>();
+                m_SaveRoutine.Replace(SharedUIUtility.OnSaveSuccess(uiState));
+            }
         }
 
         private void HandleProfileSaveError()
@@ -99,6 +104,11 @@ namespace SpaceFab
                     SharedUIState uiState = Find.State<SharedUIState>();
                     m_SaveRoutine.Replace(SharedUIUtility.OnSaveError(uiState));
                 });
+            }
+            else
+            {
+                SharedUIState uiState = Find.State<SharedUIState>();
+                m_SaveRoutine.Replace(SharedUIUtility.OnSaveError(uiState));
             }
         }
 

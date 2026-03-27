@@ -23,50 +23,85 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractCompletionPhase.BeginLoadFromPrevChapter:
-                    m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
-                    m_StateA.Phase = ContractCompletionPhase.LoadFromPrevChapter;
+                    ProcessBeginLoadFromPrevChapter();
                     break;
                 case ContractCompletionPhase.LoadFromPrevChapter:
-                    if (!m_StateB.CompletionRoutine.Exists())
-                    {
-                        ContractCompletionUtility.PopulateContractUI(m_StateA, m_StateB, m_StateD, m_StateE);
-                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
-                        m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
-                    }
+                    ProcessLoadFromPrevChapter();
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
-                    if (!m_StateB.CompletionRoutine.Exists()) {
-                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(m_StateB));
-                        m_StateA.Phase = ContractCompletionPhase.EvaluatePreviousContract;
-                    }
+                    ProcessEnterPrevContract();
                     break;
                 case ContractCompletionPhase.EvaluatePreviousContract:
-                    if (!m_StateB.CompletionRoutine.Exists())
-                    {
-                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.HidePreviousRoutine(m_StateB));
-                        m_StateA.Phase = ContractCompletionPhase.HidePreviousContract;
-                    }
+                    ProcessEvaluatePrevContract();
                     break;
                 case ContractCompletionPhase.HidePreviousContract:
-                    if (!m_StateB.CompletionRoutine.Exists())
-                    {
-                        m_StateD.LastSelectedContractIndex = -1;
-                        // Unload
-                        m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
-                        m_StateA.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
-                    }
+                    ProcessHidePrevContract();
                     break;
                 case ContractCompletionPhase.UnloadFromPrevChapter:
-                    if (!m_StateB.CompletionRoutine.Exists())
-                    {
-                        // Complete
-                        m_StateA.Phase = ContractCompletionPhase.Completed;
-                    }
+                    ProcessUnloadFromPrevChapter();
                     break;
                 default:
                     break;
             }
 
         }
+
+        #region Helpers
+
+        private void ProcessBeginLoadFromPrevChapter()
+        {
+            m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
+            m_StateA.Phase = ContractCompletionPhase.LoadFromPrevChapter;
+        }
+
+        private void ProcessLoadFromPrevChapter()
+        {
+            if (!m_StateB.CompletionRoutine.Exists())
+            {
+                ContractCompletionUtility.PopulateContractUI(m_StateA, m_StateB, m_StateD, m_StateE);
+                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
+                m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
+            }
+        }
+
+        private void ProcessEnterPrevContract()
+        {
+            if (!m_StateB.CompletionRoutine.Exists())
+            {
+                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(m_StateB));
+                m_StateA.Phase = ContractCompletionPhase.EvaluatePreviousContract;
+            }
+        }
+
+        private void ProcessEvaluatePrevContract()
+        {
+            if (!m_StateB.CompletionRoutine.Exists())
+            {
+                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.HidePreviousRoutine(m_StateB));
+                m_StateA.Phase = ContractCompletionPhase.HidePreviousContract;
+            }
+        }
+
+        private void ProcessHidePrevContract()
+        {
+            if (!m_StateB.CompletionRoutine.Exists())
+            {
+                m_StateD.LastSelectedContractIndex = -1;
+                // Unload
+                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
+                m_StateA.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
+            }
+        }
+
+        private void ProcessUnloadFromPrevChapter()
+        {
+            if (!m_StateB.CompletionRoutine.Exists())
+            {
+                // Complete
+                m_StateA.Phase = ContractCompletionPhase.Completed;
+            }
+        }
+
+        #endregion // Helpers
     }
 }

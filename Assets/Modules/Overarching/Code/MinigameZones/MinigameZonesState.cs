@@ -121,7 +121,7 @@ namespace SpaceFab.Overarching
         public static void ConfirmEnterMinigame(MinigameZonesState state)
         {
             GameLoop.ResumeUpdates(UpdateMasks.ShutdownMask);
-            Find.State<OverarchingShutdownSequenceState>().Phase = OverarchingShutdownPhase.BeginShutdown;
+            Find.State<OverarchingToMinigameSequenceState>().Phase = OverarchingToMinigamePhase.Starting;
         }
     }
 }

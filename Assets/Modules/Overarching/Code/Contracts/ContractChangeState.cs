@@ -78,7 +78,6 @@ namespace SpaceFab.Overarching
             layoutState.SelectionContractUI.gameObject.SetActive(false);
 
             yield return Routine.Combine(
-                layoutState.DoubleConfirmCanvasGroup.FadeTo(0, 1f),
                 layoutState.SelectionCanvasGroup.FadeTo(0, 1f),
                 layoutState.FaderGroup.FadeTo(0, 1f)
                 );
@@ -86,7 +85,6 @@ namespace SpaceFab.Overarching
             layoutState.FaderGroup.alpha = 0;
             layoutState.FaderGroup.blocksRaycasts = false;
 
-            layoutState.DoubleConfirmCanvasGroup.blocksRaycasts = false;
             layoutState.SelectionCanvasGroup.blocksRaycasts = false;
 
             GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);

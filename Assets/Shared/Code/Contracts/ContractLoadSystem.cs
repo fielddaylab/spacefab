@@ -17,20 +17,36 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractLoadPhase.BeginLoad:
-                    StringHash32 contractId = m_StateC.CurrAvailableContractsBundle.AvailableContracts[m_StateC.LastSelectedContractIndex].AssetId;
-                    m_StateA.LoadRoutine.Replace(ContractsLookupUtility.LoadContract(m_StateB, contractId));
-                    m_StateA.Phase = ContractLoadPhase.Loading;
+                    ProcessBeginLoad();
                     break;
                 case ContractLoadPhase.Loading:
-                    if (!m_StateA.LoadRoutine.Exists())
-                    {
-                        m_StateD.ViewCurrContractButton.gameObject.SetActive(true);
-                        m_StateA.Phase = ContractLoadPhase.Completed;
-                    }
+                    ProcessLoading();
                     break;
                 default:
                     break;
             }
         }
+
+        #region Helpers
+
+        private void ProcessBeginLoad()
+        {
+            StringHash32 contractId = m_StateC.CurrAvailableContractsBundle.AvailableContracts[m_StateC.LastSelectedContractIndex].AssetId;
+            m_StateA.LoadRoutine.Replace(ContractsLookupUtility.LoadContract(m_StateB, contractId));
+            m_StateA.Phase = ContractLoadPhase.Loading;
+        }
+
+        private void ProcessLoading()
+        {
+            if (!m_StateA.LoadRoutine.Exists())
+            {
+                m_StateD.ViewCurrContractButton.gameObject.SetActive(true);
+                m_StateA.Phase = ContractLoadPhase.Completed;
+            }
+        }
+
+
+
+        #endregion // Helpers
     }
 }

@@ -16,14 +16,23 @@ namespace SpaceFab.Overarching
             switch (m_StateA.Phase)
             {
                 case ContractConfirmPhase.Confirming:
-                    if (!m_StateA.ConfirmRoutine.Exists())
-                    {
-                        m_StateA.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateC, m_StateD, m_StateE));
-                    }
+                    ProcessConfirming();
                     break;
                 default:
                     break;
             }
         }
+
+        #region Helpers
+
+        private void ProcessConfirming()
+        {
+            if (!m_StateA.ConfirmRoutine.Exists())
+            {
+                m_StateA.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateC, m_StateD, m_StateE));
+            }
+        }
+
+        #endregion // Helpers
     }
 }
