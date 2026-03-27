@@ -23,8 +23,6 @@ namespace SpaceFab.Overarching
     public class ContractCompletionState : SharedStateComponent
     {
         public ContractCompletionPhase Phase;
-
-        public Routine LoadRoutine;
     }
 
     public static class ContractCompletionUtility
@@ -37,7 +35,7 @@ namespace SpaceFab.Overarching
             }
 
             // Load previously available contracts
-            completionState.LoadRoutine.Replace(ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1));
+            yield return ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1);
 
             yield break;
         }
@@ -51,14 +49,14 @@ namespace SpaceFab.Overarching
             }
 
             // Load previously available contracts
-            completionState.LoadRoutine.Replace(ContractsLookupUtility.UnloadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1));
+            yield return ContractsLookupUtility.UnloadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1);
 
             yield break;
         }
 
         public static void PopulateContractUI(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup lookup)
         {
-            ContractDef contractDef = Find.NamedAsset<ContractsBundle>("ContractsBundle").AvailableContracts[chapterState.LastSelectedContractIndex];
+            ContractDef contractDef = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex];
             ContractUtility.LoadContractData(layoutState.CompletedContractUI, contractDef);
         }
 

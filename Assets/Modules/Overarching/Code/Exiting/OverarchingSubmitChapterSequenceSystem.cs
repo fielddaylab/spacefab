@@ -8,7 +8,10 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
-    public class OverarchingSubmitChapterSequenceSystem : SharedStateSystemBehaviour<OverarchingSubmitChapterSequenceState, OverarchingShutdownSequenceState, ChapterState>
+    public class OverarchingSubmitChapterSequenceSystem : SharedStateSystemBehaviour<OverarchingSubmitChapterSequenceState,
+                                                                                     OverarchingShutdownSequenceState,
+                                                                                     ChapterState,
+                                                                                     PlayerProgressState>
     {
         public override bool HasWork()
         {
@@ -58,7 +61,7 @@ namespace SpaceFab.Overarching
 
         private void ProcessMoveToNextChapter()
         {
-            ChapterUtility.LoadNextChapter(m_StateC);
+            ChapterUtility.LoadNextChapter(m_StateC, m_StateD);
             m_StateA.Phase = OverarchingSubmitChapterPhase.TransitionComplete;
         }
 

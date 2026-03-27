@@ -49,9 +49,10 @@ namespace SpaceFab
 
     public static class ChapterUtility
     {
-        public static void LoadNextChapter(ChapterState state)
+        public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState)
         {
-            state.CurrChapterIndex++;
+            chapterState.CurrChapterIndex++;
+            progressState.RecentlyCompletedChapter = true;
             SaveUtility.Save(SaveSlot.Main);
             Game.Scenes.ReloadMainScene();
         }

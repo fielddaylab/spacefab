@@ -33,12 +33,11 @@ namespace SpaceFab.Overarching
                 case OverarchingStartupSequencePhase.LoadCurrChapter:
                     ProcessLoadCurrChapter();
                     break;
-                case OverarchingStartupSequencePhase.LoadCurrAvailableContracts:
-                    //start loading before contract completion routine, must complete before contract select system
-                    ProcessLoadCurrAvailableContracts();
-                    break;
                 case OverarchingStartupSequencePhase.ContractCompletionSystem:
                     ProcessContractCompletion();
+                    break;
+                case OverarchingStartupSequencePhase.LoadCurrAvailableContracts:
+                    ProcessLoadCurrAvailableContracts();
                     break;
                 case OverarchingStartupSequencePhase.ContractSelectSystem:
                     ProcessContractSelectSystem();
@@ -68,32 +67,21 @@ namespace SpaceFab.Overarching
             else
             {
                 if (m_StateB.Phase == ChapterLoadPhase.Completed) 
-                { 
-                    // Move to next phase after chapter load
-                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
+                {
+                    // determine if contract completion is next
+                    var progress = Find.State<PlayerProgressState>();
+                    if (progress.RecentlyCompletedChapter)
+                    {
+                        m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+                        m_StateC.Phase = ContractCompletionPhase.Waiting;
+                    }
+                    else
+                    {
+                        m_StateA.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
+                    }
+                    GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
                 }
             }
-        }
-
-        private void ProcessLoadCurrAvailableContracts()
-        {
-            // start load available contracts
-            m_StateB.Phase = ChapterLoadPhase.LoadingAvailableContracts;
-
-            // determine if contract completion is next
-            var progress = Find.State<PlayerProgressState>();
-            if (progress.RecentlyCompletedChapter)
-            {
-                m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
-                m_StateC.Phase = ContractCompletionPhase.Waiting;
-            }
-            else
-            {
-                // skip contract completion
-                MoveToContractSelect();
-            }
-
-            GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
         }
 
         private void ProcessContractCompletion()
@@ -109,13 +97,17 @@ namespace SpaceFab.Overarching
             {
                 if (m_StateC.Phase == ContractCompletionPhase.Completed)
                 {
-                    MoveToContractSelect();
+                    // start load available contracts
+                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
                 }
             }
         }
 
-        private void MoveToContractSelect()
+        private void ProcessLoadCurrAvailableContracts()
         {
+            // start load available contracts
+            m_StateB.Phase = ChapterLoadPhase.LoadingAvailableContracts;
+
             // determine if contract selection must happen next
             if (m_StateE.LastSelectedContractIndex == -1)
             {
