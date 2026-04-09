@@ -13,6 +13,9 @@ namespace SpaceFab.Design
         Exiting,
     }
 
+    /// <summary>
+    /// Holds data facilitating transitioning into and out of the minigame scene.
+    /// </summary>
     public class DesignTransitionState : SharedStateComponent, IRegistrationCallbacks
     {
         public DesignTransitionPhase Phase;

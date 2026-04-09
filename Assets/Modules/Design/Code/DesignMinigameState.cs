@@ -8,6 +8,10 @@ using UnityEngine;
 
 namespace SpaceFab.Design
 {
+    /// <summary>
+    /// Holds minigame-specific data for the Design minigame.
+    /// Central hub for import/export minigame state.
+    /// </summary>
     public class DesignMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
     {
         #region Saved State

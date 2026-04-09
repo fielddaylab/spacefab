@@ -8,7 +8,7 @@ namespace SpaceFab.Fabrication
     /// <summary>
     /// Manages results display after an attempt is completed
     /// </summary>
-    public class ResultSystem : SharedStateSystemBehaviour<ModeState>
+    public class ResultSystem : SharedStateSystemBehaviour<WaferState>
     {
 
     }

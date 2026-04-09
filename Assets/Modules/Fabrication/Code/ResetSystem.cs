@@ -9,7 +9,7 @@ namespace SpaceFab.Fabrication
     /// Manages relevant state for resetting an attempt.
     /// Clear wafer state, reset timer, etc.
     /// </summary>
-    public class ResetSystem : SharedStateSystemBehaviour<ModeState>
+    public class ResetSystem : SharedStateSystemBehaviour<WaferState>
     {
 
     }
