@@ -44,15 +44,23 @@ namespace SpaceFab
     {
         public const int PauseUpdateMask = 1 << 0;
         public const int MinigameTransitionMask = 1 << 1;
+
         public const int ResearchMask = 1 << 2;
         public const int DesignMask = 1 << 3;
         public const int SupplyMask = 1 << 4;
         public const int FabricationMask = 1 << 5;
+
+        // overarching
         public const int OverarchingMask = 1 << 6;
         public const int ContractSystemsMask = 1 << 7;
         public const int ChapterMask = 1 << 8;
         public const int SetupMask = 1 << 9;
         public const int ShutdownMask = 1 << 10;
+
+        // fab
+        public const int PreAttemptMask = 1 << 11;
+        public const int AttemptMask = 1 << 12;
+        public const int PostAttemptMask = 1 << 13;
     }
 
     static public class LayerMasks
