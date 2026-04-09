@@ -9,7 +9,7 @@ namespace SpaceFab.Design
     /// Manages Tool mode, in which the player is actively shaping the grid.
     /// Delegates to DrawSystem or EraseSystem depending on the currently selected tool type.
     /// </summary>
-    public class ToolModeSysten : SharedStateSystemBehaviour<ToolModeState>
+    public class ToolModeSystem : SharedStateSystemBehaviour<ToolModeState>
     {
 
     }
