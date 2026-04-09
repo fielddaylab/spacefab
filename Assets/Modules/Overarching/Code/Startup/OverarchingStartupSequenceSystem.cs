@@ -74,6 +74,7 @@ namespace SpaceFab.Overarching
                     {
                         m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
                         m_StateC.Phase = ContractCompletionPhase.Waiting;
+                        progress.RecentlyCompletedChapter = false;
                     }
                     else
                     {

@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication
 {
+    /// <summary>
+    /// Stores minigame-specific data for import/export
+    /// </summary>
     public class FabricationMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
     {
         #region Saved State
