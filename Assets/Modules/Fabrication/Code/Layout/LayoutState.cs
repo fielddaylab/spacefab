@@ -51,7 +51,7 @@ namespace SpaceFab.Fabrication.Layout
 
         public static void AssignStationToSlot(LayoutState layoutState, MicrogameStationInterfacer stationInterfacer, int slotIndex)
         {
-            if (slotIndex <= )
+            if (slotIndex <= layoutState.StationSlots.Length)
             {
                 StationSlotUtility.AssignStation(ref layoutState.StationSlots[slotIndex], ref stationInterfacer);
             }
