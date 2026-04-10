@@ -11,6 +11,9 @@ namespace SpaceFab.Fabrication
     /// </summary>
     public class ResetSystem : SharedStateSystemBehaviour<WaferState>
     {
-
+        public override void ProcessWork(float deltaTime)
+        {
+            base.ProcessWork(deltaTime);
+        }
     }
 }

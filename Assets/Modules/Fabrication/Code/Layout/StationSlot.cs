@@ -10,7 +10,7 @@ namespace SpaceFab.Fabrication.Layout {
     /// </summary>
     public class StationSlot : BatchedComponent
     {
-        public MicrogameStationInterfacer AssignedStationInterfacer;
+        [HideInInspector] public MicrogameStationInterfacer AssignedStationInterfacer;
     }
 
     public static class StationSlotUtility
@@ -18,6 +18,7 @@ namespace SpaceFab.Fabrication.Layout {
         public static void AssignStation(ref StationSlot slot, ref MicrogameStationInterfacer stationInterfacer)
         {
             slot.AssignedStationInterfacer = stationInterfacer;
+            stationInterfacer.transform.position = slot.transform.position;
         }
     }
 }
