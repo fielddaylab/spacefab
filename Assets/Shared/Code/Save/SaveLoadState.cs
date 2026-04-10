@@ -100,8 +100,6 @@ namespace SpaceFab.Save
 
         static private IEnumerator SaveRoutine(SaveSlot slot)
         {
-            yield return null;
-
             Game.Events.Dispatch(GameEvents.ProfileSaveBegin);
 
             SpacefabGame.SaveBuffer.Write(slot);

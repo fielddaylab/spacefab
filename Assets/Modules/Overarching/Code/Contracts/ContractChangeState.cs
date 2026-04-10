@@ -76,6 +76,7 @@ namespace SpaceFab.Overarching
         public static IEnumerator DockContractRoutine(ContractChangeState changeState, ContractLayoutState layoutState)
         {
             layoutState.SelectionContractUI.gameObject.SetActive(false);
+            layoutState.SelectionCanvasGroup.blocksRaycasts = false;
 
             yield return Routine.Combine(
                 layoutState.SelectionCanvasGroup.FadeTo(0, 1f),
@@ -85,7 +86,6 @@ namespace SpaceFab.Overarching
             layoutState.FaderGroup.alpha = 0;
             layoutState.FaderGroup.blocksRaycasts = false;
 
-            layoutState.SelectionCanvasGroup.blocksRaycasts = false;
 
             GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
             layoutState.ViewCurrContractButton.gameObject.SetActive(true);
