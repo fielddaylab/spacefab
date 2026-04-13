@@ -43,9 +43,8 @@ namespace SpaceFab
                 PauseUtility.StartTogglePause(pauseState);
             }
 
-            GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
-            var exitState = Find.State<MinigameLoadExitState>();
-            exitState.Phase = MinigameLoadExitPhase.Exiting;
+            var requestExitState = Find.State<MinigameRequestExitState>();
+            requestExitState.ExitRequestState = RequestState.Requested;
         }
     }
 }
