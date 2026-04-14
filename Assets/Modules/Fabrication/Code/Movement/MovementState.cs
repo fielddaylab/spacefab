@@ -35,7 +35,7 @@ namespace SpaceFab.Fabrication.Movement
     {
         public static bool CanMove(MovementState moveState, RobotState robotState)
         {
-            return !IsTraveling(moveState) && !robotState.IsStunned;
+            return !IsTraveling(moveState) && !robotState.IsStunned && moveState.MoveEnabled;
         }
 
         public static bool IsTraveling(MovementState state)
