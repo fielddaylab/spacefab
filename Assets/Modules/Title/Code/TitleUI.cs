@@ -163,7 +163,6 @@ namespace SpaceFab.Title
                     SaveUtility.SetDebugFlag(false);
                     SpacefabGame.SaveBuffer.Clear();
                     OGD.Player.ClaimId(m_PlayerCodeInput.text, null, HandleStartAccepted, HandleClaimNewIdError);
-                    SaveUtility.Save(SaveSlot.Main);
                 }
             }
             else
@@ -267,7 +266,8 @@ namespace SpaceFab.Title
         {
             m_NotFoundRoutine.Stop();
             Game.SharedState.Get<UserSettingsState>().PlayerCode = m_PlayerCodeInput.text;
-            
+            SaveUtility.Save(SaveSlot.Main);
+
             // TODO: set this in OGD
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
             Game.Scenes.LoadMainScene(m_NextScene);

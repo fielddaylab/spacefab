@@ -17,6 +17,7 @@ namespace SpaceFab
 
         public bool CursorWasLocked;
         public bool IsLoading;
+        public bool isSaving;
 
         public void OnDeregister()
         {
@@ -118,6 +119,12 @@ namespace SpaceFab
             uiState.LoadIcon.LoadingText.SetText("Loaded!");
             yield return FadeOutLoadIcon(uiState, 0.5f);
 
+            // wait for save to complete
+            while (uiState.isSaving)
+            {
+                yield return null;
+            }
+
             // disperse fader
             yield return FadeOut(uiState, 1.5f);
 
@@ -139,6 +146,7 @@ namespace SpaceFab
         public static IEnumerator OnBeginSave(SharedUIState uiState)
         {
             uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
+            uiState.isSaving = true;
             InputState input = Find.State<InputState>();
             Game.Input.PauseRaycasts();
             // InputUtility.SetInputEnabled(input, false);
@@ -169,6 +177,7 @@ namespace SpaceFab
             {
                 CursorHint.Unlock(uiState.LoadingCursor);
             }
+            uiState.isSaving = false;
             uiState.CursorWasLocked = false;
         }
 
@@ -189,6 +198,7 @@ namespace SpaceFab
             {
                 CursorHint.Unlock(uiState.LoadingCursor);
             }
+            uiState.isSaving = false;
             uiState.CursorWasLocked = false;
         }
 
