@@ -115,6 +115,11 @@ namespace SpaceFab.Save
                 {
                     yield return WriteToRemoteSave();
                 }
+                else
+                {
+                    Log.Error("[SaveUtility] SaveCode is null or empty -- save failed");
+                    Game.Events.Dispatch(GameEvents.ProfileSaveError);
+                }
             }
         }
 
