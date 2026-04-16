@@ -1,0 +1,323 @@
+using FieldDay;
+using FieldDay.Components;
+using SpaceFab.Design.Visuals;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+namespace SpaceFab.Design
+{
+    public class VisualGridCell : BatchedComponent
+    {
+        public SpriteRenderer PathRenderer;
+        public SpriteRenderer SubRenderer;
+        public SpriteRenderer PathOverlayRenderer;
+        public SpriteRenderer PathOverlayBaseRenderer;
+        public TMP_Text TextRenderer;
+        public SpriteRenderer TransferRenderer;
+        public SpriteRenderer SecondaryTransferRenderer;
+        public SpriteRenderer[] DirRenderers;
+        public SpriteMask FlowMask;
+
+        public SpriteRenderer FlowIndicator;
+    }
+
+    public static class VisualGridCellUtility
+    {
+        private const int FLOW_SORT_ORDER = 500;
+        private const int GATE_SORT_ORDER = 300;
+        private const int SECONDARY_SORT_ORDER = 275;
+        private const int METAL_SORT_ORDER = 200;
+        private const int VIA_SORT_ORDER = 100;
+        private const int TRANSISTOR_SORT_ORDER = 0;
+
+        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        {
+            var flow = cell.FlowState;
+            // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
+            visualCell.FlowIndicator.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
+            visualCell.FlowIndicator.sortingOrder += 50;
+
+            switch (flow)
+            {
+                case (FlowState.Hi):
+                    UpdateHiFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    break;
+                case (FlowState.Lo):
+                    UpdateLoFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    break;
+                case (FlowState.Unstable):
+                    UpdateUnstableFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    break;
+                default:
+                    UpdateDefaultFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    break;
+            }
+        }
+
+        private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        {
+            if (layerIndex == (int)StackLayer.Metal)
+            {
+                visualCell.FlowIndicator.sprite = spriteDB.FlowHiAbove;
+            }
+            else if (cell.CellType != CellType.Output && cell.CellType != CellType.Input)
+            {
+                visualCell.FlowIndicator.sprite = spriteDB.FlowHiBelow;
+            }
+
+            SetTransferWithFlow(visualCell, cell, FlowState.Hi, ref spriteDB);
+        }
+
+        private static void UpdateLoFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        {
+            if (layerIndex == (int)StackLayer.Metal)
+            {
+                visualCell.FlowIndicator.sprite = spriteDB.FlowLoAbove;
+            }
+            else if (cell.CellType != CellType.Output && cell.CellType != CellType.Input)
+            {
+                visualCell.FlowIndicator.sprite = spriteDB.FlowLoBelow;
+            }
+
+            SetTransferWithFlow(visualCell, cell, FlowState.Lo, ref spriteDB);
+        }
+
+        private static void UpdateUnstableFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        {
+            if (layerIndex == (int)StackLayer.Metal)
+            {
+                visualCell.FlowIndicator.sprite = spriteDB.FlowUnstableAbove;
+            }
+            else if (cell.CellType != CellType.Output && cell.CellType != CellType.Input)
+            {
+                visualCell.FlowIndicator.sprite = spriteDB.FlowUnstableBelow;
+            }
+
+            SetTransferWithFlow(visualCell, cell, FlowState.Unstable, ref spriteDB);
+        }
+
+        private static void UpdateDefaultFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        {
+            visualCell.FlowIndicator.sprite = null;
+
+            SetTransferWithFlow(visualCell, cell, FlowState.Empty, ref spriteDB);
+        }
+
+        private static void SetTransferWithFlow(VisualGridCell visualCell, GridCell cell, FlowState flow, ref SpriteDB spriteDB)
+        {
+            if (cell.TransferType == TransferType.Via)
+            {
+                // lookup via for flow state
+                var sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, flow);
+                visualCell.TransferRenderer.sprite = sprite;
+                visualCell.SecondaryTransferRenderer.sprite = sprite;
+            }
+            else if (cell.TransferType == TransferType.GateAbove)
+            {
+                var sprite = SpriteDBUtility.LookupGateSprite(ref spriteDB, flow);
+                visualCell.TransferRenderer.sprite = sprite;
+            }
+        }
+
+        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        {
+            PathLibrary.AssembledPathData pathData = default;
+            bool lookedUpEdge = false;
+
+            // Reset
+            visualCell.PathRenderer.sprite = null;
+            visualCell.PathOverlayRenderer.sprite = null;
+            visualCell.PathOverlayBaseRenderer.sprite = null;
+            visualCell.SubRenderer.sprite = null;
+            foreach (var r in visualCell.DirRenderers) { r.sprite = null; }
+            visualCell.FlowMask.sprite = null;
+            visualCell.FlowMask.backSortingOrder = 0;
+            visualCell.FlowMask.frontSortingOrder = 0;
+            visualCell.TextRenderer.SetText("");
+            visualCell.PathRenderer.color = Color.white;
+
+            // Render according to cell data
+            switch (cellData.CellType)
+            {
+                case CellType.Metal:
+                    spriteDB.MetalLibrary.Lookup(EdgeUtility.CondenseEdges(cellData.Edges), out pathData);
+                    lookedUpEdge = true;
+                    break;
+                case CellType.NTransistor:
+                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, ref spriteDB);
+                    break;
+                case CellType.PTransistor:
+                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, ref spriteDB);
+                    break;
+                case CellType.Input:
+                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                    visualCell.SubRenderer.sprite = spriteDB.IOInner;
+                    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
+                    break;
+                case CellType.Output:
+                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                    visualCell.SubRenderer.sprite = spriteDB.IOInner;
+                    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
+                    break;
+                default:
+                    break;
+            }
+
+            // Reset
+            visualCell.TransferRenderer.sprite = null;
+            visualCell.SecondaryTransferRenderer.sprite = null;
+
+            switch (cellData.TransferType)
+            {
+                case TransferType.Via:
+                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, FlowState.Empty);
+                    visualCell.SecondaryTransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, FlowState.Empty);
+                    break;
+                case TransferType.GateAbove:
+                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupGateSprite(ref spriteDB, FlowState.Empty);
+                    break;
+                default:
+                    break;
+            }
+
+            visualCell.PathRenderer.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
+            visualCell.PathOverlayRenderer.sortingOrder = visualCell.PathRenderer.sortingOrder + 3;
+            visualCell.PathOverlayBaseRenderer.sortingOrder = visualCell.PathOverlayRenderer.sortingOrder - 1;
+            visualCell.SubRenderer.sortingOrder = visualCell.PathRenderer.sortingOrder - 10;
+            visualCell.TextRenderer.GetComponent<Renderer>().sortingOrder = visualCell.PathRenderer.sortingOrder + 10;
+            foreach (var r in visualCell.DirRenderers) { r.sortingOrder = visualCell.PathRenderer.sortingOrder + 5; }
+            visualCell.TransferRenderer.sortingOrder = cellData.TransferType == TransferType.Via ? VIA_SORT_ORDER : GATE_SORT_ORDER;
+            visualCell.SecondaryTransferRenderer.sortingOrder = SECONDARY_SORT_ORDER;
+
+            visualCell.FlowMask.backSortingOrder = visualCell.PathRenderer.sortingOrder - 50;
+            visualCell.FlowMask.frontSortingOrder = visualCell.PathRenderer.sortingOrder + 50;
+
+            if (lookedUpEdge)
+            {
+                visualCell.PathRenderer.sprite = pathData.Sprite;
+                var angles = visualCell.PathRenderer.transform.rotation.eulerAngles;
+                angles.z = 90 * pathData.Turns;
+                visualCell.PathRenderer.transform.rotation = Quaternion.Euler(angles);
+
+                visualCell.FlowMask.transform.rotation = Quaternion.Euler(angles);
+                visualCell.FlowMask.sprite = pathData.Sprite;
+            }
+
+            UpdateFlowVisuals(visualCell, cellData, layerIndex, ref spriteDB);
+        }
+
+        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        {
+            var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
+            spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
+            lookedUpEdge = true;
+            visualCell.PathRenderer.color = spriteDB.NColor;
+
+            if (cellData.TempTransformation != CellType.NONE)
+            {
+                if (cellData.TempTransformation == CellType.PTransistor)
+                {
+                    visualCell.PathOverlayRenderer.sprite = spriteDB.InvertedOverlay;
+                    visualCell.PathOverlayBaseRenderer.sprite = spriteDB.InvertedOverlayBase;
+                    visualCell.PathOverlayRenderer.color = spriteDB.PColor;
+                    visualCell.PathOverlayBaseRenderer.color = spriteDB.NColor;
+
+                    visualCell.PathRenderer.color = spriteDB.PColor;
+                }
+            }
+
+            GridStackState stackState = Find.State<GridStackState>();
+
+            // set dir renderers
+            for (int i = 0; i < 4; i++)
+            {
+                if (condensedEdges[i] == EdgeState.Connected)
+                {
+                    // lookup adjacent
+                    int adjCol = col;
+                    int adjRow = row;
+
+                    // N
+                    if (i == 0) { adjRow++; }
+                    // E
+                    else if (i == 1) { adjCol++; }
+                    // S
+                    else if (i == 2) { adjRow--; }
+                    // W
+                    else if (i == 3) { adjCol--; }
+
+                    if (GridStackUtility.InBounds(stackState, adjCol, adjRow))
+                    {
+                        var adjCell = stackState.GridStack.GridLayers[layerIndex].GetCell(adjCol, adjRow);
+                        // if P, set N to P half of renderer
+                        if (adjCell.CellType == CellType.PTransistor)
+                        {
+                            if (cellData.TempTransformation != CellType.PTransistor && adjCell.TempTransformation != CellType.NTransistor)
+                            {
+                                visualCell.DirRenderers[i].sprite = spriteDB.NSide;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        {
+            var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
+            spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
+            lookedUpEdge = true;
+            visualCell.PathRenderer.color = spriteDB.PColor;
+
+            if (cellData.TempTransformation != CellType.NONE)
+            {
+                if (cellData.TempTransformation == CellType.NTransistor)
+                {
+                    visualCell.PathOverlayRenderer.sprite = spriteDB.InvertedOverlay;
+                    visualCell.PathOverlayBaseRenderer.sprite = spriteDB.InvertedOverlayBase;
+                    visualCell.PathOverlayRenderer.color = spriteDB.NColor;
+                    visualCell.PathOverlayBaseRenderer.color = spriteDB.PColor;
+
+                    visualCell.PathRenderer.color = spriteDB.NColor;
+                }
+            }
+
+            GridStackState stackState = Find.State<GridStackState>();
+
+            // set dir renderers
+            for (int i = 0; i < 4; i++)
+            {
+                if (condensedEdges[i] == EdgeState.Connected)
+                {
+                    // lookup adjacent
+                    int adjCol = col;
+                    int adjRow = row;
+
+                    // N
+                    if (i == 0) { adjRow++; }
+                    // E
+                    else if (i == 1) { adjCol++; }
+                    // S
+                    else if (i == 2) { adjRow--; }
+                    // W
+                    else if (i == 3) { adjCol--; }
+
+                    if (GridStackUtility.InBounds(stackState, adjCol, adjRow))
+                    {
+                        var adjCell = stackState.GridStack.GridLayers[layerIndex].GetCell(adjCol, adjRow);
+                        // if P, set N to P half of renderer
+                        if (adjCell.CellType == CellType.NTransistor)
+                        {
+                            if (cellData.TempTransformation != CellType.NTransistor && adjCell.TempTransformation != CellType.PTransistor)
+                            {
+                                visualCell.DirRenderers[i].sprite = spriteDB.PSide;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

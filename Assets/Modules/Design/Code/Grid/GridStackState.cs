@@ -31,8 +31,8 @@ namespace SpaceFab.Design
             gridStack.LayerDims = config.LayerDims;
             gridStack.GridLayers = new GridLayer[2]
             {
-                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y, (int)StackLayer.Metal),  // metal layer (highest)
-                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y, (int)StackLayer.Transistor)   // transistor layer (lowest)
+                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y),  // metal layer (highest)
+                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y)   // transistor layer (lowest)
             };
             for (int i = 0; i < config.Cells.Length; i++)
             {

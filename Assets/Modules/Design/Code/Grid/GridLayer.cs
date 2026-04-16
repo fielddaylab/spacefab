@@ -24,17 +24,15 @@ namespace SpaceFab.Design
     /// </summary>
     public class GridLayer
     {
-        public Dimensions Dimensions;
-        public int LayerIndex;
-        private GridCell[,] m_Cells; // accessed in row, col order
+        private int m_XDim; // cols per row
+        private GridCell[] m_Cells; // accessed in row, col order
 
         #region Constructor
 
-        public GridLayer(int xDim, int yDim, int layerIndex)
+        public GridLayer(int xDim, int yDim)
         {
-            Dimensions = new Dimensions(xDim, yDim);
-            LayerIndex = layerIndex;
-            m_Cells = new GridCell[yDim, xDim];
+            m_XDim = xDim;
+            m_Cells = new GridCell[yDim * xDim];
             for (int row = 0; row < yDim; row++)
             {
                 for (int col = 0; col < xDim; col++)
@@ -58,7 +56,7 @@ namespace SpaceFab.Design
         /// <returns></returns>
         public GridCell GetCell(int x, int y)
         {
-            return m_Cells[y, x];
+            return m_Cells[y * m_XDim + x];
         }
 
         /// <summary>
@@ -69,13 +67,13 @@ namespace SpaceFab.Design
         /// <returns></returns>
         public GridCell GetCell(Vector2Int coord)
         {
-            return m_Cells[coord.y, coord.x];
+            return m_Cells[coord.y * m_XDim + coord.x];
         }
 
         // Set cell at x, y in row, col order
         public void SetCell(int x, int y, GridCell cell)
         {
-            m_Cells[y, x] = cell;
+            m_Cells[y * m_XDim + x] = cell;
 
             //Game.Events.Dispatch(GameEvents.OnLayoutChanged);
         }
@@ -83,7 +81,7 @@ namespace SpaceFab.Design
         // Set cell at x, y in row, col order
         public void SetCell(Vector2Int coord, GridCell cell)
         {
-            m_Cells[coord.y, coord.x] = cell;
+            m_Cells[coord.y * m_XDim + coord.x] = cell;
 
             //Game.Events.Dispatch(GameEvents.OnLayoutChanged);
         }

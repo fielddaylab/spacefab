@@ -17,7 +17,7 @@ namespace SpaceFab.Design
         #region Saved State
 
         // TODO: Save State
-        public GridStack GridStack;
+        // public GridStack GridStack; // delegate to GridStackState
 
         #endregion // Saved State
 
@@ -55,13 +55,13 @@ namespace SpaceFab.Design
         {
             if (saveState.GridStack != null)
             {
-                designState.GridStack = saveState.GridStack;
+                Find.State<GridStackState>().GridStack = saveState.GridStack;
             }
         }
 
         public static void ExportState(ref DesignSaveState saveState, DesignMinigameState designState)
         {
-            saveState.GridStack = designState.GridStack;
+            saveState.GridStack = Find.State<GridStackState>().GridStack;
         }
     }
 }

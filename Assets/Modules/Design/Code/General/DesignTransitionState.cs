@@ -7,6 +7,7 @@ using UnityEngine;
 namespace SpaceFab.Design
 {
     public enum DesignTransitionPhase {
+        SetupBaseLevel,
         ApplySave,
         FinalizeLevel,
         SetupComplete,
@@ -26,7 +27,7 @@ namespace SpaceFab.Design
 
         public void OnRegister()
         {
-            Phase = DesignTransitionPhase.ApplySave;
+            Phase = DesignTransitionPhase.SetupBaseLevel;
         }
     }
 }

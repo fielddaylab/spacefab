@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GridStackConfig_Test
   m_EditorClassIdentifier: 
   LayerDims:
-    X: 6
+    X: 8
     Y: 6
   Cells:
   - LayerIndex: 1

@@ -9,7 +9,7 @@ namespace SpaceFab.Save
 {
     public class DesignSaveState : IMinigameSaveState, ISaveStateChunkObject
     {
-        public GridStack GridStack; // TODO: load from config as soon as contract is selected!
+        public GridStack GridStack;
 
         #region Interfaces
 
@@ -18,18 +18,12 @@ namespace SpaceFab.Save
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-            /*
-            float volume = reader.Read<float>();
-            SettingsUtility.SetMasterVolume(this, volume);
-            */
+
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
             // writer.Write(GridStack);
-            /*
-            writer.Write((float)MasterVolume);
-            */
         }
 
         /*
