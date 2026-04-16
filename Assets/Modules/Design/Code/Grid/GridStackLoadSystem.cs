@@ -33,11 +33,13 @@ namespace SpaceFab.Design {
                 case DesignTransitionPhase.ApplySave:
                     Debug.Log("[GridStackLoadSystem] Applying save to level...");
                     // TODO: apply save
-                    m_StateA.Phase = DesignTransitionPhase.SetupComplete;
+                    m_StateA.Phase = DesignTransitionPhase.FinalizeLevel;
                     break;
                 case DesignTransitionPhase.FinalizeLevel:
                     Debug.Log("[GridStackLoadSystem] Finalizing level...");
                     // TODO: finalize level (enforce eraseable)
+                    // Update visuals to match grid state
+                    m_StateE.VisualsNeedRefreshing = true;
                     m_StateA.Phase = DesignTransitionPhase.SetupComplete;
                     break;
                 case DesignTransitionPhase.SetupComplete:
