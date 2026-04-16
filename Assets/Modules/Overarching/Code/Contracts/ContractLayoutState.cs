@@ -47,6 +47,8 @@ namespace SpaceFab.Overarching
 
         public void OnDeregister()
         {
+            CompletionRoutine.Stop();
+            SelectionRoutine.Stop();
         }
 
         public void OnRegister()

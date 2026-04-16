@@ -1,4 +1,5 @@
 using BeauRoutine;
+using FieldDay;
 using FieldDay.SharedState;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,10 +15,19 @@ namespace SpaceFab.Overarching
         ShutdownComplete
     }
 
-    public class OverarchingShutdownSequenceState : SharedStateComponent
+    public class OverarchingShutdownSequenceState : SharedStateComponent, IRegistrationCallbacks
     {
         public OverarchingShutdownPhase Phase;
 
         public Routine ShutdownRoutine;
+
+        public void OnDeregister()
+        {
+            ShutdownRoutine.Stop();
+        }
+
+        public void OnRegister()
+        {
+        }
     }
 }

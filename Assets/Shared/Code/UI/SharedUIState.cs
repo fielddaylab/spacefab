@@ -147,7 +147,6 @@ namespace SpaceFab
         {
             uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
             uiState.isSaving = true;
-            InputState input = Find.State<InputState>();
             Game.Input.PauseRaycasts();
             // InputUtility.SetInputEnabled(input, false);
             CursorHint.TryLock(uiState.LoadingCursor);

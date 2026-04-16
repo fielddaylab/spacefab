@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
-    public class ContractConfirmSystem : SharedStateSystemBehaviour<ContractConfirmState, ContractSelectState, ContractLayoutState, ChapterState, ContractAssetsLookup>
+    public class ContractConfirmSystem : SharedStateSystemBehaviour<ContractConfirmState, ContractSelectState, ContractLayoutState, ChapterState, ContractAssetsLookup, SharedUIState>
     {
         public override void ProcessWork(float deltaTime)
         {
@@ -29,7 +29,7 @@ namespace SpaceFab.Overarching
         {
             if (!m_StateA.ConfirmRoutine.Exists())
             {
-                m_StateA.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateC, m_StateD, m_StateE));
+                m_StateA.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(m_StateA, m_StateB, m_StateC, m_StateD, m_StateE, m_StateF));
             }
         }
 

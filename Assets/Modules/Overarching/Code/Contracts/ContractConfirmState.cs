@@ -1,12 +1,13 @@
 using BeauRoutine;
-using FieldDay.SharedState;
+using BeauUtil;
 using FieldDay;
+using FieldDay.SharedState;
+using FieldDay.UI;
+using SpaceFab.Design;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using BeauUtil;
-using SpaceFab.Design;
-using SpaceFab.Save;
 
 namespace SpaceFab.Overarching
 {
@@ -17,16 +18,25 @@ namespace SpaceFab.Overarching
         Completed
     }
 
-    public class ContractConfirmState : SharedStateComponent
+    public class ContractConfirmState : SharedStateComponent, IRegistrationCallbacks
     {
         public ContractConfirmPhase Phase;
 
         public Routine ConfirmRoutine;
+
+        public void OnDeregister()
+        {
+            ConfirmRoutine.Stop();
+        }
+
+        public void OnRegister()
+        {
+        }
     }
 
     public static class ContractConfirmUtility
     {
-        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup)
+        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup, SharedUIState sharedUIState)
         {
             chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
             StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
@@ -55,7 +65,6 @@ namespace SpaceFab.Overarching
 
             layoutState.FaderGroup.alpha = 0;
             layoutState.FaderGroup.blocksRaycasts = false;
-
 
             confirmState.Phase = ContractConfirmPhase.Completed;
         }

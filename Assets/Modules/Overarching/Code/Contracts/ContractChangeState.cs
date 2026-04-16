@@ -3,6 +3,7 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.SharedState;
+using FieldDay.UI;
 using SpaceFab.Design;
 using SpaceFab.Save;
 using System.Collections;
@@ -35,6 +36,7 @@ namespace SpaceFab.Overarching
 
         public void OnDeregister()
         {
+            TransitionRoutine.Stop();
         }
 
         public void OnRegister()
@@ -73,7 +75,7 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
         }
 
-        public static IEnumerator DockContractRoutine(ContractChangeState changeState, ContractLayoutState layoutState)
+        public static IEnumerator DockContractRoutine(ContractChangeState changeState, ContractLayoutState layoutState, SharedUIState sharedUIState)
         {
             layoutState.SelectionContractUI.gameObject.SetActive(false);
             layoutState.SelectionCanvasGroup.blocksRaycasts = false;

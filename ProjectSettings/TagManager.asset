@@ -41,6 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: GridBase
+    uniqueID: 1225722235
+    locked: 0
+  - name: GridNodes
+    uniqueID: 2554888235
+    locked: 0
+  - name: GridOverlay
+    uniqueID: 1497403345
+    locked: 0
   - name: UI
     uniqueID: 264871581
     locked: 0

@@ -8,7 +8,7 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
-    public class ContractChangeSystem : SharedStateSystemBehaviour<ContractChangeState, ContractSelectState, ContractLayoutState, ContractAssetsLookup, ChapterLoadState, ChapterState, ContractConfirmState>
+    public class ContractChangeSystem : SharedStateSystemBehaviour<ContractChangeState, ContractSelectState, ContractLayoutState, ContractAssetsLookup, ChapterLoadState, ChapterState, ContractConfirmState, SharedUIState>
     {
         public override void ProcessWork(float deltaTime)
         {
@@ -118,7 +118,7 @@ namespace SpaceFab.Overarching
             Debug.Log("[ContractChangeSystem] Docking Contract");
             if (!m_StateA.TransitionRoutine.Exists())
             {
-                m_StateA.TransitionRoutine.Replace(ContractChangeUtility.DockContractRoutine(m_StateA, m_StateC));
+                m_StateA.TransitionRoutine.Replace(ContractChangeUtility.DockContractRoutine(m_StateA, m_StateC, m_StateH));
             }
         }
 
