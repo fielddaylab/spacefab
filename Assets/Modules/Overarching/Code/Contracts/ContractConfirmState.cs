@@ -48,7 +48,6 @@ namespace SpaceFab.Overarching
             var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
-            minigameSaveState.Design.GridStack = new GridStack();
             GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
 
             SaveUtility.Save(SaveSlot.Main);

@@ -16,7 +16,7 @@ namespace SpaceFab.Design
 
         public void OnRegister()
         {
-            GridStack = new GridStack();
+            GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
             // LoadConfig(LevelMgr.Instance.CurrLevelData.GetGridConfig());
             // Game.Events.Dispatch(GameEvents.NewGridStackCreated);
         }
@@ -24,16 +24,22 @@ namespace SpaceFab.Design
 
     public static class GridStackUtility
     {
-        #region Loading
-
-        public static void LoadConfig(ref GridStack gridStack, GridStackConfig config)
+        public static void InitEmptyGridStack(ref GridStack gridStack, int numCols, int numRows)
         {
-            gridStack.LayerDims = config.LayerDims;
+            gridStack = new GridStack();
+            gridStack.LayerDims = new Dimensions(numCols, numRows);
             gridStack.GridLayers = new GridLayer[2]
             {
                 new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y),  // metal layer (highest)
                 new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y)   // transistor layer (lowest)
             };
+        }
+
+        #region Loading
+
+        public static void LoadConfig(ref GridStack gridStack, GridStackConfig config)
+        {
+            InitEmptyGridStack(ref gridStack, config.LayerDims.X, config.LayerDims.Y);
             for (int i = 0; i < config.Cells.Length; i++)
             {
                 LoadCellConfig(ref gridStack, config.Cells[i]);

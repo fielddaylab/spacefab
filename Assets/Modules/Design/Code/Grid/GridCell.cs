@@ -65,17 +65,20 @@ namespace SpaceFab.Design
 
     public class GridCell
     {
+        #region Save Data
+
         public CellType CellType;
         public InputOutputNodeTypeFlags SubtypeLabel;
         public EdgeStateData[] Edges = new EdgeStateData[6]; // one for each edge dir
         public TransferType TransferType; // informs how data is transferred between layers when either ASCEND or DESCEND edges are connected
 
+        public bool NodeEraseable; // = true when drawn, false when loaded by config
+        public bool TransferEraseable; // = true when drawn, false when loaded by config
+
+        #endregion // Save Data
+
         public FlowState FlowState;
-
         public CellType TempTransformation;
-
-        public bool NodeEraseable;//  = true;
-        public bool TransferEraseable; // = true;
 
         #region Loading
 

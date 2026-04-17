@@ -33,12 +33,12 @@ namespace SpaceFab
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-
+            RecentlyCompletedChapter = reader.Read<bool>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
-
+            writer.Write(RecentlyCompletedChapter);
         }
 
         #endregion // Interfaces
