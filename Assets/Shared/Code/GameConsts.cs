@@ -61,6 +61,10 @@ namespace SpaceFab
         public const int PreAttemptMask = 1 << 11;
         public const int AttemptMask = 1 << 12;
         public const int PostAttemptMask = 1 << 13;
+
+        // design
+        public const int ToolModeMask = 1 << 14;
+        public const int SimulateModeMask = 1 << 15;
     }
 
     static public class LayerMasks

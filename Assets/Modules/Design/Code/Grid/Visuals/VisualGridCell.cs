@@ -250,7 +250,7 @@ namespace SpaceFab.Design
 
                     if (GridStackUtility.InBounds(stackState, adjCol, adjRow))
                     {
-                        var adjCell = stackState.GridStack.GridLayers[layerIndex].GetCell(adjCol, adjRow);
+                        var adjCell = GridLayerUtility.GetCell(stackState.GridStack.GridLayers[layerIndex], adjCol, adjRow);
                         // if P, set N to P half of renderer
                         if (adjCell.CellType == CellType.PTransistor)
                         {
@@ -306,7 +306,7 @@ namespace SpaceFab.Design
 
                     if (GridStackUtility.InBounds(stackState, adjCol, adjRow))
                     {
-                        var adjCell = stackState.GridStack.GridLayers[layerIndex].GetCell(adjCol, adjRow);
+                        var adjCell = GridLayerUtility.GetCell(stackState.GridStack.GridLayers[layerIndex], adjCol, adjRow);
                         // if P, set N to P half of renderer
                         if (adjCell.CellType == CellType.NTransistor)
                         {

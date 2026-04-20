@@ -15,8 +15,8 @@ namespace SpaceFab.Fabrication
     {
         #region Saved State
 
-        // TODO: Save State
-
+        [HideInInspector] public int TotalCycles;
+        [HideInInspector] public float Precision;
 
         #endregion // Saved State
 
@@ -52,12 +52,15 @@ namespace SpaceFab.Fabrication
     {
         public static void ImportState(FabricationSaveState saveState, FabricationMinigameState fabState)
         {
-            
+            fabState.TotalCycles = saveState.TotalCycles;
+            fabState.Precision = saveState.Precision;
         }
 
         public static void ExportState(ref FabricationSaveState saveState, FabricationMinigameState fabState)
         {
-
+            // TODO: check if run completed
+            saveState.TotalCycles = fabState.TotalCycles;
+            saveState.Precision = fabState.Precision;
         }
     }
 }

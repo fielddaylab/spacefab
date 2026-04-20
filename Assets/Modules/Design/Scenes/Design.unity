@@ -135,8 +135,6 @@ GameObject:
   - component: {fileID: 296846312}
   - component: {fileID: 296846313}
   - component: {fileID: 296846314}
-  - component: {fileID: 296846322}
-  - component: {fileID: 296846321}
   - component: {fileID: 296846320}
   - component: {fileID: 296846319}
   - component: {fileID: 296846318}
@@ -145,6 +143,7 @@ GameObject:
   - component: {fileID: 296846315}
   - component: {fileID: 296846323}
   - component: {fileID: 296846324}
+  - component: {fileID: 296846325}
   m_Layer: 0
   m_Name: Design Systems
   m_TagString: Untagged
@@ -287,30 +286,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3853284be0108eb458f2118c17c394cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &296846321
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 296846309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2fade922d24364469c98d28e6ab52f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &296846322
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 296846309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1703a7814333bc940ba7b6facf93266a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &296846323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,6 +308,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0da5c9e50e0c494459db9f141f5ac42c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &296846325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296846309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8028acc6a3514494ca66110e0b8e4823, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &306378643
@@ -511,6 +498,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a15e35e8560dfc641b0a4c1f3741c165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ActiveTool: 0
+  LastKnownDragCoord: {x: 0, y: 0}
+  LastTerminatedDragCoord: {x: 0, y: 0}
 --- !u!114 &709705230
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,9 +49,9 @@ namespace SpaceFab.Design
 
         public static void LoadCellConfig(ref GridStack gridStack, GridCellConfig config)
         {
-            var cell = gridStack.GridLayers[(int)config.LayerIndex].GetCell(config.ColumnIndex, config.RowIndex);
+            var cell = GridLayerUtility.GetCell(gridStack.GridLayers[(int)config.LayerIndex], config.ColumnIndex, config.RowIndex);
             cell.LoadCellConfig(config);
-            gridStack.GridLayers[(int)config.LayerIndex].SetCell(config.ColumnIndex, config.RowIndex, cell);
+            GridLayerUtility.SetCell(gridStack.GridLayers[(int)config.LayerIndex], config.ColumnIndex, config.RowIndex, cell);
         }
 
         #endregion // Loading
@@ -67,22 +68,22 @@ namespace SpaceFab.Design
 
         public static GridCell GetCellDirect(GridStackState state, int layer, int col, int row)
         {
-            return state.GridStack.GridLayers[layer].GetCell(col, row);
+            return GridLayerUtility.GetCell(state.GridStack.GridLayers[layer], col, row);
         }
 
         public static GridCell GetCellDirect(GridStackState state, GridCoord coord)
         {
-            return state.GridStack.GridLayers[coord.Layer].GetCell(coord.Col, coord.Row);
+            return GridLayerUtility.GetCell(state.GridStack.GridLayers[coord.Layer], coord.Col, coord.Row);
         }
 
         public static void SetCellDirect(GridStackState state, int layer, int col, int row, GridCell cell)
         {
-            state.GridStack.GridLayers[layer].SetCell(col, row, cell);
+            GridLayerUtility.SetCell(state.GridStack.GridLayers[layer], col, row, cell);
         }
 
         public static void SetCellDirect(GridStackState state, GridCoord coord, GridCell cell)
         {
-            state.GridStack.GridLayers[coord.Layer].SetCell(coord.Col, coord.Row, cell);
+            GridLayerUtility.SetCell(state.GridStack.GridLayers[coord.Layer], coord.Col, coord.Row, cell);
         }
 
         public static EdgeDir DirFromToCell(Vector2Int fromPos, Vector2Int toPos)
@@ -135,6 +136,36 @@ namespace SpaceFab.Design
                 default:
                     break;
             }
+        }
+
+        public static StackLayer GetOppositeLayer(StackLayer layer)
+        {
+            if (layer == StackLayer.Metal) { return StackLayer.Transistor; }
+            else { return StackLayer.Metal; }
+        }
+
+        public static GridCell GetAdjCell(GridStackState gridState, Vector2Int gridPos, EdgeDir dir, int currLayer)
+        {
+            int layerOffset = 0;
+            Vector2Int gridOffset = Vector2Int.zero;
+
+            GridStackUtility.GetOffsetOfDir(dir, out gridOffset, out layerOffset);
+
+            var adjGridPos = gridPos + gridOffset;
+            var adjLayerIndex = currLayer + layerOffset;
+
+            var adjLayer = gridState.GridStack.GridLayers[adjLayerIndex];
+
+            GridCell adjCell = GridLayerUtility.GetCell(adjLayer, adjGridPos);
+
+            return adjCell;
+        }
+
+        public static EdgeDir GetOppositeDir(EdgeDir original)
+        {
+            EdgeDir opposite = (EdgeDir)(((int)original + Enum.GetValues(typeof(EdgeDir)).Length / 2) % Enum.GetValues(typeof(EdgeDir)).Length);
+
+            return opposite;
         }
 
         #endregion // Queries

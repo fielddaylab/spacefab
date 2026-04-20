@@ -84,7 +84,7 @@ namespace SpaceFab.Design
             {
                 for (int col = 0; col < Dimensions.X; col++)
                 {
-                    var cell = layer.GetCell(col, row);
+                    var cell = GridLayerUtility.GetCell(layer, col, row);
                     VisualGridCellUtility.RefreshVisual(ref m_Cells[row * Dimensions.X + col], cell, LayerIndex, col, row, ref spriteDB);
                 }
             }

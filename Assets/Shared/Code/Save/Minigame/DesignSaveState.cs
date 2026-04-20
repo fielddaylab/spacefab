@@ -31,6 +31,13 @@ namespace SpaceFab.Save
             DesignSaveUtility.WriteGridStack(ref writer, consts, this, ref GridStack);
         }
 
+        // IMinigameSaveState
+
+        public void SetDefaults()
+        {
+            GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
+        }
+
         #endregion // Interfaces
     }
 
@@ -53,7 +60,7 @@ namespace SpaceFab.Save
             {
                 for (int col = 0; col < DesignConsts.NUM_GRID_COLS; col++)
                 {
-                    currCell = gridLayer.GetCell(col, row);
+                    currCell = GridLayerUtility.GetCell(gridLayer, col, row);
                     WriteGridCell(ref writer, consts, saveState, ref currCell);
                 }
             }
@@ -99,9 +106,9 @@ namespace SpaceFab.Save
             {
                 for (int col = 0; col < DesignConsts.NUM_GRID_COLS; col++)
                 {
-                    currCell = saveState.GridStack.GridLayers[layerIndex].GetCell(col, row);
+                    currCell = GridLayerUtility.GetCell(saveState.GridStack.GridLayers[layerIndex], col, row);
                     ReadGridCell(ref reader, consts, saveState, ref currCell);
-                    saveState.GridStack.GridLayers[layerIndex].SetCell(col, row, currCell);
+                    GridLayerUtility.SetCell(saveState.GridStack.GridLayers[layerIndex], col, row, currCell);
                 }
             }
         }

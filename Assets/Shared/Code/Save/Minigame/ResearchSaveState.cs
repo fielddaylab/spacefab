@@ -10,7 +10,6 @@ namespace SpaceFab.Save
     {
         #region Interfaces
 
-
         // ISaveStateChunkObject
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
@@ -19,6 +18,13 @@ namespace SpaceFab.Save
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        {
+
+        }
+
+        // IMinigameSaveState
+
+        public void SetDefaults()
         {
 
         }

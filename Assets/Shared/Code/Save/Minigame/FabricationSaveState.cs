@@ -8,19 +8,31 @@ namespace SpaceFab.Save
 {
     public class FabricationSaveState : IMinigameSaveState, ISaveStateChunkObject
     {
-        #region Interfaces
+        public int TotalCycles;
+        public float Precision;
 
+        #region Interfaces
 
         // ISaveStateChunkObject
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-
+            TotalCycles = reader.Read<int>();
+            Precision = reader.Read<float>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
+            writer.Write(TotalCycles);
+            writer.Write(Precision);
+        }
 
+        // IMinigameSaveState
+
+        public void SetDefaults()
+        {
+            TotalCycles = -1;
+            Precision = -1;
         }
 
         #endregion // Interfaces

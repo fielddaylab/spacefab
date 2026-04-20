@@ -12,8 +12,11 @@ namespace SpaceFab.Supply
     {
         #region Saved State
 
-        // TODO: Save State
+        [HideInInspector] public int Reliability;
+        [HideInInspector] public int TotalCycles;
+        [HideInInspector] public int Cost;
 
+        // TODO: layout, paths
 
         #endregion // Saved State
 
@@ -49,12 +52,16 @@ namespace SpaceFab.Supply
     {
         public static void ImportState(SupplySaveState saveState, SupplyMinigameState supplyState)
         {
-            
+            supplyState.Reliability = saveState.FinalizedReliability;
+            supplyState.TotalCycles = saveState.FinalizedReliability;
+            supplyState.Cost = saveState.FinalizedReliability;
         }
 
         public static void ExportState(ref SupplySaveState saveState, SupplyMinigameState supplyState)
         {
-
+            saveState.FinalizedReliability = supplyState.Reliability;
+            saveState.FinalizedTotalCycles = supplyState.TotalCycles;
+            saveState.FinalizedCost = supplyState.Cost;
         }
     }
 }

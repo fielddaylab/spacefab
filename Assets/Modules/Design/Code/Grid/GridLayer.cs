@@ -1,4 +1,5 @@
 using FieldDay;
+using SpaceFab.Design.Visuals;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,26 +25,29 @@ namespace SpaceFab.Design
     /// </summary>
     public class GridLayer
     {
-        private GridCell[] m_Cells; // accessed in row, col order
+        public GridCell[] Cells; // accessed in row, col order
 
         #region Constructor
 
         public GridLayer(int xDim, int yDim)
         {
-            m_Cells = new GridCell[yDim * xDim];
+            Cells = new GridCell[yDim * xDim];
             for (int row = 0; row < yDim; row++)
             {
                 for (int col = 0; col < xDim; col++)
                 {
                     var newCell = new GridCell();
                     newCell.InitEdges();
-                    SetCell(col, row, newCell);
+                    GridLayerUtility.SetCell(this, col, row, newCell);
                 }
             }
         }
 
         #endregion // Constructor
+    }
 
+    public static class GridLayerUtility
+    {
         #region Gets & Sets
 
         /// <summary>
@@ -52,9 +56,9 @@ namespace SpaceFab.Design
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public GridCell GetCell(int x, int y)
+        public static GridCell GetCell(GridLayer layer, int x, int y)
         {
-            return m_Cells[y * DesignConsts.NUM_GRID_COLS + x];
+            return GetCellInternal(layer, x, y);
         }
 
         /// <summary>
@@ -63,39 +67,47 @@ namespace SpaceFab.Design
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public GridCell GetCell(Vector2Int coord)
+        public static GridCell GetCell(GridLayer layer, Vector2Int coord)
         {
-            return m_Cells[coord.y * DesignConsts.NUM_GRID_COLS + coord.x];
+            return GetCellInternal(layer, coord.x, coord.y);
+        }
+
+        private static GridCell GetCellInternal(GridLayer layer, int coordX, int coordY)
+        {
+            return layer.Cells[coordY * DesignConsts.NUM_GRID_COLS + coordX];
         }
 
         // Set cell at x, y in row, col order
-        public void SetCell(int x, int y, GridCell cell)
+        // Typically called from setup and configs
+        public static void SetCell(GridLayer layer, int x, int y, GridCell cell)
         {
-            m_Cells[y * DesignConsts.NUM_GRID_COLS + x] = cell;
-
-            //Game.Events.Dispatch(GameEvents.OnLayoutChanged);
+            SetCellInternal(layer, x, y, cell);
         }
 
         // Set cell at x, y in row, col order
-        public void SetCell(Vector2Int coord, GridCell cell)
+        // Typically called from player interactions
+        public static void SetCell(GridLayer layer, Vector2Int coord, GridCell cell)
         {
-            m_Cells[coord.y * DesignConsts.NUM_GRID_COLS + coord.x] = cell;
+            SetCellInternal(layer, coord.x, coord.y, cell);
+        }
 
-            //Game.Events.Dispatch(GameEvents.OnLayoutChanged);
+        private static void SetCellInternal(GridLayer layer, int coordX, int coordY, GridCell cell)
+        {
+            layer.Cells[coordY * DesignConsts.NUM_GRID_COLS + coordX] = cell;
         }
 
         #endregion // Gets & Sets
 
         #region Queries 
 
-        public bool IsCellEmpty(int x, int y)
+        public static bool IsCellEmpty(GridLayer layer, int x, int y)
         {
-            return GetCell(x, y).CellType == CellType.NONE;
+            return GetCell(layer, x, y).CellType == CellType.NONE;
         }
 
-        public bool IsCellEmpty(Vector2Int coord)
+        public static bool IsCellEmpty(GridLayer layer, Vector2Int coord)
         {
-            return GetCell(coord.x, coord.y).CellType == CellType.NONE;
+            return GetCell(layer, coord.x, coord.y).CellType == CellType.NONE;
         }
 
         #endregion // Queries

@@ -6,6 +6,6 @@ namespace SpaceFab.Save
 {
     public interface IMinigameSaveState
     {
-
+        public void SetDefaults();
     }
 }

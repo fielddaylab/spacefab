@@ -16,7 +16,6 @@ namespace SpaceFab.Design
     {
         #region Saved State
 
-        // TODO: Save State
         // public GridStack GridStack; // delegate to GridStackState
 
         #endregion // Saved State
