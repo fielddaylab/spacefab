@@ -7,17 +7,16 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
+    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 12, UpdateMasks.ShutdownMask)]
     public class OverarchingShutdownSequenceSystem : SharedStateSystemBehaviour<OverarchingShutdownSequenceState, MinigameZonesState, ChapterState, AvailableContractsLookup>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != OverarchingShutdownPhase.Waiting && m_StateA.Phase != OverarchingShutdownPhase.ShutdownComplete;
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -34,13 +33,13 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessBeginShutdown()
+        static private void ProcessBeginShutdown()
         {
             m_StateA.ShutdownRoutine.Replace(ContractsLookupUtility.UnloadAvailableContractsAtChapter(m_StateD, m_StateC, m_StateC.CurrChapterIndex));
             m_StateA.Phase = OverarchingShutdownPhase.ShuttingDown;
         }
 
-        private void ProcessShuttingDown()
+		static private void ProcessShuttingDown()
         {
             if (!m_StateA.ShutdownRoutine.Exists())
             {

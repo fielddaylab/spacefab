@@ -10,7 +10,7 @@ namespace SpaceFab.Fabrication.Movement
     /// <summary>
     /// Manages world (non-microgame) interactions and inputs
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 0, UpdateMasks.AttemptMask)]
+    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 1, UpdateMasks.AttemptMask)]
     public class WorldInteractSystem : SharedStateSystemBehaviour<WorldInteractState, LayoutState>
     {
         #region Input Mappings
@@ -25,16 +25,20 @@ namespace SpaceFab.Fabrication.Movement
 
         #endregion // Input Mappings
 
-        public override void ProcessWork(float deltaTime)
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
+
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             if (!m_StateA.WorldInteractEnabled) { return; }
 
             ProcessInputs();
         }
 
-        private void ProcessInputs()
+        static private void ProcessInputs()
         {
 
             if (Input.GetKeyDown(Up0) || Input.GetKeyDown(Up1) || Input.GetKeyDown(Activate))

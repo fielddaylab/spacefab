@@ -11,6 +11,12 @@ namespace SpaceFab.Design
     /// </summary>
     public class ModeTransitionSystem : SharedStateSystemBehaviour<ModeTransitionState>
     {
+        static private void ProcessWork(float deltaTime) {
+            GetDependencies();
+        }
 
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
     }
 }

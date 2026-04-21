@@ -1,4 +1,5 @@
 using BeauUtil;
+using FieldDay.Scenes;
 using System;
 using UnityEngine;
 
@@ -14,6 +15,14 @@ namespace FieldDay.UI.Widgets {
         [NonSerialized] private int m_CurrentValue = -1;
 
         private void Awake() {
+            if (!GameLoop.IsBooted()) {
+                GameLoop.QueueOnBoot(Init);
+            } else {
+                Init();
+            }
+        }
+
+        private void Init() {
             if (m_CurrentValue < 0) {
                 SetValue(m_StartingValue, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
             }
@@ -33,8 +42,17 @@ namespace FieldDay.UI.Widgets {
                 return;
             }
 
+            int lastValue = m_CurrentValue;
             value = Math.Clamp(value, 0, m_MaxValue);
             m_CurrentValue = value;
+
+            if (value < lastValue) {
+                flags |= GuiWidgetUpdateFlags.IsDecrease;
+                flags &= ~GuiWidgetUpdateFlags.IsIncrease;
+            } else if (value > lastValue) {
+                flags |= GuiWidgetUpdateFlags.IsIncrease;
+                flags &= ~GuiWidgetUpdateFlags.IsDecrease;
+            }
 
             m_Style.Populate(value, flags);
         }

@@ -8,17 +8,16 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
+    [SysUpdate(GameLoopPhase.Update, 10, UpdateMasks.ContractSystemsMask)]
     public class ContractCompletionSystem : SharedStateSystemBehaviour<ContractCompletionState, ContractLayoutState, PlayerProgressState, ChapterState, AvailableContractsLookup>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != ContractCompletionPhase.Waiting;
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
         }
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -48,13 +47,13 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessBeginLoadFromPrevChapter()
+        static private void ProcessBeginLoadFromPrevChapter()
         {
             m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
             m_StateA.Phase = ContractCompletionPhase.LoadFromPrevChapter;
         }
 
-        private void ProcessLoadFromPrevChapter()
+        static private void ProcessLoadFromPrevChapter()
         {
             if (!m_StateB.CompletionRoutine.Exists())
             {
@@ -64,7 +63,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessEnterPrevContract()
+        static private void ProcessEnterPrevContract()
         {
             if (!m_StateB.CompletionRoutine.Exists())
             {
@@ -73,7 +72,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessEvaluatePrevContract()
+        static private void ProcessEvaluatePrevContract()
         {
             if (!m_StateB.CompletionRoutine.Exists())
             {
@@ -82,7 +81,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessHidePrevContract()
+        static private void ProcessHidePrevContract()
         {
             if (!m_StateB.CompletionRoutine.Exists())
             {
@@ -93,7 +92,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessUnloadFromPrevChapter()
+        static private void ProcessUnloadFromPrevChapter()
         {
             if (!m_StateB.CompletionRoutine.Exists())
             {

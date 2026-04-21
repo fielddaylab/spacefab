@@ -9,9 +9,13 @@ namespace SpaceFab.Overarching
     [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
     public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ChapterState, PlayerProgressState>
     {
-        public override void ProcessWork(float deltaTime)
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
+
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -31,13 +35,13 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessLoading()
+        static private void ProcessLoading()
         {
             m_StateB.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(m_StateA, m_StateB, m_StateC, m_StateD));
             m_StateA.Phase = ContractSelectPhase.PresentAvailableContracts;
         }
 
-        private void ProcessPresentAvailableContracts()
+        static private void ProcessPresentAvailableContracts()
         {
             if (!m_StateB.SelectionRoutine.Exists())
             {
@@ -45,7 +49,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessSelectContract()
+        static private void ProcessSelectContract()
         {
             if (m_StateA.SelectedContractIndex != -1 && m_StateB.ConfirmContractButton.interactable == false)
             {

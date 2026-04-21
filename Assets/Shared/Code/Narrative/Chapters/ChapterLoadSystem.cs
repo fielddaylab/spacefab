@@ -15,14 +15,13 @@ namespace SpaceFab
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ChapterMask)]
     public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState, AvailableContractsLookup>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != ChapterLoadPhase.Waiting && m_StateA.Phase != ChapterLoadPhase.Completed;
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+		static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {

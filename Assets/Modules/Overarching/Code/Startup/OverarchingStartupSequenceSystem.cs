@@ -20,16 +20,19 @@ namespace SpaceFab.Overarching
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
     public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState, ContractLoadState, ContractConfirmState>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != OverarchingStartupSequencePhase.Completed && !Find.State<SharedUIState>().IsLoading;
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
-            switch (m_StateA.Phase)
+			if (!(m_StateA.Phase != OverarchingStartupSequencePhase.Completed && !Find.State<SharedUIState>().IsLoading)) {
+				return;
+			}
+
+			switch (m_StateA.Phase)
             {
                 case OverarchingStartupSequencePhase.LoadCurrChapter:
                     ProcessLoadCurrChapter();
@@ -56,7 +59,7 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessLoadCurrChapter()
+        static private void ProcessLoadCurrChapter()
         {
             if (m_StateB.Phase == ChapterLoadPhase.Waiting)
             {
@@ -86,7 +89,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessContractCompletion()
+		static private void ProcessContractCompletion()
         {
             if (m_StateC.Phase == ContractCompletionPhase.Waiting)
             {
@@ -105,7 +108,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessLoadCurrAvailableContracts()
+		static private void ProcessLoadCurrAvailableContracts()
         {
             // start load available contracts
             m_StateB.Phase = ChapterLoadPhase.LoadingAvailableContracts;
@@ -123,7 +126,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessContractSelectSystem()
+		static private void ProcessContractSelectSystem()
         {
             // wait for LoadAvailableContracts routine to complete
             if (m_StateB.LoadRoutine.Exists() || m_StateB.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
@@ -145,7 +148,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessContractConfirmSystem()
+		static private void ProcessContractConfirmSystem()
         {
             if (m_StateG.Phase == ContractConfirmPhase.Waiting)
             {
@@ -165,7 +168,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessLoadSelectedContract()
+		static private void ProcessLoadSelectedContract()
         {
             if (m_StateB.LoadRoutine.Exists() || m_StateB.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
 
@@ -186,7 +189,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void Complete()
+		static private void Complete()
         {
             m_StateA.Phase = OverarchingStartupSequencePhase.Completed;
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);

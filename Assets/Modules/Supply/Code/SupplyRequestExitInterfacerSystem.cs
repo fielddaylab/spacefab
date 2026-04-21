@@ -10,9 +10,13 @@ namespace SpaceFab.Supply
     /// </summary>
     public class SupplyRequestExitInterfacerSystem : SharedStateSystemBehaviour<SupplyRequestExitInterfacerState, MinigameRequestExitState>
     {
-        public override void ProcessWork(float deltaTime)
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
+
+		static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             if (m_StateB.ExitRequestState == RequestState.Requested)
             {

@@ -24,16 +24,20 @@ namespace SpaceFab.Fabrication.Movement
 
         #endregion // Input Mappings
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             if (!m_StateA.MoveEnabled) { return; }
 
             ProcessInputs();
         }
 
-        private void ProcessInputs()
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
+
+        static private void ProcessInputs()
         {
             if (Input.GetKeyDown(Left0) || Input.GetKeyDown(Left1))
             {

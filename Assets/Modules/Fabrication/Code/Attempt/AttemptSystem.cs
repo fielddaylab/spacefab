@@ -10,6 +10,12 @@ namespace SpaceFab.Fabrication
     /// </summary>
     public class AttemptSystem : SharedStateSystemBehaviour<SequenceState>
     {
+        static private void ProcessWork(float deltaTime) {
+            GetDependencies();
+        }
 
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
     }
 }

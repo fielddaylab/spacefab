@@ -10,14 +10,13 @@ namespace SpaceFab.Overarching
     [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
     public class OverarchingToMinigameSequenceSystem : SharedStateSystemBehaviour<OverarchingToMinigameSequenceState, OverarchingShutdownSequenceState, MinigameZonesState, ChapterState, AvailableContractsLookup>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != OverarchingToMinigamePhase.Waiting && m_StateA.Phase != OverarchingToMinigamePhase.TransitionComplete;
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+		static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -37,13 +36,13 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessStarting()
+        static private void ProcessStarting()
         {
             m_StateB.Phase = OverarchingShutdownPhase.Waiting;
             m_StateA.Phase = OverarchingToMinigamePhase.ShutdownSequenceSystem;
         }
 
-        private void ProcessShutdownSequenceSystem()
+        static private void ProcessShutdownSequenceSystem()
         {
             if (m_StateB.Phase == OverarchingShutdownPhase.Waiting)
             {
@@ -56,7 +55,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessTransitionToMinigame()
+        static private void ProcessTransitionToMinigame()
         {
             GameLoop.SuspendUpdates(Bits.All32);
             GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);

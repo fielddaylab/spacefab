@@ -14,24 +14,26 @@ namespace SpaceFab.Design
     /// Manages Tool mode interactions, in which the player is actively shaping the grid.
     /// Delegates to DrawUtility or EraseUtility depending on the currently selected tool type.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 0, UpdateMasks.ToolModeMask)]
+    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 10, UpdateMasks.ToolModeMask)]
     public class ToolInteractSystem : SharedStateSystemBehaviour<ToolModeState, GridStackState, VisualGridStackState>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.ActiveTool != ToolType.None;
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
+			if (m_StateA.ActiveTool == ToolType.None) {
+				return;
+			}
 
             ProcessInputs();
         }
 
         #region Coordinate Inputs
 
-        private void ProcessInputs()
+        static private void ProcessInputs()
         {
             if (EventSystem.current.IsPointerOverGameObject()) { return; }
             // if (!InteractInputsEnabled) { return; }
@@ -50,7 +52,7 @@ namespace SpaceFab.Design
             }
         }
 
-        private void HandleLeftMouseDown()
+        static private void HandleLeftMouseDown()
         {
             // get mouse position in world space
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -94,7 +96,7 @@ namespace SpaceFab.Design
             m_StateA.LastKnownDragCoord = gridPos;
         }
 
-        private void HandleLeftMouseDrag()
+        static private void HandleLeftMouseDrag()
         {
             var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
@@ -170,7 +172,7 @@ namespace SpaceFab.Design
             }
         }
 
-        private void HandleLeftMouseUp()
+        static private void HandleLeftMouseUp()
         {
             ToolModeUtility.TerminateDrag(m_StateA, true);
         }
@@ -179,7 +181,7 @@ namespace SpaceFab.Design
 
         #region Clicks
 
-        private void ClickEmptyMLayerCell(Vector2Int gridPos)
+        static private void ClickEmptyMLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -206,7 +208,7 @@ namespace SpaceFab.Design
             SetCellAndUpdateVisuals(layer, gridPos, cell);
         }
 
-        private void ClickEmptyTLayerCell(Vector2Int gridPos)
+		static private void ClickEmptyTLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -236,7 +238,7 @@ namespace SpaceFab.Design
             SetCellAndUpdateVisuals(layer, gridPos, cell);
         }
 
-        private void ClickOccupiedMLayerCell(Vector2Int gridPos)
+		static private void ClickOccupiedMLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -271,7 +273,7 @@ namespace SpaceFab.Design
             SetCellAndUpdateVisuals(layer, gridPos, cell);
         }
 
-        private void ClickOccupiedTLayerCell(Vector2Int gridPos)
+        static private void ClickOccupiedTLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -323,7 +325,7 @@ namespace SpaceFab.Design
 
         #region Dragging
 
-        private void DragEmptyMLayerCell(Vector2Int gridPos)
+        static private void DragEmptyMLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -342,7 +344,7 @@ namespace SpaceFab.Design
             }
         }
 
-        private void DragEmptyTLayerCell(Vector2Int gridPos)
+        static private void DragEmptyTLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -364,7 +366,7 @@ namespace SpaceFab.Design
             }
         }
 
-        private void DragOccupiedMLayerCell(Vector2Int gridPos)
+        static private void DragOccupiedMLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -383,7 +385,7 @@ namespace SpaceFab.Design
             }
         }
 
-        private void DragOccupiedTLayerCell(Vector2Int gridPos)
+        static private void DragOccupiedTLayerCell(Vector2Int gridPos)
         {
             var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
@@ -445,7 +447,7 @@ namespace SpaceFab.Design
 
         #region Helpers
 
-        private void SetCellAndUpdateVisuals(GridLayer layer, Vector2Int gridPos, GridCell cell)
+        static private void SetCellAndUpdateVisuals(GridLayer layer, Vector2Int gridPos, GridCell cell)
         {
             GridLayerUtility.SetCell(layer, gridPos, cell);
             m_StateC.VisualsNeedRefreshing = true;

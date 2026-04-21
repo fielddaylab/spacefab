@@ -7,7 +7,13 @@ namespace SpaceFab.Comic
 {
     public class ComicDisplaySystem : SharedStateSystemBehaviour<ComicDisplayState>
     {
+        static private void ProcessWork(float deltaTime) {
+            GetDependencies();
+        }
 
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
     }
 }
 

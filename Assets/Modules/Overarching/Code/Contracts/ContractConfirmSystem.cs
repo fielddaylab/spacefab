@@ -6,12 +6,16 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
+    [SysUpdate(GameLoopPhase.Update, -9, UpdateMasks.ContractSystemsMask)]
     public class ContractConfirmSystem : SharedStateSystemBehaviour<ContractConfirmState, ContractSelectState, ContractLayoutState, ChapterState, ContractAssetsLookup, SharedUIState>
     {
-        public override void ProcessWork(float deltaTime)
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
+
+		static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -25,7 +29,7 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessConfirming()
+        static private void ProcessConfirming()
         {
             if (!m_StateA.ConfirmRoutine.Exists())
             {

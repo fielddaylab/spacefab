@@ -11,14 +11,13 @@ namespace SpaceFab.Design {
     [SysUpdate(FieldDay.GameLoopPhase.PreUpdate, 0, UpdateMasks.SetupMask)]
     public class GridStackLoadSystem : SharedStateSystemBehaviour<DesignTransitionState, GridStackState, DesignMinigameState, MinigameSaveStates, VisualGridStackState>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase <= DesignTransitionPhase.SetupComplete;
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {

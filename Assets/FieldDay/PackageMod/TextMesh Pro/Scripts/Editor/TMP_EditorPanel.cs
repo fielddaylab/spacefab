@@ -95,6 +95,8 @@ namespace TMPro.EditorUtilities
                 DrawFontFeatures();
 
                 DrawPadding();
+
+                DrawRoundUp();
                 
             }
         }

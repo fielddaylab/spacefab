@@ -58,6 +58,7 @@ namespace TMPro.EditorUtilities
 
                 DrawPadding();
 
+                DrawRoundUp();
             }
         }
 

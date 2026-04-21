@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -9,14 +10,24 @@ namespace FieldDay.UI {
     [ExecuteAlways]
 #endif // UNITY_EDITOR
     public sealed class LayoutSizeGroup : MonoBehaviour, ILayoutElement {
-        public enum SyncMode {
+        public enum SyncMode : byte {
             Size,
             PreferredSize,
             PreferredSizeUpdateRoot,
         }
+
+        [Flags]
+        public enum Dimensions : byte {
+            Horizontal = 0x1,
+            Vertical = 0x02,
+
+            Both = Horizontal | Vertical
+        }
         
         [Required] public RectTransform Root;
         public SyncMode Mode;
+        public Dimensions SyncDimensions = Dimensions.Both;
+        [ShowIfField("ShouldDisplayUpdateRoot")] public Dimensions UpdateRootDimensions = Dimensions.Both;
 
         public Vector2 Padding;
         public Vector2 MinSize;
@@ -24,6 +35,7 @@ namespace FieldDay.UI {
 
         [NonSerialized] private Vector2 m_LastKnownSize;
         [NonSerialized] private Vector2 m_LastPaddedSize;
+        [NonSerialized] private bool m_SyncQueued;
 
         /// <summary>
         /// Returns the last known size.
@@ -33,59 +45,125 @@ namespace FieldDay.UI {
             get { return m_LastKnownSize; }
         }
 
+        [ContextMenu("Force Sync")]
         public void Sync() {
+            if ((Mode == SyncMode.PreferredSize || Mode == SyncMode.PreferredSizeUpdateRoot) && !isActiveAndEnabled) {
+                m_SyncQueued = true;
+                return;
+            }
+
             Sync(Root, Mode, Padding);
         }
 
         public void Sync(RectTransform root, SyncMode mode, Vector2 padding) {
-            if (!root) {
+            if (!root || SyncDimensions == 0) {
                 return;
             }
 
-            float width, height;
+            float width = m_LastKnownSize.x, height = m_LastKnownSize.y;
             switch (Mode) {
                 case SyncMode.Size:
                 default: {
                     Vector2 localSize = root.rect.size;
-                    width = localSize.x;
-                    height = localSize.y;
+                    if ((SyncDimensions & Dimensions.Horizontal) != 0) {
+                        width = localSize.x;
+                    }
+                    if ((SyncDimensions & Dimensions.Vertical) != 0) {
+                        height = localSize.y;
+                    }
                     break;
                 }
                 case SyncMode.PreferredSize:
                 case SyncMode.PreferredSizeUpdateRoot: {
-                    width = LayoutUtility.GetPreferredWidth(root);
-                    height = LayoutUtility.GetPreferredHeight(root);
+                    if ((SyncDimensions & Dimensions.Horizontal) != 0) {
+                        width = LayoutUtility.GetPreferredWidth(root);
+                    }
+                    if ((SyncDimensions & Dimensions.Vertical) != 0) {
+                        height = LayoutUtility.GetPreferredHeight(root);
+                    }
                     break;
                 }
             }
 
-            SetSize(new Vector2(width, height));
+            SetSize(width, height);
         }
 
-        public void SetSize(Vector2 size) {
-            size.x = Mathf.Ceil(Math.Max(size.x, MinSize.x));
-            size.y = Mathf.Ceil(Math.Max(size.y, MinSize.y));
+        public void SetSize(float width, float height) {
+            width = (int)(Math.Max(width, MinSize.x) + 0.999f);
+            height = (int)(Math.Max(height, MinSize.y) + 0.999f);
 
-            if (m_LastKnownSize != size) {
-                m_LastKnownSize = size;
+            if (m_LastKnownSize.x != width || m_LastKnownSize.y != height) {
+                m_LastKnownSize.Set(width, height);
+
+                bool horizontal = (SyncDimensions & Dimensions.Horizontal) != 0;
+                bool vertical = (SyncDimensions & Dimensions.Vertical) != 0;
 
                 if (Root && Mode == SyncMode.PreferredSizeUpdateRoot) {
-                    Root.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-                    Root.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                    if ((UpdateRootDimensions & Dimensions.Horizontal) != 0) {
+                        Root.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                    }
+                    if ((UpdateRootDimensions & Dimensions.Vertical) != 0) {
+                        Root.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+                    }
                 }
 
-                size.x = Mathf.Ceil(size.x + Padding.x);
-                size.y = Mathf.Ceil(size.y + Padding.y);
-                m_LastPaddedSize = size;
+                width = (int)(width + Padding.x + 0.999f);
+                height = (int)(height + Padding.y + 0.999f);
+                m_LastPaddedSize.Set(width, height);
 
                 foreach (var child in Children) {
-                    if (!child) {
-                        continue;
-                    }
+                    Assert.NotNullOrDestroyed(child, "LayoutSizeGroup sync child is null or destroyed!");
 
-                    child.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-                    child.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+                    if (horizontal) {
+                        child.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                    }
+                    if (vertical) {
+                        child.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+                    }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Horizontally lays out the contents in Root.
+        /// </summary>
+        public void HorizontalLayout(in LayoutOptions options, float basePosition = 0) {
+            if (!Root) {
+                return;
+            }
+
+            using (var activeChildren = Positioning.QueryLayoutChildren(Root)) {
+                LayoutResult result = Positioning.HorizontalLayout(activeChildren, options, basePosition);
+                float height = m_LastKnownSize.y;
+                if ((SyncDimensions & Dimensions.Vertical) != 0) {
+                    height = Positioning.CalculateMaxHeight(activeChildren, options);
+                }
+                SetSize(result.Size, height);
+            }
+        }
+
+        /// <summary>
+        /// Vertically lays out the contents in Root.
+        /// </summary>
+        public void VerticalLayout(in LayoutOptions options, float basePosition = 0) {
+            if (!Root) {
+                return;
+            }
+
+            using (var activeChildren = Positioning.QueryLayoutChildren(Root)) {
+                LayoutResult result = Positioning.VerticalLayout(activeChildren, options, basePosition);
+                float width = m_LastKnownSize.x;
+                if ((SyncDimensions & Dimensions.Horizontal) != 0) {
+                    width = Positioning.CalculateMaxWidth(activeChildren, options);
+                }
+                SetSize(width, result.Size);
+            }
+        }
+
+        private void OnEnable() {
+            if (m_SyncQueued) {
+                m_SyncQueued = false;
+                Sync();
             }
         }
 
@@ -127,7 +205,11 @@ namespace FieldDay.UI {
         #endregion // ILayoutElement
 
 #if UNITY_EDITOR
-        private void LateUpdate() {
+        private bool ShouldDisplayUpdateRoot() {
+            return Mode == SyncMode.PreferredSizeUpdateRoot;
+        }
+
+        private void Update() {
             if (Application.IsPlaying(this) || UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 

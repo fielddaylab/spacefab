@@ -10,14 +10,17 @@ namespace SpaceFab.Overarching
     /// <summary>
     /// Clears MinigameZone single-frame interactions in Update, before PointerEvents get set
     /// </summary>
-    [SysUpdate(GameLoopPhase.Update, 0)]
-    public class MinigameZoneRefreshSystem : ComponentSystemBehaviour<MinigameZone>
-    {
-        public override void ProcessWork(float deltaTime)
-        {
-            base.ProcessWork(deltaTime);
+    public class MinigameZoneRefreshSystem : SystemComponent // ComponentSystemBehaviour<MinigameZone>
+	{
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+			ecs.Register(&ProcessWork,
+				new SysUpdate(GameLoopPhase.Update, 0),
+				new SysPermissions().ReadWrite<MinigameZone>());
+        }
 
-            foreach (var zone in m_Components)
+        static private void ProcessWork(float deltaTime)
+        {
+            foreach (var zone in Find.Components<MinigameZone>())
             {
                 zone.ClickedThisFrame = zone.PointerEnterThisFrame = zone.PointerExitThisFrame = false;
             }

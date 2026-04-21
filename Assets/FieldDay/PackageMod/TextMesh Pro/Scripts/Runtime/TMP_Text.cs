@@ -1,8 +1,8 @@
 ﻿#define TMP_PRESENT
 
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -1227,6 +1227,8 @@ namespace TMPro
         protected float m_marginWidth;  // Width of the RectTransform minus left and right margins.
         protected float m_marginHeight; // Height of the RectTransform minus top and bottom margins.
         protected float m_width = -1;
+
+        [SerializeField] protected bool m_roundUpCalculatedPreferredValues;
 
 
         /// <summary>
@@ -3882,7 +3884,7 @@ namespace TMPro
         /// Method to calculate the preferred width and height of the text object.
         /// </summary>
         /// <returns></returns>
-        protected virtual Vector2 CalculatePreferredValues(ref float fontSize, Vector2 marginSize, bool isTextAutoSizingEnabled, TextWrappingModes textWrapMode)
+        protected Vector2 CalculatePreferredValues(ref float fontSize, Vector2 marginSize, bool isTextAutoSizingEnabled, TextWrappingModes textWrapMode)
         {
             //Debug.Log("*** CalculatePreferredValues() ***"); // ***** Frame: " + Time.frameCount);
 
@@ -4837,11 +4839,16 @@ namespace TMPro
             m_RenderedHeight += m_margin.y > 0 ? m_margin.y : 0;
             m_RenderedHeight += m_margin.w > 0 ? m_margin.w : 0;
 
-            // Round Preferred Values to nearest 5/100.
-            m_RenderedWidth = (int)(m_RenderedWidth * 100 + 1f) / 100f;
-            m_RenderedHeight = (int)(m_RenderedHeight * 100 + 1f) / 100f;
-
             //Debug.Log("Preferred Values: (" + renderedWidth + ", " + renderedHeight + ") with Recursive count of " + m_recursiveCount);
+
+            if (m_roundUpCalculatedPreferredValues) {
+                m_RenderedWidth = (int)(m_RenderedWidth + 0.999f);
+                m_RenderedHeight = (int)(m_RenderedHeight + 0.999f);
+            } else {
+                // Round Preferred Values to nearest 1/100.
+                m_RenderedWidth = (int)(m_RenderedWidth * 100 + 1f) / 100f;
+                m_RenderedHeight = (int)(m_RenderedHeight * 100 + 1f) / 100f;
+            }
 
             return new Vector2(m_RenderedWidth, m_RenderedHeight);
         }

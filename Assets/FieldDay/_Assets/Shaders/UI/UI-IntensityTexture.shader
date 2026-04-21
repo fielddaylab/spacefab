@@ -9,6 +9,7 @@ Shader "FieldDay/UI/Intensity Texture"
 		[Header(Intensity Texture)] [Space]
 		[KeywordEnum(Color, Alpha, Color_Alpha)] FD_INTENSITY("Intensity Mode", Int) = 2
 		_IntensityColorThreshold("Intensity Color Threshold", Range(0.001, 1)) = 1
+        _IntensityColorMinThreshold("Intensity Color Min Threshold", Range(0, 1)) = 0.001
 		_IntensityAlphaThreshold("Intensity Alpha Threshold", Range(0.001, 1)) = 1
 
 		[Header(Colors)] [Space]

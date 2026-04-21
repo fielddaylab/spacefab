@@ -9,9 +9,13 @@ namespace SpaceFab.Design.Visuals
     [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate,0, UpdateMasks.DesignMask)]
     public class GridVisualsUpdateSystem : SharedStateSystemBehaviour<VisualGridStackState, SpriteDB>
     {
-        public override void ProcessWork(float deltaTime)
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
+
+		static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             if (m_StateA.VisualsNeedRefreshing)
             {

@@ -5,6 +5,7 @@ using FieldDay.Localization;
 using FieldDay.Rendering;
 using FieldDay.UI.Animation;
 using System;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,9 +28,11 @@ namespace FieldDay.UI {
         [SerializeField] private float m_ScreenEdgeOffset = 16;
 
         [Header("Contents")]
-        [SerializeField] private LayoutGroup m_Layout;
+        [SerializeField] private LayoutSizeGroup m_Layout;
+        [SerializeField] private LayoutOptions m_LayoutOptions;
         [SerializeField] private TMP_Text m_Text;
         [SerializeField] private TMP_Text m_Header;
+        [SerializeField] private TMP_Text m_Footer;
 
         [Header("Defaults")]
         [SerializeField] private float m_DefaultHoverDelay = 0.6f;
@@ -44,10 +47,18 @@ namespace FieldDay.UI {
         [NonSerialized] private bool m_Visible;
         [NonSerialized] private long m_LastVersionKey;
 
+        [NonSerialized] private StringBuilder m_HeaderBuilder;
+        [NonSerialized] private StringBuilder m_ContentBuilder;
+        [NonSerialized] private StringBuilder m_FooterBuilder;
+
         private void Awake() {
             m_ParentRect = (RectTransform) m_Position.parent;
             CanvasHelper.TryGetCamera(m_Position.GetCanvas().rootCanvas, out m_CanvasCamera);
             m_Position.anchorMin = m_Position.anchorMax = new Vector2(0.5f, 0.5f);
+
+            m_HeaderBuilder = new StringBuilder(256);
+            m_ContentBuilder = new StringBuilder(1024);
+            m_FooterBuilder = new StringBuilder(512);
         }
 
         private void OnEnable() {
@@ -144,28 +155,39 @@ namespace FieldDay.UI {
             }
         }
 
-        private void UpdateContents(in CursorTooltipContents contents) {
-            bool headerActive = false;
-            if (headerActive = (contents.DynamicHeader != null && contents.DynamicHeader.Length > 0)) {
-                m_Header.SetText(contents.DynamicHeader);
-            } else if (headerActive = !string.IsNullOrEmpty(contents.Header)) {
-                m_Header.SetText(contents.Header);
-            } else if (headerActive = !contents.LocHeader.IsEmpty) {
-                // TODO: handle localization key
+        private void UpdateContents(CursorTooltipContents contents, CursorHint context) {
+            if (contents.DynamicBuilder != null) {
+                CursorTooltipBuildState buildState;
+                buildState.Contents = m_ContentBuilder;
+                buildState.Footer = m_FooterBuilder;
+                buildState.Header = m_HeaderBuilder;
+                if (contents.DynamicBuilder(context, ref buildState)) {
+                    contents.DynamicFooter = buildState.Footer;
+                    contents.DynamicHeader = buildState.Header;
+                    contents.DynamicContents = buildState.Contents;
+                }
+            }
+
+            PopulateContentField(m_Header, contents.Header, contents.DynamicHeader, contents.LocHeader);
+            PopulateContentField(m_Text, contents.Contents, contents.DynamicContents, contents.LocContents);
+            PopulateContentField(m_Footer, contents.Footer, contents.DynamicFooter, contents.LocFooter);
+        }
+
+        static private void PopulateContentField(TMP_Text textDisplay, string constantText, StringBuilder dynamicText, LocId locText) {
+            if (!textDisplay) {
+                return;
             }
             
-            m_Header.gameObject.SetActive(headerActive);
-
-            bool textActive = false;
-            if (textActive = (contents.DynamicContents != null && contents.DynamicContents.Length > 0)) {
-                m_Text.SetText(contents.DynamicContents);
-            } else if (textActive = !string.IsNullOrEmpty(contents.Contents)) {
-                m_Text.SetText(contents.Contents);
-            } else if (textActive = !contents.LocContents.IsEmpty) {
+            bool componentActive = false;
+            if (componentActive = (dynamicText != null && dynamicText.Length > 0)) {
+                textDisplay.SetText(dynamicText);
+            } else if (componentActive = !string.IsNullOrEmpty(constantText)) {
+                textDisplay.SetText(constantText);
+            } else if (componentActive = !locText.IsEmpty) {
                 // TODO: handle localization key
             }
 
-            m_Text.gameObject.SetActive(textActive);
+            textDisplay.gameObject.SetActive(componentActive);
         }
 
         void IOnGuiUpdate.OnGuiUpdate() {
@@ -194,8 +216,8 @@ namespace FieldDay.UI {
                     } else {
                         m_LastVersionKey = currentHint.LastUpdatedTimestamp;
                         CursorHint.GetTooltipContents(currentHint, out tooltipContents);
-                        UpdateContents(tooltipContents);
-                        m_Layout.ForceRebuild();
+                        UpdateContents(tooltipContents, currentHint);
+                        m_Layout.VerticalLayout(m_LayoutOptions);
                     }
                 }
             }
@@ -206,9 +228,9 @@ namespace FieldDay.UI {
                     if (m_Cooldown <= 0) {
                         m_LastVersionKey = currentHint.LastUpdatedTimestamp;
                         CursorHint.GetTooltipContents(currentHint, out tooltipContents);
-                        UpdateContents(tooltipContents);
+                        UpdateContents(tooltipContents, currentHint);
                         Display();
-                        m_Layout.ForceRebuild();
+                        m_Layout.VerticalLayout(m_LayoutOptions);
                     }
                 }
             }
@@ -217,8 +239,8 @@ namespace FieldDay.UI {
                 if (m_LastVersionKey != currentHint.LastUpdatedTimestamp) {
                     m_LastVersionKey = currentHint.LastUpdatedTimestamp;
                     CursorHint.GetTooltipContents(currentHint, out tooltipContents);
-                    UpdateContents(tooltipContents);
-                    m_Layout.ForceRebuild();
+                    UpdateContents(tooltipContents, currentHint);
+                    m_Layout.VerticalLayout(m_LayoutOptions);
                 }
                 UpdateCursorPositionFromScreenCursor(Input.mousePosition);
             }

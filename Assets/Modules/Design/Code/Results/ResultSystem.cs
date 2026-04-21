@@ -10,6 +10,12 @@ namespace SpaceFab.Design
     /// </summary>
     public class ResultSystem : SharedStateSystemBehaviour<ResultState>
     {
+        static private void ProcessWork(float deltaTime) {
+            GetDependencies();
+        }
 
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
     }
 }

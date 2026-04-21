@@ -12,9 +12,13 @@ namespace SpaceFab.Fabrication
     [SysUpdate(FieldDay.GameLoopPhaseMask.PreUpdate, 0, UpdateMasks.SetupMask)]
     public class SetupSystem : SharedStateSystemBehaviour<WaferState, LayoutState>
     {
-        public override void ProcessWork(float deltaTime)
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
+
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             if (m_StateB.NeedsReshuffling)
             {

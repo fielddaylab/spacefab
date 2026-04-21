@@ -7,12 +7,16 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
+    [SysUpdate(GameLoopPhase.Update, -11, UpdateMasks.ContractSystemsMask)]
     public class ContractChangeSystem : SharedStateSystemBehaviour<ContractChangeState, ContractSelectState, ContractLayoutState, ContractAssetsLookup, ChapterLoadState, ChapterState, ContractConfirmState, SharedUIState>
     {
-        public override void ProcessWork(float deltaTime)
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
+        }
+
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -43,7 +47,7 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessStarting()
+        static private void ProcessStarting()
         {
             Debug.Log("[ContractChangeSystem] Starting");
             m_StateB.Phase = ContractSelectPhase.Waiting;
@@ -52,7 +56,7 @@ namespace SpaceFab.Overarching
             m_StateA.Phase = ContractChangePhase.Viewing;
         }
 
-        private void ProcessContractSelectSystem()
+        static private void ProcessContractSelectSystem()
         {
             if (m_StateB.Phase == ContractSelectPhase.Waiting)
             {
@@ -79,7 +83,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessDoubleConfirmContract()
+        static private void ProcessDoubleConfirmContract()
         {
             if (m_StateA.ChangeDoubleConfirmed)
             {
@@ -88,7 +92,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessDoubleCancelContract()
+        static private void ProcessDoubleCancelContract()
         {
             if (!m_StateA.TransitionRoutine.Exists())
             {
@@ -97,7 +101,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessContractConfirmSystem()
+        static private void ProcessContractConfirmSystem()
         {
             if (m_StateG.Phase == ContractConfirmPhase.Waiting)
             {
@@ -113,7 +117,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessDocking()
+        static private void ProcessDocking()
         {
             Debug.Log("[ContractChangeSystem] Docking Contract");
             if (!m_StateA.TransitionRoutine.Exists())

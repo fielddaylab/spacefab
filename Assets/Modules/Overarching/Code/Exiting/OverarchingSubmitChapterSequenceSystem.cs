@@ -7,20 +7,19 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
+    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 10, UpdateMasks.ShutdownMask)]
     public class OverarchingSubmitChapterSequenceSystem : SharedStateSystemBehaviour<OverarchingSubmitChapterSequenceState,
                                                                                      OverarchingShutdownSequenceState,
                                                                                      ChapterState,
                                                                                      PlayerProgressState>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork();
+        protected override unsafe delegate*<float, void> GetDelegate() {
+            return &ProcessWork;
         }
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -40,13 +39,13 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessStarting()
+        static private void ProcessStarting()
         {
             m_StateB.Phase = OverarchingShutdownPhase.Waiting;
             m_StateA.Phase = OverarchingSubmitChapterPhase.ShutdownSequenceSystem;
         }
 
-        private void ProcessShutdownSequenceSystem()
+        static private void ProcessShutdownSequenceSystem()
         {
             if (m_StateB.Phase == OverarchingShutdownPhase.Waiting)
             {
@@ -59,7 +58,7 @@ namespace SpaceFab.Overarching
             }
         }
 
-        private void ProcessMoveToNextChapter()
+        static private void ProcessMoveToNextChapter()
         {
             ChapterUtility.LoadNextChapter(m_StateC, m_StateD);
             m_StateA.Phase = OverarchingSubmitChapterPhase.TransitionComplete;

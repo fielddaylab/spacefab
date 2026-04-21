@@ -10,9 +10,13 @@ namespace SpaceFab.Overarching
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ContractSystemsMask)]
     public class ContractLoadSystem : SharedStateSystemBehaviour<ContractLoadState, ContractAssetsLookup, ChapterState, ContractLayoutState>
     {
-        public override void ProcessWork(float deltaTime)
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
+
+		static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
 
             switch (m_StateA.Phase)
             {
@@ -29,14 +33,14 @@ namespace SpaceFab.Overarching
 
         #region Helpers
 
-        private void ProcessBeginLoad()
+        static private void ProcessBeginLoad()
         {
             StringHash32 contractId = m_StateC.CurrAvailableContractsBundle.AvailableContracts[m_StateC.LastSelectedContractIndex].AssetId;
             m_StateA.LoadRoutine.Replace(ContractsLookupUtility.LoadContract(m_StateB, contractId));
             m_StateA.Phase = ContractLoadPhase.Loading;
         }
 
-        private void ProcessLoading()
+        static private void ProcessLoading()
         {
             if (!m_StateA.LoadRoutine.Exists())
             {

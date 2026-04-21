@@ -164,6 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RecentlyCompletedChapter: 0
+  CompletedContractIds: []
 --- !u!114 &8902631178501730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,9 +382,9 @@ GameObject:
   - component: {fileID: 5807699253464130270}
   - component: {fileID: 1950308175471934421}
   - component: {fileID: 5275908518141804594}
-  - component: {fileID: 4600349856866248750}
   - component: {fileID: 823238093238279537}
   - component: {fileID: 4072522671193519559}
+  - component: {fileID: 8316876410859674016}
   m_Layer: 0
   m_Name: Boot
   m_TagString: Untagged
@@ -484,18 +485,6 @@ MonoBehaviour:
   m_AsyncBudgetMin: -1
   m_AsyncBudgetMax: -1
   m_ForceSingleThreaded: 1
---- !u!114 &4600349856866248750
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8306788214401512335}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &823238093238279537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,6 +511,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_UniqueID: 64644253-8257-47eb-9c4b-179264080f57
   m_WakeUpChildren: 1
+--- !u!114 &8316876410859674016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306788214401512335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8315598592219549968
 GameObject:
   m_ObjectHideFlags: 0

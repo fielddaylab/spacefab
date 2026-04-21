@@ -9,16 +9,17 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.MinigameTransitionMask)]
+    [SysUpdate(GameLoopPhase.Update, 1, UpdateMasks.MinigameTransitionMask)]
     public class MinigameLoadExitSystem : SharedStateSystemBehaviour<MinigameLoadExitState, MinigameStateInterfacer, MinigameSaveStates, ReturnMenuState, SaveLoadState>
     {
-        public override bool HasWork()
-        {
-            return base.HasWork() && !m_StateA.Phase.Equals(MinigameLoadExitPhase.None);
-        }
+		protected override unsafe delegate*<float, void> GetDelegate() {
+			return &ProcessWork;
+		}
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
+			GetDependencies();
+
             switch (m_StateA.Phase)
             {
                 case MinigameLoadExitPhase.Loading:
