@@ -12,8 +12,8 @@ namespace SpaceFab.Fabrication
     [SysUpdate(FieldDay.GameLoopPhaseMask.PreUpdate, 0, UpdateMasks.SetupMask)]
     public class SetupSystem : SharedStateSystemBehaviour<WaferState, LayoutState>
     {
-        protected override unsafe delegate*<float, void> GetDelegate() {
-            return &ProcessWork;
+        protected override unsafe SystemFunctionShim GetDelegate() {
+            return new SystemFunctionShim(&ProcessWork);
         }
 
         static private void ProcessWork(float deltaTime)

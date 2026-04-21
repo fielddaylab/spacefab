@@ -9,8 +9,8 @@ namespace SpaceFab.Overarching
     [SysUpdate(GameLoopPhase.Update, -10, UpdateMasks.ContractSystemsMask)]
     public class ContractSelectSystem : SharedStateSystemBehaviour<ContractSelectState, ContractLayoutState, ChapterState, PlayerProgressState>
     {
-        protected override unsafe delegate*<float, void> GetDelegate() {
-            return &ProcessWork;
+        protected override unsafe SystemFunctionShim GetDelegate() {
+            return new SystemFunctionShim(&ProcessWork);
         }
 
         static private void ProcessWork(float deltaTime)

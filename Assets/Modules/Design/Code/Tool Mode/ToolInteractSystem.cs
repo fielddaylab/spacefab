@@ -17,8 +17,8 @@ namespace SpaceFab.Design
     [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 10, UpdateMasks.ToolModeMask)]
     public class ToolInteractSystem : SharedStateSystemBehaviour<ToolModeState, GridStackState, VisualGridStackState>
     {
-		protected override unsafe delegate*<float, void> GetDelegate() {
-			return &ProcessWork;
+		protected override unsafe SystemFunctionShim GetDelegate() {
+			return new SystemFunctionShim(&ProcessWork);
 		}
 
         static private void ProcessWork(float deltaTime)

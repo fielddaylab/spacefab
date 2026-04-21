@@ -15,8 +15,8 @@ namespace SpaceFab
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ChapterMask)]
     public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState, AvailableContractsLookup>
     {
-		protected override unsafe delegate*<float, void> GetDelegate() {
-			return &ProcessWork;
+		protected override unsafe SystemFunctionShim GetDelegate() {
+			return new SystemFunctionShim(&ProcessWork);
 		}
 
 		static private void ProcessWork(float deltaTime)

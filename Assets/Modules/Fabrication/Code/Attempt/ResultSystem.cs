@@ -15,8 +15,8 @@ namespace SpaceFab.Fabrication
             GetDependencies();
         }
 
-        protected override unsafe delegate*<float, void> GetDelegate() {
-            return &ProcessWork;
+        protected override unsafe SystemFunctionShim GetDelegate() {
+            return new SystemFunctionShim(&ProcessWork);
         }
     }
 }

@@ -11,8 +11,8 @@ namespace SpaceFab.Design {
     [SysUpdate(FieldDay.GameLoopPhase.PreUpdate, 0, UpdateMasks.SetupMask)]
     public class GridStackLoadSystem : SharedStateSystemBehaviour<DesignTransitionState, GridStackState, DesignMinigameState, MinigameSaveStates, VisualGridStackState>
     {
-		protected override unsafe delegate*<float, void> GetDelegate() {
-			return &ProcessWork;
+		protected override unsafe SystemFunctionShim GetDelegate() {
+			return new SystemFunctionShim(&ProcessWork);
 		}
 
         static private void ProcessWork(float deltaTime)

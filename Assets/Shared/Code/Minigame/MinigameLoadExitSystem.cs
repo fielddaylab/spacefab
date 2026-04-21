@@ -12,8 +12,8 @@ namespace SpaceFab
     [SysUpdate(GameLoopPhase.Update, 1, UpdateMasks.MinigameTransitionMask)]
     public class MinigameLoadExitSystem : SharedStateSystemBehaviour<MinigameLoadExitState, MinigameStateInterfacer, MinigameSaveStates, ReturnMenuState, SaveLoadState>
     {
-		protected override unsafe delegate*<float, void> GetDelegate() {
-			return &ProcessWork;
+		protected override unsafe SystemFunctionShim GetDelegate() {
+			return new SystemFunctionShim(&ProcessWork);
 		}
 
         static private void ProcessWork(float deltaTime)

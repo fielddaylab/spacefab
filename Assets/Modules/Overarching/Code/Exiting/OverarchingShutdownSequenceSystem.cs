@@ -10,8 +10,8 @@ namespace SpaceFab.Overarching
     [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 12, UpdateMasks.ShutdownMask)]
     public class OverarchingShutdownSequenceSystem : SharedStateSystemBehaviour<OverarchingShutdownSequenceState, MinigameZonesState, ChapterState, AvailableContractsLookup>
     {
-		protected override unsafe delegate*<float, void> GetDelegate() {
-			return &ProcessWork;
+		protected override unsafe SystemFunctionShim GetDelegate() {
+			return new SystemFunctionShim(&ProcessWork);
 		}
 
         static private void ProcessWork(float deltaTime)

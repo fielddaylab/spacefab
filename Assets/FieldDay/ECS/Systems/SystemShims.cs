@@ -1,10 +1,18 @@
+#if (UNITY_EDITOR && !IGNORE_UNITY_EDITOR) || DEVELOPMENT_BUILD
+#define DEVELOPMENT
+#endif
+
 using BeauUtil;
 using FieldDay.SharedState;
 using System;
+using UnityEngine.Scripting;
 
 namespace FieldDay.Systems {
     [AttributeUsage(AttributeTargets.Class)]
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
+#if DEVELOPMENT
+    [Preserve]
+#endif // DEVELOPMENT
     public sealed class SysUpdateAttribute : Attribute {
         public readonly SysUpdate Info;
 
@@ -17,24 +25,33 @@ namespace FieldDay.Systems {
         }
     }
 
-    [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SystemModuleShim : SystemComponent {
-        protected SysUpdate GetUpdate() {
-            return Reflect.GetAttribute<SysUpdateAttribute>(GetType())?.Info ?? SysUpdate.Default();
-        }
-        protected abstract SysPermissions GetPermissions();
+    public unsafe struct SystemFunctionShim {
+        internal delegate*<float, void> Ptr;
 
-        protected unsafe abstract delegate*<float, void> GetDelegate();
-
-        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            ecs.Register(GetDelegate(),
-                GetUpdate(),
-                GetPermissions());
+        public SystemFunctionShim(delegate*<float, void> ptr) {
+            Ptr = ptr;
         }
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA> : SystemModuleShim
+    public abstract class SystemBehaviourShim : SystemComponent {
+        protected unsafe abstract SystemFunctionShim GetDelegate();
+
+        public unsafe sealed override void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(GetDelegate().Ptr,
+                GetUpdate(),
+                GetPermissions());
+        }
+
+        private SysUpdate GetUpdate() {
+            return Reflect.GetAttribute<SysUpdateAttribute>(GetType())?.Info ?? SysUpdate.Default();
+        }
+
+        protected abstract SysPermissions GetPermissions();
+    }
+
+    [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
+    public abstract class SharedStateSystemBehaviour<TSharedA> : SystemBehaviourShim
         where TSharedA : class, ISharedState
     {
         static protected TSharedA m_StateA;
@@ -50,7 +67,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
     {
@@ -69,7 +86,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
         where TSharedC : class, ISharedState
@@ -91,7 +108,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
         where TSharedC : class, ISharedState
@@ -116,7 +133,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
         where TSharedC : class, ISharedState
@@ -145,7 +162,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE, TSharedF> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE, TSharedF> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
         where TSharedC : class, ISharedState
@@ -177,7 +194,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE, TSharedF, TSharedG> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE, TSharedF, TSharedG> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
         where TSharedC : class, ISharedState
@@ -212,7 +229,7 @@ namespace FieldDay.Systems {
     }
 
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
-    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE, TSharedF, TSharedG, TSharedH> : SystemModuleShim
+    public abstract class SharedStateSystemBehaviour<TSharedA, TSharedB, TSharedC, TSharedD, TSharedE, TSharedF, TSharedG, TSharedH> : SystemBehaviourShim
         where TSharedA : class, ISharedState
         where TSharedB : class, ISharedState
         where TSharedC : class, ISharedState

@@ -10,8 +10,8 @@ namespace SpaceFab.Fabrication
     /// </summary>
     public class FabricationRequestExitInterfacerSystem : SharedStateSystemBehaviour<FabricationRequestExitInterfacerState, MinigameRequestExitState>
     {
-        protected override unsafe delegate*<float, void> GetDelegate() {
-            return &ProcessWork;
+        protected override unsafe SystemFunctionShim GetDelegate() {
+            return new SystemFunctionShim(&ProcessWork);
         }
 
         static private void ProcessWork(float deltaTime)

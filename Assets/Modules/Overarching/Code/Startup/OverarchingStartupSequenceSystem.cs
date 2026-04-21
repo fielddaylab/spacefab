@@ -20,8 +20,8 @@ namespace SpaceFab.Overarching
     [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
     public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState, ContractLoadState, ContractConfirmState>
     {
-		protected override unsafe delegate*<float, void> GetDelegate() {
-			return &ProcessWork;
+		protected override unsafe SystemFunctionShim GetDelegate() {
+			return new SystemFunctionShim(&ProcessWork);
 		}
 
         static private void ProcessWork(float deltaTime)

@@ -1,3 +1,4 @@
+using BeauUtil;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,8 +12,8 @@ namespace SpaceFab.Comic
             GetDependencies();
         }
 
-        protected override unsafe delegate*<float, void> GetDelegate() {
-            return &ProcessWork;
+        protected override unsafe SystemFunctionShim GetDelegate() {
+            return new SystemFunctionShim(&ProcessWork);
         }
     }
 }
