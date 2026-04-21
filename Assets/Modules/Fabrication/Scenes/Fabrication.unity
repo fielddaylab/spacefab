@@ -453,6 +453,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67655570e5bad50419593494a31e563d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_RobotState: {fileID: 1487015768}
+  cameraTransform: {fileID: 1414748287}
 --- !u!114 &392984980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1383,6 +1385,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff646aa197f34044c829c80dd8d83e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1414748287 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7796938538446797251, guid: e04ee8f47a2a216458b521f4d5cf34ea, type: 3}
+  m_PrefabInstance: {fileID: 2054010281}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1487015765
 GameObject:
   m_ObjectHideFlags: 0
@@ -1858,6 +1865,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f3d5ad2aaa31ca4b8ea70c01efadf0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TotalCycles: 0
+  Precision: 0
 --- !u!4 &2010947692
 Transform:
   m_ObjectHideFlags: 0
