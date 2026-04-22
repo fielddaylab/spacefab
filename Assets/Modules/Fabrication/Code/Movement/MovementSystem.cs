@@ -6,15 +6,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Fabrication.Movement
-{
+namespace SpaceFab.Fabrication.Movement {
     /// <summary>
-    /// Manages robot movement
-    /// Robot moves between Station slots (allows for station shuffling).
+    /// Manages robot movement between station slots (allowing for station shuffling), and
+    /// pulls the main camera along with the robot. Runs on any Update phase at order 0.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 0/*, UpdateMasks.PreAttemptMask | UpdateMasks.AttemptMask*/)]
-    public class MovementSystem : SharedStateSystemBehaviour<MovementState, LayoutState, RobotState>
-    {
+    public class MovementSystem : SystemComponent {
         #region Input Mappings
 
         private const KeyCode Left0 = KeyCode.A;
@@ -27,73 +24,80 @@ namespace SpaceFab.Fabrication.Movement
 
         [SerializeField] private Transform cameraTransform;
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.Update, 0/*, UpdateMasks.PreAttemptMask | UpdateMasks.AttemptMask*/),
+                new SysPermissions()
+                    .ReadWriteShared<MovementState>()
+                    .ReadWriteShared<LayoutState>()
+                    .ReadWriteShared<RobotState>()
+            );
+        }
+
+        // Smooth-follows the camera toward the robot, then — if movement is allowed — reads input and dispatches a slot move.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out MovementState movementState,
+                out LayoutState layoutState,
+                out RobotState robotState
+                );
 
             var cameraTransform = Game.Rendering.PrimaryCamera.transform;
 
             // Update main camera
             Vector3 camPos = cameraTransform.position;
-            Vector3 targetPos = m_StateC.transform.position;
+            Vector3 targetPos = robotState.transform.position;
             cameraTransform.position = Vector3.Lerp(
                 cameraTransform.position,
                 new Vector3(targetPos.x, camPos.y, camPos.z),
                 0.1f
             );
 
-            if (!MovementUtility.CanMove(m_StateA, m_StateC)) { return; }
+            if (!MovementUtility.CanMove(movementState, robotState)) { return; }
 
-            ProcessInputs();
+            ProcessInputs(movementState, layoutState, robotState);
         }
 
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
-        }
+        // Reads left/right input and attempts a slot move in the chosen direction, clamped to the station-slot range.
+        static private void ProcessInputs(MovementState movementState, LayoutState layoutState, RobotState robotState) {
+            int curr = movementState.CurrSlotPosition;
+            int max = layoutState.StationSlots.Length - 1;
 
-        static private void ProcessInputs()
-        {
-            int curr = m_StateA.CurrSlotPosition;
-            int max = m_StateB.StationSlots.Length - 1;
-
-            if (Input.GetKeyDown(Left0) || Input.GetKeyDown(Left1))
-            {
+            if (Input.GetKeyDown(Left0) || Input.GetKeyDown(Left1)) {
                 if (curr > 0)
-                    TryMove(curr - 1);
+                    TryMove(movementState, layoutState, robotState, curr - 1);
             }
-            else if (Input.GetKeyDown(Right0) || Input.GetKeyDown(Right1))
-            {
+            else if (Input.GetKeyDown(Right0) || Input.GetKeyDown(Right1)) {
                 if (curr < max)
-                    TryMove(curr + 1);
+                    TryMove(movementState, layoutState, robotState, curr + 1);
             }
         }
 
-        private static void TryMove(int targetIndex)
-        {
-            if (!MovementUtility.CanMove(m_StateA, m_StateC))
+        // Starts a move routine to the target slot if movement is allowed; marks the robot as traveling until the routine completes.
+        private static void TryMove(MovementState movementState, LayoutState layoutState, RobotState robotState, int targetIndex) {
+            if (!MovementUtility.CanMove(movementState, robotState))
                 return;
 
-            m_StateA.CurrSlotPosition = MovementState.TRAVELING;
-            m_StateA.MoveRoutine.Replace(MoveRoutine(targetIndex));
+            movementState.CurrSlotPosition = MovementState.TRAVELING;
+            movementState.MoveRoutine.Replace(MoveRoutine(movementState, layoutState, robotState, targetIndex));
         }
 
-        private static IEnumerator MoveRoutine(int targetIndex)
-        {
-            Vector3 startPos = m_StateC.transform.position;
-            Vector3 targetPos = m_StateB.StationSlots[targetIndex].transform.position;
+        // Lerps the robot's transform from its current position to the target slot's position over 0.25s, then snaps and records the new slot index.
+        private static IEnumerator MoveRoutine(MovementState movementState, LayoutState layoutState, RobotState robotState, int targetIndex) {
+            Vector3 startPos = robotState.transform.position;
+            Vector3 targetPos = layoutState.StationSlots[targetIndex].transform.position;
 
             float duration = 0.25f;
             float time = 0f;
 
-            while (time < duration)
-            {
+            while (time < duration) {
                 time += Time.deltaTime;
-                m_StateC.transform.position = Vector3.Lerp(startPos, targetPos, time / duration);
+                robotState.transform.position = Vector3.Lerp(startPos, targetPos, time / duration);
                 yield return null;
             }
 
-            m_StateC.transform.position = targetPos;
-            m_StateA.CurrSlotPosition = targetIndex;
+            robotState.transform.position = targetPos;
+            movementState.CurrSlotPosition = targetIndex;
         }
     }
 }

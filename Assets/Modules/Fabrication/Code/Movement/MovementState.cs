@@ -1,3 +1,4 @@
+using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Robot;
@@ -20,6 +21,8 @@ namespace SpaceFab.Fabrication.Movement
         public int CurrSlotPosition;
 
         [HideInInspector] public bool MoveEnabled;
+
+        public Routine MoveRoutine;
 
         public void OnDeregister()
         {
