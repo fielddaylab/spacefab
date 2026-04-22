@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
+
 using ModuleIndex = BeauUtil.TypeIndex<FieldDay.UI.IGuiModule>;
 using PanelIndex = BeauUtil.TypeIndex<FieldDay.UI.IGuiPanel>;
 
@@ -45,7 +46,7 @@ namespace FieldDay.UI {
         private IGuiModule[] m_ModuleMap = new IGuiModule[ModuleIndex.Capacity];
 
         private readonly Dictionary<StringHash32, RectTransform> m_NamedElementMap = new Dictionary<StringHash32, RectTransform>(16, CompareUtils.DefaultEquals<StringHash32>());
-        private readonly Dictionary<StringHash32, RingBuffer<IGuiPanel>> m_PanelGroups = new Dictionary<StringHash32, RingBuffer<IGuiPanel>>(8, CompareUtils.DefaultEquals<StringHash32>());
+        private readonly Dictionary<StringHash32, List<IGuiPanel>> m_PanelGroups = new Dictionary<StringHash32, List<IGuiPanel>>(8, CompareUtils.DefaultEquals<StringHash32>());
 
         private readonly RingBuffer<IOnGuiUpdate> m_UpdateCallbacks = new RingBuffer<IOnGuiUpdate>(32, RingBufferMode.Expand);
         private readonly Pipe<GuiCommandData> m_Commands = new Pipe<GuiCommandData>(16, true);

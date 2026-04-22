@@ -32,7 +32,7 @@ namespace SpaceFab.Design
         private const int VIA_SORT_ORDER = 100;
         private const int TRANSISTOR_SORT_ORDER = 0;
 
-        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, int layerIndex, SpriteDB spriteDB)
         {
             var flow = cell.FlowState;
             // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
@@ -42,21 +42,21 @@ namespace SpaceFab.Design
             switch (flow)
             {
                 case (FlowState.Hi):
-                    UpdateHiFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateHiFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
                 case (FlowState.Lo):
-                    UpdateLoFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateLoFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
                 case (FlowState.Unstable):
-                    UpdateUnstableFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateUnstableFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
                 default:
-                    UpdateDefaultFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateDefaultFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
             }
         }
 
-        private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, SpriteDB spriteDB)
         {
             if (layerIndex == (int)StackLayer.Metal)
             {
@@ -67,10 +67,10 @@ namespace SpaceFab.Design
                 visualCell.FlowIndicator.sprite = spriteDB.FlowHiBelow;
             }
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Hi, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Hi, spriteDB);
         }
 
-        private static void UpdateLoFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateLoFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, SpriteDB spriteDB)
         {
             if (layerIndex == (int)StackLayer.Metal)
             {
@@ -81,10 +81,10 @@ namespace SpaceFab.Design
                 visualCell.FlowIndicator.sprite = spriteDB.FlowLoBelow;
             }
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Lo, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Lo, spriteDB);
         }
 
-        private static void UpdateUnstableFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateUnstableFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, SpriteDB spriteDB)
         {
             if (layerIndex == (int)StackLayer.Metal)
             {
@@ -95,33 +95,33 @@ namespace SpaceFab.Design
                 visualCell.FlowIndicator.sprite = spriteDB.FlowUnstableBelow;
             }
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Unstable, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Unstable, spriteDB);
         }
 
-        private static void UpdateDefaultFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateDefaultFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, SpriteDB spriteDB)
         {
             visualCell.FlowIndicator.sprite = null;
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Empty, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Empty, spriteDB);
         }
 
-        private static void SetTransferWithFlow(VisualGridCell visualCell, GridCell cell, FlowState flow, ref SpriteDB spriteDB)
+        private static void SetTransferWithFlow(VisualGridCell visualCell, GridCell cell, FlowState flow, SpriteDB spriteDB)
         {
             if (cell.TransferType == TransferType.Via)
             {
                 // lookup via for flow state
-                var sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, flow);
+                var sprite = SpriteDBUtility.LookupViaSprite(spriteDB, flow);
                 visualCell.TransferRenderer.sprite = sprite;
                 visualCell.SecondaryTransferRenderer.sprite = sprite;
             }
             else if (cell.TransferType == TransferType.GateAbove)
             {
-                var sprite = SpriteDBUtility.LookupGateSprite(ref spriteDB, flow);
+                var sprite = SpriteDBUtility.LookupGateSprite(spriteDB, flow);
                 visualCell.TransferRenderer.sprite = sprite;
             }
         }
 
-        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, int layerIndex, int col, int row, SpriteDB spriteDB)
         {
             PathLibrary.AssembledPathData pathData = default;
             bool lookedUpEdge = false;
@@ -146,10 +146,10 @@ namespace SpaceFab.Design
                     lookedUpEdge = true;
                     break;
                 case CellType.NTransistor:
-                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, ref spriteDB);
+                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, spriteDB);
                     break;
                 case CellType.PTransistor:
-                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, ref spriteDB);
+                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, spriteDB);
                     break;
                 case CellType.Input:
                     visualCell.PathRenderer.sprite = spriteDB.IOOuter;
@@ -172,11 +172,11 @@ namespace SpaceFab.Design
             switch (cellData.TransferType)
             {
                 case TransferType.Via:
-                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, FlowState.Empty);
-                    visualCell.SecondaryTransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, FlowState.Empty);
+                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(spriteDB, FlowState.Empty);
+                    visualCell.SecondaryTransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(spriteDB, FlowState.Empty);
                     break;
                 case TransferType.GateAbove:
-                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupGateSprite(ref spriteDB, FlowState.Empty);
+                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupGateSprite(spriteDB, FlowState.Empty);
                     break;
                 default:
                     break;
@@ -205,10 +205,10 @@ namespace SpaceFab.Design
                 visualCell.FlowMask.sprite = pathData.Sprite;
             }
 
-            UpdateFlowVisuals(visualCell, cellData, layerIndex, ref spriteDB);
+            UpdateFlowVisuals(visualCell, cellData, layerIndex, spriteDB);
         }
 
-        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, SpriteDB spriteDB)
         {
             var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
             spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
@@ -264,7 +264,7 @@ namespace SpaceFab.Design
             }
         }
 
-        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, SpriteDB spriteDB)
         {
             var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
             spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);

@@ -24,7 +24,7 @@ MonoBehaviour:
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
-    - TypeName: AisGame
+    - TypeName: SpaceFab.SpacefabGame
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -61,7 +61,7 @@ MonoBehaviour:
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
-    - TypeName: AisGame
+    - TypeName: SpaceFab.SpacefabGame
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -97,7 +97,7 @@ MonoBehaviour:
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
-    - TypeName: AIS.Intervene.ActionCardsUtility
+    - TypeName: SpaceFab.Save.SaveUtility
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -110,7 +110,7 @@ MonoBehaviour:
       MemberCount: 1
       OverloadCount: 0
     Members:
-    - MemberName: ActionCardUnlockDebugMenu
+    - MemberName: SaveDebugMenu
       Type: 8
     - MemberName: DebugMenuFactory
       Type: 8

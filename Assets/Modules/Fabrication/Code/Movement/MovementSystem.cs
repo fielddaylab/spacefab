@@ -13,7 +13,7 @@ namespace SpaceFab.Fabrication.Movement
     /// Robot moves between Station slots (allows for station shuffling).
     /// </summary>
     [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 0/*, UpdateMasks.PreAttemptMask | UpdateMasks.AttemptMask*/)]
-    public class MovementSystem : SharedStateSystemBehaviour<MovementState, LayoutState>
+    public class MovementSystem : SharedStateSystemBehaviour<MovementState, LayoutState, RobotState>
     {
         #region Input Mappings
 
@@ -25,28 +25,33 @@ namespace SpaceFab.Fabrication.Movement
 
         #endregion // Input Mappings
 
-        [SerializeField] private RobotState m_RobotState;
         [SerializeField] private Transform cameraTransform;
 
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
+            GetDependencies();
+
+            var cameraTransform = Game.Rendering.PrimaryCamera.transform;
 
             // Update main camera
             Vector3 camPos = cameraTransform.position;
-            Vector3 targetPos = m_RobotState.transform.position;
+            Vector3 targetPos = m_StateC.transform.position;
             cameraTransform.position = Vector3.Lerp(
                 cameraTransform.position,
                 new Vector3(targetPos.x, camPos.y, camPos.z),
                 0.1f
             );
 
-            if (!MovementUtility.CanMove(m_StateA, m_RobotState)) { return; }
+            if (!MovementUtility.CanMove(m_StateA, m_StateC)) { return; }
 
             ProcessInputs();
         }
 
-        private void ProcessInputs()
+        protected override unsafe SystemFunctionShim GetDelegate() {
+            return new SystemFunctionShim(&ProcessWork);
+        }
+
+        static private void ProcessInputs()
         {
             int curr = m_StateA.CurrSlotPosition;
             int max = m_StateB.StationSlots.Length - 1;
@@ -63,18 +68,18 @@ namespace SpaceFab.Fabrication.Movement
             }
         }
 
-        private void TryMove(int targetIndex)
+        private static void TryMove(int targetIndex)
         {
-            if (!MovementUtility.CanMove(m_StateA, m_RobotState))
+            if (!MovementUtility.CanMove(m_StateA, m_StateC))
                 return;
 
             m_StateA.CurrSlotPosition = MovementState.TRAVELING;
-            StartCoroutine(MoveRoutine(targetIndex));
+            m_StateA.MoveRoutine.Replace(MoveRoutine(targetIndex));
         }
 
-        private IEnumerator MoveRoutine(int targetIndex)
+        private static IEnumerator MoveRoutine(int targetIndex)
         {
-            Vector3 startPos = m_RobotState.transform.position;
+            Vector3 startPos = m_StateC.transform.position;
             Vector3 targetPos = m_StateB.StationSlots[targetIndex].transform.position;
 
             float duration = 0.25f;
@@ -83,11 +88,11 @@ namespace SpaceFab.Fabrication.Movement
             while (time < duration)
             {
                 time += Time.deltaTime;
-                m_RobotState.transform.position = Vector3.Lerp(startPos, targetPos, time / duration);
+                m_StateC.transform.position = Vector3.Lerp(startPos, targetPos, time / duration);
                 yield return null;
             }
 
-            m_RobotState.transform.position = targetPos;
+            m_StateC.transform.position = targetPos;
             m_StateA.CurrSlotPosition = targetIndex;
         }
     }

@@ -55,6 +55,7 @@ namespace TMPro.EditorUtilities
 
         static readonly GUIContent k_MarginsLabel = new GUIContent("Margins", "The space between the text and the edge of its container.");
         static readonly GUIContent k_MaxLineWidthLabel = new GUIContent("Max Line Width", "The maximum width of any given line.");
+        static readonly GUIContent k_RoundUpPreferredLabel = new GUIContent("Round Up Preferred Values", "Rounds up any calculated preferred values to the nearest integer.");
         static readonly GUIContent k_GeometrySortingLabel = new GUIContent("Geometry Sorting", "The order in which text geometry is sorted. Used to adjust the way overlapping characters are displayed.");
         static readonly GUIContent k_IsTextObjectScaleStatic = new GUIContent("Is Scale Static", "Controls whether a text object will be excluded from the InteralUpdate callback to handle scale changes of the text object or its parent(s).");
         static readonly GUIContent k_RichTextLabel = new GUIContent("Rich Text", "Enables the use of rich text tags such as <color> and <font>.");
@@ -177,6 +178,7 @@ namespace TMPro.EditorUtilities
 
         protected SerializedProperty m_MarginProp;
         protected SerializedProperty m_MaxLineWidthProp;
+        protected SerializedProperty m_RoundUpProp;
 
         protected SerializedProperty m_ColorModeProp;
 
@@ -260,6 +262,7 @@ namespace TMPro.EditorUtilities
 
             m_MarginProp = serializedObject.FindProperty("m_margin");
             m_MaxLineWidthProp = serializedObject.FindProperty("m_maxLineWidth");
+            m_RoundUpProp = serializedObject.FindProperty("m_roundUpCalculatedPreferredValues");
 
             m_HasFontAssetChangedProp = serializedObject.FindProperty("m_hasFontAssetChanged");
 
@@ -1186,6 +1189,14 @@ namespace TMPro.EditorUtilities
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(m_IsRichTextProp, k_RichTextLabel);
+            if (EditorGUI.EndChangeCheck())
+                m_HavePropertiesChanged = true;
+        }
+
+        protected void DrawRoundUp() {
+            EditorGUI.BeginChangeCheck();
+
+            EditorGUILayout.PropertyField(m_RoundUpProp, k_RoundUpPreferredLabel);
             if (EditorGUI.EndChangeCheck())
                 m_HavePropertiesChanged = true;
         }

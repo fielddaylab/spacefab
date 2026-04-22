@@ -16,8 +16,8 @@ MonoBehaviour:
   - production*
   - staging*
   - hotfix*
-  Order: 2
   DevelopmentBuild: 0
-  CustomDefines: PRODUCTION,IGNORE_UNITY_EDITOR,OGD_SURVEY_CUSTOMTMP
+  Order: 2
+  CustomDefines: PRODUCTION,IGNORE_UNITY_EDITOR
   StrippingLevel: 3
   OptimizationFlags: 5

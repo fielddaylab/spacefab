@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Components;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,40 +13,43 @@ namespace SpaceFab.Overarching
     /// then refreshes the fields on Update (see MinigameZoneRefreshSystem)
     /// </summary>
     [SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.OverarchingMask)]
-    public class SelectMinigameZoneSystem : ComponentSystemBehaviour<MinigameZone>
+    public class SelectMinigameZoneSystem : SystemComponent
     {
-        public override bool HasWork()
-        {
-            return base.HasWork();
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+			ecs.Register(&ProcessWork,
+				new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.OverarchingMask),
+				new SysPermissions()
+					.ReadWrite<MinigameZone>()
+					.ReadWriteShared<MinigameZonesState>()
+					.ReadShared<PaletteState>()
+			);
         }
 
-
-        public override void ProcessWork(float deltaTime)
+        static private void ProcessWork(float deltaTime)
         {
-            base.ProcessWork(deltaTime);
-
             MinigameZonesState state = Find.State<MinigameZonesState>();
             PaletteState palette = Find.State<PaletteState>();
 
-            foreach (var zone in m_Components)
-            {
-                if (zone.PointerExitThisFrame)
-                {
-                    MinigameZonesUtility.CancelHover(state, zone.ZoneIndex);
-                }
-            }
+			var components = Find.Components<MinigameZone>();
 
-            foreach (var zone in m_Components)
-            {
-                if (zone.PointerEnterThisFrame)
+			for(int i = 0; i < components.Count; i++) {
+				MinigameZone zone = components[i];
+				if (zone.PointerExitThisFrame) {
+					MinigameZonesUtility.CancelHover(state, zone.ZoneIndex);
+				}
+			}
+
+			for (int i = 0; i < components.Count; i++) {
+				MinigameZone zone = components[i];
+				if (zone.PointerEnterThisFrame)
                 {
                     MinigameZonesUtility.BeginHover(state, palette, zone.ZoneIndex);
                 }
             }
 
-            foreach (var zone in m_Components)
-            {
-                if (zone.ClickedThisFrame)
+			for (int i = 0; i < components.Count; i++) {
+				MinigameZone zone = components[i];
+				if (zone.ClickedThisFrame)
                 {
                     MinigameZonesUtility.ClickZone(state, palette, zone.ZoneIndex);
                 }

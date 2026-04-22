@@ -543,6 +543,10 @@ namespace TMPro
         private static ProfilerMarker k_GenerateTextPhaseIIMarker = new ProfilerMarker("TMP GenerateText - Phase II");
         private static ProfilerMarker k_GenerateTextPhaseIIIMarker = new ProfilerMarker("TMP GenerateText - Phase III");
 
+        protected TextMeshPro() {
+            m_roundUpCalculatedPreferredValues = false;
+        }
+
 
         protected override void Awake()
         {

@@ -4,6 +4,7 @@ using BeauUtil.Tags;
 using FieldDay.Components;
 using Leaf.Runtime;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace FieldDay.Scripting {
@@ -15,6 +16,7 @@ namespace FieldDay.Scripting {
         #endregion // Inspector
 
         private LeafThreadHandle m_Owner;
+        private ScriptThread m_OwnerThread;
         private TagStringEventHandler m_OverrideHandler;
 
         #region IRegistrationCallbacks
@@ -38,10 +40,11 @@ namespace FieldDay.Scripting {
                 threadHandle.Kill();
             }
             m_OverrideHandler.Base = null;
+            m_OwnerThread = null;
         }
 
         void IScriptThreadOwned.OnThreadAcquire(LeafThreadHandle threadHandle) {
-            // TODO: implement
+            m_OwnerThread = threadHandle.GetThread<ScriptThread>();
         }
 
         #endregion // IScriptThreadOwned
@@ -61,15 +64,20 @@ namespace FieldDay.Scripting {
             m_OverrideHandler.Base = parentHandler;
 
             PrepareTextDisplay(text, character);
-            return parentHandler;
+            return m_OverrideHandler;
         }
 
         protected virtual void ConfigureEventHandler(TagStringEventHandler handler) { }
         protected abstract void PrepareTextDisplay(TagString text, DialogueCharacterState character);
 
-        public abstract IEnumerator TypeLine(TagString text, TagTextData textData);
+        public abstract IEnumerator TypeLine(TagString text, TagTextData textData, DialogueCharacterState character);
         public abstract void FastForwardLine(int visibleCount, int richCount);
         public abstract void UpdateCharacter(DialogueCharacterState character);
         public abstract IEnumerator CompleteLine();
+
+        protected ScriptThread CurrentThread {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return m_OwnerThread; }
+        }
     }
 }

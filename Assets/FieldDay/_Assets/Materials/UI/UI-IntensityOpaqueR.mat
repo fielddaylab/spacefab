@@ -40,6 +40,7 @@ Material:
     - _CullMode: 0
     - _DestBlend: 0
     - _IntensityAlphaThreshold: 1
+    - _IntensityColorMinThreshold: 0
     - _IntensityColorThreshold: 1
     - _PremultiplyAlpha: 0
     - _SrcBlend: 1

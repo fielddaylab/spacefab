@@ -2,18 +2,23 @@ using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TinyIL;
 using Unity.IL2CPP.CompilerServices;
+using UnityEditor;
 
 namespace FieldDay.Collections {
-    public struct TempComponentBuffer<T> : IWorkList<T>, IDisposable
+    /// <summary>
+    /// Temporary buffer for object references.
+    /// </summary>
+    public struct TempReferenceBuffer<T> : IWorkList<T>, IDisposable
         where T : class
     {
         private WorkList<object> m_PooledList;
         private IPool<WorkList<object>> m_Pool;
 
-        private TempComponentBuffer(IPool<WorkList<object>> pool) {
+        private TempReferenceBuffer(IPool<WorkList<object>> pool) {
             m_Pool = pool;
             m_PooledList = pool.Alloc();
         }
@@ -63,12 +68,36 @@ namespace FieldDay.Collections {
             m_PooledList.EnsureCapacity(capacity);
         }
 
-        static public TempComponentBuffer<T> Create() {
-            return new TempComponentBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(0));
+        static public TempReferenceBuffer<T> Create() {
+            return new TempReferenceBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(0));
         }
 
-        static public TempComponentBuffer<T> Create(int capacity) {
-            return new TempComponentBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(capacity));
+        static public TempReferenceBuffer<T> Create(int capacity) {
+            return new TempReferenceBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(capacity));
+        }
+
+        static public TempReferenceBuffer<T> Create(RingBuffer<T> source) {
+            TempReferenceBuffer<T> dst = new TempReferenceBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(source.Count));
+            for(int i = 0; i < source.Count; i++) {
+                dst.Add(source[i]);
+            }
+            return dst;
+        }
+
+        static public TempReferenceBuffer<T> Create(List<T> source) {
+            TempReferenceBuffer<T> dst = new TempReferenceBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(source.Count));
+            for (int i = 0; i < source.Count; i++) {
+                dst.Add(source[i]);
+            }
+            return dst;
+        }
+
+        static public TempReferenceBuffer<T> Create(IList<T> source) {
+            TempReferenceBuffer<T> dst = new TempReferenceBuffer<T>(PooledObjectWorkList.GetPoolForCapacity(source.Count));
+            for (int i = 0; i < source.Count; i++) {
+                dst.Add(source[i]);
+            }
+            return dst;
         }
     }
 
@@ -88,6 +117,8 @@ namespace FieldDay.Collections {
         }
 
         static internal void Initialize() {
+            Assert.True(s_SmallWorkLists == null, "Pool has already been initialized");
+
             s_SmallWorkLists = new FixedPool<WorkList<object>>(8, (p) => new WorkList<object>(SmallSize));
             s_LargeWorkLists = new FixedPool<WorkList<object>>(8, (p) => new WorkList<object>(LargeSize));
 
@@ -96,8 +127,14 @@ namespace FieldDay.Collections {
         }
 
         static internal void Shutdown() {
-            s_SmallWorkLists.Dispose();
-            s_LargeWorkLists.Dispose();
+            if (s_SmallWorkLists != null) {
+
+                s_SmallWorkLists.Dispose();
+                s_LargeWorkLists.Dispose();
+
+                s_SmallWorkLists = null;
+                s_LargeWorkLists = null;
+            }
         }
 
         static internal IPool<WorkList<object>> GetPoolForCapacity(int capacity) {
@@ -106,5 +143,37 @@ namespace FieldDay.Collections {
             }
             return s_LargeWorkLists;
         }
+
+        #region Editor
+
+#if UNITY_EDITOR
+
+        [InitializeOnLoadMethod]
+        static private void EditorInitialize() {
+            EditorApplication.playModeStateChanged += (state) => {
+                if (state == PlayModeStateChange.ExitingEditMode) {
+                    Shutdown();
+                } else if (state == PlayModeStateChange.EnteredEditMode) {
+                    if (s_SmallWorkLists == null) {
+                        Initialize();
+                    }
+                }
+            };
+
+            EditorApplication.quitting += Shutdown;
+            AppDomain.CurrentDomain.DomainUnload += (_, __) => Shutdown();
+
+            if (EditorApplication.isPlayingOrWillChangePlaymode) {
+                return;
+            }
+
+            if (s_SmallWorkLists == null) {
+                Initialize();
+            }
+        }
+
+#endif // UNITY_EDITOR
+
+        #endregion // Editor
     }
 }

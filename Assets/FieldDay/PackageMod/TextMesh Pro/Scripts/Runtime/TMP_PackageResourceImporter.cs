@@ -189,7 +189,7 @@ namespace TMPro
                 // Search for potential alternative locations in the user project
                 string[] matchingPaths = Directory.GetDirectories(packagePath, "TextMesh Pro", SearchOption.AllDirectories);
                 string path = ValidateLocation(matchingPaths, packagePath);
-                if (path != null) return packagePath + path;
+                if (path != null) return Path.Combine(packagePath, path);
             }
 
             return null;
@@ -222,10 +222,10 @@ namespace TMPro
             string packageFullPath = GetPackageFullPath();
 
             if (importEssentials)
-                AssetDatabase.ImportPackage(packageFullPath + "/Package Resources/TMP Essential Resources.unitypackage", interactive);
+                AssetDatabase.ImportPackage(Path.Combine(packageFullPath, "/Package Resources/TMP Essential Resources.unitypackage"), interactive);
 
             if (importExamples)
-                AssetDatabase.ImportPackage(packageFullPath + "/Package Resources/TMP Examples & Extras.unitypackage", interactive);
+                AssetDatabase.ImportPackage(Path.Combine(packageFullPath, "/Package Resources/TMP Examples & Extras.unitypackage"), interactive);
         }
     }
 

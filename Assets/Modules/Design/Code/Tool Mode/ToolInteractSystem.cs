@@ -1,221 +1,208 @@
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Design.Visuals;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using SpaceFab.Design.Visuals;
 
-namespace SpaceFab.Design
-{
+namespace SpaceFab.Design {
     /// <summary>
     /// Manages Tool mode interactions, in which the player is actively shaping the grid.
     /// Delegates to DrawUtility or EraseUtility depending on the currently selected tool type.
+    /// Runs on any Update phase at order 10 under ToolModeMask.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 0, UpdateMasks.ToolModeMask)]
-    public class ToolInteractSystem : SharedStateSystemBehaviour<ToolModeState, GridStackState, VisualGridStackState>
-    {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.ActiveTool != ToolType.None;
+    public class ToolInteractSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.Update, 10, UpdateMasks.ToolModeMask),
+                new SysPermissions()
+                    .ReadWriteShared<ToolModeState>()
+                    .ReadWriteShared<GridStackState>()
+                    .ReadWriteShared<VisualGridStackState>()
+            );
         }
 
-        public override void ProcessWork(float deltaTime)
-        {
-            base.ProcessWork(deltaTime);
+        // Gates on the active tool, then routes mouse input to down/drag/up handlers.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out ToolModeState toolModeState,
+                out GridStackState gridStackState,
+                out VisualGridStackState visualState
+                );
 
-            ProcessInputs();
+            if (toolModeState.ActiveTool == ToolType.None) {
+                return;
+            }
+
+            ProcessInputs(toolModeState, gridStackState, visualState);
         }
 
         #region Coordinate Inputs
 
-        private void ProcessInputs()
-        {
+        // Dispatches the current frame's left-mouse state to down/drag/up handlers.
+        static private void ProcessInputs(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
             if (EventSystem.current.IsPointerOverGameObject()) { return; }
             // if (!InteractInputsEnabled) { return; }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                HandleLeftMouseDown();
+            if (Input.GetMouseButtonDown(0)) {
+                HandleLeftMouseDown(toolModeState, gridStackState, visualState);
             }
-            if (Input.GetMouseButton(0))
-            {
-                HandleLeftMouseDrag();
+            if (Input.GetMouseButton(0)) {
+                HandleLeftMouseDrag(toolModeState, gridStackState, visualState);
             }
-            if (Input.GetMouseButtonUp(0))
-            {
-                HandleLeftMouseUp();
+            if (Input.GetMouseButtonUp(0)) {
+                HandleLeftMouseUp(toolModeState);
             }
         }
 
-        private void HandleLeftMouseDown()
-        {
+        // On mouse-down: convert the cursor to a grid coord and invoke the click handler for the cell's layer and occupancy.
+        static private void HandleLeftMouseDown(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
             // get mouse position in world space
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
             var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
 
             // if grid cell is out of bounds:
-            if (!GridStackUtility.InBounds(m_StateB, gridPos.x, gridPos.y))
-            {
+            if (!GridStackUtility.InBounds(gridStackState, gridPos.x, gridPos.y)) {
                 // do nothing
                 return;
             }
 
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             // if grid cell is empty:
-            if (GridLayerUtility.IsCellEmpty(layer, gridPos))
-            {
-                if (m_StateA.ActiveLayer == StackLayer.Metal)
-                {
-                    ClickEmptyMLayerCell(gridPos);
+            if (GridLayerUtility.IsCellEmpty(layer, gridPos)) {
+                if (toolModeState.ActiveLayer == StackLayer.Metal) {
+                    ClickEmptyMLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
-                else
-                {
-                    ClickEmptyTLayerCell(gridPos);
+                else {
+                    ClickEmptyTLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
             }
             // if grid cell is full:
-            else
-            {
-                if (m_StateA.ActiveLayer == StackLayer.Metal)
-                {
-                    ClickOccupiedMLayerCell(gridPos);
+            else {
+                if (toolModeState.ActiveLayer == StackLayer.Metal) {
+                    ClickOccupiedMLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
-                else
-                {
-                    ClickOccupiedTLayerCell(gridPos);
+                else {
+                    ClickOccupiedTLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
             }
             Log.Msg("[InteractMgr] Click Coords: (x: " + gridPos.x + " , y: " + gridPos.y + ")");
 
             // begin dragging
-            m_StateA.LastKnownDragCoord = gridPos;
+            toolModeState.LastKnownDragCoord = gridPos;
         }
 
-        private void HandleLeftMouseDrag()
-        {
-            var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // On mouse-held: compute a new grid coord, bail on redundant/too-fast/out-of-bounds moves, and invoke the drag handler for the cell.
+        static private void HandleLeftMouseDrag(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
+            var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
             var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
 
-            if (gridPos == m_StateA.LastKnownDragCoord)
-            {
+            if (gridPos == toolModeState.LastKnownDragCoord) {
                 // no change in drag position
                 return;
             }
 
-            if (m_StateA.LastTerminatedDragCoord != -Vector2Int.one)
-            {
+            if (toolModeState.LastTerminatedDragCoord != -Vector2Int.one) {
                 // no change from last terminated drag position (player needs to release mouse before new drag can begin)
                 return;
             }
 
-            var dif = gridPos - m_StateA.LastKnownDragCoord;
-            if (dif.x != 0 && dif.y != 0)
-            {
+            var dif = gridPos - toolModeState.LastKnownDragCoord;
+            if (dif.x != 0 && dif.y != 0) {
                 // only orthogonal movement allowed; collapse to one dimension (x)
-                gridPos.y = m_StateA.LastKnownDragCoord.y;
+                gridPos.y = toolModeState.LastKnownDragCoord.y;
             }
 
             // if dragging too quickly
-            if (Math.Abs(dif.x) > 1 || Math.Abs(dif.y) > 1)
-            {
+            if (Math.Abs(dif.x) > 1 || Math.Abs(dif.y) > 1) {
                 // terminate drag
-                ToolModeUtility.TerminateDrag(m_StateA);
+                ToolModeUtility.TerminateDrag(toolModeState);
                 return;
             }
 
             // if out of bounds:
-            if (!GridStackUtility.InBounds(m_StateB, gridPos.x, gridPos.y))
-            {
+            if (!GridStackUtility.InBounds(gridStackState, gridPos.x, gridPos.y)) {
                 // terminate drag
-                ToolModeUtility.TerminateDrag(m_StateA);
+                ToolModeUtility.TerminateDrag(toolModeState);
                 return;
             }
 
             // if within bounds:
             Log.Msg("[InteractMgr] Dragging to (x: " + gridPos.x + " , y: " + gridPos.y + ")");
 
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             // if grid cell is empty:
-            if (GridLayerUtility.IsCellEmpty(layer, gridPos))
-            {
-                if (m_StateA.ActiveLayer == StackLayer.Metal)
-                {
-                    DragEmptyMLayerCell(gridPos);
+            if (GridLayerUtility.IsCellEmpty(layer, gridPos)) {
+                if (toolModeState.ActiveLayer == StackLayer.Metal) {
+                    DragEmptyMLayerCell(toolModeState, gridStackState, gridPos);
                 }
-                else
-                {
-                    DragEmptyTLayerCell(gridPos);
+                else {
+                    DragEmptyTLayerCell(toolModeState, gridStackState, gridPos);
                 }
             }
             // if grid cell is full:
-            else
-            {
-                if (m_StateA.ActiveLayer == StackLayer.Metal)
-                {
-                    DragOccupiedMLayerCell(gridPos);
+            else {
+                if (toolModeState.ActiveLayer == StackLayer.Metal) {
+                    DragOccupiedMLayerCell(toolModeState, gridStackState, gridPos);
                 }
-                else
-                {
-                    DragOccupiedTLayerCell(gridPos);
+                else {
+                    DragOccupiedTLayerCell(toolModeState, gridStackState, gridPos);
                 }
             }
 
             // continue dragging
-            if (gridPos != m_StateA.LastTerminatedDragCoord)
-            {
-                m_StateA.LastKnownDragCoord = gridPos;
+            if (gridPos != toolModeState.LastTerminatedDragCoord) {
+                toolModeState.LastKnownDragCoord = gridPos;
             }
         }
 
-        private void HandleLeftMouseUp()
-        {
-            ToolModeUtility.TerminateDrag(m_StateA, true);
+        // On mouse-up: terminate any active drag and reset the drag-coord state.
+        static private void HandleLeftMouseUp(ToolModeState toolModeState) {
+            ToolModeUtility.TerminateDrag(toolModeState, true);
         }
 
         #endregion // Coordinate Inputs
 
         #region Clicks
 
-        private void ClickEmptyMLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+        // Click on an empty Metal-layer cell: apply the active tool (draw/erase/via/gate) and refresh visuals.
+        static private void ClickEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
 
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawMetal:
-                    DrawUtility.DrawMetal(m_StateB, ref cell, gridPos);
+                    DrawUtility.DrawMetal(gridStackState, ref cell, gridPos);
                     break;
                 case ToolType.DrawVia:
-                    DrawUtility.DrawVia(m_StateA, m_StateB, ref cell, gridPos);
+                    DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
                     break;
                 case ToolType.DrawGate:
-                    DrawUtility.DrawGate(m_StateA, m_StateB, ref cell, gridPos);
+                    DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
                     break;
                 default:
                     break;
             }
 
-            SetCellAndUpdateVisuals(layer, gridPos, cell);
+            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
-        private void ClickEmptyTLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+        // Click on an empty Transistor-layer cell: apply the active tool.
+        static private void ClickEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
 
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawNNodes:
                     cell.CellType = CellType.NTransistor;
@@ -224,215 +211,186 @@ namespace SpaceFab.Design
                     cell.CellType = CellType.PTransistor;
                     break;
                 case ToolType.DrawVia:
-                    DrawUtility.DrawVia(m_StateA, m_StateB, ref cell, gridPos);
+                    DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
                     break;
                 case ToolType.DrawGate:
-                    DrawUtility.DrawGate(m_StateA, m_StateB, ref cell, gridPos);
+                    DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
                     break;
                 default:
                     break;
             }
 
-            SetCellAndUpdateVisuals(layer, gridPos, cell);
+            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
-        private void ClickOccupiedMLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+        // Click on an occupied Metal-layer cell: draw-tools only apply if the existing cell is Metal.
+        static private void ClickOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
 
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawMetal:
                     // Do nothing. Click only matters if node is empty.
                     break;
                 case ToolType.DrawVia:
                     // place a via if metal
-                    if (cell.CellType == CellType.Metal)
-                    {
-                        DrawUtility.DrawVia(m_StateA, m_StateB, ref cell, gridPos);
+                    if (cell.CellType == CellType.Metal) {
+                        DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
                     }
                     break;
                 case ToolType.DrawGate:
                     // place a gate if metal
-                    if (cell.CellType == CellType.Metal)
-                    {
-                        DrawUtility.DrawGate(m_StateA, m_StateB, ref cell, gridPos);
+                    if (cell.CellType == CellType.Metal) {
+                        DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
                     }
                     break;
                 default:
                     break;
             }
 
-            SetCellAndUpdateVisuals(layer, gridPos, cell);
+            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
-        private void ClickOccupiedTLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+        // Click on an occupied Transistor-layer cell: preserves edge connections when swapping N/P type.
+        static private void ClickOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
 
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawNNodes:
                     // only relevant if the occupied cell is a transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor)
-                    {
+                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
                         cell.CellType = CellType.NTransistor;
                         // note: preserves edge connections
                     }
                     break;
                 case ToolType.DrawPNodes:
                     // only relevant if the occupied cell is a transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor)
-                    {
+                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
                         cell.CellType = CellType.PTransistor;
                         // note: preserves edge connections
                     }
                     break;
                 case ToolType.DrawVia:
                     // place a via if transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor)
-                    {
-                        DrawUtility.DrawVia(m_StateA, m_StateB, ref cell, gridPos);
+                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
+                        DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
                     }
                     break;
                 case ToolType.DrawGate:
                     // place a gate if transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor)
-                    {
-                        DrawUtility.DrawGate(m_StateA, m_StateB, ref cell, gridPos);
+                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
+                        DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
                     }
                     break;
                 default:
                     break;
             }
 
-            SetCellAndUpdateVisuals(layer, gridPos, cell);
+            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
         #endregion // Clicks
 
         #region Dragging
 
-        private void DragEmptyMLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
-            var cell = GridLayerUtility.GetCell(layer, gridPos);
-
+        // Drag onto an empty Metal-layer cell: only Erase and DrawMetal do anything.
+        static private void DragEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawMetal:
-                    DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.Metal, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.Metal, gridPos);
                     break;
                 default:
                     break;
             }
         }
 
-        private void DragEmptyTLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
-            var cell = GridLayerUtility.GetCell(layer, gridPos);
-
+        // Drag onto an empty Transistor-layer cell: erase or draw N/P transistor.
+        static private void DragEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawNNodes:
-                    DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.NTransistor, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.NTransistor, gridPos);
                     break;
                 case ToolType.DrawPNodes:
-                    DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.PTransistor, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.PTransistor, gridPos);
                     break;
                 default:
                     break;
             }
         }
 
-        private void DragOccupiedMLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
-            var cell = GridLayerUtility.GetCell(layer, gridPos);
-
+        // Drag onto an occupied Metal-layer cell: erase or extend metal.
+        static private void DragOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawMetal:
-                    DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.Metal, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.Metal, gridPos);
                     break;
                 default:
                     break;
             }
         }
 
-        private void DragOccupiedTLayerCell(Vector2Int gridPos)
-        {
-            var layer = m_StateB.GridStack.GridLayers[(int)m_StateA.ActiveLayer];
+        // Drag onto an occupied Transistor-layer cell: refuse to drag over inputs/outputs; otherwise draw-over with the selected transistor type (preserving existing type when it matches the opposing tool).
+        static private void DragOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
+            var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
 
             // check tool
-            switch (m_StateA.ActiveTool)
-            {
+            switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
-                    EraseUtility.EraseCellBothLayers(m_StateA, m_StateB, gridPos);
+                    EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawNNodes:
                     // do not allow dragging onto inputs/outputs
-                    if (cell.CellType == CellType.Input || cell.CellType == CellType.Output)
-                    {
-                        ToolModeUtility.TerminateDrag(m_StateA);
+                    if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) {
+                        ToolModeUtility.TerminateDrag(toolModeState);
                         return;
                     }
-                    else
-                    {
-                        if (cell.CellType == CellType.PTransistor)
-                        {
+                    else {
+                        if (cell.CellType == CellType.PTransistor) {
                             // draw connection, preserve type
-                            DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.PTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.PTransistor, gridPos);
                         }
-                        else
-                        {
+                        else {
                             // override
-                            DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.NTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.NTransistor, gridPos);
                         }
                     }
                     break;
                 case ToolType.DrawPNodes:
                     // do not allow dragging onto inputs/outputs
-                    if (cell.CellType == CellType.Input || cell.CellType == CellType.Output)
-                    {
-                        ToolModeUtility.TerminateDrag(m_StateA);
+                    if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) {
+                        ToolModeUtility.TerminateDrag(toolModeState);
                         return;
                     }
-                    else
-                    {
-                        if (cell.CellType == CellType.NTransistor)
-                        {
+                    else {
+                        if (cell.CellType == CellType.NTransistor) {
                             // draw connection, preserve type
-                            DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.NTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.NTransistor, gridPos);
                         }
-                        else
-                        {
+                        else {
                             // override
-                            DrawUtility.DragDrawNodeOfType(m_StateA, m_StateB, CellType.PTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.PTransistor, gridPos);
                         }
                     }
                     break;
@@ -445,10 +403,10 @@ namespace SpaceFab.Design
 
         #region Helpers
 
-        private void SetCellAndUpdateVisuals(GridLayer layer, Vector2Int gridPos, GridCell cell)
-        {
+        // Writes the updated cell back to its layer and flags the visuals for a refresh next frame.
+        static private void SetCellAndUpdateVisuals(VisualGridStackState visualState, GridLayer layer, Vector2Int gridPos, GridCell cell) {
             GridLayerUtility.SetCell(layer, gridPos, cell);
-            m_StateC.VisualsNeedRefreshing = true;
+            visualState.VisualsNeedRefreshing = true;
         }
 
         #endregion // Helpers

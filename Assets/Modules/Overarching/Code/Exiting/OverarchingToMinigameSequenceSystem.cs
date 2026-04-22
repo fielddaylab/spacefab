@@ -5,66 +5,71 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Overarching
-{
-    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
-    public class OverarchingToMinigameSequenceSystem : SharedStateSystemBehaviour<OverarchingToMinigameSequenceState, OverarchingShutdownSequenceState, MinigameZonesState, ChapterState, AvailableContractsLookup>
-    {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != OverarchingToMinigamePhase.Waiting && m_StateA.Phase != OverarchingToMinigamePhase.TransitionComplete;
+namespace SpaceFab.Overarching {
+    /// <summary>
+    /// Sequences the transition from the overarching scene into a minigame: hands off to the
+    /// shutdown subsystem, then suspends all updates, resumes MinigameTransitionMask, loads
+    /// the chosen minigame's scene, and dispatches OnMinigameLoad.
+    /// Runs on LateUpdate at order 0 under ShutdownMask.
+    /// </summary>
+    public class OverarchingToMinigameSequenceSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask),
+                new SysPermissions()
+                    .ReadWriteShared<OverarchingToMinigameSequenceState>()
+                    .ReadWriteShared<OverarchingShutdownSequenceState>()
+                    .ReadShared<MinigameZonesState>()
+            );
         }
 
-        public override void ProcessWork(float deltaTime)
-        {
-            base.ProcessWork(deltaTime);
+        // Dispatches to the handler for the current transition phase.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out OverarchingToMinigameSequenceState toMinigameState,
+                out OverarchingShutdownSequenceState shutdownState,
+                out MinigameZonesState zonesState
+                );
 
-            switch (m_StateA.Phase)
-            {
+            switch (toMinigameState.Phase) {
                 case OverarchingToMinigamePhase.Starting:
-                    ProcessStarting();
+                    ProcessStarting(toMinigameState, shutdownState);
                     break;
                 case OverarchingToMinigamePhase.ShutdownSequenceSystem:
-                    ProcessShutdownSequenceSystem();
+                    ProcessShutdownSequenceSystem(toMinigameState, shutdownState);
                     break;
                 case OverarchingToMinigamePhase.TransitionToMinigame:
-                    ProcessTransitionToMinigame();
+                    ProcessTransitionToMinigame(toMinigameState, zonesState);
                     break;
                 default:
                     break;
             }
         }
 
-        #region Helpers
-
-        private void ProcessStarting()
-        {
-            m_StateB.Phase = OverarchingShutdownPhase.Waiting;
-            m_StateA.Phase = OverarchingToMinigamePhase.ShutdownSequenceSystem;
+        // Entry: ask the shutdown subsystem to start and move to the waiting phase.
+        static private void ProcessStarting(OverarchingToMinigameSequenceState toMinigameState, OverarchingShutdownSequenceState shutdownState) {
+            shutdownState.Phase = OverarchingShutdownPhase.Waiting;
+            toMinigameState.Phase = OverarchingToMinigamePhase.ShutdownSequenceSystem;
         }
 
-        private void ProcessShutdownSequenceSystem()
-        {
-            if (m_StateB.Phase == OverarchingShutdownPhase.Waiting)
-            {
+        // Coordinates with the shutdown subsystem: trigger it on Waiting, advance when Complete.
+        static private void ProcessShutdownSequenceSystem(OverarchingToMinigameSequenceState toMinigameState, OverarchingShutdownSequenceState shutdownState) {
+            if (shutdownState.Phase == OverarchingShutdownPhase.Waiting) {
                 // defer to ShutdownSequenceSystem
-                m_StateB.Phase = OverarchingShutdownPhase.BeginShutdown;
+                shutdownState.Phase = OverarchingShutdownPhase.BeginShutdown;
             }
-            else if (m_StateB.Phase == OverarchingShutdownPhase.ShutdownComplete)
-            {
-                m_StateA.Phase = OverarchingToMinigamePhase.TransitionToMinigame;
+            else if (shutdownState.Phase == OverarchingShutdownPhase.ShutdownComplete) {
+                toMinigameState.Phase = OverarchingToMinigamePhase.TransitionToMinigame;
             }
         }
 
-        private void ProcessTransitionToMinigame()
-        {
+        // Swap update masks, load the target minigame scene, and announce the load.
+        static private void ProcessTransitionToMinigame(OverarchingToMinigameSequenceState toMinigameState, MinigameZonesState zonesState) {
             GameLoop.SuspendUpdates(Bits.All32);
             GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
-            Game.Scenes.LoadMainScene(m_StateC.Zones[m_StateC.CurrSelectedIndex].MinigameScene);
+            Game.Scenes.LoadMainScene(zonesState.Zones[zonesState.CurrSelectedIndex].MinigameScene);
             Game.Events.Dispatch(GameEvents.OnMinigameLoad);
-            m_StateA.Phase = OverarchingToMinigamePhase.TransitionComplete;
+            toMinigameState.Phase = OverarchingToMinigamePhase.TransitionComplete;
         }
-
-        #endregion // Helpers
     }
 }

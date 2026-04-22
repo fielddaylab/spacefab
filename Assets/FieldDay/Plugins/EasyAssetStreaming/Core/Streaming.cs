@@ -216,9 +216,6 @@ namespace EasyAssetStreaming {
                         return Textures.TextureMap[id];
                     }
                 }
-                case StreamingAssetTypeId.Audio: {
-                    return AudioClips.ClipMap[id];
-                }
                 default: {
                     return null;
                 }
@@ -435,7 +432,6 @@ namespace EasyAssetStreaming {
         /// </summary>
         static public void UnloadAll() {
             Textures.DestroyAllTextures();
-            AudioClips.DestroyAllClips();
             Videos.DestroyAllVideos();
 
             if (s_Cache != null) {
@@ -528,11 +524,6 @@ namespace EasyAssetStreaming {
                         } else {
                             Textures.DestroyTexture(id);
                         }
-                        break;
-                    }
-
-                    case StreamingAssetTypeId.Audio: {
-                        AudioClips.DestroyClip(id);
                         break;
                     }
                 }
@@ -658,7 +649,6 @@ namespace EasyAssetStreaming {
 
             long now = CurrentTimestamp();
             didWork |= Textures.CheckBudget(now);
-            didWork |= AudioClips.CheckBudget(now);
 
             // update the delayed queue
             for(int i = s_LoadState.DelayedQueue.Count - 1; i >= 0; i--) {
@@ -706,10 +696,6 @@ namespace EasyAssetStreaming {
                         } else {
                             Textures.StartLoading(id);
                         }
-                        break;
-                    }
-                    case StreamingAssetTypeId.Audio: {
-                        AudioClips.StartLoading(id);
                         break;
                     }
                 }

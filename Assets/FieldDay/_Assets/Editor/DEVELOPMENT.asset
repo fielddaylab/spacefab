@@ -21,8 +21,7 @@ MonoBehaviour:
   - fixes/*
   - experimental/*
   - main
-  Order: 0
   DevelopmentBuild: 1
-  CustomDefines: DEVELOPMENT,PRESERVE_DEBUG_SYMBOLS,FIELD_DAY_TESTS,OGD_SURVEY_CUSTOMTMP
   StrippingLevel: 2
-  OptimizationFlags: 0
+  CustomDefines: DEVELOPMENT,PRESERVE_DEBUG_SYMBOLS,FIELD_DAY_TESTS
+  Order: 0

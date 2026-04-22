@@ -1,7 +1,7 @@
 using BeauUtil;
 using BeauUtil.Debugger;
 
-namespace FieldDay {
+namespace FieldDay.Collections {
     public unsafe struct UnsafeResourcePool<T> where T : unmanaged {
         private UnsafeBitSet m_BitMap;
         private UnsafeSpan<T> m_Data;

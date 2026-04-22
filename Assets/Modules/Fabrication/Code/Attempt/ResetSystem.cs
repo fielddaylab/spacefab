@@ -1,19 +1,25 @@
+using FieldDay;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Fabrication
-{
+namespace SpaceFab.Fabrication {
     /// <summary>
-    /// Manages relevant state for resetting an attempt.
-    /// Clear wafer state, reset timer, etc.
+    /// Manages relevant state for resetting an attempt. Clears wafer state, resets timer, etc.
+    /// Runs on Update phase at order 0, no category mask. Currently a stub.
     /// </summary>
-    public class ResetSystem : SharedStateSystemBehaviour<WaferState>
-    {
-        public override void ProcessWork(float deltaTime)
-        {
-            base.ProcessWork(deltaTime);
+    public class ResetSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 0),
+                new SysPermissions()
+                    .ReadWriteShared<WaferState>()
+            );
+        }
+
+        // TODO: implement attempt reset.
+        static private void ProcessWork(float deltaTime) {
         }
     }
 }

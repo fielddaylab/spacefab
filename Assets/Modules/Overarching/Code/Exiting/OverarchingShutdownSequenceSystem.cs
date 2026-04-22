@@ -5,49 +5,54 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Overarching
-{
-    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask)]
-    public class OverarchingShutdownSequenceSystem : SharedStateSystemBehaviour<OverarchingShutdownSequenceState, MinigameZonesState, ChapterState, AvailableContractsLookup>
-    {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != OverarchingShutdownPhase.Waiting && m_StateA.Phase != OverarchingShutdownPhase.ShutdownComplete;
+namespace SpaceFab.Overarching {
+    /// <summary>
+    /// Drives the overarching shutdown phase before a scene transition: unloads the current
+    /// chapter's available-contract assets, then signals ShutdownComplete so upstream systems
+    /// can continue. Runs on LateUpdate at order 12 under ShutdownMask.
+    /// </summary>
+    public class OverarchingShutdownSequenceSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.LateUpdate, 12, UpdateMasks.ShutdownMask),
+                new SysPermissions()
+                    .ReadWriteShared<OverarchingShutdownSequenceState>()
+                    .ReadShared<ChapterState>()
+                    .ReadWriteShared<AvailableContractsLookup>()
+            );
         }
 
-        public override void ProcessWork(float deltaTime)
-        {
-            base.ProcessWork(deltaTime);
+        // Dispatches to the handler for the current shutdown phase.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out OverarchingShutdownSequenceState shutdownState,
+                out ChapterState chapterState,
+                out AvailableContractsLookup availableLookup
+                );
 
-            switch (m_StateA.Phase)
-            {
+            switch (shutdownState.Phase) {
                 case OverarchingShutdownPhase.BeginShutdown:
-                    ProcessBeginShutdown();
+                    ProcessBeginShutdown(shutdownState, chapterState, availableLookup);
                     break;
                 case OverarchingShutdownPhase.ShuttingDown:
-                    ProcessShuttingDown();
+                    ProcessShuttingDown(shutdownState);
                     break;
                 default:
                     break;
             }
         }
 
-        #region Helpers
-
-        private void ProcessBeginShutdown()
-        {
-            m_StateA.ShutdownRoutine.Replace(ContractsLookupUtility.UnloadAvailableContractsAtChapter(m_StateD, m_StateC, m_StateC.CurrChapterIndex));
-            m_StateA.Phase = OverarchingShutdownPhase.ShuttingDown;
+        // Kicks off the unload of the current chapter's available-contract assets.
+        static private void ProcessBeginShutdown(OverarchingShutdownSequenceState shutdownState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
+            shutdownState.ShutdownRoutine.Replace(ContractsLookupUtility.UnloadAvailableContractsAtChapter(availableLookup, chapterState, chapterState.CurrChapterIndex));
+            shutdownState.Phase = OverarchingShutdownPhase.ShuttingDown;
         }
 
-        private void ProcessShuttingDown()
-        {
-            if (!m_StateA.ShutdownRoutine.Exists())
-            {
-                m_StateA.Phase = OverarchingShutdownPhase.ShutdownComplete;
+        // Wait for the unload routine to finish, then flag completion.
+        static private void ProcessShuttingDown(OverarchingShutdownSequenceState shutdownState) {
+            if (!shutdownState.ShutdownRoutine.Exists()) {
+                shutdownState.Phase = OverarchingShutdownPhase.ShutdownComplete;
             }
         }
-
-        #endregion // Helpers
     }
 }

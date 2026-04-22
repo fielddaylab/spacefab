@@ -46,6 +46,7 @@ using FieldDay.Systems;
 using FieldDay.Threading;
 using FieldDay.Localization;
 using FieldDay.Files;
+using Unity.IL2CPP.CompilerServices;
 
 #if USE_SRP
 #endif // USE_SRP
@@ -55,6 +56,7 @@ namespace FieldDay {
     /// Game loop manager.
     /// </summary>
     [DefaultExecutionOrder(-23000), DisallowMultipleComponent]
+    [Il2CppEagerStaticClassConstruction]
     public sealed class GameLoop : MonoBehaviour, ICameraPreCullCallback, ICameraPostRenderCallback, ICameraPreRenderCallback {
         #region Types
 
@@ -312,7 +314,7 @@ namespace FieldDay {
                 Game.Systems = new SystemsMgr();
 
                 Log.Msg("[GameLoop] Creating component manager...");
-                Game.Components = new ComponentMgr(Game.Systems);
+                Game.Components = new ComponentMgr();
 
                 Log.Msg("[GameLoop] Creating shared state manager...");
                 Game.SharedState = new SharedStateMgr();
@@ -404,7 +406,6 @@ namespace FieldDay {
                 Game.Rendering.LateInitialize();
                 Game.Animation.Initialize();
                 Game.Scenes.Prepare();
-                Game.Systems.ProcessInitQueue();
                 Game.Files.Tick();
                 FlushQueue(s_OnBootQueue);
 

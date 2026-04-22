@@ -49,7 +49,7 @@ namespace SpaceFab.Design.Visuals
 
     public static class SpriteDBUtility
     {
-        public static Sprite LookupViaSprite(ref SpriteDB spriteDB, FlowState state)
+        public static Sprite LookupViaSprite(SpriteDB spriteDB, FlowState state)
         {
             switch (state)
             {
@@ -66,7 +66,7 @@ namespace SpaceFab.Design.Visuals
             }
         }
 
-        public static Sprite LookupGateSprite(ref SpriteDB spriteDB, FlowState state)
+        public static Sprite LookupGateSprite(SpriteDB spriteDB, FlowState state)
         {
             switch (state)
             {

@@ -408,7 +408,7 @@ namespace FieldDay.Scripting {
                         }
 
                         if (dialogBoxDesired) {
-                            yield return Routine.Inline(thread.GetPrinter()?.TypeLine(tagStr, node.Text));
+                            yield return Routine.Inline(thread.GetPrinter()?.TypeLine(tagStr, node.Text, thread.GetCharacterState()));
                         } else if (voxDesired && !hadVox && !sentFakeSubtitleData) {
                             SubtitleUtility.RequestDisplay(fakeSubtitleData);
                             sentFakeSubtitleData = true;

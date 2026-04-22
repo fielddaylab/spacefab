@@ -5,49 +5,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab
-{
+namespace SpaceFab {
     /// <summary>
-    /// Have array of AssetPacks in ChapterLoadState for each chapter
-    /// Load AssetPack at index of curr chapter, convert to ChapterDef
-    /// 
+    /// Loads the current chapter's assets and its available-contracts bundle.
+    /// Runs in Update under ChapterMask; drives ChapterLoadState.Phase by kicking off
+    /// the appropriate LoadRoutine for each phase.
     /// </summary>
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ChapterMask)]
-    public class ChapterLoadSystem : SharedStateSystemBehaviour<ChapterLoadState, ChapterState, AvailableContractsLookup>
-    {
-        public override bool HasWork()
-        {
-            return base.HasWork() && m_StateA.Phase != ChapterLoadPhase.Waiting && m_StateA.Phase != ChapterLoadPhase.Completed;
+    public class ChapterLoadSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ChapterMask),
+                new SysPermissions()
+                    .ReadWriteShared<ChapterLoadState>()
+                    .ReadShared<ChapterState>()
+                    .ReadWriteShared<AvailableContractsLookup>()
+            );
         }
 
-        public override void ProcessWork(float deltaTime)
-        {
-            base.ProcessWork(deltaTime);
+        // Advances the chapter-load phase by starting the corresponding load routine.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out ChapterLoadState loadState,
+                out ChapterState chapterState,
+                out AvailableContractsLookup availableLookup
+                );
 
-            switch (m_StateA.Phase)
-            {
+            switch (loadState.Phase) {
                 case ChapterLoadPhase.LoadingChapter:
-                    if (!m_StateA.LoadRoutine.Exists())
-                    {
+                    if (!loadState.LoadRoutine.Exists()) {
                         // load curr chapter
-                        m_StateA.LoadRoutine.Replace(ChapterLoadUtility.LoadCurrChapter(m_StateB, m_StateA));
+                        loadState.LoadRoutine.Replace(ChapterLoadUtility.LoadCurrChapter(chapterState, loadState));
                     }
                     break;
                 case ChapterLoadPhase.LoadingAvailableContracts:
-                    if (!m_StateA.LoadRoutine.Exists())
-                    {
+                    if (!loadState.LoadRoutine.Exists()) {
                         // load chapter in parallel with other systems
-                        m_StateA.LoadRoutine.Replace(ChapterLoadUtility.LoadCurrAvailableContracts(m_StateB, m_StateA, m_StateC));
+                        loadState.LoadRoutine.Replace(ChapterLoadUtility.LoadCurrAvailableContracts(chapterState, loadState, availableLookup));
                     }
                     break;
                 default:
                     break;
             }
         }
-
-        #region Helpers
-
-
-        #endregion // Helpers
     }
 }

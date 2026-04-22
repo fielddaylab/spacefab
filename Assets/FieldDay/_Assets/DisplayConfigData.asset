@@ -15,4 +15,4 @@ MonoBehaviour:
   ReferenceResolution: {x: 1024, y: 768}
   ReferenceAxis: 1
   MinimumAspectRatio: {x: 4, y: 3}
-  MaximumAspectRatio: {x: 4, y: 3}
+  MaximumAspectRatio: {x: 16, y: 9}

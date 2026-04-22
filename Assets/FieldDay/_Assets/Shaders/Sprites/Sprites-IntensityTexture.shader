@@ -9,6 +9,7 @@ Shader "FieldDay/Sprites/Intensity Texture"
 		[Header(Intensity Texture)] [Space]
 		[KeywordEnum(Color, Alpha, Color_Alpha)] FD_INTENSITY("Intensity Mode", Int) = 2
 		_IntensityColorThreshold("Intensity Color Threshold", Range(0.001, 1)) = 1
+        _IntensityColorMinThreshold("Intensity Color Min Threshold", Range(0, 1)) = 0.001
 		_IntensityAlphaThreshold("Intensity Alpha Threshold", Range(0.001, 1)) = 1
 
 		[Header(Colors)] [Space]
@@ -30,6 +31,8 @@ Shader "FieldDay/Sprites/Intensity Texture"
 
 		[Header(Culling and Clipping)] [Space]
 		[Enum(UnityEngine.Rendering.CullMode)] _CullMode ("Cull Mode", Int) = 2
+        [Toggle(FD_SPRITE_ALPHACLIP)] _EnableAlphaClip("Use Alpha Clip", Int) = 0
+		_AlphaCutoff("Alpha Cutoff", Range(0, 1)) = 0
 
 		[Header(Depth)] [Space]
 		[Enum(Off,0,On,1)] _ZWriteMode("ZWrite", Int) = 0
@@ -70,6 +73,7 @@ Shader "FieldDay/Sprites/Intensity Texture"
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
             #pragma shader_feature_local_vertex _ PIXELSNAP_ON
+            #pragma shader_feature_local_fragment _ FD_SPRITE_ALPHACLIP
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
             #pragma shader_feature_local_fragment FD_SAMPLE_R FD_SAMPLE_G FD_SAMPLE_B FD_SAMPLE_A
             #pragma shader_feature_local _ FD_ENABLE_FOG
@@ -85,6 +89,7 @@ Shader "FieldDay/Sprites/Intensity Texture"
 				InstancingInitialize(v);
 
 				half4 color = LayerIntensityTexture(_MainTex, v.texcoord, v.color);
+                SpriteAlphaClip(color);
 
 				LayerApplyLerpColor(color);
 				LayerApplyAdditiveColor(color);

@@ -28,12 +28,15 @@ namespace FieldDay.UI {
         public BehaviorFlags Flags;
         public string TooltipHeader;
         [Multiline] public string Tooltip;
+        public string TooltipFooter;
 
         #endregion // Inspector
 
         // TODO: implement localization keys
         [NonSerialized] public StringBuilder DynamicHeader;
         [NonSerialized] public StringBuilder DynamicContent;
+        [NonSerialized] public StringBuilder DynamicFooter;
+        [NonSerialized] public CursorTooltipContentDelegate DynamicBuilder;
 
         [NonSerialized] public long LastUpdatedTimestamp = 0;
 
@@ -60,9 +63,10 @@ namespace FieldDay.UI {
                 return false;
             }
 
-            return !string.IsNullOrEmpty(hint.Tooltip) || !string.IsNullOrEmpty(hint.TooltipHeader)
+            return !string.IsNullOrEmpty(hint.Tooltip) || !string.IsNullOrEmpty(hint.TooltipHeader) || !string.IsNullOrEmpty(hint.TooltipFooter)
                 || (hint.DynamicHeader != null && hint.DynamicHeader.Length > 0)
-                || (hint.DynamicContent != null && hint.DynamicContent.Length > 0);
+                || (hint.DynamicContent != null && hint.DynamicContent.Length > 0)
+                || (hint.DynamicFooter != null && hint.DynamicContent.Length > 0);
         }
 
         /// <summary>
@@ -74,13 +78,17 @@ namespace FieldDay.UI {
                 return;
             }
 
-            contents.LocHeader = contents.LocContents = default;
+            contents.LocHeader = contents.LocContents = contents.LocFooter = default;
 
             contents.Header = hint.TooltipHeader;
             contents.Contents = hint.Tooltip;
+            contents.Footer = hint.TooltipFooter;
 
             contents.DynamicHeader = hint.DynamicHeader;
             contents.DynamicContents = hint.DynamicContent;
+            contents.DynamicFooter = hint.DynamicFooter;
+
+            contents.DynamicBuilder = hint.DynamicBuilder;
         }
 
         #endregion // Tooltips
@@ -257,11 +265,24 @@ namespace FieldDay.UI {
     public struct CursorTooltipContents {
         public string Header;
         public string Contents;
+        public string Footer;
 
         public LocId LocHeader;
         public LocId LocContents;
+        public LocId LocFooter;
 
         public StringBuilder DynamicHeader;
         public StringBuilder DynamicContents;
+        public StringBuilder DynamicFooter;
+
+        public CursorTooltipContentDelegate DynamicBuilder;
     }
+
+    public struct CursorTooltipBuildState {
+        public StringBuilder Header;
+        public StringBuilder Contents;
+        public StringBuilder Footer;
+    }
+
+    public delegate bool CursorTooltipContentDelegate(CursorHint hint, ref CursorTooltipBuildState buildState);
 }

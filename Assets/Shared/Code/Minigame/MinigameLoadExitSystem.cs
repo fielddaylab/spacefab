@@ -7,48 +7,65 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab
-{
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.MinigameTransitionMask)]
-    public class MinigameLoadExitSystem : SharedStateSystemBehaviour<MinigameLoadExitState, MinigameStateInterfacer, MinigameSaveStates, ReturnMenuState, SaveLoadState>
-    {
-        public override bool HasWork()
-        {
-            return base.HasWork() && !m_StateA.Phase.Equals(MinigameLoadExitPhase.None);
+namespace SpaceFab {
+    /// <summary>
+    /// Drives the enter/exit flow for a minigame: imports state on load, flips update masks
+    /// to the incoming minigame's default mask, and on exit exports state, saves, and loads
+    /// the return scene. Runs in Update under MinigameTransitionMask.
+    /// </summary>
+    public class MinigameLoadExitSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 1, UpdateMasks.MinigameTransitionMask),
+                new SysPermissions()
+                    .ReadWriteShared<MinigameLoadExitState>()
+                    .ReadShared<MinigameStateInterfacer>()
+                    .ReadWriteShared<MinigameSaveStates>()
+                    .ReadShared<ReturnMenuState>()
+                    .ReadShared<SaveLoadState>()
+            );
         }
 
-        public override void ProcessWork(float deltaTime)
-        {
-            switch (m_StateA.Phase)
-            {
+        // Steps the minigame load/exit phase machine forward one tick.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out MinigameLoadExitState loadExitState,
+                out MinigameStateInterfacer interfacer,
+                out MinigameSaveStates saveStates,
+                out ReturnMenuState returnState
+                );
+            Find.State(out SaveLoadState saveOpState);
+
+            switch (loadExitState.Phase) {
                 case MinigameLoadExitPhase.Loading:
                     Debug.Log("[MinigameLoadExitSystem] Importing state...");
-                    m_StateB.MinigameState.ImportState(m_StateC);
-                    m_StateA.Phase = MinigameLoadExitPhase.Loaded;
+                    interfacer.MinigameState.ImportState(saveStates);
+                    loadExitState.Phase = MinigameLoadExitPhase.Loaded;
                     break;
                 case MinigameLoadExitPhase.Loaded:
                     Debug.Log("[MinigameLoadExitSystem] Imported!");
+                    // Suspend everything, then resume only the incoming minigame's own update mask
                     GameLoop.SuspendUpdates(Bits.All32);
-                    GameLoop.ResumeUpdates(m_StateB.MinigameState.DefaultUpdateMask);
-                    m_StateA.Phase = MinigameLoadExitPhase.None;
+                    GameLoop.ResumeUpdates(interfacer.MinigameState.DefaultUpdateMask);
+                    loadExitState.Phase = MinigameLoadExitPhase.None;
                     break;
                 case MinigameLoadExitPhase.Exiting:
                     Debug.Log("[MinigameLoadExitSystem] Exporting state...");
-                    m_StateB.MinigameState.ExportState(ref m_StateC);
+                    interfacer.MinigameState.ExportState(ref saveStates);
                     SaveUtility.Save(SaveSlot.Main);
-                    m_StateA.Phase = MinigameLoadExitPhase.SavingOnExit;
+                    loadExitState.Phase = MinigameLoadExitPhase.SavingOnExit;
                     break;
                 case MinigameLoadExitPhase.SavingOnExit:
-                    if (!m_StateE.Operation) {
+                    if (!saveOpState.Operation) {
                         // saving completed
-                        m_StateA.Phase = MinigameLoadExitPhase.Exited;
+                        loadExitState.Phase = MinigameLoadExitPhase.Exited;
                     }
                     break;
                 case MinigameLoadExitPhase.Exited:
                     Debug.Log("[MinigameLoadExitSystem] Exported!");
                     Game.Events.Dispatch(GameEvents.OnMinigameExit);
-                    Game.Scenes.LoadMainScene(m_StateD.ReturnScene);
-                    m_StateA.Phase = MinigameLoadExitPhase.None;
+                    Game.Scenes.LoadMainScene(returnState.ReturnScene);
+                    loadExitState.Phase = MinigameLoadExitPhase.None;
                     break;
                 default:
                     break;
