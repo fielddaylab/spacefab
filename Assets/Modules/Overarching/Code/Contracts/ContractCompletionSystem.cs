@@ -6,101 +6,104 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Overarching
-{
-    [SysUpdate(GameLoopPhase.Update, 10, UpdateMasks.ContractSystemsMask)]
-    public class ContractCompletionSystem : SharedStateSystemBehaviour<ContractCompletionState, ContractLayoutState, PlayerProgressState, ChapterState, AvailableContractsLookup>
-    {
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+namespace SpaceFab.Overarching {
+    /// <summary>
+    /// Plays the "return from the previously completed chapter" sequence: loads the previous
+    /// chapter's available contracts, animates in and out the completed-contract UI, clears
+    /// the last selected contract, and unloads. Runs on Update at order 10 under ContractSystemsMask.
+    /// </summary>
+    public class ContractCompletionSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 10, UpdateMasks.ContractSystemsMask),
+                new SysPermissions()
+                    .ReadWriteShared<ContractCompletionState>()
+                    .ReadWriteShared<ContractLayoutState>()
+                    .ReadWriteShared<ChapterState>()
+                    .ReadWriteShared<AvailableContractsLookup>()
+            );
         }
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // Steps the completion-sequence phase machine forward.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out ContractCompletionState completionState,
+                out ContractLayoutState layoutState,
+                out ChapterState chapterState,
+                out AvailableContractsLookup availableLookup
+                );
 
-            switch (m_StateA.Phase)
-            {
+            switch (completionState.Phase) {
                 case ContractCompletionPhase.BeginLoadFromPrevChapter:
-                    ProcessBeginLoadFromPrevChapter();
+                    ProcessBeginLoadFromPrevChapter(completionState, layoutState, chapterState, availableLookup);
                     break;
                 case ContractCompletionPhase.LoadFromPrevChapter:
-                    ProcessLoadFromPrevChapter();
+                    ProcessLoadFromPrevChapter(completionState, layoutState, chapterState, availableLookup);
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
-                    ProcessEnterPrevContract();
+                    ProcessEnterPrevContract(completionState, layoutState);
                     break;
                 case ContractCompletionPhase.EvaluatePreviousContract:
-                    ProcessEvaluatePrevContract();
+                    ProcessEvaluatePrevContract(completionState, layoutState);
                     break;
                 case ContractCompletionPhase.HidePreviousContract:
-                    ProcessHidePrevContract();
+                    ProcessHidePrevContract(completionState, layoutState, chapterState, availableLookup);
                     break;
                 case ContractCompletionPhase.UnloadFromPrevChapter:
-                    ProcessUnloadFromPrevChapter();
+                    ProcessUnloadFromPrevChapter(completionState, layoutState);
                     break;
                 default:
                     break;
             }
-
         }
 
-        #region Helpers
-
-        static private void ProcessBeginLoadFromPrevChapter()
-        {
-            m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
-            m_StateA.Phase = ContractCompletionPhase.LoadFromPrevChapter;
+        // Kicks off the load of the previously-available contracts.
+        static private void ProcessBeginLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
+            layoutState.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(completionState, chapterState, availableLookup));
+            completionState.Phase = ContractCompletionPhase.LoadFromPrevChapter;
         }
 
-        static private void ProcessLoadFromPrevChapter()
-        {
-            if (!m_StateB.CompletionRoutine.Exists())
-            {
-                ContractCompletionUtility.PopulateContractUI(m_StateA, m_StateB, m_StateD, m_StateE);
-                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(m_StateB));
-                m_StateA.Phase = ContractCompletionPhase.EnterPreviousContract;
+        // Once loaded, populates and animates in the completed-contract UI.
+        static private void ProcessLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
+            if (!layoutState.CompletionRoutine.Exists()) {
+                ContractCompletionUtility.PopulateContractUI(completionState, layoutState, chapterState, availableLookup);
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(layoutState));
+                completionState.Phase = ContractCompletionPhase.EnterPreviousContract;
             }
         }
 
-        static private void ProcessEnterPrevContract()
-        {
-            if (!m_StateB.CompletionRoutine.Exists())
-            {
-                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(m_StateB));
-                m_StateA.Phase = ContractCompletionPhase.EvaluatePreviousContract;
+        // After entry, runs the evaluate routine (currently a placeholder pause).
+        static private void ProcessEnterPrevContract(ContractCompletionState completionState, ContractLayoutState layoutState) {
+            if (!layoutState.CompletionRoutine.Exists()) {
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(layoutState));
+                completionState.Phase = ContractCompletionPhase.EvaluatePreviousContract;
             }
         }
 
-        static private void ProcessEvaluatePrevContract()
-        {
-            if (!m_StateB.CompletionRoutine.Exists())
-            {
-                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.HidePreviousRoutine(m_StateB));
-                m_StateA.Phase = ContractCompletionPhase.HidePreviousContract;
+        // After evaluation, animates the contract back out.
+        static private void ProcessEvaluatePrevContract(ContractCompletionState completionState, ContractLayoutState layoutState) {
+            if (!layoutState.CompletionRoutine.Exists()) {
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.HidePreviousRoutine(layoutState));
+                completionState.Phase = ContractCompletionPhase.HidePreviousContract;
             }
         }
 
-        static private void ProcessHidePrevContract()
-        {
-            if (!m_StateB.CompletionRoutine.Exists())
-            {
-                m_StateD.LastSelectedContractIndex = -1;
+        // Once hidden, clears the last-selected index and unloads previous-chapter contracts.
+        static private void ProcessHidePrevContract(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
+            if (!layoutState.CompletionRoutine.Exists()) {
+                chapterState.LastSelectedContractIndex = -1;
                 // Unload
-                m_StateB.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(m_StateA, m_StateD, m_StateE));
-                m_StateA.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(completionState, chapterState, availableLookup));
+                completionState.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
             }
         }
 
-        static private void ProcessUnloadFromPrevChapter()
-        {
-            if (!m_StateB.CompletionRoutine.Exists())
-            {
+        // Final phase — wait for unload, then mark the completion sequence finished.
+        static private void ProcessUnloadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState) {
+            if (!layoutState.CompletionRoutine.Exists()) {
                 // Complete
-                m_StateA.Phase = ContractCompletionPhase.Completed;
+                completionState.Phase = ContractCompletionPhase.Completed;
             }
         }
-
-        #endregion // Helpers
     }
 }

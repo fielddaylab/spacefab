@@ -5,14 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Fabrication.Movement
-{
+namespace SpaceFab.Fabrication.Movement {
     /// <summary>
-    /// Manages world (non-microgame) interactions and inputs
+    /// Manages world (non-microgame) interactions and inputs during a fabrication attempt.
+    /// Runs on any Update phase at order 1 under AttemptMask; gated by WorldInteractState.WorldInteractEnabled.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 1, UpdateMasks.AttemptMask)]
-    public class WorldInteractSystem : SharedStateSystemBehaviour<WorldInteractState, LayoutState>
-    {
+    public class WorldInteractSystem : SystemComponent {
         #region Input Mappings
 
         private const KeyCode Up0 = KeyCode.W;
@@ -25,28 +23,30 @@ namespace SpaceFab.Fabrication.Movement
 
         #endregion // Input Mappings
 
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.Update, 1, UpdateMasks.AttemptMask),
+                new SysPermissions()
+                    .ReadShared<WorldInteractState>()
+                    .ReadWriteShared<LayoutState>()
+            );
         }
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // Reads the world-interact gate and routes keyboard input to activate/cancel handlers.
+        static private void ProcessWork(float deltaTime) {
+            WorldInteractState interactState = Find.State<WorldInteractState>();
 
-            if (!m_StateA.WorldInteractEnabled) { return; }
+            if (!interactState.WorldInteractEnabled) { return; }
 
             ProcessInputs();
         }
 
-        static private void ProcessInputs()
-        {
-
-            if (Input.GetKeyDown(Up0) || Input.GetKeyDown(Up1) || Input.GetKeyDown(Activate))
-            {
+        // Dispatches up/down/activate keypresses. Placeholder — action branches are still stubs.
+        static private void ProcessInputs() {
+            if (Input.GetKeyDown(Up0) || Input.GetKeyDown(Up1) || Input.GetKeyDown(Activate)) {
                 // activate
             }
-            else if (Input.GetKeyDown(Down0) || Input.GetKeyDown(Down1))
-            {
+            else if (Input.GetKeyDown(Down0) || Input.GetKeyDown(Down1)) {
                 // cancel / close results
             }
         }

@@ -1,21 +1,25 @@
+using FieldDay;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Fabrication
-{
+namespace SpaceFab.Fabrication {
     /// <summary>
-    /// Manages the player's current attempt (from timer start to timer end)
+    /// Manages the player's current attempt (from timer start to timer end).
+    /// Runs on Update phase at order 0, no category mask. Currently a stub.
     /// </summary>
-    public class AttemptSystem : SharedStateSystemBehaviour<SequenceState>
-    {
-        static private void ProcessWork(float deltaTime) {
-            GetDependencies();
+    public class AttemptSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 0),
+                new SysPermissions()
+                    .ReadWriteShared<SequenceState>()
+            );
         }
 
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+        // TODO: implement attempt sequence progression.
+        static private void ProcessWork(float deltaTime) {
         }
     }
 }

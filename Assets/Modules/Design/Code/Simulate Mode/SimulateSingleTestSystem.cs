@@ -1,22 +1,25 @@
+using FieldDay;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Design
-{
+namespace SpaceFab.Design {
     /// <summary>
-    /// Manages running through a single test in the test suite.
+    /// Runs through a single test in the test suite.
+    /// Runs on Update at order 2 under SimulateModeMask. Currently a stub.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhase.Update, 2, UpdateMasks.SimulateModeMask)]
-    public class SimulateSingleTestSystem : SharedStateSystemBehaviour<SimulateUIState>
-    {
-        static private void ProcessWork(float deltaTime) {
-            GetDependencies();
+    public class SimulateSingleTestSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 2, UpdateMasks.SimulateModeMask),
+                new SysPermissions()
+                    .ReadWriteShared<SimulateUIState>()
+            );
         }
 
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+        // TODO: implement single-test run.
+        static private void ProcessWork(float deltaTime) {
         }
     }
 }

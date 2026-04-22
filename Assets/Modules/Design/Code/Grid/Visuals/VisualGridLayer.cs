@@ -75,7 +75,7 @@ namespace SpaceFab.Design
 
         #region Refresh
 
-        public void RefreshAll(ref SpriteDB spriteDB)
+        public void RefreshAll(SpriteDB spriteDB)
         {
             GridLayer layer = Find.State<GridStackState>().GridStack.GridLayers[LayerIndex];
 
@@ -85,7 +85,7 @@ namespace SpaceFab.Design
                 for (int col = 0; col < Dimensions.X; col++)
                 {
                     var cell = GridLayerUtility.GetCell(layer, col, row);
-                    VisualGridCellUtility.RefreshVisual(ref m_Cells[row * Dimensions.X + col], cell, LayerIndex, col, row, ref spriteDB);
+                    VisualGridCellUtility.RefreshVisual(ref m_Cells[row * Dimensions.X + col], cell, LayerIndex, col, row, spriteDB);
                 }
             }
         }

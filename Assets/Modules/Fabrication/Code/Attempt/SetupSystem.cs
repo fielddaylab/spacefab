@@ -1,29 +1,32 @@
+using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Fabrication
-{
+namespace SpaceFab.Fabrication {
     /// <summary>
-    /// Sets up data for a new attempt
+    /// Sets up data for a new fabrication attempt. Reshuffles stations when the layout requests it.
+    /// Runs in PreUpdate at order 0 under SetupMask.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.PreUpdate, 0, UpdateMasks.SetupMask)]
-    public class SetupSystem : SharedStateSystemBehaviour<WaferState, LayoutState>
-    {
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+    public class SetupSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.PreUpdate, 0, UpdateMasks.SetupMask),
+                new SysPermissions()
+                    .ReadWriteShared<WaferState>()
+                    .ReadWriteShared<LayoutState>()
+            );
         }
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // When the layout is flagged as needing a reshuffle, shuffle stations and clear the flag.
+        static private void ProcessWork(float deltaTime) {
+            LayoutState layoutState = Find.State<LayoutState>();
 
-            if (m_StateB.NeedsReshuffling)
-            {
-                LayoutUtility.ShuffleStations(m_StateB);
-                m_StateB.NeedsReshuffling = false;
+            if (layoutState.NeedsReshuffling) {
+                LayoutUtility.ShuffleStations(layoutState);
+                layoutState.NeedsReshuffling = false;
             }
         }
     }

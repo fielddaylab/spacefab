@@ -1,23 +1,25 @@
+using FieldDay;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Design
-{
+namespace SpaceFab.Design {
     /// <summary>
-    /// Manages running through a sequence of tests in the test suite.
-    /// Delegates to SimulateSingleTestSystem for each item in the multi-test sequence.
+    /// Runs through a sequence of tests in the test suite, delegating each one to SimulateSingleTestSystem.
+    /// Runs on Update at order 3 under SimulateModeMask. Currently a stub.
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhase.Update, 3, UpdateMasks.SimulateModeMask)]
-    public class SimulateMultiTestSystem : SharedStateSystemBehaviour<SimulateUIState>
-    {
-        static private void ProcessWork(float deltaTime) {
-            GetDependencies();
+    public class SimulateMultiTestSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 3, UpdateMasks.SimulateModeMask),
+                new SysPermissions()
+                    .ReadWriteShared<SimulateUIState>()
+            );
         }
 
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+        // TODO: implement multi-test sequencing.
+        static private void ProcessWork(float deltaTime) {
         }
     }
 }
