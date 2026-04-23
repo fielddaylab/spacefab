@@ -1,6 +1,4 @@
-using FieldDay;
 using FieldDay.Components;
-using SpaceFab.Fabrication.Sequence;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,9 +36,7 @@ namespace SpaceFab.Fabrication.Microgames
             // TODO: freeze mask position.
             if (!completedNormally) { return; }
 
-            float precision = ComputePrecision();
-            Find.State(out WaferState waferState, out SequenceState sequenceState);
-            WaferStateUtility.SetStepPrecision(waferState, sequenceState.CurrentStepIndex, precision);
+            MicrogameUtility.CommitStepPrecision(ComputePrecision());
         }
 
         public void OnExitComplete()
