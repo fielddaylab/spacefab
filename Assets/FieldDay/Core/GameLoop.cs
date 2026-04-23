@@ -77,7 +77,7 @@ namespace FieldDay {
         private int m_TargetFramerate = 60;
 
         [SerializeField]
-        private LanguageId m_DefaultLanguage = LanguageId.English;
+        private LanguageId m_DefaultLanguage = Languages.English;
 
         [SerializeField]
         private Sprite m_DefaultPixelSprite;
