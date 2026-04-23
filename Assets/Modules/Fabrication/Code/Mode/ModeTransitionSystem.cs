@@ -65,6 +65,11 @@ namespace SpaceFab.Fabrication {
         {
             // poll for leadin countdown completed
                 // start timer
+            Log.Msg("[AttemptLeadInSystem] countdown compeleted. Moving to Attempt Mode");
+
+            ModeUtility.SetNewMode(modeState, LevelMode.Attempt);
+            GameLoop.SuspendUpdates(UpdateMasks.AttemptLeadInMask);
+            GameLoop.ResumeUpdates(UpdateMasks.AttemptMask);
         }
 
         static private void ProcessAttempt(ModeState modeState)

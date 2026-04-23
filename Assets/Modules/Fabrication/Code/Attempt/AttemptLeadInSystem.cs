@@ -40,15 +40,6 @@ namespace SpaceFab.Fabrication {
                 // initiate countdown
                 Log.Msg("[AttemptLeadInSystem] TODO: running countdown");
             }
-            else
-            {
-                // TODO: poll for completed countdown
-                Log.Msg("[AttemptLeadInSystem] countdown compeleted. Moving to Attempt Mode");
-
-                ModeUtility.SetNewMode(modeState, LevelMode.Attempt);
-                GameLoop.SuspendUpdates(UpdateMasks.AttemptLeadInMask);
-                GameLoop.ResumeUpdates(UpdateMasks.AttemptMask);
-            }
         }
     }
 }
