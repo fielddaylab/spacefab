@@ -31,12 +31,40 @@ namespace SpaceFab.Fabrication.Sequence
     public struct StepRuntimeData
     {
         // True if this step's hint card is currently glitched. Set at reset time per the level's
-        // GlitchMode; cleared by SequenceUtility.UnglitchCurrentStep when the player visits Defrag.
+        // GlitchMode; cleared by SequenceUtility.UnglitchCurrentStep when the player completes the
+        // Defrag microgame.
         public bool IsGlitched;
 
         // True once the player has reached (completed) this step AND it was flagged as a checkpoint
         // in the level definition. Used by diagnostic / UI to show reached checkpoints.
         public bool WasCheckpointReached;
+    }
+
+    /// <summary>
+    /// Snapshot of game state captured when a checkpoint step completes. On a later misalignment,
+    /// SequenceUtility.RestoreCheckpoint writes these values back onto TimeState, WaferState, and
+    /// MovementState, then plays the lead-in and resumes. Valid only when SequenceState.HasCheckpoint
+    /// is true.
+    /// </summary>
+    [Serializable]
+    public struct SequenceCheckpoint
+    {
+        // Index of the checkpoint step within FabricationSequenceLevel.Steps. The sequence resumes
+        // at StepIndex + 1 on restore.
+        public int StepIndex;
+
+        // Time remaining on the attempt clock at the moment the checkpoint step completed. Unit
+        // matches TimeStateUtility.GetRemaining (TBD when TimeState is defined).
+        public float TimeRemaining;
+
+        // Wafer snapshot at the moment the checkpoint step completed. Restored via
+        // WaferStateUtility.RestoreSnapshot.
+        public WaferSnapshot WaferSnapshot;
+
+        // MovementState.CurrSlotPosition at the moment the checkpoint step completed. Restored by
+        // writing back onto MovementState and flagging SlotChangedThisFrame so StationControlSystem
+        // re-parks the robot at the matching AtStation.
+        public int SlotIndex;
     }
 
     /// <summary>
@@ -60,15 +88,11 @@ namespace SpaceFab.Fabrication.Sequence
         // Per-step runtime data (IsGlitched, WasCheckpointReached). Rebuilt on ResetSequence.
         [HideInInspector] public StepRuntimeData[] StepRuntime;
 
-        // ---- Checkpoint snapshot ----
         // Populated by SequenceUtility.CaptureCheckpoint when a checkpoint step completes. Read by
-        // SequenceUtility.RestoreCheckpoint on misalignment. Undefined when HasCheckpoint is false.
-
+        // SequenceUtility.RestoreCheckpoint on misalignment. The Checkpoint fields are valid only
+        // when HasCheckpoint is true.
         [HideInInspector] public bool HasCheckpoint;
-        [HideInInspector] public int CheckpointStepIndex;
-        [HideInInspector] public float CheckpointTimeRemaining;
-        [HideInInspector] public WaferSnapshot CheckpointWaferSnapshot;
-        [HideInInspector] public int CheckpointSlotIndex;
+        [HideInInspector] public SequenceCheckpoint Checkpoint;
 
         // BeauRoutine handle for the lead-in coroutine played during checkpoint restoration.
         public Routine RestoreRoutine;
@@ -84,10 +108,7 @@ namespace SpaceFab.Fabrication.Sequence
             CurrentStepIndex = 0;
             StepRuntime = null;
             HasCheckpoint = false;
-            CheckpointStepIndex = -1;
-            CheckpointTimeRemaining = 0f;
-            CheckpointWaferSnapshot = default;
-            CheckpointSlotIndex = -1;
+            Checkpoint = default;
             MisalignmentThisFrame = false;
         }
 

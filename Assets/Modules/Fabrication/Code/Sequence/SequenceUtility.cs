@@ -55,7 +55,7 @@ namespace SpaceFab.Fabrication.Sequence
             //   sequenceState.StepRuntime = new StepRuntimeData[level.Steps.Length]
             //   RollGlitches(sequenceState, level)
             //   sequenceState.HasCheckpoint = false
-            //   sequenceState.CheckpointStepIndex = -1
+            //   sequenceState.Checkpoint = default
             //   sequenceState.Status = SequenceStatus.Active
             //   Game.Events.Dispatch(GameEvents.FabSequenceReset)
         }
@@ -110,10 +110,12 @@ namespace SpaceFab.Fabrication.Sequence
         {
             // TODO:
             //   sequenceState.HasCheckpoint = true
-            //   sequenceState.CheckpointStepIndex = stepIndex
-            //   sequenceState.CheckpointTimeRemaining = TimeStateUtility.GetRemaining(timeState)
-            //   sequenceState.CheckpointWaferSnapshot = WaferStateUtility.TakeSnapshot(waferState)
-            //   sequenceState.CheckpointSlotIndex = movementState.CurrSlotPosition
+            //   sequenceState.Checkpoint = new SequenceCheckpoint {
+            //       StepIndex = stepIndex,
+            //       TimeRemaining = TimeStateUtility.GetRemaining(timeState),
+            //       WaferSnapshot = WaferStateUtility.TakeSnapshot(waferState),
+            //       SlotIndex = movementState.CurrSlotPosition,
+            //   }
             //   sequenceState.StepRuntime[stepIndex].WasCheckpointReached = true
             //   Game.Events.Dispatch(GameEvents.FabCheckpointReached)
         }
@@ -124,7 +126,7 @@ namespace SpaceFab.Fabrication.Sequence
         {
             // TODO:
             //   sequenceState.Status = SequenceStatus.Restoring
-            //   sequenceState.CurrentStepIndex = sequenceState.CheckpointStepIndex + 1
+            //   sequenceState.CurrentStepIndex = sequenceState.Checkpoint.StepIndex + 1
             //   Game.Events.Dispatch(GameEvents.FabCheckpointRestoreBegin)
             //   sequenceState.RestoreRoutine.Replace(RestoreCoroutine(sequenceState))
         }
@@ -137,9 +139,10 @@ namespace SpaceFab.Fabrication.Sequence
             //   WaferState waferState = Find.State<WaferState>()
             //   TimeState timeState = Find.State<TimeState>()
             //   MovementState movementState = Find.State<MovementState>()
-            //   WaferStateUtility.RestoreSnapshot(waferState, sequenceState.CheckpointWaferSnapshot)
-            //   TimeStateUtility.SetRemaining(timeState, sequenceState.CheckpointTimeRemaining)
-            //   movementState.CurrSlotPosition = sequenceState.CheckpointSlotIndex
+            //   ref SequenceCheckpoint cp = ref sequenceState.Checkpoint
+            //   WaferStateUtility.RestoreSnapshot(waferState, cp.WaferSnapshot)
+            //   TimeStateUtility.SetRemaining(timeState, cp.TimeRemaining)
+            //   movementState.CurrSlotPosition = cp.SlotIndex
             //   movementState.SlotChangedThisFrame = true   // so StationControlSystem re-parks at AtStation
             //   yield return RestoreLeadIn()
             //   sequenceState.Status = SequenceStatus.Active

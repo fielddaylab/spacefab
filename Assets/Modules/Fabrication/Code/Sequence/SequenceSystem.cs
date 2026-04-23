@@ -10,11 +10,12 @@ using UnityEngine;
 namespace SpaceFab.Fabrication.Sequence
 {
     /// <summary>
-    /// Drives the sequence state machine in response to station-control + movement one-frame flags.
-    /// On microgame completion, checks station id + wafer snapshot against the current step's
-    /// expected values and either advances or flags misalignment. On Defrag-station arrival, clears
-    /// the current step's glitch flag. Runs on Update at order 15 under AttemptMask (after
-    /// StationControlSystem at 5 and WorldInteractSystem at 10).
+    /// Drives the sequence state machine in response to station-control one-frame flags.
+    /// On microgame completion at a non-Defrag station, checks station id + wafer snapshot against
+    /// the current step's expected values and either advances or flags misalignment. On microgame
+    /// completion at the Defrag station, clears the current step's glitch flag (without advancing).
+    /// Runs on Update at order 15 under AttemptMask (after StationControlSystem at 5 and
+    /// WorldInteractSystem at 10).
     /// </summary>
     public class SequenceSystem : SystemComponent
     {
@@ -32,7 +33,7 @@ namespace SpaceFab.Fabrication.Sequence
             );
         }
 
-        // Handles defrag-station arrival (unglitch) and microgame-completed alignment checks.
+        // Processes this frame's microgame-completion event (if any) against the sequence.
         // Early-outs if the sequence isn't accepting progression this frame.
         static private void ProcessWork(float deltaTime)
         {
@@ -51,36 +52,32 @@ namespace SpaceFab.Fabrication.Sequence
                 return;
             }
 
-            HandleDefragArrival(sequenceState, movementState, layoutState);
             HandleMicrogameCompleted(sequenceState, stationState, movementState, layoutState, waferState, timeState);
         }
 
-        // If the robot just arrived (not departed) at the Defrag station, unglitch the current step.
-        // Does NOT advance the sequence or run any alignment check.
-        static private void HandleDefragArrival(SequenceState sequenceState, MovementState movementState, LayoutState layoutState)
-        {
-            // TODO:
-            //   if (!movementState.SlotChangedThisFrame) return
-            //   if (MovementUtility.IsTraveling(movementState)) return   // departure, not arrival
-            //   StationSlot slot = layoutState.StationSlots[movementState.CurrSlotPosition]
-            //   if (slot.AssignedStationInterfacer == null) return
-            //   if (SequenceUtility.IsDefragStation(slot.AssignedStationInterfacer.Id))
-            //       SequenceUtility.UnglitchCurrentStep(sequenceState)
-        }
-
-        // On microgame completion: verify the station was the expected one for the current step
-        // AND the wafer matches the expected snapshot. Advance or flag misalignment accordingly.
-        // Defrag completions are ignored (Defrag never consumes a step).
+        // On microgame completion:
+        //   - If the completed station was the Defrag station, unglitch the current step (does NOT advance).
+        //   - Otherwise verify the station matched the current step AND the wafer matches the expected
+        //     snapshot. Advance on success, flag misalignment on failure.
+        // A microgame that is cancelled (rather than completed) does NOT trigger either path, because
+        // StationControlState.MicrogameCompletedThisFrame is only set on a normal completion.
         static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState)
         {
             // TODO:
             //   if (!stationState.MicrogameCompletedThisFrame) return
             //   if (sequenceState.Status != SequenceStatus.Active) return   // can't complete a step during Restoring
-            //   FabricationStep? step = SequenceUtility.GetCurrentStep(sequenceState)
-            //   if (step == null) return
             //   MicrogameStationInterfacer interfacer = layoutState.StationSlots[movementState.CurrSlotPosition].AssignedStationInterfacer
             //   if (interfacer == null) return
-            //   if (SequenceUtility.IsDefragStation(interfacer.Id)) return
+            //
+            //   // Defrag branch: completion at the Defrag station unglitches without advancing.
+            //   if (SequenceUtility.IsDefragStation(interfacer.Id)) {
+            //       SequenceUtility.UnglitchCurrentStep(sequenceState)
+            //       return
+            //   }
+            //
+            //   // Non-Defrag branch: check station + wafer against the current step.
+            //   FabricationStep? step = SequenceUtility.GetCurrentStep(sequenceState)
+            //   if (step == null) return
             //   SerializedHash32 expectedStation = Find.GlobalAsset<SequenceLookup>().GetStationForStep(step.Value.StepId)
             //   if (interfacer.Id != expectedStation) {
             //       SequenceUtility.FlagMisalignment(sequenceState)
