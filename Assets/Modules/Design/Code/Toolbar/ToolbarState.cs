@@ -172,7 +172,7 @@ namespace SpaceFab.Design {
 
                 button.Available = available;
                 button.gameObject.SetActive(available);
-                if (button.PointerListener != null) { button.PointerListener.enabled = available; }
+                if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
             }
         }
     }

@@ -2,6 +2,7 @@ using BeauUtil.UI;
 using FieldDay.Components;
 using FieldDay;
 using UnityEngine;
+using SpaceFab.UI;
 
 namespace SpaceFab.Design {
     /// <summary>
@@ -35,9 +36,10 @@ namespace SpaceFab.Design {
         // selected tool's row.
         public StackLayer Row;
 
-        // The pointer listener component on this button's GameObject (assigned in inspector).
+
+        // The dynamic button component on this button's GameObject (assigned in inspector).
         // Its onClick / onPointerEnter / onPointerExit events drive the one-frame flags below.
-        public PointerListener PointerListener;
+        public DynamicButton DynamicButton;
 
         [Header("Visuals")]
         // RectTransform the selection arrow should snap to when this button is selected.
@@ -52,22 +54,22 @@ namespace SpaceFab.Design {
 
         // Set by ToolbarAvailabilityUtility when the current level's allowed-tools mask is
         // applied. Unavailable buttons have Available=false AND gameObject.SetActive(false)
-        // AND PointerListener disabled — but select/refresh systems guard against stale flags
+        // AND DynamicButton disabled — but select/refresh systems guard against stale flags
         // anyway, in case something flips a flag during a scene transition race.
         [HideInInspector] public bool Available = true;
 
         public void OnRegister() {
-            if (PointerListener == null) { return; }
-            PointerListener.onClick.AddListener(HandleClick);
-            PointerListener.onPointerEnter.AddListener(HandlePointerEnter);
-            PointerListener.onPointerExit.AddListener(HandlePointerExit);
+            if (DynamicButton == null) { return; }
+            DynamicButton.onClick.AddListener(HandleClick);
+            DynamicButton.onPointerEnter.AddListener(HandlePointerEnter);
+            DynamicButton.onPointerExit.AddListener(HandlePointerExit);
         }
 
         public void OnDeregister() {
-            if (PointerListener == null) { return; }
-            PointerListener.onClick.RemoveListener(HandleClick);
-            PointerListener.onPointerEnter.RemoveListener(HandlePointerEnter);
-            PointerListener.onPointerExit.RemoveListener(HandlePointerExit);
+            if (DynamicButton == null) { return; }
+            DynamicButton.onClick.RemoveListener(HandleClick);
+            DynamicButton.onPointerEnter.RemoveListener(HandlePointerEnter);
+            DynamicButton.onPointerExit.RemoveListener(HandlePointerExit);
         }
 
         #region Pointer Handlers

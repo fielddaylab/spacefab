@@ -3,15 +3,15 @@ using FieldDay.Systems;
 
 namespace SpaceFab.Design {
     /// <summary>
-    /// Clears the toolbar's one-frame input flags at end of frame. Runs on LateUpdate at
-    /// order 100 under ToolModeMask so every earlier consumer (ToolbarSelectSystem on
-    /// PreUpdate, ToolbarVisualsUpdateSystem on LateUpdate order 0) has seen the flags
+    /// Clears the toolbar's one-frame input flags at end of frame. Runs on Update at
+    /// order 0 under ToolModeMask so every earlier consumer (ToolbarSelectSystem on
+    /// PreUpdate 0, ToolbarVisualsUpdateSystem on PreUpdate order 10) has seen the flags
     /// before they're wiped.
     /// </summary>
     public class ToolbarRefreshSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.LateUpdate, 100, UpdateMasks.ToolModeMask),
+                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ToolModeMask),
                 new SysPermissions()
                     .ReadWrite<ToolbarButton>()
                     .ReadWriteShared<ToolbarState>()
