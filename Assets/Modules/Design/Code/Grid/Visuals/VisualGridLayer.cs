@@ -79,13 +79,20 @@ namespace SpaceFab.Design
         {
             GridLayer layer = Find.State<GridStackState>().GridStack.GridLayers[LayerIndex];
 
+            // Per-cell flow + temp-transform reads go through SimulateRunScratch now. Grab it
+            // once up front — may be null if Simulate mode was never entered this session, in
+            // which case VisualGridCellUtility defaults to empty flow + no temp-transform.
+            SimulateRunScratch scratch = Find.State<SimulateRunScratch>();
+            int cellsPerLayer = Dimensions.X * Dimensions.Y;
+
             // Cell by cell, update renderer with data
             for (int row = 0; row < Dimensions.Y; row++)
             {
                 for (int col = 0; col < Dimensions.X; col++)
                 {
                     var cell = GridLayerUtility.GetCell(layer, col, row);
-                    VisualGridCellUtility.RefreshVisual(ref m_Cells[row * Dimensions.X + col], cell, LayerIndex, col, row, spriteDB);
+                    int cellIndex = SimulateRunScratchUtility.CellIndex(LayerIndex, col, row, Dimensions.X, cellsPerLayer);
+                    VisualGridCellUtility.RefreshVisual(ref m_Cells[row * Dimensions.X + col], cell, scratch, cellIndex, LayerIndex, col, row, spriteDB);
                 }
             }
         }

@@ -32,9 +32,15 @@ namespace SpaceFab.Design
         private const int VIA_SORT_ORDER = 100;
         private const int TRANSISTOR_SORT_ORDER = 0;
 
-        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, int layerIndex, SpriteDB spriteDB)
+        // Per-cell flow state now lives in SimulateRunScratch rather than on GridCell. Callers
+        // pass the pre-fetched scratch + cellIndex so this helper doesn't repeat the Find.State
+        // lookup for every cell on the grid. During Tool mode, scratch may be null (Simulate
+        // mode never entered) — the null-guard here falls back to FlowState.Empty for every cell.
+        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, SimulateRunScratch scratch, int cellIndex, int layerIndex, SpriteDB spriteDB)
         {
-            var flow = cell.FlowState;
+            FlowState flow = scratch != null
+                ? SimulateRunScratchUtility.GetCellFlow(scratch, cellIndex)
+                : FlowState.Empty;
             // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder += 50;
@@ -121,7 +127,7 @@ namespace SpaceFab.Design
             }
         }
 
-        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, int layerIndex, int col, int row, SpriteDB spriteDB)
+        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, SimulateRunScratch scratch, int cellIndex, int layerIndex, int col, int row, SpriteDB spriteDB)
         {
             PathLibrary.AssembledPathData pathData = default;
             bool lookedUpEdge = false;
@@ -146,10 +152,10 @@ namespace SpaceFab.Design
                     lookedUpEdge = true;
                     break;
                 case CellType.NTransistor:
-                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, spriteDB);
+                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, scratch, cellIndex, layerIndex, col, row, spriteDB);
                     break;
                 case CellType.PTransistor:
-                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, spriteDB);
+                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, scratch, cellIndex, layerIndex, col, row, spriteDB);
                     break;
                 case CellType.Input:
                     visualCell.PathRenderer.sprite = spriteDB.IOOuter;
@@ -205,19 +211,28 @@ namespace SpaceFab.Design
                 visualCell.FlowMask.sprite = pathData.Sprite;
             }
 
-            UpdateFlowVisuals(visualCell, cellData, layerIndex, spriteDB);
+            UpdateFlowVisuals(visualCell, cellData, scratch, cellIndex, layerIndex, spriteDB);
         }
 
-        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, SpriteDB spriteDB)
+        // Helper: per-cell temp-transform read, null-safe for Tool mode (scratch may not yet
+        // be initialized or the player may not have entered Simulate this session).
+        private static CellType GetTempTransform(SimulateRunScratch scratch, int cellIndex)
+        {
+            if (scratch == null) { return CellType.NONE; }
+            return SimulateRunScratchUtility.GetCellTempTransform(scratch, cellIndex);
+        }
+
+        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, SimulateRunScratch scratch, int cellIndex, int layerIndex, int col, int row, SpriteDB spriteDB)
         {
             var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
             spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
             lookedUpEdge = true;
             visualCell.PathRenderer.color = spriteDB.NColor;
 
-            if (cellData.TempTransformation != CellType.NONE)
+            CellType selfTempTransform = GetTempTransform(scratch, cellIndex);
+            if (selfTempTransform != CellType.NONE)
             {
-                if (cellData.TempTransformation == CellType.PTransistor)
+                if (selfTempTransform == CellType.PTransistor)
                 {
                     visualCell.PathOverlayRenderer.sprite = spriteDB.InvertedOverlay;
                     visualCell.PathOverlayBaseRenderer.sprite = spriteDB.InvertedOverlayBase;
@@ -229,6 +244,8 @@ namespace SpaceFab.Design
             }
 
             GridStackState stackState = Find.State<GridStackState>();
+            Dimensions dims = stackState.GridStack.LayerDims;
+            int cellsPerLayer = dims.X * dims.Y;
 
             // set dir renderers
             for (int i = 0; i < 4; i++)
@@ -254,7 +271,9 @@ namespace SpaceFab.Design
                         // if P, set N to P half of renderer
                         if (adjCell.CellType == CellType.PTransistor)
                         {
-                            if (cellData.TempTransformation != CellType.PTransistor && adjCell.TempTransformation != CellType.NTransistor)
+                            int adjCellIndex = SimulateRunScratchUtility.CellIndex(layerIndex, adjCol, adjRow, dims.X, cellsPerLayer);
+                            CellType adjTempTransform = GetTempTransform(scratch, adjCellIndex);
+                            if (selfTempTransform != CellType.PTransistor && adjTempTransform != CellType.NTransistor)
                             {
                                 visualCell.DirRenderers[i].sprite = spriteDB.NSide;
                             }
@@ -264,16 +283,17 @@ namespace SpaceFab.Design
             }
         }
 
-        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, SpriteDB spriteDB)
+        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, SimulateRunScratch scratch, int cellIndex, int layerIndex, int col, int row, SpriteDB spriteDB)
         {
             var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
             spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
             lookedUpEdge = true;
             visualCell.PathRenderer.color = spriteDB.PColor;
 
-            if (cellData.TempTransformation != CellType.NONE)
+            CellType selfTempTransform = GetTempTransform(scratch, cellIndex);
+            if (selfTempTransform != CellType.NONE)
             {
-                if (cellData.TempTransformation == CellType.NTransistor)
+                if (selfTempTransform == CellType.NTransistor)
                 {
                     visualCell.PathOverlayRenderer.sprite = spriteDB.InvertedOverlay;
                     visualCell.PathOverlayBaseRenderer.sprite = spriteDB.InvertedOverlayBase;
@@ -285,6 +305,8 @@ namespace SpaceFab.Design
             }
 
             GridStackState stackState = Find.State<GridStackState>();
+            Dimensions dims = stackState.GridStack.LayerDims;
+            int cellsPerLayer = dims.X * dims.Y;
 
             // set dir renderers
             for (int i = 0; i < 4; i++)
@@ -310,7 +332,9 @@ namespace SpaceFab.Design
                         // if P, set N to P half of renderer
                         if (adjCell.CellType == CellType.NTransistor)
                         {
-                            if (cellData.TempTransformation != CellType.NTransistor && adjCell.TempTransformation != CellType.PTransistor)
+                            int adjCellIndex = SimulateRunScratchUtility.CellIndex(layerIndex, adjCol, adjRow, dims.X, cellsPerLayer);
+                            CellType adjTempTransform = GetTempTransform(scratch, adjCellIndex);
+                            if (selfTempTransform != CellType.NTransistor && adjTempTransform != CellType.PTransistor)
                             {
                                 visualCell.DirRenderers[i].sprite = spriteDB.PSide;
                             }

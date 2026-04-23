@@ -21,6 +21,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<SimulateRunState>()
                     .ReadWriteShared<SimulateGraphState>()
                     .ReadWriteShared<SimulateGraphBuildScratch>()
+                    .ReadWriteShared<SimulateRunScratch>()
                     .ReadShared<GridStackState>()
                     .ReadWriteShared<SimulateUIState>()
             );
@@ -35,6 +36,9 @@ namespace SpaceFab.Design
             //   TODO: Find.State<GridStackState>() + Find.State<SimulateGraphBuildScratch>().
             //         SimulateGraphUtility.Build(graphState, scratch, gridStackState).
             //         After Build: graphState.IsBuilt == true, ready for PreparingTest.
+            //   TODO: SimulateRunScratchUtility.EnsureCapacity(runScratch, graphState.NodeCount, cellCount).
+            //         Then walk graphState.CrucialNodes counting CellType.Output nodes and call
+            //         SimulateRunScratchUtility.SizeOutputBuffer(runScratch, outputCount).
             //   TODO: runState.Phase = SimulatePhase.Idle.
             //   TODO: GameLoop.SuspendUpdates(UpdateMasks.ToolModeMask);
             //         GameLoop.ResumeUpdates(UpdateMasks.SimulateModeMask).
@@ -42,6 +46,7 @@ namespace SpaceFab.Design
             // On Simulate → Tool (entered via Cancelling, or eventually via explicit dismiss-then-exit):
             //   TODO: SimulateGraphUtility.Clear(graphState)  — keeps arrays, resets counts + IsBuilt.
             //         Scratch is NOT cleared (its arrays survive across sessions for zero-GC reuse).
+            //   TODO: SimulateRunScratchUtility.BumpFlowStamp(runScratch) — visuals see empty flow.
             //   TODO: GameLoop.SuspendUpdates(UpdateMasks.SimulateModeMask);
             //         GameLoop.ResumeUpdates(UpdateMasks.ToolModeMask).
         }

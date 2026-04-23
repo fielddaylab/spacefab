@@ -77,9 +77,6 @@ namespace SpaceFab.Design
 
         #endregion // Save Data
 
-        public FlowState FlowState;
-        public CellType TempTransformation;
-
         #region Loading
 
         public void LoadCellConfig(GridCellConfig config)

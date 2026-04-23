@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Design.Visuals;
 
 namespace SpaceFab.Design
 {
@@ -18,8 +19,10 @@ namespace SpaceFab.Design
                 new SysPermissions()
                     .ReadWriteShared<SimulateRunState>()
                     .ReadWriteShared<SimulateGraphState>()
+                    .ReadWriteShared<SimulateRunScratch>()
                     .ReadShared<GridStackState>()
                     .ReadWriteShared<SimulateUIState>()
+                    .ReadWriteShared<VisualGridStackState>()
             );
         }
 
@@ -29,9 +32,13 @@ namespace SpaceFab.Design
             Find.State(
                 out SimulateRunState runState,
                 out SimulateGraphState graphState,
+                out SimulateRunScratch runScratch,
                 out GridStackState gridStackState
                 );
-            SimulateUIState uiState = Find.State<SimulateUIState>();
+            Find.State(
+                out SimulateUIState uiState,
+                out VisualGridStackState visualState
+                );
 
             // Universal high-priority request: Cancel beats everything except Cancelling itself.
             if (runState.Phase != SimulatePhase.Cancelling && runState.CancelRequested)
@@ -46,7 +53,7 @@ namespace SpaceFab.Design
                     ProcessIdle(runState);
                     break;
                 case SimulatePhase.PreparingTest:
-                    ProcessPreparingTest(runState, gridStackState, uiState);
+                    ProcessPreparingTest(runState, runScratch, graphState, uiState, visualState);
                     break;
                 case SimulatePhase.Propagating:
                     ProcessPropagating(runState, graphState, uiState, deltaTime);
@@ -55,13 +62,13 @@ namespace SpaceFab.Design
                     ProcessPaused(runState);
                     break;
                 case SimulatePhase.ResolvingTest:
-                    ProcessResolvingTest(runState, graphState, uiState);
+                    ProcessResolvingTest(runState, runScratch, graphState, uiState);
                     break;
                 case SimulatePhase.SuiteComplete:
                     ProcessSuiteComplete(runState, uiState);
                     break;
                 case SimulatePhase.Cancelling:
-                    ProcessCancelling(runState, graphState, gridStackState, uiState);
+                    ProcessCancelling(runState, runScratch, graphState, uiState, visualState);
                     break;
             }
         }
@@ -82,16 +89,60 @@ namespace SpaceFab.Design
             //           dispatch DesignSimPlayStarted.
         }
 
-        // PreparingTest: reset per-row sim state on grid (flow, temp inversions), push inputs to UI.
-        // Advances to Propagating immediately.
-        static private void ProcessPreparingTest(SimulateRunState runState, GridStackState gridStackState, SimulateUIState uiState)
+        // PreparingTest: reset per-row sim state, prime input flows, advance to Propagating.
+        // Runs exactly once per test-row start.
+        //
+        // Reset strategy:
+        //   - Per-node transient arrays (NodeFlow / NodeTempTransform): Array.Clear on 0..NodeCount.
+        //     NodeCount is tens at most — effectively free.
+        //   - Per-cell transient state (CellFlow / CellTempTransform): BumpFlowStamp. Single int
+        //     increment invalidates every per-cell mark from the prior test.
+        //   - Edge state: none to reset. Cycle-detection flags are durable on CrucialEdge and
+        //     computed at Build time, not per test.
+        static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
         {
-            // TODO: reset FlowState/TempTransformation on all grid cells (per-row wipe).
-            // TODO: zero CurrFlowState/TempTransformedType on CrucialNodes (once graph-state fields exist).
-            // TODO: SimulateUIUtility.WriteRowInputs(uiState, CurrentRow, suite.Tests[CurrentRow]).
-            // TODO: runState.IsUnstable = false.
-            // TODO: runState.CurrentDepth = 0; runState.PhaseTimer = 0; Phase = Propagating.
-            // TODO: dispatch DesignSimRowStarted with CurrentRow payload.
+            // Per-node transient reset. Cheap: NodeCount is small.
+            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+
+            // Per-cell transient reset. O(1) — stamp bump invalidates all prior flow + temp-
+            // transform writes without touching the arrays themselves.
+            SimulateRunScratchUtility.BumpFlowStamp(runScratch);
+
+            // Prime InputFlowByNode for this row. Walk Input crucial nodes and materialize their
+            // test-row value once; DepthStepSystem reads from the array per edge, avoiding a
+            // per-edge TestData scan.
+            //
+            // MISSING DEPENDENCY: TestSuiteData for the current level is not yet plumbed through
+            // to Design's runtime state. When that pipeline lands (LevelData threaded through
+            // ContractAssetsWrapper → DesignMinigameState → here), uncomment the block below
+            // and delete this TODO. For now, InputFlowByNode stays zeroed (FlowState.Empty)
+            // which means Input-origin edges will propagate empty flow — harmless in the
+            // scaffold, but Simulate mode will not produce correct results until wired.
+            //
+            // TODO(level-data): replace with:
+            //   TestSuiteData suite = /* current level's test suite */;
+            //   TestData currTest = suite.Tests[runState.CurrentRow];
+            //   for (int i = 0; i < graphState.NodeCount; i++) {
+            //       CrucialNode node = graphState.CrucialNodes[i];
+            //       GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
+            //       if (cell.CellType == CellType.Input) {
+            //           runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+            //       }
+            //   }
+            //   SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
+
+            // Mark visuals dirty so GridVisualsUpdateSystem redraws the now-empty-flow grid.
+            visualState.VisualsNeedRefreshing = true;
+
+            runState.IsUnstable = false;
+            runScratch.IsUnstable = false;
+            uiState.HighlightedRowIndex = runState.CurrentRow;
+
+            runState.CurrentDepth = 0;
+            runState.PhaseTimer = 0f;
+            runState.Phase = SimulatePhase.Propagating;
+
+            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
         }
 
         // Propagating: per-depth paint rhythm.
@@ -126,20 +177,53 @@ namespace SpaceFab.Design
         }
 
         // ResolvingTest: score outputs for CurrentRow, write verdict, advance to next row or finish.
-        static private void ProcessResolvingTest(SimulateRunState runState, SimulateGraphState graphState, SimulateUIState uiState)
+        //
+        // Per the flow-propagation plan, this handler reads per-output flow from runScratch.NodeFlow
+        // into runScratch.OutputFlowBuffer and compares each to expected values from the current
+        // test row. Only the OutputFlowBuffer collection is in scope for the propagation port;
+        // verdict decision, row advancement, and suite-completion wiring remain scaffolded until
+        // the phase machine's control-flow handlers are implemented.
+        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState)
         {
-            // TODO: compute allCorrect by comparing CrucialNode output flows to expected suite values.
-            //       verdict = IsUnstable ? Unstable : (allCorrect ? Correct : Incorrect).
-            // TODO: SimulateControlUtility.SetVerdict(runState, CurrentRow, verdict).
-            // TODO: SimulateUIUtility.WriteRowVerdict(uiState, CurrentRow, verdict, outputFlows).
-            // TODO: dispatch DesignSimRowResolved with (CurrentRow, verdict).
+            // MISSING DEPENDENCY: same level-data gap as ProcessPreparingTest. When the current
+            // level's TestSuiteData is reachable here, scoring can be wired. For now, collect
+            // OutputFlowBuffer from runScratch.NodeFlow so downstream consumers have somewhere
+            // to read from.
             //
-            // Advance based on Scope:
-            // TODO: if Scope == SingleTest → Phase = SuiteComplete; SimulateUIUtility.ShowResultsPanel(...).
-            //       dispatch DesignSimSuiteComplete.
-            // TODO: if Scope == FullSuite:
-            //         if CurrentRow + 1 < RowVerdicts.Length → CurrentRow++; Phase = PreparingTest.
-            //         else → Phase = SuiteComplete; SimulateUIUtility.ShowResultsPanel(...); dispatch DesignSimSuiteComplete.
+            // TODO(level-data): replace with full scoring:
+            //   TestSuiteData suite = /* current level's test suite */;
+            //   TestData currTest = suite.Tests[runState.CurrentRow];
+            //   bool allCorrect = true;
+            //   int outputIdx = 0;
+            //   for (int i = 0; i < graphState.NodeCount; i++) {
+            //       CrucialNode node = graphState.CrucialNodes[i];
+            //       GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
+            //       if (cell.CellType != CellType.Output) { continue; }
+            //       FlowState actual = runScratch.NodeFlow[i];
+            //       FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+            //       runScratch.OutputFlowBuffer[outputIdx++] = actual;
+            //       if (actual != expected) { allCorrect = false; }
+            //   }
+            //   TestRowVerdict verdict = runState.IsUnstable
+            //       ? TestRowVerdict.Unstable
+            //       : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
+            //   SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
+            //   SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, verdict, runScratch.OutputFlowBuffer);
+            //   Game.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
+            //
+            //   Advance based on Scope:
+            //   if (runState.Scope == RunScope.SingleTest) {
+            //       runState.Phase = SimulatePhase.SuiteComplete;
+            //       SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
+            //       Game.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            //   } else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length) {
+            //       runState.CurrentRow++;
+            //       runState.Phase = SimulatePhase.PreparingTest;
+            //   } else {
+            //       runState.Phase = SimulatePhase.SuiteComplete;
+            //       SimulateUIUtility.ShowResultsPanel(uiState, /* aggregate of RowVerdicts */);
+            //       Game.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            //   }
         }
 
         // SuiteComplete: wait on Dismiss or new Play request. Cancel handled at top.
@@ -155,9 +239,15 @@ namespace SpaceFab.Design
         }
 
         // Cancelling: wipe sim visuals and exit Simulate mode via ModeTransitionState.
-        static private void ProcessCancelling(SimulateRunState runState, SimulateGraphState graphState, GridStackState gridStackState, SimulateUIState uiState)
+        //
+        // Flow-wipe is O(1): bump CurrentFlowStamp, which invalidates every per-cell flow and
+        // temp-transform mark. GridVisualsUpdateSystem then redraws with empty flow.
+        static private void ProcessCancelling(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
         {
-            // TODO: reset FlowState/TempTransformation on every grid cell.
+            SimulateRunScratchUtility.BumpFlowStamp(runScratch);
+            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+            visualState.VisualsNeedRefreshing = true;
+
             // TODO: SimulateUIUtility.ClearAllEvalMarks(uiState); HideResultsPanel(uiState).
             // TODO: dispatch DesignSimCancelled.
             // TODO: request Simulate→Tool transition via ModeTransitionState (or directly:

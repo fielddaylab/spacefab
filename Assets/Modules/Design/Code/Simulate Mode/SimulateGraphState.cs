@@ -83,6 +83,12 @@ namespace SpaceFab.Design
         // node." Sized to cellCount and reset per build.
         [HideInInspector] public int[] CellToCrucial;
 
+        // Per-depth edge range table. DepthEdgeStart[d] is the first index in OrderedEdges whose
+        // EvalDepth == d; DepthEdgeStart[MaxDepth + 1] == EdgeCount (sentinel). Lets
+        // DepthStepSystem iterate exactly the edges at CurrentDepth without scanning the full
+        // edge list. Populated by Pass 3 as a byproduct of the bucket-sort prefix-sum.
+        [HideInInspector] public int[] DepthEdgeStart;
+
         public void OnRegister()
         {
             // Arrays stay null until first Build. Clear is also safe to call before first Build
@@ -950,6 +956,10 @@ namespace SpaceFab.Design
             }
 
             int bucketCount = maxDepth + 1;
+
+            // Ensure DepthEdgeStart can hold one entry per bucket + a sentinel at [maxDepth+1].
+            EnsureCapacity(ref graphState.DepthEdgeStart, bucketCount + 1, nameof(graphState.DepthEdgeStart));
+
             const int StackHistogramCap = 64;
 
             if (bucketCount <= StackHistogramCap)
@@ -963,6 +973,10 @@ namespace SpaceFab.Design
             }
 
             graphState.EdgeCount = scratch.UnsortedEdgeCount;
+
+            // DepthEdgeStart[maxDepth+1] is the sentinel consumed by DepthStepSystem's
+            // "edges at depth d are [DepthEdgeStart[d], DepthEdgeStart[d+1])" slice math.
+            graphState.DepthEdgeStart[bucketCount] = graphState.EdgeCount;
         }
 
         private static unsafe void BucketSortWithStackHistogram(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int bucketCount)
@@ -980,6 +994,10 @@ namespace SpaceFab.Design
             {
                 int c = counts[d];
                 counts[d] = running;
+                // Snapshot the per-depth start BEFORE the placement pass mutates counts[d] as
+                // a write cursor. After this loop, DepthEdgeStart[d] is the first index in
+                // OrderedEdges at depth d.
+                graphState.DepthEdgeStart[d] = running;
                 running += c;
             }
 
@@ -1004,6 +1022,9 @@ namespace SpaceFab.Design
             {
                 int c = counts[d];
                 counts[d] = running;
+                // Snapshot per-depth start before placement mutates counts[d]. See
+                // BucketSortWithStackHistogram for the full comment.
+                graphState.DepthEdgeStart[d] = running;
                 running += c;
             }
 
