@@ -138,12 +138,12 @@ GameObject:
   - component: {fileID: 296846320}
   - component: {fileID: 296846319}
   - component: {fileID: 296846318}
-  - component: {fileID: 296846317}
-  - component: {fileID: 296846316}
   - component: {fileID: 296846315}
   - component: {fileID: 296846323}
   - component: {fileID: 296846324}
   - component: {fileID: 296846325}
+  - component: {fileID: 296846328}
+  - component: {fileID: 296846327}
   m_Layer: 0
   m_Name: Design Systems
   m_TagString: Untagged
@@ -212,30 +212,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a19a243ac12471b42a780d7fa64863be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &296846316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 296846309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c5a3fcf990c3974cad601f24d5b35c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &296846317
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 296846309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d65322db277ed7d448aca56f98d44719, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &296846318
@@ -320,6 +296,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &296846327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296846309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d65322db277ed7d448aca56f98d44719, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &296846328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296846309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5854fefd22b0914fa3a9d5dad255ebf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &306378643
@@ -425,6 +425,8 @@ GameObject:
   - component: {fileID: 709705234}
   - component: {fileID: 709705235}
   - component: {fileID: 709705236}
+  - component: {fileID: 709705238}
+  - component: {fileID: 709705237}
   m_Layer: 0
   m_Name: Design States
   m_TagString: Untagged
@@ -500,6 +502,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8339c3c477904834591d962f5f627680, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TableBuilt: 0
+  ResultsPanelVisible: 0
+  HighlightedRowIndex: 0
+  UnstableBannerVisible: 0
 --- !u!114 &709705231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -605,6 +611,51 @@ MonoBehaviour:
   CellVisualsPrefab: {fileID: 7491586742496098000, guid: 5e63d36db710719419baa63678ee62a5, type: 3}
   CellVisualsContainer: {fileID: 881779355}
   VisualsNeedRefreshing: 0
+--- !u!114 &709705237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709705224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9202cdbb1b972d447afd574b6552c272, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsBuilt: 0
+  MaxDepth: 0
+--- !u!114 &709705238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709705224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fbc6c0398f3f90428df5d8b61d9c462, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Phase: 0
+  Scope: 0
+  CurrentRow: 0
+  RequestedRowIndex: 0
+  CurrentDepth: 0
+  PhaseTimer: 0
+  PaintDepthThisFrame: 0
+  IsUnstable: 0
+  InterDepthDelay: 0.5
+  InterTestDelay: 2
+  PlayFullSuiteRequested: 0
+  PlaySingleTestRequested: 0
+  PauseRequested: 0
+  ResumeRequested: 0
+  RestartTestRequested: 0
+  RestartSuiteRequested: 0
+  CancelRequested: 0
+  DismissResultsRequested: 0
+  RowVerdicts: 
 --- !u!1 &881779354
 GameObject:
   m_ObjectHideFlags: 0
