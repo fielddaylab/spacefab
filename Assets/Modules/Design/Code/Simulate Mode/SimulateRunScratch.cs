@@ -149,10 +149,11 @@ namespace SpaceFab.Design
 
         // Cell-flow read. Returns FlowState.Empty if the cell's stamp is stale (i.e. the last
         // write happened in a previous test or never at all). Safe to call from the visuals
-        // layer on every cell during RefreshAll.
+        // layer on every cell during RefreshAll, including during Tool mode when arrays may
+        // be uninitialized or undersized (Simulate mode never entered this session).
         public static FlowState GetCellFlow(SimulateRunScratch scratch, int cellIndex)
         {
-            if (scratch.CellFlowStamps == null) { return FlowState.Empty; }
+            if (scratch.CellFlowStamps == null || cellIndex < 0 || cellIndex >= scratch.CellFlowStamps.Length) { return FlowState.Empty; }
             if (scratch.CellFlowStamps[cellIndex] != scratch.CurrentFlowStamp) { return FlowState.Empty; }
             return scratch.CellFlow[cellIndex];
         }
@@ -161,7 +162,7 @@ namespace SpaceFab.Design
         // is stale — own stamp array, tracked independently from CellFlow.
         public static CellType GetCellTempTransform(SimulateRunScratch scratch, int cellIndex)
         {
-            if (scratch.CellTempTransformStamps == null) { return CellType.NONE; }
+            if (scratch.CellTempTransformStamps == null || cellIndex < 0 || cellIndex >= scratch.CellTempTransformStamps.Length) { return CellType.NONE; }
             if (scratch.CellTempTransformStamps[cellIndex] != scratch.CurrentFlowStamp) { return CellType.NONE; }
             return scratch.CellTempTransform[cellIndex];
         }
