@@ -6,8 +6,7 @@ namespace SpaceFab.Design
     /// </summary>
     public enum SimulatePhase
     {
-        Idle,             // Simulate mode entered; no test running; accepts Play / PlaySingle / Cancel.
-        BuildingGraph,    // One-shot: SimulateGraphUtility.Build populates CrucialNodes + OrderedEdges.
+        Idle,             // Simulate mode entered, graph already built by ModeTransitionSystem. Accepts Play / PlaySingle / Cancel.
         PreparingTest,    // Reset per-test sim state for the current row; push row inputs.
         Propagating,      // Walking OrderedEdges depth-by-depth, painting flow. Accepts Pause / Restart* / Cancel.
         Paused,           // Frozen between depth boundaries. Accepts Resume / Restart* / Cancel.

@@ -31,11 +31,21 @@ namespace SpaceFab.Design
             // TODO: Find.State for runState, graphState, gridStackState.
             // TODO: if !runState.PaintDepthThisFrame → return.
             // TODO: if runState.Phase != SimulatePhase.Propagating → return (defensive).
-            // TODO: walk graphState.OrderedEdges where EvalDepth == runState.CurrentDepth;
-            //       port per-edge flow / diode / gate-above logic from EvaluationMgr.VisualFeedbackRoutine
-            //       inner loop. Write FlowState into each path cell via GridStackUtility.SetCellDirect.
-            //       Update CurrFlowState / TempTransformedType on matching CrucialNodes.
-            //       Set runState.IsUnstable = true if any convergence mismatch or cycle detected.
+            //
+            // Iterate graphState.OrderedEdges[0..graphState.EdgeCount] and pick the subset where
+            // edge.EvalDepth == runState.CurrentDepth. Because OrderedEdges is depth-sorted
+            // (bucket-sorted in SimulateGraphUtility.Build Pass 3), edges at the target depth
+            // form a contiguous slice — once we pass it we can break early.
+            //
+            // For each matching edge:
+            //   - Port per-edge flow / diode / gate-above logic from EvaluationMgr.VisualFeedbackRoutine.
+            //   - Walk path cells via graphState.PathPool[edge.PathStart .. edge.PathStart + edge.PathLength)
+            //     and write FlowState into each cell via GridStackUtility.SetCellDirect.
+            //   - Track per-node CurrFlowState / TempTransformedType (these are fields to add on
+            //     CrucialNode when propagation lands — not on it yet; the struct currently holds
+            //     only identity + depth).
+            //   - If edge.CycleDetected is true, mark path cells unstable rather than honoring flow.
+            //   - Set runState.IsUnstable = true if any convergence mismatch or cycle is encountered.
         }
     }
 }
