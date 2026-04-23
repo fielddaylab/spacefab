@@ -130,6 +130,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1931910307}
     m_Modifications:
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_Source
+      value: station:resist
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_HashValue
+      value: 1292633441
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Resist Interfacer
@@ -276,6 +284,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1931910307}
     m_Modifications:
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_Source
+      value: station:etch
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_HashValue
+      value: 418197577
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Etch Interfacer
@@ -359,6 +375,9 @@ GameObject:
   - component: {fileID: 392984979}
   - component: {fileID: 392984980}
   - component: {fileID: 392984982}
+  - component: {fileID: 392984986}
+  - component: {fileID: 392984985}
+  - component: {fileID: 392984984}
   m_Layer: 0
   m_Name: Fabrication Systems
   m_TagString: Untagged
@@ -441,7 +460,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67655570e5bad50419593494a31e563d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RobotState: {fileID: 1487015768}
   cameraTransform: {fileID: 1414748287}
 --- !u!114 &392984980
 MonoBehaviour:
@@ -489,6 +507,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392984984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7044ec60baefee459fcd988f6828eaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392984985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fd1256cae745794f81f41143a287cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392984986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3d217afaba86346b96ecb51e9fdeed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &425520832
@@ -551,6 +605,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1931910307}
     m_Modifications:
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_Source
+      value: station:photolithography
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_HashValue
+      value: 1024899852
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Photolithography Interfacer
@@ -852,6 +914,9 @@ GameObject:
   - component: {fileID: 879438738}
   - component: {fileID: 879438739}
   - component: {fileID: 879438740}
+  - component: {fileID: 879438741}
+  - component: {fileID: 879438743}
+  - component: {fileID: 879438742}
   m_Layer: 0
   m_Name: Fabrication States
   m_TagString: Untagged
@@ -911,6 +976,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6bdca2f240bbeb41927dea61c63eead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Status: 0
+  Level: {fileID: 0}
+  CurrentStepIndex: 0
+  StepRuntime: []
+  HasCheckpoint: 0
+  CheckpointStepIndex: 0
+  CheckpointTimeRemaining: 0
+  CheckpointWaferSnapshot:
+    PlaceholderVersion: 0
+  CheckpointSlotIndex: 0
+  MisalignmentThisFrame: 0
 --- !u!114 &879438734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -937,6 +1013,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrSlotPosition: 0
   MoveEnabled: 0
+  SlotChangedThisFrame: 0
 --- !u!114 &879438736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1016,6 +1093,51 @@ MonoBehaviour:
   ExitConfirmationModal: {fileID: 5336318902443731968}
   CancelButton: {fileID: 5336318902443731967}
   ConfirmButton: {fileID: 5336318902443731966}
+--- !u!114 &879438741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 879438728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7339842ac2eed9f4da0f4fabdf54d4b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Phase: 0
+  ActiveInterfacer: {fileID: 0}
+  PhaseTimer: 0
+  EnterMicrogameDuration: 0.5
+  ExitMicrogameDuration: 0.5
+  StunDuration: 1.5
+  MicrogameCompletedThisFrame: 0
+  CancelRequestedThisFrame: 0
+  PostStunPhase: 0
+--- !u!114 &879438742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 879438728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 658d600c5aadaae4889f4df32d7aaa73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &879438743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 879438728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee714856330b0fc44b47f659f74d9a38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1614,6 +1736,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1931910307}
     m_Modifications:
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_Source
+      value: station:sputter
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_HashValue
+      value: 2865545500
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Sputter Interfacer
@@ -1679,6 +1809,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a7ef7ad9799b7c4fa008642e244d22f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1904662654
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1904662656}
+  - component: {fileID: 1904662655}
+  m_Layer: 0
+  m_Name: Fabrication Assets
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1904662655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904662654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a57e4b302e053dc4b8227bf389f85bda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Packs:
+  - {fileID: 11400000, guid: 450a1aa5e925122438d019b05630515d, type: 2}
+--- !u!4 &1904662656
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904662654}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1911412095
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1687,6 +1863,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1931910307}
     m_Modifications:
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_Source
+      value: station:defrag
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_HashValue
+      value: 1253244996
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Defrag Interfacer
@@ -1934,6 +2118,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1931910307}
     m_Modifications:
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_Source
+      value: station:furnace
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042425920116061473, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Id.m_HashValue
+      value: 5417925
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Furnace Interfacer
@@ -2362,4 +2554,5 @@ SceneRoots:
   - {fileID: 999986194}
   - {fileID: 392984974}
   - {fileID: 879438730}
+  - {fileID: 1904662656}
   - {fileID: 425520833}
