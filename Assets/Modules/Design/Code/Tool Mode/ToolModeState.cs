@@ -28,7 +28,7 @@ namespace SpaceFab.Design
     /// </summary>
     public class ToolModeState : SharedStateComponent, IRegistrationCallbacks
     {
-        public StackLayer ActiveLayer { get; private set; }
+        public StackLayer ActiveLayer;
         public ToolType ActiveTool;
 
         public Vector2Int LastKnownDragCoord;
