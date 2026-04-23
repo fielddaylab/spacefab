@@ -56,6 +56,10 @@ namespace SpaceFab.Fabrication.Sequence
             //   RollGlitches(sequenceState, level)
             //   sequenceState.HasCheckpoint = false
             //   sequenceState.Checkpoint = default
+            //   // Allocate per-step precision storage on the wafer. Indices align 1:1 with Level.Steps.
+            //   WaferState waferState = Find.State<WaferState>()
+            //   waferState.StepPrecisions = new float[level.Steps.Length]
+            //   waferState.RecordedStepCount = 0
             //   sequenceState.Status = SequenceStatus.Active
             //   Game.Events.Dispatch(GameEvents.FabSequenceReset)
         }
