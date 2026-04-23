@@ -104,6 +104,7 @@ namespace SpaceFab.Fabrication.StationControl {
         // Called by WorldInteractSystem when the player presses Cancel. Sets the one-frame flag.
         public static void RequestCancel(StationControlState stationState) {
             // TODO: if Phase == InMicrogame, set CancelRequestedThisFrame = true.
+            // Also thread into MicrogameStationInterfacerUtility.BeginExit(false)
         }
 
         // Called by MicrogameStationInterfacerUtility.SignalCompleted when a microgame finishes naturally.

@@ -53,7 +53,7 @@ namespace SpaceFab.Fabrication.Stations {
             // TODO: set Phase = Active; invoke interfacer.Microgame?.OnEnterComplete().
         }
 
-        // Called by StationControlSystem on InMicrogame -> ExitingMicrogame. completedNormally = false on cancel.
+        // Called by StationControlSystem on InMicrogame -> ExitingMicrogame. completedNormally = false on cancel from StationControlUtility.RequestCancel()
         public static void BeginExit(MicrogameStationInterfacer interfacer, bool completedNormally) {
             // TODO: set Phase = Exiting; invoke interfacer.Microgame?.OnExitBegin(completedNormally).
         }

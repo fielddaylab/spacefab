@@ -61,6 +61,7 @@ namespace SpaceFab.Fabrication.Movement {
             }
             else if (Game.Input.IsKeyPressed(Down0) || Game.Input.IsKeyPressed(Down1)) {
                 HandleCancel(interactState, stationState);
+                // TODO: Handle Close Results
             }
         }
 
