@@ -12,21 +12,13 @@ namespace SpaceFab.Fabrication.Movement {
     /// pulls the main camera along with the robot. Runs on any Update phase at order 0.
     /// </summary>
     public class MovementSystem : SystemComponent {
-        #region Input Mappings
 
-        private const KeyCode Left0 = KeyCode.A;
-        private const KeyCode Left1 = KeyCode.LeftArrow;
-
-        private const KeyCode Right0 = KeyCode.D;
-        private const KeyCode Right1 = KeyCode.RightArrow;
-
-        #endregion // Input Mappings
 
         [SerializeField] private Transform cameraTransform;
 
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.Update, 0/*, UpdateMasks.PreAttemptMask | UpdateMasks.AttemptMask*/),
+                new SysUpdate(GameLoopPhaseMask.Update, 0, UpdateMasks.PreAttemptMask | UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<MovementState>()
                     .ReadWriteShared<LayoutState>()
@@ -63,11 +55,11 @@ namespace SpaceFab.Fabrication.Movement {
             int curr = movementState.CurrSlotPosition;
             int max = layoutState.StationSlots.Length - 1;
 
-            if (Input.GetKeyDown(Left0) || Input.GetKeyDown(Left1)) {
+            if (Input.GetKeyDown(FabricationConsts.Left0) || Input.GetKeyDown(FabricationConsts.Left1)) {
                 if (curr > 0)
                     TryMove(movementState, layoutState, robotState, curr - 1);
             }
-            else if (Input.GetKeyDown(Right0) || Input.GetKeyDown(Right1)) {
+            else if (Input.GetKeyDown(FabricationConsts.Right0) || Input.GetKeyDown(FabricationConsts.Right1)) {
                 if (curr < max)
                     TryMove(movementState, layoutState, robotState, curr + 1);
             }

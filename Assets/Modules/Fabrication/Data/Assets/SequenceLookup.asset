@@ -51,8 +51,8 @@ MonoBehaviour:
     StepText: 
   - StepId: 6
     StationId:
-      m_Source: station:furnace
-      m_HashValue: 5417925
+      m_Source: station:ion
+      m_HashValue: 1666425855
     StepSprite: {fileID: 0}
     StepText: 
   m_Chunks:

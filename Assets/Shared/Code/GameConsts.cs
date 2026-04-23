@@ -91,14 +91,15 @@ namespace SpaceFab
         // fab
         public const int PreAttemptMask = 1 << 11;
         public const int AttemptMask = 1 << 12;
-        public const int PostAttemptMask = 1 << 13;
+        public const int AttemptLeadInMask = 1 << 13;
+        public const int PostAttemptMask = 1 << 14;
 
         // design
-        public const int ToolModeMask = 1 << 14;
-        public const int SimulateModeMask = 1 << 15;
+        public const int ToolModeMask = 1 << 15;
+        public const int SimulateModeMask = 1 << 16;
 
         // fab (parallel to AttemptMask; active only while StationControlPhase == InMicrogame)
-        public const int MicrogameMask = 1 << 16;
+        public const int MicrogameMask = 1 << 17;
     }
 
     static public class LayerMasks

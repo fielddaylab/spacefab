@@ -7,6 +7,7 @@ using UnityEngine;
 namespace SpaceFab.Fabrication {
     /// <summary>
     /// Manages relevant state for resetting an attempt. Clears wafer state, resets timer, etc.
+    /// Loops back to AttemptLeadIn Mode.
     /// Runs on Update phase at order 0, no category mask. Currently a stub.
     /// </summary>
     public class ResetSystem : SystemComponent {

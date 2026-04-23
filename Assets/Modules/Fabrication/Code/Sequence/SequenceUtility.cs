@@ -13,10 +13,6 @@ namespace SpaceFab.Fabrication.Sequence
     /// </summary>
     public static class SequenceUtility
     {
-        // Duration of the checkpoint-rollback lead-in pause, in seconds. Game-wide constant;
-        // consumed by RestoreLeadIn. Tunable later if the visual treatment demands a different feel.
-        public const float CHECKPOINT_LEAD_IN_SECONDS = 1.0f;
-
         // ---- Queries ----
 
         // Returns the step the player should currently be working on, or null if out of range
@@ -160,7 +156,7 @@ namespace SpaceFab.Fabrication.Sequence
         public static IEnumerator RestoreLeadIn()
         {
             // TODO: fade from black, show "Resuming..." text, play SFX, countdown.
-            yield return CHECKPOINT_LEAD_IN_SECONDS;
+            yield return FabricationConsts.CHECKPOINT_LEAD_IN_SECONDS;
         }
 
         // ---- Glitch machinery ----

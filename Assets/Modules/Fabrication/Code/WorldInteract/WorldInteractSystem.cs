@@ -16,18 +16,6 @@ namespace SpaceFab.Fabrication.Movement {
     /// Runs on any Update phase at order 10 under AttemptMask (after StationControlSystem at order 5).
     /// </summary>
     public class WorldInteractSystem : SystemComponent {
-        #region Input Mappings
-
-        private const KeyCode Up0 = KeyCode.W;
-        private const KeyCode Up1 = KeyCode.UpArrow;
-
-        private const KeyCode Down0 = KeyCode.S;
-        private const KeyCode Down1 = KeyCode.DownArrow;
-
-        private const KeyCode Activate = KeyCode.Space;
-
-        #endregion // Input Mappings
-
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhaseMask.Update, 10, UpdateMasks.AttemptMask),
@@ -56,10 +44,10 @@ namespace SpaceFab.Fabrication.Movement {
         // Dispatches Activate (Up / Space) and Cancel (Down) keypresses. Validity is checked via
         // WorldInteractUtility against the station-control state; the machine itself makes the final decision.
         static private void ProcessInputs(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState) {
-            if (Game.Input.IsKeyPressed(Up0) || Game.Input.IsKeyPressed(Up1) || Game.Input.IsKeyPressed(Activate)) {
+            if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1) || Game.Input.IsKeyPressed(FabricationConsts.Activate)) {
                 HandleActivate(interactState, movementState, layoutState, stationState);
             }
-            else if (Game.Input.IsKeyPressed(Down0) || Game.Input.IsKeyPressed(Down1)) {
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1)) {
                 HandleCancel(interactState, stationState);
                 // TODO: Handle Close Results
             }

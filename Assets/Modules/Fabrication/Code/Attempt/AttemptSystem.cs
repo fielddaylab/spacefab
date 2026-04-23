@@ -13,7 +13,7 @@ namespace SpaceFab.Fabrication {
     public class AttemptSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0),
+                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<SequenceState>()
             );
@@ -21,6 +21,7 @@ namespace SpaceFab.Fabrication {
 
         // TODO: implement attempt sequence progression.
         static private void ProcessWork(float deltaTime) {
+
         }
     }
 }

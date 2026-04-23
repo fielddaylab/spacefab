@@ -14,5 +14,31 @@ namespace SpaceFab.Fabrication
         // The Defrag station is universal: visiting it does not advance the sequence or run an
         // alignment check; it clears the glitch flag on the current step's card.
         public static readonly StringHash32 DEFRAG_STATION_ID = "station:defrag";
+
+        // Duration of the checkpoint-rollback lead-in pause, in seconds. Game-wide constant;
+        // consumed by RestoreLeadIn. Tunable later if the visual treatment demands a different feel.
+        public static readonly float CHECKPOINT_LEAD_IN_SECONDS = 1.0f;
+
+        #region Input Mappings
+
+        // World Interact
+
+        public const KeyCode Up0 = KeyCode.W;
+        public const KeyCode Up1 = KeyCode.UpArrow;
+
+        public const KeyCode Down0 = KeyCode.S;
+        public const KeyCode Down1 = KeyCode.DownArrow;
+
+        public const KeyCode Activate = KeyCode.Space;
+
+        // Movement
+
+        public const KeyCode Left0 = KeyCode.A;
+        public const KeyCode Left1 = KeyCode.LeftArrow;
+
+        public const KeyCode Right0 = KeyCode.D;
+        public const KeyCode Right1 = KeyCode.RightArrow;
+
+        #endregion // Input Mappings
     }
 }
