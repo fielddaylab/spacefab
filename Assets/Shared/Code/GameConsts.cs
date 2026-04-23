@@ -38,6 +38,28 @@ namespace SpaceFab
         // Minigame Navigation
         public static readonly StringHash32 OnMinigameLoad = "shared:on-minigame-load";
         public static readonly StringHash32 OnMinigameExit = "shared:on-minigame-exit";
+
+        // Fabrication: Station Control
+        public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
+        public static readonly StringHash32 FabStationLeft = "fab:station-left";
+        public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
+        public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
+        public static readonly StringHash32 FabMicrogameCompleted = "fab:microgame-completed";
+        public static readonly StringHash32 FabMicrogameCancelled = "fab:microgame-cancelled";
+        public static readonly StringHash32 FabStationExit = "fab:station-exit";
+        public static readonly StringHash32 FabWrongStationAttempt = "fab:wrong-station-attempt";
+        public static readonly StringHash32 FabStunBegin = "fab:stun-begin";
+        public static readonly StringHash32 FabStunEnd = "fab:stun-end";
+
+        // Fabrication: Sequence
+        public static readonly StringHash32 FabSequenceReset = "fab:sequence-reset";
+        public static readonly StringHash32 FabSequenceStepCompleted = "fab:sequence-step-completed";
+        public static readonly StringHash32 FabSequenceCompleted = "fab:sequence-completed";
+        public static readonly StringHash32 FabWaferMisalignment = "fab:wafer-misalignment";
+        public static readonly StringHash32 FabCheckpointReached = "fab:checkpoint-reached";
+        public static readonly StringHash32 FabCheckpointRestoreBegin = "fab:checkpoint-restore-begin";
+        public static readonly StringHash32 FabCheckpointRestoreComplete = "fab:checkpoint-restore-complete";
+        public static readonly StringHash32 FabStepUnglitched = "fab:step-unglitched";
     }
 
     public static class UpdateMasks
@@ -65,6 +87,9 @@ namespace SpaceFab
         // design
         public const int ToolModeMask = 1 << 14;
         public const int SimulateModeMask = 1 << 15;
+
+        // fab (parallel to AttemptMask; active only while StationControlPhase == InMicrogame)
+        public const int MicrogameMask = 1 << 16;
     }
 
     static public class LayerMasks

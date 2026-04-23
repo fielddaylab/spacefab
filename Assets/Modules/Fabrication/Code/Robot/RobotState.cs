@@ -26,5 +26,18 @@ namespace SpaceFab.Fabrication.Robot
             robotState.IsStunned = true;
             RobotVisualsUtility.ApplyStunVisuals(visualsState);
         }
+
+        // Clears the stun flag and removes its visuals. Called by StationControlSystem when the Stunned
+        // phase elapses, or by any other system that needs to end a stun early.
+        public static void RemoveStun(RobotState robotState, RobotVisualsState visualsState)
+        {
+            if (!robotState.IsStunned)
+            {
+                return;
+            }
+
+            robotState.IsStunned = false;
+            RobotVisualsUtility.RemoveStunVisuals(visualsState);
+        }
     }
 }

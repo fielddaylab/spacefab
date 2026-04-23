@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
