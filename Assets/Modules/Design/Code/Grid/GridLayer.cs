@@ -1,3 +1,4 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using SpaceFab.Design.Visuals;
 using System;
@@ -94,6 +95,13 @@ namespace SpaceFab.Design
         private static void SetCellInternal(GridLayer layer, int coordX, int coordY, GridCell cell)
         {
             layer.Cells[coordY * DesignConsts.NUM_GRID_COLS + coordX] = cell;
+        }
+
+        // Writes the updated cell back to its layer and flags the visuals for a refresh next frame.
+        static public void SetCellAndUpdateVisuals(VisualGridStackState visualState, GridLayer layer, Vector2Int gridPos, GridCell cell)
+        {
+            SetCell(layer, gridPos, cell);
+            visualState.VisualsNeedRefreshing = true;
         }
 
         #endregion // Gets & Sets

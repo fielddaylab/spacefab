@@ -38,6 +38,7 @@ namespace SpaceFab.Design.Visuals {
                 // Render Transistor Layer
                 visualState.VisualGridStack.GridLayers[1].RefreshAll(spriteDB);
 
+                Log.Msg("[ToolInteractSystem] refreshing visuals need refresh (to false)");
                 visualState.VisualsNeedRefreshing = false;
             }
         }
