@@ -1,5 +1,13 @@
 namespace FieldDay.Scripting {
     static public class DialoguePrinting {
-        // TODO: shared typing
+        
+    }
+
+    public enum DialogueCharacterClass : byte {
+        Space,
+        ShortDelay,
+        LongDelay,
+        LetterOrDigit,
+        Other
     }
 }
