@@ -53,9 +53,9 @@ namespace SpaceFab.Fabrication.Sequence
         // at StepIndex + 1 on restore.
         public int StepIndex;
 
-        // Time remaining on the attempt clock at the moment the checkpoint step completed. Unit
-        // matches TimeStateUtility.GetRemaining (TBD when TimeState is defined).
-        public float TimeRemaining;
+        // Stopwatch reading at the moment the checkpoint step completed (elapsed time since the
+        // attempt began). Unit matches TimeStateUtility.GetElapsed (TBD when TimeState is defined).
+        public float TimeElapsed;
 
         // Wafer snapshot at the moment the checkpoint step completed. Restored via
         // WaferStateUtility.RestoreSnapshot.

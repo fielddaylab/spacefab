@@ -112,7 +112,7 @@ namespace SpaceFab.Fabrication.Sequence
             //   sequenceState.HasCheckpoint = true
             //   sequenceState.Checkpoint = new SequenceCheckpoint {
             //       StepIndex = stepIndex,
-            //       TimeRemaining = TimeStateUtility.GetRemaining(timeState),
+            //       TimeElapsed = TimeStateUtility.GetElapsed(timeState),
             //       WaferSnapshot = WaferStateUtility.TakeSnapshot(waferState),
             //       SlotIndex = movementState.CurrSlotPosition,
             //   }
@@ -141,7 +141,7 @@ namespace SpaceFab.Fabrication.Sequence
             //   MovementState movementState = Find.State<MovementState>()
             //   ref SequenceCheckpoint cp = ref sequenceState.Checkpoint
             //   WaferStateUtility.RestoreSnapshot(waferState, cp.WaferSnapshot)
-            //   TimeStateUtility.SetRemaining(timeState, cp.TimeRemaining)
+            //   TimeStateUtility.SetElapsed(timeState, cp.TimeElapsed)
             //   movementState.CurrSlotPosition = cp.SlotIndex
             //   movementState.SlotChangedThisFrame = true   // so StationControlSystem re-parks at AtStation
             //   yield return RestoreLeadIn()
