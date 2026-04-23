@@ -1,9 +1,11 @@
 
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using BeauUtil.Tags;
 using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using System.Text;
 using TMPro;
 
@@ -53,56 +55,72 @@ namespace FieldDay.Scripting {
     /// Typewriter callbacks.
     /// </summary>
     public interface ITypewriterModule {
-        void OnCharacterTyped(char charValue, DialogueCharacterClass charClass);
+        void GetTypewriterParameters(out float delayMultiplier, out TypewriterTimingTable timingTable);
+        void OnTypewriterType(char charValue, DialogueCharacterClass charClass);
     }
     
     /// <summary>
     /// Typewriter enumerator.
     /// </summary>
-    public sealed class TypewriterEnumerator : IEnumerator {
-        // Inputs
-        public float Multiplier = 1;
-        public bool Skip = false;
+    public sealed class TypewriterEnumerator : IEnumerator, IDisposable {
+        private enum State : uint {
+            Initialize,
+            Running,
+            Done,
+        }
 
         // Components
         private ITypewriterModule m_Module;
         private TMP_Text m_Text;
         private StringBuilder m_Data;
-        private TypewriterTimingTable m_Timing;
 
         // State
         private float m_Delay;
         private int m_CharsToType;
+        private State m_State;
 
-        #region Configuration
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Prepare(TMP_Text text, ITypewriterModule module, TagString data, TagTextData textData) {
+            Prepare(text, module, data.VisibleText, textData.VisibleCharacterCount);
+        }
 
-        public void ConfigureComponents(TMP_Text text, ITypewriterModule module) {
+        public void Prepare(TMP_Text text, ITypewriterModule module, StringBuilder data, int visibleCharCount) {
+            Assert.NotNullOrDestroyed(text);
+            Assert.NotNull(module);
+
             m_Text = text;
             m_Module = module;
-        }
-
-        public void ConfigureTiming(in TypewriterTimingTable timingTable) {
-            m_Timing = timingTable;
-        }
-
-        #endregion // Configuration
-
-        public void Prepare(TagString data, TagTextData textData) {
-            Prepare(data.VisibleText, textData.VisibleCharacterCount);
-        }
-
-        public void Prepare(StringBuilder data, int visibleCharCount) {
             m_Data = data;
             m_CharsToType = visibleCharCount;
-            m_Delay = -Routine.DeltaTime;
+            m_State = State.Initialize;
         }
+
+        #region IEnumerator
 
         object IEnumerator.Current {
             get { return null; }
         }
 
         public bool MoveNext() {
-            if (Skip) {
+            switch(m_State) {
+                case State.Done: {
+                    return false;
+                }
+
+                case State.Initialize: {
+                    m_Delay = -Routine.DeltaTime;
+                    m_State = State.Running;
+                    break;
+                }
+            }
+
+            float multiplier = 1;
+            TypewriterTimingTable timingTable = DialoguePrinting.DefaultTimingTable;
+            m_Module?.GetTypewriterParameters(out multiplier, out timingTable);
+
+            if (multiplier <= 0) {
+                m_Text.maxVisibleCharacters += m_CharsToType;
+                m_State = State.Done;
                 return false;
             }
 
@@ -111,20 +129,40 @@ namespace FieldDay.Scripting {
                 return true;
             }
 
-            while(m_CharsToType-- > 0 && m_Delay <= 0) {
+            while(m_Delay <= 0 && m_CharsToType-- > 0) {
                 int charIndex = m_Text.maxVisibleCharacters++;
                 char value = m_Data[charIndex];
                 DialogueCharacterClass charClass = DialoguePrinting.GetCharacterClass(value);
-                m_Delay += Multiplier * m_Timing[charClass];
-                m_Module.OnCharacterTyped(value, charClass);
+                m_Delay += multiplier * timingTable[charClass];
+                m_Module?.OnTypewriterType(value, charClass);
             }
 
-            return m_CharsToType > 0;
+            if (m_CharsToType <= 0) {
+                m_State = State.Done;
+                return false;
+            }
+
+            return true;
         }
 
         void IEnumerator.Reset() {
             throw new NotSupportedException();
         }
+
+        #endregion // IEnumerator
+
+        #region IDisposable
+
+        void IDisposable.Dispose() {
+            m_Delay = 0;
+            m_State = State.Initialize;
+            m_CharsToType = 0;
+            m_Data = null;
+            m_Text = null;
+            m_Module = null;
+        }
+
+        #endregion // IDisposable
     }
 
     /// <summary>

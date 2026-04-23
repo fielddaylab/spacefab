@@ -218,6 +218,7 @@ GameObject:
   - component: {fileID: 9200833437130148042}
   - component: {fileID: 7924645493375283107}
   - component: {fileID: 8344467952360881231}
+  - component: {fileID: 6354743642293735106}
   m_Layer: 5
   m_Name: NextButton
   m_TagString: Untagged
@@ -333,6 +334,21 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: 
   TooltipFooter: 
+--- !u!114 &6354743642293735106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7858774295019505386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734464ad924464147bf833b21c34f733, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Button: {fileID: 7924645493375283107}
+  Layout: {fileID: 9200833437130148042}
+  TextContent: {fileID: 6787585165383491076}
 --- !u!1 &7942867145077683270
 GameObject:
   m_ObjectHideFlags: 0
