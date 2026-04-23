@@ -72,13 +72,10 @@ namespace SpaceFab.Design
         public EdgeStateData[] Edges = new EdgeStateData[6]; // one for each edge dir
         public TransferType TransferType; // informs how data is transferred between layers when either ASCEND or DESCEND edges are connected
 
-        public bool NodeEraseable; // = true when drawn, false when loaded by config
-        public bool TransferEraseable; // = true when drawn, false when loaded by config
+        public bool NodeEraseable = true; // = true when drawn, false when loaded by config
+        public bool TransferEraseable = true; // = true when drawn, false when loaded by config
 
         #endregion // Save Data
-
-        public FlowState FlowState;
-        public CellType TempTransformation;
 
         #region Loading
 

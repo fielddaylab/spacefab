@@ -60,6 +60,15 @@ namespace SpaceFab
         public static readonly StringHash32 FabCheckpointRestoreBegin = "fab:checkpoint-restore-begin";
         public static readonly StringHash32 FabCheckpointRestoreComplete = "fab:checkpoint-restore-complete";
         public static readonly StringHash32 FabStepUnglitched = "fab:step-unglitched";
+
+        // Design: Simulate Mode
+        public static readonly StringHash32 DesignSimPlayStarted = "design-sim:play-started";
+        public static readonly StringHash32 DesignSimRowStarted = "design-sim:row-started";
+        public static readonly StringHash32 DesignSimPaused = "design-sim:paused";
+        public static readonly StringHash32 DesignSimResumed = "design-sim:resumed";
+        public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
+        public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
+        public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
     }
 
     public static class UpdateMasks

@@ -11,12 +11,12 @@ using UnityEngine.EventSystems;
 namespace SpaceFab.Design {
     /// <summary>
     /// Manages Tool mode, in which the player is actively shaping the grid.
-    /// Runs on any Update phase at order 0 under ToolModeMask. Currently a stub.
+    /// Runs on any Update phase at order 5 under ToolModeMask. Currently a stub.
     /// </summary>
     public class ToolModeSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.Update, 0, UpdateMasks.ToolModeMask),
+                new SysUpdate(GameLoopPhaseMask.Update, 5, UpdateMasks.ToolModeMask),
                 new SysPermissions()
                     .ReadWriteShared<ToolModeState>()
                     .ReadWriteShared<GridStackState>()

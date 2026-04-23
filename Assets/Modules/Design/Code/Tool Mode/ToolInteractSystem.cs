@@ -137,19 +137,19 @@ namespace SpaceFab.Design {
             // if grid cell is empty:
             if (GridLayerUtility.IsCellEmpty(layer, gridPos)) {
                 if (toolModeState.ActiveLayer == StackLayer.Metal) {
-                    DragEmptyMLayerCell(toolModeState, gridStackState, gridPos);
+                    DragEmptyMLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
                 else {
-                    DragEmptyTLayerCell(toolModeState, gridStackState, gridPos);
+                    DragEmptyTLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
             }
             // if grid cell is full:
             else {
                 if (toolModeState.ActiveLayer == StackLayer.Metal) {
-                    DragOccupiedMLayerCell(toolModeState, gridStackState, gridPos);
+                    DragOccupiedMLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
                 else {
-                    DragOccupiedTLayerCell(toolModeState, gridStackState, gridPos);
+                    DragOccupiedTLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
             }
 
@@ -191,7 +191,7 @@ namespace SpaceFab.Design {
                     break;
             }
 
-            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
+            GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
         // Click on an empty Transistor-layer cell: apply the active tool.
@@ -220,7 +220,7 @@ namespace SpaceFab.Design {
                     break;
             }
 
-            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
+            GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
         // Click on an occupied Metal-layer cell: draw-tools only apply if the existing cell is Metal.
@@ -252,7 +252,7 @@ namespace SpaceFab.Design {
                     break;
             }
 
-            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
+            GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
         // Click on an occupied Transistor-layer cell: preserves edge connections when swapping N/P type.
@@ -295,7 +295,7 @@ namespace SpaceFab.Design {
                     break;
             }
 
-            SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
+            GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, cell);
         }
 
         #endregion // Clicks
@@ -303,14 +303,14 @@ namespace SpaceFab.Design {
         #region Dragging
 
         // Drag onto an empty Metal-layer cell: only Erase and DrawMetal do anything.
-        static private void DragEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
+        static private void DragEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawMetal:
-                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.Metal, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.Metal, gridPos);
                     break;
                 default:
                     break;
@@ -318,17 +318,17 @@ namespace SpaceFab.Design {
         }
 
         // Drag onto an empty Transistor-layer cell: erase or draw N/P transistor.
-        static private void DragEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
+        static private void DragEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawNNodes:
-                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.NTransistor, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
                     break;
                 case ToolType.DrawPNodes:
-                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.PTransistor, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
                     break;
                 default:
                     break;
@@ -336,14 +336,14 @@ namespace SpaceFab.Design {
         }
 
         // Drag onto an occupied Metal-layer cell: erase or extend metal.
-        static private void DragOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
+        static private void DragOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
                     break;
                 case ToolType.DrawMetal:
-                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.Metal, gridPos);
+                    DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.Metal, gridPos);
                     break;
                 default:
                     break;
@@ -351,7 +351,7 @@ namespace SpaceFab.Design {
         }
 
         // Drag onto an occupied Transistor-layer cell: refuse to drag over inputs/outputs; otherwise draw-over with the selected transistor type (preserving existing type when it matches the opposing tool).
-        static private void DragOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, Vector2Int gridPos) {
+        static private void DragOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
 
@@ -369,11 +369,11 @@ namespace SpaceFab.Design {
                     else {
                         if (cell.CellType == CellType.PTransistor) {
                             // draw connection, preserve type
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.PTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
                         }
                         else {
                             // override
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.NTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
                         }
                     }
                     break;
@@ -386,11 +386,11 @@ namespace SpaceFab.Design {
                     else {
                         if (cell.CellType == CellType.NTransistor) {
                             // draw connection, preserve type
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.NTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
                         }
                         else {
                             // override
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, CellType.PTransistor, gridPos);
+                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
                         }
                     }
                     break;
@@ -400,15 +400,5 @@ namespace SpaceFab.Design {
         }
 
         #endregion // Dragging
-
-        #region Helpers
-
-        // Writes the updated cell back to its layer and flags the visuals for a refresh next frame.
-        static private void SetCellAndUpdateVisuals(VisualGridStackState visualState, GridLayer layer, Vector2Int gridPos, GridCell cell) {
-            GridLayerUtility.SetCell(layer, gridPos, cell);
-            visualState.VisualsNeedRefreshing = true;
-        }
-
-        #endregion // Helpers
     }
 }
