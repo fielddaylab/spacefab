@@ -79,6 +79,8 @@ namespace FieldDay.Scripting {
         private int m_CharsToType;
         private State m_State;
 
+        #region Prepare
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Prepare(TMP_Text text, ITypewriterModule module, TagString data, TagTextData textData) {
             Prepare(text, module, data.VisibleText, textData.VisibleCharacterCount);
@@ -95,13 +97,15 @@ namespace FieldDay.Scripting {
             m_State = State.Initialize;
         }
 
+        #endregion // Prepare
+
         #region IEnumerator
 
         object IEnumerator.Current {
             get { return null; }
         }
 
-        public bool MoveNext() {
+        public unsafe bool MoveNext() {
             switch(m_State) {
                 case State.Done: {
                     return false;
@@ -118,6 +122,8 @@ namespace FieldDay.Scripting {
             TypewriterTimingTable timingTable = DialoguePrinting.DefaultTimingTable;
             m_Module?.GetTypewriterParameters(out multiplier, out timingTable);
 
+            float* timingTablePtr = (float*) &timingTable;
+
             if (multiplier <= 0) {
                 m_Text.maxVisibleCharacters += m_CharsToType;
                 m_State = State.Done;
@@ -133,7 +139,7 @@ namespace FieldDay.Scripting {
                 int charIndex = m_Text.maxVisibleCharacters++;
                 char value = m_Data[charIndex];
                 DialogueCharacterClass charClass = DialoguePrinting.GetCharacterClass(value);
-                m_Delay += multiplier * timingTable[charClass];
+                m_Delay += multiplier * timingTablePtr[(int) charClass];
                 m_Module?.OnTypewriterType(value, charClass);
             }
 

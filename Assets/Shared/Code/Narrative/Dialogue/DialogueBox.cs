@@ -5,6 +5,7 @@ using FieldDay;
 using FieldDay.Audio;
 using FieldDay.Scripting;
 using FieldDay.UI;
+using FieldDay.UI.Animation;
 using Leaf.Runtime;
 using SpaceFab.UI;
 using System;
@@ -91,6 +92,8 @@ namespace SpaceFab.Narrative {
         public override IEnumerator TypeLine(TagString text, TagTextData textData, DialogueCharacterState character) {
             if (!m_IsVisible) {
                 yield return AnimateToOn();
+            } else {
+                PopAnim.Play(m_LayoutOffset, PopAnim.Default);
             }
 
             m_Typewriter.Prepare(m_Contents, this, text, textData);
@@ -121,9 +124,10 @@ namespace SpaceFab.Narrative {
         }
 
         public override void UpdateCharacter(DialogueCharacterState character) {
-            bool charChanged = false;
+            bool charChanged = !m_IsVisible;
+
             CharacterDef def = m_CurrentCharacter;
-            if (character.CharacterId != m_CurrentCharacterState.CharacterId) {
+            if (charChanged || character.CharacterId != m_CurrentCharacterState.CharacterId) {
                 m_CurrentCharacter = def = character.CharacterId.IsEmpty ? null : Find.NamedAsset<CharacterDef>(character.CharacterId);
                 UpdateDecorationColors(def);
                 charChanged = true;

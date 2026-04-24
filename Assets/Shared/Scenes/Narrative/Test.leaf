@@ -4,5 +4,19 @@
 @trigger TestTrigger
 @cutscene
 $wait 5
-{@} This is some dialogue!
-    This is more dialogue! With hopefully more lines wrapping!
+{@Player}   Hi! I'm Locke! The protagonist, I think.
+            And maybe something more?
+{@Dorian}   And <b>I'm</b> the Best Friend!
+            For now!
+{@Player}   A little ominous there, but sure!
+            Welcome to the Constance!
+            ...is what I would be saying if we were on a ship.
+            Currently we're just floating in a vacuum.
+{@Dorian}   But how are we breathing, Locke?
+{@Player}   You're safe, Dorian, you're just on a Zip call with me.
+            I... uh... hang on.
+            ...
+{@Dorian}   Oh damn, he might be suffocating.
+            ...
+            Sucks to be him, there's money I could be making.
+{@PAL}      I had no role in this disaster!
