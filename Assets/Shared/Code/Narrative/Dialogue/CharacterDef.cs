@@ -14,5 +14,6 @@ namespace SpaceFab.Narrative {
         public Color32 DialogueTint;
         public Sprite Portrait;
         [AudioEvent] public StringHash32 CharacterTypeEvent;
+        [AudioEvent] public StringHash32 DefaultQuip;
     }
 }

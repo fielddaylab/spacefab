@@ -20,4 +20,4 @@ $wait 1
 {@Dorian}   Oh damn, he might be suffocating.
             ...
             Sucks to be him, there's money I could be making.
-{@PAL}      I had no role in this disaster!
+{@PAL}      {quip}I had {wait 0.1}no role in this disaster! 

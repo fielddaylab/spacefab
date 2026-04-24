@@ -1,4 +1,5 @@
 using BeauRoutine;
+using BeauUtil;
 using BeauUtil.Debugger;
 using BeauUtil.Tags;
 using FieldDay;
@@ -57,6 +58,7 @@ namespace SpaceFab.Narrative {
         [NonSerialized] private long m_NextAllowedTypingSfx;
         [NonSerialized] private Routine m_Animation;
         [NonSerialized] private bool m_IsVisible;
+        [NonSerialized] private AudioHandle m_CurrentQuip;
 
         private void Start() {
             m_VisiblityGroup.gameObject.SetActive(false);
@@ -90,8 +92,9 @@ namespace SpaceFab.Narrative {
         }
 
         protected override void ConfigureEventHandler(TagStringEventHandler handler) {
-            handler.Register(TagEvents.AutoContinue, () => m_CurrentLineFlags |= LineFlags.AutoContinue);
-            handler.Register(TagEvents.InterpretAsClose, () => m_CurrentLineFlags |= LineFlags.IsEnd);
+            handler.Register(TagEvents.AutoContinue, () => m_CurrentLineFlags |= LineFlags.AutoContinue)
+                .Register(TagEvents.InterpretAsClose, () => m_CurrentLineFlags |= LineFlags.IsEnd)
+                .Register(TagEvents.PlayQuip, PlayQuipSfx);
         }
 
         public override void FastForwardLine(int visibleCount, int richCount) {
@@ -116,6 +119,18 @@ namespace SpaceFab.Narrative {
                 if (m_CurrentCharacter && !m_CurrentCharacter.CharacterTypeEvent.IsEmpty) {
                     Sfx.Play(m_CurrentCharacter.CharacterTypeEvent);
                     m_NextAllowedTypingSfx = Frame.AdjustTimestamp(ts, 0.05f);
+                }
+            }
+        }
+
+        private void PlayQuipSfx(TagEventData evtData, object context) {
+            StringHash32 art = evtData.Argument0.AsStringHash();
+            if (m_CurrentCharacter) {
+                StringHash32 quipEvent = m_CurrentCharacter.DefaultQuip;
+                // TODO: find quip
+                if (!quipEvent.IsEmpty) {
+                    Sfx.Stop(m_CurrentQuip);
+                    m_CurrentQuip = Sfx.Play(quipEvent);
                 }
             }
         }

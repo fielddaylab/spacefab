@@ -301,9 +301,9 @@ RectTransform:
   - {fileID: 6798325205648262621}
   m_Father: {fileID: 8180951105868352394}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -184}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 142}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1894500466875342406
@@ -909,8 +909,8 @@ MonoBehaviour:
   m_VisiblityGroup: {fileID: 6172487231662880786}
   m_LayoutOffset: {fileID: 1894500466875342406}
   m_FoldOutTransform: {fileID: 5746927168051880153}
-  m_FoldOutYPosDefault: -184
-  m_FoldOutYPosOffscreen: -484
+  m_FoldOutYPosDefault: 142
+  m_FoldOutYPosOffscreen: -110
   m_FoldOutWidthDefault: 800
   m_FoldOutWidthCollapsed: 224
   m_FoldOutCollapsedToHide:
