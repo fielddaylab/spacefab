@@ -21,6 +21,7 @@ namespace SpaceFab.UI {
                 new SysPermissions()
                     .ReadShared<WikiState>()
                     .Read<WikiContent>()
+                    .Read<WikiPools>()
                     .ReadShared<PlayerProgressState>()
                     .ReadWrite<WikiButton>()
             );
@@ -28,10 +29,17 @@ namespace SpaceFab.UI {
 
         // TODO: implement visuals refresh.
         //
+        // Authoring note: the tab + page-thumb button instances are NOT spawned here. They are
+        // pooled via WikiPools and rebuilt by WikiPoolUtility.RebuildStrips, which is invoked
+        // by WikiAvailabilityUtility.ApplyUnlocks on level-load and after every
+        // WikiUtility.UnlockPage mutation. This system only reads the already-spawned set and
+        // applies per-frame visual state.
+        //
         // Rough shape:
         //   WikiState wikiState = Find.State<WikiState>();
         //   PlayerProgressState progressState = Find.State<PlayerProgressState>();
         //   WikiContent content = Find.Components<WikiContent>()[0];
+        //   WikiPools pools = Find.Components<WikiPools>()[0];
         //
         //   1. Expanded vs. collapsed roots. When Transitioning == false, the Expanded bool
         //      decides which of the two sibling CanvasGroups (ExpandedRoot, CollapsedRoot) is
@@ -39,26 +47,26 @@ namespace SpaceFab.UI {
         //      ExpandRoutine / CollapseRoutine drives the alpha — this system only asserts the
         //      steady-state endpoint.
         //
-        //   2. Tab highlight. Walk Find.Components<WikiButton>(); on each Kind==Tab button,
-        //      update a "selected" visual (outline / color) based on whether
-        //      button.TabIndex == wikiState.ActiveTabIndex. Also mirror button.Available onto
-        //      gameObject.activeSelf (WikiAvailabilityUtility already does this on unlock-
-        //      state changes, but re-asserting here catches inspector edits during play).
+        //   2. Tab highlight. Walk pools.TabActive; on each tab button, update a "selected"
+        //      visual (outline / color) based on whether button.TabIndex == wikiState
+        //      .ActiveTabIndex. Availability was already applied by
+        //      WikiAvailabilityUtility.ApplyUnlocks at rebuild time.
         //
         //   3. Page content. Pull content.Tabs[ActiveTabIndex].Pages[ActivePageIndex] and push
         //      Title → WikiPageContentWidgets.TitleText.text, Body → BodyText.text, Illustration
         //      → IllustrationImage.sprite. Deactivate IllustrationImage.gameObject when the
         //      page has no illustration (page.Illustration == null).
         //
-        //   4. Paginator strip. For each raw page button in the strip:
-        //        - int slot = WikiUtility.GetUnlockedIndex(tab, progressState, rawIndex);
+        //   4. Paginator strip. Walk pools.PageThumbActive. For each thumb:
+        //        - if thumb.TabIndex != wikiState.ActiveTabIndex: hide (gameObject inactive),
+        //          this thumb belongs to an inactive tab.
+        //        - else compute slot = WikiUtility.GetUnlockedIndex(activeTab, progressState,
+        //          thumb.PageIndex). If slot == -1 the thumb is locked — hide it.
         //        - visible iff slot in [PageWindowStartIndex, PageWindowStartIndex + PageWindowSize).
-        //      Locked pages have slot == -1 and are permanently hidden (parity with
-        //      ApplyUnlocks' locked-tab treatment).
-        //      Per-button: set WikiButton.Icon sprite from page.Icon, highlight the thumbnail
-        //      whose rawIndex == ActivePageIndex. The content RectTransform slides by
-        //      anchoredPosition.x = -PageWindowStartIndex * iconStride so a UI Mask on the
-        //      strip clips out-of-window icons automatically.
+        //      Per-thumb: set the thumbnail Image sprite from activeTab.Pages[thumb.PageIndex]
+        //      .Icon, highlight the thumb whose PageIndex == ActivePageIndex. The PaginatorContent
+        //      RectTransform slides by anchoredPosition.x = -PageWindowStartIndex * iconStride
+        //      so the UI Mask on the strip clips out-of-window icons automatically.
         //
         //   5. Paginator arrow enable state. PrevPage.interactable = CanScrollPageWindowLeft;
         //      NextPage.interactable = CanScrollPageWindowRight. Arrows stay visible at the

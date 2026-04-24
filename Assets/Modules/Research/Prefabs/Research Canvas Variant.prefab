@@ -345,13 +345,13 @@ PrefabInstance:
       addedObject: {fileID: 253107875711439856}
     - targetCorrespondingSourceObject: {fileID: 4358077689976286953, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1098031847597299896}
+    - targetCorrespondingSourceObject: {fileID: 4358077689976286953, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1379339146731280692}
     - targetCorrespondingSourceObject: {fileID: 4358077689976286953, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5329954632580893019}
-    - targetCorrespondingSourceObject: {fileID: 4358077689976286953, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1098031847597299896}
     - targetCorrespondingSourceObject: {fileID: 4358077689976286953, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8695901273293971193}
@@ -402,6 +402,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
+      propertyPath: Tabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
+      propertyPath: Tabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 8a9d9d7fda594d942a5b359fd0398d25, type: 2}
     - target: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
       propertyPath: m_Name
       value: Wiki Root

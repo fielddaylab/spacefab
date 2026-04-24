@@ -218,6 +218,8 @@ namespace SpaceFab.UI {
         //
         // Caller (TODO): per-feature gameplay code calls this when the player first encounters
         // the concept (e.g., DesignTransitionSystem on the first level that introduces gates).
+        // Caller is also responsible for invoking WikiAvailabilityUtility.ApplyUnlocks after so
+        // the strip rebuilds to reveal the new tab / thumbnail.
         public static void UnlockPage(PlayerProgressState progressState, StringHash32 pageId) {
             progressState.UnlockedWikiPages ??= new System.Collections.Generic.HashSet<StringHash32>();
             if (!progressState.UnlockedWikiPages.Add(pageId)) { return; }
@@ -381,16 +383,19 @@ namespace SpaceFab.UI {
     }
 
     /// <summary>
-    /// Applies per-tab and per-page-thumbnail availability (locked vs. unlocked) to every
-    /// WikiButton in the scene. Called on level-load and after any WikiUtility.UnlockPage
-    /// mutation so buttons reflect the current PlayerProgressState unlock set.
+    /// Rebuilds the dynamically-pooled tab + thumb button strips from WikiContent, then applies
+    /// per-tab and per-page-thumbnail availability (locked vs. unlocked) to every WikiButton in
+    /// the scene. Called on level-load and after any WikiUtility.UnlockPage mutation so buttons
+    /// reflect the current content + unlock set.
+    ///
+    /// Rebuild comes first so the availability pass sees the newly-spawned instances (and any
+    /// formerly-active instances that were released to the free pool are already hidden).
     ///
     /// For Tab buttons: Available = IsTabUnlocked(...). Locked tabs are hidden entirely —
     /// gameObject inactive, DynamicButton disabled — so no pointer events fire on them.
-    /// For PageThumb buttons: Available = the referenced page is unlocked AND belongs to the
-    /// button's tab (content.Tabs[ActiveTabIndex] at runtime). Since thumbs are authored once
-    /// per raw page in the tab, we evaluate lock state per-page; visibility inside the
-    /// paginator window is a further runtime cut handled by WikiVisualsUpdateSystem.
+    /// For PageThumb buttons: Available iff the referenced page is unlocked. Visibility inside
+    /// the paginator window and active-tab filtering are further runtime cuts handled by
+    /// WikiVisualsUpdateSystem.
     /// For non-Tab/non-PageThumb buttons (arrows, exit, collapsed icon): Available stays true;
     /// they're chrome.
     ///
@@ -399,7 +404,9 @@ namespace SpaceFab.UI {
     /// to call this so mid-level unlocks reveal their tab / thumbnail.
     /// </summary>
     public static class WikiAvailabilityUtility {
-        public static void ApplyUnlocks(WikiContent content, PlayerProgressState progressState) {
+        public static void ApplyUnlocks(WikiContent content, WikiPools pools, PlayerProgressState progressState) {
+            WikiPoolUtility.RebuildStrips(content, pools);
+
             var buttons = Find.Components<WikiButton>();
             for (int i = 0; i < buttons.Count; i++) {
                 WikiButton button = buttons[i];

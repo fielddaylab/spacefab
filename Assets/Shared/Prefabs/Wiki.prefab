@@ -720,6 +720,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3559672925048239956}
+  - {fileID: 2632267682545847634}
   - {fileID: 7638205745033872301}
   - {fileID: 16420493862316335}
   m_Father: {fileID: 0}
@@ -1222,6 +1223,64 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5510027367526131965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2632267682545847634}
+  - component: {fileID: 2392523863219803661}
+  m_Layer: 5
+  m_Name: Wiki Pools
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2632267682545847634
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5510027367526131965}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4224271422505170169}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2392523863219803661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5510027367526131965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6abfbd79b6e4f8940b9c5a61eb5dcd03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TabButtonPrefab: {fileID: 4451518251995077875, guid: 84fbb953782c2ef4b9f5dbf5f1e2a7e8, type: 3}
+  TabButtonActiveParent: {fileID: 5035194741388358870}
+  TabButtonFreeParent: {fileID: 2632267682545847634}
+  PageThumbPrefab: {fileID: 3546720853377191150, guid: eb9096aa547dfe046975aec52a2380b2, type: 3}
+  PageThumbActiveParent: {fileID: 3136626549489983546}
+  PageThumbFreeParent: {fileID: 2632267682545847634}
+  TabActive: []
+  TabFree: []
+  PageThumbActive: []
+  PageThumbFree: []
 --- !u!1 &7393777659276992597
 GameObject:
   m_ObjectHideFlags: 0
