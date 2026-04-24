@@ -83,6 +83,15 @@ namespace SpaceFab.Narrative {
                 yield return null;
             }
             m_NextButton.gameObject.SetActive(false);
+
+            if ((m_CurrentLineFlags & LineFlags.IsEnd) != 0) {
+                CurrentThread.ReleaseCurrentPrinter(ScriptThreadOwnershipClearReason.Completed);
+            }
+        }
+
+        protected override void ConfigureEventHandler(TagStringEventHandler handler) {
+            handler.Register(TagEvents.AutoContinue, () => m_CurrentLineFlags |= LineFlags.AutoContinue);
+            handler.Register(TagEvents.InterpretAsClose, () => m_CurrentLineFlags |= LineFlags.IsEnd);
         }
 
         public override void FastForwardLine(int visibleCount, int richCount) {
@@ -91,8 +100,9 @@ namespace SpaceFab.Narrative {
 
         public override IEnumerator TypeLine(TagString text, TagTextData textData, DialogueCharacterState character) {
             if (!m_IsVisible) {
+                m_Animation.Stop();
                 yield return AnimateToOn();
-            } else {
+            } else if (m_Contents.maxVisibleCharacters == 0) {
                 PopAnim.Play(m_LayoutOffset, PopAnim.Default);
             }
 

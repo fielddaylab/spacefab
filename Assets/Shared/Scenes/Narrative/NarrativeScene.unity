@@ -196,6 +196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Packs:
   - {fileID: 11400000, guid: 890c3eb974e7d1741aa7bd02db27c20e, type: 2}
+  - {fileID: 11400000, guid: 622f4f02102b7df4ea8aeed8cd518ae7, type: 2}
 --- !u!1001 &305761192
 PrefabInstance:
   m_ObjectHideFlags: 0

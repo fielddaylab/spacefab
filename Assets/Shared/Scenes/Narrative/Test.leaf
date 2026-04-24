@@ -12,10 +12,11 @@ $wait 5
             Welcome to the Constance!
             ...is what I would be saying if we were on a ship.
             Currently we're just floating in a vacuum.
-{@Dorian}   But how are we breathing, Locke?
+{@Dorian}   But how are we breathing, Locke???
 {@Player}   You're safe, Dorian, you're just on a Zip call with me.
-            I... uh... hang on.
-            ...
+            I... uh...{wait 1} hang on.
+            ...{close}
+$wait 1
 {@Dorian}   Oh damn, he might be suffocating.
             ...
             Sucks to be him, there's money I could be making.
