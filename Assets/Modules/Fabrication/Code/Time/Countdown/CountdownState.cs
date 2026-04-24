@@ -12,8 +12,8 @@ namespace SpaceFab.Fabrication
 {
     public class CountdownState : SharedStateComponent, IRegistrationCallbacks
     {
-        public bool CountdownRequestedThisFrame;
-        public bool CountdownCompletedThisFrame;
+        [HideInInspector] public bool CountdownRequestedThisFrame;
+        [HideInInspector] public bool CountdownCompletedThisFrame;
 
         public Routine CountdownRoutine;
 
@@ -39,12 +39,12 @@ namespace SpaceFab.Fabrication
         {
             yield return 3;
             yield return RoutinePhase.LateUpdate;
-            GameLoop.QueuePreUpdate(() => { SignalCountdownCompleted(countdownState); });
+            GameLoop.QueuePreUpdate(SignalCountdownCompleted);
         }
 
-        private static void SignalCountdownCompleted(CountdownState countdownState)
+        private static void SignalCountdownCompleted()
         {
-            countdownState.CountdownCompletedThisFrame = true;
+            Find.State<CountdownState>().CountdownCompletedThisFrame = true;
         }
     }
 }

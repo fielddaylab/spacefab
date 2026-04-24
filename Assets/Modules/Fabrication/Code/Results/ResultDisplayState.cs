@@ -4,6 +4,7 @@ using FieldDay.SharedState;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Stations;
+using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,17 +16,29 @@ namespace SpaceFab.Fabrication
         [HideInInspector] public bool DisplayRequestedThisFrame;
 
         public CanvasGroup ResultsGroup;
+        public DynamicButton RetryButton;
+        public DynamicButton FinalizeButton;
 
         public Routine ResultsTransitionRoutine;
 
         public void OnDeregister()
         {
             ResultsTransitionRoutine.Stop();
+
+            RetryButton.onClick.RemoveAllListeners();
+            FinalizeButton.onClick.RemoveAllListeners();
         }
 
         public void OnRegister()
         {
             ResultDisplayStateUtility.SetEnabledResultsGroup(this, false);
+
+            RetryButton.onClick.AddListener(() => {
+                Find.State<InterruptState>().ResetRequestedThisFrame = true;
+            });
+            FinalizeButton.onClick.AddListener(() => {
+                Find.State<InterruptState>().FinalizeAttemptRequestedThisFrame = true;
+            });
         }
     }
 

@@ -4,6 +4,7 @@ using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
+using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -21,15 +22,21 @@ namespace SpaceFab.Fabrication {
                 new SysPermissions()
                     .ReadWriteShared<ModeState>()
                     .ReadShared<CountdownState>()
+                    .ReadShared<SequenceState>()
+                    .ReadShared<InterruptState>()
+                    .ReadWriteShared<MinigameRequestExitState>()
             );
         }
 
-        // TODO: implement mode transition logic.
+        // implements mode transition logic.
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ModeState modeState,
-                out CountdownState countdownState
+                out CountdownState countdownState,
+                out SequenceState sequenceState,
+                out InterruptState interruptState
                 );
+            Find.State(out MinigameRequestExitState exitState);
 
             switch (modeState.CurrMode)
             {
@@ -40,10 +47,10 @@ namespace SpaceFab.Fabrication {
                     ProcessAttemptLeadIn(modeState, countdownState);
                     break;
                 case LevelMode.Attempt:
-                    ProcessAttempt(modeState, countdownState);
+                    ProcessAttempt(modeState, sequenceState, interruptState);
                     break;
                 case LevelMode.PostAttempt:
-                    ProcessPostAttempt(modeState, countdownState);
+                    ProcessPostAttempt(modeState, interruptState, exitState);
                     break;
                 default:
                     break;
@@ -76,10 +83,10 @@ namespace SpaceFab.Fabrication {
             }
         }
 
-        static private void ProcessAttempt(ModeState modeState, CountdownState countdownState)
+        static private void ProcessAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState)
         {
             // TODO: poll for move into post-attempt
-            if (false)
+            if (sequenceState.Status == SequenceStatus.Completed)
             {
                 Log.Msg("[ModeTransitionSystem] Attempt completed. Moving to PostAttempt Mode");
                 ModeUtility.SetNewMode(modeState, LevelMode.PostAttempt);
@@ -88,32 +95,35 @@ namespace SpaceFab.Fabrication {
             }
 
             // TODO: poll for reset triggers
-            if (false)
+            if (interruptState.ResetRequestedThisFrame)
             {
                 Log.Msg("[ModeTransitionSystem] Attempt reset. Moving to AttemptLeadIn Mode");
+                ResetUtility.ResetAttempt();
                 TransitionToAttemptLeadIn(modeState);
             }
             
             // TODO: poll for checkpoint triggers
-            if (false)
+            if (interruptState.RestoreCheckpointRequestedThisFrame)
             {
                 Log.Msg("[ModeTransitionSystem] Attempt reset to checkpoint. Staying in Attempt Mode");
             }
         }
 
-        static private void ProcessPostAttempt(ModeState modeState, CountdownState countdownState)
+        static private void ProcessPostAttempt(ModeState modeState, InterruptState interruptState, MinigameRequestExitState exitState)
         {
             // TODO: poll for reset triggers
-            if (true)
+            if (interruptState.ResetRequestedThisFrame)
             {
                 Log.Msg("[ModeTransitionSystem] PostAttempt completed. Resetting to AttemptLeadIn Mode");
+                ResetUtility.ResetAttempt();
                 TransitionToAttemptLeadIn(modeState);
             }
 
             // TODO: poll for finalize triggers
-            if (false)
+            if (interruptState.FinalizeAttemptRequestedThisFrame)
             {
                 Log.Msg("[ModeTransitionSystem] PostAttempt completed. Finalizing and exiting level");
+                exitState.ExitRequestState = RequestState.Confirmed;
             }
         }
 
