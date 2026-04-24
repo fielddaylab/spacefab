@@ -20,25 +20,39 @@ namespace SpaceFab.Fabrication {
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.AttemptLeadInMask),
                 new SysPermissions()
                     .ReadShared<ModeState>()
+                    .ReadWriteShared<LayoutState>()
+                    .ReadWriteShared<CountdownState>()
             );
         }
 
-        // TODO: implement attempt sequence progression.
+        // TODO: implement attempt lead in sequence progression.
         static private void ProcessWork(float deltaTime) {
             Find.State(
-                out ModeState modeState
+                out ModeState modeState,
+                out LayoutState layoutState,
+                out CountdownState countdownState
                 );
 
             if (modeState.CurrMode != LevelMode.AttemptLeadIn) { return; }
 
             if (modeState.ChangedModeThisFrame)
             {
-                // setup Attempt:
+                // lead into Attempt Mode:
+                // reshuffle stations (if not already done in PreAttempt (i.e. entered from ResetSystem)
+                if (layoutState.NeedsReshuffling)
+                {
+                    Log.Msg("[AttemptLeadInSystem] shuffling stations");
+
+                    LayoutUtility.ShuffleStations(layoutState);
+                    layoutState.NeedsReshuffling = false;
+                }
+
                 // generate wafer
                 Log.Msg("[AttemptLeadInSystem] TODO: generating wafer");
 
                 // initiate countdown
-                Log.Msg("[AttemptLeadInSystem] TODO: running countdown");
+                Log.Msg("[AttemptLeadInSystem] running countdown");
+                countdownState.CountdownRequestedThisFrame = true;
             }
         }
     }

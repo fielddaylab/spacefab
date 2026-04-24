@@ -14,12 +14,18 @@ namespace SpaceFab.Fabrication {
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhase.Update, 1, UpdateMasks.PostAttemptMask),
                 new SysPermissions()
-                    .ReadWriteShared<WaferState>()
+                    .ReadWriteShared<ResultDisplayState>()
             );
         }
 
         // TODO: implement results display.
         static private void ProcessWork(float deltaTime) {
+            Find.State(out ResultDisplayState displayState);
+
+            if (displayState.DisplayRequestedThisFrame)
+            {
+                ResultDisplayStateUtility.ShowResults(displayState);
+            }
         }
     }
 }
