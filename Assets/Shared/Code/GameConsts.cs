@@ -69,6 +69,9 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
+
+        // Wiki
+        public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
     }
 
     public static class UpdateMasks
@@ -100,6 +103,9 @@ namespace SpaceFab
 
         // fab (parallel to AttemptMask; active only while StationControlPhase == InMicrogame)
         public const int MicrogameMask = 1 << 17;
+
+        // shared UI
+        public const int WikiMask = 1 << 18;
     }
 
     static public class LayerMasks
