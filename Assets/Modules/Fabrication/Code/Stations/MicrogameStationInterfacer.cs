@@ -56,6 +56,10 @@ namespace SpaceFab.Fabrication.Stations {
         // Called by StationControlSystem on InMicrogame -> ExitingMicrogame. completedNormally = false on cancel from StationControlUtility.RequestCancel()
         public static void BeginExit(MicrogameStationInterfacer interfacer, bool completedNormally) {
             // TODO: set Phase = Exiting; invoke interfacer.Microgame?.OnExitBegin(completedNormally).
+            //       StationControlState stationState = Find.State<StationControlState>().
+            //       If completedNormally: if (!stationState.ProcessAnimationInProgress) stationState.ProcessAnimationInProgress = true.
+            //         (Idempotent — leave true if the microgame already started one in parallel.)
+            //       Else (cancel): stationState.ProcessAnimationInProgress = false. Drops any in-flight animation.
         }
 
         // Called by StationControlSystem on ExitingMicrogame -> AtStation.
@@ -67,6 +71,16 @@ namespace SpaceFab.Fabrication.Stations {
         // Sets the one-frame flag AND notifies the shared state, so StationControlSystem picks it up this frame.
         public static void SignalCompleted(MicrogameStationInterfacer interfacer) {
             // TODO: set interfacer.CompletedThisFrame = true; call StationControlUtility.NotifyMicrogameCompleted.
+        }
+
+        // Called by a concrete microgame to begin a "process animation" that plays in parallel
+        // with the active microgame. Once raised, the station-control machine will hold
+        // ExitingMicrogame (when the microgame eventually completes successfully) until
+        // IsProcessAnimationComplete() returns true OR the player presses Skip. No-op if not
+        // currently in InMicrogame, so a stray call after exit can't accidentally re-arm the flag.
+        public static void SignalProcessAnimationStarted(MicrogameStationInterfacer interfacer) {
+            // TODO: StationControlState stationState = Find.State<StationControlState>().
+            //       if (stationState.Phase == StationControlPhase.InMicrogame) stationState.ProcessAnimationInProgress = true.
         }
     }
 }

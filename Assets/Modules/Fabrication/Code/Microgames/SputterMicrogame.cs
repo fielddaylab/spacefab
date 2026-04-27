@@ -39,6 +39,14 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
         }
 
+        // TODO: track process animation state (parallel or sequential) and return true once the
+        // animation has finished playing. Scaffold returns true so the exit gate doesn't stall
+        // before per-microgame animations are authored.
+        public bool IsProcessAnimationComplete()
+        {
+            return true;
+        }
+
         public void OnExitComplete()
         {
             // TODO: tear down sputter UI; return to idle.

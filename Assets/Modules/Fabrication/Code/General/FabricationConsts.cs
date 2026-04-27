@@ -31,6 +31,12 @@ namespace SpaceFab.Fabrication
 
         public const KeyCode Activate = KeyCode.Space;
 
+        // Skips the post-microgame process animation during ExitingMicrogame. Reuses the same
+        // physical key as Down0 (Cancel) intentionally — Cancel is consumed only during
+        // InMicrogame while Skip is consumed only during ExitingMicrogame, so the two never
+        // overlap in time.
+        public const KeyCode Skip = KeyCode.S;
+
         // Movement
 
         public const KeyCode Left0 = KeyCode.A;

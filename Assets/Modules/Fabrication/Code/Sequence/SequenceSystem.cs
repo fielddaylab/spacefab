@@ -25,6 +25,7 @@ namespace SpaceFab.Fabrication.Sequence
                 new SysUpdate(GameLoopPhase.Update, 15, UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<SequenceState>()
+                    .ReadWriteShared<SequenceVisualsState>()
                     .ReadShared<StationControlState>()
                     .ReadShared<MovementState>()
                     .ReadShared<LayoutState>()
@@ -45,14 +46,15 @@ namespace SpaceFab.Fabrication.Sequence
                 );
             Find.State(
                 out WaferState waferState,
-                out TimeState timeState
+                out TimeState timeState,
+                out SequenceVisualsState visualsState
                 );
 
             if (sequenceState.Status != SequenceStatus.Active && sequenceState.Status != SequenceStatus.Restoring) {
                 return;
             }
 
-            HandleMicrogameCompleted(sequenceState, stationState, movementState, layoutState, waferState, timeState);
+            HandleMicrogameCompleted(sequenceState, stationState, movementState, layoutState, waferState, timeState, visualsState);
         }
 
         // On microgame completion:
@@ -61,7 +63,7 @@ namespace SpaceFab.Fabrication.Sequence
         //     snapshot. Advance on success, flag misalignment on failure.
         // A microgame that is cancelled (rather than completed) does NOT trigger either path, because
         // StationControlState.MicrogameCompletedThisFrame is only set on a normal completion.
-        static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState)
+        static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState, SequenceVisualsState visualsState)
         {
             // TODO:
             //   if (!stationState.MicrogameCompletedThisFrame) return
@@ -87,7 +89,7 @@ namespace SpaceFab.Fabrication.Sequence
             //       SequenceUtility.FlagMisalignment(sequenceState)
             //       return
             //   }
-            //   SequenceUtility.AdvanceStep(sequenceState, waferState, timeState, movementState)
+            //   SequenceUtility.AdvanceStep(sequenceState, waferState, timeState, movementState, visualsState)
         }
     }
 }

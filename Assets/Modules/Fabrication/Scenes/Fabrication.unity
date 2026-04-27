@@ -404,6 +404,7 @@ GameObject:
   - component: {fileID: 392984993}
   - component: {fileID: 392984994}
   - component: {fileID: 392984995}
+  - component: {fileID: 392984996}
   m_Layer: 0
   m_Name: Fabrication Systems
   m_TagString: Untagged
@@ -653,6 +654,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7b5174cd46650bd4cac2d8aefc866e1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392984996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb0ff421f2ccdb649a032b9ea98d1d0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &425520832
@@ -1152,6 +1165,7 @@ GameObject:
   - component: {fileID: 879438744}
   - component: {fileID: 879438745}
   - component: {fileID: 879438746}
+  - component: {fileID: 879438747}
   m_Layer: 0
   m_Name: Fabrication States
   m_TagString: Untagged
@@ -1413,6 +1427,30 @@ MonoBehaviour:
   ResetRequestedThisFrame: 0
   RestoreCheckpointRequestedThisFrame: 0
   FinalizeAttemptRequestedThisFrame: 0
+--- !u!114 &879438747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 879438728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419aafbd2c03914ba965645de0c327b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StepCardPrefab: {fileID: 0}
+  StepCardContainer: {fileID: 0}
+  CurrentSlotLocalPos: {x: 0, y: 0, z: 0}
+  NextSlotLocalPos: {x: 0, y: 0, z: 0}
+  ExitLocalPos: {x: 0, y: 0, z: 0}
+  StampDurationSeconds: 0.4
+  SwipeDurationSeconds: 0.35
+  CurrentCard: {fileID: 0}
+  NextCard: {fileID: 0}
+  ResetRequested: 0
+  AdvanceRequested: 0
+  CompletionRequested: 0
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
