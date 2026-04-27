@@ -75,9 +75,11 @@ namespace SpaceFab.Overarching
             assetsWrapperId = lookup.Map[contractId].AssetsWrapperId;
         }
 
-        public static IEnumerator LoadContract(ContractAssetsLookup lookup, StringHash32 contractId)
+        public static IEnumerator LoadContract(ContractAssetsLookup lookup, PlayerProgressState playerProgress, StringHash32 contractId)
         {
             Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
+
+            playerProgress.ContractAssetsWrapperId = assetsWrapperId;
 
             if (Game.Scenes.IsLoaded(contractAssetsScene))
             {

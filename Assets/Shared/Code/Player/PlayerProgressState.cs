@@ -12,11 +12,17 @@ namespace SpaceFab
 {
     public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks
     {
+        #region Save State
+
         public HashSet<StringHash32> AvailableMaterials;
         public HashSet<StringHash32> ResearchedMaterials;
 
         public bool RecentlyCompletedChapter;
         public List<StringHash32> CompletedContractIds;
+
+        #endregion // Save State
+
+        public StringHash32 ContractAssetsWrapperId;
 
         public void OnDeregister()
         {
