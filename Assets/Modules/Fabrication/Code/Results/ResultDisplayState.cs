@@ -63,6 +63,8 @@ namespace SpaceFab.Fabrication
 
         private static IEnumerator ShowResultsRoutine(ResultDisplayState displayState)
         {
+            // TODO: populate relevant results data (time elapsed, number of cycles, precision, etc.)
+
             SetEnabledResultsGroup(displayState, true);
             yield break;
         }
