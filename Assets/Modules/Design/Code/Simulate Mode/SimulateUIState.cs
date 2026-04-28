@@ -116,8 +116,8 @@ namespace SpaceFab.Design
             bool inOutputPhase = false;
 
             // headers
-            Transform currCellContainer = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).transform;
-            SuiteRow currRow = currCellContainer.GetComponent<SuiteRow>();
+            SuiteRow currRow = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
+            currRow.RunButton.gameObject.SetActive(false);
             for (int i = 0; i < numCols; i++)
             {
                 if (suite.Tests[0].Bundle[i].Id >= InputOutputNodeTypeFlags.OUT)
@@ -125,13 +125,14 @@ namespace SpaceFab.Design
                     if (!inOutputPhase)
                     {
                         // instantiate arrow image at input-output threshold (but hide image)
-                        var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currCellContainer).GetComponent<Image>();
-                        arrowCol.enabled = false;
+                        var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
+                        arrowCol.FlowImg.enabled = false;
+                        arrowCol.Label.enabled = false;
                         inOutputPhase = true;
                     }
                 }
 
-                SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, currCellContainer).GetComponent<SuiteHeader>();
+                SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
                 currHeader.Label.SetText(GetLocTextForId(suite.Tests[0].Bundle[i].Id));
                 var size = currHeader.Rect.sizeDelta;
                 size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;
@@ -163,6 +164,7 @@ namespace SpaceFab.Design
                 // instantiate row
                 uiState.Rows[row] = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
                 uiState.Rows[row].Cols = new SuiteCol[suite.Tests[row].Bundle.Length];
+                inOutputPhase = false;
                 for (int col = 0; col < suite.Tests[row].Bundle.Length; col++)
                 {
                     var bundle = suite.Tests[row].Bundle;
@@ -182,6 +184,7 @@ namespace SpaceFab.Design
                             // instantiate arrow image at input-output threshold
                             var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                             arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isArrow: true);
+                            arrowCol.Label.enabled = false;
 
                             inOutputPhase = true;
                         }
@@ -192,6 +195,8 @@ namespace SpaceFab.Design
                         // configure table visual
                         newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
                     }
+
+                    newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
                     uiState.Rows[row].Cols[col] = newCol;
                 }
@@ -223,6 +228,19 @@ namespace SpaceFab.Design
             else if ((id & InputOutputNodeTypeFlags.OUTZ) != 0) { return "Out Z"; }
 
             return string.Empty;
+        }
+
+        // TODO: hook up with Loc system
+        private static string GetLocTextForFlow(FlowState flow)
+        {
+            switch (flow)
+            {
+                case FlowState.Empty: return "--";
+                case FlowState.Lo: return "Lo";
+                case FlowState.Hi: return "Hi";
+                case FlowState.Unstable: return "Unstable";
+                default: return string.Empty;
+            }
         }
 
         #endregion // Helpers
