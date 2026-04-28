@@ -55,9 +55,7 @@ namespace SpaceFab.Design
         // Ported from EvaluationMgr.ConstructSuiteTable.
         public static void BuildTable(SimulateUIState uiState, TestSuiteData suite, SimulateRunState runState, SuiteVisualsDB suiteDB)
         {
-            // TODO: instantiate header prefabs + contents prefabs per test row;
-            //       instantiate SuiteCellEval overlays on output columns.
-            //       Store view handles on uiState. Set TableBuilt = true.
+            // TODO: instantiate SuiteCellEval overlays on output columns.
 
             // instantiate headers and size table
             SizeTable(uiState, suite, suiteDB);
@@ -65,6 +63,7 @@ namespace SpaceFab.Design
             // instantiate rows and cols
             CreateRowsAndCols(uiState, suite, suiteDB);
 
+            // hook into run state for play, pause, rewind, etc.
             AssignRunListeners(uiState, suite, runState);
 
             uiState.TableBuilt = true;
@@ -114,12 +113,24 @@ namespace SpaceFab.Design
 
             var numCols = suite.Tests[0].Bundle.Length;
             float tableWidth = 0;
+            bool inOutputPhase = false;
 
             // headers
             Transform currCellContainer = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).transform;
             SuiteRow currRow = currCellContainer.GetComponent<SuiteRow>();
             for (int i = 0; i < numCols; i++)
             {
+                if (suite.Tests[0].Bundle[i].Id >= InputOutputNodeTypeFlags.OUT)
+                {
+                    if (!inOutputPhase)
+                    {
+                        // instantiate arrow image at input-output threshold (but hide image)
+                        var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currCellContainer).GetComponent<Image>();
+                        arrowCol.enabled = false;
+                        inOutputPhase = true;
+                    }
+                }
+
                 SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, currCellContainer).GetComponent<SuiteHeader>();
                 currHeader.Label.SetText(GetLocTextForId(suite.Tests[0].Bundle[i].Id));
                 var size = currHeader.Rect.sizeDelta;
@@ -162,14 +173,15 @@ namespace SpaceFab.Design
                         newCol = GameObject.Instantiate(suiteDB.InputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
 
                         // configure with flow visual
-                        newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, false, bundle[col].State);
+                        newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State);
                     }
                     else
                     {
                         if (!inOutputPhase)
                         {
                             // instantiate arrow image at input-output threshold
-                            var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform);
+                            var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                            arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isArrow: true);
 
                             inOutputPhase = true;
                         }
@@ -178,7 +190,7 @@ namespace SpaceFab.Design
                         newCol = GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
 
                         // configure table visual
-                        newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, true, bundle[col].State);
+                        newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
                     }
 
                     uiState.Rows[row].Cols[col] = newCol;

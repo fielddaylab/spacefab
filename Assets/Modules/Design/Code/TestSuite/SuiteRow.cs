@@ -9,7 +9,6 @@ namespace SpaceFab.Design
     {
         public SuiteRunRowButton RunButton;
         public HorizontalLayoutGroup HorizontalLayout;
-        public Image ArrowImg;
-        public SuiteCol[] Cols;
+        [HideInInspector] public SuiteCol[] Cols;
     }
 }

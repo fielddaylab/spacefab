@@ -21,16 +21,15 @@ namespace SpaceFab.Design.Visuals
         public Sprite SuiteFlowEmpty;
         public Sprite SuiteFlowUnstable;
         public Sprite SuiteFlowOutput;
+        public Sprite SuiteArrow;
     }
 
     public static class SuiteVisualsDBUtility
     {
-        public static Sprite LookupSuiteColSprite(SuiteVisualsDB suiteDB, bool isOutput, FlowState state)
+        public static Sprite LookupSuiteColSprite(SuiteVisualsDB suiteDB, FlowState state, bool isOutput = false, bool isArrow = false)
         {
-            if (isOutput)
-            {
-                return suiteDB.SuiteFlowOutput;
-            }
+            if (isOutput) { return suiteDB.SuiteFlowOutput; }
+            if (isArrow) { return suiteDB.SuiteArrow; }
 
             switch (state)
             {
