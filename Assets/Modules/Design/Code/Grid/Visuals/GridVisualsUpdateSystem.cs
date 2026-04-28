@@ -16,16 +16,16 @@ namespace SpaceFab.Design.Visuals {
                 new SysUpdate(GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.DesignMask),
                 new SysPermissions()
                     .ReadWriteShared<VisualGridStackState>()
-                    .ReadShared<SpriteDB>()
             );
         }
 
         // When visuals are marked dirty, re-renders both layers from the current grid data.
         static private void ProcessWork(float deltaTime) {
             Find.State(
-                out VisualGridStackState visualState,
-                out SpriteDB spriteDB
+                out VisualGridStackState visualState
                 );
+
+            var spriteDB = Find.GlobalAsset<GridSpriteDB>();
 
             if (visualState.VisualsNeedRefreshing) {
                 if (visualState.VisualGridStack == null || visualState.VisualGridStack.GridLayers == null || visualState.VisualGridStack.GridLayers.Length == 0) {

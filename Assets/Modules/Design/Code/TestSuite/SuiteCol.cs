@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SpaceFab.Design
 {
-    public class SuiteContents : MonoBehaviour
+    public class SuiteCol : MonoBehaviour
     {
         public RectTransform Rect;
         public TMP_Text Label;
