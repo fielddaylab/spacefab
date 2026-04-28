@@ -21,6 +21,7 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ChapterState>()
                     .ReadWriteShared<ContractAssetsLookup>()
                     .ReadShared<SharedUIState>()
+                    .ReadWriteShared<PlayerProgressState>()
             );
         }
 
@@ -34,12 +35,13 @@ namespace SpaceFab.Overarching {
                 );
             Find.State(
                 out ContractAssetsLookup assetsLookup,
-                out SharedUIState uiState
+                out SharedUIState uiState,
+                out PlayerProgressState playerProgress
                 );
 
             switch (confirmState.Phase) {
                 case ContractConfirmPhase.Confirming:
-                    ProcessConfirming(confirmState, selectState, layoutState, chapterState, assetsLookup, uiState);
+                    ProcessConfirming(confirmState, selectState, layoutState, chapterState, assetsLookup, uiState, playerProgress);
                     break;
                 default:
                     break;
@@ -47,9 +49,9 @@ namespace SpaceFab.Overarching {
         }
 
         // Starts the confirmation coroutine if one isn't already running.
-        static private void ProcessConfirming(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup assetsLookup, SharedUIState uiState) {
+        static private void ProcessConfirming(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup assetsLookup, SharedUIState uiState, PlayerProgressState playerProgress) {
             if (!confirmState.ConfirmRoutine.Exists()) {
-                confirmState.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(confirmState, selectState, layoutState, chapterState, assetsLookup, uiState));
+                confirmState.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(confirmState, selectState, layoutState, chapterState, assetsLookup, uiState, playerProgress));
             }
         }
     }

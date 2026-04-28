@@ -88,10 +88,32 @@ namespace SpaceFab.Fabrication.StationControl {
             // TODO:
         }
 
-        // Accumulates PhaseTimer; at ExitMicrogameDuration, calls ExitComplete on the interfacer,
-        // clears ActiveInterfacer, dispatches FabStationExit, and transitions to AtStation.
+        // Holds the exit timer while ProcessAnimationInProgress is true. Each frame, polls the
+        // active interfacer's microgame via IsProcessAnimationComplete() and clears the flag
+        // when it returns true. Once the flag is clear, accumulates PhaseTimer; at
+        // ExitMicrogameDuration, calls ExitComplete on the interfacer, clears ActiveInterfacer,
+        // dispatches FabStationExit, and transitions to AtStation. Cancel (BeginExit(false))
+        // clears the flag eagerly so this method runs the existing fixed-duration timer with no
+        // animation hold.
         static private void ProcessExitingMicrogame(StationControlState stationState, float deltaTime) {
             // TODO:
+            //   if (stationState.ProcessAnimationInProgress) {
+            //       if (stationState.ActiveInterfacer != null
+            //           && stationState.ActiveInterfacer.Microgame != null
+            //           && stationState.ActiveInterfacer.Microgame.IsProcessAnimationComplete()) {
+            //           stationState.ProcessAnimationInProgress = false;
+            //       } else {
+            //           return;   // hold the exit timer behind the animation
+            //       }
+            //   }
+            //   stationState.PhaseTimer += deltaTime;
+            //   if (stationState.PhaseTimer >= stationState.ExitMicrogameDuration) {
+            //       MicrogameStationInterfacerUtility.ExitComplete(stationState.ActiveInterfacer);
+            //       stationState.ActiveInterfacer = null;
+            //       Game.Events.Dispatch(GameEvents.FabStationExit);
+            //       stationState.Phase = StationControlPhase.AtStation;
+            //       stationState.PhaseTimer = 0f;
+            //   }
         }
 
         // Accumulates PhaseTimer; at StunDuration, calls RobotUtility.RemoveStun, dispatches FabStunEnd,

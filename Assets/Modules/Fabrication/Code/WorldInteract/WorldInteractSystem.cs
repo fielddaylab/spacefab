@@ -47,6 +47,12 @@ namespace SpaceFab.Fabrication.Movement {
             if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1) || Game.Input.IsKeyPressed(FabricationConsts.Activate)) {
                 HandleActivate(interactState, movementState, layoutState, stationState);
             }
+            // Skip and Down0 share the physical key S, so the Skip branch must come before Cancel.
+            // The phase guard ensures Skip only fires during ExitingMicrogame while a process
+            // animation is blocking the exit; Cancel still owns the press during InMicrogame.
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Skip) && StationControlUtility.AllowsSkipProcessAnimation(stationState)) {
+                HandleSkipProcessAnimation(stationState);
+            }
             else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1)) {
                 HandleCancel(interactState, stationState);
                 // TODO: Handle Close Results
@@ -70,6 +76,15 @@ namespace SpaceFab.Fabrication.Movement {
             if (!WorldInteractUtility.CanCancel(interactState, stationState)) { return; }
 
             StationControlUtility.RequestCancel(stationState);
+        }
+
+        // Forwards a Skip request to the station-control machine. Honored only while a process
+        // animation is blocking the exit (Phase == ExitingMicrogame && ProcessAnimationInProgress).
+        // Phase gating happens at the call site via StationControlUtility.AllowsSkipProcessAnimation;
+        // the outer WorldInteractEnabled kill switch is intentionally not consulted here, so a
+        // disabled interact state can't strand the player behind the animation.
+        static private void HandleSkipProcessAnimation(StationControlState stationState) {
+            StationControlUtility.RequestSkipProcessAnimation(stationState);
         }
     }
 }

@@ -10,8 +10,8 @@ using UnityEngine;
 namespace SpaceFab.Design {
     /// <summary>
     /// Drives the Design minigame's grid-setup sequence during the SetupMask phase.
-    /// Walks DesignTransitionState.Phase through SetupBaseLevel → ApplySave → FinalizeLevel → SetupComplete,
-    /// initializing the visual grid and flagging the visuals for refresh. Suspends SetupMask when done.
+    /// Walks DesignTransitionState.Phase through SetupBaseLevel → ApplySave → FinalizeLevel → BuildSimTable,
+    /// initializing the visual grid and flagging the visuals for refresh.
     /// </summary>
     public class GridStackLoadSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
@@ -51,12 +51,7 @@ namespace SpaceFab.Design {
                     // TODO: finalize level (enforce eraseable)
                     // Queue a visuals refresh so the newly-populated grid renders on the next frame
                     visualState.VisualsNeedRefreshing = true;
-                    transitionState.Phase = DesignTransitionPhase.SetupComplete;
-                    break;
-                case DesignTransitionPhase.SetupComplete:
-                    Debug.Log("[GridStackLoadSystem] Load Complete!");
-                    // Setup is finished; stop running this system until the next minigame load
-                    GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
+                    transitionState.Phase = DesignTransitionPhase.BuildSimTable;
                     break;
                 default:
                     break;

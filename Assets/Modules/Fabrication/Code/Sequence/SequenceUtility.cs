@@ -42,8 +42,8 @@ namespace SpaceFab.Fabrication.Sequence
         // Resets the sequence to step 0 using the supplied level asset. Called at Attempt start,
         // on player-initiated reset, and on results-retry. Rebuilds StepRuntime (including a fresh
         // glitch roll based on GlitchMode), clears any captured checkpoint, sets Status = Active,
-        // dispatches FabSequenceReset.
-        public static void ResetSequence(SequenceState sequenceState, FabricationSequenceLevel level)
+        // dispatches FabSequenceReset, and signals the visuals layer to rebuild the on-screen cards.
+        public static void ResetSequence(SequenceState sequenceState, FabricationSequenceLevel level, SequenceVisualsState visualsState)
         {
             // TODO:
             //   sequenceState.Level = level
@@ -58,13 +58,15 @@ namespace SpaceFab.Fabrication.Sequence
             //   waferState.RecordedStepCount = 0
             //   sequenceState.Status = SequenceStatus.Active
             //   Game.Events.Dispatch(GameEvents.FabSequenceReset)
+            visualsState.ResetRequested = true;
         }
 
         // Called by SequenceSystem when a microgame completes at a station matching the current
         // step AND the wafer matches the expected snapshot. Captures a checkpoint if this step was
         // a checkpoint, increments the step pointer, transitions to Completed on the last step,
-        // dispatches FabSequenceStepCompleted (and FabSequenceCompleted on final step).
-        public static void AdvanceStep(SequenceState sequenceState, WaferState waferState, TimeState timeState, MovementState movementState)
+        // dispatches FabSequenceStepCompleted (and FabSequenceCompleted on final step), and signals
+        // the visuals layer to play the stamp-and-swipe (or completion) animation.
+        public static void AdvanceStep(SequenceState sequenceState, WaferState waferState, TimeState timeState, MovementState movementState, SequenceVisualsState visualsState)
         {
             // TODO:
             //   int justCompleted = sequenceState.CurrentStepIndex
@@ -74,6 +76,9 @@ namespace SpaceFab.Fabrication.Sequence
             //   if (sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length) {
             //       sequenceState.Status = SequenceStatus.Completed
             //       Game.Events.Dispatch(GameEvents.FabSequenceCompleted)
+            //       visualsState.CompletionRequested = true
+            //   } else {
+            //       visualsState.AdvanceRequested = true
             //   }
             //   Game.Events.Dispatch(GameEvents.FabSequenceStepCompleted)
         }

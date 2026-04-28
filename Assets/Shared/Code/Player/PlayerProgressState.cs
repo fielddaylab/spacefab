@@ -12,6 +12,8 @@ namespace SpaceFab
 {
     public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks
     {
+        #region Save State
+
         public HashSet<StringHash32> AvailableMaterials;
         public HashSet<StringHash32> ResearchedMaterials;
 
@@ -22,6 +24,10 @@ namespace SpaceFab
         // WikiAvailabilityUtility and WikiUtility's lock queries to decide which tabs/pages
         // are exposed. Account-scoped, so it persists across minigames.
         public HashSet<StringHash32> UnlockedWikiPages;
+        
+        #endregion // Save State
+
+        public StringHash32 ContractAssetsWrapperId;
 
         public void OnDeregister()
         {

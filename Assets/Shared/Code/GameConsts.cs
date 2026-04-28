@@ -101,11 +101,14 @@ namespace SpaceFab
         public const int ToolModeMask = 1 << 15;
         public const int SimulateModeMask = 1 << 16;
 
-        // fab (parallel to AttemptMask; active only while StationControlPhase == InMicrogame)
+        // fab
         public const int MicrogameMask = 1 << 17;
 
         // shared UI
         public const int WikiMask = 1 << 18;
+        
+        // tutorial
+        public const int TutorialMask = 1 << 19;
     }
 
     static public class LayerMasks

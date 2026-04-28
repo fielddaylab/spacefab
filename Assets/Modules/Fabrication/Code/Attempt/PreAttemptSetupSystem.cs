@@ -16,8 +16,8 @@ namespace SpaceFab.Fabrication {
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhaseMask.PreUpdate, 0, UpdateMasks.PreAttemptMask),
                 new SysPermissions()
-                    .ReadWriteShared<WaferState>()
                     .ReadWriteShared<LayoutState>()
+                    .ReadWriteShared<ModeState>()
             );
         }
 
@@ -32,7 +32,6 @@ namespace SpaceFab.Fabrication {
             }
 
             // setup pre-attempt
-
             if (layoutState.NeedsReshuffling) {
                 Log.Msg("[PreAttemptSetupSystem] shuffling stations");
 

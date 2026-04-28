@@ -6,21 +6,21 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication {
     /// <summary>
-    /// Manages relevant state for resetting an attempt. Clears wafer state, resets timer, etc.
-    /// Loops back to AttemptLeadIn Mode.
-    /// Runs on Update phase at order 0, no category mask. Currently a stub.
     /// </summary>
-    public class ResetSystem : SystemComponent {
+    public class CountdownRefreshSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0),
+                new SysUpdate(GameLoopPhase.LateUpdate, 100, UpdateMasks.AttemptLeadInMask | UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),
                 new SysPermissions()
-                    .ReadWriteShared<WaferState>()
+                    .ReadWriteShared<CountdownState>()
             );
         }
 
-        // TODO: implement attempt reset.
         static private void ProcessWork(float deltaTime) {
+            Find.State(out CountdownState countdownState);
+
+            countdownState.CountdownRequestedThisFrame = false;
+            countdownState.CountdownCompletedThisFrame = false;
         }
     }
 }
