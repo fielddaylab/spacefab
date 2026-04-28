@@ -35,7 +35,7 @@ namespace SpaceFab.Design
                 out PlayerProgressState progressState
                 );
 
-            ContractAssetsWrapper contractAssets = default; // Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
             TestSuiteData suiteData = contractAssets.DesignLevelData.GetTestSuite();
             var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
 
