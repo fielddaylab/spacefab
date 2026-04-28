@@ -20,6 +20,7 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ContractAssetsLookup>()
                     .ReadShared<ChapterState>()
                     .ReadShared<ContractLayoutState>()
+                    .ReadShared<PlayerProgressState>()
             );
         }
 
@@ -31,10 +32,11 @@ namespace SpaceFab.Overarching {
                 out ChapterState chapterState,
                 out ContractLayoutState layoutState
                 );
+            Find.State(out PlayerProgressState playerProgress);
 
             switch (loadState.Phase) {
                 case ContractLoadPhase.BeginLoad:
-                    ProcessBeginLoad(loadState, assetsLookup, chapterState);
+                    ProcessBeginLoad(loadState, assetsLookup, chapterState, playerProgress);
                     break;
                 case ContractLoadPhase.Loading:
                     ProcessLoading(loadState, layoutState);
@@ -45,9 +47,9 @@ namespace SpaceFab.Overarching {
         }
 
         // Kicks off the load routine for the currently-selected contract and advances to the Loading phase.
-        static private void ProcessBeginLoad(ContractLoadState loadState, ContractAssetsLookup assetsLookup, ChapterState chapterState) {
+        static private void ProcessBeginLoad(ContractLoadState loadState, ContractAssetsLookup assetsLookup, ChapterState chapterState, PlayerProgressState playerProgress) {
             StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
-            loadState.LoadRoutine.Replace(ContractsLookupUtility.LoadContract(assetsLookup, contractId));
+            loadState.LoadRoutine.Replace(ContractsLookupUtility.LoadContract(assetsLookup, playerProgress, contractId));
             loadState.Phase = ContractLoadPhase.Loading;
         }
 

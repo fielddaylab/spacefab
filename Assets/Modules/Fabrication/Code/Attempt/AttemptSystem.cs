@@ -15,7 +15,7 @@ namespace SpaceFab.Fabrication {
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.AttemptMask),
                 new SysPermissions()
-                    .ReadWriteShared<SequenceState>()
+                    .ReadWriteShared<ModeState>()
             );
         }
 

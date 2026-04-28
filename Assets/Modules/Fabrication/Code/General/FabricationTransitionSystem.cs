@@ -1,6 +1,7 @@
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,8 @@ namespace SpaceFab.Fabrication {
                 new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.SetupMask),
                 new SysPermissions()
                     .ReadWriteShared<FabricationTransitionState>()
+                    .ReadShared<PlayerProgressState>()
+                    .ReadWriteShared<SequenceState>()
             );
         }
 
@@ -23,11 +26,18 @@ namespace SpaceFab.Fabrication {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out FabricationTransitionState transitionState,
-                out ModeState modeState
+                out ModeState modeState,
+                out PlayerProgressState playerProgress,
+                out SequenceState sequenceState
                 );
 
             Log.Msg("[FabricationTransitionSystem] Setting up level...");
-            // TODO: setup
+            // setup
+            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+            if (contractAssets == null) {
+                Log.Error("FabricationTransistionSystem] Tried to load contract assets but returned null!");
+            }
+            sequenceState.Level = contractAssets.FabricationLevel;
             Log.Msg("[FabricationTransitionSystem] Setup complete!");
 
             // Enter Pre-Attempt Mode

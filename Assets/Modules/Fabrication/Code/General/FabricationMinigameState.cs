@@ -38,10 +38,6 @@ namespace SpaceFab.Fabrication
         public override void ImportState(MinigameSaveStates saveStates)
         {
             FabricationStateUtility.ImportState(saveStates.Fabrication, this);
-
-            // TODO: pull FabricationSequenceLevel from the current contract's ContractAssetsWrapper,
-            // assign to SequenceState.Level, and call SequenceUtility.ResetSequence. Path depends on
-            // how the Fabrication minigame is wired to its contract (separate future task).
         }
 
         public override void ExportState(ref MinigameSaveStates saveStates)
