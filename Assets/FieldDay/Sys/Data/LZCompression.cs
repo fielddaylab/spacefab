@@ -1,4 +1,5 @@
 //#define RLE_DEBUG
+//#define RLE_PROFILE
 
 using System;
 using System.Runtime.CompilerServices;
@@ -307,6 +308,9 @@ namespace FieldDay.Data {
         #region Decompress
 
         static private LZDecompressionResult DecompressImpl(byte* src, uint srcSize, byte* dst, uint dstSize, LZCompressionHeader header, out uint uncompressedSize) {
+#if RLE_PROFILE
+            long startTick = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif // RLE_PROFILE
             if (dstSize < header.UncompressedSize) {
                 uncompressedSize = 0;
                 return LZDecompressionResult.OutputSizeInsufficient;
@@ -371,6 +375,12 @@ namespace FieldDay.Data {
                 groupMask <<= 1;
                 groupCount--;
             }
+
+#if RLE_PROFILE
+            long endTick = System.Diagnostics.Stopwatch.GetTimestamp();
+            long totalTicks = endTick - startTick;
+            Log.Msg("Decompression time for {0}->{1} bytes: {2} us", srcSize, dstSize, Profiling.TicksToMicrosecs(totalTicks));
+#endif // RLE_PROFILE
 
             if (src == srcEnd && dst == dstEnd) {
                 return LZDecompressionResult.Success;
@@ -448,7 +458,7 @@ namespace FieldDay.Data {
             }
         }
 
-        #endregion // Decompress
+#endregion // Decompress
     }
 
     /// <summary>

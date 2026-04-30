@@ -126,7 +126,7 @@ namespace SpaceFab
             }
 
             // disperse fader
-            yield return FadeOut(uiState, 1.5f);
+            yield return FadeOut(uiState, 0.5f);
 
             InputState input = Find.State<InputState>();
             Game.Input.ResumeRaycasts();
