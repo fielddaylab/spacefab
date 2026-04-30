@@ -16,6 +16,7 @@ namespace SpaceFab
         public int LastSelectedContractIndex;
 
         [HideInInspector] public ContractsBundle CurrAvailableContractsBundle;
+        [HideInInspector] public ChapterDef CurrChapterDef;
 
         public void OnDeregister()
         {

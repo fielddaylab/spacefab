@@ -20,6 +20,12 @@ namespace SpaceFab.Supply
 
         #endregion // Saved State
 
+        #region Runtime State
+
+        [HideInInspector] public SupplyChainMapData CurrSupplyChainMap;
+
+        #endregion // Runtime State
+
         #region Interfaces
 
         // IRegistrationCallbacks
@@ -30,7 +36,7 @@ namespace SpaceFab.Supply
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.SupplyMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask;
         }
 
         // IMinigameState

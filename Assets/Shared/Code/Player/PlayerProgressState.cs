@@ -23,6 +23,7 @@ namespace SpaceFab
         #endregion // Save State
 
         public StringHash32 ContractAssetsWrapperId;
+        public StringHash32 CurrContractId;
 
         public void OnDeregister()
         {
