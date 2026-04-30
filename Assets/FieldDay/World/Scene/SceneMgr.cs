@@ -968,16 +968,17 @@ namespace FieldDay.Scenes {
                 return WorkSlicer.Result.Processed;
             }
 
-            if (ProcessPreloadQueue()) {
-                return WorkSlicer.Result.Processed;
-            }
+            if (!Game.Assets.IsLoadingHighPriorityStreamingPackages()) {
+                if (ProcessPreloadQueue()) {
+                    return WorkSlicer.Result.Processed;
+                }
 
-            if (ProcessLateEnableQueue()) {
-                return WorkSlicer.Result.Processed;
+                if (ProcessLateEnableQueue()) {
+                    return WorkSlicer.Result.Processed;
+                }
             }
 
             return WorkSlicer.Result.OutOfData;
-
         }
 
         internal void Shutdown() {

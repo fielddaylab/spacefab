@@ -69,6 +69,11 @@ namespace FieldDay.Assets {
 
 #if UNITY_EDITOR
 
+        bool IStreamingBundleRoot.GetExportParameters(out IStreamingBundleRoot.ExportData export) {
+            export = default;
+            return false;
+        }
+
         /// <summary>
         /// Refreshes all assets for the given pack from the pack's editor directory.
         /// </summary>

@@ -7,6 +7,6 @@ namespace SpaceFab.Comic
 {
     public class ComicDisplayState : SharedStateComponent
     {
-        public ComicSequenceAsset CurrComic;
+        
     }
 }

@@ -71,5 +71,15 @@ namespace FieldDay.Collections {
                 Array.Resize(ref m_Array, Mathf.Max(4, Mathf.NextPowerOfTwo(capacity)));
             }
         }
+
+        public T[] ToArray() {
+            if (m_Count <= 0) {
+                return Array.Empty<T>();
+            }
+
+            T[] copy = new T[m_Count];
+            Array.Copy(m_Array, copy, m_Count);
+            return copy;
+        }
     }
 }

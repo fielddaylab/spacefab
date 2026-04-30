@@ -22,11 +22,22 @@ namespace FieldDay.Assets {
     /// Asset manager.
     /// </summary>
     public sealed class AssetMgr {
+        private struct StreamingBundleData {
+            public StringHash32 Id;
+            public IAssetPackage Package;
+            public AssetBundle Bundle;
+
+            public StreamingBundlePriority Priority;
+            public ushort TempReferenceCount;
+        }
+
         private readonly IGlobalAsset[] m_GlobalAssetTable = new IGlobalAsset[GlobalAssetIndex.Capacity];
         private readonly IAssetCollection[] m_LiteAssetTable = new IAssetCollection[LiteAssetIndex.Capacity];
         private readonly NamedAssetCollection[] m_NamedAssetTable = new NamedAssetCollection[NamedAssetIndex.Capacity];
         private readonly HashSet<IAssetPackage> m_LoadedPackages = new HashSet<IAssetPackage>(16);
         private readonly RingBuffer<IAssetPackage> m_UnloadQueue = new RingBuffer<IAssetPackage>(16, RingBufferMode.Expand);
+
+        private RingBuffer<StreamingBundleData> m_StreamingBundles = new RingBuffer<StreamingBundleData>(16);
 
         private readonly CastableAction<INamedAsset>[] m_NamedAssetPostLoadCallbackTable = new CastableAction<INamedAsset>[NamedAssetIndex.Capacity];
         private readonly CastableAction<INamedAsset>[] m_NamedAssetUnloadCallbackTable = new CastableAction<INamedAsset>[NamedAssetIndex.Capacity];
@@ -37,7 +48,7 @@ namespace FieldDay.Assets {
 
         internal void Update() {
             if (IsSafeToUnloadPackages()) {
-                ProcessQueuedPackageUnloads();
+                ProcessQueuedPackageUnloads(true);
             }
 
 #if DEVELOPMENT
@@ -46,7 +57,7 @@ namespace FieldDay.Assets {
         }
 
         internal void Shutdown() {
-            ProcessQueuedPackageUnloads();
+            ProcessQueuedPackageUnloads(false);
 
             for (int i = 0; i < LiteAssetIndex.Count; i++) {
                 if (m_LiteAssetTable[i] != null) {
@@ -69,6 +80,12 @@ namespace FieldDay.Assets {
             Array.Clear(m_LiteAssetTable, 0, m_LiteAssetTable.Length);
             Array.Clear(m_NamedAssetTable, 0, m_NamedAssetTable.Length);
             Array.Clear(m_GlobalAssetTable, 0, m_GlobalAssetTable.Length);
+
+            while(m_StreamingBundles.TryPopBack(out StreamingBundleData data)) {
+                if (data.Bundle) {
+                    data.Bundle.Unload(true);
+                }
+            }
         }
 
         private bool IsSafeToUnloadPackages() {
@@ -199,11 +216,27 @@ namespace FieldDay.Assets {
             m_UnloadQueue.PushBack(package);
         }
 
-        private void ProcessQueuedPackageUnloads() {
+        private void ProcessQueuedPackageUnloads(bool async) {
             while(m_UnloadQueue.TryPopFront(out IAssetPackage package)) {
                 Log.Msg("[AssetMgr] Unloading package '{0}'...", AssetUtility.NameOf(package));
                 package.Unmount(this);
                 Log.Msg("[AssetMgr] ...finished unloading package '{0}'", AssetUtility.NameOf(package));
+
+                for(int i = m_StreamingBundles.Count; i-- > 0;) {
+                    ref StreamingBundleData bundleData = ref m_StreamingBundles[i];
+                    if (bundleData.Package == package) {
+                        if (bundleData.Bundle) {
+                            Log.Msg("[AssetMgr] Unloading streaming bundle '{0}'", bundleData.Bundle.name);
+                            if (async) {
+                                bundleData.Bundle.UnloadAsync(true);
+                            } else {
+                                bundleData.Bundle.Unload(true);
+                            }
+                        }
+                        m_StreamingBundles.FastRemoveAt(i);
+                        break;
+                    }
+                }
             }
         }
 
@@ -284,6 +317,42 @@ namespace FieldDay.Assets {
         }
 
         #endregion // Lite
+
+        #region Streaming
+
+        /// <summary>
+        /// Loads a streaming package.
+        /// </summary>
+        public void LoadStreamedPackage(StringHash32 packageId) {
+            
+        }
+
+        /// <summary>
+        /// Unloads a streaming package.
+        /// </summary>
+        public void UnloadStreamedPackage(StringHash32 packageId) {
+            if (!m_StreamedPackageMap.TryGetValue(packageId, out IAssetPackage package)) {
+                Log.Warn("[AssetMgr] No streamed package '{0}' found");
+                return;
+            }
+
+            UnloadPackage(package);
+        }
+
+        /// <summary>
+        /// Are there any bundles currently streaming.
+        /// </summary>
+        public bool IsLoadingHighPriorityStreamingPackages() {
+            for(int i = m_StreamingBundles.Count; i-- > 0;) {
+                if (!m_StreamingBundles[i].Bundle && m_StreamingBundles[i].Priority == StreamingBundlePriority.High) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        #endregion // Streaming
 
         #endregion // Registration
 
@@ -785,5 +854,10 @@ namespace FieldDay.Assets {
         }
 
         #endregion // Interfaces
+    }
+
+    public enum StreamingBundlePriority : ushort {
+        Low,
+        High
     }
 }
