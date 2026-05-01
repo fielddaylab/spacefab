@@ -305,6 +305,7 @@ namespace FieldDay {
 
                 Log.Msg("[GameLoop] Creating asset manager...");
                 Game.Assets = new AssetMgr();
+                Game.Assets.Initialize();
 
                 Log.Msg("[GameLoop] Creating localization manager...");
                 Game.Localization = new LocMgr();

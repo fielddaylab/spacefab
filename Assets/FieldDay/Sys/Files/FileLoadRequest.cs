@@ -217,6 +217,15 @@ namespace FieldDay.Files {
         }
 
         /// <summary>
+        /// Interprets the downloaded data as an AssetBundle.
+        /// </summary>
+        public AssetBundle ReadAssetBundle() {
+            Assert.True(Succeeded());
+            DownloadHandlerAssetBundle bundleHandler = (DownloadHandlerAssetBundle)Handler;
+            return bundleHandler.assetBundle;
+        }
+
+        /// <summary>
         /// Returns the length of the downloaded data.
         /// </summary>
         public ulong ResponseLength() {

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Narrative {
-    [CreateAssetMenu(menuName = "SpaceFab/Character Asset")]
+    [CreateAssetMenu(menuName = "SpaceFab/Narrative/Character Asset")]
     public class CharacterDef : NamedAsset {
         public string DisplayName;
         public Color32 DialogueTint;

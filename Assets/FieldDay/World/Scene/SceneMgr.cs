@@ -968,7 +968,7 @@ namespace FieldDay.Scenes {
                 return WorkSlicer.Result.Processed;
             }
 
-            if (!Game.Assets.IsLoadingHighPriorityStreamingPackages()) {
+            if (!Game.Assets.IsLoadingStreamedPackages()) {
                 if (ProcessPreloadQueue()) {
                     return WorkSlicer.Result.Processed;
                 }
@@ -1562,7 +1562,7 @@ namespace FieldDay.Scenes {
                     yield break;
                 }
 
-                while (SceneUtils.Editor.AreDelayedSceneProcessorsRunning()) {
+                while (!IsSystemInitializationComplete() || SceneUtils.Editor.AreDelayedSceneProcessorsRunning()) {
                     yield return null;
                 }
 
@@ -1792,11 +1792,19 @@ namespace FieldDay.Scenes {
 
         #region Dependencies
 
-        private bool AreDependenciesAndStreamingLoaded(SceneLoadPhase phase) {
+        private bool IsSystemInitializationComplete() {
             if (BuildInfo.IsLoading()) {
                 return false;
             }
 
+            if (!Game.Assets.IsReady()) {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool AreDependenciesAndStreamingLoaded(SceneLoadPhase phase) {
             for (int i = 0; i < m_Dependencies.Count; i++) {
                 if (!m_Dependencies[i].IsLoaded(phase)) {
                     return false;

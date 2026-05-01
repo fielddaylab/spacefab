@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2350e9e4b026ac340b0b81310651b2d7, type: 3}
+  m_Name: Ch1Comic
+  m_EditorClassIdentifier: 
+  Pages:
+  - Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    PackedColor: 6339
+    Panels:
+      Offset: 0
+      Length: 0
+    Cameras:
+      Offset: 0
+      Length: 0
+  - Position:
+      PackedX: 311
+      PackedY: 0
+    PackedRotation: 0
+    PackedColor: 6367
+    Panels:
+      Offset: 0
+      Length: 0
+    Cameras:
+      Offset: 0
+      Length: 0
+  Panels: []
+  Layers: []
+  Cameras: []
+  Masks: []
+  CompressedMeshData: 
+  Script: {fileID: 0}
+  AdditionalAssets: {fileID: 0}

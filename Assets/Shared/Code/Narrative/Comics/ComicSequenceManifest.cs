@@ -7,7 +7,8 @@ using System;
 using UnityEngine;
 
 namespace SpaceFab.Comic {
-    public sealed class ComicSequenceManifest : ScriptableObject, IAssetPackage {
+    [CreateAssetMenu(menuName = "SpaceFab/Narrative/Comic Sequence")]
+    public sealed class ComicSequenceManifest : ContentPack {
         public PageData[] Pages;
         public PanelData[] Panels;
         public LayerData[] Layers;
@@ -20,12 +21,9 @@ namespace SpaceFab.Comic {
         public LeafAsset Script;
         public AssetPack AdditionalAssets;
 
-        [NonSerialized] private int m_RefCount;
         [NonSerialized] private UniqueId16 m_LeafHandle;
 
-        #region IAssetPackage
-
-        void IAssetPackage.Mount(AssetMgr mgr) {
+        protected override void Mount(AssetMgr mgr) {
             if (AdditionalAssets) {
                 mgr.LoadPackage(AdditionalAssets);
             }
@@ -35,7 +33,7 @@ namespace SpaceFab.Comic {
             }
         }
 
-        void IAssetPackage.Unmount(AssetMgr mgr) {
+        protected override void Unmount(AssetMgr mgr) {
             if (AdditionalAssets) {
                 mgr.UnloadPackage(AdditionalAssets);
             }
@@ -45,27 +43,5 @@ namespace SpaceFab.Comic {
                 m_LeafHandle = default;
             }
         }
-
-        bool IRefCountedAsset.AddRef() {
-            return (m_RefCount++) == 0;
-        }
-
-        bool IRefCountedAsset.RemoveRef() {
-            Assert.True(m_RefCount > 0, "Unbalanced IAssetPackage.AddRef/RemoveRef calls");
-            return (m_RefCount--) == 1;
-        }
-
-        bool IRefCountedAsset.IsReferenced() {
-            return m_RefCount > 0;
-        }
-
-        #endregion // IAssetPackage
-
-#if UNITY_EDITOR
-        bool IStreamingBundleRoot.GetExportParameters(out IStreamingBundleRoot.ExportData export) {
-            export = default;
-            return true;
-        }
-#endif // UNITY_EDITOR
     }
 }

@@ -42,7 +42,9 @@ namespace FieldDay.Assets {
     /// <summary>
     /// Interface for an asset package.
     /// </summary>
-    public interface IAssetPackage : IRefCountedAsset, IStreamingBundleRoot {
+    public interface IAssetPackage : IRefCountedAsset {
+        public const string StreamingRootName = "__root";
+
         void Mount(AssetMgr mgr);
         void Unmount(AssetMgr mgr);
     }
