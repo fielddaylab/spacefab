@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871f134680f5b7d4ca4d8cd98c893ced, type: 3}
+  m_Name: Progress Meter Sprites
+  m_EditorClassIdentifier: 
+  CyclePending: {fileID: 0}
+  CycleFilled: {fileID: 0}
+  FundsPendingReceived: {fileID: 0}
+  FundsPendingSpent: {fileID: 0}
+  FundsFilled: {fileID: 0}

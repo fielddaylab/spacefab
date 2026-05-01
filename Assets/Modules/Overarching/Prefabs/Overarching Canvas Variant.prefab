@@ -169,6 +169,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -313,6 +314,12 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls: []
+  onPointerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  onPointerExit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5577883135219271871
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,6 +453,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -590,6 +598,12 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls: []
+  onPointerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  onPointerExit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6326147291050360371
 GameObject:
   m_ObjectHideFlags: 0
@@ -729,6 +743,12 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls: []
+  onPointerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  onPointerExit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6378435999388563537
 GameObject:
   m_ObjectHideFlags: 0
@@ -862,6 +882,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1000,6 +1021,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
