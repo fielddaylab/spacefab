@@ -1341,11 +1341,15 @@ MonoBehaviour:
       m_GUID: 09eb9699306b03f4bb368f11f6c56ff4
     BundleId:
       m_HashValue: 3906590269
+    ChapterId:
+      m_HashValue: 570083838
   - Scene:
       m_ScenePath: Assets/Shared/Scenes/AvailableContracts/Chapter2_AvailableContracts.unity
       m_GUID: 205cdf6ee1a6d364c9dd60a611a082f6
     BundleId:
       m_HashValue: 3856257412
+    ChapterId:
+      m_HashValue: 1645296827
 --- !u!114 &2025114828
 MonoBehaviour:
   m_ObjectHideFlags: 0
