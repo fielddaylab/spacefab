@@ -179,7 +179,31 @@ namespace SpaceFab.Design
                 {
                     for (int row = 0; row < gridStackState.GridStack.LayerDims.Y; row++)
                     {
-                        GridLayerUtility.SetCell(gridLayer, col, row, new GridCell());
+                        // if(gridLayer.Cells[row * gridStackState.GridStack.LayerDims.X + col].NodeEraseable && gridLayer.Cells[row * gridStackState.GridStack.LayerDims.X + col].TransferEraseable)
+                        // {
+                        //     GridLayerUtility.SetCell(gridLayer, col, row, new GridCell());
+                        // }
+                        GridCell cell = GridLayerUtility.GetCell(gridLayer, col, row);
+                        if (cell.NodeEraseable)
+                        {
+                            cell.CellType = CellType.NONE;
+                            cell.SubtypeLabel = default;
+                        }
+
+                        if (cell.TransferEraseable)
+                        {
+                            cell.TransferType = TransferType.NONE;
+                        }
+
+                        for (int edgeIndex = 0; edgeIndex < cell.Edges.Length; edgeIndex++)
+                        {
+                            if (cell.Edges[edgeIndex].Eraseable)
+                            {
+                                cell.Edges[edgeIndex].EdgeState = EdgeState.Disconnected;
+                            }
+                        }
+
+                        // GridLayerUtility.SetCell(gridLayer, col, row, cell);
                     }
                 }
             }
