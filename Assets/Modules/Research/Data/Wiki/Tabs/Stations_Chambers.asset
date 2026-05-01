@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36fabafaf51e5ce47abdfc28005f7b8b, type: 3}
   m_Name: Stations_Chambers
   m_EditorClassIdentifier: 
-  m_Title: 
+  m_Title: Stations/Chambers
   m_Icon: {fileID: 0}
   m_Pages:
   - {fileID: 11400000, guid: a443de496d37b444c81a9966a52f6d9f, type: 2}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Basic Circuit
   m_EditorClassIdentifier: 
-  m_Title: 
+  m_Title: Basic Circuit
   m_Icon: {fileID: 0}
   m_Illustration: {fileID: 0}
   m_Body: 
