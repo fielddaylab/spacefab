@@ -11,7 +11,7 @@ namespace SpaceFab.Research
     {
         #region Saved State
 
-        // TODO: Save State (will hold which materials have been fully researched)
+        // TODO: Save State
 
         #endregion // Saved State
 
