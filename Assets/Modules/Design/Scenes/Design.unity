@@ -653,6 +653,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 299023d53aa57c04ba5a7ccde91e3b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &311447649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311447644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 991cfb15763e4d9489254e322d9bca94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!224 &441543700 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1756680008068283646, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
+  m_PrefabInstance: {fileID: 3340795643393597887}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &598644245
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -662,13 +679,21 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+      propertyPath: PageWindowSize
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: Tabs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: Tabs.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: c2b41e1fccc9d1b49983e6c6f344869e, type: 2}
+      objectReference: {fileID: 11400000, guid: 812e308e485c08d44ac5bcb163158296, type: 2}
+    - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+      propertyPath: Tabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 0b8e330386ac9154f8b9d9fb4e07aead, type: 2}
     - target: {fileID: 1764511120928441038, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: m_Camera
       value: 
@@ -766,23 +791,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
---- !u!114 &311447649
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 311447644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 991cfb15763e4d9489254e322d9bca94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!224 &441543700 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 1756680008068283646, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 3340795643393597887}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &709705224
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
+  m_Name: P-Type
+  m_EditorClassIdentifier: 
+  m_Title: P-Type
+  m_Icon: {fileID: 21300000, guid: 7ca7527631ecc1347ba415222f77fb4f, type: 3}
+  m_Illustration: {fileID: 0}
+  m_Body: P-Type semiconductor conducts electrical signals in the lower Semiconductor
+    layer. It forms Diodes with N-Type.
