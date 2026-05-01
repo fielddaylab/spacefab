@@ -169,5 +169,20 @@ namespace SpaceFab.Design
         }
 
         #endregion // Queries
+
+        public static void ClearGridStack(GridStackState gridStackState)
+        {
+            for (int i = 0; i < gridStackState.GridStack.GridLayers.Length; i++)
+            {
+                GridLayer gridLayer = gridStackState.GridStack.GridLayers[i];
+                for (int col = 0; col < gridStackState.GridStack.LayerDims.X; col++)
+                {
+                    for (int row = 0; row < gridStackState.GridStack.LayerDims.Y; row++)
+                    {
+                        GridLayerUtility.SetCell(gridLayer, col, row, new GridCell());
+                    }
+                }
+            }
+        }
     }
 }
