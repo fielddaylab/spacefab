@@ -125,7 +125,7 @@ namespace FieldDay {
         };
 
         [SerializeField]
-        private AssetPack[] m_GlobalAssetPacks = Array.Empty<AssetPack>();
+        private AssetPackBase[] m_GlobalAssetPacks = Array.Empty<AssetPackBase>();
 
         #endregion // Inspector
 
@@ -396,7 +396,7 @@ namespace FieldDay {
 
                 foreach(var pack in m_GlobalAssetPacks) {
 #if UNITY_EDITOR
-                    AssetPack.ReadFromEditorDirectory(pack);
+                    pack.EditorRebuild();
 #endif // UNITY_EDITOR
                     Game.Assets.LoadPackage(pack);
                 }

@@ -14,6 +14,8 @@ namespace FieldDay.Collections {
         int Count { get; }
         int Capacity { get; }
         ref T this[int index] { get; }
+        int IndexOf(T item);
+        T[] ToArray();
     }
 
     [Il2CppEagerStaticClassConstruction]
@@ -57,6 +59,11 @@ namespace FieldDay.Collections {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear() {
             m_Count = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int IndexOf(T item) {
+            return Array.IndexOf(m_Array, item, 0, m_Count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -26,8 +26,10 @@ namespace FieldDay.Assets {
     /// Asset manager.
     /// </summary>
     public sealed partial class AssetMgr {
-        public const int MaxStreamedPackages = 16;
-        public const string StreamedManifestPath = "StreamedPackages.bin";
+        public const int MaxStreamedPackages = 32;
+        public const string StreamedPackagePath = "packs/";
+        public const string StreamedManifestPath = StreamedPackagePath + "manifest.bin";
+        public const string StreamedRootAddressableName = "__root";
 
         #region Types
 
@@ -87,7 +89,7 @@ namespace FieldDay.Assets {
         #region Events
 
         internal void Initialize() {
-            FileLoadRequest loadRequest = FileLoadRequest.Buffer(StreamedManifestPath, FileLocation.Streaming, HandleStreamingManifestDownloadResult);
+            FileLoadRequest loadRequest = FileLoadRequest.Buffer(StreamedManifestPath, FileLocation.Streaming, HandleStreamingManifestDownloadResult, this);
             loadRequest.SetInfiniteRetries();
             Game.Files.RequestFile(loadRequest, FileLoadPriority.Urgent);
         }
@@ -410,24 +412,33 @@ namespace FieldDay.Assets {
 
             int index = IndexOfStreamingBundle(packageId);
             if (index < 0) {
-                Assert.True(m_StreamedPackageCount < MaxStreamedPackages, "Maximum number of streamed packages ({0}) reached!", MaxStreamedPackages);
-                Assert.True(m_StreamedPackagePathLookup.ContainsKey(packageId), "No streamed package path with the given id '{0}' is available", packageId);
-
-                ref StreamedPackageData data = ref m_StreamedPackageData[m_StreamedPackageCount++];
-                data.Id = packageId;
-                data.LoadState = StreamedPackageLoadState.Downloading;
-                data.Package = null;
-                data.Bundle = null;
-                data.RefCount = 1;
-
-                FileLoadRequest loadRequest = FileLoadRequest.AssetBundle(m_StreamedPackagePathLookup[packageId], FileLocation.Streaming, HandleAssetBundleDownloadResult, this);
-                loadRequest.SetIdentifiers(packageId, "StreamedPackages");
-                Game.Files.RequestFile(loadRequest, FileLoadPriority.High);
+                BeginStreamedPackageLoad(packageId);
                 return;
             }
 
             m_StreamedPackageData[index].RefCount++;
             Assert.True(m_StreamedPackageData[index].RefCount > 0, "Ref count wrapped around");
+
+            IAssetPackage package = m_StreamedPackageData[index].Package;
+            if (package != null && m_UnloadQueue.FastRemove(package)) {
+                Log.Msg("[AssetMgr] Streamed package '{0}' unload cancelled", AssetUtility.NameOf(package));
+            }
+        }
+
+        private void BeginStreamedPackageLoad(StringHash32 packageId) {
+            Assert.True(m_StreamedPackageCount < MaxStreamedPackages, "Maximum number of streamed packages ({0}) reached!", MaxStreamedPackages);
+            Assert.True(m_StreamedPackagePathLookup.ContainsKey(packageId), "No streamed package path with the given id '{0}' is available", packageId);
+
+            ref StreamedPackageData data = ref m_StreamedPackageData[m_StreamedPackageCount++];
+            data.Id = packageId;
+            data.LoadState = StreamedPackageLoadState.Downloading;
+            data.Package = null;
+            data.Bundle = null;
+            data.RefCount = 1;
+
+            FileLoadRequest loadRequest = FileLoadRequest.AssetBundle(m_StreamedPackagePathLookup[packageId], FileLocation.Streaming, HandleAssetBundleDownloadResult, this);
+            loadRequest.SetIdentifiers(packageId, "StreamedPackages");
+            Game.Files.RequestFile(loadRequest, FileLoadPriority.High);
         }
 
         /// <summary>
@@ -514,7 +525,7 @@ namespace FieldDay.Assets {
 
 
             AssetBundle bundle = result.ReadAssetBundle();
-            AssetBundleRequest assetRequest = bundle.LoadAssetAsync(IAssetPackage.StreamingRootName, typeof(IAssetPackage));
+            AssetBundleRequest assetRequest = bundle.LoadAssetAsync(StreamedRootAddressableName);
 
             mgr.m_ActiveStreamedRootLoads.PushBack(new StreamedPackageRootLoad() {
                 Id = id,

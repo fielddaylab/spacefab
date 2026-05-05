@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SpaceFab.Comic {
     [CreateAssetMenu(menuName = "SpaceFab/Narrative/Comic Sequence")]
-    public sealed class ComicSequenceManifest : ContentPack {
+    public sealed class ComicSequenceManifest : AssetPackBase {
         public PageData[] Pages;
         public PanelData[] Panels;
         public LayerData[] Layers;
