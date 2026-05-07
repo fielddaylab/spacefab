@@ -218,7 +218,7 @@ namespace FieldDay.Assets {
 
             static public bool StripNullAndDuplicateReferences<T>(ref T[] values) where T : class {
                 T[] newValues = StripNullAndDuplicateReferences(values);
-                if (ArrayUtils.ContentEquals(newValues, values)) {
+                if (!ArrayUtils.ContentEquals(newValues, values)) {
                     values = newValues;
                     return true;
                 }
@@ -244,7 +244,7 @@ namespace FieldDay.Assets {
 
             static public bool StripNullAndDuplicateReferences<T>(ref T[] values, T exclude) where T : class {
                 T[] newValues = StripNullAndDuplicateReferences(values, exclude);
-                if (ArrayUtils.ContentEquals(newValues, values)) {
+                if (!ArrayUtils.ContentEquals(newValues, values)) {
                     values = newValues;
                     return true;
                 }
@@ -270,7 +270,7 @@ namespace FieldDay.Assets {
 
             static public bool StripNullAndDuplicateReferences<T>(ref T[] values, T exclude, Predicate<T> filter) where T : class {
                 T[] newValues = StripNullAndDuplicateReferences(values, exclude, filter);
-                if (ArrayUtils.ContentEquals(newValues, values)) {
+                if (!ArrayUtils.ContentEquals(newValues, values)) {
                     values = newValues;
                     return true;
                 }

@@ -56,7 +56,6 @@ namespace FieldDay {
     /// Game loop manager.
     /// </summary>
     [DefaultExecutionOrder(-23000), DisallowMultipleComponent]
-    [Il2CppEagerStaticClassConstruction]
     public sealed class GameLoop : MonoBehaviour, ICameraPreCullCallback, ICameraPostRenderCallback, ICameraPreRenderCallback {
         #region Types
 

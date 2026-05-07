@@ -1,0 +1,30 @@
+ManifestFileVersion: 0
+CRC: 3377554361
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ce17a415346576877d822df7defa401d
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 0121f884908e01d83441d77778a6ad06
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: ce17a415346576877d822df7defa401d
+HashAppended: 0
+ClassTypes:
+- Class: 114
+  Script: {fileID: 11500000, guid: 2350e9e4b026ac340b0b81310651b2d7, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Comic.PackedPoint
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Comic.PageData
+- AssemblyName: BeauUtil
+  ClassName: BeauUtil.OffsetLengthU16
+Assets:
+- Assets/Shared/Data/Comics/Chapter1/Ch1ComicPack.asset
+Dependencies: []

@@ -1797,7 +1797,7 @@ namespace FieldDay.Scenes {
                 return false;
             }
 
-            if (!Game.Assets.IsReady()) {
+            if (!Game.Assets.IsReadyToStream()) {
                 return false;
             }
 
