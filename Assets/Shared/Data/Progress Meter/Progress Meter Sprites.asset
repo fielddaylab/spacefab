@@ -17,6 +17,6 @@ MonoBehaviour:
   CyclePendingColor: {r: 1, g: 1, b: 1, a: 1}
   CycleConfirmedColor: {r: 0.18823531, g: 0.6784314, b: 0.8117648, a: 1}
   FundsBase: {fileID: 0}
-  FundsPendingReceived: {fileID: 0}
-  FundsPendingSpent: {fileID: 0}
-  FundsFilled: {fileID: 0}
+  FundsPendingReceived: {fileID: 21300000, guid: 1284ed06cc3894a4096ecdf570be88cc, type: 3}
+  FundsPendingSpent: {fileID: 21300000, guid: 18e50dd2b213afe45bdded09c6c279ea, type: 3}
+  FundsFilled: {fileID: 21300000, guid: 033bdd52eac61014d93c4f6e13c35e7c, type: 3}

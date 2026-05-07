@@ -22,7 +22,8 @@ namespace SpaceFab {
         public RectTransform FundsCellContainer;
         public HorizontalLayoutGroup FundsCellLayout;
         public RectTransform CurrentDayMarker;
-        public ProgressMeterCell CellPrefab;
+        public ProgressMeterCell CycleCellPrefab;
+        public ProgressMeterCell FundsCellPrefab;
 
         public int CellCount = 30;
 

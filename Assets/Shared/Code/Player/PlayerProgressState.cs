@@ -39,6 +39,10 @@ namespace SpaceFab
             CompletedContractIds = new HashSet<StringHash32>();
             ResearchedMaterials = new HashSet<StringHash32>();
             SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
+
+            // TEMP
+            Funds = 2;
+            ElapsedCycles = 3;
         }
 
         #region Interfaces

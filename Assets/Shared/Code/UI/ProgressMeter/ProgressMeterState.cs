@@ -212,7 +212,8 @@ namespace SpaceFab {
         /// </summary>
         public static void RebuildCells(ProgressMeter meter) {
             if (meter == null
-                || meter.CellPrefab == null
+                || meter.CycleCellPrefab == null
+                || meter.FundsCellPrefab == null
                 || meter.CycleCellContainer == null
                 || meter.FundsCellContainer == null) {
                 return;
@@ -234,8 +235,8 @@ namespace SpaceFab {
             //    Instantiate as a prefab modification — without this, exiting prefab
             //    mode silently discards the new cells).
             for (int i = 0; i < desired; i++) {
-                meter.CycleCells[i] = (ProgressMeterCell)UnityEngine.Object.Instantiate(meter.CellPrefab, meter.CycleCellContainer);
-                meter.FundsCells[i] = (ProgressMeterCell)UnityEngine.Object.Instantiate(meter.CellPrefab, meter.FundsCellContainer);
+                meter.CycleCells[i] = (ProgressMeterCell)UnityEngine.Object.Instantiate(meter.CycleCellPrefab, meter.CycleCellContainer);
+                meter.FundsCells[i] = (ProgressMeterCell)UnityEngine.Object.Instantiate(meter.FundsCellPrefab, meter.FundsCellContainer);
 #if UNITY_EDITOR
                 if (!Application.isPlaying) {
                     UnityEditor.Undo.RegisterCreatedObjectUndo(meter.CycleCells[i].gameObject, "Rebuild Progress Meter Cells");
@@ -290,14 +291,17 @@ namespace SpaceFab {
         /// the cell container's height are computed.
         /// </summary>
         private static void LayoutMeter(ProgressMeter meter) {
-            if (meter == null || meter.CellPrefab == null) { return; }
-            RectTransform cellPrefabRect = meter.CellPrefab.transform as RectTransform;
-            if (cellPrefabRect == null) { return; }
-
-            Vector2 cellSize = cellPrefabRect.rect.size;
+            if (meter == null || meter.CycleCellPrefab == null || meter.FundsCellPrefab == null) { return; }
 
             // 1. Position and size cells; size each cell container exactly to its cells.
+            RectTransform cellPrefabRect = meter.CycleCellPrefab.transform as RectTransform;
+            if (cellPrefabRect == null) { return; }
+            Vector2 cellSize = cellPrefabRect.rect.size;
             LayoutCellRow(meter.CycleCells, meter.CycleCellContainer, cellSize, meter.CycleCellLayout);
+
+            cellPrefabRect = meter.FundsCellPrefab.transform as RectTransform;
+            if (cellPrefabRect == null) { return; }
+            cellSize = cellPrefabRect.rect.size;
             LayoutCellRow(meter.FundsCells, meter.FundsCellContainer, cellSize, meter.FundsCellLayout);
 
             // 2. Size each row (cell container's parent) to fit title + cell container.
@@ -421,7 +425,9 @@ namespace SpaceFab {
         private static void ApplyFundsCell(ProgressMeterCell cell, FundsCellState cellState, ProgressMeterSpriteSet sprites) {
             if (cell == null || cell.OverlayImage == null) { return; }
 
-            cell.BaseImage.enabled = false; // no base image for funds cell
+            if (sprites.FundsBase == null) {
+                cell.BaseImage.enabled = false; // no base image for funds cell
+            }
             cell.OverlayImage.enabled = true;
             switch (cellState) {
                 case FundsCellState.PENDING_RECEIVED:
