@@ -2602,6 +2602,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 994501228}
+    - target: {fileID: 2684791672350722573, guid: 6330422789b15ea46a826f0154380af3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -13.200001
+      objectReference: {fileID: 0}
     - target: {fileID: 4550599965333771737, guid: 6330422789b15ea46a826f0154380af3, type: 3}
       propertyPath: m_Name
       value: Progress Meter Bundle

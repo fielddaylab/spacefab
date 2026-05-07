@@ -1,6 +1,9 @@
 using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication;
+using SpaceFab.Save;
+using SpaceFab.Supply;
 using System;
 using TMPro;
 using UnityEngine;
@@ -98,10 +101,13 @@ namespace SpaceFab {
         // at this meter so a stale view does not get pushed to.
         public static void TryUnregisterMeter(ProgressMeter meter) {
             if (!Application.isPlaying) { return; }
-            ProgressMeterState meterState = Find.State<ProgressMeterState>();
-            if (meterState == null) { return; }
-            if (meterState.ActiveMeter == meter) {
-                meterState.ActiveMeter = null;
+            if (Game.SharedState.Has<ProgressMeterState>())
+            {
+                ProgressMeterState meterState = Find.State<ProgressMeterState>();
+                if (meterState.ActiveMeter == meter)
+                {
+                    meterState.ActiveMeter = null;
+                }
             }
         }
 
@@ -147,9 +153,85 @@ namespace SpaceFab {
             state.NeedsRefresh = true;
         }
 
+        // Sets all states at given cycle and beyond (inclusive) to EMPTY
+        public static void ClearCycleStateFrom(ProgressMeterState state, int idx)
+        {
+            for (int i = idx; i < state.CycleStates.Length; i++)
+            {
+                SetCycleCellState(state, i, CycleCellState.EMPTY);
+            }
+        }
+
+        // Sets all states at given fund and beyond (inclusive) to EMPTY
+        public static void ClearFundStateFrom(ProgressMeterState state, int idx)
+        {
+            for (int i = idx; i < state.FundsStates.Length; i++)
+            {
+                SetFundsCellState(state, i, FundsCellState.EMPTY);
+            }
+        }
+
         #endregion // Mutators
 
         #region Cells: Bind, Rebuild, Refresh
+
+        public static int CalculatePendingCycleCells(ProgressMeter meter, MinigameSaveStates saveStates)
+        {
+            // rely on most-specific context (minigame) first, then broader context (save state) as fallback
+            int numFabricationCycles = 0;
+
+            // get numCycles from Fabrication context
+            if (Game.SharedState.Has<FabricationMinigameState>())
+            {
+                var fabState = Find.State<FabricationMinigameState>();
+                numFabricationCycles = fabState.TotalCycles;
+            }
+            else
+            {
+                // else rely on Fabrication Save State
+                numFabricationCycles = saveStates.Fabrication.FinalizedTotalCycles;
+            }
+            numFabricationCycles = Mathf.Max(0, numFabricationCycles);
+
+            int numSupplyCycles = 0;
+            // get numCycles from SupplyChain context
+            if (Game.SharedState.Has<SupplyMinigameState>())
+            {
+                var supplyState = Find.State<SupplyMinigameState>();
+                numSupplyCycles = supplyState.TotalCycles;
+            }
+            else
+            {
+                // else rely on SupplyChain save state
+                numSupplyCycles = saveStates.Supply.FinalizedTotalCycles;
+            }
+            numSupplyCycles = Mathf.Max(0, numSupplyCycles);
+
+            return numFabricationCycles + numSupplyCycles;
+        }
+
+        public static void CalculatePendingFundsCells(ProgressMeter meter, MinigameSaveStates saveStates, int contractPayout, out int pendingReceivedCount, out int pendingSpentCount)
+        {
+            // rely on most-specific context (minigame) first, then broader context (save state) as fallback
+            int supplyCosts = 0;
+
+            // get funds from SupplyChain context
+            if (Game.SharedState.Has<SupplyMinigameState>())
+            {
+                var supplyState = Find.State<SupplyMinigameState>();
+                supplyCosts = supplyState.Cost;
+            }
+            else
+            {
+                // else rely on SupplyChain save state
+                supplyCosts = saveStates.Supply.FinalizedCost;
+            }
+
+            int totalCosts = supplyCosts;
+
+            pendingReceivedCount = contractPayout - supplyCosts;
+            pendingSpentCount = supplyCosts;
+        }
 
         /// <summary>
         /// Populates view.CycleCells / FundsCells from the existing children of each row

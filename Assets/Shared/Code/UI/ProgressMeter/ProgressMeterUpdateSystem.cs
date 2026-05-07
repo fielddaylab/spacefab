@@ -1,5 +1,10 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Overarching;
+using SpaceFab.Save;
+using System.Diagnostics.Contracts;
+using System.Linq;
 using UnityEngine;
 
 namespace SpaceFab {
@@ -16,6 +21,7 @@ namespace SpaceFab {
                 new SysPermissions()
                     .ReadWriteShared<ProgressMeterState>()
                     .ReadShared<PlayerProgressState>()
+                    .ReadShared<MinigameSaveStates>()
             );
         }
 
@@ -23,11 +29,48 @@ namespace SpaceFab {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ProgressMeterState meterState,
-                out PlayerProgressState progressState
+                out PlayerProgressState progressState,
+                out MinigameSaveStates saveStates
                 );
 
             // Drain the dirty flag by pushing state into the view.
             if (meterState.NeedsRefresh) {
+                // Update pending cycles
+                int numPendingCycles = ProgressMeterUtility.CalculatePendingCycleCells(meterState.ActiveMeter, saveStates);
+
+                // 
+                for (int i = progressState.ElapsedCycles; i < progressState.ElapsedCycles + numPendingCycles; i++)
+                {
+                    ProgressMeterUtility.SetCycleCellState(meterState, i, CycleCellState.PENDING);
+                }
+                ProgressMeterUtility.ClearCycleStateFrom(meterState, progressState.ElapsedCycles + numPendingCycles);
+
+                // Update pending funds
+
+                if (Game.Assets.HasNamed<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId))
+                {
+                    var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+
+                    int contractPayout = contractAssets.Payout;
+                    ProgressMeterUtility.CalculatePendingFundsCells(meterState.ActiveMeter, saveStates, contractPayout, out int pendingReceivedCount, out int pendingSpentCount);
+
+                    int spentThreshold = progressState.Funds + contractPayout - pendingSpentCount;
+                    int pendingReceivedThreshold = spentThreshold - Mathf.Max(0, contractPayout - pendingSpentCount);
+
+                    // TODO: check for out of bounds (spending more than have in funds)
+
+                    for (int i = pendingReceivedThreshold; i < spentThreshold; i++)
+                    {
+                        ProgressMeterUtility.SetFundsCellState(meterState, i, FundsCellState.PENDING_RECEIVED);
+                    }
+                    for (int i = spentThreshold; i < progressState.Funds + contractPayout; i++)
+                    {
+                        ProgressMeterUtility.SetFundsCellState(meterState, i, FundsCellState.PENDING_SPENT);
+                    }
+                    ProgressMeterUtility.ClearFundStateFrom(meterState, progressState.Funds + contractPayout);
+                }
+
+                // apply visual refresh
                 ProgressMeterUtility.RefreshVisuals(meterState.ActiveMeter, meterState);
                 meterState.NeedsRefresh = false;
             }

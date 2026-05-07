@@ -20,8 +20,10 @@ MonoBehaviour:
   m_title: Test Contract
   m_description: This is where the contract is described
   m_client: '[Client Name]'
+  m_payout: 6
   m_expectedDuration: 4
   m_expectedProfit: 3
   m_contractAssets: {fileID: 11400000, guid: 16db721148e3288478d23e3edde73240, type: 2}
   ContractAssetsWrapperId:
     m_HashValue: 1012048291
+  m_requiredResearchMaterials: []
