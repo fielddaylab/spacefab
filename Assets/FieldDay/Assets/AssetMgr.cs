@@ -19,6 +19,10 @@ using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif // UNITY_EDITOR
+
 using NamedAssetCollection = FieldDay.Assets.AssetCollection<FieldDay.Assets.INamedAsset>;
 
 namespace FieldDay.Assets {
@@ -29,7 +33,7 @@ namespace FieldDay.Assets {
         public const int MaxStreamedPackages = 32;
         public const string StreamedPackagePath = "packs/";
         public const string StreamedManifestPath = StreamedPackagePath + "manifest.bin";
-        public const string StreamedRootAddressableName = "__root";
+        public const string StreamedRootAddressableName = "^root";
 
         #region Types
 
@@ -427,7 +431,6 @@ namespace FieldDay.Assets {
 
         private void BeginStreamedPackageLoad(StringHash32 packageId) {
             Assert.True(m_StreamedPackageCount < MaxStreamedPackages, "Maximum number of streamed packages ({0}) reached!", MaxStreamedPackages);
-            Assert.True(m_StreamedPackagePathLookup.ContainsKey(packageId), "No streamed package path with the given id '{0}' is available", packageId);
 
             ref StreamedPackageData data = ref m_StreamedPackageData[m_StreamedPackageCount++];
             data.Id = packageId;
@@ -435,6 +438,14 @@ namespace FieldDay.Assets {
             data.Package = null;
             data.Bundle = null;
             data.RefCount = 1;
+
+#if UNITY_EDITOR
+            if (StreamedEditor.ShouldUse()) {
+                return;
+            }
+#endif // UNITY_EDITOR
+
+            Assert.True(m_StreamedPackagePathLookup.ContainsKey(packageId), "No streamed package path with the given id '{0}' is available", packageId);
 
             FileLoadRequest loadRequest = FileLoadRequest.AssetBundle(m_StreamedPackagePathLookup[packageId], FileLocation.Streaming, HandleAssetBundleDownloadResult, this);
             loadRequest.SetIdentifiers(packageId, "StreamedPackages");
@@ -599,7 +610,39 @@ namespace FieldDay.Assets {
             return -1;
         }
 
-        #endregion // Streaming
+        static private class StreamedEditor {
+
+            static public bool ShouldUse() {
+#if UNITY_EDITOR
+                return EditorPrefs.GetBool(EditorTestPrefsKey);
+#else
+            return true;
+#endif // UNITY_EDITOR
+            }
+
+#if UNITY_EDITOR
+
+            private const string EditorTestPrefsKey = "FieldDay/UseStreamedBundles";
+            private const string EditorTestMenuItem = "Field Day/Testing/Test with Streamed Package Bundles";
+
+            [MenuItem(EditorTestMenuItem, validate = false)]
+            static private void TestingCheckbox() {
+                bool isSet = EditorPrefs.GetBool(EditorTestPrefsKey);
+                EditorPrefs.SetBool(EditorTestPrefsKey, !isSet);
+                Menu.SetChecked(EditorTestMenuItem, !isSet);
+            }
+
+            [MenuItem(EditorTestMenuItem, validate = true)]
+            static private bool TestingCheckbox_Validate() {
+                bool isSet = EditorPrefs.GetBool(EditorTestPrefsKey);
+                Menu.SetChecked(EditorTestMenuItem, isSet);
+                return !EditorApplication.isPlayingOrWillChangePlaymode;
+            }
+
+#endif // UNITY_EDITOR
+        }
+
+        #endregion // Editor Integration
 
         #endregion // Registration
 
