@@ -1,3 +1,4 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using System;
@@ -259,9 +260,9 @@ namespace SpaceFab {
                 return;
             }
 
+            ApplyMarkerPosition(meter, state.CurrentDayIdx);
             ProgressMeterSpriteSet sprites = Find.GlobalAsset<ProgressMeterSpriteSet>();
             if (sprites == null) {
-                ApplyMarkerPosition(meter, state.CurrentDayIdx);
                 return;
             }
 
@@ -276,8 +277,6 @@ namespace SpaceFab {
             for (int i = 0; i < fundsCount; i++) {
                 ApplyFundsCell(meter.FundsCells[i], state.FundsStates[i], sprites);
             }
-
-            ApplyMarkerPosition(meter, state.CurrentDayIdx);
         }
 
         #endregion // Cells: Bind, Rebuild, Refresh
@@ -298,8 +297,8 @@ namespace SpaceFab {
             Vector2 cellSize = cellPrefabRect.rect.size;
 
             // 1. Position and size cells; size each cell container exactly to its cells.
-            LayoutCellRow(meter.CycleCells, meter.CycleCellContainer, cellSize);
-            LayoutCellRow(meter.FundsCells, meter.FundsCellContainer, cellSize);
+            LayoutCellRow(meter.CycleCells, meter.CycleCellContainer, cellSize, meter.CycleCellLayout);
+            LayoutCellRow(meter.FundsCells, meter.FundsCellContainer, cellSize, meter.FundsCellLayout);
 
             // 2. Size each row (cell container's parent) to fit title + cell container.
             float cycleRowWidth = SizeRowFromCellContainer(meter.CycleCellContainer, meter.CycleRowTitle, meter.CycleCells.Length);
@@ -311,7 +310,7 @@ namespace SpaceFab {
 
         // Anchors each cell to the container's top-left and positions it at i * cellWidth.
         // Sizes the container's width to count * cellWidth and its height to cellHeight.
-        private static void LayoutCellRow(ProgressMeterCell[] cells, RectTransform container, Vector2 cellSize) {
+        private static void LayoutCellRow(ProgressMeterCell[] cells, RectTransform container, Vector2 cellSize, HorizontalLayoutGroup layoutGroup) {
             if (cells == null || container == null) { return; }
 
             Vector2 topLeft = new Vector2(0f, 1f);
@@ -326,8 +325,11 @@ namespace SpaceFab {
                 cellRect.anchoredPosition = new Vector2(i * cellSize.x, 0f);
             }
 
+            layoutGroup.ForceRebuild();
+
+            float margin = 10;
             Vector2 size = container.sizeDelta;
-            size.x = cells.Length * cellSize.x;
+            size.x = cells.Length * cellSize.x + margin;
             size.y = cellSize.y;
             container.sizeDelta = size;
         }
@@ -380,6 +382,7 @@ namespace SpaceFab {
         private static void ClearChildren(RectTransform container) {
             for (int i = container.childCount - 1; i >= 0; i--) {
                 GameObject child = container.GetChild(i).gameObject;
+                if (child.name.Equals("Inset BG")) { continue; }
                 if (Application.isPlaying) {
                     UnityEngine.Object.Destroy(child);
                 } else {
@@ -396,13 +399,17 @@ namespace SpaceFab {
         private static void ApplyCycleCell(ProgressMeterCell cell, CycleCellState cellState, ProgressMeterSpriteSet sprites) {
             if (cell == null || cell.OverlayImage == null) { return; }
 
+            cell.BaseImage.enabled = true;
+            cell.BaseImage.sprite = sprites.CycleBase;
             cell.OverlayImage.enabled = true;
             switch (cellState) {
                 case CycleCellState.PENDING:
-                    cell.OverlayImage.sprite = sprites.CyclePending;
+                    cell.OverlayImage.sprite = sprites.CycleFilled;
+                    cell.OverlayImage.color = sprites.CyclePendingColor;
                     break;
                 case CycleCellState.FILLED:
                     cell.OverlayImage.sprite = sprites.CycleFilled;
+                    cell.OverlayImage.color = sprites.CycleConfirmedColor;
                     break;
                 default:
                     cell.OverlayImage.enabled = false;
@@ -414,6 +421,7 @@ namespace SpaceFab {
         private static void ApplyFundsCell(ProgressMeterCell cell, FundsCellState cellState, ProgressMeterSpriteSet sprites) {
             if (cell == null || cell.OverlayImage == null) { return; }
 
+            cell.BaseImage.enabled = false; // no base image for funds cell
             cell.OverlayImage.enabled = true;
             switch (cellState) {
                 case FundsCellState.PENDING_RECEIVED:
@@ -454,7 +462,7 @@ namespace SpaceFab {
             Vector3 localCenter = markerParent.InverseTransformPoint(worldCenter);
 
             Vector2 markerPos = meter.CurrentDayMarker.anchoredPosition;
-            markerPos.x = localCenter.x;
+            markerPos.x = localCenter.x + targetCell.Rect.sizeDelta.x / 2f;
             meter.CurrentDayMarker.anchoredPosition = markerPos;
             meter.CurrentDayMarker.gameObject.SetActive(true);
         }

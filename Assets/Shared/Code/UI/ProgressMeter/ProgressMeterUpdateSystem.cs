@@ -12,7 +12,7 @@ namespace SpaceFab {
     public class ProgressMeterUpdateSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.OverarchingMask),
+                new SysUpdate(GameLoopPhaseMask.LateUpdate, 0),
                 new SysPermissions()
                     .ReadWriteShared<ProgressMeterState>()
                     .ReadShared<PlayerProgressState>()

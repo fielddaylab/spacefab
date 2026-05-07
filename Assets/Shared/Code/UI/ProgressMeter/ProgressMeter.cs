@@ -3,6 +3,7 @@ using FieldDay.Components;
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab {
     /// <summary>
@@ -17,7 +18,9 @@ namespace SpaceFab {
         public TMP_Text CycleRowTitle;
         public TMP_Text FundsRowTitle;
         public RectTransform CycleCellContainer;
+        public HorizontalLayoutGroup CycleCellLayout;
         public RectTransform FundsCellContainer;
+        public HorizontalLayoutGroup FundsCellLayout;
         public RectTransform CurrentDayMarker;
         public ProgressMeterCell CellPrefab;
 

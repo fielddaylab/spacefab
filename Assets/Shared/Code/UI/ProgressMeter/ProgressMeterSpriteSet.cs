@@ -10,8 +10,12 @@ namespace SpaceFab {
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/UI/Progress Meter Sprite Set")]
     public class ProgressMeterSpriteSet : GlobalAsset {
-        public Sprite CyclePending;
+        public Sprite CycleBase;
         public Sprite CycleFilled;
+        public Color CyclePendingColor;
+        public Color CycleConfirmedColor;
+
+        public Sprite FundsBase;
         public Sprite FundsPendingReceived;
         public Sprite FundsPendingSpent;
         public Sprite FundsFilled;

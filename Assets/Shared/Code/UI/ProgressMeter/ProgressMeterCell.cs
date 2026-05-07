@@ -10,6 +10,7 @@ namespace SpaceFab {
     /// states; EMPTY simply disables OverlayImage. No logic lives here.
     /// </summary>
     public class ProgressMeterCell : BatchedComponent {
+        public RectTransform Rect;
         public Image BaseImage;
         public Image OverlayImage;
     }
