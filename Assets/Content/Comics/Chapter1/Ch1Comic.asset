@@ -1,0 +1,235 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2350e9e4b026ac340b0b81310651b2d7, type: 3}
+  m_Name: Ch1Comic
+  m_EditorClassIdentifier: 
+  Pages:
+  - Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    PackedColor: 6339
+    Panels:
+      Offset: 0
+      Length: 8
+    Cameras:
+      Offset: 0
+      Length: 1
+  Panels:
+  - Id:
+      m_HashValue: 4234207932
+    Position:
+      PackedX: -92
+      PackedY: 61
+    PackedRotation: 0
+    Layers:
+      Offset: 0
+      Length: 1
+    MaskIndex: 0
+  - Id:
+      m_HashValue: 1033576194
+    Position:
+      PackedX: 2
+      PackedY: 53
+    PackedRotation: 0
+    Layers:
+      Offset: 1
+      Length: 1
+    MaskIndex: 1
+  - Id:
+      m_HashValue: 899502337
+    Position:
+      PackedX: 102
+      PackedY: 53
+    PackedRotation: 0
+    Layers:
+      Offset: 2
+      Length: 1
+    MaskIndex: 65535
+  - Id:
+      m_HashValue: 2577411332
+    Position:
+      PackedX: -61
+      PackedY: -43
+    PackedRotation: 0
+    Layers:
+      Offset: 3
+      Length: 1
+    MaskIndex: 65535
+  - Id:
+      m_HashValue: 2442057547
+    Position:
+      PackedX: 2
+      PackedY: -10
+    PackedRotation: 0
+    Layers:
+      Offset: 4
+      Length: 1
+    MaskIndex: 65535
+  - Id:
+      m_HashValue: 3046198926
+    Position:
+      PackedX: 7
+      PackedY: -44
+    PackedRotation: 0
+    Layers:
+      Offset: 5
+      Length: 1
+    MaskIndex: 65535
+  - Id:
+      m_HashValue: 2643683165
+    Position:
+      PackedX: 13
+      PackedY: -77
+    PackedRotation: 0
+    Layers:
+      Offset: 6
+      Length: 1
+    MaskIndex: 65535
+  - Id:
+      m_HashValue: 2979382640
+    Position:
+      PackedX: 81
+      PackedY: -43
+    PackedRotation: 0
+    Layers:
+      Offset: 7
+      Length: 1
+    MaskIndex: 65535
+  Layers:
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: 6
+      PackedY: -10
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: -18
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: -18
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  - Id:
+      m_HashValue: 2950437782
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  Cameras:
+  - Id:
+      m_HashValue: 3880549230
+    Position:
+      PackedX: -806
+      PackedY: 1
+    PackedRotation: 0
+    PackedClipHeight: 200
+  Masks:
+  - P0:
+      PackedX: -42
+      PackedY: -48
+    P1:
+      PackedX: -41
+      PackedY: 32
+    P2:
+      PackedX: 54
+      PackedY: -48
+    P3:
+      PackedX: 55
+      PackedY: 32
+    PackedColor: 0
+  - P0:
+      PackedX: -35
+      PackedY: -41
+    P1:
+      PackedX: -35
+      PackedY: 41
+    P2:
+      PackedX: 38
+      PackedY: -41
+    P3:
+      PackedX: 37
+      PackedY: 40
+    PackedColor: 0
+  CompressedMeshData: 
+  Textures: []
+  Script: {fileID: 0}
+  AdditionalAssets: {fileID: 0}

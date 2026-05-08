@@ -11,6 +11,7 @@ namespace SpaceFab.Comic {
     public struct PanelData {
         public StringHash32 Id;
         public PackedPoint Position;
+        public short PackedRotation;
         public OffsetLengthU16 Layers;
         public ushort MaskIndex;
     }

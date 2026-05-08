@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3377554361
+CRC: 1366379831
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a55ddd8df752cc9b7e721ec88768e113
+    Hash: ccd657f4f2ad4841fae4a6315cde0913
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 0121f884908e01d83441d77778a6ad06
+    Hash: 993ab02f52eddc374bfe619d1abeb2d5
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a55ddd8df752cc9b7e721ec88768e113
+    Hash: ccd657f4f2ad4841fae4a6315cde0913
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -20,11 +20,19 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Comic.CameraData
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Comic.LayerData
+- AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Comic.PackedPoint
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Comic.PageData
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Comic.PanelData
 - AssemblyName: BeauUtil
   ClassName: BeauUtil.OffsetLengthU16
+- AssemblyName: BeauUtil
+  ClassName: BeauUtil.StringHash32
 Assets:
-- Assets/Shared/Data/Comics/Chapter1/Ch1ComicPack.asset
+- Assets/Content/Comics/Chapter1/Ch1ComicPack.asset
 Dependencies: []

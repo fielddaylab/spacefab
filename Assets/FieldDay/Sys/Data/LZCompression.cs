@@ -303,6 +303,13 @@ namespace FieldDay.Data {
             }
         }
 
+        /// <summary>
+        /// Is the given result an error.
+        /// </summary>
+        static public bool IsError(LZCompressionResult result) {
+            return result >= LZCompressionResult.OutputSizeInsufficient;
+        }
+
         #endregion // Compress
 
         #region Decompress
@@ -458,7 +465,14 @@ namespace FieldDay.Data {
             }
         }
 
-#endregion // Decompress
+        /// <summary>
+        /// Is the given result an error.
+        /// </summary>
+        static public bool IsError(LZDecompressionResult result) {
+            return result >= LZDecompressionResult.OutputSizeInsufficient;
+        }
+
+        #endregion // Decompress
     }
 
     /// <summary>

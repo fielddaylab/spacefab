@@ -27,6 +27,11 @@ namespace SpaceFab.Comic {
         public int IndexCount;
         public Vector2 PositionBase;
         public Vector2 PositionRange;
+
+        public ComicMeshVertex* VertexWriteHead;
+        public ushort* IndexWriteHead;
+        public int WrittenVertices;
+        public int WrittenIndices;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -41,6 +46,8 @@ namespace SpaceFab.Comic {
         public const float UVScale = 1.0f / (1 << 15);
         public const float PositionScale = 1.0f / (1 << 15);
 
+        public const ushort NullIndex = ushort.MaxValue;
+
         static public void DecodeHeaderBlock(ref MeshReader reader) {
             Vector2* vecStream = (Vector2*)reader.Stream;
             reader.PositionBase = *vecStream++;
@@ -49,8 +56,8 @@ namespace SpaceFab.Comic {
             reader.Stream = (byte*) vecStream;
         }
 
-        static public bool DecodeVertexBlock(ref MeshReader reader, UnmanagedMeshData16<ComicMeshVertex> meshData, uint blockSize) {
-            int toRead = Math.Min((int) blockSize, reader.VertexCount - meshData.VertexCount);
+        static public bool DecodeVertexBlock(ref MeshReader reader, uint blockSize) {
+            int toRead = Math.Min((int) blockSize, reader.VertexCount - reader.WrittenVertices);
             if (toRead <= 0) {
                 return false;
             }
@@ -61,47 +68,53 @@ namespace SpaceFab.Comic {
                 posScaleY = PositionScale * reader.PositionRange.y;
 
             CompressedMeshVertex* vertStream = (CompressedMeshVertex*) reader.Stream;
+            reader.WrittenVertices += toRead;
 
             while(toRead-- > 0) {
                 CompressedMeshVertex vert;
                 vert = *vertStream++;
-                meshData.AddVertex(new ComicMeshVertex() {
+                *reader.VertexWriteHead++ = new ComicMeshVertex() {
                     Position = new Vector2(posBaseX + vert.X * posScaleX, posBaseY * vert.Y * posScaleY),
                     PackedUVs = new Vector4(vert.U * UVScale, vert.V * UVScale,
                         vert.X * PositionScale, vert.Y * PositionScale)
-                });
+                };
             }
 
             reader.Stream = (byte*) vertStream;
 
-            return meshData.VertexCount < reader.VertexCount;
+            return reader.WrittenVertices < reader.VertexCount;
         }
 
-        static public bool DecodeIndexBlock(ref MeshReader reader, UnmanagedMeshData16<ComicMeshVertex> meshData, uint blockSize) {
-            int toRead = Math.Min((int) blockSize, reader.IndexCount - meshData.IndexCount);
+        static public bool DecodeIndexBlock(ref MeshReader reader, uint blockSize) {
+            int toRead = Math.Min((int) blockSize, reader.IndexCount - reader.WrittenIndices);
             if (toRead <= 0) {
                 return false;
             }
 
             ushort baseIndex;
-            if (meshData.IndexCount <= 0) {
+            if (reader.WrittenIndices <= 0) {
                 baseIndex = *(ushort*) (reader.Stream);
                 reader.Stream += sizeof(ushort);
+                *reader.IndexWriteHead++ = baseIndex;
+                toRead--;
+                reader.WrittenIndices++;
             } else {
-                baseIndex = meshData.Index(meshData.IndexCount - 1);
+                baseIndex = *reader.IndexWriteHead;
             }
+
+            reader.WrittenIndices += toRead;
 
             sbyte* idxStream = (sbyte*) reader.Stream;
 
             while (toRead-- > 0) {
                 sbyte adjust = *idxStream++;
                 baseIndex = (ushort) (baseIndex + adjust);
-                meshData.AddIndex(baseIndex);
+                *reader.IndexWriteHead++ = baseIndex;
             }
 
             reader.Stream = (byte*) idxStream;
 
-            return meshData.IndexCount < reader.IndexCount;
+            return reader.WrittenIndices < reader.IndexCount;
         }
     }
 }

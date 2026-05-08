@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace SpaceFab.Comic {
     public sealed class ComicResourcePool : SharedStateComponent, IRegistrationCallbacks, IScenePreload {
-        public const int BufferSizeMiB = 56;
+        public const int BufferSizeMiB = 8;
 
         public ComicRenderElement.Pool ElementPool;
         public Material BaseMaterial;
@@ -20,9 +20,10 @@ namespace SpaceFab.Comic {
         [NonSerialized] public IPool<Material> MaterialPool;
 
         [NonSerialized] public Dictionary<ushort, Mesh> ActiveMeshes;
-        [NonSerialized] public RingBuffer<LiveComicTexture> ActiveTextures;
 
         [NonSerialized] public Unsafe.ArenaHandle Allocator;
+        [NonSerialized] public MeshData16<ComicMeshVertex> MaskMeshBuilder;
+        [NonSerialized] public VertexLayout MeshVertexLayout;
 
         void IRegistrationCallbacks.OnDeregister() {
             foreach (var mesh in ActiveMeshes.Values) {
@@ -32,31 +33,32 @@ namespace SpaceFab.Comic {
 
             ElementPool.Dispose();
 
-            while (ActiveTextures.TryPeekFront(out LiveComicTexture tex)) {
-                Destroy(tex.Texture);
-                Destroy(tex.Material);
-            }
-
             MeshPool.Dispose();
             MaterialPool.Dispose();
 
             Allocator.Release();
+            MaskMeshBuilder.Dispose();
         }
 
         void IRegistrationCallbacks.OnRegister() {
             ElementPool.Initialize();
             ElementPool.Config.RegisterOnFree((p, e) => ComicResourceUtility.OnRenderElementFreed(this, e));
+            
+            MeshVertexLayout = VertexUtility.GenerateLayout(typeof(ComicMeshVertex), 0);
 
-            MeshPool = new DynamicPool<Mesh>(ElementPool.Capacity, Pool.DefaultConstructor<Mesh>());
+            MeshPool = new DynamicPool<Mesh>(ElementPool.Capacity, (p) => {
+                Mesh mesh = new Mesh();
+                mesh.MarkDynamic();
+                return mesh;
+            });
             MeshPool.Config.RegisterOnFree((l, m) => m.Clear(true));
             MeshPool.Config.RegisterOnDestruct((p, m) => DestroyImmediate(m));
 
             MaterialPool = new DynamicPool<Material>(ElementPool.Capacity / 4, (p) => new Material(BaseMaterial));
             MaterialPool.Config.RegisterOnDestruct((p, m) => DestroyImmediate(m));
 
-            ActiveTextures = new RingBuffer<LiveComicTexture>(16, RingBufferMode.Fixed);
-
             Allocator = Unsafe.CreateArena(Unsafe.MiB * BufferSizeMiB, "Comics", Unsafe.AllocatorFlags.Default);
+            MaskMeshBuilder = new MeshData16<ComicMeshVertex>(4, 6, MeshTopology.Triangles, false);
         }
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
@@ -88,7 +90,8 @@ namespace SpaceFab.Comic {
 
     static public class ComicResourceUtility {
         static public void OnRenderElementFreed(ComicResourcePool resourcePool, ComicRenderElement element) {
-            element.Animation.Stop();
+            element.CoroutineAnimation.Stop();
+            Game.Animation.CancelAnimation(ref element.LiteAnimation);
             element.BaseMaterial = null;
             element.Sibling = null;
             element.MeshRenderer.sharedMaterial = null;
@@ -96,28 +99,17 @@ namespace SpaceFab.Comic {
             element.Id = null;
             element.Visibility = 0;
 
+            if (element.MeshIndex != ComicMesh.NullIndex) {
+                if (resourcePool.ActiveMeshes.Remove(element.MeshIndex, out Mesh mesh)) {
+                    resourcePool.MeshPool.Free(mesh);
+                }
+                element.MeshIndex = ComicMesh.NullIndex;
+            }
+
             if (element.TempMaterial != null) {
                 resourcePool.MaterialPool.Free(element.TempMaterial);
                 element.TempMaterial = null;
             }
-
-            if (element.TextureIndex != ComicTexture.NullTextureIndex) {
-                ReleaseTextureReference(resourcePool, element.TextureIndex);
-                element.TextureIndex = ComicTexture.NullTextureIndex;
-            }
-        }
-
-        static public bool ReleaseTextureReference(ComicResourcePool resourcePool, ushort textureIndex) {
-            for(int i = 0; i < resourcePool.ActiveTextures.Count; i++) {
-                ref LiveComicTexture tex = ref resourcePool.ActiveTextures[i];
-                if (tex.TextureIndex == textureIndex) {
-                    Assert.True(tex.RefCount > 0, "Unbalanced texture ref/unref");
-                    tex.RefCount--;
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

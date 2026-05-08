@@ -2,6 +2,7 @@ using System;
 using BeauPools;
 using BeauRoutine;
 using BeauUtil;
+using FieldDay.Animation;
 using FieldDay.Components;
 using FieldDay.Mathematics;
 using UnityEngine;
@@ -14,13 +15,20 @@ namespace SpaceFab.Comic {
         public MeshRenderer MeshRenderer;
 
         [NonSerialized] public StringHash32 Id;
+        [NonSerialized] public ComicRenderElementType Type;
         [NonSerialized] public ComicRenderElement Sibling;
         [NonSerialized] public float Visibility;
-        [NonSerialized] public Routine Animation;
+        [NonSerialized] public Routine CoroutineAnimation;
+        [NonSerialized] public AnimHandle LiteAnimation;
 
-        [NonSerialized] public ushort TextureIndex = ComicTexture.NullTextureIndex;
+        [NonSerialized] public ushort MeshIndex = ushort.MaxValue;
         [NonSerialized] public Material BaseMaterial;
         [NonSerialized] public Material TempMaterial;
+    }
+
+    public enum ComicRenderElementType : uint {
+        Layer,
+        Mask
     }
 
     static public partial class ComicsUtility {
@@ -49,8 +57,11 @@ namespace SpaceFab.Comic {
         }
 
         #endregion // Common Formats
-
-        static public void GenerateMaskMesh(UnmanagedMeshData16<ComicMeshVertex> meshData, in MaskData data, Vector2 texCoord) {
+        
+        /// <summary>
+        /// Generates a mesh for the given mask data.
+        /// </summary>
+        static public void GenerateMaskMesh(MeshData16<ComicMeshVertex> meshData, in MaskData data, Vector2 texCoord) {
             Vector2 a = UnpackPoint(data.P0);
             Vector2 b = UnpackPoint(data.P1);
             Vector2 c = UnpackPoint(data.P2);

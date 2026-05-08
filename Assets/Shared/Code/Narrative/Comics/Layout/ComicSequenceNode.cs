@@ -46,6 +46,8 @@ namespace SpaceFab.Comic {
             builder.Masks = new WorkList<MaskData>(48);
             builder.Meshes = new WorkList<ComicMeshHeader>(128);
             builder.DiscoveredLayers = new WorkList<ComicLayerNode>(128);
+            builder.OutputMeshes = null;
+            builder.OutputTextures = null;
 
             int childCount = root.childCount;
             for(int i = 0; i < childCount; i++) {
@@ -65,6 +67,8 @@ namespace SpaceFab.Comic {
                 }
             }
 
+            ScanAndPackLayers(ref builder);
+
             Baking.SetDirty(manifest);
 
             manifest.Pages = builder.Pages.ToArray();
@@ -73,6 +77,8 @@ namespace SpaceFab.Comic {
             manifest.Cameras = builder.Cameras.ToArray();
             manifest.Masks = builder.Masks.ToArray();
             manifest.Meshes = builder.Meshes.ToArray();
+            manifest.CompressedMeshData = builder.OutputMeshes;
+            manifest.Textures = builder.OutputTextures;
 
             return true;
         }
@@ -86,6 +92,9 @@ namespace SpaceFab.Comic {
             public WorkList<ComicMeshHeader> Meshes;
 
             public WorkList<ComicLayerNode> DiscoveredLayers;
+            
+            public Texture2D[] OutputTextures;
+            public byte[] OutputMeshes;
         }
 
         static private short PackDegrees(float degrees) {
@@ -151,6 +160,7 @@ namespace SpaceFab.Comic {
                 PackedX = FixedPoint.Q12_3.FromFloat(pos.x),
                 PackedY = FixedPoint.Q12_3.FromFloat(pos.y),
             };
+            panelData.PackedRotation = PackDegrees(rot.eulerAngles.z);
 
             ushort maskIndex = ushort.MaxValue;
 
@@ -220,7 +230,7 @@ namespace SpaceFab.Comic {
 
             layerData.RenderOrder = 0;
             layerData.Flags = 0;
-            layerData.MeshIndex = ushort.MaxValue;
+            layerData.MeshIndex = ComicMesh.NullIndex;
             layerData.TextureIndex = ushort.MaxValue;
             layerData.SiblingLayerIndex = ushort.MaxValue;
 
@@ -230,7 +240,7 @@ namespace SpaceFab.Comic {
         static private CameraData BuildCameraData(ref SequenceBuilder builder, ComicCameraNode node) {
             CameraData cameraData;
 
-            node.transform.GetLocalPositionAndRotation(out Vector3 pos, out Quaternion rot);
+            node.transform.GetPositionAndRotation(out Vector3 pos, out Quaternion rot);
 
             cameraData.Id = node.gameObject.name;
             cameraData.Position = new PackedPoint() {
@@ -280,6 +290,9 @@ namespace SpaceFab.Comic {
             return maskData;
         }
 
+        static private void ScanAndPackLayers(ref SequenceBuilder builder) {
+            // TODO: tile packing
+        }
 #endif // UNITY_EDITOR
     }
 }

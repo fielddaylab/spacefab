@@ -10,23 +10,27 @@ namespace SpaceFab.Comic {
         [Range(0.1f, 2048)]
         public float ClipHeight = 16;
 
-        private void OnDrawGizmos() {
-            if (DebugFlags.IsSelected(this)) {
-                return;
-            }
+#if UNITY_EDITOR
 
-            Gizmos.color = Color.yellow.WithAlpha(0.2f);
+        private void OnDrawGizmos() {
+            Gizmos.color = Color.yellow.WithAlpha(0.3f);
             Vector3 size = new Vector3(ClipHeight * 4 / 3, ClipHeight, 0);
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(default, size);
         }
 
         private void OnDrawGizmosSelected() {
-            Gizmos.color = Color.yellow.WithAlpha(0.4f);
+            if (!DebugFlags.IsSelected(gameObject)) {
+                return;
+            }
+
+            Gizmos.color = Color.yellow.WithAlpha(0.3f);
             Vector3 size = new Vector3(ClipHeight * 4 / 3, ClipHeight, 0);
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawCube(default, size);
         }
+
+#endif // UNITY_EDITOR
     }
 
     [Serializable]

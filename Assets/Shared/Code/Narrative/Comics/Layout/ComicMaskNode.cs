@@ -40,23 +40,24 @@ namespace SpaceFab.Comic {
             renderer.SetPropertyBlock(s_SharedPropertyBlock);
             renderer.sortingOrder = -10000;
 
-            MeshData16<ComicMeshVertex> meshData = new MeshData16<ComicMeshVertex>(4, 6, MeshTopology.Triangles, false);
-            meshData.AddQuad(new ComicMeshVertex() {
+            MeshData16<VertexP3U2> meshData = new MeshData16<VertexP3U2>(4, 6, MeshTopology.Triangles, false);
+            meshData.AddQuad(new VertexP3U2() {
                 Position = Offset0,
-                PackedUVs = new Vector4(0.5f, 0.5f, 0, 0)
-            }, new ComicMeshVertex() {
+                UV = new Vector2(0.5f, 0.5f)
+            }, new VertexP3U2() {
                 Position = Offset1,
-                PackedUVs = new Vector4(0.5f, 0.5f, 0, 0)
-            }, new ComicMeshVertex() {
+                UV = new Vector2(0.5f, 0.5f)
+            }, new VertexP3U2() {
                 Position = Offset2,
-                PackedUVs = new Vector4(0.5f, 0.5f, 0, 0)
-            }, new ComicMeshVertex() {
+                UV = new Vector2(0.5f, 0.5f)
+            }, new VertexP3U2() {
                 Position = Offset3,
-                PackedUVs = new Vector4(0.5f, 0.5f, 0, 0)
+                UV = new Vector2(0.5f, 0.5f)
             });
 
             DynamicMeshFilter dynFilter = GetComponent<DynamicMeshFilter>();
-            dynFilter.Upload(meshData, MeshDataUploadFlags.DontRecalculateBounds);
+            dynFilter.Upload(meshData);
+            GetComponent<MeshFilter>().sharedMesh = dynFilter.Mesh;
         }
 
         [CustomEditor(typeof(ComicMaskNode))]
