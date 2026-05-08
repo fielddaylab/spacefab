@@ -364,6 +364,20 @@ namespace SpaceFab {
 
         #endregion // Cells: Bind, Rebuild, Refresh
 
+        #region Display
+
+        public static void Show(ProgressMeter meter)
+        {
+            meter.gameObject.SetActive(true);
+        }
+
+        public static void Hide(ProgressMeter meter)
+        {
+            meter.gameObject.SetActive(false);
+        }
+
+        #endregion // Display
+
         #region Internal
 
         /// <summary>

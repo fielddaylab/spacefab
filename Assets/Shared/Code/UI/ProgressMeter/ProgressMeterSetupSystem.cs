@@ -8,7 +8,7 @@ namespace SpaceFab {
     public class ProgressMeterSetupSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.Update, 5, UpdateMasks.SetupMask),
+                new SysUpdate(GameLoopPhaseMask.PreUpdate, 5, UpdateMasks.SetupMask),
                 new SysPermissions()
                     .ReadWriteShared<ProgressMeterState>()
                     .ReadShared<PlayerProgressState>()
@@ -30,12 +30,15 @@ namespace SpaceFab {
                 {
                     ProgressMeterUtility.SetCycleCellState(meterState, i, CycleCellState.FILLED);
                 }
+                ProgressMeterUtility.ClearCycleStateFrom(meterState, progressState.ElapsedCycles);
+
 
                 // fill locked-in funds up to current
                 for (int i = 0; i < progressState.Funds; i++)
                 {
                     ProgressMeterUtility.SetFundsCellState(meterState, i, FundsCellState.FILLED);
                 }
+                ProgressMeterUtility.ClearFundStateFrom(meterState, progressState.Funds);
             }
         }
     }
