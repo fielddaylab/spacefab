@@ -30,6 +30,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1897015004928973169}
+  - {fileID: 2947045511331973704}
   m_Father: {fileID: 254948977253697320}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -792,7 +793,7 @@ GameObject:
   - component: {fileID: 4462120178271090454}
   - component: {fileID: 663453334303720286}
   m_Layer: 5
-  m_Name: Contract Button
+  m_Name: Select Contract Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -811,11 +812,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3779397416402510265}
-  m_Father: {fileID: 8547628959336472481}
+  m_Father: {fileID: 656294322388487476}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 383.65048, y: -107.840836}
+  m_AnchoredPosition: {x: 20.650421, y: -107.840836}
   m_SizeDelta: {x: 327, y: 83}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5167440940184397924
@@ -1089,7 +1090,6 @@ RectTransform:
   - {fileID: 2339750372918848345}
   - {fileID: 4463643835838709816}
   - {fileID: 647521500611604701}
-  - {fileID: 2947045511331973704}
   - {fileID: 2362695394210252426}
   - {fileID: 5867313165016417517}
   - {fileID: 2753003754163289357}
@@ -1287,7 +1287,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 167.5, y: -0}
+  m_AnchoredPosition: {x: 167.5, y: 0}
   m_SizeDelta: {x: 189.81, y: 32.99}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5221004614896445800

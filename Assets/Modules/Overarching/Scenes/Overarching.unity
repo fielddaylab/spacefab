@@ -191,6 +191,17 @@ Transform:
   - {fileID: 1527852733}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &512965097 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 663453334303720286, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
+  m_PrefabInstance: {fileID: 2050430497}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eee9c2c266d7b04086359698c88f959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!225 &603325388 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 2421950308700476978, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
@@ -6502,17 +6513,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eee9c2c266d7b04086359698c88f959, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1547791545 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2073522658845152600, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
-  m_PrefabInstance: {fileID: 2892304983068427007}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0eee9c2c266d7b04086359698c88f959, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &1571798444 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4936318006479472727, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
@@ -6694,7 +6694,7 @@ MonoBehaviour:
   ContractOptionsStartPos: {x: -800, y: 0, z: 0}
   ContractOptionsEndPos: {x: -255, y: 0, z: 0}
   SelectionContractUI: {fileID: 849435376}
-  ConfirmContractButton: {fileID: 1547791545}
+  ConfirmContractButton: {fileID: 512965097}
   OptionButtons:
   - {fileID: 2892304983068427011}
   - {fileID: 2892304983068427010}
@@ -7132,7 +7132,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 770322524078102517, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 772670276434985044, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.x
@@ -7212,7 +7212,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2073522658845152600, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2171299934344521450, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.x
