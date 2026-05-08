@@ -32,6 +32,7 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ContractConfirmState>()
                     .ReadShared<SharedUIState>()
                     .ReadWriteShared<PlayerProgressState>()
+                    .ReadWriteShared<ProgressMeterState>()
             );
         }
 
@@ -49,7 +50,10 @@ namespace SpaceFab.Overarching {
                 out ContractConfirmState confirmState,
                 out SharedUIState uiState
                 );
-            Find.State(out PlayerProgressState progressState);
+            Find.State(
+                out PlayerProgressState progressState,
+                out ProgressMeterState meterState
+                );
 
             // Gate: run only if we haven't finished startup and the UI isn't mid-load
             if (!(startupState.Phase != OverarchingStartupSequencePhase.Completed && !uiState.IsLoading)) {
@@ -73,7 +77,7 @@ namespace SpaceFab.Overarching {
                     ProcessContractConfirmSystem(startupState, contractLoadState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
-                    ProcessLoadSelectedContract(startupState, chapterLoadState, contractLoadState);
+                    ProcessLoadSelectedContract(startupState, chapterLoadState, contractLoadState, meterState);
                     break;
                 default:
                     break;
@@ -171,7 +175,7 @@ namespace SpaceFab.Overarching {
         }
 
         // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
-        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractLoadState contractLoadState) {
+        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractLoadState contractLoadState, ProgressMeterState meterState) {
             if (chapterLoadState.LoadRoutine.Exists() || chapterLoadState.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
 
             if (contractLoadState.Phase == ContractLoadPhase.Waiting) {
@@ -182,6 +186,8 @@ namespace SpaceFab.Overarching {
             }
             else {
                 if (contractLoadState.Phase == ContractLoadPhase.Completed) {
+                    // refresh progress meter to update funds and cycles
+                    meterState.NeedsRefresh = true;
                     Complete(startupState);
                     GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
                 }

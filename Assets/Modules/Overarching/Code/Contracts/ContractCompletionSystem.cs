@@ -21,6 +21,7 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ContractLayoutState>()
                     .ReadWriteShared<ChapterState>()
                     .ReadWriteShared<AvailableContractsLookup>()
+                    .ReadWriteShared<PlayerProgressState>()
             );
         }
 
@@ -33,6 +34,10 @@ namespace SpaceFab.Overarching {
                 out AvailableContractsLookup availableLookup
                 );
 
+            Find.State(
+                out PlayerProgressState progressState
+                );
+
             switch (completionState.Phase) {
                 case ContractCompletionPhase.BeginLoadFromPrevChapter:
                     ProcessBeginLoadFromPrevChapter(completionState, layoutState, chapterState, availableLookup);
@@ -41,7 +46,7 @@ namespace SpaceFab.Overarching {
                     ProcessLoadFromPrevChapter(completionState, layoutState, chapterState, availableLookup);
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
-                    ProcessEnterPrevContract(completionState, layoutState);
+                    ProcessEnterPrevContract(completionState, layoutState, progressState);
                     break;
                 case ContractCompletionPhase.EvaluatePreviousContract:
                     ProcessEvaluatePrevContract(completionState, layoutState);
@@ -73,9 +78,9 @@ namespace SpaceFab.Overarching {
         }
 
         // After entry, runs the evaluate routine (currently a placeholder pause).
-        static private void ProcessEnterPrevContract(ContractCompletionState completionState, ContractLayoutState layoutState) {
+        static private void ProcessEnterPrevContract(ContractCompletionState completionState, ContractLayoutState layoutState, PlayerProgressState progressState) {
             if (!layoutState.CompletionRoutine.Exists()) {
-                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(layoutState));
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(layoutState, progressState));
                 completionState.Phase = ContractCompletionPhase.EvaluatePreviousContract;
             }
         }

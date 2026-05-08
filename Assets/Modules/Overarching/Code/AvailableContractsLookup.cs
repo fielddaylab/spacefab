@@ -41,7 +41,6 @@ namespace SpaceFab.Overarching
             }
 
             chapterState.CurrAvailableContractsBundle = Find.NamedAsset<ContractsBundle>(lookup.Entries[chapterIndex].BundleId);
-            chapterState.CurrChapterDef = Find.NamedAsset<ChapterDef>(lookup.Entries[chapterIndex].ChapterId);
         }
 
         public static IEnumerator UnloadAvailableContractsAtChapter(AvailableContractsLookup lookup, ChapterState chapterState, int chapterIndex)

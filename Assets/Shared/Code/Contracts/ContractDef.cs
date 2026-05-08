@@ -16,6 +16,7 @@ namespace SpaceFab
         [SerializeField] private string m_title;
         [SerializeField] private string m_description;
         [SerializeField] private string m_client;
+        [SerializeField] private int m_payout;
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
         [SerializeField] private AssetPack m_contractAssets;
@@ -30,6 +31,7 @@ namespace SpaceFab
         public string Title() { return m_title; }
         public string Description() { return m_description; }
         public string Client() { return m_client; }
+        public int Payout() { return m_payout; }
         public int ExpectedDuration() { return m_expectedDuration; }
         public int ExpectedProfit() { return m_expectedProfit; }
         public AssetPack ContractAssets() { return m_contractAssets; }

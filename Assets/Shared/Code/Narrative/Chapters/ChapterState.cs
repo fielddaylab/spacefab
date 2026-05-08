@@ -50,10 +50,24 @@ namespace SpaceFab
 
     public static class ChapterUtility
     {
-        public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState)
+        public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, MinigameSaveStates saveStates)
         {
+            // save elapsed cycles and funds
+            progressState.ElapsedCycles += saveStates.Fabrication.FinalizedTotalCycles;
+            progressState.ElapsedCycles += saveStates.Supply.FinalizedTotalCycles;
+
+            int contractPayout = 0;
+            if (Game.Assets.HasNamed<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId))
+            {
+                var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+                contractPayout = contractAssets.ContractDef.Payout();
+            }
+            progressState.Funds += contractPayout - saveStates.Supply.FinalizedCost;
+
+            // advance chapter
             chapterState.CurrChapterIndex++;
             progressState.RecentlyCompletedChapter = true;
+            progressState.ContractAssetsWrapperId = default;
             SaveUtility.Save(SaveSlot.Main);
             Game.Scenes.ReloadMainScene();
         }
