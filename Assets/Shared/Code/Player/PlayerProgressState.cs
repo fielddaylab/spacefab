@@ -28,7 +28,7 @@ namespace SpaceFab
         public Dictionary<StringHash32, MaterialPropertyRecord> MaterialProperties;
         public HashSet<StringHash32> CompletedContractIds;
 
-        public StringHash32 ContractAssetsWrapperId; // TODO: wrap contract def back into contract assets wrapper asset (decouple from AvailableContractsBundle)
+        public StringHash32 ContractAssetsWrapperId;
         public StringHash32 CurrContractId;
 
         public void OnDeregister()
