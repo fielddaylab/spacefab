@@ -10,54 +10,17 @@ namespace SpaceFab.Fabrication.Microgames
     /// Sputtering station microgame: "Spraypaint." Players hold Activate to sputter material onto
     /// the exposed etched pattern, moving the head with arrow keys. Player manually ends the
     /// interaction. Precision is percent of the etched area filled.
+    ///
+    /// Unity-side handle for the IMicrogame interface; logic and data live in
+    /// SputterMicrogameState / SputterMicrogameUtility / SputterMicrogameSystem.
     /// </summary>
     public class SputterMicrogame : BatchedComponent, IMicrogame
     {
-        public bool CanActivateNow()
-        {
-            // TODO: gate based on sequence / wafer state. Default true.
-            return true;
-        }
-
-        public void OnEnterBegin()
-        {
-            // TODO: play intro; spawn sputter head above wafer.
-        }
-
-        public void OnEnterComplete()
-        {
-            // TODO: start accepting directional + activate input; enable sputter painting.
-        }
-
-        // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
-        public void OnExitBegin(bool completedNormally)
-        {
-            // TODO: freeze head.
-            if (!completedNormally) { return; }
-
-            MicrogameUtility.CommitStepPrecision(ComputePrecision());
-        }
-
-        // TODO: track process animation state (parallel or sequential) and return true once the
-        // animation has finished playing. Scaffold returns true so the exit gate doesn't stall
-        // before per-microgame animations are authored.
-        public bool IsProcessAnimationComplete()
-        {
-            return true;
-        }
-
-        public void OnExitComplete()
-        {
-            // TODO: tear down sputter UI; return to idle.
-        }
-
-        // Spraypaint-specific precision math: percent of the etched target area that got filled
-        // by the sputter head. Scaffold returns 0.
-        private float ComputePrecision()
-        {
-            // TODO: precision = filledCells / targetCells, clamped to [0,1].
-            return 0f;
-        }
+        public bool CanActivateNow() => SputterMicrogameUtility.CanActivate();
+        public void OnEnterBegin() => SputterMicrogameUtility.EnterBegin();
+        public void OnEnterComplete() => SputterMicrogameUtility.EnterComplete();
+        public void OnExitBegin(bool completedNormally) => SputterMicrogameUtility.ExitBegin(completedNormally);
+        public bool IsProcessAnimationComplete() => SputterMicrogameUtility.IsProcessAnimationComplete();
+        public void OnExitComplete() => SputterMicrogameUtility.ExitComplete();
     }
 }
