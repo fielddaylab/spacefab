@@ -8,14 +8,14 @@ namespace SpaceFab.Fabrication.Microgames
 {
     /// <summary>
     /// Drives the Plasma Etcher microgame's per-frame simulation while it is active. Runs on
-    /// Update at order 0 under AttemptMask; gated by EtchMicrogameState.IsActive.
+    /// FixedUpdate at order 0 under AttemptMask; gated by EtchMicrogameState.IsActive.
     /// </summary>
     public class EtchMicrogameSystem : SystemComponent
     {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.AttemptMask),
+                new SysUpdate(GameLoopPhase.FixedUpdate, 0, UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<EtchMicrogameState>()
             );

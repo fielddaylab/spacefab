@@ -8,14 +8,14 @@ namespace SpaceFab.Fabrication.Microgames
 {
     /// <summary>
     /// Drives the Photoresist microgame's per-frame simulation while it is active. Runs on
-    /// Update at order 0 under AttemptMask; gated by ResistMicrogameState.IsActive.
+    /// FixedUpdate at order 0 under AttemptMask; gated by ResistMicrogameState.IsActive.
     /// </summary>
     public class ResistMicrogameSystem : SystemComponent
     {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.AttemptMask),
+                new SysUpdate(GameLoopPhase.FixedUpdate, 0, UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<ResistMicrogameState>()
             );
