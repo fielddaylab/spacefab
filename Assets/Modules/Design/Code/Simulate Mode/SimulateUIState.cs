@@ -27,6 +27,12 @@ namespace SpaceFab.Design
         [HideInInspector] public int HighlightedRowIndex;
         [HideInInspector] public bool UnstableBannerVisible;
 
+        // Set true whenever the SuiteRunRowButton icons might need to change (Phase change,
+        // CurrentRow change, table built, button clicked). Consumed and cleared by
+        // SuiteRunRowButtonRefreshSystem. Any future site that mutates SimulateRunState.Phase
+        // or CurrentRow must also raise this flag.
+        [HideInInspector] public bool RunButtonsNeedRefreshing;
+
         // TODO: references to row/cell view handles (SuiteRow / SuiteCell / SuiteCellEval),
         //       populated when UI construction is ported from EvaluationMgr.ConstructSuiteTable.
         [HideInInspector] public SuiteRow[] Rows;
@@ -37,6 +43,7 @@ namespace SpaceFab.Design
             ResultsPanelVisible = false;
             HighlightedRowIndex = -1;
             UnstableBannerVisible = false;
+            RunButtonsNeedRefreshing = false;
         }
 
         public void OnDeregister()
@@ -67,6 +74,9 @@ namespace SpaceFab.Design
             AssignRunListeners(uiState, suite, runState);
 
             uiState.TableBuilt = true;
+
+            // Trigger the initial icon paint on every row.
+            uiState.RunButtonsNeedRefreshing = true;
         }
 
         // Disables every eval image and flow image on the table. Ported from EvaluationMgr.ClearSuiteEvals.
@@ -164,6 +174,7 @@ namespace SpaceFab.Design
                 // instantiate row
                 uiState.Rows[row] = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
                 uiState.Rows[row].Cols = new SuiteCol[suite.Tests[row].Bundle.Length];
+                uiState.Rows[row].RunButton.RowIndex = row;
                 inOutputPhase = false;
                 for (int col = 0; col < suite.Tests[row].Bundle.Length; col++)
                 {
@@ -203,16 +214,53 @@ namespace SpaceFab.Design
             }
         }
 
+        // Wires every content row's run button to HandleRunButtonClick. RowIndex was stamped
+        // in CreateRowsAndCols, so the click handler reads the row from the button itself
+        // rather than from the captured loop variable.
         private static void AssignRunListeners(SimulateUIState uiState, TestSuiteData suite, SimulateRunState runState)
         {
             for (int row = 0; row < suite.Tests.Length; row++)
             {
-                uiState.Rows[row].RunButton.onClick.AddListener(() =>
-                {
-                    // TODO: hook into run state
-                    // runState.
-                });
+                SuiteRunRowButton btn = uiState.Rows[row].RunButton;
+                btn.onClick.AddListener(() => HandleRunButtonClick(runState, uiState, btn.RowIndex));
             }
+        }
+
+        // Per-row click dispatch. Translates the player's intent (given current Phase /
+        // CurrentRow) into the appropriate one-frame request flag.
+        //
+        //   active row + Propagating  -> Pause
+        //   active row + Paused       -> Resume
+        //   inactive row mid-run      -> Cancel current, queue this row to play after Cancelling lands in Idle
+        //   otherwise (Idle / Done)   -> PlaySingleTest for this row
+        private static void HandleRunButtonClick(SimulateRunState runState, SimulateUIState uiState, int rowIndex)
+        {
+            bool isActiveRow = (runState.CurrentRow == rowIndex);
+            SimulatePhase phase = runState.Phase;
+
+            if (isActiveRow && phase == SimulatePhase.Propagating)
+            {
+                SimulateControlUtility.RequestPause(runState);
+            }
+            else if (isActiveRow && phase == SimulatePhase.Paused)
+            {
+                SimulateControlUtility.RequestResume(runState);
+            }
+            else if (phase == SimulatePhase.Propagating || phase == SimulatePhase.Paused
+                || phase == SimulatePhase.PreparingTest || phase == SimulatePhase.ResolvingTest)
+            {
+                // A different row is mid-run. Cancel it; PendingPlayRowIndex survives across the
+                // Cancelling -> Idle transition and is consumed by ProcessIdle to re-fire the
+                // queued PlaySingleTest.
+                runState.PendingPlayRowIndex = rowIndex;
+                SimulateControlUtility.RequestCancel(runState);
+            }
+            else
+            {
+                SimulateControlUtility.RequestPlaySingleTest(runState, rowIndex);
+            }
+
+            uiState.RunButtonsNeedRefreshing = true;
         }
 
         // TODO: hook up with Loc system

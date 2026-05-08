@@ -5,6 +5,17 @@ using UnityEngine;
 
 namespace SpaceFab.Design.Visuals
 {
+    /// <summary>
+    /// Visual state of a SuiteRunRowButton's icon. Drives which sprite is shown:
+    /// Play (idle / inactive), Pause (this row is propagating), Resume (this row is paused).
+    /// </summary>
+    public enum SuiteRunButtonState
+    {
+        Play,
+        Pause,
+        Resume,
+    }
+
     [CreateAssetMenu(menuName = "SpaceFab/Design/SuiteVisuals DB")]
     public class SuiteVisualsDB : GlobalAsset
     {
@@ -22,6 +33,11 @@ namespace SpaceFab.Design.Visuals
         public Sprite SuiteFlowUnstable;
         public Sprite SuiteFlowOutput;
         public Sprite SuiteArrow;
+
+        [Header("Run Button Icons")]
+        public Sprite PlayIcon;
+        public Sprite PauseIcon;
+        public Sprite ResumeIcon;
     }
 
     public static class SuiteVisualsDBUtility
@@ -41,6 +57,22 @@ namespace SpaceFab.Design.Visuals
                     return suiteDB.SuiteFlowLo;
                 case FlowState.Unstable:
                     return suiteDB.SuiteFlowUnstable;
+                default:
+                    return null;
+            }
+        }
+
+        // Maps a SuiteRunRowButton state to its icon sprite from the visuals DB.
+        public static Sprite LookupRunButtonSprite(SuiteVisualsDB suiteDB, SuiteRunButtonState state)
+        {
+            switch (state)
+            {
+                case SuiteRunButtonState.Play:
+                    return suiteDB.PlayIcon;
+                case SuiteRunButtonState.Pause:
+                    return suiteDB.PauseIcon;
+                case SuiteRunButtonState.Resume:
+                    return suiteDB.ResumeIcon;
                 default:
                     return null;
             }

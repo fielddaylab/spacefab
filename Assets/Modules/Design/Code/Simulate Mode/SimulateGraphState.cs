@@ -186,10 +186,13 @@ namespace SpaceFab.Design
             EnsureCapacity(ref scratch.NoReturnStamps, cellCount, nameof(scratch.NoReturnStamps));
             EnsureCapacity(ref scratch.DfsPathBuffer, cellCount, nameof(scratch.DfsPathBuffer));
             EnsureCapacity(ref scratch.DfsReachedCrucial, cellCount, nameof(scratch.DfsReachedCrucial));
+            EnsureCapacity(ref scratch.DfsReachedPathStart, cellCount, nameof(scratch.DfsReachedPathStart));
+            EnsureCapacity(ref scratch.DfsReachedPathLength, cellCount, nameof(scratch.DfsReachedPathLength));
             EnsureCapacity(ref scratch.PostponedPairs, cellCount * 2, nameof(scratch.PostponedPairs));
             EnsureCapacity(ref scratch.AwaitingDependency, cellCount, nameof(scratch.AwaitingDependency));
             EnsureCapacity(ref scratch.EvaluatedForDependency, cellCount, nameof(scratch.EvaluatedForDependency));
             EnsureCapacity(ref scratch.DisallowAdditionalDep, cellCount, nameof(scratch.DisallowAdditionalDep));
+            EnsureCapacity(ref scratch.Processed, cellCount, nameof(scratch.Processed));
             EnsureCapacity(ref scratch.UnsortedEdges, cellCount * InitialEdgesPerCell, nameof(scratch.UnsortedEdges));
 
             graphState.NodeCount = 0;
@@ -224,6 +227,7 @@ namespace SpaceFab.Design
             Array.Clear(scratch.AwaitingDependency, 0, cellCount);
             Array.Clear(scratch.EvaluatedForDependency, 0, cellCount);
             Array.Clear(scratch.DisallowAdditionalDep, 0, cellCount);
+            Array.Clear(scratch.Processed, 0, cellCount);
         }
 
         #endregion // Pass 0
@@ -425,6 +429,11 @@ namespace SpaceFab.Design
                 int currCellIdx = graphState.CrucialNodes[currCrucialIdx].CellIndex;
                 int nodeDepth = graphState.CrucialNodes[currCrucialIdx].EvalDepth;
 
+                // Mark this crucial node as processed so future DFS reaches don't re-record
+                // it (which would re-enqueue it via TryEmitEdge and infinite-loop on any pair
+                // of mutually-cell-reachable crucials).
+                scratch.Processed[currCrucialIdx] = true;
+
                 // Depth boundary: bump the visit stamp so DFS state from the previous layer
                 // doesn't leak into this one. The prototype did a full ResetAllVisited here;
                 // the stamp bump is O(1).
@@ -456,12 +465,17 @@ namespace SpaceFab.Design
                     DfsFromNeighbor(graphState, scratch, currCellIdx, neighborCellIdx, currDepth);
 
                     // Emit one CrucialEdge per reached crucial node. Gate-dependency logic lives
-                    // here because it affects whether the edge is emitted now or deferred.
+                    // here because it affects whether the edge is emitted now or deferred. The
+                    // path slice for each reached crucial was captured by TryRecordReachedCrucial
+                    // when DFS was at maximum depth — pass it in so TryEmitEdge doesn't re-snapshot
+                    // from a buffer that's already been popped.
                     for (int r = 0; r < scratch.DfsReachedCrucialCount; r++)
                     {
                         int reachedCrucialIdx = scratch.DfsReachedCrucial[r];
-                        TryEmitEdge(graphState, scratch, gridStackState, currCrucialIdx, reachedCrucialIdx, currDepth,
-                            numCols, cellsPerLayer);
+                        int pathStart = scratch.DfsReachedPathStart[r];
+                        int pathLength = scratch.DfsReachedPathLength[r];
+                        TryEmitEdge(graphState, scratch, gridStackState, currCrucialIdx, reachedCrucialIdx,
+                            pathStart, pathLength, currDepth, numCols, cellsPerLayer);
                     }
                 }
             }
@@ -691,6 +705,17 @@ namespace SpaceFab.Design
         // origin as no-return on the reached cell.
         private static void TryRecordReachedCrucial(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int reachedCrucialIdx, int originCellIdx, int currDepth)
         {
+            // Skip already-processed crucials. Without this, the cell-graph's symmetric adjacency
+            // makes the BFS infinite-loop on any pair of mutually-reachable crucials (a metal
+            // endpoint can DFS back to its driving Input, which would re-enqueue the Input,
+            // which would re-DFS to the endpoint, etc.). Dropping the back-edge here means
+            // Pass 4's cycle detection won't see true logical cycles either — that's a known
+            // tradeoff and a separate concern from the queue-overflow bug.
+            if (scratch.Processed[reachedCrucialIdx])
+            {
+                return;
+            }
+
             int reachedCellIdx = graphState.CrucialNodes[reachedCrucialIdx].CellIndex;
 
             // Don't allow bouncing back to origin via any subsequent DFS.
@@ -705,7 +730,21 @@ namespace SpaceFab.Design
                 if (scratch.DfsReachedCrucial[i] == reachedCrucialIdx) { return; }
             }
 
-            scratch.DfsReachedCrucial[scratch.DfsReachedCrucialCount++] = reachedCrucialIdx;
+            // Snapshot the DFS path NOW. DfsPathBuffer[0..DfsPathDepth] holds the full
+            // origin→reached trail at this moment; by the time TryEmitEdge runs (after DFS
+            // returns), the buffer has been popped back to just the origin and the
+            // intermediate cells are gone. Snapshot is paired with the reached-crucial entry.
+            int snapIdx = scratch.DfsReachedCrucialCount;
+            int pathLen = scratch.DfsPathDepth;
+            int pathStart = ReservePathSlice(graphState, pathLen);
+            for (int i = 0; i < pathLen; i++)
+            {
+                graphState.PathPool[pathStart + i] = scratch.DfsPathBuffer[i];
+            }
+            scratch.DfsReachedCrucial[snapIdx] = reachedCrucialIdx;
+            scratch.DfsReachedPathStart[snapIdx] = pathStart;
+            scratch.DfsReachedPathLength[snapIdx] = pathLen;
+            scratch.DfsReachedCrucialCount++;
 
             // Tag origin cell as no-return for this reached crucial node's later DFS.
             scratch.NoReturnStamps[originCellIdx] = scratch.CurrentNoReturnStamp;
@@ -727,22 +766,12 @@ namespace SpaceFab.Design
 
         // Handles gate-dependency rules and either emits an edge to UnsortedEdges or defers it.
         // Mirrors the prototype's per-edge branching at lines 1142–1216.
-        private static void TryEmitEdge(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int originCrucialIdx, int reachedCrucialIdx, int currDepth, int numCols, int cellsPerLayer)
+        //
+        // pathStart / pathLength refer to a slice already written into graphState.PathPool by
+        // TryRecordReachedCrucial — capturing it there is necessary because TryEmitEdge runs
+        // after DFS has popped its way back, so DfsPathBuffer no longer holds the full path.
+        private static void TryEmitEdge(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int originCrucialIdx, int reachedCrucialIdx, int pathStart, int pathLength, int currDepth, int numCols, int cellsPerLayer)
         {
-            // Snapshot the current DFS path into PathPool first — we'll reference it by slice
-            // regardless of whether we emit or defer. (Defer still records the edge once the
-            // dependency resolves; having the path pre-stored means we don't re-DFS.)
-            //
-            // If we defer, we'll hold the PathPool slot. That's wasteful in rare pathological
-            // layouts; consider pool-rewind-on-defer if profiling shows the pool bloating.
-
-            int pathLength = scratch.DfsPathDepth;
-            int pathStart = ReservePathSlice(graphState, pathLength);
-            for (int i = 0; i < pathLength; i++)
-            {
-                graphState.PathPool[pathStart + i] = scratch.DfsPathBuffer[i];
-            }
-
             GridCoord reachedCoord = graphState.CrucialNodes[reachedCrucialIdx].Coord;
             GridCell reachedCell = GridStackUtility.GetCellDirect(gridStackState, reachedCoord);
             TransferType reachedTransfer = reachedCell.TransferType;
@@ -784,7 +813,10 @@ namespace SpaceFab.Design
                     scratch.PostponedPairs[scratch.PostponedCount * 2] = originCrucialIdx;
                     scratch.PostponedPairs[scratch.PostponedCount * 2 + 1] = reachedCrucialIdx;
                     scratch.PostponedCount++;
-                    // Note: we've reserved path space we won't use. See comment at top of function.
+                    // Note: TryRecordReachedCrucial already reserved the path slice; on a
+                    // defer we hold that PathPool slot without using it. Wasteful in rare
+                    // pathological layouts; consider pool-rewind-on-defer if profiling shows
+                    // the pool bloating.
                 }
                 else
                 {

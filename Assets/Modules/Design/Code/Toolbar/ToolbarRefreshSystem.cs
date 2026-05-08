@@ -11,7 +11,7 @@ namespace SpaceFab.Design {
     public class ToolbarRefreshSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ToolModeMask),
+                new SysUpdate(GameLoopPhase.Update, 10, UpdateMasks.ToolModeMask),
                 new SysPermissions()
                     .ReadWrite<ToolbarButton>()
                     .ReadWriteShared<ToolbarState>()

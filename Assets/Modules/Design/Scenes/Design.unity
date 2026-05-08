@@ -228,6 +228,7 @@ MonoBehaviour:
   Scope: 0
   CurrentRow: 0
   RequestedRowIndex: 0
+  PendingPlayRowIndex: 0
   CurrentDepth: 0
   PhaseTimer: 0
   PaintDepthThisFrame: 0
@@ -261,6 +262,7 @@ MonoBehaviour:
   ResultsPanelVisible: 0
   HighlightedRowIndex: 0
   UnstableBannerVisible: 0
+  RunButtonsNeedRefreshing: 0
   Rows: []
 --- !u!114 &33255859
 MonoBehaviour:
@@ -595,6 +597,7 @@ GameObject:
   - component: {fileID: 311447647}
   - component: {fileID: 311447646}
   - component: {fileID: 311447649}
+  - component: {fileID: 311447650}
   m_Layer: 0
   m_Name: Simulate Systems
   m_TagString: Untagged
@@ -663,6 +666,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 991cfb15763e4d9489254e322d9bca94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &311447650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311447644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eff8607673bc5947b2debe241ebcff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &441543700 stripped

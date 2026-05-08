@@ -23,3 +23,6 @@ MonoBehaviour:
   SuiteFlowUnstable: {fileID: 0}
   SuiteFlowOutput: {fileID: 21300000, guid: 5c971d65fa08fd14589cc447a63dcd49, type: 3}
   SuiteArrow: {fileID: 21300000, guid: 40255e9857efe994b9c28446bed68ffa, type: 3}
+  PlayIcon: {fileID: -946789618, guid: 49dabb21ba5a7c940b208ab77d746834, type: 3}
+  PauseIcon: {fileID: -102904144, guid: 49dabb21ba5a7c940b208ab77d746834, type: 3}
+  ResumeIcon: {fileID: -1435901635, guid: 49dabb21ba5a7c940b208ab77d746834, type: 3}

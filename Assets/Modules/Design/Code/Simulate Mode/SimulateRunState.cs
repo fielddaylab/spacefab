@@ -2,6 +2,7 @@ using FieldDay.SharedState;
 using FieldDay.Systems;
 using FieldDay;
 using UnityEngine;
+using SpaceFab.Design.Visuals;
 
 namespace SpaceFab.Design
 {
@@ -22,6 +23,12 @@ namespace SpaceFab.Design
 
         // Payload for PlaySingleTestRequested: which row the UI asked to play.
         [HideInInspector] public int RequestedRowIndex;
+
+        // Row queued to play once an in-flight Cancel finishes. -1 = nothing queued.
+        // Set by the suite-row click handler when the player clicks an inactive row mid-run;
+        // consumed by ProcessCancelling at the Cancelling -> Idle transition, which re-fires
+        // PlaySingleTestRequested with this row index.
+        [HideInInspector] public int PendingPlayRowIndex;
 
         // Depth pointer into SimulateGraphState.OrderedEdges.
         [HideInInspector] public int CurrentDepth;
@@ -62,6 +69,7 @@ namespace SpaceFab.Design
             Scope = RunScope.FullSuite;
             CurrentRow = 0;
             RequestedRowIndex = 0;
+            PendingPlayRowIndex = -1;
             CurrentDepth = 0;
             PhaseTimer = 0f;
             PaintDepthThisFrame = false;
@@ -96,22 +104,19 @@ namespace SpaceFab.Design
         // True when the player can start a run (either scope). UI enables Play / play-one-row buttons.
         public static bool CanAcceptPlay(SimulateRunState runState)
         {
-            // TODO: return runState.Phase == Idle || runState.Phase == SuiteComplete.
-            return false;
+            return runState.Phase == SimulatePhase.Idle || runState.Phase == SimulatePhase.SuiteComplete;
         }
 
         // True when the player can pause (only mid-propagation).
         public static bool CanAcceptPause(SimulateRunState runState)
         {
-            // TODO: return runState.Phase == Propagating.
-            return false;
+            return runState.Phase == SimulatePhase.Propagating;
         }
 
         // True when the player can resume from Paused.
         public static bool CanAcceptResume(SimulateRunState runState)
         {
-            // TODO: return runState.Phase == Paused.
-            return false;
+            return runState.Phase == SimulatePhase.Paused;
         }
 
         // True when restart-this-test is legal (Propagating or Paused).
@@ -131,8 +136,7 @@ namespace SpaceFab.Design
         // True when Cancel is legal. Cancel is universal except inside Cancelling itself.
         public static bool CanAcceptCancel(SimulateRunState runState)
         {
-            // TODO: return Phase != Cancelling.
-            return false;
+            return runState.Phase != SimulatePhase.Cancelling;
         }
 
         // True when the results-panel dismiss button should be live (only in SuiteComplete).
@@ -155,18 +159,21 @@ namespace SpaceFab.Design
         // Request a run of a single test row. rowIndex is carried on RequestedRowIndex.
         public static void RequestPlaySingleTest(SimulateRunState runState, int rowIndex)
         {
-            // TODO: if !CanAcceptPlay, no-op. Otherwise runState.RequestedRowIndex = rowIndex;
-            //       runState.PlaySingleTestRequested = true.
+            if (!CanAcceptPlay(runState)) { return; }
+            runState.RequestedRowIndex = rowIndex;
+            runState.PlaySingleTestRequested = true;
         }
 
         public static void RequestPause(SimulateRunState runState)
         {
-            // TODO: if !CanAcceptPause, no-op. Otherwise set PauseRequested = true.
+            if (!CanAcceptPause(runState)) { return; }
+            runState.PauseRequested = true;
         }
 
         public static void RequestResume(SimulateRunState runState)
         {
-            // TODO: if !CanAcceptResume, no-op. Otherwise set ResumeRequested = true.
+            if (!CanAcceptResume(runState)) { return; }
+            runState.ResumeRequested = true;
         }
 
         public static void RequestRestartTest(SimulateRunState runState)
@@ -181,7 +188,8 @@ namespace SpaceFab.Design
 
         public static void RequestCancel(SimulateRunState runState)
         {
-            // TODO: if !CanAcceptCancel, no-op. Otherwise set CancelRequested = true.
+            if (!CanAcceptCancel(runState)) { return; }
+            runState.CancelRequested = true;
         }
 
         public static void RequestDismissResults(SimulateRunState runState)
@@ -196,13 +204,34 @@ namespace SpaceFab.Design
         // Resets every entry in RowVerdicts to Untested. Called by ProcessIdle when a new run starts.
         public static void ClearAllVerdicts(SimulateRunState runState)
         {
-            // TODO: if RowVerdicts null, no-op. Otherwise for i in range, RowVerdicts[i] = Untested.
+            if (runState.RowVerdicts == null) { return; }
+            for (int i = 0; i < runState.RowVerdicts.Length; i++)
+            {
+                runState.RowVerdicts[i] = TestRowVerdict.Untested;
+            }
         }
 
         // Writes a verdict for a specific row; no-op on out-of-range index.
         public static void SetVerdict(SimulateRunState runState, int rowIndex, TestRowVerdict verdict)
         {
-            // TODO: bounds-check rowIndex; assign.
+            if (runState.RowVerdicts == null) { return; }
+            if (rowIndex < 0 || rowIndex >= runState.RowVerdicts.Length) { return; }
+            runState.RowVerdicts[rowIndex] = verdict;
+        }
+
+        // Resets the active simulation back to a clean Idle state — wipes per-cell flow,
+        // clears per-node transients, marks visuals dirty, parks Phase at Idle, and flags the
+        // run-button icons for repaint. Shared by SimulateModeSystem.ProcessCancelling and
+        // ModeTransitionSystem.ExitSimulateMode. Intentionally does NOT touch PendingPlayRowIndex
+        // so callers can decide whether to consume or discard a queued play.
+        public static void WipeRunState(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
+        {
+            SimulateRunScratchUtility.BumpFlowStamp(runScratch);
+            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+            visualState.VisualsNeedRefreshing = true;
+
+            runState.Phase = SimulatePhase.Idle;
+            uiState.RunButtonsNeedRefreshing = true;
         }
 
         #endregion // Helpers
