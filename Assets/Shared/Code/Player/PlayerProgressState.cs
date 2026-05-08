@@ -27,7 +27,7 @@ namespace SpaceFab
         public HashSet<StringHash32> ResearchedMaterials;
         public HashSet<StringHash32> CompletedContractIds;
 
-        public StringHash32 ContractAssetsWrapperId;
+        public StringHash32 ContractAssetsWrapperId; // TODO: wrap contract def back into contract assets wrapper asset (decouple from AvailableContractsBundle)
         public StringHash32 CurrContractId;
 
         public void OnDeregister()
@@ -39,10 +39,6 @@ namespace SpaceFab
             CompletedContractIds = new HashSet<StringHash32>();
             ResearchedMaterials = new HashSet<StringHash32>();
             SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
-
-            // TEMP
-            Funds = 2;
-            ElapsedCycles = 3;
         }
 
         #region Interfaces

@@ -60,7 +60,7 @@ namespace SpaceFab
             if (Game.Assets.HasNamed<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId))
             {
                 var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-                contractPayout = contractAssets.Payout;
+                contractPayout = contractAssets.ContractDef.Payout();
             }
             progressState.Funds += contractPayout - saveStates.Supply.FinalizedCost;
 

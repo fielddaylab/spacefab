@@ -51,7 +51,7 @@ namespace SpaceFab {
                 {
                     var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
 
-                    int contractPayout = contractAssets.Payout;
+                    int contractPayout = contractAssets.ContractDef.Payout();
                     ProgressMeterUtility.CalculatePendingFundsCells(meterState.ActiveMeter, saveStates, contractPayout, out int pendingReceivedCount, out int pendingSpentCount);
 
                     int spentThreshold = progressState.Funds + contractPayout - pendingSpentCount;
