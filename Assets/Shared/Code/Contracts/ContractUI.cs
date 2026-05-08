@@ -11,15 +11,25 @@ namespace SpaceFab {
         public Transform DurationParent, ProfitParent;
         public GameObject DurationElement, ProfitElement;
 
+        public void ClearElements()
+        {
+            for (int i = 0; i < DurationParent.childCount; i++)
+            {
+                Destroy(DurationParent.GetChild(i).gameObject);
+            }
+            for (int i = 0; i < ProfitParent.childCount; i++)
+            {
+                Destroy(ProfitParent.GetChild(i).gameObject);
+            }
+        }
+
         public void ShowElements(int elements, Transform parent, GameObject elementObject)
         {
             for (int i = 0; i < elements; i++)
             {
                 GameObject element = Instantiate(elementObject);
-                elementObject.transform.SetParent(parent);
-                elementObject.transform.localScale = Vector3.one;
-
-                Debug.Log("Working?");
+                element.transform.SetParent(parent);
+                element.transform.localScale = Vector3.one;
             }
         }
     }
@@ -37,10 +47,9 @@ namespace SpaceFab {
             {
                 ui.Title.SetText(def.Title());
                 ui.Description.SetText(def.Description());
-                Debug.Log("Loading some stuff!");
+                ui.ClearElements();
                 ui.ShowElements(def.ExpectedDuration(), ui.DurationParent, ui.DurationElement);
                 ui.ShowElements(def.ExpectedProfit(), ui.ProfitParent, ui.ProfitElement);
-                Debug.Log("Loaded some stuff!");
             }
         }
     }
