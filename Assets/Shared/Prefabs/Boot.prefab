@@ -167,7 +167,7 @@ MonoBehaviour:
   ElapsedCycles: 0
   Funds: 0
   CompletedContractBuffer: 0
-  ResearchedMaterialBuffer: 0
+  MaterialPropertyBuffer: []
   ContractAssetsWrapperId:
     m_HashValue: 0
   CurrContractId:
