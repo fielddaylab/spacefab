@@ -54,8 +54,8 @@ namespace SpaceFab.Design
         [HideInInspector] public bool PlaySingleTestRequested;
         [HideInInspector] public bool PauseRequested;
         [HideInInspector] public bool ResumeRequested;
-        [HideInInspector] public bool RestartTestRequested;
-        [HideInInspector] public bool RestartSuiteRequested;
+        [HideInInspector] public bool RestartTestRequested; // TODO
+        [HideInInspector] public bool RestartSuiteRequested; // TODO
         [HideInInspector] public bool CancelRequested; // TODO
         [HideInInspector] public bool DismissResultsRequested; // TODO
 
