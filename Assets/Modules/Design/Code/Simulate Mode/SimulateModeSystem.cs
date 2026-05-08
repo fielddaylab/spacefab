@@ -52,7 +52,7 @@ namespace SpaceFab.Design
             switch (runState.Phase)
             {
                 case SimulatePhase.Idle:
-                    ProcessIdle(runState);
+                    ProcessIdle(runState, uiState);
                     break;
                 case SimulatePhase.PreparingTest:
                     ProcessPreparingTest(runState, runScratch, graphState, uiState, visualState, progressState, gridStackState);
@@ -80,7 +80,12 @@ namespace SpaceFab.Design
         // Branch order: a queued cancel-then-play (PendingPlayRowIndex) wins over an explicit
         // PlayFullSuiteRequested if both somehow set the same frame, since the queue carries an
         // older intent. PlayFullSuiteRequested then wins over PlaySingleTestRequested.
-        static private void ProcessIdle(SimulateRunState runState)
+        //
+        // Verdict-preservation rule: starting a single-test run wipes all model + UI verdicts so
+        // only the active row will carry a verdict at the end. Starting a full-suite run leaves
+        // existing verdicts intact — they preserve between tests during the run, with each row's
+        // SetVerdict overwriting its own slot as it resolves.
+        static private void ProcessIdle(SimulateRunState runState, SimulateUIState uiState)
         {
             // Cancel-then-play hand-off. SuiteRunRowButton's click handler sets PendingPlayRowIndex
             // when the player clicks an inactive row mid-run; ProcessCancelling preserved it across
@@ -91,6 +96,7 @@ namespace SpaceFab.Design
                 runState.CurrentRow = runState.PendingPlayRowIndex;
                 runState.PendingPlayRowIndex = -1;
                 SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
                 return;
@@ -100,7 +106,6 @@ namespace SpaceFab.Design
             {
                 runState.Scope = RunScope.FullSuite;
                 runState.CurrentRow = 0;
-                SimulateControlUtility.ClearAllVerdicts(runState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
                 return;
@@ -111,6 +116,7 @@ namespace SpaceFab.Design
                 runState.Scope = RunScope.SingleTest;
                 runState.CurrentRow = runState.RequestedRowIndex;
                 SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
                 return;
@@ -152,6 +158,11 @@ namespace SpaceFab.Design
                 }
             }
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
+
+            // Wipe any leftover verdict marks from this row's previous run — the new propagation
+            // hasn't produced a result yet, so the per-output visualizers should read as "no
+            // verdict active" until ResolvingTest writes fresh ones.
+            SimulateUIUtility.HideRowVerdicts(uiState, runState.CurrentRow);
 
             // Mark visuals dirty so GridVisualsUpdateSystem redraws the now-empty-flow grid.
             visualState.VisualsNeedRefreshing = true;
@@ -287,7 +298,10 @@ namespace SpaceFab.Design
 
             // Score every Output crucial node against its expected value. OutputFlowBuffer is
             // sized by SimulateRunScratchUtility.SizeOutputBuffer at Simulate-mode entry, in the
-            // same CrucialNodes ordering — so outputIdx walks both in lockstep.
+            // same CrucialNodes ordering — so outputIdx walks both in lockstep. We also build
+            // actualPerCol — actual flow indexed by bundle column — so the UI layer can display
+            // per-output verdicts without re-walking the graph.
+            FlowState[] actualPerCol = new FlowState[currTest.Bundle.Length];
             bool allCorrect = true;
             int outputIdx = 0;
             for (int i = 0; i < graphState.NodeCount; i++)
@@ -300,6 +314,17 @@ namespace SpaceFab.Design
                 FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
                 runScratch.OutputFlowBuffer[outputIdx++] = actual;
                 if (actual != expected) { allCorrect = false; }
+
+                // Map this graph-output back to its bundle column by SubtypeLabel match so the
+                // UI's verdict visualizers (indexed by bundle col) can read the actual flow.
+                for (int col = 0; col < currTest.Bundle.Length; col++)
+                {
+                    if (currTest.Bundle[col].Id == cell.SubtypeLabel)
+                    {
+                        actualPerCol[col] = actual;
+                        break;
+                    }
+                }
             }
 
             // Unstable beats Correct/Incorrect: any unstable flow this row, even if all outputs
@@ -308,7 +333,7 @@ namespace SpaceFab.Design
                 ? TestRowVerdict.Unstable
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
             SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
-            SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, verdict, runScratch.OutputFlowBuffer);
+            SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
 
             // Advance based on Scope.
@@ -359,9 +384,10 @@ namespace SpaceFab.Design
 
             if (runState.PlayFullSuiteRequested)
             {
+                // Full-suite re-run: preserve existing verdicts, each row's SetVerdict will
+                // overwrite its slot as the suite progresses.
                 runState.Scope = RunScope.FullSuite;
                 runState.CurrentRow = 0;
-                SimulateControlUtility.ClearAllVerdicts(runState);
                 SimulateUIUtility.HideResultsPanel(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
@@ -370,9 +396,12 @@ namespace SpaceFab.Design
 
             if (runState.PlaySingleTestRequested)
             {
+                // Single-test re-run: wipe everyone else's verdicts so only the active row
+                // ends up with a result.
                 runState.Scope = RunScope.SingleTest;
                 runState.CurrentRow = runState.RequestedRowIndex;
                 SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 SimulateUIUtility.HideResultsPanel(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);

@@ -183,12 +183,15 @@ MonoBehaviour:
   DfsPathBuffer: 
   DfsPathDepth: 0
   DfsReachedCrucial: 
+  DfsReachedPathStart: 
+  DfsReachedPathLength: 
   DfsReachedCrucialCount: 0
   PostponedPairs: 
   PostponedCount: 0
   AwaitingDependency: 
   EvaluatedForDependency: 
   DisallowAdditionalDep: 
+  Processed: 
   NoReturnStamps: 
   CurrentNoReturnStamp: 0
   UnsortedEdgeCount: 0
@@ -264,6 +267,7 @@ MonoBehaviour:
   UnstableBannerVisible: 0
   RunButtonsNeedRefreshing: 0
   Rows: []
+  VerdictsNeedRefreshing: 0
 --- !u!114 &33255859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -598,6 +602,7 @@ GameObject:
   - component: {fileID: 311447646}
   - component: {fileID: 311447649}
   - component: {fileID: 311447650}
+  - component: {fileID: 311447651}
   m_Layer: 0
   m_Name: Simulate Systems
   m_TagString: Untagged
@@ -678,6 +683,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3eff8607673bc5947b2debe241ebcff3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &311447651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311447644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 647d4132988c50f489a43c5c979e25ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &441543700 stripped
@@ -791,6 +808,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ab3f46d9823d945949d00017e1b3ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Mode: 0
 --- !u!114 &709705234
 MonoBehaviour:
   m_ObjectHideFlags: 0

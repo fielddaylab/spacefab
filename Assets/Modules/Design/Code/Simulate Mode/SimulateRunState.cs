@@ -50,14 +50,14 @@ namespace SpaceFab.Design
 
         // ---- One-frame request flags (cleared by SimulateControlRefreshSystem in LateUpdate) ----
 
-        [HideInInspector] public bool PlayFullSuiteRequested;
+        [HideInInspector] public bool PlayFullSuiteRequested; // TODO
         [HideInInspector] public bool PlaySingleTestRequested;
         [HideInInspector] public bool PauseRequested;
         [HideInInspector] public bool ResumeRequested;
         [HideInInspector] public bool RestartTestRequested;
         [HideInInspector] public bool RestartSuiteRequested;
-        [HideInInspector] public bool CancelRequested;
-        [HideInInspector] public bool DismissResultsRequested;
+        [HideInInspector] public bool CancelRequested; // TODO
+        [HideInInspector] public bool DismissResultsRequested; // TODO
 
         // ---- Per-row verdicts. Sized to suite length on Simulate entry by ModeTransitionSystem. ----
 

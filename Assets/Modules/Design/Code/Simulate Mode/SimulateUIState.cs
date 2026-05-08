@@ -33,9 +33,16 @@ namespace SpaceFab.Design
         // or CurrentRow must also raise this flag.
         [HideInInspector] public bool RunButtonsNeedRefreshing;
 
-        // TODO: references to row/cell view handles (SuiteRow / SuiteCell / SuiteCellEval),
-        //       populated when UI construction is ported from EvaluationMgr.ConstructSuiteTable.
+        // Per-row references to instantiated view handles. SuiteRow.Cols / SuiteRow.Verdicts
+        // are sized at BuildTable time, parallel to the test suite's bundle structure.
         [HideInInspector] public SuiteRow[] Rows;
+
+        // Per-row × per-col verdict display state. CellVerdicts[row][col] holds the desired UI
+        // state for the VerdictVisualizer at Rows[row].Verdicts[col]. Sized in CreateRowsAndCols,
+        // parallel to Rows[*].Cols. VerdictsNeedRefreshing flags the array dirty for the
+        // VerdictVisualizerRefreshSystem to consume.
+        [HideInInspector] public CellVerdict[][] CellVerdicts;
+        [HideInInspector] public bool VerdictsNeedRefreshing;
 
         public void OnRegister()
         {
@@ -44,6 +51,7 @@ namespace SpaceFab.Design
             HighlightedRowIndex = -1;
             UnstableBannerVisible = false;
             RunButtonsNeedRefreshing = false;
+            VerdictsNeedRefreshing = false;
         }
 
         public void OnDeregister()
@@ -62,7 +70,10 @@ namespace SpaceFab.Design
         // Ported from EvaluationMgr.ConstructSuiteTable.
         public static void BuildTable(SimulateUIState uiState, TestSuiteData suite, SimulateRunState runState, SuiteVisualsDB suiteDB)
         {
-            // TODO: instantiate SuiteCellEval overlays on output columns.
+            // Per-row CellVerdicts state arrays mirror the per-row Cols/Verdicts arrays created
+            // in CreateRowsAndCols. Size the outer array here so CreateRowsAndCols can fill in
+            // each row's slot inline.
+            uiState.CellVerdicts = new CellVerdict[suite.Tests.Length][];
 
             // instantiate headers and size table
             SizeTable(uiState, suite, suiteDB);
@@ -75,8 +86,9 @@ namespace SpaceFab.Design
 
             uiState.TableBuilt = true;
 
-            // Trigger the initial icon paint on every row.
+            // Trigger the initial icon + verdict paint on every row.
             uiState.RunButtonsNeedRefreshing = true;
+            uiState.VerdictsNeedRefreshing = true;
         }
 
         // Disables every eval image and flow image on the table. Ported from EvaluationMgr.ClearSuiteEvals.
@@ -94,12 +106,65 @@ namespace SpaceFab.Design
             //       by its InputOutputNodeTypeFlags and set the contents cell's FlowImg sprite.
         }
 
-        // Writes the verdict + per-output flow results for a row. Called during ResolvingTest.
-        public static void WriteRowVerdict(SimulateUIState uiState, int rowIndex, TestRowVerdict verdict, FlowState[] outputFlows)
+        // Records per-output verdict outcomes for a row into uiState.CellVerdicts and flags the
+        // verdict visuals dirty. Called from ProcessResolvingTest after scoring. actualPerCol is
+        // sized to currTest.Bundle.Length, indexed by bundle column; non-output columns are
+        // skipped. State only — VerdictVisualizerRefreshSystem applies the sprites.
+        public static void WriteRowVerdict(SimulateUIState uiState, int rowIndex, TestData currTest, FlowState[] actualPerCol)
         {
-            // TODO: for each output column in row rowIndex, enable SuiteCellEval.Img and
-            //       SetCorrect / SetIncorrect based on verdict + per-output match. Update the
-            //       contents FlowImg to the output's resulting sprite (Hi / Lo / Unstable).
+            if (uiState.CellVerdicts == null || rowIndex < 0 || rowIndex >= uiState.CellVerdicts.Length) { return; }
+            CellVerdict[] verdicts = uiState.CellVerdicts[rowIndex];
+            if (verdicts == null) { return; }
+
+            int colCount = verdicts.Length;
+            if (currTest.Bundle.Length < colCount) { colCount = currTest.Bundle.Length; }
+
+            for (int col = 0; col < colCount; col++)
+            {
+                if (currTest.Bundle[col].Id < InputOutputNodeTypeFlags.OUT) { continue; }
+
+                FlowState expected = currTest.Bundle[col].State;
+                verdicts[col] = (actualPerCol[col] == expected) ? CellVerdict.Correct : CellVerdict.Incorrect;
+            }
+
+            uiState.VerdictsNeedRefreshing = true;
+        }
+
+        // Marks every output column in the given row as Hidden in uiState.CellVerdicts and
+        // flags the verdict visuals dirty. Called from ProcessPreparingTest so a re-run doesn't
+        // keep the previous run's verdict visible while the new propagation plays out.
+        public static void HideRowVerdicts(SimulateUIState uiState, int rowIndex)
+        {
+            if (uiState.CellVerdicts == null || rowIndex < 0 || rowIndex >= uiState.CellVerdicts.Length) { return; }
+            CellVerdict[] verdicts = uiState.CellVerdicts[rowIndex];
+            if (verdicts == null) { return; }
+
+            for (int col = 0; col < verdicts.Length; col++)
+            {
+                verdicts[col] = CellVerdict.Hidden;
+            }
+
+            uiState.VerdictsNeedRefreshing = true;
+        }
+
+        // Marks every cell across every row as Hidden. Called when starting a single-test run so
+        // previously-resolved verdicts don't linger on inactive rows. Full-suite runs intentionally
+        // don't call this — verdicts preserve between tests within the suite, accumulating as
+        // each row resolves.
+        public static void HideAllRowVerdicts(SimulateUIState uiState)
+        {
+            if (uiState.CellVerdicts == null) { return; }
+            for (int row = 0; row < uiState.CellVerdicts.Length; row++)
+            {
+                CellVerdict[] verdicts = uiState.CellVerdicts[row];
+                if (verdicts == null) { continue; }
+                for (int col = 0; col < verdicts.Length; col++)
+                {
+                    verdicts[col] = CellVerdict.Hidden;
+                }
+            }
+
+            uiState.VerdictsNeedRefreshing = true;
         }
 
         // Shows the overall results panel. Called when entering SuiteComplete.
@@ -174,7 +239,9 @@ namespace SpaceFab.Design
                 // instantiate row
                 uiState.Rows[row] = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
                 uiState.Rows[row].Cols = new SuiteCol[suite.Tests[row].Bundle.Length];
+                uiState.Rows[row].Verdicts = new VerdictVisualizer[suite.Tests[row].Bundle.Length];
                 uiState.Rows[row].RunButton.RowIndex = row;
+                uiState.CellVerdicts[row] = new CellVerdict[suite.Tests[row].Bundle.Length];
                 inOutputPhase = false;
                 for (int col = 0; col < suite.Tests[row].Bundle.Length; col++)
                 {
@@ -210,6 +277,10 @@ namespace SpaceFab.Design
                     newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
                     uiState.Rows[row].Cols[col] = newCol;
+
+                    // Cache the VerdictVisualizer ref for the refresh system. Output prefabs
+                    // carry one; non-output prefabs don't, so the slot stays null.
+                    uiState.Rows[row].Verdicts[col] = newCol.GetComponent<VerdictVisualizer>();
                 }
             }
         }
