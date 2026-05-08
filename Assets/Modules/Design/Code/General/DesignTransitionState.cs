@@ -10,6 +10,7 @@ namespace SpaceFab.Design
         SetupBaseLevel,
         ApplySave,
         FinalizeLevel,
+        BuildSimTable,
         SetupComplete,
         Exiting,
     }

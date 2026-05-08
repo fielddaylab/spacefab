@@ -1,8 +1,7 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Save;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,8 +13,14 @@ namespace SpaceFab.Research
 
         // TODO: Save State
 
-
         #endregion // Saved State
+
+        #region Runtime State
+
+        [HideInInspector] public HashSet<StringHash32> AvailableMaterials = new HashSet<StringHash32>();
+        [HideInInspector] public HashSet<StringHash32> RequiredResearchMaterials = new HashSet<StringHash32>();
+
+        #endregion // Runtime State
 
         #region Interfaces
 
@@ -27,7 +32,7 @@ namespace SpaceFab.Research
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.ResearchMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask;
         }
 
         // IMinigameState
@@ -49,12 +54,10 @@ namespace SpaceFab.Research
     {
         public static void ImportState(ResearchSaveState saveState, ResearchMinigameState researchState)
         {
-            
         }
 
         public static void ExportState(ref ResearchSaveState saveState, ResearchMinigameState researchState)
         {
-
         }
     }
 }

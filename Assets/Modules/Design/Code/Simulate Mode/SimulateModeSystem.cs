@@ -120,7 +120,8 @@ namespace SpaceFab.Design
             // scaffold, but Simulate mode will not produce correct results until wired.
             //
             // TODO(level-data): replace with:
-            //   TestSuiteData suite = /* current level's test suite */;
+            //   var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+            //   TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
             //   TestData currTest = suite.Tests[runState.CurrentRow];
             //   for (int i = 0; i < graphState.NodeCount; i++) {
             //       CrucialNode node = graphState.CrucialNodes[i];
@@ -191,7 +192,8 @@ namespace SpaceFab.Design
             // to read from.
             //
             // TODO(level-data): replace with full scoring:
-            //   TestSuiteData suite = /* current level's test suite */;
+            //   var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+            //   TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
             //   TestData currTest = suite.Tests[runState.CurrentRow];
             //   bool allCorrect = true;
             //   int outputIdx = 0;

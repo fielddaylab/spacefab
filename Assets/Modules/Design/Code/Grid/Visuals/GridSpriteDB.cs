@@ -1,12 +1,12 @@
-using FieldDay;
-using FieldDay.SharedState;
+using FieldDay.Assets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Design.Visuals
 {
-    public class SpriteDB : SharedStateComponent
+    [CreateAssetMenu(menuName = "SpaceFab/Design/Grid Sprite DB")]
+    public class GridSpriteDB : GlobalAsset
     {
         [Header("Metal")]
         public Sprite Metal;
@@ -47,9 +47,9 @@ namespace SpaceFab.Design.Visuals
         public Sprite FlowUnstableBelow;
     }
 
-    public static class SpriteDBUtility
+    public static class GridSpriteDBUtility
     {
-        public static Sprite LookupViaSprite(SpriteDB spriteDB, FlowState state)
+        public static Sprite LookupViaSprite(GridSpriteDB spriteDB, FlowState state)
         {
             switch (state)
             {
@@ -66,7 +66,7 @@ namespace SpaceFab.Design.Visuals
             }
         }
 
-        public static Sprite LookupGateSprite(SpriteDB spriteDB, FlowState state)
+        public static Sprite LookupGateSprite(GridSpriteDB spriteDB, FlowState state)
         {
             switch (state)
             {
@@ -84,3 +84,4 @@ namespace SpaceFab.Design.Visuals
         }
     }
 }
+

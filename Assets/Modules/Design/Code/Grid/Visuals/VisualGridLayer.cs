@@ -75,7 +75,7 @@ namespace SpaceFab.Design
 
         #region Refresh
 
-        public void RefreshAll(SpriteDB spriteDB)
+        public void RefreshAll(GridSpriteDB spriteDB)
         {
             GridLayer layer = Find.State<GridStackState>().GridStack.GridLayers[LayerIndex];
 

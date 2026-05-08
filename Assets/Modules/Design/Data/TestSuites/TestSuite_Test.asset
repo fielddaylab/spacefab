@@ -18,3 +18,13 @@ MonoBehaviour:
       State: 1
     - Id: 64
       State: 1
+  - Bundle:
+    - Id: 4
+      State: 2
+    - Id: 64
+      State: 2
+  - Bundle:
+    - Id: 4
+      State: 0
+    - Id: 64
+      State: 0
