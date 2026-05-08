@@ -34,7 +34,24 @@ namespace SpaceFab.Design
         public TestData[] Tests;
     }
 
-    public static class EvalUtility { 
+    public static class EvalUtility
+    {
+        // Finds the FlowState for a given node subtype in this test row's bundle. Returns
+        // FlowState.Empty if no matching entry. Handles VPLUS/VMINUS as constant HI/LO without
+        // requiring suite authors to include them in Bundle.
+        public static FlowState GetTestValBySubType(InputOutputNodeTypeFlags subtype, TestData testData)
+        {
+            // VPLUS / VMINUS are rail constants — not bundled per test.
+            if (subtype == InputOutputNodeTypeFlags.VPLUS) { return FlowState.Hi; }
+            if (subtype == InputOutputNodeTypeFlags.VMINUS) { return FlowState.Lo; }
+
+            if (testData.Bundle == null) { return FlowState.Empty; }
+            for (int i = 0; i < testData.Bundle.Length; i++)
+            {
+                if (testData.Bundle[i].Id == subtype) { return testData.Bundle[i].State; }
+            }
+            return FlowState.Empty;
+        }
 
         /*
         public static string GetSubtypeByPlacableID(Placeable placeable)

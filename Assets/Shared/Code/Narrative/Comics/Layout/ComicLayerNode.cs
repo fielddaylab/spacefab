@@ -18,6 +18,7 @@ namespace SpaceFab.Comic {
         public LayerFlags Flags;
         public ushort MeshIndex;
         public ushort TextureIndex;
+        public short RenderOrder;
         public ushort SiblingLayerIndex;
     }
 

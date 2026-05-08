@@ -218,6 +218,7 @@ namespace SpaceFab.Comic {
 
             // flags, mesh, and texture will be determined in second pass
 
+            layerData.RenderOrder = 0;
             layerData.Flags = 0;
             layerData.MeshIndex = ushort.MaxValue;
             layerData.TextureIndex = ushort.MaxValue;

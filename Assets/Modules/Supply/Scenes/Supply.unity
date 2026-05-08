@@ -154,6 +154,7 @@ MonoBehaviour:
   Reliability: 0
   TotalCycles: 0
   Cost: 0
+  CurrSupplyChainMap: {fileID: 0}
 --- !u!4 &183004334
 Transform:
   m_ObjectHideFlags: 0
@@ -168,6 +169,106 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1918839966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &289074562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 289074564}
+  - component: {fileID: 289074563}
+  m_Layer: 0
+  m_Name: Map Lookup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &289074563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289074562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 022a668ff2e945342a9bd29df7d516b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Entries:
+  - Scene:
+      m_ScenePath: Assets/Modules/Supply/Scenes/Supply Map Scenes/Chapter1_SupplyMap_Test1.unity
+      m_GUID: 7e116d9bc1a98004f9e145110dcd0153
+    MapId:
+      m_HashValue: 1492396278
+  - Scene:
+      m_ScenePath: Assets/Modules/Supply/Scenes/Supply Map Scenes/Chapter2_SupplyMap_Test1.unity
+      m_GUID: ad14e9b973aba6d43a2251faca84f616
+    MapId:
+      m_HashValue: 437980196
+--- !u!4 &289074564
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289074562}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &804920509
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 804920511}
+  - component: {fileID: 804920510}
+  m_Layer: 0
+  m_Name: Supply Assets
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &804920510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804920509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a57e4b302e053dc4b8227bf389f85bda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Packs: []
+--- !u!4 &804920511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804920509}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &994501227
 PrefabInstance:
@@ -462,6 +563,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1918839966}
   - component: {fileID: 1918839967}
+  - component: {fileID: 1918839968}
   m_Layer: 0
   m_Name: Supply States
   m_TagString: Untagged
@@ -500,6 +602,19 @@ MonoBehaviour:
   ExitConfirmationModal: {fileID: 748095650586783814}
   CancelButton: {fileID: 748095650586783813}
   ConfirmButton: {fileID: 748095650586783812}
+--- !u!114 &1918839968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1918839964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 560d1092c0557e540b64591706816e88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Phase: 0
 --- !u!1 &2015290978
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,6 +626,7 @@ GameObject:
   - component: {fileID: 2015290980}
   - component: {fileID: 2015290981}
   - component: {fileID: 2015290982}
+  - component: {fileID: 2015290983}
   m_Layer: 0
   m_Name: Supply Systems
   m_TagString: Untagged
@@ -555,6 +671,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2015290983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015290978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcb5ed1c4ee5df4694d42e09fc2d50d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &2054010281
@@ -876,3 +1004,5 @@ SceneRoots:
   - {fileID: 1374916195}
   - {fileID: 2015290980}
   - {fileID: 1918839966}
+  - {fileID: 804920511}
+  - {fileID: 289074564}

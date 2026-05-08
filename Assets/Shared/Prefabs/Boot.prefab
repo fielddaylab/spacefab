@@ -164,7 +164,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RecentlyCompletedChapter: 0
-  CompletedContractIds: []
+  ElapsedCycles: 0
+  Funds: 0
+  CompletedContractBuffer: 0
+  ResearchedMaterialBuffer: 0
+  ContractAssetsWrapperId:
+    m_HashValue: 0
+  CurrContractId:
+    m_HashValue: 0
 --- !u!114 &8902631178501730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -227,6 +234,7 @@ MonoBehaviour:
   CurrChapterIndex: 0
   LastSelectedContractIndex: 0
   CurrAvailableContractsBundle: {fileID: 0}
+  CurrChapterDef: {fileID: 0}
 --- !u!114 &9068859788299082105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,7 +247,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706f2641905f6d64d924966dcaeba60f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrComic: {fileID: 0}
 --- !u!1 &4107408674079076998
 GameObject:
   m_ObjectHideFlags: 0
@@ -460,6 +467,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 08403a9c2fd3a984ba9ece7ea3ce0f97, type: 2}
   - {fileID: 11400000, guid: 206b0f38edac49e4c934adfcab2ef87f, type: 2}
   - {fileID: 11400000, guid: be0517bfe41a33441bbfa2ccbfe53159, type: 2}
+  - {fileID: 11400000, guid: ebbc849135a042b48806ae14cd8f8bd2, type: 2}
+  - {fileID: 11400000, guid: 46f0252d572bab34da906dc24d3b78b1, type: 2}
   - {fileID: 11400000, guid: e05e28840a1d672429f6d7e01d1337ae, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:

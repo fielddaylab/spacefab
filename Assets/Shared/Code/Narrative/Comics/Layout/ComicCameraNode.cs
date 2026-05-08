@@ -1,5 +1,7 @@
 using BeauUtil;
+using FieldDay.Debugging;
 using FieldDay.Scenes;
+using ScriptableBake;
 using System;
 using UnityEngine;
 
@@ -7,6 +9,24 @@ namespace SpaceFab.Comic {
     public sealed class ComicCameraNode : MonoBehaviour, IEditModeOnly {
         [Range(0.1f, 2048)]
         public float ClipHeight = 16;
+
+        private void OnDrawGizmos() {
+            if (DebugFlags.IsSelected(this)) {
+                return;
+            }
+
+            Gizmos.color = Color.yellow.WithAlpha(0.2f);
+            Vector3 size = new Vector3(ClipHeight * 4 / 3, ClipHeight, 0);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(default, size);
+        }
+
+        private void OnDrawGizmosSelected() {
+            Gizmos.color = Color.yellow.WithAlpha(0.4f);
+            Vector3 size = new Vector3(ClipHeight * 4 / 3, ClipHeight, 0);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawCube(default, size);
+        }
     }
 
     [Serializable]

@@ -1,35 +1,45 @@
 using BeauUtil.Debugger;
+using FieldDay;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Design.Visuals
-{
-    [SysUpdate(FieldDay.GameLoopPhaseMask.LateUpdate,0, UpdateMasks.DesignMask)]
-    public class GridVisualsUpdateSystem : SharedStateSystemBehaviour<VisualGridStackState, SpriteDB>
-    {
-		protected override unsafe SystemFunctionShim GetDelegate() {
-			return new SystemFunctionShim(&ProcessWork);
-		}
+namespace SpaceFab.Design.Visuals {
+    /// <summary>
+    /// Refreshes the visual grid's metal and transistor layers when the visuals state flags
+    /// them dirty. Runs on LateUpdate at order 0 under DesignMask.
+    /// </summary>
+    public class GridVisualsUpdateSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.DesignMask),
+                new SysPermissions()
+                    .ReadWriteShared<VisualGridStackState>()
+            );
+        }
 
-		static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // When visuals are marked dirty, re-renders both layers from the current grid data.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out VisualGridStackState visualState
+                );
 
-            if (m_StateA.VisualsNeedRefreshing)
-            {
-                if (m_StateA.VisualGridStack == null || m_StateA.VisualGridStack.GridLayers == null || m_StateA.VisualGridStack.GridLayers.Length == 0) {
+            var spriteDB = Find.GlobalAsset<GridSpriteDB>();
+
+            if (visualState.VisualsNeedRefreshing) {
+                if (visualState.VisualGridStack == null || visualState.VisualGridStack.GridLayers == null || visualState.VisualGridStack.GridLayers.Length == 0) {
                     Log.Warn("[GridVisualsUpdateSystem] Attempted to update grid visuals when visuals have not been initialized!");
-                    return; 
+                    return;
                 }
 
                 // Render Metal Layer
-                m_StateA.VisualGridStack.GridLayers[0].RefreshAll(ref m_StateB);
+                visualState.VisualGridStack.GridLayers[0].RefreshAll(spriteDB);
                 // Render Transistor Layer
-                m_StateA.VisualGridStack.GridLayers[1].RefreshAll(ref m_StateB);
+                visualState.VisualGridStack.GridLayers[1].RefreshAll(spriteDB);
 
-                m_StateA.VisualsNeedRefreshing = false;
+                Log.Msg("[ToolInteractSystem] refreshing visuals need refresh (to false)");
+                visualState.VisualsNeedRefreshing = false;
             }
         }
     }

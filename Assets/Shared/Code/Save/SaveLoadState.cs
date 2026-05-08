@@ -146,10 +146,10 @@ namespace SpaceFab.Save
             // get save data
             var saveData = SpacefabGame.SaveBuffer.GetCurrentBase64AsString();
 
-            // try to send save data to server - just copied from aqualab
+            // try to send save data to server
 
             string profileName = SpacefabGame.SaveBuffer.SaveCode;
-            int attempts = (int)(8 + 1);
+            int attempts = (int)(2 + 1);
             int retryCount = 0;
             while (attempts > 0)
             {
@@ -176,7 +176,7 @@ namespace SpaceFab.Save
                         }
                         else
                         {
-                            Log.Error("[SaveUtility] Server save failed after {0} attempts", 8 + 1);
+                            Log.Error("[SaveUtility] Server save failed after {0} attempts", 2 + 1);
                             Game.Events.Dispatch(GameEvents.ProfileSaveError);
                         }
                     }

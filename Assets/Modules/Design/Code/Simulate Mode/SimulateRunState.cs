@@ -1,0 +1,210 @@
+using FieldDay.SharedState;
+using FieldDay.Systems;
+using FieldDay;
+using UnityEngine;
+
+namespace SpaceFab.Design
+{
+    /// <summary>
+    /// Holds the live state of the Simulate-mode evaluation machine: current phase, row/depth pointers,
+    /// per-row verdicts, and the one-frame request flags driven by UI / Leaf. Replaces the ambient
+    /// state that the prototype's VisualFeedbackRoutine kept in coroutine locals.
+    /// </summary>
+    public class SimulateRunState : SharedStateComponent, IRegistrationCallbacks
+    {
+        // ---- Phase machine ----
+
+        [HideInInspector] public SimulatePhase Phase;
+        [HideInInspector] public RunScope Scope;
+
+        // Row currently executing or last executed. Valid once Phase advances past Idle.
+        [HideInInspector] public int CurrentRow;
+
+        // Payload for PlaySingleTestRequested: which row the UI asked to play.
+        [HideInInspector] public int RequestedRowIndex;
+
+        // Depth pointer into SimulateGraphState.OrderedEdges.
+        [HideInInspector] public int CurrentDepth;
+
+        // Time spent at the current depth (or other timed sub-phase). Reset on depth advance / phase change.
+        [HideInInspector] public float PhaseTimer;
+
+        // True for exactly one frame when ProcessPropagating wants DepthStepSystem to paint this depth.
+        // Cleared by SimulateControlRefreshSystem in LateUpdate.
+        [HideInInspector] public bool PaintDepthThisFrame;
+
+        // Set during Propagating if the current row produced an unstable flow anywhere.
+        [HideInInspector] public bool IsUnstable;
+
+        // ---- Inspector-editable pacing (matches prototype timeBetweenSteps / timeBetweenTests) ----
+
+        public float InterDepthDelay = 0.5f;
+        public float InterTestDelay = 2.0f;
+
+        // ---- One-frame request flags (cleared by SimulateControlRefreshSystem in LateUpdate) ----
+
+        [HideInInspector] public bool PlayFullSuiteRequested;
+        [HideInInspector] public bool PlaySingleTestRequested;
+        [HideInInspector] public bool PauseRequested;
+        [HideInInspector] public bool ResumeRequested;
+        [HideInInspector] public bool RestartTestRequested;
+        [HideInInspector] public bool RestartSuiteRequested;
+        [HideInInspector] public bool CancelRequested;
+        [HideInInspector] public bool DismissResultsRequested;
+
+        // ---- Per-row verdicts. Sized to suite length on Simulate entry by ModeTransitionSystem. ----
+
+        [HideInInspector] public TestRowVerdict[] RowVerdicts;
+
+        public void OnRegister()
+        {
+            Phase = SimulatePhase.Idle;
+            Scope = RunScope.FullSuite;
+            CurrentRow = 0;
+            RequestedRowIndex = 0;
+            CurrentDepth = 0;
+            PhaseTimer = 0f;
+            PaintDepthThisFrame = false;
+            IsUnstable = false;
+
+            PlayFullSuiteRequested = false;
+            PlaySingleTestRequested = false;
+            PauseRequested = false;
+            ResumeRequested = false;
+            RestartTestRequested = false;
+            RestartSuiteRequested = false;
+            CancelRequested = false;
+            DismissResultsRequested = false;
+
+            RowVerdicts = null;
+        }
+
+        public void OnDeregister()
+        {
+        }
+    }
+
+    /// <summary>
+    /// Queries and commands for SimulateRunState. The Request* methods are the Leaf-integration surface
+    /// (add [LeafMember] attributes when Leaf scripting is wired in). Commands only set one-frame flags —
+    /// SimulateModeSystem owns the actual phase transitions.
+    /// </summary>
+    public static class SimulateControlUtility
+    {
+        #region Queries
+
+        // True when the player can start a run (either scope). UI enables Play / play-one-row buttons.
+        public static bool CanAcceptPlay(SimulateRunState runState)
+        {
+            // TODO: return runState.Phase == Idle || runState.Phase == SuiteComplete.
+            return false;
+        }
+
+        // True when the player can pause (only mid-propagation).
+        public static bool CanAcceptPause(SimulateRunState runState)
+        {
+            // TODO: return runState.Phase == Propagating.
+            return false;
+        }
+
+        // True when the player can resume from Paused.
+        public static bool CanAcceptResume(SimulateRunState runState)
+        {
+            // TODO: return runState.Phase == Paused.
+            return false;
+        }
+
+        // True when restart-this-test is legal (Propagating or Paused).
+        public static bool CanAcceptRestartTest(SimulateRunState runState)
+        {
+            // TODO: return Phase == Propagating || Phase == Paused.
+            return false;
+        }
+
+        // True when restart-suite is legal (Propagating or Paused).
+        public static bool CanAcceptRestartSuite(SimulateRunState runState)
+        {
+            // TODO: return Phase == Propagating || Phase == Paused.
+            return false;
+        }
+
+        // True when Cancel is legal. Cancel is universal except inside Cancelling itself.
+        public static bool CanAcceptCancel(SimulateRunState runState)
+        {
+            // TODO: return Phase != Cancelling.
+            return false;
+        }
+
+        // True when the results-panel dismiss button should be live (only in SuiteComplete).
+        public static bool CanAcceptDismiss(SimulateRunState runState)
+        {
+            // TODO: return Phase == SuiteComplete.
+            return false;
+        }
+
+        #endregion // Queries
+
+        #region Commands
+
+        // Request a run over the full test suite (row 0 → last).
+        public static void RequestPlayFullSuite(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptPlay, no-op. Otherwise set PlayFullSuiteRequested = true.
+        }
+
+        // Request a run of a single test row. rowIndex is carried on RequestedRowIndex.
+        public static void RequestPlaySingleTest(SimulateRunState runState, int rowIndex)
+        {
+            // TODO: if !CanAcceptPlay, no-op. Otherwise runState.RequestedRowIndex = rowIndex;
+            //       runState.PlaySingleTestRequested = true.
+        }
+
+        public static void RequestPause(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptPause, no-op. Otherwise set PauseRequested = true.
+        }
+
+        public static void RequestResume(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptResume, no-op. Otherwise set ResumeRequested = true.
+        }
+
+        public static void RequestRestartTest(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptRestartTest, no-op. Otherwise set RestartTestRequested = true.
+        }
+
+        public static void RequestRestartSuite(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptRestartSuite, no-op. Otherwise set RestartSuiteRequested = true.
+        }
+
+        public static void RequestCancel(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptCancel, no-op. Otherwise set CancelRequested = true.
+        }
+
+        public static void RequestDismissResults(SimulateRunState runState)
+        {
+            // TODO: if !CanAcceptDismiss, no-op. Otherwise set DismissResultsRequested = true.
+        }
+
+        #endregion // Commands
+
+        #region Helpers
+
+        // Resets every entry in RowVerdicts to Untested. Called by ProcessIdle when a new run starts.
+        public static void ClearAllVerdicts(SimulateRunState runState)
+        {
+            // TODO: if RowVerdicts null, no-op. Otherwise for i in range, RowVerdicts[i] = Untested.
+        }
+
+        // Writes a verdict for a specific row; no-op on out-of-range index.
+        public static void SetVerdict(SimulateRunState runState, int rowIndex, TestRowVerdict verdict)
+        {
+            // TODO: bounds-check rowIndex; assign.
+        }
+
+        #endregion // Helpers
+    }
+}

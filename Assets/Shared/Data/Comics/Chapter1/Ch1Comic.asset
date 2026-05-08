@@ -20,25 +20,81 @@ MonoBehaviour:
     PackedColor: 6339
     Panels:
       Offset: 0
-      Length: 0
+      Length: 1
     Cameras:
       Offset: 0
-      Length: 0
+      Length: 1
   - Position:
       PackedX: 311
       PackedY: 0
     PackedRotation: 0
     PackedColor: 6367
     Panels:
-      Offset: 0
-      Length: 0
+      Offset: 1
+      Length: 1
     Cameras:
+      Offset: 1
+      Length: 1
+  Panels:
+  - Id:
+      m_HashValue: 4234207932
+    Position:
+      PackedX: -80
+      PackedY: 56
+    Layers:
       Offset: 0
+      Length: 1
+    MaskIndex: 0
+  - Id:
+      m_HashValue: 4234207932
+    Position:
+      PackedX: 0
+      PackedY: 0
+    Layers:
+      Offset: 1
       Length: 0
-  Panels: []
-  Layers: []
-  Cameras: []
-  Masks: []
+    MaskIndex: 65535
+  Layers:
+  - Id:
+      m_HashValue: 3289806692
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    Flags: 0
+    MeshIndex: 65535
+    TextureIndex: 65535
+    RenderOrder: 0
+    SiblingLayerIndex: 65535
+  Cameras:
+  - Id:
+      m_HashValue: 3880549230
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 0
+    PackedClipHeight: 128
+  - Id:
+      m_HashValue: 3880549230
+    Position:
+      PackedX: 0
+      PackedY: 0
+    PackedRotation: 341
+    PackedClipHeight: 272
+  Masks:
+  - P0:
+      PackedX: 3
+      PackedY: -49
+    P1:
+      PackedX: 3
+      PackedY: 0
+    P2:
+      PackedX: 57
+      PackedY: -47
+    P3:
+      PackedX: 52
+      PackedY: 1
+    PackedColor: 0
   CompressedMeshData: 
   Script: {fileID: 0}
   AdditionalAssets: {fileID: 0}

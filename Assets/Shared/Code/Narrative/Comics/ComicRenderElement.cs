@@ -24,6 +24,8 @@ namespace SpaceFab.Comic {
     }
 
     static public partial class ComicsUtility {
+        #region Common Formats
+
         static public Color UnpackColor565(ushort packedColor) {
             int r = (packedColor >> 11) & 0x1F;
             int b = (packedColor >> 5) & 0x3F;
@@ -41,6 +43,12 @@ namespace SpaceFab.Comic {
                 FixedPoint.Q12_3.ToFloat(point.PackedY)
             );
         }
+
+        static public float UnpackDegrees(short packed) {
+            return FixedPoint.Q9_6.ToFloat(packed);
+        }
+
+        #endregion // Common Formats
 
         static public void GenerateMaskMesh(UnmanagedMeshData16<ComicMeshVertex> meshData, in MaskData data, Vector2 texCoord) {
             Vector2 a = UnpackPoint(data.P0);

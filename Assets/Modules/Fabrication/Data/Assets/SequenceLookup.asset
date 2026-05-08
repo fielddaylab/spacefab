@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db999e2159cf54143aff7cd4f4d1c5fe, type: 3}
+  m_Name: SequenceLookup
+  m_EditorClassIdentifier: 
+  m_Steps:
+  - StepId: 0
+    StationId:
+      m_Source: station:furnace
+      m_HashValue: 5417925
+    StepSprite: {fileID: 0}
+    StepText: 
+  - StepId: 1
+    StationId:
+      m_Source: station:sputter
+      m_HashValue: 2865545500
+    StepSprite: {fileID: 0}
+    StepText: 
+  - StepId: 2
+    StationId:
+      m_Source: station:resist
+      m_HashValue: 1292633441
+    StepSprite: {fileID: 0}
+    StepText: 
+  - StepId: 3
+    StationId:
+      m_Source: station:photolithograpy
+      m_HashValue: 2361559002
+    StepSprite: {fileID: 0}
+    StepText: 
+  - StepId: 4
+    StationId:
+      m_Source: station:etch
+      m_HashValue: 418197577
+    StepSprite: {fileID: 0}
+    StepText: 
+  - StepId: 5
+    StationId:
+      m_Source: station:sputter
+      m_HashValue: 2865545500
+    StepSprite: {fileID: 0}
+    StepText: 
+  - StepId: 6
+    StationId:
+      m_Source: station:ion
+      m_HashValue: 1666425855
+    StepSprite: {fileID: 0}
+    StepText: 
+  m_Chunks:
+  - Chunk: 0
+    ChunkSprite: {fileID: 0}
+    ChunkText: 
+  - Chunk: 1
+    ChunkSprite: {fileID: 0}
+    ChunkText: 
+  - Chunk: 2
+    ChunkSprite: {fileID: 0}
+    ChunkText: 
+  m_GlitchOverlaySprite: {fileID: 0}
+  m_GlitchOverlayText: 

@@ -6,196 +6,193 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Overarching
-{
+namespace SpaceFab.Overarching {
     /// <summary>
-    /// 1. Load the present chapter
-    /// 2. Load current available contracts (in parallel with completion sequence)
-    /// 2. If coming from previous chapter:
-    ///     b. Perform completion sequence (in parallel with loading available contracts)
-    /// 3. If Selected Contract not selected yet:
-    ///     a. Select contract sequence
-    /// 4. Load Selected Contract
+    /// Top-level orchestrator for entering the overarching scene from a cold start or after
+    /// a minigame: loads the current chapter, optionally plays the contract-completion sequence,
+    /// loads available contracts, runs select/confirm/load for the active contract, then resumes
+    /// OverarchingMask. Runs on Update at order 0 under SetupMask. Sequence:
+    ///   1. Load the present chapter
+    ///   2. Load current available contracts (parallel with completion sequence)
+    ///   2b. If coming from previous chapter: run completion sequence
+    ///   3. If no contract selected: run select sequence
+    ///   4. Load selected contract
     /// </summary>
-    [SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask)]
-    public class OverarchingStartupSequenceSystem : SharedStateSystemBehaviour<OverarchingStartupSequenceState, ChapterLoadState, ContractCompletionState, ContractSelectState, ChapterState, ContractLoadState, ContractConfirmState>
-    {
-		protected override unsafe SystemFunctionShim GetDelegate() {
-			return new SystemFunctionShim(&ProcessWork);
-		}
+    public class OverarchingStartupSequenceSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask),
+                new SysPermissions()
+                    .ReadWriteShared<OverarchingStartupSequenceState>()
+                    .ReadWriteShared<ChapterLoadState>()
+                    .ReadWriteShared<ContractCompletionState>()
+                    .ReadWriteShared<ContractSelectState>()
+                    .ReadShared<ChapterState>()
+                    .ReadWriteShared<ContractLoadState>()
+                    .ReadWriteShared<ContractConfirmState>()
+                    .ReadShared<SharedUIState>()
+                    .ReadWriteShared<PlayerProgressState>()
+            );
+        }
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // Dispatches to the handler for the current startup phase.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out OverarchingStartupSequenceState startupState,
+                out ChapterLoadState chapterLoadState,
+                out ContractCompletionState completionState,
+                out ContractSelectState selectState
+                );
+            Find.State(
+                out ChapterState chapterState,
+                out ContractLoadState contractLoadState,
+                out ContractConfirmState confirmState,
+                out SharedUIState uiState
+                );
+            Find.State(out PlayerProgressState progressState);
 
-			if (!(m_StateA.Phase != OverarchingStartupSequencePhase.Completed && !Find.State<SharedUIState>().IsLoading)) {
-				return;
-			}
+            // Gate: run only if we haven't finished startup and the UI isn't mid-load
+            if (!(startupState.Phase != OverarchingStartupSequencePhase.Completed && !uiState.IsLoading)) {
+                return;
+            }
 
-			switch (m_StateA.Phase)
-            {
+            switch (startupState.Phase) {
                 case OverarchingStartupSequencePhase.LoadCurrChapter:
-                    ProcessLoadCurrChapter();
+                    ProcessLoadCurrChapter(startupState, chapterLoadState, completionState, progressState);
                     break;
                 case OverarchingStartupSequencePhase.ContractCompletionSystem:
-                    ProcessContractCompletion();
+                    ProcessContractCompletion(startupState, completionState);
                     break;
                 case OverarchingStartupSequencePhase.LoadCurrAvailableContracts:
-                    ProcessLoadCurrAvailableContracts();
+                    ProcessLoadCurrAvailableContracts(startupState, chapterLoadState, selectState, chapterState);
                     break;
                 case OverarchingStartupSequencePhase.ContractSelectSystem:
-                    ProcessContractSelectSystem();
+                    ProcessContractSelectSystem(startupState, chapterLoadState, selectState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.ContractConfirmSystem:
-                    ProcessContractConfirmSystem();
+                    ProcessContractConfirmSystem(startupState, contractLoadState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
-                    ProcessLoadSelectedContract();
+                    ProcessLoadSelectedContract(startupState, chapterLoadState, contractLoadState);
                     break;
                 default:
                     break;
             }
         }
 
-        #region Helpers
-
-        static private void ProcessLoadCurrChapter()
-        {
-            if (m_StateB.Phase == ChapterLoadPhase.Waiting)
-            {
+        // Kicks off ChapterLoadSystem. When it completes, branches to contract-completion or straight to loading contracts.
+        static private void ProcessLoadCurrChapter(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractCompletionState completionState, PlayerProgressState progressState) {
+            if (chapterLoadState.Phase == ChapterLoadPhase.Waiting) {
                 // begin ChapterLoadSystem
                 GameLoop.ResumeUpdates(UpdateMasks.ChapterMask);
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ChapterLoadSystem");
-                m_StateB.Phase = ChapterLoadPhase.LoadingChapter;
+                chapterLoadState.Phase = ChapterLoadPhase.LoadingChapter;
             }
-            else
-            {
-                if (m_StateB.Phase == ChapterLoadPhase.Completed) 
-                {
-                    // determine if contract completion is next
-                    var progress = Find.State<PlayerProgressState>();
-                    if (progress.RecentlyCompletedChapter)
-                    {
-                        m_StateA.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
-                        m_StateC.Phase = ContractCompletionPhase.Waiting;
-                        progress.RecentlyCompletedChapter = false;
+            else {
+                if (chapterLoadState.Phase == ChapterLoadPhase.Completed) {
+                    // Decide whether to run the contract-completion sequence
+                    if (progressState.RecentlyCompletedChapter) {
+                        startupState.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+                        completionState.Phase = ContractCompletionPhase.Waiting;
+                        progressState.RecentlyCompletedChapter = false;
                     }
-                    else
-                    {
-                        m_StateA.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
+                    else {
+                        startupState.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
                     }
                     GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
                 }
             }
         }
 
-		static private void ProcessContractCompletion()
-        {
-            if (m_StateC.Phase == ContractCompletionPhase.Waiting)
-            {
-                // begin ChapterCompletionSystem
+        // Coordinates with ContractCompletionSystem: trigger it on Waiting, continue on Completed.
+        static private void ProcessContractCompletion(OverarchingStartupSequenceState startupState, ContractCompletionState completionState) {
+            if (completionState.Phase == ContractCompletionPhase.Waiting) {
+                // begin ContractCompletionSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractCompletionSystem");
-
-                m_StateC.Phase = ContractCompletionPhase.BeginLoadFromPrevChapter;
+                completionState.Phase = ContractCompletionPhase.BeginLoadFromPrevChapter;
             }
-            else
-            {
-                if (m_StateC.Phase == ContractCompletionPhase.Completed)
-                {
-                    // start load available contracts
-                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
+            else {
+                if (completionState.Phase == ContractCompletionPhase.Completed) {
+                    // next: load available contracts
+                    startupState.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
                 }
             }
         }
 
-		static private void ProcessLoadCurrAvailableContracts()
-        {
+        // Starts loading available contracts, then either opens contract selection or jumps to loading the known-selected contract.
+        static private void ProcessLoadCurrAvailableContracts(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractSelectState selectState, ChapterState chapterState) {
             // start load available contracts
-            m_StateB.Phase = ChapterLoadPhase.LoadingAvailableContracts;
+            chapterLoadState.Phase = ChapterLoadPhase.LoadingAvailableContracts;
 
-            // determine if contract selection must happen next
-            if (m_StateE.LastSelectedContractIndex == -1)
-            {
-                m_StateA.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
-                m_StateD.Phase = ContractSelectPhase.Waiting;
+            // If no contract is selected yet, defer to selection; otherwise jump to loading the selected contract.
+            if (chapterState.LastSelectedContractIndex == -1) {
+                startupState.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
+                selectState.Phase = ContractSelectPhase.Waiting;
             }
-            else
-            {
+            else {
                 // load selected contract
-                m_StateA.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
+                startupState.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
             }
         }
 
-		static private void ProcessContractSelectSystem()
-        {
+        // Coordinates with ContractSelectSystem after available-contracts load finishes: trigger, then advance to confirm on Completed.
+        static private void ProcessContractSelectSystem(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractSelectState selectState, ContractConfirmState confirmState) {
             // wait for LoadAvailableContracts routine to complete
-            if (m_StateB.LoadRoutine.Exists() || m_StateB.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
+            if (chapterLoadState.LoadRoutine.Exists() || chapterLoadState.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
 
-            if (m_StateD.Phase == ContractSelectPhase.Waiting)
-            {
-                // begin ChapterCompletionSystem
+            if (selectState.Phase == ContractSelectPhase.Waiting) {
+                // begin ContractSelectSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractSelectSystem");
-                m_StateD.Phase = ContractSelectPhase.Loading;
+                selectState.Phase = ContractSelectPhase.Loading;
             }
-            else
-            {
-                if (m_StateD.Phase == ContractSelectPhase.Completed)
-                {
+            else {
+                if (selectState.Phase == ContractSelectPhase.Completed) {
                     //  confirm selected contract
-                    m_StateG.Phase = ContractConfirmPhase.Waiting;
-                    m_StateA.Phase = OverarchingStartupSequencePhase.ContractConfirmSystem;
+                    confirmState.Phase = ContractConfirmPhase.Waiting;
+                    startupState.Phase = OverarchingStartupSequencePhase.ContractConfirmSystem;
                 }
             }
         }
 
-		static private void ProcessContractConfirmSystem()
-        {
-            if (m_StateG.Phase == ContractConfirmPhase.Waiting)
-            {
+        // Coordinates with ContractConfirmSystem: trigger on Waiting, advance to load on Completed.
+        static private void ProcessContractConfirmSystem(OverarchingStartupSequenceState startupState, ContractLoadState contractLoadState, ContractConfirmState confirmState) {
+            if (confirmState.Phase == ContractConfirmPhase.Waiting) {
                 // begin contract confirmation
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractConfirmSystem");
-
-                m_StateG.Phase = ContractConfirmPhase.Confirming;
+                confirmState.Phase = ContractConfirmPhase.Confirming;
             }
-            else
-            {
-                if (m_StateG.Phase == ContractConfirmPhase.Completed)
-                {
+            else {
+                if (confirmState.Phase == ContractConfirmPhase.Completed) {
                     // load selected contract
-                    m_StateF.Phase = ContractLoadPhase.Waiting;
-                    m_StateA.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
+                    contractLoadState.Phase = ContractLoadPhase.Waiting;
+                    startupState.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
                 }
             }
         }
 
-		static private void ProcessLoadSelectedContract()
-        {
-            if (m_StateB.LoadRoutine.Exists() || m_StateB.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
+        // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
+        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractLoadState contractLoadState) {
+            if (chapterLoadState.LoadRoutine.Exists() || chapterLoadState.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
 
-            if (m_StateF.Phase == ContractLoadPhase.Waiting)
-            {
+            if (contractLoadState.Phase == ContractLoadPhase.Waiting) {
                 // begin ContractLoadSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractLoadSystem");
-                m_StateF.Phase = ContractLoadPhase.BeginLoad;
+                contractLoadState.Phase = ContractLoadPhase.BeginLoad;
                 GameLoop.SuspendUpdates(UpdateMasks.ChapterMask);
             }
-            else
-            {
-                if (m_StateF.Phase == ContractLoadPhase.Completed)
-                {
-                    Complete();
+            else {
+                if (contractLoadState.Phase == ContractLoadPhase.Completed) {
+                    Complete(startupState);
                     GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
                 }
             }
         }
 
-		static private void Complete()
-        {
-            m_StateA.Phase = OverarchingStartupSequencePhase.Completed;
+        // Marks startup complete and resumes the overarching scene's normal update mask.
+        static private void Complete(OverarchingStartupSequenceState startupState) {
+            startupState.Phase = OverarchingStartupSequencePhase.Completed;
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }
-
-        #endregion // Helpers
     }
 }

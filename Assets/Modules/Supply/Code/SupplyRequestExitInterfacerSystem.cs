@@ -1,35 +1,40 @@
+using FieldDay;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Supply
-{
+namespace SpaceFab.Supply {
     /// <summary>
-    /// Manages what happens when the user requests to exit the Design minigame
+    /// Handles the Supply minigame's exit-request flow: currently short-circuits a Requested
+    /// state straight to Confirmed, and hides the exit confirmation modal once confirmed.
+    /// Runs on Update phase at order 0, no category mask.
     /// </summary>
-    public class SupplyRequestExitInterfacerSystem : SharedStateSystemBehaviour<SupplyRequestExitInterfacerState, MinigameRequestExitState>
-    {
-		protected override unsafe SystemFunctionShim GetDelegate() {
-			return new SystemFunctionShim(&ProcessWork);
-		}
+    public class SupplyRequestExitInterfacerSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, 0),
+                new SysPermissions()
+                    .ReadWriteShared<SupplyRequestExitInterfacerState>()
+                    .ReadWriteShared<MinigameRequestExitState>()
+            );
+        }
 
-		static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // Reacts to the current exit-request state: confirms requests and hides the modal on confirmation.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(out SupplyRequestExitInterfacerState supplyExitInterfacerState,
+                out MinigameRequestExitState minigameExitState);
 
-            if (m_StateB.ExitRequestState == RequestState.Requested)
-            {
+            if (minigameExitState.ExitRequestState == RequestState.Requested) {
                 /*
-                m_StateA.ModalRoutine.Replace(RequestExitInterfacerUtility.ShowExitConfirmationModal(m_StateA.ExitConfirmationModal));
+                supplyRequestExitInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.ShowExitConfirmationModal(supplyRequestExitInterfacerState.ExitConfirmationModal));
 
-                m_StateB.ExitRequestState = RequestState.Pending;
+                minigameRequestExitState.ExitRequestState = RequestState.Pending;
                 */
-                m_StateB.ExitRequestState = RequestState.Confirmed; 
+                minigameExitState.ExitRequestState = RequestState.Confirmed;
             }
-            else if (m_StateB.ExitRequestState == RequestState.Confirmed)
-            {
-                m_StateA.ModalRoutine.Replace(RequestExitInterfacerUtility.HideExitConfirmationModal(m_StateA.ExitConfirmationModal));
+            else if (minigameExitState.ExitRequestState == RequestState.Confirmed) {
+                supplyExitInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.HideExitConfirmationModal(supplyExitInterfacerState.ExitConfirmationModal));
             }
         }
     }

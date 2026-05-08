@@ -5,127 +5,135 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using UnityEngine;
 
-namespace SpaceFab.Overarching
-{
-    [SysUpdate(GameLoopPhase.Update, -11, UpdateMasks.ContractSystemsMask)]
-    public class ContractChangeSystem : SharedStateSystemBehaviour<ContractChangeState, ContractSelectState, ContractLayoutState, ContractAssetsLookup, ChapterLoadState, ChapterState, ContractConfirmState, SharedUIState>
-    {
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+namespace SpaceFab.Overarching {
+    /// <summary>
+    /// Drives the change-contract flow once the player opts to switch the current contract:
+    /// views the current contract, defers to ContractSelectSystem for a new pick, double-confirms
+    /// the swap, defers to ContractConfirmSystem, then docks. Runs on Update at order -11 under
+    /// ContractSystemsMask.
+    /// </summary>
+    public class ContractChangeSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.Update, -11, UpdateMasks.ContractSystemsMask),
+                new SysPermissions()
+                    .ReadWriteShared<ContractChangeState>()
+                    .ReadWriteShared<ContractSelectState>()
+                    .ReadWriteShared<ContractLayoutState>()
+                    .ReadShared<ChapterState>()
+                    .ReadWriteShared<ContractConfirmState>()
+                    .ReadShared<SharedUIState>()
+            );
         }
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // Dispatches to the handler for the current change phase.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out ContractChangeState changeState,
+                out ContractSelectState selectState,
+                out ContractLayoutState layoutState,
+                out ChapterState chapterState
+                );
+            Find.State(
+                out ContractConfirmState confirmState,
+                out SharedUIState uiState
+                );
 
-            switch (m_StateA.Phase)
-            {
+            switch (changeState.Phase) {
                 case ContractChangePhase.Starting:
-                    ProcessStarting();
+                    ProcessStarting(changeState, selectState, layoutState, chapterState);
                     break;
                 /*case ContractChangePhase.Viewing:
                     break;*/
                 case ContractChangePhase.ContractSelectSystem:
-                    ProcessContractSelectSystem();
+                    ProcessContractSelectSystem(changeState, selectState, layoutState, chapterState, confirmState);
                     break;
                 case ContractChangePhase.DoubleConfirmContract:
-                    ProcessDoubleConfirmContract();
+                    ProcessDoubleConfirmContract(changeState, confirmState);
                     break;
                 case ContractChangePhase.DoubleCancelContract:
-                    ProcessDoubleCancelContract();
+                    ProcessDoubleCancelContract(changeState, selectState, layoutState);
                     break;
                 case ContractChangePhase.ContractConfirmSystem:
-                    ProcessContractConfirmSystem();
+                    ProcessContractConfirmSystem(changeState, layoutState, confirmState);
                     break;
                 case ContractChangePhase.Docking:
-                    ProcessDocking();
+                    ProcessDocking(changeState, layoutState, uiState);
                     break;
                 default:
                     break;
             }
         }
 
-        #region Helpers
-
-        static private void ProcessStarting()
-        {
+        // Entry: queue a view-current routine and advance to Viewing.
+        static private void ProcessStarting(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState) {
             Debug.Log("[ContractChangeSystem] Starting");
-            m_StateB.Phase = ContractSelectPhase.Waiting;
-            m_StateA.ChangeDoubleConfirmed = false;
-            m_StateA.TransitionRoutine.Replace(ContractChangeUtility.ViewCurrentRoutine(m_StateA, m_StateB, m_StateC, m_StateF));
-            m_StateA.Phase = ContractChangePhase.Viewing;
+            selectState.Phase = ContractSelectPhase.Waiting;
+            changeState.ChangeDoubleConfirmed = false;
+            changeState.TransitionRoutine.Replace(ContractChangeUtility.ViewCurrentRoutine(changeState, selectState, layoutState, chapterState));
+            changeState.Phase = ContractChangePhase.Viewing;
         }
 
-        static private void ProcessContractSelectSystem()
-        {
-            if (m_StateB.Phase == ContractSelectPhase.Waiting)
-            {
-                m_StateA.StashedSelectedContractIndex = m_StateB.SelectedContractIndex;
-                m_StateB.Phase = ContractSelectPhase.Loading;
-                m_StateG.Phase = ContractConfirmPhase.Waiting;
-                m_StateC.HideCurrContractButton.gameObject.SetActive(false);
+        // Coordinates with ContractSelectSystem: hands off to it when Waiting, reacts when Completed.
+        static private void ProcessContractSelectSystem(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractConfirmState confirmState) {
+            if (selectState.Phase == ContractSelectPhase.Waiting) {
+                changeState.StashedSelectedContractIndex = selectState.SelectedContractIndex;
+                selectState.Phase = ContractSelectPhase.Loading;
+                confirmState.Phase = ContractConfirmPhase.Waiting;
+                layoutState.HideCurrContractButton.gameObject.SetActive(false);
                 Debug.Log("[ContractChangeSystem] Deferring to ContractSelectSystem");
             }
-            else if (m_StateB.Phase == ContractSelectPhase.Completed)
-            {
-                if (m_StateB.SelectedContractIndex == m_StateF.LastSelectedContractIndex)
-                {
+            else if (selectState.Phase == ContractSelectPhase.Completed) {
+                if (selectState.SelectedContractIndex == chapterState.LastSelectedContractIndex) {
                     // no change
-                    m_StateA.Phase = ContractChangePhase.Docking;
+                    changeState.Phase = ContractChangePhase.Docking;
                 }
-                else
-                {
-                    m_StateC.DoubleConfirmCanvasGroup.blocksRaycasts = true;
-                    m_StateC.DoubleConfirmCanvasGroup.alpha = 1;
+                else {
+                    // Show the double-confirm overlay and wait for the player
+                    layoutState.DoubleConfirmCanvasGroup.blocksRaycasts = true;
+                    layoutState.DoubleConfirmCanvasGroup.alpha = 1;
                     Debug.Log("[ContractChangeSystem] Double Confirming Change");
-                    m_StateA.Phase = ContractChangePhase.DoubleConfirmContract;
+                    changeState.Phase = ContractChangePhase.DoubleConfirmContract;
                 }
             }
         }
 
-        static private void ProcessDoubleConfirmContract()
-        {
-            if (m_StateA.ChangeDoubleConfirmed)
-            {
-                m_StateA.Phase = ContractChangePhase.ContractConfirmSystem;
-                m_StateG.Phase = ContractConfirmPhase.Waiting;
+        // Wait for the double-confirm flag, then hand off to the confirm subsystem.
+        static private void ProcessDoubleConfirmContract(ContractChangeState changeState, ContractConfirmState confirmState) {
+            if (changeState.ChangeDoubleConfirmed) {
+                changeState.Phase = ContractChangePhase.ContractConfirmSystem;
+                confirmState.Phase = ContractConfirmPhase.Waiting;
             }
         }
 
-        static private void ProcessDoubleCancelContract()
-        {
-            if (!m_StateA.TransitionRoutine.Exists())
-            {
-                m_StateA.TransitionRoutine.Replace(ContractChangeUtility.CancelChangeRoutine(m_StateA, m_StateB, m_StateC));
+        // Player cancelled the swap — play the cancel routine once.
+        static private void ProcessDoubleCancelContract(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState) {
+            if (!changeState.TransitionRoutine.Exists()) {
+                changeState.TransitionRoutine.Replace(ContractChangeUtility.CancelChangeRoutine(changeState, selectState, layoutState));
                 Debug.Log("[ContractChangeSystem] Canceling Change");
             }
         }
 
-        static private void ProcessContractConfirmSystem()
-        {
-            if (m_StateG.Phase == ContractConfirmPhase.Waiting)
-            {
+        // Coordinates with ContractConfirmSystem: hands off on Waiting, advances to Docking on Completed.
+        static private void ProcessContractConfirmSystem(ContractChangeState changeState, ContractLayoutState layoutState, ContractConfirmState confirmState) {
+            if (confirmState.Phase == ContractConfirmPhase.Waiting) {
                 Debug.Log("[ContractChangeSystem] Deferring to ContractConfirmSystem");
-                m_StateC.DoubleConfirmCanvasGroup.alpha = 0;
-                m_StateC.DoubleConfirmCanvasGroup.blocksRaycasts = false;
-                m_StateG.Phase = ContractConfirmPhase.Confirming;
+                layoutState.DoubleConfirmCanvasGroup.alpha = 0;
+                layoutState.DoubleConfirmCanvasGroup.blocksRaycasts = false;
+                confirmState.Phase = ContractConfirmPhase.Confirming;
             }
-            else if (m_StateG.Phase == ContractConfirmPhase.Completed)
-            {
+            else if (confirmState.Phase == ContractConfirmPhase.Completed) {
                 Debug.Log("[ContractChangeSystem] ContractConfirmSystem completed");
-                m_StateA.Phase = ContractChangePhase.Docking;
+                changeState.Phase = ContractChangePhase.Docking;
             }
         }
 
-        static private void ProcessDocking()
-        {
+        // Runs the dock routine to tuck the contract UI back into its docked state.
+        static private void ProcessDocking(ContractChangeState changeState, ContractLayoutState layoutState, SharedUIState uiState) {
             Debug.Log("[ContractChangeSystem] Docking Contract");
-            if (!m_StateA.TransitionRoutine.Exists())
-            {
-                m_StateA.TransitionRoutine.Replace(ContractChangeUtility.DockContractRoutine(m_StateA, m_StateC, m_StateH));
+            if (!changeState.TransitionRoutine.Exists()) {
+                changeState.TransitionRoutine.Replace(ContractChangeUtility.DockContractRoutine(changeState, layoutState, uiState));
             }
         }
-
-        #endregion // Helpers
     }
 }

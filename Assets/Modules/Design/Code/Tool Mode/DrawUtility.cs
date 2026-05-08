@@ -1,6 +1,8 @@
+using SpaceFab.Design.Visuals;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static BeauRoutine.Future;
 
 namespace SpaceFab.Design
 {
@@ -86,7 +88,7 @@ namespace SpaceFab.Design
             }
         }
 
-        public static void DragDrawNodeOfType(ToolModeState toolModeState, GridStackState gridState, CellType type, Vector2Int gridPos)
+        public static void DragDrawNodeOfType(ToolModeState toolModeState, GridStackState gridState, VisualGridStackState visualState, CellType type, Vector2Int gridPos)
         {
             // create edge between last known pos and curr pos
             var layer = gridState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
@@ -121,8 +123,8 @@ namespace SpaceFab.Design
             }
 
             // save changes
-            GridLayerUtility.SetCell(layer, toolModeState.LastKnownDragCoord, fromCell);
-            GridLayerUtility.SetCell(layer, gridPos, toCell);
+            GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, toolModeState.LastKnownDragCoord, fromCell);
+            GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, toCell);
         }
     }
 }

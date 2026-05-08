@@ -32,9 +32,15 @@ namespace SpaceFab.Design
         private const int VIA_SORT_ORDER = 100;
         private const int TRANSISTOR_SORT_ORDER = 0;
 
-        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        // Per-cell flow state now lives in SimulateRunScratch rather than on GridCell. Callers
+        // pass the pre-fetched scratch + cellIndex so this helper doesn't repeat the Find.State
+        // lookup for every cell on the grid. During Tool mode, scratch may be null (Simulate
+        // mode never entered) — the null-guard here falls back to FlowState.Empty for every cell.
+        public static void UpdateFlowVisuals(VisualGridCell visualCell, GridCell cell, SimulateRunScratch scratch, int cellIndex, int layerIndex, GridSpriteDB spriteDB)
         {
-            var flow = cell.FlowState;
+            FlowState flow = scratch != null
+                ? SimulateRunScratchUtility.GetCellFlow(scratch, cellIndex)
+                : FlowState.Empty;
             // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder += 50;
@@ -42,21 +48,21 @@ namespace SpaceFab.Design
             switch (flow)
             {
                 case (FlowState.Hi):
-                    UpdateHiFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateHiFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
                 case (FlowState.Lo):
-                    UpdateLoFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateLoFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
                 case (FlowState.Unstable):
-                    UpdateUnstableFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateUnstableFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
                 default:
-                    UpdateDefaultFlow(visualCell, cell, layerIndex, ref spriteDB);
+                    UpdateDefaultFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
             }
         }
 
-        private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, GridSpriteDB spriteDB)
         {
             if (layerIndex == (int)StackLayer.Metal)
             {
@@ -67,10 +73,10 @@ namespace SpaceFab.Design
                 visualCell.FlowIndicator.sprite = spriteDB.FlowHiBelow;
             }
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Hi, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Hi, spriteDB);
         }
 
-        private static void UpdateLoFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateLoFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, GridSpriteDB spriteDB)
         {
             if (layerIndex == (int)StackLayer.Metal)
             {
@@ -81,10 +87,10 @@ namespace SpaceFab.Design
                 visualCell.FlowIndicator.sprite = spriteDB.FlowLoBelow;
             }
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Lo, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Lo, spriteDB);
         }
 
-        private static void UpdateUnstableFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateUnstableFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, GridSpriteDB spriteDB)
         {
             if (layerIndex == (int)StackLayer.Metal)
             {
@@ -95,33 +101,33 @@ namespace SpaceFab.Design
                 visualCell.FlowIndicator.sprite = spriteDB.FlowUnstableBelow;
             }
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Unstable, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Unstable, spriteDB);
         }
 
-        private static void UpdateDefaultFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, ref SpriteDB spriteDB)
+        private static void UpdateDefaultFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, GridSpriteDB spriteDB)
         {
             visualCell.FlowIndicator.sprite = null;
 
-            SetTransferWithFlow(visualCell, cell, FlowState.Empty, ref spriteDB);
+            SetTransferWithFlow(visualCell, cell, FlowState.Empty, spriteDB);
         }
 
-        private static void SetTransferWithFlow(VisualGridCell visualCell, GridCell cell, FlowState flow, ref SpriteDB spriteDB)
+        private static void SetTransferWithFlow(VisualGridCell visualCell, GridCell cell, FlowState flow, GridSpriteDB spriteDB)
         {
             if (cell.TransferType == TransferType.Via)
             {
                 // lookup via for flow state
-                var sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, flow);
+                var sprite = GridSpriteDBUtility.LookupViaSprite(spriteDB, flow);
                 visualCell.TransferRenderer.sprite = sprite;
                 visualCell.SecondaryTransferRenderer.sprite = sprite;
             }
             else if (cell.TransferType == TransferType.GateAbove)
             {
-                var sprite = SpriteDBUtility.LookupGateSprite(ref spriteDB, flow);
+                var sprite = GridSpriteDBUtility.LookupGateSprite(spriteDB, flow);
                 visualCell.TransferRenderer.sprite = sprite;
             }
         }
 
-        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        public static void RefreshVisual(ref VisualGridCell visualCell, GridCell cellData, SimulateRunScratch scratch, int cellIndex, int layerIndex, int col, int row, GridSpriteDB spriteDB)
         {
             PathLibrary.AssembledPathData pathData = default;
             bool lookedUpEdge = false;
@@ -146,10 +152,10 @@ namespace SpaceFab.Design
                     lookedUpEdge = true;
                     break;
                 case CellType.NTransistor:
-                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, ref spriteDB);
+                    RenderNTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, scratch, cellIndex, layerIndex, col, row, spriteDB);
                     break;
                 case CellType.PTransistor:
-                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, layerIndex, col, row, ref spriteDB);
+                    RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, scratch, cellIndex, layerIndex, col, row, spriteDB);
                     break;
                 case CellType.Input:
                     visualCell.PathRenderer.sprite = spriteDB.IOOuter;
@@ -172,11 +178,11 @@ namespace SpaceFab.Design
             switch (cellData.TransferType)
             {
                 case TransferType.Via:
-                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, FlowState.Empty);
-                    visualCell.SecondaryTransferRenderer.sprite = SpriteDBUtility.LookupViaSprite(ref spriteDB, FlowState.Empty);
+                    visualCell.TransferRenderer.sprite = GridSpriteDBUtility.LookupViaSprite(spriteDB, FlowState.Empty);
+                    visualCell.SecondaryTransferRenderer.sprite = GridSpriteDBUtility.LookupViaSprite(spriteDB, FlowState.Empty);
                     break;
                 case TransferType.GateAbove:
-                    visualCell.TransferRenderer.sprite = SpriteDBUtility.LookupGateSprite(ref spriteDB, FlowState.Empty);
+                    visualCell.TransferRenderer.sprite = GridSpriteDBUtility.LookupGateSprite(spriteDB, FlowState.Empty);
                     break;
                 default:
                     break;
@@ -205,19 +211,28 @@ namespace SpaceFab.Design
                 visualCell.FlowMask.sprite = pathData.Sprite;
             }
 
-            UpdateFlowVisuals(visualCell, cellData, layerIndex, ref spriteDB);
+            UpdateFlowVisuals(visualCell, cellData, scratch, cellIndex, layerIndex, spriteDB);
         }
 
-        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        // Helper: per-cell temp-transform read, null-safe for Tool mode (scratch may not yet
+        // be initialized or the player may not have entered Simulate this session).
+        private static CellType GetTempTransform(SimulateRunScratch scratch, int cellIndex)
+        {
+            if (scratch == null) { return CellType.NONE; }
+            return SimulateRunScratchUtility.GetCellTempTransform(scratch, cellIndex);
+        }
+
+        private static void RenderNTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, SimulateRunScratch scratch, int cellIndex, int layerIndex, int col, int row, GridSpriteDB spriteDB)
         {
             var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
             spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
             lookedUpEdge = true;
             visualCell.PathRenderer.color = spriteDB.NColor;
 
-            if (cellData.TempTransformation != CellType.NONE)
+            CellType selfTempTransform = GetTempTransform(scratch, cellIndex);
+            if (selfTempTransform != CellType.NONE)
             {
-                if (cellData.TempTransformation == CellType.PTransistor)
+                if (selfTempTransform == CellType.PTransistor)
                 {
                     visualCell.PathOverlayRenderer.sprite = spriteDB.InvertedOverlay;
                     visualCell.PathOverlayBaseRenderer.sprite = spriteDB.InvertedOverlayBase;
@@ -229,6 +244,8 @@ namespace SpaceFab.Design
             }
 
             GridStackState stackState = Find.State<GridStackState>();
+            Dimensions dims = stackState.GridStack.LayerDims;
+            int cellsPerLayer = dims.X * dims.Y;
 
             // set dir renderers
             for (int i = 0; i < 4; i++)
@@ -254,7 +271,9 @@ namespace SpaceFab.Design
                         // if P, set N to P half of renderer
                         if (adjCell.CellType == CellType.PTransistor)
                         {
-                            if (cellData.TempTransformation != CellType.PTransistor && adjCell.TempTransformation != CellType.NTransistor)
+                            int adjCellIndex = SimulateRunScratchUtility.CellIndex(layerIndex, adjCol, adjRow, dims.X, cellsPerLayer);
+                            CellType adjTempTransform = GetTempTransform(scratch, adjCellIndex);
+                            if (selfTempTransform != CellType.PTransistor && adjTempTransform != CellType.NTransistor)
                             {
                                 visualCell.DirRenderers[i].sprite = spriteDB.NSide;
                             }
@@ -264,16 +283,17 @@ namespace SpaceFab.Design
             }
         }
 
-        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, int layerIndex, int col, int row, ref SpriteDB spriteDB)
+        private static void RenderPTransistor(VisualGridCell visualCell, ref GridCell cellData, ref PathLibrary.AssembledPathData pathData, ref bool lookedUpEdge, SimulateRunScratch scratch, int cellIndex, int layerIndex, int col, int row, GridSpriteDB spriteDB)
         {
             var condensedEdges = EdgeUtility.CondenseEdges(cellData.Edges);
             spriteDB.TransistorLibrary.Lookup(condensedEdges, out pathData);
             lookedUpEdge = true;
             visualCell.PathRenderer.color = spriteDB.PColor;
 
-            if (cellData.TempTransformation != CellType.NONE)
+            CellType selfTempTransform = GetTempTransform(scratch, cellIndex);
+            if (selfTempTransform != CellType.NONE)
             {
-                if (cellData.TempTransformation == CellType.NTransistor)
+                if (selfTempTransform == CellType.NTransistor)
                 {
                     visualCell.PathOverlayRenderer.sprite = spriteDB.InvertedOverlay;
                     visualCell.PathOverlayBaseRenderer.sprite = spriteDB.InvertedOverlayBase;
@@ -285,6 +305,8 @@ namespace SpaceFab.Design
             }
 
             GridStackState stackState = Find.State<GridStackState>();
+            Dimensions dims = stackState.GridStack.LayerDims;
+            int cellsPerLayer = dims.X * dims.Y;
 
             // set dir renderers
             for (int i = 0; i < 4; i++)
@@ -310,7 +332,9 @@ namespace SpaceFab.Design
                         // if P, set N to P half of renderer
                         if (adjCell.CellType == CellType.NTransistor)
                         {
-                            if (cellData.TempTransformation != CellType.NTransistor && adjCell.TempTransformation != CellType.PTransistor)
+                            int adjCellIndex = SimulateRunScratchUtility.CellIndex(layerIndex, adjCol, adjRow, dims.X, cellsPerLayer);
+                            CellType adjTempTransform = GetTempTransform(scratch, adjCellIndex);
+                            if (selfTempTransform != CellType.NTransistor && adjTempTransform != CellType.PTransistor)
                             {
                                 visualCell.DirRenderers[i].sprite = spriteDB.PSide;
                             }

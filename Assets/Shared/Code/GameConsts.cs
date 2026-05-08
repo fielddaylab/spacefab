@@ -38,6 +38,37 @@ namespace SpaceFab
         // Minigame Navigation
         public static readonly StringHash32 OnMinigameLoad = "shared:on-minigame-load";
         public static readonly StringHash32 OnMinigameExit = "shared:on-minigame-exit";
+
+        // Fabrication: Station Control
+        public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
+        public static readonly StringHash32 FabStationLeft = "fab:station-left";
+        public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
+        public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
+        public static readonly StringHash32 FabMicrogameCompleted = "fab:microgame-completed";
+        public static readonly StringHash32 FabMicrogameCancelled = "fab:microgame-cancelled";
+        public static readonly StringHash32 FabStationExit = "fab:station-exit";
+        public static readonly StringHash32 FabWrongStationAttempt = "fab:wrong-station-attempt";
+        public static readonly StringHash32 FabStunBegin = "fab:stun-begin";
+        public static readonly StringHash32 FabStunEnd = "fab:stun-end";
+
+        // Fabrication: Sequence
+        public static readonly StringHash32 FabSequenceReset = "fab:sequence-reset";
+        public static readonly StringHash32 FabSequenceStepCompleted = "fab:sequence-step-completed";
+        public static readonly StringHash32 FabSequenceCompleted = "fab:sequence-completed";
+        public static readonly StringHash32 FabWaferMisalignment = "fab:wafer-misalignment";
+        public static readonly StringHash32 FabCheckpointReached = "fab:checkpoint-reached";
+        public static readonly StringHash32 FabCheckpointRestoreBegin = "fab:checkpoint-restore-begin";
+        public static readonly StringHash32 FabCheckpointRestoreComplete = "fab:checkpoint-restore-complete";
+        public static readonly StringHash32 FabStepUnglitched = "fab:step-unglitched";
+
+        // Design: Simulate Mode
+        public static readonly StringHash32 DesignSimPlayStarted = "design-sim:play-started";
+        public static readonly StringHash32 DesignSimRowStarted = "design-sim:row-started";
+        public static readonly StringHash32 DesignSimPaused = "design-sim:paused";
+        public static readonly StringHash32 DesignSimResumed = "design-sim:resumed";
+        public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
+        public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
+        public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
     }
 
     public static class UpdateMasks
@@ -60,11 +91,18 @@ namespace SpaceFab
         // fab
         public const int PreAttemptMask = 1 << 11;
         public const int AttemptMask = 1 << 12;
-        public const int PostAttemptMask = 1 << 13;
+        public const int AttemptLeadInMask = 1 << 13;
+        public const int PostAttemptMask = 1 << 14;
 
         // design
-        public const int ToolModeMask = 1 << 14;
-        public const int SimulateModeMask = 1 << 15;
+        public const int ToolModeMask = 1 << 15;
+        public const int SimulateModeMask = 1 << 16;
+
+        // fab
+        public const int MicrogameMask = 1 << 17;
+
+        // tutorial
+        public const int TutorialMask = 1 << 19;
     }
 
     static public class LayerMasks

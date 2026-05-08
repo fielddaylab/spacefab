@@ -1,54 +1,90 @@
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
+using SpaceFab.Fabrication.Stations;
+using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SpaceFab.Fabrication.Movement
-{
+namespace SpaceFab.Fabrication.Movement {
     /// <summary>
-    /// Manages world (non-microgame) interactions and inputs
+    /// Routes world-interact input (Activate, Cancel) to the station-control state machine. Up/Activate
+    /// enters a microgame at the robot's current station; Down/Cancel exits a microgame mid-play.
+    /// Gated by WorldInteractState.WorldInteractEnabled (outer kill switch) and the station-control
+    /// machine's AllowsActivate / AllowsCancel queries.
+    /// Runs on any Update phase at order 10 under AttemptMask (after StationControlSystem at order 5).
     /// </summary>
-    [SysUpdate(FieldDay.GameLoopPhaseMask.Update, 1, UpdateMasks.AttemptMask)]
-    public class WorldInteractSystem : SharedStateSystemBehaviour<WorldInteractState, LayoutState>
-    {
-        #region Input Mappings
-
-        private const KeyCode Up0 = KeyCode.W;
-        private const KeyCode Up1 = KeyCode.UpArrow;
-
-        private const KeyCode Down0 = KeyCode.S;
-        private const KeyCode Down1 = KeyCode.DownArrow;
-
-        private const KeyCode Activate = KeyCode.Space;
-
-        #endregion // Input Mappings
-
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+    public class WorldInteractSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhaseMask.Update, 10, UpdateMasks.AttemptMask),
+                new SysPermissions()
+                    .ReadShared<WorldInteractState>()
+                    .ReadShared<MovementState>()
+                    .ReadShared<LayoutState>()
+                    .ReadWriteShared<StationControlState>()
+            );
         }
 
-        static private void ProcessWork(float deltaTime)
-        {
-            GetDependencies();
+        // Reads world-interact keys and forwards Activate/Cancel to the station-control machine when allowed.
+        static private void ProcessWork(float deltaTime) {
+            Find.State(
+                out WorldInteractState interactState,
+                out MovementState movementState,
+                out LayoutState layoutState,
+                out StationControlState stationState
+                );
 
-            if (!m_StateA.WorldInteractEnabled) { return; }
+            if (!interactState.WorldInteractEnabled) { return; }
 
-            ProcessInputs();
+            ProcessInputs(interactState, movementState, layoutState, stationState);
         }
 
-        static private void ProcessInputs()
-        {
+        // Dispatches Activate (Up / Space) and Cancel (Down) keypresses. Validity is checked via
+        // WorldInteractUtility against the station-control state; the machine itself makes the final decision.
+        static private void ProcessInputs(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState) {
+            if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1) || Game.Input.IsKeyPressed(FabricationConsts.Activate)) {
+                HandleActivate(interactState, movementState, layoutState, stationState);
+            }
+            // Skip and Down0 share the physical key S, so the Skip branch must come before Cancel.
+            // The phase guard ensures Skip only fires during ExitingMicrogame while a process
+            // animation is blocking the exit; Cancel still owns the press during InMicrogame.
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Skip) && StationControlUtility.AllowsSkipProcessAnimation(stationState)) {
+                HandleSkipProcessAnimation(stationState);
+            }
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1)) {
+                HandleCancel(interactState, stationState);
+                // TODO: Handle Close Results
+            }
+        }
 
-            if (Input.GetKeyDown(Up0) || Input.GetKeyDown(Up1) || Input.GetKeyDown(Activate))
-            {
-                // activate
-            }
-            else if (Input.GetKeyDown(Down0) || Input.GetKeyDown(Down1))
-            {
-                // cancel / close results
-            }
+        // Looks up the interfacer at the current slot and asks the station-control machine to activate it.
+        // No-op if the gate fails, the slot is invalid, or no interfacer is assigned.
+        static private void HandleActivate(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState) {
+            if (!WorldInteractUtility.CanActivate(interactState, stationState)) { return; }
+
+            int slotIndex = movementState.CurrSlotPosition;
+            if (slotIndex < 0 || slotIndex >= layoutState.StationSlots.Length) { return; }
+
+            MicrogameStationInterfacer interfacer = layoutState.StationSlots[slotIndex].AssignedStationInterfacer;
+            StationControlUtility.RequestActivate(stationState, interfacer);
+        }
+
+        // Forwards a Cancel request to the station-control machine. Honored only during InMicrogame.
+        static private void HandleCancel(WorldInteractState interactState, StationControlState stationState) {
+            if (!WorldInteractUtility.CanCancel(interactState, stationState)) { return; }
+
+            StationControlUtility.RequestCancel(stationState);
+        }
+
+        // Forwards a Skip request to the station-control machine. Honored only while a process
+        // animation is blocking the exit (Phase == ExitingMicrogame && ProcessAnimationInProgress).
+        // Phase gating happens at the call site via StationControlUtility.AllowsSkipProcessAnimation;
+        // the outer WorldInteractEnabled kill switch is intentionally not consulted here, so a
+        // disabled interact state can't strand the player behind the animation.
+        static private void HandleSkipProcessAnimation(StationControlState stationState) {
+            StationControlUtility.RequestSkipProcessAnimation(stationState);
         }
     }
 }

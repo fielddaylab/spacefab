@@ -36,12 +36,14 @@ namespace SpaceFab.Overarching
 
     public static class ContractConfirmUtility
     {
-        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup, SharedUIState sharedUIState)
+        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup, SharedUIState sharedUIState, PlayerProgressState playerProgress)
         {
             chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
             StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
 
-            yield return ContractsLookupUtility.LoadContract(lookup, contractId);
+            playerProgress.CurrContractId = contractId;
+
+            yield return ContractsLookupUtility.LoadContract(lookup, playerProgress, contractId);
             ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
 
             // Extract assets into game states
