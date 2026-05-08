@@ -122,15 +122,13 @@ namespace SpaceFab.Design
         // True when restart-this-test is legal (Propagating or Paused).
         public static bool CanAcceptRestartTest(SimulateRunState runState)
         {
-            // TODO: return Phase == Propagating || Phase == Paused.
-            return false;
+            return runState.Phase == SimulatePhase.Propagating || runState.Phase == SimulatePhase.Paused;
         }
 
         // True when restart-suite is legal (Propagating or Paused).
         public static bool CanAcceptRestartSuite(SimulateRunState runState)
         {
-            // TODO: return Phase == Propagating || Phase == Paused.
-            return false;
+            return runState.Phase == SimulatePhase.Propagating || runState.Phase == SimulatePhase.Paused;
         }
 
         // True when Cancel is legal. Cancel is universal except inside Cancelling itself.
@@ -178,12 +176,14 @@ namespace SpaceFab.Design
 
         public static void RequestRestartTest(SimulateRunState runState)
         {
-            // TODO: if !CanAcceptRestartTest, no-op. Otherwise set RestartTestRequested = true.
+            if (!CanAcceptRestartTest(runState)) { return; }
+            runState.RestartTestRequested = true;
         }
 
         public static void RequestRestartSuite(SimulateRunState runState)
         {
-            // TODO: if !CanAcceptRestartSuite, no-op. Otherwise set RestartSuiteRequested = true.
+            if (!CanAcceptRestartSuite(runState)) { return; }
+            runState.RestartSuiteRequested = true;
         }
 
         public static void RequestCancel(SimulateRunState runState)

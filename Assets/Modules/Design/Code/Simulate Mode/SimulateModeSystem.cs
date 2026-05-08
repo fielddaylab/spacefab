@@ -61,7 +61,7 @@ namespace SpaceFab.Design
                     ProcessPropagating(runState, graphState, uiState, deltaTime);
                     break;
                 case SimulatePhase.Paused:
-                    ProcessPaused(runState);
+                    ProcessPaused(runState, uiState);
                     break;
                 case SimulatePhase.ResolvingTest:
                     ProcessResolvingTest(runState, runScratch, graphState, uiState, progressState, gridStackState);
@@ -184,18 +184,42 @@ namespace SpaceFab.Design
                 runState.PaintDepthThisFrame = true;
             }
 
+            // Depth boundary reached. Check interrupts before advancing. Restarts beat Pause:
+            // a player who hits Restart while the run is mid-flight expects an immediate reset,
+            // not a pause-then-restart. Pause comes last so it's the catch-all if no Restart fired.
+
+            if (runState.RestartTestRequested)
+            {
+                // Same row, fresh sim state — ProcessPreparingTest re-primes inputs and resets
+                // the depth pointer. Verdicts for other rows stay untouched.
+                runState.Phase = SimulatePhase.PreparingTest;
+                uiState.RunButtonsNeedRefreshing = true;
+                return;
+            }
+
+            if (runState.RestartSuiteRequested)
+            {
+                runState.Scope = RunScope.FullSuite;
+                runState.CurrentRow = 0;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                uiState.RunButtonsNeedRefreshing = true;
+                return;
+            }
+
+            if (runState.PauseRequested)
+            {
+                runState.Phase = SimulatePhase.Paused;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPaused);
+                // Active row's button should flip from Pause icon to Resume icon.
+                uiState.RunButtonsNeedRefreshing = true;
+                return;
+            }
+
             // Accumulate. Even on the paint frame: ensures next frame won't repaint and progress
             // is made toward the InterDepthDelay threshold.
             runState.PhaseTimer += deltaTime;
             if (runState.PhaseTimer < runState.InterDepthDelay) { return; }
-
-            // Depth boundary reached. Check interrupts before advancing.
-            // TODO: if RestartTestRequested → Phase = PreparingTest (CurrentRow unchanged); return.
-            // TODO: if RestartSuiteRequested → Scope = FullSuite; CurrentRow = 0;
-            //         SimulateControlUtility.ClearAllVerdicts; Phase = PreparingTest; return.
-            // TODO: if PauseRequested → Phase = Paused; dispatch DesignSimPaused; return.
-            //       Pause/Resume/Restart are deferred — SuiteRunRowButton can request them but the
-            //       phase machine ignores those flags until this branch is implemented.
 
             // No interrupt: advance depth or finish.
             runState.CurrentDepth++;
@@ -209,13 +233,39 @@ namespace SpaceFab.Design
             // Otherwise PhaseTimer == 0 → next frame's first-frame branch paints the new depth.
         }
 
-        // Paused: wait for Resume or Restart*. Cancel handled at top of ProcessWork.
-        static private void ProcessPaused(SimulateRunState runState)
+        // Paused: wait for Resume or Restart*. Cancel handled at top of ProcessWork. Restart
+        // wins over Resume if both somehow fired the same frame — Restart is the more-decisive
+        // intent (player wants the run to start over, not just to keep going).
+        static private void ProcessPaused(SimulateRunState runState, SimulateUIState uiState)
         {
-            // TODO: if ResumeRequested → Phase = Propagating; dispatch DesignSimResumed; return.
-            // TODO: if RestartTestRequested → Phase = PreparingTest (CurrentRow unchanged); return.
-            // TODO: if RestartSuiteRequested → Scope = FullSuite; CurrentRow = 0;
-            //         SimulateControlUtility.ClearAllVerdicts; Phase = PreparingTest; return.
+            if (runState.RestartTestRequested)
+            {
+                runState.Phase = SimulatePhase.PreparingTest;
+                uiState.RunButtonsNeedRefreshing = true;
+                return;
+            }
+
+            if (runState.RestartSuiteRequested)
+            {
+                runState.Scope = RunScope.FullSuite;
+                runState.CurrentRow = 0;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                uiState.RunButtonsNeedRefreshing = true;
+                return;
+            }
+
+            if (runState.ResumeRequested)
+            {
+                runState.Phase = SimulatePhase.Propagating;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimResumed);
+                // Active row's button should flip from Resume icon back to Pause icon.
+                // PhaseTimer is left at its boundary value, so the next ProcessPropagating tick
+                // falls straight through to depth-advance — the just-painted depth doesn't get
+                // re-painted, the run continues at the next depth.
+                uiState.RunButtonsNeedRefreshing = true;
+                return;
+            }
         }
 
         // ResolvingTest: score outputs for CurrentRow, write verdict, advance to next row or finish.
@@ -355,7 +405,10 @@ namespace SpaceFab.Design
         // that's ProcessCancelling's job on the next tick.
         static private void EnterCancelling(SimulateRunState runState)
         {
-            // TODO: Phase = Cancelling; PhaseTimer = 0; CurrentDepth = 0; PaintDepthThisFrame = false.
+            runState.Phase = SimulatePhase.Cancelling;
+            runState.PhaseTimer = 0f;
+            runState.CurrentDepth = 0;
+            runState.PaintDepthThisFrame = false;
         }
     }
 }
