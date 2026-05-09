@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f43422ee47823964a955a9909c3ee88c, type: 3}
-  m_Name: Insulator_Naive
+  m_Script: {fileID: 11500000, guid: be94885d8ce25d34c9838739426a2847, type: 3}
+  m_Name: ConductorNaive
   m_EditorClassIdentifier: 
-  Label: 18
-  InComparisonTo:
-    m_HashValue: 0
+  Label: 17
+  Dependencies: 00000000

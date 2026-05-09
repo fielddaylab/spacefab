@@ -19,7 +19,7 @@ namespace SpaceFab.Research
         #region Runtime State
 
         [HideInInspector] public HashSet<StringHash32> AvailableMaterials = new HashSet<StringHash32>();
-        // [HideInInspector] public ?? RequiredResearchGoals
+        [HideInInspector] public MaterialPropertyCheck[] RequiredResearchGoals = new MaterialPropertyCheck[0];
 
         // Sandbox property store. In-session confirmations stay isolated to the
         // minigame; PlayerProgressState is touched only on minigame exit (via

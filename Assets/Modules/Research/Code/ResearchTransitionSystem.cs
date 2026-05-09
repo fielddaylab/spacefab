@@ -38,11 +38,10 @@ namespace SpaceFab.Research {
             }
 
             //researchState.RequiredResearchGoals.Clear();
-            ContractDef contractDef = Find.NamedAsset<ContractDef>(playerProgress.CurrContractId);
+            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+            ContractDef contractDef = contractAssets.ContractDef;
             if (contractDef != null) {
-                foreach (var id in contractDef.RequiredResearchMaterials()) {
-                    //researchState.RequiredResearchGoals.Add(id);
-                }
+                researchState.RequiredResearchGoals = contractDef.RequiredMaterialProperties();
             }
 
             // Seed the sandbox with previously-confirmed properties for the

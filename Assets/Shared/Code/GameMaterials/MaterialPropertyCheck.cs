@@ -9,6 +9,9 @@ namespace SpaceFab.Materials
 {
     public enum MaterialPropertyLabel : uint
     {
+        // Observation block. Non-persistent: evidence collected in chambers,
+        // never stored in PlayerProgressState. Add new observation values to
+        // the end of this block to keep existing serialized assets stable.
         Conductive,
         NonConductive,
         HeatActivated,
@@ -21,7 +24,16 @@ namespace SpaceFab.Materials
         LightEmitting,
         HighMobility,
         VoltageResistant,
+        ValenceOneLessThan,
+        ValenceOneMoreThan,
+        IncreasesConductivityOf,
+        FormsDiodeWithKnownNIn,
+        FormsDiodeWithKnownPIn,
 
+        // Persistent property block. Confirmable; round-trips to
+        // PlayerProgressState. Bit positions assigned by
+        // MaterialPropertyLabelUtility.GetStaticBitIndex (for static labels);
+        // dynamic labels use MaterialOrderAsset indexing instead.
         ConductorNaive,
         InsulatorNaive,
         Insulator,
@@ -49,10 +61,10 @@ namespace SpaceFab.Materials
     public class MaterialPropertyCheck : ScriptableObject
     {
         public MaterialPropertyLabel Label;
-        public MaterialObservationCheck[] RequiredObservations;
         [AssetName(typeof(MaterialAsset))] public StringHash32 InComparisonTo;
     }
 
+    /**
     /// <summary>
     /// Lighter footprint than MaterialPropertyCheck
     /// </summary>
@@ -76,4 +88,5 @@ namespace SpaceFab.Materials
             InComparisonTo = inComparisonTo;
         }
     }
+    */
 }

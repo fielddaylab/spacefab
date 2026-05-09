@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f43422ee47823964a955a9909c3ee88c, type: 3}
-  m_Name: Insulator_Naive
+  m_Script: {fileID: 11500000, guid: 2b60f8cb1a24d7a43a416e772f4bf9a0, type: 3}
+  m_Name: MaterialPropertyRegistry
   m_EditorClassIdentifier: 
-  Label: 18
-  InComparisonTo:
-    m_HashValue: 0
+  m_Definitions:
+  - {fileID: 11400000, guid: 879708510d679b8429ecb601aca1af14, type: 2}
+  - {fileID: 11400000, guid: 4fb9579d81b974f4fb85ccfa7b1dc5d9, type: 2}
