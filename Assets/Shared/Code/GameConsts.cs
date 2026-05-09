@@ -128,5 +128,13 @@ namespace SpaceFab
         // Layer 24: Interrupt UI
         public const int Interrupt_UI_Index = 24;
         public const int Interrupt_UI_Mask = 1 << 24;
+
+        // Layer 6: ResearchSlot — Physics2D layer for slot collider overlap queries
+        public const int ResearchSlot_Index = 20;
+        public const int ResearchSlot_Mask = 1 << 20;
+
+        // Layer 7: ResearchGem — Physics2D layer for free-floating draggable colliders
+        public const int ResearchGem_Index = 21;
+        public const int ResearchGem_Mask = 1 << 21;
     }
 }

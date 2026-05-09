@@ -20,6 +20,7 @@ namespace SpaceFab.Research {
                     .ReadShared<ChapterState>()
                     .ReadShared<PlayerProgressState>()
                     .ReadWriteShared<ResearchMinigameState>()
+                    .ReadWriteShared<ResearchSampleTrayState>()
             );
         }
 
@@ -27,7 +28,8 @@ namespace SpaceFab.Research {
             Find.State(
                 out ChapterState chapterState,
                 out PlayerProgressState playerProgress,
-                out ResearchMinigameState researchState
+                out ResearchMinigameState researchState,
+                out ResearchSampleTrayState trayState
             );
 
             researchState.AvailableMaterials.Clear();
@@ -38,10 +40,14 @@ namespace SpaceFab.Research {
             }
 
             //researchState.RequiredResearchGoals.Clear();
-            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
-            ContractDef contractDef = contractAssets.ContractDef;
-            if (contractDef != null) {
-                researchState.RequiredResearchGoals = contractDef.RequiredMaterialProperties();
+            if (Game.Assets.HasNamed<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId))
+            {
+                ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+                ContractDef contractDef = contractAssets.ContractDef;
+                if (contractDef != null)
+                {
+                    researchState.RequiredResearchGoals = contractDef.RequiredMaterialProperties();
+                }
             }
 
             // Seed the sandbox with previously-confirmed properties for the
@@ -50,6 +56,11 @@ namespace SpaceFab.Research {
             // resume goes through ResearchStateUtility.ImportState instead and
             // bypasses this load.
             ResearchStateUtility.LoadFromPlayerProgress(researchState, playerProgress);
+
+            // Spawn the tray's draggable samples for this chapter's available
+            // materials. Idempotent on re-entry — the utility clears any
+            // previously-spawned gems before refilling.
+            ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask);
