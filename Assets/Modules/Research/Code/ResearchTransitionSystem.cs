@@ -37,13 +37,20 @@ namespace SpaceFab.Research {
                 }
             }
 
-            researchState.RequiredResearchMaterials.Clear();
+            //researchState.RequiredResearchGoals.Clear();
             ContractDef contractDef = Find.NamedAsset<ContractDef>(playerProgress.CurrContractId);
             if (contractDef != null) {
                 foreach (var id in contractDef.RequiredResearchMaterials()) {
-                    researchState.RequiredResearchMaterials.Add(id);
+                    //researchState.RequiredResearchGoals.Add(id);
                 }
             }
+
+            // Seed the sandbox with previously-confirmed properties for the
+            // materials in this chapter's scope. Must run after AvailableMaterials
+            // is populated (above). Mid-session
+            // resume goes through ResearchStateUtility.ImportState instead and
+            // bypasses this load.
+            ResearchStateUtility.LoadFromPlayerProgress(researchState, playerProgress);
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask);
