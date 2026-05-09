@@ -59,8 +59,8 @@ namespace SpaceFab.Supply
         public static void ImportState(SupplySaveState saveState, SupplyMinigameState supplyState)
         {
             supplyState.Reliability = saveState.FinalizedReliability;
-            supplyState.TotalCycles = saveState.FinalizedReliability;
-            supplyState.Cost = saveState.FinalizedReliability;
+            supplyState.TotalCycles = saveState.FinalizedTotalCycles;
+            supplyState.Cost = saveState.FinalizedCost;
         }
 
         public static void ExportState(ref SupplySaveState saveState, SupplyMinigameState supplyState)
