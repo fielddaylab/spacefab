@@ -1,6 +1,5 @@
 using BeauUtil;
 using FieldDay;
-using System;
 
 namespace SpaceFab.Materials
 {
@@ -11,14 +10,14 @@ namespace SpaceFab.Materials
     /// observations and already-confirmed properties?"
     ///
     /// The evaluator is the only consumer of the dependency graph. Contract
-    /// satisfaction (ContractProgressUtility) reads the post-confirmation
-    /// state in MaterialPropertyRecord and never touches definitions; that
-    /// separation is intentional.
+    /// satisfaction reads the post-confirmation state in MaterialPropertyRecord
+    /// and never touches definitions; that separation is intentional.
     ///
-    /// Inputs are abstracted via a delegate so the evaluator doesn't bind to
-    /// a specific observation-storage type (sandbox vs. future shared state
-    /// vs. test harness). The chamber-port work fills in the delegate when
-    /// observation storage lands on ResearchMinigameState.
+    /// Observation storage is abstracted via a delegate so the evaluator
+    /// doesn't bind to a specific store (sandbox observation list, test
+    /// harness, etc.). Callers supply a lookup that returns whether the
+    /// player has the requested (label, context) observation for the
+    /// material under evaluation.
     /// </summary>
     public static class MaterialPropertyDefinitionUtility
     {
@@ -50,38 +49,113 @@ namespace SpaceFab.Materials
             in MaterialPropertyRecord confirmedRecord,
             HasObservationDelegate hasObservation)
         {
-            // TODO: implement once observation storage lands on
-            // ResearchMinigameState (or wherever the chamber port decides it
-            // belongs). The recursive walk:
-            //
-            //   1. If label is non-persistent, the caller is asking about an
-            //      observation directly. Delegate to hasObservation(label, contextMaterialId).
-            //   2. If label is persistent and already set in confirmedRecord
-            //      (MaterialPropertyRecordUtility.Has), return true - already confirmed.
-            //   3. Look up the definition: Find.GlobalAsset<MaterialPropertyDefinitionAsset>().GetDefinition(label).
-            //      If null, return false (no definition = cannot be confirmed).
-            //   4. For each entry in def.Dependencies:
-            //      - If MaterialPropertyLabelUtility.IsPersistent(entry):
-            //          recurse via CanConfirm(entry, contextMaterialId, confirmedRecord, hasObservation).
-            //          (The sub-property inherits X from the parent call.)
-            //      - Else: leaf observation check via hasObservation(entry, contextMaterialId).
-            //      - On any false, short-circuit to false.
-            //   5. All dependencies passed -> return true.
-            //
-            // Open question: cycle protection. The current dependency table is
-            // a DAG (HiTempConductor -> Conductor; no back-edges), but nothing
-            // enforces that at authoring time. If the asset author makes a
-            // cycle, the recursion stack-overflows. Cheapest fix: a small
-            // visited-set passed through the recursion. Add only if asset
-            // authoring doesn't catch cycles via inspector validation.
-            throw new NotImplementedException("Awaiting observation storage on ResearchMinigameState (or equivalent). See body comments for the walk shape.");
+            return CanConfirmInternal(label, contextMaterialId, confirmedRecord, hasObservation);
         }
 
-        // TODO: bulk-evaluate variant - "for material M, which currently
-        // unconfirmed persistent properties just became confirmable?" Walk
-        // every persistent label in MaterialPropertyLabel, skip those already
-        // set in confirmedRecord, call CanConfirm on each. Used by the
-        // hypothesis-submit flow to find out which property the player just
-        // earned. Defer until CanConfirm itself is implemented.
+        // Recursive walk. The signature differs from the public entrypoint
+        // only by being internal to allow the recursion target to be inlined
+        // by the JIT.
+        //   1. Observation labels: leaf check.
+        //   2. Persistent labels already in the record: short-circuit true.
+        //   3. Persistent labels with no record entry: walk every registered
+        //      definition; the first whose dependency list is fully satisfied
+        //      confirms the label.
+        // Cycle protection is not implemented; the dependency graph is
+        // assumed to be a DAG. Authoring-time cycles will stack-overflow.
+        private static bool CanConfirmInternal(
+            MaterialPropertyLabel label,
+            StringHash32 contextMaterialId,
+            in MaterialPropertyRecord confirmedRecord,
+            HasObservationDelegate hasObservation)
+        {
+            // 1. Observation labels are leaves.
+            if (!MaterialPropertyLabelUtility.IsPersistent(label))
+            {
+                return hasObservation != null && hasObservation(label, contextMaterialId);
+            }
+
+            // 2. Already confirmed in the record.
+            if (MaterialPropertyRecordUtility.Has(confirmedRecord, label, contextMaterialId))
+            {
+                return true;
+            }
+
+            // 3. Try every registered definition.
+            MaterialPropertyDefinitionAsset registry = Find.GlobalAsset<MaterialPropertyDefinitionAsset>();
+            if (registry == null)
+            {
+                return false;
+            }
+
+            MaterialPropertyDefinition[] definitions = registry.GetDefinitions(label);
+            for (int i = 0; i < definitions.Length; i++)
+            {
+                if (IsDefinitionSatisfied(definitions[i], contextMaterialId, confirmedRecord, hasObservation))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Returns true if every dependency in the definition resolves to true
+        // for the given context. Sub-property dependencies recurse; observation
+        // dependencies hit the delegate.
+        private static bool IsDefinitionSatisfied(
+            MaterialPropertyDefinition definition,
+            StringHash32 contextMaterialId,
+            in MaterialPropertyRecord confirmedRecord,
+            HasObservationDelegate hasObservation)
+        {
+            if (definition == null || definition.Dependencies == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < definition.Dependencies.Length; i++)
+            {
+                MaterialPropertyLabel dep = definition.Dependencies[i];
+                if (!CanConfirmInternal(dep, contextMaterialId, confirmedRecord, hasObservation))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the first definition whose dependency list resolves to true
+        /// under the given evidence. Used by the hypothesis-confirm flow to
+        /// know which observations to consume on success. Returns null if no
+        /// definition is satisfied (caller should treat that as "cannot
+        /// confirm right now").
+        /// </summary>
+        public static MaterialPropertyDefinition FindSatisfiedDefinition(
+            MaterialPropertyLabel label,
+            StringHash32 contextMaterialId,
+            in MaterialPropertyRecord confirmedRecord,
+            HasObservationDelegate hasObservation)
+        {
+            if (!MaterialPropertyLabelUtility.IsPersistent(label))
+            {
+                return null;
+            }
+
+            MaterialPropertyDefinitionAsset registry = Find.GlobalAsset<MaterialPropertyDefinitionAsset>();
+            if (registry == null)
+            {
+                return null;
+            }
+
+            MaterialPropertyDefinition[] definitions = registry.GetDefinitions(label);
+            for (int i = 0; i < definitions.Length; i++)
+            {
+                if (IsDefinitionSatisfied(definitions[i], contextMaterialId, confirmedRecord, hasObservation))
+                {
+                    return definitions[i];
+                }
+            }
+            return null;
+        }
     }
 }

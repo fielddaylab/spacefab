@@ -4,9 +4,13 @@ namespace SpaceFab.Materials
 {
     /// <summary>
     /// Defines what evidence the player must collect to confirm a single
-    /// MaterialPropertyLabel. One asset per persistent property label
-    /// (Conductor, Semiconductor, PDopantFor, etc.). Observation labels are
-    /// not defined here - they are leaves, not derived.
+    /// MaterialPropertyLabel. Multiple definitions for the same Label are
+    /// allowed - each represents a distinct dependency tree that confirms
+    /// the same property (e.g., a structural-evidence path and a
+    /// behavioral-evidence path for PDopantFor). The evaluator OR-combines
+    /// them: any one definition's tree being satisfied confirms the property.
+    /// Observation labels are not defined here - they are leaves, not
+    /// derived.
     ///
     /// Dependencies is a flat array of MaterialPropertyLabel entries. Each
     /// entry's kind is recovered at evaluation time via

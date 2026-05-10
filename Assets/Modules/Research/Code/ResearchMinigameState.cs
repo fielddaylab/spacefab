@@ -33,6 +33,13 @@ namespace SpaceFab.Research
         // so this is non-load-bearing for correctness.
         [HideInInspector] public HashSet<StringHash32> SandboxDirty = new HashSet<StringHash32>();
 
+        // Per-material observation lists. Tentative evidence the player has
+        // collected this session. Not persisted; cleared on minigame entry by
+        // ResearchStateUtility.LoadFromPlayerProgress. Keyed by the material
+        // the observation is being made about (the dynamic context material,
+        // when relevant, lives inside each observation entry).
+        [HideInInspector] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
+
         #endregion // Runtime State
 
         #region Interfaces
@@ -65,34 +72,16 @@ namespace SpaceFab.Research
 
     public static class ResearchStateUtility
     {
-        // Mid-session save-chunk import. Restores the sandbox so a saved-and-resumed
-        // research session continues where the player left off. When this runs,
-        // it bypasses LoadFromPlayerProgress because the sandbox snapshot is
-        // authoritative for the resumed session.
+        // Mid-session save-chunk import hook. Mid-session resume is not a
+        // supported feature today; this exists only to satisfy IMinigameState.
         public static void ImportState(ResearchSaveState saveState, ResearchMinigameState researchState)
         {
-            // TODO: deserialize SandboxProperties + SandboxDirty from saveState once
-            // ResearchSaveState's chunk format is defined. Mirror the shape of
-            // PlayerProgressUtility.UnpackMaterialProperties: iterate MaterialOrderAsset,
-            // skip all-zero records to keep the dictionary sparse.
-            //
-            // Also TODO: deserialize any in-progress observation lists / selected
-            // hypothesis / selected material once the prototype's ResearchInventory
-            // and ResearchSelectionState shapes are ported.
         }
 
-        // Mid-session save-chunk export. Snapshots the sandbox into the save chunk.
-        // Distinct from CommitToPlayerProgress: this preserves an in-progress
-        // session for resume; CommitToPlayerProgress promotes confirmations to
-        // canonical save state and runs only on minigame exit.
+        // Mid-session save-chunk export hook. Mid-session resume is not a
+        // supported feature today; this exists only to satisfy IMinigameState.
         public static void ExportState(ref ResearchSaveState saveState, ResearchMinigameState researchState)
         {
-            // TODO: serialize SandboxProperties + SandboxDirty into saveState once
-            // ResearchSaveState's chunk format is defined.
-            //
-            // Also TODO: serialize any in-progress observation lists / selected
-            // hypothesis / selected material once the prototype's ResearchInventory
-            // and ResearchSelectionState shapes are ported.
         }
 
         #region Sandbox helpers
@@ -150,6 +139,7 @@ namespace SpaceFab.Research
         public static void LoadFromPlayerProgress(ResearchMinigameState researchState, PlayerProgressState progressState)
         {
             ClearSandbox(researchState);
+            ResearchInventoryUtility.ClearAllObservations(researchState);
 
             foreach (var materialId in researchState.AvailableMaterials)
             {
@@ -159,20 +149,6 @@ namespace SpaceFab.Research
                     researchState.SandboxProperties[materialId] = record;
                 }
             }
-
-            // TODO: project the sandbox into the in-session research inventory
-            // (the chip-vocabulary mirror of MaterialKnowledge) once the prototype's
-            // ResearchInventory is ported. For each (materialId, record) in
-            // SandboxProperties, walk the set bits of StaticMask and the two
-            // dynamic masks, recover the MaterialPropertyLabel for each bit (the
-            // inverse of MaterialPropertyLabelUtility.GetStaticBitIndex for static
-            // bits; PDopantFor / NDopantFor for dynamic), then translate the label
-            // to its canonical ResearchChipId and add to the inventory's
-            // MaterialKnowledge.
-            //
-            // For dynamic-property bits, the "other material" comes from the
-            // MaterialOrderAsset index of the bit, matching how the chip's context
-            // is stored runtime-side.
         }
 
         // Minigame exit: merges the sandbox into PlayerProgressState. OR-mask is

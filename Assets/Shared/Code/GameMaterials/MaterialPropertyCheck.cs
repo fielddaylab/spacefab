@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SpaceFab.Materials
 {
-    public enum MaterialPropertyLabel : uint
+    public enum MaterialPropertyLabel : byte
     {
         // Observation block. Non-persistent: evidence collected in chambers,
         // never stored in PlayerProgressState. Add new observation values to
