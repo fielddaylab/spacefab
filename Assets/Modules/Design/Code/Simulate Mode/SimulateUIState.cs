@@ -1,6 +1,7 @@
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using FieldDay;
+using SpaceFab.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Design.Visuals;
@@ -20,6 +21,13 @@ namespace SpaceFab.Design
         public RectTransform TableRect;
         public VerticalLayoutGroup VertLayout;
 
+        // Suite-level run controls. Positioning in the SimTable hierarchy is TBD; the refs here
+        // are wired in inspector once the prefab layout is finalized. Until then refs may be null —
+        // the suite refresh systems guard against that.
+        public SuiteRunButton SuiteRunButton;
+        public DynamicButton SuiteRestartButton;
+        public DynamicButton SuiteCancelButton;
+
         #endregion // Inspector
 
         [HideInInspector] public bool TableBuilt;
@@ -30,8 +38,16 @@ namespace SpaceFab.Design
         // Set true whenever the SuiteRunRowButton icons might need to change (Phase change,
         // CurrentRow change, table built, button clicked). Consumed and cleared by
         // SuiteRunRowButtonRefreshSystem. Any future site that mutates SimulateRunState.Phase
-        // or CurrentRow must also raise this flag.
+        // or CurrentRow must also raise this flag — use SimulateUIUtility.MarkAllRunButtonsDirty
+        // so the suite-level dirty flag stays in sync.
         [HideInInspector] public bool RunButtonsNeedRefreshing;
+
+        // Set true whenever the suite-level run / restart / cancel buttons need a repaint
+        // (icon swap on SuiteRunButton, interactable toggle on Restart/Cancel). Consumed by
+        // SuiteRunButtonRefreshSystem (icon) and SuiteSecondaryButtonRefreshSystem (interactable),
+        // cleared by the latter. Always raised together with RunButtonsNeedRefreshing via
+        // SimulateUIUtility.MarkAllRunButtonsDirty.
+        [HideInInspector] public bool SuiteButtonsNeedRefreshing;
 
         // Per-row references to instantiated view handles. SuiteRow.Cols / SuiteRow.Verdicts
         // are sized at BuildTable time, parallel to the test suite's bundle structure.
@@ -51,6 +67,7 @@ namespace SpaceFab.Design
             HighlightedRowIndex = -1;
             UnstableBannerVisible = false;
             RunButtonsNeedRefreshing = false;
+            SuiteButtonsNeedRefreshing = false;
             VerdictsNeedRefreshing = false;
         }
 
@@ -83,12 +100,22 @@ namespace SpaceFab.Design
 
             // hook into run state for play, pause, rewind, etc.
             AssignRunListeners(uiState, suite, runState);
+            AssignSuiteListeners(uiState, runState);
 
             uiState.TableBuilt = true;
 
-            // Trigger the initial icon + verdict paint on every row.
-            uiState.RunButtonsNeedRefreshing = true;
+            // Trigger the initial icon + verdict paint on every row, plus the suite-level controls.
+            MarkAllRunButtonsDirty(uiState);
             uiState.VerdictsNeedRefreshing = true;
+        }
+
+        // Raises both the per-row and suite-level run-button dirty flags. Use this anywhere
+        // SimulateRunState.Phase or CurrentRow changes — the row buttons and the suite buttons
+        // both derive their state from those, and missing one drifts silently.
+        public static void MarkAllRunButtonsDirty(SimulateUIState uiState)
+        {
+            uiState.RunButtonsNeedRefreshing = true;
+            uiState.SuiteButtonsNeedRefreshing = true;
         }
 
         // Disables every eval image and flow image on the table. Ported from EvaluationMgr.ClearSuiteEvals.
@@ -167,11 +194,18 @@ namespace SpaceFab.Design
             uiState.VerdictsNeedRefreshing = true;
         }
 
-        // Shows the overall results panel. Called when entering SuiteComplete.
+        // Shows the overall results panel. Called when entering SuiteComplete from
+        // SimulateModeSystem.ProcessResolvingTest (single-test or full-suite final row).
+        //
+        // HOOK: when the results panel work lands, wire it here.
+        //   - add an inspector-assigned panel GameObject ref on SimulateUIState
+        //     (e.g. ResultsPanelRoot).
+        //   - SetActive(true), set header text via allCorrect.
+        //   - uiState.ResultsPanelVisible = true.
+        // Body intentionally empty until that work lands so the future implementer has a
+        // single, named attachment point.
         public static void ShowResultsPanel(SimulateUIState uiState, bool allCorrect)
         {
-            // TODO: activate the results panel GameObject; set header text to Success / Failure.
-            //       Set ResultsPanelVisible = true.
         }
 
         // Hides the results panel. Called on Dismiss or on a fresh Play from SuiteComplete.
@@ -331,7 +365,69 @@ namespace SpaceFab.Design
                 SimulateControlUtility.RequestPlaySingleTest(runState, rowIndex);
             }
 
-            uiState.RunButtonsNeedRefreshing = true;
+            MarkAllRunButtonsDirty(uiState);
+        }
+
+        // Wires the suite-level run / restart / cancel buttons to their click handlers. Refs may
+        // be null until the prefab layout for the suite-level toolbar is finalized; skip wiring
+        // any null slot rather than failing.
+        private static void AssignSuiteListeners(SimulateUIState uiState, SimulateRunState runState)
+        {
+            if (uiState.SuiteRunButton != null)
+            {
+                uiState.SuiteRunButton.onClick.AddListener(() => HandleSuiteRunButtonClick(runState, uiState));
+            }
+            if (uiState.SuiteRestartButton != null)
+            {
+                uiState.SuiteRestartButton.onClick.AddListener(() => HandleSuiteRestartButtonClick(runState, uiState));
+            }
+            if (uiState.SuiteCancelButton != null)
+            {
+                uiState.SuiteCancelButton.onClick.AddListener(() => HandleSuiteCancelButtonClick(runState, uiState));
+            }
+        }
+
+        // Suite-level Play/Pause/Resume click. Mirrors HandleRunButtonClick but without an
+        // active-row check — the suite button always controls the whole suite:
+        //   Propagating  -> Pause
+        //   Paused       -> Resume
+        //   Idle / Done  -> PlayFullSuite
+        // Other phases (PreparingTest, ResolvingTest, Cancelling) ignore the click implicitly:
+        // RequestPlayFullSuite / Pause / Resume all guard via CanAccept* and no-op there.
+        private static void HandleSuiteRunButtonClick(SimulateRunState runState, SimulateUIState uiState)
+        {
+            SimulatePhase phase = runState.Phase;
+            if (phase == SimulatePhase.Propagating)
+            {
+                SimulateControlUtility.RequestPause(runState);
+            }
+            else if (phase == SimulatePhase.Paused)
+            {
+                SimulateControlUtility.RequestResume(runState);
+            }
+            else
+            {
+                SimulateControlUtility.RequestPlayFullSuite(runState);
+            }
+
+            MarkAllRunButtonsDirty(uiState);
+        }
+
+        // Suite-level Restart click. Always asks for a full-suite restart; CanAcceptRestartSuite
+        // gates it (Propagating / Paused only).
+        private static void HandleSuiteRestartButtonClick(SimulateRunState runState, SimulateUIState uiState)
+        {
+            SimulateControlUtility.RequestRestartSuite(runState);
+            MarkAllRunButtonsDirty(uiState);
+        }
+
+        // Suite-level Cancel click. CanAcceptCancel gates it (any phase except Cancelling).
+        // The button's interactable flag tightens this further to Propagating / Paused via
+        // SuiteSecondaryButtonRefreshSystem.
+        private static void HandleSuiteCancelButtonClick(SimulateRunState runState, SimulateUIState uiState)
+        {
+            SimulateControlUtility.RequestCancel(runState);
+            MarkAllRunButtonsDirty(uiState);
         }
 
         // TODO: hook up with Loc system

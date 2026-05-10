@@ -176,7 +176,7 @@ namespace SpaceFab.Design
             runState.Phase = SimulatePhase.Propagating;
 
             // CurrentRow / Phase just changed; the active row's button needs to flip to Pause.
-            uiState.RunButtonsNeedRefreshing = true;
+            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
 
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
         }
@@ -204,7 +204,7 @@ namespace SpaceFab.Design
                 // Same row, fresh sim state — ProcessPreparingTest re-primes inputs and resets
                 // the depth pointer. Verdicts for other rows stay untouched.
                 runState.Phase = SimulatePhase.PreparingTest;
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
 
@@ -213,8 +213,9 @@ namespace SpaceFab.Design
                 runState.Scope = RunScope.FullSuite;
                 runState.CurrentRow = 0;
                 SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
 
@@ -223,7 +224,7 @@ namespace SpaceFab.Design
                 runState.Phase = SimulatePhase.Paused;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPaused);
                 // Active row's button should flip from Pause icon to Resume icon.
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
 
@@ -239,7 +240,7 @@ namespace SpaceFab.Design
             {
                 runState.Phase = SimulatePhase.ResolvingTest;
                 // Active row's button should flip back from Pause to Play.
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
             }
             // Otherwise PhaseTimer == 0 → next frame's first-frame branch paints the new depth.
         }
@@ -252,7 +253,7 @@ namespace SpaceFab.Design
             if (runState.RestartTestRequested)
             {
                 runState.Phase = SimulatePhase.PreparingTest;
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
 
@@ -261,8 +262,9 @@ namespace SpaceFab.Design
                 runState.Scope = RunScope.FullSuite;
                 runState.CurrentRow = 0;
                 SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
 
@@ -274,7 +276,7 @@ namespace SpaceFab.Design
                 // PhaseTimer is left at its boundary value, so the next ProcessPropagating tick
                 // falls straight through to depth-advance — the just-painted depth doesn't get
                 // re-painted, the run continues at the next depth.
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
         }
@@ -356,7 +358,7 @@ namespace SpaceFab.Design
             }
 
             // Phase or CurrentRow changed; the active row's button needs a repaint.
-            uiState.RunButtonsNeedRefreshing = true;
+            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
         }
 
         // True iff every entry in verdicts is Correct. Used for the suite-level pass/fail flag
@@ -378,7 +380,7 @@ namespace SpaceFab.Design
             {
                 SimulateUIUtility.HideResultsPanel(uiState);
                 runState.Phase = SimulatePhase.Idle;
-                uiState.RunButtonsNeedRefreshing = true;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
                 return;
             }
 

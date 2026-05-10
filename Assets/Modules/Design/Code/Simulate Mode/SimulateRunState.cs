@@ -50,13 +50,13 @@ namespace SpaceFab.Design
 
         // ---- One-frame request flags (cleared by SimulateControlRefreshSystem in LateUpdate) ----
 
-        [HideInInspector] public bool PlayFullSuiteRequested; // TODO
+        [HideInInspector] public bool PlayFullSuiteRequested;
         [HideInInspector] public bool PlaySingleTestRequested;
         [HideInInspector] public bool PauseRequested;
         [HideInInspector] public bool ResumeRequested;
-        [HideInInspector] public bool RestartTestRequested; // TODO
-        [HideInInspector] public bool RestartSuiteRequested; // TODO
-        [HideInInspector] public bool CancelRequested; // TODO
+        [HideInInspector] public bool RestartTestRequested;
+        [HideInInspector] public bool RestartSuiteRequested;
+        [HideInInspector] public bool CancelRequested;
         [HideInInspector] public bool DismissResultsRequested; // TODO
 
         // ---- Per-row verdicts. Sized to suite length on Simulate entry by ModeTransitionSystem. ----
@@ -151,7 +151,8 @@ namespace SpaceFab.Design
         // Request a run over the full test suite (row 0 → last).
         public static void RequestPlayFullSuite(SimulateRunState runState)
         {
-            // TODO: if !CanAcceptPlay, no-op. Otherwise set PlayFullSuiteRequested = true.
+            if (!CanAcceptPlay(runState)) { return; }
+            runState.PlayFullSuiteRequested = true;
         }
 
         // Request a run of a single test row. rowIndex is carried on RequestedRowIndex.
@@ -220,18 +221,22 @@ namespace SpaceFab.Design
         }
 
         // Resets the active simulation back to a clean Idle state — wipes per-cell flow,
-        // clears per-node transients, marks visuals dirty, parks Phase at Idle, and flags the
-        // run-button icons for repaint. Shared by SimulateModeSystem.ProcessCancelling and
-        // ModeTransitionSystem.ExitSimulateMode. Intentionally does NOT touch PendingPlayRowIndex
-        // so callers can decide whether to consume or discard a queued play.
+        // clears per-node transients, clears all row verdicts (model + UI), marks visuals dirty,
+        // parks Phase at Idle, and flags the run-button icons for repaint. Shared by
+        // SimulateModeSystem.ProcessCancelling and ModeTransitionSystem.ExitSimulateMode.
+        // Intentionally does NOT touch PendingPlayRowIndex so callers can decide whether to
+        // consume or discard a queued play.
         public static void WipeRunState(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
         {
             SimulateRunScratchUtility.BumpFlowStamp(runScratch);
             SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
             visualState.VisualsNeedRefreshing = true;
 
+            ClearAllVerdicts(runState);
+            SimulateUIUtility.HideAllRowVerdicts(uiState);
+
             runState.Phase = SimulatePhase.Idle;
-            uiState.RunButtonsNeedRefreshing = true;
+            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
         }
 
         #endregion // Helpers
