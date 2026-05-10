@@ -17,6 +17,7 @@ namespace SpaceFab.Design
         #region Saved State
 
         // public GridStack GridStack; // delegate to GridStackState
+        public bool FoundValidSolution;
 
         #endregion // Saved State
 
@@ -56,11 +57,14 @@ namespace SpaceFab.Design
             {
                 Find.State<GridStackState>().GridStack = saveState.GridStack;
             }
+
+            designState.FoundValidSolution = saveState.FoundValidSolution;
         }
 
         public static void ExportState(ref DesignSaveState saveState, DesignMinigameState designState)
         {
             saveState.GridStack = Find.State<GridStackState>().GridStack;
+            saveState.FoundValidSolution = designState.FoundValidSolution;
         }
     }
 }

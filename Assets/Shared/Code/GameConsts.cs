@@ -69,6 +69,9 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
+
+        // Design: Grid
+        public static readonly StringHash32 DesignGridModified = "design-grid:modified";
     }
 
     public static class UpdateMasks

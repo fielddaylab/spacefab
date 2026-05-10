@@ -24,6 +24,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<SimulateUIState>()
                     .ReadWriteShared<VisualGridStackState>()
                     .ReadWriteShared<PlayerProgressState>()
+                    .ReadWriteShared<DesignMinigameState>()
             );
         }
 
@@ -39,7 +40,8 @@ namespace SpaceFab.Design
             Find.State(
                 out SimulateUIState uiState,
                 out VisualGridStackState visualState,
-                out PlayerProgressState progressState
+                out PlayerProgressState progressState,
+                out DesignMinigameState designState
                 );
 
             // Universal high-priority request: Cancel beats everything except Cancelling itself.
@@ -64,7 +66,7 @@ namespace SpaceFab.Design
                     ProcessPaused(runState, uiState);
                     break;
                 case SimulatePhase.ResolvingTest:
-                    ProcessResolvingTest(runState, runScratch, graphState, uiState, progressState, gridStackState);
+                    ProcessResolvingTest(runState, runScratch, graphState, uiState, progressState, gridStackState, designState);
                     break;
                 case SimulatePhase.SuiteComplete:
                     ProcessSuiteComplete(runState, uiState);
@@ -292,7 +294,7 @@ namespace SpaceFab.Design
         //   SingleTest scope                       → SuiteComplete (whole run is just this row).
         //   FullSuite, more rows remain            → next row via PreparingTest.
         //   FullSuite, last row resolved           → SuiteComplete with aggregate-correct flag.
-        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, PlayerProgressState progressState, GridStackState gridStackState)
+        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, PlayerProgressState progressState, GridStackState gridStackState, DesignMinigameState designState)
         {
             ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
             TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
@@ -353,7 +355,17 @@ namespace SpaceFab.Design
             else
             {
                 runState.Phase = SimulatePhase.SuiteComplete;
-                SimulateUIUtility.ShowResultsPanel(uiState, IsAllCorrect(runState.RowVerdicts));
+                bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
+                SimulateUIUtility.ShowResultsPanel(uiState, suiteAllCorrect);
+                // A passing full-suite run is the one moment FoundValidSolution flips true.
+                // It's reset to false on grid edits and on any subsequent test re-run via
+                // DesignMinigameState's event listeners — set directly here rather than via
+                // an event to keep the success signal coupled to the verdict array that
+                // produced it.
+                if (suiteAllCorrect)
+                {
+                    designState.FoundValidSolution = true;
+                }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
             }
 
