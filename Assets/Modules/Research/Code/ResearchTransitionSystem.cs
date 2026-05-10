@@ -21,6 +21,7 @@ namespace SpaceFab.Research {
                     .ReadShared<PlayerProgressState>()
                     .ReadWriteShared<ResearchMinigameState>()
                     .ReadWriteShared<ResearchSampleTrayState>()
+                    .ReadWriteShared<ChamberInterfacerState>()
             );
         }
 
@@ -31,6 +32,7 @@ namespace SpaceFab.Research {
                 out ResearchMinigameState researchState,
                 out ResearchSampleTrayState trayState
             );
+            Find.State(out ChamberInterfacerState interfacerState);
 
             researchState.AvailableMaterials.Clear();
             if (chapterState.CurrChapterDef != null) {
@@ -62,8 +64,15 @@ namespace SpaceFab.Research {
             // previously-spawned gems before refilling.
             ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
 
+            // Activate the Battery chamber. This is the only chamber today;
+            // when the station-transition system lands, this hardcoded
+            // activation moves into station logic and reacts to player nav.
+            // TODO: clear ActiveChamber + receptive flags on minigame exit.
+            ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Battery);
+            ChamberInterfacerUtility.SetReceptive(interfacerState, ChamberSlotKind.Primary, true);
+
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
-            GameLoop.ResumeUpdates(UpdateMasks.ResearchMask);
+            GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
         }
     }
 }

@@ -9,10 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3fa937c2c803464d8f0eaff2033531d, type: 3}
-  m_Name: Silicon
+  m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
+  m_Name: SiliconPhys
   m_EditorClassIdentifier: 
-  DisplayName: Silicon
-  ValenceElectronCounts: 04000000
-  AtomicRadii: 6f000000
-  Properties: 15
+  MaterialId:
+    m_Source: Silicon
+    m_HashValue: 1163381446
+  ConductionMultiplier: 0.4
+  ThermalMultiplier: 2
+  MaxTemperature: 0.6
+  MaxVoltage: 0.6
+  IsHighMobility: 0
+  IsLightEmitting: 0

@@ -101,6 +101,9 @@ namespace SpaceFab
         // fab
         public const int MicrogameMask = 1 << 17;
 
+        // research chambers (Battery, Thermal, Combiner, Junction)
+        public const int ResearchChamberMask = 1 << 18;
+
         // tutorial
         public const int TutorialMask = 1 << 19;
     }

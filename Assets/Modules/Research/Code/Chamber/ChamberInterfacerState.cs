@@ -17,6 +17,17 @@ namespace SpaceFab.Research {
     }
 
     /// <summary>
+    /// Identifies which chamber the player is currently interacting with.
+    /// Single shared discriminator on ChamberInterfacerState; chamber systems
+    /// short-circuit when the active kind is not their own. Tier 2's station-
+    /// transition flow is the canonical writer; chamber systems read it.
+    /// </summary>
+    public enum ActiveChamberKind : byte {
+        None,
+        Battery,
+    }
+
+    /// <summary>
     /// Shared state that decouples ResearchSlot writes from any specific
     /// chamber. Holds the two slot references for the current scene and a
     /// per-slot receptive flag chamber systems toggle. After a successful
@@ -41,6 +52,11 @@ namespace SpaceFab.Research {
         [NonSerialized] public bool SlotMaterialUpdatedThisFrame;
         [NonSerialized] public ChamberSlotKind LastUpdatedKind;
         [NonSerialized] public MaterialAsset LastUpdatedMaterial;
+
+        // Currently-active chamber discriminator. Default None; activation flow
+        // sets it when the player navigates into a chamber. Chamber systems
+        // short-circuit when this is not their own kind.
+        [NonSerialized] public ActiveChamberKind ActiveChamber;
 
         public void OnRegister() {
         }
@@ -91,6 +107,17 @@ namespace SpaceFab.Research {
         public static MaterialAsset GetCurrent(ChamberInterfacerState interfacerState, ChamberSlotKind kind) {
             ResearchSlot slot = GetSlot(interfacerState, kind);
             return slot != null ? slot.CurrentMaterial : null;
+        }
+
+        // Sets the currently-active chamber. Activation flow is the only
+        // caller; chamber systems read via GetActiveChamber.
+        public static void SetActiveChamber(ChamberInterfacerState interfacerState, ActiveChamberKind kind) {
+            interfacerState.ActiveChamber = kind;
+        }
+
+        // Returns the currently-active chamber kind.
+        public static ActiveChamberKind GetActiveChamber(ChamberInterfacerState interfacerState) {
+            return interfacerState.ActiveChamber;
         }
 
         // Reverse lookup: given a physical ResearchSlot, return which kind it
