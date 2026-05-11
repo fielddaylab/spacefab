@@ -7,6 +7,7 @@ namespace SpaceFab.Fabrication
 {
     public enum LevelMode
     {
+        Setup,
         PreAttempt,
         AttemptLeadIn,
         Attempt,
