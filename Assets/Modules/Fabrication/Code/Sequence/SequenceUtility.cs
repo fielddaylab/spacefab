@@ -19,22 +19,23 @@ namespace SpaceFab.Fabrication.Sequence
         // (i.e. sequence is Idle, Halted, Completed, or CurrentStepIndex is past the last step).
         public static FabricationStep? GetCurrentStep(SequenceState sequenceState)
         {
-            // TODO: bounds-check CurrentStepIndex against Level.Steps.Length; return by value.
-            return null;
+            if (sequenceState.CurrentStepIndex < 0 || sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length)
+                return null;
+            if (sequenceState.Status != SequenceStatus.Active)
+                return null;
+            return sequenceState.Level.Steps[sequenceState.CurrentStepIndex];
         }
 
         // True when the sequence is actively accepting step progression (Status == Active).
         public static bool IsActive(SequenceState sequenceState)
         {
-            // TODO: return sequenceState.Status == SequenceStatus.Active.
-            return false;
+            return sequenceState.Status == SequenceStatus.Active;
         }
 
         // True when the station id matches the universal Defrag station.
         public static bool IsDefragStation(StringHash32 stationId)
         {
-            // TODO: return stationId == FabricationConsts.DEFRAG_STATION_ID.
-            return false;
+            return stationId == FabricationConsts.DEFRAG_STATION_ID;
         }
 
         // ---- Commands (reset / progression) ----
@@ -45,19 +46,22 @@ namespace SpaceFab.Fabrication.Sequence
         // dispatches FabSequenceReset, and signals the visuals layer to rebuild the on-screen cards.
         public static void ResetSequence(SequenceState sequenceState, FabricationSequenceLevel level, SequenceVisualsState visualsState)
         {
-            // TODO:
-            //   sequenceState.Level = level
-            //   sequenceState.CurrentStepIndex = 0
-            //   sequenceState.StepRuntime = new StepRuntimeData[level.Steps.Length]
-            //   RollGlitches(sequenceState, level)
-            //   sequenceState.HasCheckpoint = false
-            //   sequenceState.Checkpoint = default
-            //   // Allocate per-step precision storage on the wafer. Indices align 1:1 with Level.Steps.
-            //   WaferState waferState = Find.State<WaferState>()
-            //   waferState.StepPrecisions = new float[level.Steps.Length]
-            //   waferState.RecordedStepCount = 0
-            //   sequenceState.Status = SequenceStatus.Active
-            //   Game.Events.Dispatch(GameEvents.FabSequenceReset)
+            sequenceState.Status = SequenceStatus.Active;
+            sequenceState.Level = level;
+            sequenceState.CurrentStepIndex = 0;
+            sequenceState.StepRuntime = new StepRuntimeData[level.Steps.Length];
+
+            RollGlitches(sequenceState, level);
+
+            sequenceState.HasCheckpoint = false;
+            sequenceState.Checkpoint = default;
+
+            Game.Events.Dispatch(GameEvents.FabSequenceReset);
+
+            // Allocate per-step precision storage on the wafer. Indices align 1:1 with Level.Steps.
+            WaferState waferState = Find.State<WaferState>();
+            waferState.StepPrecisions = new float[level.Steps.Length];
+            waferState.RecordedStepCount = 0;
             visualsState.ResetRequested = true;
         }
 
@@ -68,19 +72,23 @@ namespace SpaceFab.Fabrication.Sequence
         // the visuals layer to play the stamp-and-swipe (or completion) animation.
         public static void AdvanceStep(SequenceState sequenceState, WaferState waferState, TimeState timeState, MovementState movementState, SequenceVisualsState visualsState)
         {
-            // TODO:
-            //   int justCompleted = sequenceState.CurrentStepIndex
-            //   FabricationStep step = sequenceState.Level.Steps[justCompleted]
-            //   if (step.IsCheckpoint) CaptureCheckpoint(sequenceState, waferState, timeState, movementState, justCompleted)
-            //   sequenceState.CurrentStepIndex++
-            //   if (sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length) {
-            //       sequenceState.Status = SequenceStatus.Completed
-            //       Game.Events.Dispatch(GameEvents.FabSequenceCompleted)
-            //       visualsState.CompletionRequested = true
-            //   } else {
-            //       visualsState.AdvanceRequested = true
-            //   }
-            //   Game.Events.Dispatch(GameEvents.FabSequenceStepCompleted)
+            if (GetCurrentStep(sequenceState) == null) return; // safety check
+
+            int justCompleted = sequenceState.CurrentStepIndex;
+            FabricationStep step = sequenceState.Level.Steps[justCompleted];
+            if (step.IsCheckpoint)
+                CaptureCheckpoint(sequenceState, waferState, timeState, movementState, justCompleted);
+
+            sequenceState.CurrentStepIndex++;
+
+            if (sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length) {
+                sequenceState.Status = SequenceStatus.Completed;
+                Game.Events.Dispatch(GameEvents.FabSequenceCompleted);
+                visualsState.CompletionRequested = true;
+            } else {
+                visualsState.AdvanceRequested = true;
+            }
+            Game.Events.Dispatch(GameEvents.FabSequenceStepCompleted);
         }
 
         // Called by SequenceSystem when the wafer snapshot at step-end doesn't match expected, OR
@@ -89,22 +97,22 @@ namespace SpaceFab.Fabrication.Sequence
         // rolls back; otherwise transitions to Halted (awaiting full reset).
         public static void FlagMisalignment(SequenceState sequenceState)
         {
-            // TODO:
-            //   sequenceState.MisalignmentThisFrame = true
-            //   Game.Events.Dispatch(GameEvents.FabWaferMisalignment)
-            //   if (sequenceState.HasCheckpoint) RestoreCheckpoint(sequenceState)
-            //   else sequenceState.Status = SequenceStatus.Halted
+            sequenceState.MisalignmentThisFrame = true;
+            Game.Events.Dispatch(GameEvents.FabWaferMisalignment);
+            if (sequenceState.HasCheckpoint)
+                RestoreCheckpoint(sequenceState);
+            else
+                sequenceState.Status = SequenceStatus.Halted;
         }
 
         // Called by SequenceSystem when the player arrives at the Defrag station. Clears the
         // glitch flag on the current step's card. Does not advance the step or run alignment check.
         public static void UnglitchCurrentStep(SequenceState sequenceState)
         {
-            // TODO:
-            //   if (!IsActive(sequenceState)) return
-            //   if (CurrentStepIndex out of bounds) return
-            //   sequenceState.StepRuntime[sequenceState.CurrentStepIndex].IsGlitched = false
-            //   Game.Events.Dispatch(GameEvents.FabStepUnglitched)
+            if (GetCurrentStep(sequenceState) == null) return;
+
+            sequenceState.StepRuntime[sequenceState.CurrentStepIndex].IsGlitched = false;
+            Game.Events.Dispatch(GameEvents.FabStepUnglitched);
         }
 
         // ---- Checkpoint machinery ----
@@ -113,45 +121,46 @@ namespace SpaceFab.Fabrication.Sequence
         // HasCheckpoint = true and marks the step as having been reached.
         public static void CaptureCheckpoint(SequenceState sequenceState, WaferState waferState, TimeState timeState, MovementState movementState, int stepIndex)
         {
-            // TODO:
-            //   sequenceState.HasCheckpoint = true
-            //   sequenceState.Checkpoint = new SequenceCheckpoint {
-            //       StepIndex = stepIndex,
-            //       TimeElapsed = TimeStateUtility.GetElapsed(timeState),
-            //       WaferSnapshot = WaferStateUtility.TakeSnapshot(waferState),
-            //       SlotIndex = movementState.CurrSlotPosition,
-            //   }
-            //   sequenceState.StepRuntime[stepIndex].WasCheckpointReached = true
-            //   Game.Events.Dispatch(GameEvents.FabCheckpointReached)
+            sequenceState.HasCheckpoint = true;
+            sequenceState.Checkpoint = new SequenceCheckpoint {
+                StepIndex = stepIndex,
+                TimeElapsed = TimeStateUtility.GetElapsed(timeState),
+                WaferSnapshot = WaferStateUtility.TakeSnapshot(waferState),
+                SlotIndex = movementState.CurrSlotPosition,
+            };
+            sequenceState.StepRuntime[stepIndex].WasCheckpointReached = true;
+            Game.Events.Dispatch(GameEvents.FabCheckpointReached);
         }
 
         // Rolls back to the captured checkpoint. Sets Status = Restoring, advances CurrentStepIndex
         // to the step after the checkpoint, starts the RestoreRoutine.
         public static void RestoreCheckpoint(SequenceState sequenceState)
         {
-            // TODO:
-            //   sequenceState.Status = SequenceStatus.Restoring
-            //   sequenceState.CurrentStepIndex = sequenceState.Checkpoint.StepIndex + 1
-            //   Game.Events.Dispatch(GameEvents.FabCheckpointRestoreBegin)
-            //   sequenceState.RestoreRoutine.Replace(RestoreCoroutine(sequenceState))
+            sequenceState.Status = SequenceStatus.Restoring;
+            sequenceState.CurrentStepIndex = sequenceState.Checkpoint.StepIndex + 1;
+            Game.Events.Dispatch(GameEvents.FabCheckpointRestoreBegin);
+            sequenceState.RestoreRoutine.Replace(RestoreCoroutine(sequenceState));
         }
 
         // The coroutine body for a checkpoint restore: writes snapshot values back onto runtime
         // state, runs the lead-in pause, then re-arms the sequence.
         public static IEnumerator RestoreCoroutine(SequenceState sequenceState)
         {
-            // TODO:
-            //   WaferState waferState = Find.State<WaferState>()
-            //   TimeState timeState = Find.State<TimeState>()
-            //   MovementState movementState = Find.State<MovementState>()
-            //   ref SequenceCheckpoint cp = ref sequenceState.Checkpoint
-            //   WaferStateUtility.RestoreSnapshot(waferState, cp.WaferSnapshot)
-            //   TimeStateUtility.SetElapsed(timeState, cp.TimeElapsed)
-            //   movementState.CurrSlotPosition = cp.SlotIndex
-            //   movementState.SlotChangedThisFrame = true   // so StationControlSystem re-parks at AtStation
-            //   yield return RestoreLeadIn()
-            //   sequenceState.Status = SequenceStatus.Active
-            //   Game.Events.Dispatch(GameEvents.FabCheckpointRestoreComplete)
+            WaferState waferState = Find.State<WaferState>();
+            TimeState timeState = Find.State<TimeState>();
+            MovementState movementState = Find.State<MovementState>();
+
+            SequenceCheckpoint cp = sequenceState.Checkpoint;
+            WaferStateUtility.RestoreSnapshot(waferState, cp.WaferSnapshot);
+            TimeStateUtility.SetElapsed(timeState, cp.TimeElapsed);
+            movementState.CurrSlotPosition = cp.SlotIndex;
+            movementState.SlotChangedThisFrame = true;   // so StationControlSystem re-parks at AtStation
+            
+            yield return RestoreLeadIn();
+            
+            sequenceState.Status = SequenceStatus.Active;
+            Game.Events.Dispatch(GameEvents.FabCheckpointRestoreComplete);
+            
             yield break;
         }
 
@@ -161,7 +170,7 @@ namespace SpaceFab.Fabrication.Sequence
         public static IEnumerator RestoreLeadIn()
         {
             // TODO: fade from black, show "Resuming..." text, play SFX, countdown.
-            yield return FabricationConsts.CHECKPOINT_LEAD_IN_SECONDS;
+            yield return new WaitForSeconds(FabricationConsts.CHECKPOINT_LEAD_IN_SECONDS);
         }
 
         // ---- Glitch machinery ----
@@ -169,10 +178,19 @@ namespace SpaceFab.Fabrication.Sequence
         // Rebuilds StepRuntime[].IsGlitched based on the level's GlitchMode. Called from ResetSequence.
         public static void RollGlitches(SequenceState sequenceState, FabricationSequenceLevel level)
         {
-            // TODO:
-            //   switch level.GlitchMode:
-            //     Explicit:   for each i in level.GlitchedStepIndices, StepRuntime[i].IsGlitched = true
-            //     Percentage: for each step, StepRuntime[i].IsGlitched = UnityEngine.Random.value < level.GlitchChance
+            switch (level.GlitchMode)
+            {
+                case GlitchMode.Explicit:
+                    foreach (int i in level.GlitchedStepIndices) {
+                        sequenceState.StepRuntime[i].IsGlitched = true;
+                    }
+                    break;
+                case GlitchMode.Percentage:
+                    for (int i = 0; i < sequenceState.StepRuntime.Length; i++) {
+                        sequenceState.StepRuntime[i].IsGlitched = UnityEngine.Random.value < level.GlitchChance;
+                    }
+                    break;
+            }
         }
     }
 }
