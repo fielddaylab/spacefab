@@ -553,6 +553,7 @@ GameObject:
   - component: {fileID: 1390802459}
   - component: {fileID: 1390802460}
   - component: {fileID: 1390802461}
+  - component: {fileID: 1390802462}
   m_Layer: 0
   m_Name: Research Systems
   m_TagString: Untagged
@@ -712,6 +713,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+--- !u!114 &1390802462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390802457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 470b4e0eb92e4ff499714732824c67db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2054010281
 PrefabInstance:
   m_ObjectHideFlags: 0

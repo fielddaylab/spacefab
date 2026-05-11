@@ -76,6 +76,7 @@ namespace SpaceFab
         public static IEnumerator LoadCurrAvailableContracts(ChapterState chapterState, ChapterLoadState chapterLoadState, AvailableContractsLookup lookup)
         {
             yield return ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex);
+            chapterState.CurrChapterDef = Find.NamedAsset<ChapterDef>(lookup.Entries[chapterState.CurrChapterIndex].ChapterId);
 
             chapterLoadState.Phase = ChapterLoadPhase.Completed;
         }

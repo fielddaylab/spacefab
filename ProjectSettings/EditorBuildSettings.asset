@@ -50,4 +50,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Shared/Scenes/ContractAssets/Contract_Test_3_Ch2_Assets.unity
     guid: f7d6d465c742bb74b98888fddf56c0de
+  - enabled: 1
+    path: Assets/Modules/Supply/Scenes/Supply Map Scenes/Chapter1_SupplyMap_Test1.unity
+    guid: 7e116d9bc1a98004f9e145110dcd0153
+  - enabled: 1
+    path: Assets/Modules/Supply/Scenes/Supply Map Scenes/Chapter2_SupplyMap_Test1.unity
+    guid: ad14e9b973aba6d43a2251faca84f616
   m_configObjects: {}

@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<OverarchingShutdownSequenceState>()
                     .ReadWriteShared<ChapterState>()
                     .ReadWriteShared<PlayerProgressState>()
+                    .ReadShared<MinigameSaveStates>()
             );
         }
 
@@ -32,6 +34,10 @@ namespace SpaceFab.Overarching {
                 out PlayerProgressState progressState
                 );
 
+            Find.State(
+                out MinigameSaveStates saveStates
+                );
+
             switch (submitState.Phase) {
                 case OverarchingSubmitChapterPhase.Starting:
                     ProcessStarting(submitState, shutdownState);
@@ -40,7 +46,7 @@ namespace SpaceFab.Overarching {
                     ProcessShutdownSequenceSystem(submitState, shutdownState);
                     break;
                 case OverarchingSubmitChapterPhase.MoveToNextChapter:
-                    ProcessMoveToNextChapter(submitState, chapterState, progressState);
+                    ProcessMoveToNextChapter(submitState, chapterState, progressState, saveStates);
                     break;
                 default:
                     break;
@@ -65,8 +71,8 @@ namespace SpaceFab.Overarching {
         }
 
         // Advance to the next chapter (also saves and reloads the main scene inside the utility).
-        static private void ProcessMoveToNextChapter(OverarchingSubmitChapterSequenceState submitState, ChapterState chapterState, PlayerProgressState progressState) {
-            ChapterUtility.LoadNextChapter(chapterState, progressState);
+        static private void ProcessMoveToNextChapter(OverarchingSubmitChapterSequenceState submitState, ChapterState chapterState, PlayerProgressState progressState, MinigameSaveStates saveStates) {
+            ChapterUtility.LoadNextChapter(chapterState, progressState, saveStates);
             submitState.Phase = OverarchingSubmitChapterPhase.TransitionComplete;
         }
     }

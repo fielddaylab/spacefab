@@ -41,6 +41,8 @@ namespace SpaceFab.Overarching
             chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
             StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
 
+            playerProgress.CurrContractId = contractId;
+
             yield return ContractsLookupUtility.LoadContract(lookup, playerProgress, contractId);
             ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
 
