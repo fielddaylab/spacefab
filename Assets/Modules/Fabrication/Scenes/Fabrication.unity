@@ -514,6 +514,8 @@ GameObject:
   - component: {fileID: 392984994}
   - component: {fileID: 392984995}
   - component: {fileID: 392984996}
+  - component: {fileID: 392984998}
+  - component: {fileID: 392984997}
   m_Layer: 0
   m_Name: Fabrication Systems
   m_TagString: Untagged
@@ -776,6 +778,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb0ff421f2ccdb649a032b9ea98d1d0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392984997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4318cb1e849abde419ee4ac846c8e2c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392984998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b428f479f0f2a6c4a92c7cdf22ae3315, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &425520832
