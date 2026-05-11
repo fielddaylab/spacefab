@@ -1083,9 +1083,21 @@ PrefabInstance:
       value: IMPLANTER
       objectReference: {fileID: 0}
     - target: {fileID: 8779092490790572546, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Size.x
+      value: 3.87
+      objectReference: {fileID: 0}
+    - target: {fileID: 8779092490790572546, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_Size.y
+      value: 7.53
+      objectReference: {fileID: 0}
+    - target: {fileID: 8779092490790572546, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 8583bb377d300fe459ac86ae4a2b62c7, type: 3}
+      objectReference: {fileID: 21300000, guid: f3d625d04e2b3644980c1879e519bc8b, type: 3}
+    - target: {fileID: 8779092490790572546, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
