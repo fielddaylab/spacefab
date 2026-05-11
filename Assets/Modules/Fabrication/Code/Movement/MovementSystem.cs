@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Robot;
+using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace SpaceFab.Fabrication.Movement {
                     .ReadWriteShared<MovementState>()
                     .ReadWriteShared<LayoutState>()
                     .ReadWriteShared<RobotState>()
+                    .ReadShared<StationControlState>()
             );
         }
 
@@ -31,7 +33,8 @@ namespace SpaceFab.Fabrication.Movement {
             Find.State(
                 out MovementState movementState,
                 out LayoutState layoutState,
-                out RobotState robotState
+                out RobotState robotState,
+                out StationControlState stationState
                 );
 
             var cameraTransform = Game.Rendering.PrimaryCamera.transform;
@@ -45,32 +48,33 @@ namespace SpaceFab.Fabrication.Movement {
                 0.1f
             );
 
-            if (!MovementUtility.CanMove(movementState, robotState)) { return; }
+            if (!MovementUtility.CanMove(movementState, robotState, stationState)) { return; }
 
-            ProcessInputs(movementState, layoutState, robotState);
+            ProcessInputs(movementState, layoutState, robotState, stationState);
         }
 
         // Reads left/right input and attempts a slot move in the chosen direction, clamped to the station-slot range.
-        static private void ProcessInputs(MovementState movementState, LayoutState layoutState, RobotState robotState) {
+        static private void ProcessInputs(MovementState movementState, LayoutState layoutState, RobotState robotState, StationControlState stationState) {
             int curr = movementState.CurrSlotPosition;
             int max = layoutState.StationSlots.Length - 1;
 
             if (Input.GetKeyDown(FabricationConsts.Left0) || Input.GetKeyDown(FabricationConsts.Left1)) {
                 if (curr > 0)
-                    TryMove(movementState, layoutState, robotState, curr - 1);
+                    TryMove(movementState, layoutState, robotState, stationState, curr - 1);
             }
             else if (Input.GetKeyDown(FabricationConsts.Right0) || Input.GetKeyDown(FabricationConsts.Right1)) {
                 if (curr < max)
-                    TryMove(movementState, layoutState, robotState, curr + 1);
+                    TryMove(movementState, layoutState, robotState, stationState, curr + 1);
             }
         }
 
         // Starts a move routine to the target slot if movement is allowed; marks the robot as traveling until the routine completes.
-        private static void TryMove(MovementState movementState, LayoutState layoutState, RobotState robotState, int targetIndex) {
-            if (!MovementUtility.CanMove(movementState, robotState))
+        private static void TryMove(MovementState movementState, LayoutState layoutState, RobotState robotState, StationControlState stationState, int targetIndex) {
+            if (!MovementUtility.CanMove(movementState, robotState, stationState))
                 return;
 
             movementState.CurrSlotPosition = MovementState.TRAVELING;
+            movementState.SlotChangedThisFrame = true;
             movementState.MoveRoutine.Replace(MoveRoutine(movementState, layoutState, robotState, targetIndex));
         }
 
@@ -90,6 +94,7 @@ namespace SpaceFab.Fabrication.Movement {
 
             robotState.transform.position = targetPos;
             movementState.CurrSlotPosition = targetIndex;
+            movementState.SlotChangedThisFrame = true;
         }
     }
 }
