@@ -20,6 +20,7 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.PreUpdate, 10, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadShared<WikiState>()
+                    .ReadShared<WikiLayoutState>()
                     .Read<WikiContent>()
                     .Read<WikiPools>()
                     .ReadShared<PlayerProgressState>()
