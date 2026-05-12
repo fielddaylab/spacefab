@@ -119,7 +119,8 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out ResistMicrogameState state);
             state.IsActive = false;
-            // TODO: tear down dropper UI; return to idle.
+            
+            // tear down dropper UI; return to idle.
             state.ResistUI.SetActive(false);
             state.Phase = ResistMicrogamePhase.Idle;
         }
@@ -129,7 +130,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out ResistMicrogameState state);
 
-            float precision = 1 - (Mathf.Abs(state.DropX - state.CenterX) / state.MaxOffset);
+            float precision = 1f - (Mathf.Abs(state.DropX - state.CenterX) / state.MaxOffset);
             precision = Mathf.Clamp(precision, 0f, 1f);
 
             return precision;

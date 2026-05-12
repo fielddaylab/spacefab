@@ -25,12 +25,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1891469926160437712}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.75, y: 4, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: 0.644227, w: 0.7648344}
+  m_LocalPosition: {x: -3.8229098, y: -0.10180378, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1967652662250022760}
+  m_Father: {fileID: 9169988651632957815}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4005089047992223351
 SpriteRenderer:
@@ -200,6 +200,38 @@ Transform:
   - {fileID: 4036572011034139998}
   m_Father: {fileID: 1967652662250022760}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2515975892450708519
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9169988651632957815}
+  m_Layer: 0
+  m_Name: Target Arrow Anchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9169988651632957815
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2515975892450708519}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7783481003120581661}
+  m_Father: {fileID: 1967652662250022760}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6339123420074863364
 GameObject:
   m_ObjectHideFlags: 0
@@ -232,9 +264,9 @@ Transform:
   - {fileID: 8482032941094089364}
   - {fileID: 5341007334107939599}
   - {fileID: 4069285390652943093}
-  - {fileID: 7783481003120581661}
-  - {fileID: 7293517502449673385}
   - {fileID: 436404830625732088}
+  - {fileID: 9169988651632957815}
+  - {fileID: 7293517502449673385}
   m_Father: {fileID: 3032126973086325801}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6440982000287623376
@@ -331,7 +363,7 @@ GameObject:
   m_Component:
   - component: {fileID: 436404830625732088}
   m_Layer: 0
-  m_Name: Meter Arrow Anchor (1)
+  m_Name: Target Range Anchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -345,7 +377,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7593384803655990496}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -546,8 +578,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8849425204148891219}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.50175214, w: 0.86501145}
-  m_LocalPosition: {x: -1.948, y: 0.208, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: 0.61930734, w: 0.7851487}
+  m_LocalPosition: {x: -1.9280844, y: -0.34707117, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

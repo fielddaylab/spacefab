@@ -58,13 +58,29 @@ namespace SpaceFab.Fabrication.Microgames
             if (state.InputAccepted && Game.Input.IsKeyUp(FabricationConsts.Activate))
             {
                 state.Phase = FurnaceMicrogamePhase.Fueling;
-                Debug.Log(state.CurrentValue);
+                state.FinalHeat = state.CurrentValue;
             }
         }
 
         private static void ProcessFueling(FurnaceMicrogameState state, float deltaTime)
         {
-            
+            float targetPercentage = state.FinalHeat / state.MaxRange;
+            float targetZRotation = -targetPercentage * 180;
+            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, targetZRotation));
+
+            // frame independent smoothing, probably replace later
+            float blend = 1f - Mathf.Pow(state.MeterSmoothing, deltaTime);
+
+            state.MeterArrowAnchor.rotation = Quaternion.Slerp(
+                state.MeterArrowAnchor.rotation, 
+                targetRotation, 
+                blend
+            );
+
+            if (Quaternion.Angle(state.MeterArrowAnchor.rotation, targetRotation) < 0.1f) 
+            {
+                FurnaceMicrogameUtility.ExitBegin(completedNormally: true);
+            }
         }
 
         #endregion // Helpers

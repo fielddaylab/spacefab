@@ -29,12 +29,17 @@ namespace SpaceFab.Fabrication.Microgames
 
         // TODO: current heat value, target range center + half-width (varies per process: Oxidation /
         // N-Type Doping / P-Type Doping).
-        public float TargetRange, MaxRange, HalfWidth, Sensitivity;
-        public float CurrentValue;
+        public float TargetRange, TargetHalfWidth, MaxRange, HalfWidth, Sensitivity;
+        [HideInInspector] public float CurrentValue;
+        [HideInInspector] public float FinalHeat;
 
-        public bool InputAccepted;
+        [HideInInspector] public bool InputAccepted;
 
         public GameObject FurnaceUI;
+        public Transform TargetRangeAnchor, TargetArrowAnchor, MeterArrowAnchor;
+
+        // Time to smooth meter moving to final heat value, lower is faster
+        public float MeterSmoothing = 0.1f;
 
         public FurnaceMicrogamePhase Phase;
 
@@ -65,7 +70,19 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out FurnaceMicrogameState state);
             state.IsActive = true;
+            
             // TODO: play intro (station name flash, spawn heat dial UI).
+            
+            // Set up range position
+            float targetPercentage = state.TargetRange / state.MaxRange;
+            float targetZRotation = -targetPercentage * 180;
+            Vector3 targetRotation = new Vector3(0, 0, targetZRotation);
+            state.TargetRangeAnchor.rotation = Quaternion.Euler(targetRotation);
+            state.TargetArrowAnchor.rotation = Quaternion.Euler(targetRotation);
+
+            // reset value
+            state.CurrentValue = 0;
+            
             state.FurnaceUI.SetActive(true);
             state.Phase = FurnaceMicrogamePhase.Entering;
         }
@@ -83,6 +100,9 @@ namespace SpaceFab.Fabrication.Microgames
         // On cancel, nothing is recorded.
         public static void ExitBegin(bool completedNormally)
         {
+            Find.State(out FurnaceMicrogameState state);
+            state.Phase = FurnaceMicrogamePhase.Exiting;
+            
             // TODO: freeze heat simulation.
             if (!completedNormally) { return; }
 
@@ -101,7 +121,10 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out FurnaceMicrogameState state);
             state.IsActive = false;
-            // TODO: tear down heat dial UI; return to idle.
+            
+            // tear down heat dial UI; return to idle.
+            state.FurnaceUI.SetActive(false);
+            state.Phase = FurnaceMicrogamePhase.Idle;
         }
 
         // Furnace-specific precision math: difference between final heat value and the target
@@ -109,7 +132,12 @@ namespace SpaceFab.Fabrication.Microgames
         private static float ComputePrecision()
         {
             // TODO: precision = 1 - (abs(finalHeat - targetCenter) / targetHalfWidth), clamped to [0,1].
-            return 0f;
+            Find.State(out FurnaceMicrogameState state);
+
+            float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.TargetHalfWidth);
+            precision = Mathf.Clamp(precision, 0f, 1f);   
+
+            return precision;
         }
     }
 }
