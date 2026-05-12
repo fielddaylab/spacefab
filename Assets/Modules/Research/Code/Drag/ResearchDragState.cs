@@ -9,14 +9,15 @@ using UnityEngine.EventSystems;
 
 namespace SpaceFab.Research {
     /// <summary>
-    /// Shared state for the Research drag-and-drop loop. Holds the cursor-
-    /// following preview rig, cursor lock hint, raycaster reference, and the
-    /// runtime drag payload (currently-dragged material, hovered slot, source
-    /// slot for cancel-restore). All fields default to a not-dragging state;
-    /// the drag system populates them on lift and clears them on drop/cancel.
+    /// Shared state for the Research drag-and-drop loop. Holds the cursor
+    /// hint, raycaster reference, and the runtime drag payload: the
+    /// currently-allocated ResearchMaterialInstance, the slot the lift came
+    /// from (if any), and the kind enum for that slot. The Instance carries
+    /// the dragged MaterialAsset and its OriginSource; the drag-state's job
+    /// is to track lift origin and own the cursor + raycaster machinery.
     /// </summary>
     public class ResearchDragState : SharedStateComponent, IRegistrationCallbacks {
-        public ResearchMaterialRig DragRenderer;
+        public Transform DragRoot;
         public CursorHint DragCursor;
         // PhysicsRaycaster covers both itself and Physics2DRaycaster (subclass),
         // letting the scene's camera use whichever fits its physics layout.
@@ -30,20 +31,16 @@ namespace SpaceFab.Research {
         // changing every slot.
         public bool AllowSwap = true;
 
-        [NonSerialized] public MaterialAsset CurrentlyDragging;
+        [NonSerialized] public ResearchMaterialInstance CurrentInstance;
         [NonSerialized] public ResearchSlot SlotHoveredOver;
         [NonSerialized] public ResearchSlot LiftedFromSlot;
         [NonSerialized] public ChamberSlotKind LiftedFromKind;
 
         public void OnRegister() {
-            // Drag preview is hidden until the player lifts something.
-            if (DragRenderer != null) {
-                DragRenderer.gameObject.SetActive(false);
-            }
         }
 
         public void OnDeregister() {
-            CurrentlyDragging = null;
+            CurrentInstance = null;
             SlotHoveredOver = null;
             LiftedFromSlot = null;
         }
@@ -51,83 +48,128 @@ namespace SpaceFab.Research {
 
     /// <summary>
     /// Logic paired with ResearchDragState. Lift / Deposit / Cancel form the
-    /// drag-state machine. ResearchDragSystem resolves both shared states once
+    /// drag-state machine. ResearchDragSystem resolves the shared states once
     /// per ProcessWork and passes them in. Slot mutation routes through
-    /// ResearchSlotUtility.FillInSlot, which raises the chamber frame-flag.
+    /// ResearchSlotUtility.FillInSlot; instance allocation/release routes
+    /// through ResearchMaterialInstanceUtility.
     /// </summary>
     public static class ResearchDragUtility {
-        // Begins a drag from a free-floating source in the world. If the source
-        // is bound to a slot (CurrentSlot != null), the slot is emptied and
-        // remembered so a cancel can restore the material.
-        public static bool LiftItem(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchMaterialSource source) {
+        // Begins a drag from a Source on the tray. Allocates a new Instance
+        // carrying the source's material, reparents it under DragRoot, and
+        // marks the lift as coming from the source (not a slot).
+        public static bool LiftFromSource(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchMaterialInstancePool pool, ResearchMaterialSource source) {
             if (source == null || source.Material == null) {
                 return false;
             }
-            return BeginDrag(dragState, interfacerState, source.Material, source.CurrentSlot);
+            ResearchMaterialInstance instance = ResearchMaterialInstanceUtility.Allocate(pool, source.Material, source);
+            if (instance == null) {
+                return false;
+            }
+            BeginDrag(dragState, instance, null, ChamberSlotKind.Primary);
+            return true;
         }
 
-        // Begins a drag by lifting a filled slot's current material. Used when
-        // the player clicks the slot directly rather than a free-floating gem.
-        public static bool LiftFromSlot(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchSlot slot) {
+        // Begins a drag by lifting a filled slot's current material. Allocates
+        // an Instance carrying the slot's material, clears the slot (so its
+        // rig stops rendering), and remembers the slot for cancel-restore.
+        public static bool LiftFromSlot(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchMaterialInstancePool pool, ResearchSlot slot) {
             if (slot == null || slot.CurrentMaterial == null) {
                 return false;
             }
-            return BeginDrag(dragState, interfacerState, slot.CurrentMaterial, slot);
+            ChamberSlotKind? kindOpt = ChamberInterfacerUtility.KindOf(interfacerState, slot);
+            if (!kindOpt.HasValue) {
+                return false;
+            }
+
+            MaterialAsset material = slot.CurrentMaterial;
+            ResearchMaterialInstance instance = ResearchMaterialInstanceUtility.Allocate(pool, material, null);
+            if (instance == null) {
+                return false;
+            }
+
+            ResearchSlotUtility.FillInSlot(interfacerState, slot, kindOpt.Value, null);
+            BeginDrag(dragState, instance, slot, kindOpt.Value);
+            return true;
         }
 
-        // Drops the currently-dragged material into the given slot. If the slot
-        // already holds a material and both global and per-slot AllowSwap are
-        // set, swaps: the slot's material becomes the new drag payload and the
-        // drag continues. Otherwise ends the drag. Returns true if a fill or
-        // swap was applied.
-        public static bool DepositCurrentDrag(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchSlot slot) {
-            if (dragState.CurrentlyDragging == null) {
+        // Drops the currently-dragged Instance into the given slot. If the
+        // slot already holds a material and both global and per-slot AllowSwap
+        // are set, swaps: the slot's previous material becomes the new drag
+        // payload (a fresh Instance), and the drag continues. Otherwise the
+        // current instance is released and the drag ends. Returns true if a
+        // fill or swap was applied.
+        public static bool DepositCurrentDrag(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchMaterialInstancePool pool, ResearchSlot slot) {
+            if (dragState.CurrentInstance == null) {
                 return false;
             }
 
             // Reject slots that aren't wired as Primary or Secondary.
             ChamberSlotKind? kindOpt = ChamberInterfacerUtility.KindOf(interfacerState, slot);
             if (!kindOpt.HasValue) {
-                CancelCurrentDrag(dragState, interfacerState);
+                CancelCurrentDrag(dragState, interfacerState, pool);
                 return false;
             }
             ChamberSlotKind kind = kindOpt.Value;
 
+            ResearchMaterialInstance dragged = dragState.CurrentInstance;
+            MaterialAsset draggedMaterial = dragged.Material;
+
             // 1. A swap requires the slot to be filled with a different
             // material and both AllowSwap gates set.
             MaterialAsset swap = null;
-            if (dragState.AllowSwap && slot.AllowSwap && slot.CurrentMaterial != null && slot.CurrentMaterial != dragState.CurrentlyDragging) {
+            if (dragState.AllowSwap && slot.AllowSwap && slot.CurrentMaterial != null && slot.CurrentMaterial != draggedMaterial) {
                 swap = slot.CurrentMaterial;
             }
 
             // 2. Fill the destination. A non-receptive slot causes FillInSlot
             // to return false, in which case we cancel.
-            MaterialAsset toFill = dragState.CurrentlyDragging;
-            if (!ResearchSlotUtility.FillInSlot(interfacerState, slot, kind, toFill)) {
-                CancelCurrentDrag(dragState, interfacerState);
+            if (!ResearchSlotUtility.FillInSlot(interfacerState, slot, kind, draggedMaterial)) {
+                CancelCurrentDrag(dragState, interfacerState, pool);
                 return false;
             }
 
             if (swap != null) {
-                // 3a. Swap: drag picks up the slot's previous occupant.
-                // LiftedFromSlot becomes this slot so a later cancel restores
-                // the swapped material here.
-                dragState.CurrentlyDragging = swap;
+                // 3a. Swap: release the current instance, allocate a fresh one
+                // for the swapped-out material. LiftedFromSlot becomes this
+                // slot so a later cancel restores the swapped material here.
+                ResearchMaterialInstanceUtility.Release(pool, dragged);
+                ResearchMaterialInstance newInstance = ResearchMaterialInstanceUtility.Allocate(pool, swap, null);
+                if (newInstance == null) {
+                    EndDrag(dragState);
+                    return true;
+                }
+                dragState.CurrentInstance = newInstance;
                 dragState.LiftedFromSlot = slot;
                 dragState.LiftedFromKind = kind;
-                ResearchMaterialRigUtility.ApplyPropertiesToRig(dragState.DragRenderer, swap);
+                if (dragState.DragRoot != null) {
+                    newInstance.transform.SetParent(dragState.DragRoot, false);
+                }
             } else {
-                // 3b. No swap: end the drag.
+                // 3b. No swap: release the instance and end the drag.
+                ResearchMaterialInstanceUtility.Release(pool, dragged);
                 EndDrag(dragState);
             }
             return true;
         }
 
-        // Aborts the drag. If the source was a slot, the original material is
-        // returned to it. If the source was free-floating, the material is
-        // dropped (no restore target).
-        public static bool CancelCurrentDrag(ResearchDragState dragState, ChamberInterfacerState interfacerState) {
-            if (dragState.CurrentlyDragging == null) {
+        // Drops the dragged Instance back onto the tray. Releases the instance
+        // to the pool; no slot side-effects, no source side-effects (the tray
+        // sources are permanent fixtures).
+        public static bool DepositOnTray(ResearchDragState dragState, ResearchMaterialInstancePool pool) {
+            if (dragState.CurrentInstance == null) {
+                return false;
+            }
+            ResearchMaterialInstanceUtility.Release(pool, dragState.CurrentInstance);
+            EndDrag(dragState);
+            return true;
+        }
+
+        // Aborts the drag. If the lift came from a slot, the original material
+        // is restored. If the lift came from a Source (or has no origin), the
+        // Instance is just released — the Source is unaffected.
+        public static bool CancelCurrentDrag(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchMaterialInstancePool pool) {
+            ResearchMaterialInstance dragged = dragState.CurrentInstance;
+            if (dragged == null) {
                 return false;
             }
 
@@ -135,60 +177,45 @@ namespace SpaceFab.Research {
             // mid-drag, FillInSlot will reject the restore and the material is
             // lost. That requires a chamber to have actively deactivated the
             // source slot, which is a legitimate game-state outcome.
-            if (dragState.LiftedFromSlot != null) {
-                ResearchSlotUtility.FillInSlot(interfacerState, dragState.LiftedFromSlot, dragState.LiftedFromKind, dragState.CurrentlyDragging);
+            if (dragState.LiftedFromSlot != null && dragged.Material != null) {
+                ResearchSlotUtility.FillInSlot(interfacerState, dragState.LiftedFromSlot, dragState.LiftedFromKind, dragged.Material);
             }
 
+            ResearchMaterialInstanceUtility.Release(pool, dragged);
             EndDrag(dragState);
             return true;
         }
 
-        // Shared lift entry: stores the payload, captures the source slot if
-        // any, shows the drag preview, locks the cursor, and strips UI_Mask
-        // from the raycaster so the preview doesn't intercept its own hovers.
-        private static bool BeginDrag(ResearchDragState dragState, ChamberInterfacerState interfacerState, MaterialAsset material, ResearchSlot sourceSlot) {
-            dragState.CurrentlyDragging = material;
+        // Shared lift entry: stores the instance, parents it under DragRoot,
+        // remembers the source slot (if any), locks the cursor, and strips
+        // UI_Mask from the raycaster so the dragged Instance doesn't intercept
+        // its own hover events.
+        private static void BeginDrag(ResearchDragState dragState, ResearchMaterialInstance instance, ResearchSlot sourceSlot, ChamberSlotKind sourceKind) {
+            dragState.CurrentInstance = instance;
             dragState.LiftedFromSlot = sourceSlot;
-            dragState.LiftedFromKind = ChamberSlotKind.Primary;
+            dragState.LiftedFromKind = sourceKind;
 
-            // If the source is a slot, clear it. Resolving the kind first so
-            // a later cancel knows which slot to restore to.
-            if (sourceSlot != null) {
-                ChamberSlotKind? kindOpt = ChamberInterfacerUtility.KindOf(interfacerState, sourceSlot);
-                if (kindOpt.HasValue) {
-                    dragState.LiftedFromKind = kindOpt.Value;
-                    ResearchSlotUtility.FillInSlot(interfacerState, sourceSlot, kindOpt.Value, null);
-                } else {
-                    // Source slot isn't wired to the active chamber; treat as
-                    // free-floating so cancel doesn't try to restore.
-                    dragState.LiftedFromSlot = null;
-                }
+            if (instance != null && dragState.DragRoot != null) {
+                instance.transform.SetParent(dragState.DragRoot, false);
             }
 
-            if (dragState.DragRenderer != null) {
-                dragState.DragRenderer.gameObject.SetActive(true);
-                ResearchMaterialRigUtility.ApplyPropertiesToRig(dragState.DragRenderer, material);
-            }
             CursorHint.TryLock(dragState.DragCursor);
             if (dragState.Raycaster != null) {
                 dragState.Raycaster.eventMask &= ~LayerMasks.UI_Mask;
             }
-            return true;
         }
 
-        // Shared drag-end teardown: hides the preview, unlocks the cursor,
-        // restores the raycaster's UI_Mask, and clears runtime fields.
+        // Shared drag-end teardown: clears runtime state, unlocks the cursor,
+        // restores the raycaster's UI_Mask. Does NOT release the instance —
+        // each caller releases on its own path so swap semantics stay clean.
         private static void EndDrag(ResearchDragState dragState) {
-            dragState.CurrentlyDragging = null;
+            dragState.CurrentInstance = null;
             dragState.LiftedFromSlot = null;
-            if (dragState.DragRenderer != null) {
-                dragState.DragRenderer.gameObject.SetActive(false);
-            }
+            dragState.SlotHoveredOver = null;
             CursorHint.Unlock(dragState.DragCursor);
             if (dragState.Raycaster != null) {
                 dragState.Raycaster.eventMask |= LayerMasks.UI_Mask;
             }
-            dragState.SlotHoveredOver = null;
         }
     }
 }

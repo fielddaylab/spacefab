@@ -22,6 +22,7 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<ResearchMinigameState>()
                     .ReadWriteShared<ResearchSampleTrayState>()
                     .ReadWriteShared<ChamberInterfacerState>()
+                    .ReadWriteShared<BatteryChamberState>()
             );
         }
 
@@ -32,7 +33,10 @@ namespace SpaceFab.Research {
                 out ResearchMinigameState researchState,
                 out ResearchSampleTrayState trayState
             );
-            Find.State(out ChamberInterfacerState interfacerState);
+            Find.State(
+                out ChamberInterfacerState interfacerState,
+                out BatteryChamberState batteryChamberState
+                );
 
             researchState.AvailableMaterials.Clear();
             if (chapterState.CurrChapterDef != null) {
@@ -63,6 +67,14 @@ namespace SpaceFab.Research {
             // materials. Idempotent on re-entry — the utility clears any
             // previously-spawned gems before refilling.
             ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
+
+            // Init Battery Chamber
+            ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();
+            if (config != null)
+            {
+                batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
+                VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+            }
 
             // Activate the Battery chamber. This is the only chamber today;
             // when the station-transition system lands, this hardcoded

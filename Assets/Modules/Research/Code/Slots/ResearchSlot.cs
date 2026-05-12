@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SpaceFab.Research {
     /// <summary>
     /// A single material slot in the Research minigame. Holds zero or one
-    /// MaterialAsset and a visual representing the held material.
+    /// MaterialAsset and renders the held material via its own visual rig.
     /// The slot does not know whether it is Primary or Secondary, nor whether
     /// it is currently receptive to writes — that classification lives on
     /// ChamberInterfacerState and is owned by chamber-side systems.
@@ -15,6 +15,7 @@ namespace SpaceFab.Research {
     public class ResearchSlot : BatchedComponent, IRegistrationCallbacks {
         public Collider2D Region;
         public Transform Root;
+        public ResearchMaterialVisualRig Rig;
 
         // Drag-drop policy flags. AllowLift gates clicking the slot itself to
         // pull its current material back into a drag. AllowSwap gates dropping
@@ -37,8 +38,9 @@ namespace SpaceFab.Research {
 
     /// <summary>
     /// Logic for ResearchSlot. FillInSlot is the single insertion API; it gates
-    /// writes through ChamberInterfacerState's per-slot receptive flag and
-    /// raises the shared-state frame-flag so chamber systems can react.
+    /// writes through ChamberInterfacerState's per-slot receptive flag, updates
+    /// the slot's visual rig, and raises the shared-state frame-flag so chamber
+    /// systems can react.
     /// </summary>
     public static class ResearchSlotUtility {
         // Sets or clears the slot's held material. Returns true if the write
@@ -50,12 +52,13 @@ namespace SpaceFab.Research {
                 return false;
             }
 
-            if (material == null) {
-                // handle remove
-            }
-            else
-            {
-                // handle fill
+            slot.CurrentMaterial = material;
+            if (slot.Rig != null) {
+                if (material == null) {
+                    ResearchMaterialVisualRigUtility.ClearRig(slot.Rig);
+                } else {
+                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material);
+                }
             }
 
             ChamberInterfacerUtility.MarkSlotUpdated(interfacerState, kind, material);

@@ -19,6 +19,13 @@ namespace SpaceFab.Research {
         public float Spacing = 1f;
         public GameObject SamplePrefab;
 
+        // Box collider defining the tray's drop region. A dragged instance
+        // dropped anywhere inside this region returns to the pool, so the
+        // player can return materials to the tray without aiming at a specific
+        // source. The collider does not need to be on a specific Physics2D
+        // layer; the drag system tests it directly via OverlapPoint.
+        public Collider2D Region;
+
         [NonSerialized] public List<ResearchMaterialSource> SpawnedSamples;
 
         public void OnRegister() {
@@ -28,9 +35,7 @@ namespace SpaceFab.Research {
         }
 
         public void OnDeregister() {
-            // Tear down spawned gems before the state itself disappears so we
-            // don't leak GameObjects across scene transitions.
-            ResearchSampleTrayUtility.ClearTray(this);
+
         }
     }
 
@@ -58,9 +63,6 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            // 1. Clear existing samples so re-entry rebuilds without leaks.
-            ClearTray(trayState);
-
             // 2. Spawn one prefab per available material id.
             int index = 0;
             foreach (StringHash32 id in researchState.AvailableMaterials) {
@@ -70,47 +72,31 @@ namespace SpaceFab.Research {
                     continue;
                 }
 
-                GameObject go = UnityEngine.Object.Instantiate(trayState.SamplePrefab, trayState.Root);
+                GameObject sampleObj = UnityEngine.Object.Instantiate(trayState.SamplePrefab, trayState.Root);
 
-                // 2a. Wire the draggable source. CurrentSlot stays null because
-                // tray gems are free-floating until the player picks them up.
-                ResearchMaterialSource source = go.GetComponent<ResearchMaterialSource>();
+                // 2a. Wire the tray source. Sources are permanent fixtures;
+                // the player clicks them to allocate a draggable instance.
+                ResearchMaterialSource source = sampleObj.GetComponent<ResearchMaterialSource>();
                 if (source != null) {
                     source.Material = material;
-                    source.CurrentSlot = null;
                     trayState.SpawnedSamples.Add(source);
                 } else {
-                    Debug.LogWarningFormat(go, "[ResearchSampleTrayUtility] Spawned prefab is missing ResearchMaterialSource; tray gem will not be draggable.");
+                    Debug.LogWarningFormat(sampleObj, "[ResearchSampleTrayUtility] Spawned prefab is missing ResearchMaterialSource; tray gem will not be clickable.");
                 }
 
-                // 2b. Apply per-material visuals via the existing rig utility.
-                // Missing rig is non-fatal — a draggable without visuals still
-                // works for the drag loop.
-                ResearchMaterialRig rig = go.GetComponent<ResearchMaterialRig>();
+                // 2b. Apply per-material visuals via the rig utility. Missing
+                // rig is non-fatal — a source without visuals still works for
+                // click-to-lift, just invisible.
+                ResearchMaterialVisualRig rig = sampleObj.GetComponent<ResearchMaterialVisualRig>();
                 if (rig != null) {
-                    ResearchMaterialRigUtility.ApplyPropertiesToRig(rig, material);
+                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material);
                 }
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
-                go.transform.localPosition = new Vector3(0f, -index * trayState.Spacing, 0f);
+                sampleObj.transform.localPosition = new Vector3(0f, -index * trayState.Spacing, 0f);
                 index++;
             }
-        }
-
-        // Destroys every spawned sample tracked by trayState and empties the
-        // SpawnedSamples list. Safe to call on a never-spawned tray.
-        public static void ClearTray(ResearchSampleTrayState trayState) {
-            if (trayState == null || trayState.SpawnedSamples == null) {
-                return;
-            }
-            for (int i = 0; i < trayState.SpawnedSamples.Count; i++) {
-                ResearchMaterialSource source = trayState.SpawnedSamples[i];
-                if (source != null) {
-                    UnityEngine.Object.Destroy(source.gameObject);
-                }
-            }
-            trayState.SpawnedSamples.Clear();
         }
     }
 }

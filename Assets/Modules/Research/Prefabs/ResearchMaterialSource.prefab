@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 225497693090528233}
   - component: {fileID: 2010485440596895960}
+  - component: {fileID: 1805785733988124630}
   m_Layer: 21
   m_Name: ResearchMaterialSource
   m_TagString: Untagged
@@ -46,7 +47,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Region: {fileID: 4698981970785948948}
+  Rig: {fileID: 1805785733988124630}
   Material: {fileID: 0}
+--- !u!114 &1805785733988124630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486524057937747003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf1a27d7b9ad7d4392aaa0eeb418d58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Renderer: {fileID: 6376322997323427809}
+  RendererPosition: {fileID: 3998441583441573616}
+  ShadowRenderer: {fileID: 0}
+  ShadowPosition: {fileID: 0}
+  Label: {fileID: 0}
+  Highlight: {fileID: 0}
 --- !u!1 &4211921999223304170
 GameObject:
   m_ObjectHideFlags: 0

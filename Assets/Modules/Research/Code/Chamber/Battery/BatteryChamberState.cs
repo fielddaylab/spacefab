@@ -1,4 +1,5 @@
 using FieldDay.Components;
+using FieldDay.SharedState;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -6,14 +7,14 @@ using UnityEngine;
 namespace SpaceFab.Research
 {
     /// <summary>
-    /// Per-Battery state. Each Battery in the scene carries one of these.
+    /// Battery state.
     /// Holds scene-authored references (the slot kind it consumes, its
     /// circuit renderer, its voltage control), the static observation set
     /// the chip-picker UI will surface when this chamber is active, and a
     /// per-frame "voltage changed" flag set by VoltageUtility and consumed
     /// by BatteryChamberSystem.
     /// </summary>
-    public class BatteryChamberComponent : BatchedComponent
+    public class BatteryChamberState : SharedStateComponent
     {
         // Which slot kind on ChamberInterfacerState this Battery reads.
         // Battery is single-slot; defaults to Primary.

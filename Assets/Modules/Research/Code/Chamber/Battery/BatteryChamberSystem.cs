@@ -22,7 +22,7 @@ namespace SpaceFab.Research
                 new SysUpdate(GameLoopPhase.Update, 100, UpdateMasks.ResearchChamberMask),
                 new SysPermissions()
                     .ReadWriteShared<ChamberInterfacerState>()
-                    .ReadWrite<BatteryChamberComponent>()
+                    .ReadWriteShared<BatteryChamberState>()
                     .ReadWrite<CircuitRenderer>()
                     .ReadWrite<ResearchSlot>()
             );
@@ -36,28 +36,27 @@ namespace SpaceFab.Research
                 return;
             }
 
+            Find.State(out BatteryChamberState batteryChamberState);
+
             // Read once outside the per-Battery loop so the multi-Battery case
             // (unlikely today but cheap to support) doesn't re-poll the flag.
             bool slotChangedThisFrame = interfacerState.SlotMaterialUpdatedThisFrame;
             ChamberSlotKind changedKind = interfacerState.LastUpdatedKind;
 
-            foreach (BatteryChamberComponent battery in Find.Components<BatteryChamberComponent>())
+            bool slotDirty = slotChangedThisFrame && changedKind == batteryChamberState.SlotKind;
+            bool dirty = batteryChamberState.VoltageChangedThisFrame || slotDirty;
+
+            if (dirty)
             {
-                bool slotDirty = slotChangedThisFrame && changedKind == battery.SlotKind;
-                bool dirty = battery.VoltageChangedThisFrame || slotDirty;
-
-                if (dirty)
-                {
-                    UpdateBattery(interfacerState, battery);
-                }
-
-                battery.VoltageChangedThisFrame = false;
+                UpdateBattery(interfacerState, batteryChamberState);
             }
+
+            batteryChamberState.VoltageChangedThisFrame = false;
         }
 
         // Single-Battery update: read material + voltage, run stability, drive
         // visuals. Splits out of ProcessWork so the loop body stays linear.
-        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberComponent battery)
+        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState battery)
         {
             MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, battery.SlotKind);
             float voltage = battery.VoltageControl != null ? battery.VoltageControl.CurrentVoltage : 0f;

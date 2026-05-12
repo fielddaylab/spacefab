@@ -2,26 +2,25 @@ using FieldDay;
 using FieldDay.Components;
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace SpaceFab.Research
 {
     /// <summary>
-    /// UI for the Battery chamber's voltage dial. Three buttons step the
-    /// voltage index up/down and flip across the center. Holds the current
-    /// index + voltage; mutation goes through VoltageUtility, and a button
-    /// press flips OwningChamber.VoltageChangedThisFrame so the Battery
-    /// system recomputes on the next tick.
+    /// World-space UI for the Battery chamber's voltage dial. Three sprite
+    /// buttons step the voltage index up/down and flip across the center.
+    /// Holds the current index + voltage; mutation goes through VoltageUtility,
+    /// and a button press flips OwningChamber.VoltageChangedThisFrame so the
+    /// Battery system recomputes on the next tick.
     /// </summary>
     public class VoltageControl : BatchedComponent, IRegistrationCallbacks
     {
-        public Button IncreaseButton;
-        public Button DecreaseButton;
-        public Button FlipButton;
+        public ResearchSpriteButton IncreaseButton;
+        public ResearchSpriteButton DecreaseButton;
+        public ResearchSpriteButton FlipButton;
         public SpriteRenderer VoltageIcon;
         public Transform BatteryFlip;
 
-        public BatteryChamberComponent OwningChamber;
+        public BatteryChamberState OwningChamber;
         public bool CanAdjust = true;
 
         [NonSerialized] public int VoltageIndex;
@@ -29,40 +28,33 @@ namespace SpaceFab.Research
 
         public void OnRegister()
         {
-            ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();
-            if (config != null)
+            if (IncreaseButton != null && IncreaseButton.Cursor != null)
             {
-                VoltageIndex = config.DefaultIndex;
-                VoltageUtility.RefreshVisualState(this, config);
+                IncreaseButton.Cursor.onClick.Register(HandleIncrease);
             }
-
-            if (IncreaseButton != null)
+            if (DecreaseButton != null && DecreaseButton.Cursor != null)
             {
-                IncreaseButton.onClick.AddListener(HandleIncrease);
+                DecreaseButton.Cursor.onClick.Register(HandleDecrease);
             }
-            if (DecreaseButton != null)
+            if (FlipButton != null && FlipButton.Cursor != null)
             {
-                DecreaseButton.onClick.AddListener(HandleDecrease);
-            }
-            if (FlipButton != null)
-            {
-                FlipButton.onClick.AddListener(HandleFlip);
+                FlipButton.Cursor.onClick.Register(HandleFlip);
             }
         }
 
         public void OnDeregister()
         {
-            if (IncreaseButton != null)
+            if (IncreaseButton != null && IncreaseButton.Cursor != null)
             {
-                IncreaseButton.onClick.RemoveListener(HandleIncrease);
+                IncreaseButton.Cursor.onClick.Deregister(HandleIncrease);
             }
-            if (DecreaseButton != null)
+            if (DecreaseButton != null && DecreaseButton.Cursor != null)
             {
-                DecreaseButton.onClick.RemoveListener(HandleDecrease);
+                DecreaseButton.Cursor.onClick.Deregister(HandleDecrease);
             }
-            if (FlipButton != null)
+            if (FlipButton != null && FlipButton.Cursor != null)
             {
-                FlipButton.onClick.RemoveListener(HandleFlip);
+                FlipButton.Cursor.onClick.Deregister(HandleFlip);
             }
         }
 
