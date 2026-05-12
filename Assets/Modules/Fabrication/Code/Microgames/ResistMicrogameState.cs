@@ -53,6 +53,8 @@ namespace SpaceFab.Fabrication.Microgames
         public static void EnterComplete()
         {
             // TODO: start accepting Activate-press input.
+            Find.State(out ResistMicrogameState state);
+            state.InputAccepted = true;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
@@ -82,7 +84,6 @@ namespace SpaceFab.Fabrication.Microgames
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.
-        // Scaffold returns 0.
         private static float ComputePrecision()
         {
             Find.State(out ResistMicrogameState state);

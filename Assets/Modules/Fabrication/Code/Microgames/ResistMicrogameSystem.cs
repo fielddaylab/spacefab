@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,9 +36,12 @@ namespace SpaceFab.Fabrication.Microgames
             SweeperPosition.x = state.SweeperX;
             state.SweeperGraphic.position = SweeperPosition;
 
-            if (state.InputAccepted && Input.GetButtonDown("Activate"))
+            if (state.InputAccepted && Game.Input.IsKeyPressed(FabricationConsts.Activate))
             {
                 state.DropX = state.SweeperX;
+
+                Find.State(out StationControlState stationState);
+                stationState.ActiveInterfacer.CompletedThisFrame = true;
             }
         }
     }
