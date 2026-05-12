@@ -101,10 +101,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out ResistMicrogameState state);
             state.Phase = ResistMicrogamePhase.Exiting;
-            // TODO: freeze dropper.
-
-            state.ResistUI.SetActive(false);
-
+            
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());

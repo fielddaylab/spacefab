@@ -92,7 +92,7 @@ namespace SpaceFab.Fabrication.Microgames
             // animation finished, exit out
             if (accruedSpread >= 1f)
             {
-                state.Phase = ResistMicrogamePhase.Exiting;
+                ResistMicrogameUtility.ExitBegin(completedNormally: true);
             }
         }
 
