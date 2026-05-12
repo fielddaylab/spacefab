@@ -896,6 +896,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1316793691771253811, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
   m_PrefabInstance: {fileID: 699037342}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &683430573 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4234622222351680474, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &699037342
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2426,6 +2431,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActive: 0
+  TargetRange: 0
+  HalftWidth: 0
+  Sensitivity: 0
+  CurrentValue: 0
+  FurnaceUI: {fileID: 683430573}
 --- !u!114 &1858924072
 MonoBehaviour:
   m_ObjectHideFlags: 0

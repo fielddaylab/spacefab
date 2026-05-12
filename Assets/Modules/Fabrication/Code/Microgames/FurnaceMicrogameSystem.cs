@@ -24,10 +24,49 @@ namespace SpaceFab.Fabrication.Microgames
         // Early-returns when the microgame is not active. Active body is TODO until mechanics are authored.
         static private void ProcessWork(float deltaTime)
         {
-            Find.State(out FurnaceMicrogameState state);
-            if (!state.IsActive) { return; }
+            Find.State(out FurnaceMicrogameState microgameState);
+            if (!microgameState.IsActive) { return; }
+
+            switch (microgameState.Phase)
+            {
+                case FurnaceMicrogamePhase.Idle:
+                    break;
+                case FurnaceMicrogamePhase.Entering:
+                    break;
+                case FurnaceMicrogamePhase.Burning:
+                    ProcessingBurning(microgameState, deltaTime);
+                    break;
+                case FurnaceMicrogamePhase.Fueling:
+                    ProcessFueling(microgameState, deltaTime);
+                    break;
+                default:
+                    break;
+            }
+        }
 
             // TODO: read Activate-hold input; integrate heat value toward target; clamp to range.
+
+        #region Helpers
+
+        static bool keyDown = false;
+        private static void ProcessingBurning(FurnaceMicrogameState state, float deltaTime)
+        {
+            if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate)) {
+                state.CurrentValue += state.Sensitivity * deltaTime;
+                keyDown = true;
+            }
+            if (state.InputAccepted && Game.Input.IsKeyUp(FabricationConsts.Activate))
+            {
+                state.Phase = FurnaceMicrogamePhase.Fueling;
+                Debug.Log(state.CurrentValue);
+            }
         }
+
+        private static void ProcessFueling(FurnaceMicrogameState state, float deltaTime)
+        {
+            
+        }
+
+        #endregion // Helpers
     }
 }

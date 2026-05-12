@@ -7,12 +7,21 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
 {
+    public enum FurnaceMicrogamePhase
+    {
+        Idle,       // awaiting start
+        Entering,   // entering microgame
+        Fueling,   // waiting for player to hold button
+        Burning,  // animating meter moving into place
+        Exiting     // cleanup
+    }
+    
     /// <summary>
     /// Holds in-flight data for the Furnace ("Thermometer") microgame: the current heat value,
     /// the target range for the active step's process, and lifecycle flags consumed by
     /// FurnaceMicrogameSystem.
     /// </summary>
-    public class FurnaceMicrogameState : SharedStateComponent
+    public class FurnaceMicrogameState : SharedStateComponent, IRegistrationCallbacks
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // FurnaceMicrogameSystem reads this to gate its ProcessWork.
@@ -20,6 +29,24 @@ namespace SpaceFab.Fabrication.Microgames
 
         // TODO: current heat value, target range center + half-width (varies per process: Oxidation /
         // N-Type Doping / P-Type Doping).
+        public float TargetRange, MaxRange, HalfWidth, Sensitivity;
+        public float CurrentValue;
+
+        public bool InputAccepted;
+
+        public GameObject FurnaceUI;
+
+        public FurnaceMicrogamePhase Phase;
+
+        public void OnDeregister()
+        {
+        }
+
+        public void OnRegister()
+        {
+            // Disable UI on start
+            FurnaceUI.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -39,11 +66,17 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out FurnaceMicrogameState state);
             state.IsActive = true;
             // TODO: play intro (station name flash, spawn heat dial UI).
+            state.FurnaceUI.SetActive(true);
+            state.Phase = FurnaceMicrogamePhase.Entering;
         }
 
         public static void EnterComplete()
         {
+            Find.State(out FurnaceMicrogameState state);
+            
             // TODO: start accepting Activate-hold input; begin heat simulation.
+            state.InputAccepted = true;
+            state.Phase = FurnaceMicrogamePhase.Burning;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
