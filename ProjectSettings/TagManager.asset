@@ -50,12 +50,78 @@ TagManager:
   - name: GridOverlay
     uniqueID: 1497403345
     locked: 0
-  - name: UI
+  - name: Design_Blank4
     uniqueID: 264871581
     locked: 0
-  - name: Pop-Up UI
+  - name: Design_Blank5
     uniqueID: 1568843517
     locked: 0
-  - name: Shared UI
+  - name: Fabrication_Blank1
     uniqueID: 1447053067
+    locked: 0
+  - name: Fabrication_Blank2
+    uniqueID: 2343271065
+    locked: 0
+  - name: Fabrication_Blank3
+    uniqueID: 3836307279
+    locked: 0
+  - name: Fabrication_Blank4
+    uniqueID: 330957413
+    locked: 0
+  - name: Fabrication_Blank5
+    uniqueID: 4192320125
+    locked: 0
+  - name: Research_Blank1
+    uniqueID: 937666309
+    locked: 0
+  - name: Research_Blank2
+    uniqueID: 2161029431
+    locked: 0
+  - name: Research_Blank3
+    uniqueID: 4281428921
+    locked: 0
+  - name: Research_Blank4
+    uniqueID: 1052301453
+    locked: 0
+  - name: Research_Blank5
+    uniqueID: 3640798731
+    locked: 0
+  - name: Supply_Blank1
+    uniqueID: 1988389837
+    locked: 0
+  - name: Supply_Blank2
+    uniqueID: 3050371961
+    locked: 0
+  - name: Supply_Blank3
+    uniqueID: 2703306287
+    locked: 0
+  - name: Supply_Blank4
+    uniqueID: 395253121
+    locked: 0
+  - name: Supply_Blank5
+    uniqueID: 553282945
+    locked: 0
+  - name: Overarching_Blank1
+    uniqueID: 2334326059
+    locked: 0
+  - name: Overarching_Blank2
+    uniqueID: 946045133
+    locked: 0
+  - name: Overarching_Blank3
+    uniqueID: 3306869867
+    locked: 0
+  - name: Overarching_Blank4
+    uniqueID: 1966761349
+    locked: 0
+  - name: Overarching_Blank5
+    uniqueID: 2009844541
+    locked: 0
+  - name: UI
+    uniqueID: 1461900991
+    locked: 0
+  - name: Pop-Up UI
+    uniqueID: 3181999209
+    locked: 0
+  - name: Shared UI
+    uniqueID: 2868674659
     locked: 0
