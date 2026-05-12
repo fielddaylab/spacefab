@@ -28,16 +28,25 @@ namespace SpaceFab.Fabrication.Microgames
         // ResistMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
 
-        // TODO: dropper sweep X position, drop X position (recorded on Activate press), max offset.
-        [HideInInspector] public float SweeperX, DropX;
+        // current x position of dropper along sweep. Updated each fixedupdate by ResistMicrogameSystem
+        [HideInInspector] public float SweeperX;
 
+        // x position where player dropped resist.
+        [HideInInspector] public float DropX;
+
+        // inspector controls for sweeper movement over chip
         public float CenterX, MaxOffset, SweepSpeed;
 
-        public bool InputAccepted;
+        // true after EnterComplete fires
+        [HideInInspector] public bool InputAccepted;
 
         public GameObject ResistUI;
         public Transform SweeperGraphic;
+
+        public Transform SpreadingGraphic;
+
         public ResistMicrogamePhase Phase;
+        public float SpreadingSpeed;
 
         public void OnDeregister()
         {
@@ -47,6 +56,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             // Disable UI on start
             ResistUI.SetActive(false);
+            SpreadingGraphic.gameObject.SetActive(false);
         }
     }
 

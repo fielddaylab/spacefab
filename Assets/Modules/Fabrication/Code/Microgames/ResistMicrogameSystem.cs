@@ -4,6 +4,7 @@ using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.U2D;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
@@ -43,6 +44,7 @@ namespace SpaceFab.Fabrication.Microgames
                     ProcessSweeping(microgameState);
                     break;
                 case ResistMicrogamePhase.Spreading:
+                    ProcessSpreading(microgameState, deltaTime);
                     break;
                 default:
                     break;
@@ -54,21 +56,44 @@ namespace SpaceFab.Fabrication.Microgames
         // TODO: sweep dropper position; on Activate-press, record drop X and signal completion.
         private static void ProcessSweeping(ResistMicrogameState state)
         {
-            // TODO: sweep dropper position; on Activate-press, record drop X and signal completion.
+            // sweep dropper positional function
             state.SweeperX = state.MaxOffset * Mathf.Sin(Time.time * state.SweepSpeed) + state.CenterX;
 
-            Vector3 SweeperPosition = state.SweeperGraphic.position;
+            Vector3 SweeperPosition = state.SweeperGraphic.localPosition;
             SweeperPosition.x = state.SweeperX;
-            state.SweeperGraphic.position = SweeperPosition;
+            state.SweeperGraphic.localPosition = SweeperPosition;
 
+            // on player input, capture drop position and begin spreading phase
             if (state.InputAccepted && Game.Input.IsKeyPressed(FabricationConsts.Activate))
             {
                 state.DropX = state.SweeperX;
 
-                Find.State(out StationControlState stationState);
-                stationState.ActiveInterfacer.CompletedThisFrame = true;
+                // enable and set up spreading graphic
+                state.SpreadingGraphic.localScale = Vector3.zero;
+                state.SpreadingGraphic.gameObject.SetActive(true);
+
+                Vector3 spreadPosition = state.SpreadingGraphic.localPosition;
+                spreadPosition.x = state.DropX;
+                state.SpreadingGraphic.localPosition = spreadPosition;
+
+                accruedSpread = 0;
+
+                state.Phase = ResistMicrogamePhase.Spreading;
             }
-            // TODO: when input is pressed, set Phase to Spreading
+        }
+
+        static float accruedSpread = 0;
+        private static void ProcessSpreading(ResistMicrogameState state, float deltaTime)
+        {
+            accruedSpread += deltaTime * state.SpreadingSpeed;
+
+            state.SpreadingGraphic.transform.localScale = Vector3.one * accruedSpread;
+
+            // animation finished, exit out
+            if (accruedSpread >= 1f)
+            {
+                state.Phase = ResistMicrogamePhase.Exiting;
+            }
         }
 
         #endregion // Helpers
