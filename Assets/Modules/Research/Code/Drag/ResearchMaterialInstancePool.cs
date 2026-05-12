@@ -17,14 +17,14 @@ namespace SpaceFab.Research {
         public Transform PoolRoot;
         public int InitialPoolSize = 8;
 
-        [NonSerialized] public Stack<ResearchMaterialInstance> Free;
-        [NonSerialized] public List<ResearchMaterialInstance> Active;
+        [NonSerialized] public Stack<ResearchMaterialDragInstance> Free;
+        [NonSerialized] public List<ResearchMaterialDragInstance> Active;
 
         public void OnRegister() {
-            Free = new Stack<ResearchMaterialInstance>(InitialPoolSize);
-            Active = new List<ResearchMaterialInstance>(InitialPoolSize);
+            Free = new Stack<ResearchMaterialDragInstance>(InitialPoolSize);
+            Active = new List<ResearchMaterialDragInstance>(InitialPoolSize);
             for (int i = 0; i < InitialPoolSize; i++) {
-                ResearchMaterialInstance instance = ResearchMaterialInstanceUtility.Instantiate(this);
+                ResearchMaterialDragInstance instance = ResearchMaterialInstanceUtility.Instantiate(this);
                 if (instance != null) {
                     Free.Push(instance);
                 }
@@ -42,7 +42,7 @@ namespace SpaceFab.Research {
             }
             if (Free != null) {
                 while (Free.Count > 0) {
-                    ResearchMaterialInstance instance = Free.Pop();
+                    ResearchMaterialDragInstance instance = Free.Pop();
                     if (instance != null) {
                         UnityEngine.Object.Destroy(instance.gameObject);
                     }
@@ -62,13 +62,13 @@ namespace SpaceFab.Research {
         // Allocates an instance carrying the given material. originSource may
         // be null when the lift came from a slot rather than the tray.
         // Returns null only if the pool is misconfigured (no prefab / no root).
-        public static ResearchMaterialInstance Allocate(ResearchMaterialInstancePool pool, MaterialAsset material, ResearchMaterialSource originSource) {
+        public static ResearchMaterialDragInstance Allocate(ResearchMaterialInstancePool pool, MaterialAsset material, ResearchMaterialSource originSource) {
             if (pool == null || pool.InstancePrefab == null || pool.PoolRoot == null) {
                 Debug.LogWarning("[ResearchMaterialInstancePool] Pool is not configured; cannot allocate.");
                 return null;
             }
 
-            ResearchMaterialInstance instance = pool.Free.Count > 0 ? pool.Free.Pop() : Instantiate(pool);
+            ResearchMaterialDragInstance instance = pool.Free.Count > 0 ? pool.Free.Pop() : Instantiate(pool);
             if (instance == null) {
                 return null;
             }
@@ -84,7 +84,7 @@ namespace SpaceFab.Research {
         // Returns an instance to the pool. Clears state, hides the GameObject,
         // re-parents under PoolRoot. Safe to call on an instance that has
         // already been released (no-op if not on the active list).
-        public static void Release(ResearchMaterialInstancePool pool, ResearchMaterialInstance instance) {
+        public static void Release(ResearchMaterialInstancePool pool, ResearchMaterialDragInstance instance) {
             if (pool == null || instance == null) return;
 
             int idx = pool.Active.IndexOf(instance);
@@ -106,10 +106,10 @@ namespace SpaceFab.Research {
 
         // Spawns a new instance under PoolRoot, deactivated. Internal: used
         // by both initial fill and on-demand expansion.
-        internal static ResearchMaterialInstance Instantiate(ResearchMaterialInstancePool pool) {
+        internal static ResearchMaterialDragInstance Instantiate(ResearchMaterialInstancePool pool) {
             GameObject go = UnityEngine.Object.Instantiate(pool.InstancePrefab, pool.PoolRoot);
             go.SetActive(false);
-            ResearchMaterialInstance instance = go.GetComponent<ResearchMaterialInstance>();
+            ResearchMaterialDragInstance instance = go.GetComponent<ResearchMaterialDragInstance>();
             if (instance == null) {
                 Debug.LogWarning("[ResearchMaterialInstancePool] InstancePrefab has no ResearchMaterialInstance component.", go);
                 UnityEngine.Object.Destroy(go);

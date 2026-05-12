@@ -31,7 +31,7 @@ namespace SpaceFab.Research {
         // changing every slot.
         public bool AllowSwap = true;
 
-        [NonSerialized] public ResearchMaterialInstance CurrentInstance;
+        [NonSerialized] public ResearchMaterialDragInstance CurrentInstance;
         [NonSerialized] public ResearchSlot SlotHoveredOver;
         [NonSerialized] public ResearchSlot LiftedFromSlot;
         [NonSerialized] public ChamberSlotKind LiftedFromKind;
@@ -61,7 +61,7 @@ namespace SpaceFab.Research {
             if (source == null || source.Material == null) {
                 return false;
             }
-            ResearchMaterialInstance instance = ResearchMaterialInstanceUtility.Allocate(pool, source.Material, source);
+            ResearchMaterialDragInstance instance = ResearchMaterialInstanceUtility.Allocate(pool, source.Material, source);
             if (instance == null) {
                 return false;
             }
@@ -82,7 +82,7 @@ namespace SpaceFab.Research {
             }
 
             MaterialAsset material = slot.CurrentMaterial;
-            ResearchMaterialInstance instance = ResearchMaterialInstanceUtility.Allocate(pool, material, null);
+            ResearchMaterialDragInstance instance = ResearchMaterialInstanceUtility.Allocate(pool, material, null);
             if (instance == null) {
                 return false;
             }
@@ -111,7 +111,7 @@ namespace SpaceFab.Research {
             }
             ChamberSlotKind kind = kindOpt.Value;
 
-            ResearchMaterialInstance dragged = dragState.CurrentInstance;
+            ResearchMaterialDragInstance dragged = dragState.CurrentInstance;
             MaterialAsset draggedMaterial = dragged.Material;
 
             // 1. A swap requires the slot to be filled with a different
@@ -133,7 +133,7 @@ namespace SpaceFab.Research {
                 // for the swapped-out material. LiftedFromSlot becomes this
                 // slot so a later cancel restores the swapped material here.
                 ResearchMaterialInstanceUtility.Release(pool, dragged);
-                ResearchMaterialInstance newInstance = ResearchMaterialInstanceUtility.Allocate(pool, swap, null);
+                ResearchMaterialDragInstance newInstance = ResearchMaterialInstanceUtility.Allocate(pool, swap, null);
                 if (newInstance == null) {
                     EndDrag(dragState);
                     return true;
@@ -168,7 +168,7 @@ namespace SpaceFab.Research {
         // is restored. If the lift came from a Source (or has no origin), the
         // Instance is just released — the Source is unaffected.
         public static bool CancelCurrentDrag(ResearchDragState dragState, ChamberInterfacerState interfacerState, ResearchMaterialInstancePool pool) {
-            ResearchMaterialInstance dragged = dragState.CurrentInstance;
+            ResearchMaterialDragInstance dragged = dragState.CurrentInstance;
             if (dragged == null) {
                 return false;
             }
@@ -190,7 +190,7 @@ namespace SpaceFab.Research {
         // remembers the source slot (if any), locks the cursor, and strips
         // UI_Mask from the raycaster so the dragged Instance doesn't intercept
         // its own hover events.
-        private static void BeginDrag(ResearchDragState dragState, ResearchMaterialInstance instance, ResearchSlot sourceSlot, ChamberSlotKind sourceKind) {
+        private static void BeginDrag(ResearchDragState dragState, ResearchMaterialDragInstance instance, ResearchSlot sourceSlot, ChamberSlotKind sourceKind) {
             dragState.CurrentInstance = instance;
             dragState.LiftedFromSlot = sourceSlot;
             dragState.LiftedFromKind = sourceKind;

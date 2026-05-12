@@ -14,7 +14,7 @@ namespace SpaceFab.Research {
     /// the originating Source, if any, so cancel-paths can choose between
     /// "restore to slot" and "release without restore."
     /// </summary>
-    public class ResearchMaterialInstance : BatchedComponent, IRegistrationCallbacks {
+    public class ResearchMaterialDragInstance : BatchedComponent, IRegistrationCallbacks {
         public Collider2D Region;
         public ResearchMaterialVisualRig Rig;
 

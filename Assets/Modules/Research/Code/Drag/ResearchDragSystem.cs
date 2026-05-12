@@ -24,7 +24,7 @@ namespace SpaceFab.Research {
                     .ReadShared<ResearchSampleTrayState>()
                     .ReadWrite<ResearchSlot>()
                     .ReadWrite<ResearchMaterialSource>()
-                    .ReadWrite<ResearchMaterialInstance>()
+                    .ReadWrite<ResearchMaterialDragInstance>()
             );
         }
 
