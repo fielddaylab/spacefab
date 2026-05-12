@@ -7,12 +7,22 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
 {
+    public enum ResistMicrogamePhase
+    {
+        Idle,       // awaiting start
+        Entering,   // entering microgame
+        Sweeping,   // sweep dropper back and forth
+        Spreading,  // spread after player places resist
+        Exiting     // cleanup
+    }
+
+
     /// <summary>
     /// Holds in-flight data for the Photoresist ("Spin-Coat") microgame: the dropper's sweep
     /// position, the recorded drop offset from center, and lifecycle flags consumed by
     /// ResistMicrogameSystem.
     /// </summary>
-    public class ResistMicrogameState : SharedStateComponent
+    public class ResistMicrogameState : SharedStateComponent, IRegistrationCallbacks
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // ResistMicrogameSystem reads this to gate its ProcessWork.
@@ -27,6 +37,17 @@ namespace SpaceFab.Fabrication.Microgames
 
         public GameObject ResistUI;
         public Transform SweeperGraphic;
+        public ResistMicrogamePhase Phase;
+
+        public void OnDeregister()
+        {
+        }
+
+        public void OnRegister()
+        {
+            // Disable UI on start
+            ResistUI.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -48,20 +69,32 @@ namespace SpaceFab.Fabrication.Microgames
             // TODO: play intro; spawn dropper; begin left-right sweep.
             state.ResistUI.SetActive(true);
 
+            // init and show game UI
+            state.Phase = ResistMicrogamePhase.Entering;
+
+            // start playing intro, if applicable
         }
 
         public static void EnterComplete()
         {
-            // TODO: start accepting Activate-press input.
             Find.State(out ResistMicrogameState state);
+
+            // TODO: spawn dropper; begin left-right sweep.
+            // TODO: start accepting Activate-press input.
             state.InputAccepted = true;
+            state.Phase = ResistMicrogamePhase.Sweeping;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
         // On cancel, nothing is recorded.
         public static void ExitBegin(bool completedNormally)
         {
+            Find.State(out ResistMicrogameState state);
+            state.Phase = ResistMicrogamePhase.Exiting;
             // TODO: freeze dropper.
+
+            state.ResistUI.SetActive(false);
+
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
@@ -81,6 +114,7 @@ namespace SpaceFab.Fabrication.Microgames
             state.IsActive = false;
             // TODO: tear down dropper UI; return to idle.
             state.ResistUI.SetActive(false);
+            state.Phase = ResistMicrogamePhase.Idle;
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.

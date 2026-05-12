@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,16 +20,40 @@ namespace SpaceFab.Fabrication.Microgames
                 new SysUpdate(GameLoopPhase.FixedUpdate, 0, UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<ResistMicrogameState>()
+                    .ReadWriteShared<MicrogameCanvasState>()
             );
         }
 
         // Early-returns when the microgame is not active. Active body is TODO until mechanics are authored.
-        static private void ProcessWork(float deltaTime)
+        private static void ProcessWork(float deltaTime)
         {
-            Find.State(out ResistMicrogameState state);
-            if (!state.IsActive) { return; }
+            Find.State(
+                out ResistMicrogameState microgameState,
+                out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
+                );
+            if (!microgameState.IsActive) { return; }
 
+            switch (microgameState.Phase)
+            {
+                case ResistMicrogamePhase.Idle:
+                    break;
+                case ResistMicrogamePhase.Entering:
+                    break;
+                case ResistMicrogamePhase.Sweeping:
+                    ProcessSweeping(microgameState);
+                    break;
+                case ResistMicrogamePhase.Spreading:
+                    break;
+                default:
+                    break;
+            }
+        }
 
+        #region Helpers
+
+        // TODO: sweep dropper position; on Activate-press, record drop X and signal completion.
+        private static void ProcessSweeping(ResistMicrogameState state)
+        {
             // TODO: sweep dropper position; on Activate-press, record drop X and signal completion.
             state.SweeperX = state.MaxOffset * Mathf.Sin(Time.time * state.SweepSpeed) + state.CenterX;
 
@@ -43,6 +68,9 @@ namespace SpaceFab.Fabrication.Microgames
                 Find.State(out StationControlState stationState);
                 stationState.ActiveInterfacer.CompletedThisFrame = true;
             }
+            // TODO: when input is pressed, set Phase to Spreading
         }
+
+        #endregion // Helpers
     }
 }
