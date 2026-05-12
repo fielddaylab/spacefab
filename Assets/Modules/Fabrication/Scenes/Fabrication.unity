@@ -353,7 +353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &179909850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2989,6 +2989,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActive: 0
+  SweeperX: 0
+  DropX: 0
+  CenterX: 0
+  MaxOffset: 1.5
+  SweepSpeed: 1.5
+  InputAccepted: 0
+  ResistUI: {fileID: 0}
+  SweeperGraphic: {fileID: 750374356}
 --- !u!114 &1858924071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3466,10 +3474,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c94c3bd21e34154eb1f06b70e213377, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ResistGameUI: {fileID: 0}
-  m_DropperTransform: {fileID: 750374356}
-  dropperAmplitude: 1.5
-  dropperSpeed: 2
 --- !u!4 &2009709166 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 330872947077792637, guid: f6ebed0b4538a3e48b149cd5c56c8fb2, type: 3}

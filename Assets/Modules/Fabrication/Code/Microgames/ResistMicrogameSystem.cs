@@ -27,7 +27,18 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out ResistMicrogameState state);
             if (!state.IsActive) { return; }
 
+
             // TODO: sweep dropper position; on Activate-press, record drop X and signal completion.
+            state.SweeperX = state.MaxOffset * Mathf.Sin(Time.time * state.SweepSpeed) + state.CenterX;
+
+            Vector3 SweeperPosition = state.SweeperGraphic.position;
+            SweeperPosition.x = state.SweeperX;
+            state.SweeperGraphic.position = SweeperPosition;
+
+            if (state.InputAccepted && Input.GetButtonDown("Activate"))
+            {
+                state.DropX = state.SweeperX;
+            }
         }
     }
 }

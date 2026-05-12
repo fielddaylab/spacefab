@@ -19,6 +19,14 @@ namespace SpaceFab.Fabrication.Microgames
         [HideInInspector] public bool IsActive;
 
         // TODO: dropper sweep X position, drop X position (recorded on Activate press), max offset.
+        [HideInInspector] public float SweeperX, DropX;
+
+        public float CenterX, MaxOffset, SweepSpeed;
+
+        public bool InputAccepted;
+
+        public GameObject ResistUI;
+        public Transform SweeperGraphic;
     }
 
     /// <summary>
@@ -38,6 +46,8 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out ResistMicrogameState state);
             state.IsActive = true;
             // TODO: play intro; spawn dropper; begin left-right sweep.
+            state.ResistUI.SetActive(true);
+
         }
 
         public static void EnterComplete()
@@ -68,14 +78,19 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out ResistMicrogameState state);
             state.IsActive = false;
             // TODO: tear down dropper UI; return to idle.
+            state.ResistUI.SetActive(false);
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.
         // Scaffold returns 0.
         private static float ComputePrecision()
         {
-            // TODO: precision = 1 - (abs(dropX - centerX) / maxOffset), clamped to [0,1].
-            return 0f;
+            Find.State(out ResistMicrogameState state);
+
+            float precision = 1 - (Mathf.Abs(state.DropX - state.CenterX) / state.MaxOffset);
+            precision = Mathf.Clamp(precision, 0f, 1f);
+
+            return precision;
         }
     }
 }
