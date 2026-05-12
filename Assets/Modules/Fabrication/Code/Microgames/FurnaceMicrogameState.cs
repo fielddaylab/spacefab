@@ -29,13 +29,16 @@ namespace SpaceFab.Fabrication.Microgames
 
         // TODO: current heat value, target range center + half-width (varies per process: Oxidation /
         // N-Type Doping / P-Type Doping).
-        public float TargetRange, TargetHalfWidth, MaxRange, HalfWidth, Sensitivity;
+        // TargetRange determins position, TargetHalfWidth determines width for precision, MaxRange determines total meter range, Sensitivity determines rate heat increases, lower slower
+        public float TargetRange, TargetHalfWidth, MaxRange, Sensitivity;
         [HideInInspector] public float CurrentValue;
         [HideInInspector] public float FinalHeat;
 
         [HideInInspector] public bool InputAccepted;
 
+        // 2d sprites
         public GameObject FurnaceUI;
+        // indicators for internal values, rotate to show along meter
         public Transform TargetRangeAnchor, TargetArrowAnchor, MeterArrowAnchor;
 
         // Time to smooth meter moving to final heat value, lower is faster
@@ -91,7 +94,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out FurnaceMicrogameState state);
             
-            // TODO: start accepting Activate-hold input; begin heat simulation.
+            // start accepting Activate-hold input; begin heat simulation.
             state.InputAccepted = true;
             state.Phase = FurnaceMicrogamePhase.Burning;
         }
@@ -101,9 +104,10 @@ namespace SpaceFab.Fabrication.Microgames
         public static void ExitBegin(bool completedNormally)
         {
             Find.State(out FurnaceMicrogameState state);
+            
+            // freeze heat simulation
             state.Phase = FurnaceMicrogamePhase.Exiting;
             
-            // TODO: freeze heat simulation.
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
@@ -131,7 +135,6 @@ namespace SpaceFab.Fabrication.Microgames
         // range center. Scaffold returns 0.
         private static float ComputePrecision()
         {
-            // TODO: precision = 1 - (abs(finalHeat - targetCenter) / targetHalfWidth), clamped to [0,1].
             Find.State(out FurnaceMicrogameState state);
 
             float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.TargetHalfWidth);

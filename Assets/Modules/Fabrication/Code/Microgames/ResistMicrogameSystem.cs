@@ -53,15 +53,15 @@ namespace SpaceFab.Fabrication.Microgames
 
         #region Helpers
 
-        // TODO: sweep dropper position; on Activate-press, record drop X and signal completion.
+        // sweep dropper position; on Activate-press, record drop X and signal completion.
         private static void ProcessSweeping(ResistMicrogameState state)
         {
             // sweep dropper positional function
             state.SweeperX = state.MaxOffset * Mathf.Sin(Time.time * state.SweepSpeed) + state.CenterX;
 
-            Vector3 SweeperPosition = state.SweeperGraphic.localPosition;
+            Vector3 SweeperPosition = state.SweeperAnchor.localPosition;
             SweeperPosition.x = state.SweeperX;
-            state.SweeperGraphic.localPosition = SweeperPosition;
+            state.SweeperAnchor.localPosition = SweeperPosition;
 
             // on player input, capture drop position and begin spreading phase
             if (state.InputAccepted && Game.Input.IsKeyPressed(FabricationConsts.Activate))
@@ -82,6 +82,7 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
+        // animate a circle spreading over the chip starting at drop X; exit microgame once complete
         static float accruedSpread = 0;
         private static void ProcessSpreading(ResistMicrogameState state, float deltaTime)
         {

@@ -48,6 +48,7 @@ namespace SpaceFab.Fabrication.Microgames
 
         #region Helpers
 
+        // increments current value for duration player holds activation key, then sets final heat to value on release
         static bool keyDown = false;
         private static void ProcessingBurning(FurnaceMicrogameState state, float deltaTime)
         {
@@ -62,13 +63,14 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
+        // animates movement of the meter arrow to the final heat position, then triggers exit of microgame
         private static void ProcessFueling(FurnaceMicrogameState state, float deltaTime)
         {
             float targetPercentage = state.FinalHeat / state.MaxRange;
             float targetZRotation = -targetPercentage * 180;
             Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, targetZRotation));
 
-            // frame independent smoothing, probably replace later
+            // frame independent smoothing, probably make less expensive later
             float blend = 1f - Mathf.Pow(state.MeterSmoothing, deltaTime);
 
             state.MeterArrowAnchor.rotation = Quaternion.Slerp(

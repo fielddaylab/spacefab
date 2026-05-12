@@ -40,12 +40,15 @@ namespace SpaceFab.Fabrication.Microgames
         // true after EnterComplete fires
         [HideInInspector] public bool InputAccepted;
 
+        // 2D sprites
         public GameObject ResistUI;
-        public Transform SweeperGraphic;
-
+        // moving sweeper anchor over the chip
+        public Transform SweeperAnchor;
+        // circle spreading over chip
         public Transform SpreadingGraphic;
 
         public ResistMicrogamePhase Phase;
+        // time to animate spread, lower is slower
         public float SpreadingSpeed;
 
         public void OnDeregister()
