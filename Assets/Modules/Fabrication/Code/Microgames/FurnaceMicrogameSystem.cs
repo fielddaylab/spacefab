@@ -1,5 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.Stations;
+using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -81,7 +83,8 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (Quaternion.Angle(state.MeterArrowAnchor.rotation, targetRotation) < 0.1f) 
             {
-                FurnaceMicrogameUtility.ExitBegin(completedNormally: true);
+                Find.State(out StationControlState stationState);
+                MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
             }
         }
 

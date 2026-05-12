@@ -956,6 +956,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1064090435020291535, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+      propertyPath: m_Name
+      value: Sweeper Anchor
+      objectReference: {fileID: 0}
     - target: {fileID: 1096186380155069608, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2481,7 +2485,7 @@ MonoBehaviour:
   SweepSpeed: 2
   InputAccepted: 0
   ResistUI: {fileID: 699037345}
-  SweeperGraphic: {fileID: 699037344}
+  SweeperAnchor: {fileID: 699037344}
   SpreadingGraphic: {fileID: 543510071}
   Phase: 0
   SpreadingSpeed: 1
@@ -2501,8 +2505,7 @@ MonoBehaviour:
   TargetRange: 5
   TargetHalfWidth: 0
   MaxRange: 10
-  HalfWidth: 2
-  Sensitivity: 1
+  Sensitivity: 3
   CurrentValue: 0
   FinalHeat: 0
   InputAccepted: 0
@@ -2510,7 +2513,7 @@ MonoBehaviour:
   TargetRangeAnchor: {fileID: 177737468}
   TargetArrowAnchor: {fileID: 535970272}
   MeterArrowAnchor: {fileID: 685892763}
-  MeterSmoothing: 0.5
+  MeterSmoothing: 0.1
   Phase: 0
 --- !u!114 &1858924072
 MonoBehaviour:

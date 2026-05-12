@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.StationControl;
+using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.U2D;
@@ -93,7 +94,8 @@ namespace SpaceFab.Fabrication.Microgames
             // animation finished, exit out
             if (accruedSpread >= 1f)
             {
-                ResistMicrogameUtility.ExitBegin(completedNormally: true);
+                Find.State(out StationControlState stationState);
+                MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
             }
         }
 
