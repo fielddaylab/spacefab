@@ -3,6 +3,8 @@ using FieldDay.Scenes;
 using System;
 using UnityEngine;
 using FieldDay;
+using FieldDay.Assets;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -39,6 +41,7 @@ namespace SpaceFab.Comic {
             s_SharedPropertyBlock.SetColor("_RendererColor", Color);
             renderer.SetPropertyBlock(s_SharedPropertyBlock);
             renderer.sortingOrder = -10000;
+            renderer.sharedMaterial = renderer.sharedMaterial ?? AssetUtility.Editor.FindAsset<Material>("Sprites-Premultiplied");
 
             MeshData16<VertexP3U2> meshData = new MeshData16<VertexP3U2>(4, 6, MeshTopology.Triangles, false);
             meshData.AddQuad(new VertexP3U2() {

@@ -21,3 +21,10 @@ $wait 1
             ...
             Sucks to be him, there's money I could be making.
 {@PAL}      {quip}I had {wait 0.1}no role in this disaster! 
+
+:: FirstContractOpen
+@trigger    OnContractSelectOpen
+@cutscene
+@once
+{@PAL}      Just select the job you want to do and CONFIRM it!
+{@Player}   Thanks, PAL.

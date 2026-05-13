@@ -691,6 +691,7 @@ namespace FieldDay {
             // flush event queue
             Game.Events.Flush();
             Game.Gui.FlushCommands();
+            Game.Gui.FlushInputLayerChanges();
             Game.Files.Tick();
             Game.Audio.Update(Frame.UnscaledDeltaTime);
         }

@@ -2,6 +2,7 @@ using BeauRoutine;
 using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using SpaceFab.Design;
 using SpaceFab.Save;
@@ -80,6 +81,8 @@ namespace SpaceFab.Overarching
                 );
 
             yield return 0.5f;
+
+            ScriptUtility.Trigger("OnContractSelectOpen");
         }
 
         public static void LoadAvailableContractIntoOptionButton(ContractOptionButton optionBtn, ContractDef contract) 

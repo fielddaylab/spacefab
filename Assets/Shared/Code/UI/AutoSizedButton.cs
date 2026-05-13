@@ -10,6 +10,7 @@ namespace SpaceFab.UI {
         public Button Button;
         public LayoutSizeGroup Layout;
         public TMP_Text TextContent;
+        public Graphic ImageContent;
 
         [NonSerialized] private bool m_Clicked;
 

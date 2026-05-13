@@ -196,6 +196,10 @@ namespace SpaceFab.Narrative {
             m_CurrentLineFlags = flags; 
         }
 
+        protected override void OnThreadAcquired() {
+            base.OnThreadAcquired();
+        }
+
         protected override void OnThreadReleased() {
             if (m_IsVisible) {
                 m_IsVisible = false;
@@ -245,6 +249,7 @@ namespace SpaceFab.Narrative {
             Positioning.SetWidthDelta(m_FoldOutTransform, m_FoldOutWidthCollapsed);
 
             m_VisiblityGroup.gameObject.SetActive(true);
+            Game.Gui.PushPriority(m_InputLayer);
             yield return null;
 
             yield return m_FoldOutTransform.AnchorPosTo(m_FoldOutYPosDefault, 0.2f, Axis.Y).Ease(Curve.BackOut);
@@ -266,6 +271,7 @@ namespace SpaceFab.Narrative {
             m_IsVisible = false;
 
             m_VisiblityGroup.blocksRaycasts = false;
+            Game.Gui.PopPriority(m_InputLayer);
 
             yield return m_FoldOutTransform.AnchorPosTo(m_FoldOutYPosOffscreen, 0.2f, Axis.Y).Ease(Curve.BackIn);
 

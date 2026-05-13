@@ -10,5 +10,12 @@ namespace FieldDay.UI {
         static public bool IsInteractableByRaycaster(GameObject gameObject, PhysicsRaycaster raycaster) {
             return ((1 << gameObject.layer) & raycaster.finalEventMask) != 0;
         }
+
+        /// <summary>
+        /// Returns if the given GameObject is interactable via raycast.
+        /// </summary>
+        static public bool IsInteractableByRaycaster(GameObject gameObject, Physics2DRaycaster raycaster) {
+            return ((1 << gameObject.layer) & raycaster.finalEventMask) != 0;
+        }
     }
 }

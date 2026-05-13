@@ -7,8 +7,8 @@ using UnityEngine;
 
 namespace SpaceFab.Comic {
     public sealed class ComicCameraNode : MonoBehaviour, IEditModeOnly {
-        [Range(0.1f, 2048)]
-        public float ClipHeight = 16;
+        [Range(0.1f, 100)]
+        public float ClipHeight = 25;
 
 #if UNITY_EDITOR
 

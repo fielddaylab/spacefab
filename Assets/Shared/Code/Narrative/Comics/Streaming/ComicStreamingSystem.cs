@@ -14,7 +14,8 @@ namespace SpaceFab.Comic
     public class ComicStreamingSystem : SystemComponent
     {
         private const MeshUpdateFlags MeshUpdate_IgnoreAll = MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontResetBoneBounds | MeshUpdateFlags.DontNotifyMeshUsers;
-        
+        private const long TimeSliceMS = 3;
+
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&UpdateMeshStreaming,
                 new SysUpdate(GameLoopPhase.PreUpdate, 0).AllowDuringLoad(),
@@ -26,7 +27,7 @@ namespace SpaceFab.Comic
         static private unsafe void UpdateMeshStreaming(float dt) {
             Find.State(out ComicStreamingState streaming, out ComicResourcePool resourcePool);
 
-            long endTS = Frame.Timestamp() * TimeSpan.TicksPerMillisecond * 5;
+            long endTS = Frame.Timestamp() * TimeSpan.TicksPerMillisecond * TimeSliceMS;
             long currentTs;
             do {
                 if (RunMeshDecompressionStep(streaming, resourcePool)) {

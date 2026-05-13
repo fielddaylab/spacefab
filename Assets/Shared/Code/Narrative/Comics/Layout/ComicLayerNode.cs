@@ -1,6 +1,7 @@
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Assets;
 using FieldDay.Scenes;
 using System;
 using UnityEditor;
@@ -45,6 +46,7 @@ namespace SpaceFab.Comic {
             MeshRenderer renderer = GetComponent<MeshRenderer>();
             renderer.GetPropertyBlock(s_SharedPropertyBlock);
             s_SharedPropertyBlock.SetColor("_RendererColor", Color.white);
+            renderer.sharedMaterial = renderer.sharedMaterial ?? AssetUtility.Editor.FindAsset<Material>("Sprites-Premultiplied");
 
             MeshData16<VertexP3U2> meshData = new MeshData16<VertexP3U2>(4, 6, MeshTopology.Triangles, false);
             if (Image) {
