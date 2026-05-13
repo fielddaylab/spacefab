@@ -1,5 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
+using FieldDay.SharedState;
+using UnityEngine.UI;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -73,7 +75,107 @@ namespace SpaceFab.UI {
         //      NextPage.interactable = CanScrollPageWindowRight. Arrows stay visible at the
         //      ends (layout stays stable) but the `DynamicButton.interactable = false` plus
         //      a greyed-out sprite swap signals the disabled state.
-        static private void ProcessWork(float deltaTime) {
+        static private void ProcessWork(float deltaTime)
+        {
+            // 1.
+            Find.State(
+                out WikiState wikiState,
+                out WikiLayoutState layoutState,
+                out PlayerProgressState progressState
+                );
+                
+            if (Find.Components<WikiContent>().Count == 0) { return; }
+            WikiContent content = Find.Components<WikiContent>()[0];
+
+            if (Find.Components<WikiPools>().Count == 0) { return; }
+            WikiPools pools = Find.Components<WikiPools>()[0];
+
+            if (!wikiState.Transitioning) {
+                WikiLayoutUtility.ApplyExpandedSteadyState(layoutState, wikiState.Expanded);
+            }
+
+            if (!wikiState.Expanded) {
+                return;
+            }
+
+            // 2.
+            for (int i = 0; i < pools.TabActive.Count; i++) {
+                WikiButton tab = pools.TabActive[i];
+                if (tab.DynamicButton == null) { continue; }
+                bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
+
+                if (tab.DynamicButton != null) {
+                    tab.DynamicButton.image.color = selected ?
+                        tab.DynamicButton.colors.highlightedColor :
+                        tab.DynamicButton.colors.normalColor;
+                }
+            }
+
+            // 3.
+            WikiTabData activeTab = null;
+            if (content.Tabs != null && wikiState.ActiveTabIndex >= 0 && wikiState.ActiveTabIndex < content.Tabs.Length)
+            {
+                activeTab = content.Tabs[wikiState.ActiveTabIndex];
+            }
+
+            WikiPageData activePage = null;
+            if (activeTab != null && activeTab.Pages != null && wikiState.ActivePageIndex >= 0 && wikiState.ActivePageIndex < activeTab.Pages.Length)
+            {
+                activePage = activeTab.Pages[wikiState.ActivePageIndex];
+            }
+
+            if (layoutState.PageContentWidgets != null && activePage != null)
+            {
+                var widgets = layoutState.PageContentWidgets;
+
+                if (widgets.TitleText != null)
+                    widgets.TitleText.text = activePage.Title ?? string.Empty;
+
+                if (widgets.BodyText != null)
+                    widgets.BodyText.text = activePage.Body ?? string.Empty;
+
+                if (widgets.IllustrationImage != null) {
+                    bool hasIllustration = activePage.Illustration != null;
+                    widgets.IllustrationImage.sprite = hasIllustration ? activePage.Illustration : null;
+                    widgets.IllustrationImage.gameObject.SetActive(hasIllustration);
+                }
+            }
+
+            // 4.
+            for (int i = 0; i < pools.PageThumbActive.Count; i++) {
+                WikiButton thumb = pools.PageThumbActive[i];
+                if (thumb.DynamicButton == null) { continue; }
+
+                bool belongsToActiveTab = thumb.TabIndex == wikiState.ActiveTabIndex;
+                if (!belongsToActiveTab) {
+                    thumb.gameObject.SetActive(false);
+                    continue;
+                }
+
+                int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
+                bool isLocked = unlockedIndex == -1;
+                if (isLocked) {
+                    thumb.gameObject.SetActive(false);
+                    continue;
+                }
+
+                bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + content.PageWindowSize;
+                thumb.gameObject.SetActive(inWindow);
+
+                if (thumb.DynamicButton != null) {
+                    thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
+                        thumb.DynamicButton.colors.highlightedColor :
+                        thumb.DynamicButton.colors.normalColor;
+                }
+            }
+
+            // 5.
+            if (layoutState.PrevPage != null) {
+                layoutState.PrevPage.interactable = WikiUtility.CanScrollPageWindowLeft(wikiState);
+            }
+            if (layoutState.NextPage != null) {
+                layoutState.NextPage.interactable = WikiUtility.CanScrollPageWindowRight(wikiState, content, progressState);
+            }
         }
     }
 }

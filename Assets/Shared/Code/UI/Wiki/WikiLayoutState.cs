@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -31,6 +32,9 @@ namespace SpaceFab.UI {
         // Paginator scroll surface. Slid horizontally by anchoredPosition.x = -StartIndex *
         // PageThumbStride so off-window icons clip against the strip's UI Mask.
         public RectTransform PaginatorContent;
+
+        public Button PrevPage;
+        public Button NextPage;
 
         // Horizontal distance (in PaginatorContent's local space) between adjacent page-thumb
         // slots. Authored to match the prefab's thumb layout group spacing + cell width.
