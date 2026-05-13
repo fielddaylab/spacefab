@@ -1,13 +1,11 @@
 using FieldDay;
 using FieldDay.Systems;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Design {
     /// <summary>
-    /// Displays results after evaluating the player's design.
-    /// Runs on Update at order 0, no category mask. Currently a stub.
+    /// Processes result display requests for Simulate mode.
+    /// Reads/writes ResultState and shows the results panel when requested.
     /// </summary>
     public class ResultSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
@@ -18,8 +16,13 @@ namespace SpaceFab.Design {
             );
         }
 
-        // TODO: implement results display.
         static private void ProcessWork(float deltaTime) {
+            Find.State(out ResultState resultState);
+
+            if (resultState.DisplayRequestedThisFrame) {
+                resultState.DisplayRequestedThisFrame = false;
+                ResultStateUtility.ShowResults(resultState, resultState.AllCorrect);
+            }
         }
     }
 }
