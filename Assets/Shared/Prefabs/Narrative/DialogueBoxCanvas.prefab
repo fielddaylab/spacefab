@@ -753,6 +753,7 @@ GameObject:
   - component: {fileID: 5786229745675698318}
   - component: {fileID: 520875406869444080}
   - component: {fileID: 4476711363158437170}
+  - component: {fileID: 3877109186290050708}
   m_Layer: 5
   m_Name: DialogueBoxCanvas
   m_TagString: Untagged
@@ -837,7 +838,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &8652311881656777057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -917,6 +918,20 @@ MonoBehaviour:
   m_FoldOutCollapsedToHide:
   - {fileID: 7794518177625483861}
   - {fileID: 4655553912668337597}
+--- !u!114 &3877109186290050708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6210911571537687538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a57e4b302e053dc4b8227bf389f85bda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Packs:
+  - {fileID: 11400000, guid: 9945c525722a9aa488e8292cf78ffc3e, type: 2}
 --- !u!1 &6577443258732208028
 GameObject:
   m_ObjectHideFlags: 0

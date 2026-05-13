@@ -479,7 +479,7 @@ namespace FieldDay.Assets {
         public void UnloadStreamedPackage(StringHash32 packageId) {
             int index = IndexOfStreamingBundle(packageId);
             if (index < 0) {
-                Log.Warn("[AssetMgr] No streamed package with id '{0}' is loaded!");
+                Log.Warn("[AssetMgr] No streamed package with id '{0}' is loaded!", packageId);
                 return;
             }
 

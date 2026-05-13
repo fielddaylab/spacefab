@@ -97,12 +97,14 @@ namespace SpaceFab
 
         public static IEnumerator OnBeginLoading(SharedUIState uiState)
         {
-            uiState.IsLoading = true;
-            uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
-            InputState input = Find.State<InputState>();
-            Game.Input.PauseRaycasts();
-            InputUtility.SetInputEnabled(input, false);
-            CursorHint.TryLock(uiState.LoadingCursor);
+            if (!uiState.IsLoading) {
+                uiState.IsLoading = true;
+                uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
+                InputState input = Find.State<InputState>();
+                Game.Input.PauseRaycasts();
+                InputUtility.SetInputEnabled(input, false);
+                CursorHint.TryLock(uiState.LoadingCursor);
+            }
 
             uiState.FaderGroup.blocksRaycasts = true;
             uiState.FaderGroup.alpha = 1;

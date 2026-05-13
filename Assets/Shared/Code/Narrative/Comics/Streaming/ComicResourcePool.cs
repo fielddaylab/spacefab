@@ -59,6 +59,8 @@ namespace SpaceFab.Comic {
 
             Allocator = Unsafe.CreateArena(Unsafe.MiB * BufferSizeMiB, "Comics", Unsafe.AllocatorFlags.Default);
             MaskMeshBuilder = new MeshData16<ComicMeshVertex>(4, 6, MeshTopology.Triangles, false);
+
+            ActiveMeshes = new Dictionary<ushort, Mesh>(32);
         }
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
