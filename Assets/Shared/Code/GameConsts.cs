@@ -69,6 +69,9 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
+
+        // Wiki
+        public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
     }
 
     public static class UpdateMasks
@@ -103,9 +106,12 @@ namespace SpaceFab
 
         // research chambers (Battery, Thermal, Combiner, Junction)
         public const int ResearchChamberMask = 1 << 18;
-
+        
         // tutorial
         public const int TutorialMask = 1 << 19;
+
+        // shared UI
+        public const int WikiMask = 1 << 20;
     }
 
     static public class LayerMasks
