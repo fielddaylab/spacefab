@@ -4,6 +4,7 @@ using FieldDay.SharedState;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using static Unity.Mathematics.math;
 
@@ -16,6 +17,8 @@ namespace SpaceFab.Fabrication.Layout
         public CanvasGroup FaderGroup;
         public CanvasGroup PopupGroup;
         public CanvasGroup InstructionsGroup;
+        public GameObject SpaceSprite, LRArrowSprite, FullArrowSprite;
+        public TextMeshProUGUI InstructionTMP, SubtitleTMP;
 
         public void OnDeregister()
         {
