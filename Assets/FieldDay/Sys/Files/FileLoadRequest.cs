@@ -82,6 +82,16 @@ namespace FieldDay.Files {
                 CallbackContext = callbackContext
             };
         }
+
+        static public FileLoadRequest AssetBundle(string path, FileLocation location, FileReadHandler callback, object callbackContext = null) {
+            return new FileLoadRequest() {
+                Location = location,
+                Mode = FileBufferMode.AssetBundle,
+                Path = path,
+                Callback = callback,
+                CallbackContext = callbackContext
+            };
+        }
     }
 
     public delegate void FileReadHandler(FileLoadRequest request, FileLoadResult result, object context);
@@ -97,6 +107,7 @@ namespace FieldDay.Files {
         Buffer,
         Texture,
         AudioClip,
+        AssetBundle,
     }
 
     [Flags]
@@ -106,7 +117,7 @@ namespace FieldDay.Files {
         Texture_MarkNonReadable = 0x004,
 
         InfiniteRetries = 0x008,
-        PushToExhaustedQueueOnFailure = 0x010
+        PushToExhaustedQueueOnFailure = 0x010,
     }
 
     public readonly struct FileLoadResult {
@@ -203,6 +214,15 @@ namespace FieldDay.Files {
             Assert.True(Succeeded());
             DownloadHandlerTexture textureHandler = (DownloadHandlerTexture) Handler;
             return textureHandler.texture;
+        }
+
+        /// <summary>
+        /// Interprets the downloaded data as an AssetBundle.
+        /// </summary>
+        public AssetBundle ReadAssetBundle() {
+            Assert.True(Succeeded());
+            DownloadHandlerAssetBundle bundleHandler = (DownloadHandlerAssetBundle)Handler;
+            return bundleHandler.assetBundle;
         }
 
         /// <summary>

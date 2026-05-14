@@ -54,6 +54,8 @@ namespace FieldDay.UI {
         private readonly RingBuffer<IInputLayer> m_InputLayers = new RingBuffer<IInputLayer>(16, RingBufferMode.Expand);
         private CanvasSortKey m_CurrentInputPriority;
         private readonly RingBuffer<PriorityRecord> m_InputPriorityStack = new RingBuffer<PriorityRecord>(16, RingBufferMode.Expand);
+        private readonly HashSet<StringHash32> m_CurrentFocusGroups = new HashSet<StringHash32>(32);
+        private readonly HashSet<StringHash32> m_CurrentFrozenGroups = new HashSet<StringHash32>(32);
         private bool m_InputLayersDirty;
 
         private InputMgr m_InputMgr;
@@ -728,11 +730,11 @@ namespace FieldDay.UI {
 
         private void UpdateInputLayers() {
             foreach(var layer in m_InputLayers) {
-                layer.UpdateInputEnabled(EvaluateInputLayer(layer.InputMask, m_CurrentInputPriority));
+                layer.UpdateInputEnabled(EvaluateInputLayer(layer.InputMask, m_CurrentInputPriority, m_CurrentFocusGroups, m_CurrentFrozenGroups));
             }
         }
 
-        static private bool EvaluateInputLayer(InputLayerMask mask, CanvasSortKey minDepth) {
+        static private bool EvaluateInputLayer(InputLayerMask mask, CanvasSortKey minDepth, HashSet<StringHash32> focusGroups, HashSet<StringHash32> frozenGroups) {
             if ((mask.Flags & InputLayerFlags.ForceOff) != 0) {
                 return false;
             }
@@ -745,6 +747,14 @@ namespace FieldDay.UI {
                 return false;
             }
 
+            if (focusGroups.Count > 0 && !focusGroups.Contains(mask.GroupId)) {
+                return false;
+            }
+
+            if (frozenGroups.Contains(mask.GroupId)) {
+                return false;
+            }
+
             return true;
         }
 
@@ -752,7 +762,7 @@ namespace FieldDay.UI {
         /// Forces an input layer to recalculate its enabled state.
         /// </summary>
         public void ForceUpdate(IInputLayer layer) {
-            bool enabled = EvaluateInputLayer(layer.InputMask, m_CurrentInputPriority);
+            bool enabled = EvaluateInputLayer(layer.InputMask, m_CurrentInputPriority, m_CurrentFocusGroups, m_CurrentFrozenGroups);
             layer.UpdateInputEnabled(enabled);
         }
 
@@ -807,6 +817,42 @@ namespace FieldDay.UI {
 
             if (largestSortKey.RawValue != m_CurrentInputPriority.RawValue) {
                 m_CurrentInputPriority = largestSortKey;
+                m_InputLayersDirty = true;
+            }
+        }
+
+        /// <summary>
+        /// Freezes input for the given input gruop.
+        /// </summary>
+        public void PauseInputGroup(StringHash32 groupId) {
+            if (m_CurrentFrozenGroups.Add(groupId)) {
+                m_InputLayersDirty = true;
+            }
+        }
+
+        /// <summary>
+        /// Resumes input for the given input gruop.
+        /// </summary>
+        public void ResumeInputGroup(StringHash32 groupId) {
+            if (m_CurrentFrozenGroups.Remove(groupId)) {
+                m_InputLayersDirty = true;
+            }
+        }
+
+        /// <summary>
+        /// Focuses input for the given input gruop.
+        /// </summary>
+        public void FocusInputGroup(StringHash32 groupId) {
+            if (m_CurrentFocusGroups.Add(groupId)) {
+                m_InputLayersDirty = true;
+            }
+        }
+
+        /// <summary>
+        /// Unfocuses input for the given input gruop.
+        /// </summary>
+        public void UnfocusInputGroup(StringHash32 groupId) {
+            if (m_CurrentFocusGroups.Remove(groupId)) {
                 m_InputLayersDirty = true;
             }
         }

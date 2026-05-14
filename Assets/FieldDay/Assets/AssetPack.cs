@@ -15,16 +15,14 @@ namespace FieldDay.Assets {
     /// Default asset package.
     /// </summary>
     [CreateAssetMenu(menuName = "Field Day/Asset Pack", order = -300)]
-    public sealed class AssetPack : ScriptableObject, IAssetPackage {
+    public sealed class AssetPack : AssetPackBase {
         [SerializeField] private GlobalAsset[] m_GlobalAssets = Array.Empty<GlobalAsset>();
         [SerializeField] private NamedAsset[] m_NamedAssets = Array.Empty<NamedAsset>();
         [SerializeField] private LiteAssetGroup[] m_LiteAssets = Array.Empty<LiteAssetGroup>();
 
-        [NonSerialized] private int m_RefCount;
-
         #region IAssetPackage
 
-        void IAssetPackage.Mount(AssetMgr mgr) {
+        protected override void Mount(AssetMgr mgr) {
             foreach (var global in m_GlobalAssets) {
                 mgr.Register(global);
             }
@@ -38,7 +36,7 @@ namespace FieldDay.Assets {
             }
         }
 
-        void IAssetPackage.Unmount(AssetMgr mgr) {
+        protected override void Unmount(AssetMgr mgr) {
             foreach(var global in m_GlobalAssets) {
                 mgr.Deregister(global);
             }
@@ -52,22 +50,13 @@ namespace FieldDay.Assets {
             }
         }
 
-        bool IRefCountedAsset.AddRef() {
-            return (m_RefCount++) == 0;
-        }
-
-        bool IRefCountedAsset.RemoveRef() {
-            Assert.True(m_RefCount > 0, "Unbalanced AssetPack.AddRef/RemoveRef calls");
-            return (m_RefCount--) == 1;
-        }
-
-        bool IRefCountedAsset.IsReferenced() {
-            return m_RefCount > 0;
-        }
-
         #endregion // IAssetPackage
 
 #if UNITY_EDITOR
+
+        protected internal override void EditorRebuild() {
+            ReadFromEditorDirectory(this);
+        }
 
         /// <summary>
         /// Refreshes all assets for the given pack from the pack's editor directory.

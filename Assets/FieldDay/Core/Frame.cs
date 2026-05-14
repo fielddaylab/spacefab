@@ -89,6 +89,13 @@ namespace FieldDay {
             return Stopwatch.GetTimestamp() - s_TimestampOffset;
         }
 
+        /// <summary>
+        /// Returns an adjusted timestamp.
+        /// </summary>
+        static public long AdjustTimestamp(long timestamp, float seconds) {
+            return timestamp + (long)(seconds * Stopwatch.Frequency);
+        }
+
         #endregion // Timestamp
 
         #region Delta Time
