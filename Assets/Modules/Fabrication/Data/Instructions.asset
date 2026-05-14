@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: Instructions
   m_EditorClassIdentifier: 
   FurnaceKey: 0
-  FurnaceInstruction: 
-  FurnaceSubtitle: 
+  FurnaceInstruction: HOLD
+  FurnaceSubtitle: to raise temperature
   ResistKey: 0
-  ResistInstruction: 
-  ResistSubtitle: 
-  PhotolithographyKey: 0
-  PhotolithographyInstruction: 
-  PhotolithographySubtitle: 
-  EtchKey: 0
-  EtchInstruction: 
-  EtchSubtitle: 
-  IonKey: 0
-  IonInstruction: 
-  IonSubtitle: 
-  SputterKey: 0
-  SputterInstruction: 
-  SputterSubtitle: 
+  ResistInstruction: PRESS
+  ResistSubtitle: to apply photoresist
+  PhotolithographyKey: 1
+  PhotolithographyInstruction: ARROWS
+  PhotolithographySubtitle: to align pattern
+  EtchKey: 2
+  EtchInstruction: ARROWS
+  EtchSubtitle: to trace path
+  IonKey: 3
+  IonInstruction: MOUSE
+  IonSubtitle: to sputter pattern
+  SputterKey: 4
+  SputterInstruction: KEYS
+  SputterSubtitle: to aim particles

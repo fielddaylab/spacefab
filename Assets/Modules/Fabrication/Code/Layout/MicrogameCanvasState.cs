@@ -17,8 +17,9 @@ namespace SpaceFab.Fabrication.Layout
         public CanvasGroup FaderGroup;
         public CanvasGroup PopupGroup;
         public CanvasGroup InstructionsGroup;
-        public GameObject SpaceSprite, LRArrowSprite, FullArrowSprite;
+        public GameObject SpaceSprite, LRArrowSprite, FullArrowSprite, ADArrowSprite;
         public TextMeshProUGUI InstructionTMP, SubtitleTMP;
+        public InstructionsLookup InstructionsLookup;
 
         public void OnDeregister()
         {
