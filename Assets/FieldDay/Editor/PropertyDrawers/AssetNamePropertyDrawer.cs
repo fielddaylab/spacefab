@@ -10,7 +10,7 @@ using UnityEngine;
 namespace FieldDay.Editor {
     [CustomPropertyDrawer(typeof(AssetNameAttribute), true)]
     public class AssetNamePropertyDrawer : PropertyDrawer {
-        private const double RebuildCacheDelay = 15;
+        private const double RebuildCacheDelay = 1;
 
         private struct SimpleCacheEntry {
             public double LastUpdateTime;
@@ -96,10 +96,10 @@ namespace FieldDay.Editor {
                 return;
             }
 
+            double currentTime = EditorApplication.timeSinceStartup;
             long typeHandle = attribute.AssetType.TypeHandle.Value.ToInt64();
             SimpleCacheEntry cache = s_HashCache.Read(typeHandle);
             double lastTime = cache.LastUpdateTime;
-            double currentTime = EditorApplication.timeSinceStartup;
             bool cacheUpdated = false;
             if (lastTime == 0 || (currentTime - lastTime) > RebuildCacheDelay) {
                 cache.LastUpdateTime = currentTime;

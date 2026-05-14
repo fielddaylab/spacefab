@@ -56,7 +56,6 @@ namespace FieldDay {
     /// Game loop manager.
     /// </summary>
     [DefaultExecutionOrder(-23000), DisallowMultipleComponent]
-    [Il2CppEagerStaticClassConstruction]
     public sealed class GameLoop : MonoBehaviour, ICameraPreCullCallback, ICameraPostRenderCallback, ICameraPreRenderCallback {
         #region Types
 
@@ -77,7 +76,7 @@ namespace FieldDay {
         private int m_TargetFramerate = 60;
 
         [SerializeField]
-        private LanguageId m_DefaultLanguage = LanguageId.English;
+        private LanguageId m_DefaultLanguage = Languages.English;
 
         [SerializeField]
         private Sprite m_DefaultPixelSprite;
@@ -125,7 +124,7 @@ namespace FieldDay {
         };
 
         [SerializeField]
-        private AssetPack[] m_GlobalAssetPacks = Array.Empty<AssetPack>();
+        private AssetPackBase[] m_GlobalAssetPacks = Array.Empty<AssetPackBase>();
 
         #endregion // Inspector
 
@@ -305,6 +304,7 @@ namespace FieldDay {
 
                 Log.Msg("[GameLoop] Creating asset manager...");
                 Game.Assets = new AssetMgr();
+                Game.Assets.Initialize();
 
                 Log.Msg("[GameLoop] Creating localization manager...");
                 Game.Localization = new LocMgr();
@@ -395,7 +395,7 @@ namespace FieldDay {
 
                 foreach(var pack in m_GlobalAssetPacks) {
 #if UNITY_EDITOR
-                    AssetPack.ReadFromEditorDirectory(pack);
+                    pack.EditorRebuild();
 #endif // UNITY_EDITOR
                     Game.Assets.LoadPackage(pack);
                 }
@@ -691,6 +691,7 @@ namespace FieldDay {
             // flush event queue
             Game.Events.Flush();
             Game.Gui.FlushCommands();
+            Game.Gui.FlushInputLayerChanges();
             Game.Files.Tick();
             Game.Audio.Update(Frame.UnscaledDeltaTime);
         }

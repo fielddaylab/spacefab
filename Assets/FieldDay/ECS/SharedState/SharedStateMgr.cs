@@ -19,7 +19,6 @@ namespace FieldDay.SharedState {
         static private readonly StaticInjector<SharedStateReferenceAttribute, ISharedState> s_StaticInjector = new StaticInjector<SharedStateReferenceAttribute, ISharedState>();
 
         private ISharedState[] m_StateMap = new ISharedState[SharedStateIndex.Capacity];
-        private readonly HashSet<ISharedState> m_StateSet = new HashSet<ISharedState>(32);
 
         internal SharedStateMgr() { }
 
@@ -36,7 +35,6 @@ namespace FieldDay.SharedState {
 
             Assert.True(m_StateMap[index] == null, "[SharedStateMgr] Shared state of type '{0}' already registered", stateType);
             m_StateMap[index] = state;
-            m_StateSet.Add(state);
 
             s_StaticInjector.Inject(state);
             RegistrationCallbacks.InvokeRegister(state);
@@ -54,7 +52,6 @@ namespace FieldDay.SharedState {
 
             if (m_StateMap[index] == state) {
                 m_StateMap[index] = null;
-                m_StateSet.Remove(state);
 
                 s_StaticInjector.Remove(state);
                 RegistrationCallbacks.InvokeDeregister(state);
@@ -66,12 +63,14 @@ namespace FieldDay.SharedState {
         /// Clears all ISharedState instances.
         /// </summary>
         public void Clear() {
-            foreach(var state in m_StateSet) {
-                s_StaticInjector.Remove(state);
-                RegistrationCallbacks.InvokeDeregister(state);
+            for(int i = SharedStateIndex.Count; i-- > 0;) {
+                var state = m_StateMap[i];
+                if (state != null) {
+                    m_StateMap[i] = null;
+                    s_StaticInjector.Remove(state);
+                    RegistrationCallbacks.InvokeDeregister(state);
+                }
             }
-            m_StateSet.Clear();
-            Array.Clear(m_StateMap, 0, m_StateMap.Length);
         }
 
         #endregion // Add/Remove
@@ -162,49 +161,6 @@ namespace FieldDay.SharedState {
             return index < m_StateMap.Length ? m_StateMap[index] != null : false;
         }
 
-        /// <summary>
-        /// Looks up all shared states that pass the given predicate.
-        /// </summary>
-        public int LookupAll(Predicate<ISharedState> predicate, List<ISharedState> sharedStates) {
-            int found = 0;
-            foreach(var state in m_StateSet) {
-                if (predicate(state)) {
-                    sharedStates.Add(state);
-                    found++;
-                }
-            }
-            return found;
-        }
-
-        /// <summary>
-        /// Looks up all shared states that implement the given interface or class.
-        /// </summary>
-        public int LookupAll<T>(List<T> sharedStates) where T : class {
-            int found = 0;
-            foreach (var state in m_StateSet) {
-                T casted = state as T;
-                if (casted != null) {
-                    sharedStates.Add(casted);
-                    found++;
-                }
-            }
-            return found;
-        }
-
-        /// <summary>
-        /// Looks up all shared states that pass the given predicate.
-        /// </summary>
-        public int LookupAll<U>(Predicate<ISharedState, U> predicate, U predicateArg, List<ISharedState> sharedStates) {
-            int found = 0;
-            foreach (var state in m_StateSet) {
-                if (predicate(state, predicateArg)) {
-                    sharedStates.Add(state);
-                    found++;
-                }
-            }
-            return found;
-        }
-
         #endregion // Lookup
 
         #region Require
@@ -268,7 +224,6 @@ namespace FieldDay.SharedState {
         #region Events
 
         internal void Shutdown() {
-            m_StateSet.Clear();
             Array.Clear(m_StateMap, 0, m_StateMap.Length);
         }
 

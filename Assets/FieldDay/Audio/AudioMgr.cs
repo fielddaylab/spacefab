@@ -243,7 +243,7 @@ namespace FieldDay.Audio {
             }
 
             if (DebugFlags.IsFlagSet(DebuggingFlags.DisplayVoiceList)) {
-                using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                using (PooledStringBuilder psb = PooledStringBuilder.CreateLarge()) {
                     psb.Builder.Append("Voice Count: ").AppendNoAlloc(m_ActiveVoices.Count);
                     foreach (var voice in m_ActiveVoices) {
                         psb.Builder.Append("\n   ").Append(voice.DebugName);
@@ -310,7 +310,7 @@ namespace FieldDay.Audio {
             }
 
             if (DebugFlags.IsFlagSet(DebuggingFlags.DisplayStreamList)) {
-                using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                using (PooledStringBuilder psb = PooledStringBuilder.CreateLarge()) {
                     psb.Builder.Append("Stream Count: ").AppendNoAlloc(m_ActiveStreamedClips.Count);
                     foreach (var clip in m_ActiveStreamedClips) {
                         psb.Builder.Append("\n   ").Append(clip.Path);

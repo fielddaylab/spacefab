@@ -106,7 +106,7 @@ namespace FieldDay.Rendering {
         }
 
         /// <summary>
-        /// Returns if the given camera is a game camera.
+        /// Returns if the given camera is an overlay camera.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public bool IsOverlayCamera(Camera camera) {

@@ -14,6 +14,8 @@ namespace FieldDay.Collections {
         int Count { get; }
         int Capacity { get; }
         ref T this[int index] { get; }
+        int IndexOf(T item);
+        T[] ToArray();
     }
 
     [Il2CppEagerStaticClassConstruction]
@@ -60,6 +62,11 @@ namespace FieldDay.Collections {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int IndexOf(T item) {
+            return Array.IndexOf(m_Array, item, 0, m_Count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CleanUp() {
             Array.Clear(m_Array, 0, m_Array.Length);
             m_Count = 0;
@@ -70,6 +77,16 @@ namespace FieldDay.Collections {
             if (m_Array.Length < capacity) {
                 Array.Resize(ref m_Array, Mathf.Max(4, Mathf.NextPowerOfTwo(capacity)));
             }
+        }
+
+        public T[] ToArray() {
+            if (m_Count <= 0) {
+                return Array.Empty<T>();
+            }
+
+            T[] copy = new T[m_Count];
+            Array.Copy(m_Array, copy, m_Count);
+            return copy;
         }
     }
 }

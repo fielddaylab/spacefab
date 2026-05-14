@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay.Assets;
+using FieldDay.Collections;
 using FieldDay.Components;
 using ScriptableBake;
 using System;
@@ -21,8 +22,9 @@ namespace FieldDay.UI {
 
         protected virtual void Awake() {
             m_Mask.GroupId = m_GroupId;
+            m_Mask.LayerMask = (1 << gameObject.layer);
 
-            CacheRaycasters();
+            m_Raycasters = m_Raycasters ?? Array.Empty<BaseRaycaster>();
             if (m_Raycasters.Length > 0) {
                 m_InputEnabled = m_Raycasters[0].enabled;
                 for(int i = 1; i < m_Raycasters.Length; i++) {
@@ -57,25 +59,38 @@ namespace FieldDay.UI {
             }
         }
 
-        protected void CacheRaycasters() {
-            if (m_Raycasters == null || m_Raycasters.Length == 0) {
-                m_Raycasters = GetComponentsInChildren<BaseRaycaster>();
+#if UNITY_EDITOR
+        static private BaseRaycaster[] GatherRaycasters(GameObject root, IInputLayer ignore) {
+            using(TempReferenceBuffer<BaseRaycaster> raycasterBuff = TempReferenceBuffer<BaseRaycaster>.Create()) {
+                DeepTraverse(raycasterBuff, root, ignore);
+                return raycasterBuff.ToArray();
             }
         }
 
-#if UNITY_EDITOR
-        private void OnValidate() {
-            if (Application.IsPlaying(this)) {
+        static private void DeepTraverse(TempReferenceBuffer<BaseRaycaster> buffer, GameObject go, IInputLayer ignore) {
+            if (go.TryGetComponent(out IInputLayer inputLayer) && inputLayer != ignore) {
                 return;
             }
 
-            m_Raycasters = GetComponentsInChildren<BaseRaycaster>();
+            if (go.TryGetComponent(out BaseRaycaster raycaster)) {
+                buffer.Add(raycaster);
+            }
+
+            int childCount = go.transform.childCount;
+            int childIndex = 0;
+            while(childIndex < childCount) {
+                DeepTraverse(buffer, go.transform.GetChild(childIndex++).gameObject, ignore);
+            }
         }
 
         [ContextMenu("Find Child Raycasters")]
-        private void Reset() {
-            m_Raycasters = GetComponentsInChildren<BaseRaycaster>();
+        private void GenerateRaycasterList() {
+            m_Raycasters = GatherRaycasters(gameObject, this);
             Baking.SetDirty(this);
+        }
+
+        private void Reset() {
+            GenerateRaycasterList();
         }
 #endif // UNITY_EDITOR
     }
