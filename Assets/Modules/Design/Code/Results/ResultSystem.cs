@@ -20,7 +20,7 @@ namespace SpaceFab.Design
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 2, UpdateMasks.SimulateModeMask),
+                new SysUpdate(GameLoopPhase.Update, 3, UpdateMasks.SimulateModeMask),
                 new SysPermissions()
                     .ReadWriteShared<ResultState>()
                     .ReadShared<SimulateUIState>()
