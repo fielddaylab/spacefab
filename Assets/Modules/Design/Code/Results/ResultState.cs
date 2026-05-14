@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using BeauRoutine;
-using FieldDay;
+﻿using FieldDay;
 using FieldDay.SharedState;
-using FieldDay.Systems;
 using SpaceFab.UI;
 using TMPro;
 using UnityEngine;
@@ -14,16 +11,11 @@ namespace SpaceFab.Design
     /// </summary>
     public class ResultState : SharedStateComponent, IRegistrationCallbacks
     {
-        [HideInInspector] public bool DisplayRequestedThisFrame;
-        [HideInInspector] public bool AllCorrect;
-
         public CanvasGroup ResultsGroup;
         public TextMeshProUGUI TitleText;
         public TextMeshProUGUI SummaryText;
         public DynamicButton DismissButton;
         public DynamicButton RetryButton;
-
-        [HideInInspector] public Routine ResultsTransitionRoutine;
 
         public void OnRegister()
         {
@@ -31,31 +23,45 @@ namespace SpaceFab.Design
 
             if (DismissButton != null)
             {
-                DismissButton.onClick.AddListener(() => ResultStateUtility.HideResults(this));
+                DismissButton.onClick.AddListener(OnDismissClicked);
             }
 
             if (RetryButton != null)
             {
-                RetryButton.onClick.AddListener(() => {
-                    ResultStateUtility.HideResults(this);
-                    // Hook into Simulate-mode rerun logic from the caller if needed.
-                });
+                RetryButton.onClick.AddListener(OnRetryClicked);
             }
         }
 
         public void OnDeregister()
         {
-            ResultsTransitionRoutine.Stop();
-
             if (DismissButton != null)
             {
-                DismissButton.onClick.RemoveAllListeners();
+                DismissButton.onClick.RemoveListener(OnDismissClicked);
             }
 
             if (RetryButton != null)
             {
-                RetryButton.onClick.RemoveAllListeners();
+                RetryButton.onClick.RemoveListener(OnRetryClicked);
             }
+        }
+
+        private void OnDismissClicked()
+        {
+            // Set the request flag so SimulateModeSystem.ProcessSuiteComplete transitions
+            // to Idle on its next tick. Hide the panel immediately so it doesn't linger.
+            Find.State(out SimulateRunState runState);
+            runState.DismissResultsRequested = true;
+            ResultStateUtility.SetEnabledResultsGroup(this, false);
+        }
+
+        private void OnRetryClicked()
+        {
+            // Hide panel immediately, then queue a full-suite rerun.
+            // SimulateModeSystem.ProcessSuiteComplete picks up PlayFullSuiteRequested
+            // on its next tick and transitions to PreparingTest.
+            Find.State(out SimulateRunState runState);
+            ResultStateUtility.SetEnabledResultsGroup(this, false);
+            runState.PlayFullSuiteRequested = true;
         }
     }
 
@@ -70,8 +76,7 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
         }
-
-        public static void ShowResults(ResultState resultState, bool allCorrect = false)
+        public static void ShowResults(ResultState resultState, bool allCorrect)
         {
             if (resultState.TitleText != null)
             {
@@ -80,27 +85,13 @@ namespace SpaceFab.Design
 
             if (resultState.SummaryText != null)
             {
-                resultState.SummaryText.SetText(allCorrect ? "All outputs matched the expected values." : "Some outputs were incorrect or unstable.");
+                resultState.SummaryText.SetText(
+                    allCorrect
+                        ? "All outputs matched the expected values."
+                        : "Some outputs were incorrect or unstable.");
             }
 
-            resultState.ResultsTransitionRoutine.Replace(ShowResultsRoutine(resultState));
-        }
-
-        public static void HideResults(ResultState resultState)
-        {
-            resultState.ResultsTransitionRoutine.Replace(HideResultsRoutine(resultState));
-        }
-
-        private static IEnumerator ShowResultsRoutine(ResultState resultState)
-        {
             SetEnabledResultsGroup(resultState, true);
-            yield break;
-        }
-
-        private static IEnumerator HideResultsRoutine(ResultState resultState)
-        {
-            SetEnabledResultsGroup(resultState, false);
-            yield break;
         }
     }
 }
