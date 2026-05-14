@@ -5,6 +5,7 @@
 using BeauUtil;
 using FieldDay.SharedState;
 using System;
+using System.Diagnostics;
 using UnityEngine.Scripting;
 
 namespace FieldDay.Systems {
@@ -12,6 +13,8 @@ namespace FieldDay.Systems {
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
 #if DEVELOPMENT
     [Preserve]
+#else
+    [Conditional("___UNUSED")]
 #endif // DEVELOPMENT
     public sealed class SysUpdateAttribute : Attribute {
         public readonly SysUpdate Info;

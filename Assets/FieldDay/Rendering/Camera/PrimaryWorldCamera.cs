@@ -5,7 +5,7 @@ namespace FieldDay.Rendering {
     /// Sets the given camera as the primary world camera.
     /// </summary>
     [DisallowMultipleComponent, RequireComponent(typeof(Camera))]
-    [DefaultExecutionOrder(-10000)]
+    [DefaultExecutionOrder(-21000)]
     public sealed class PrimaryWorldCamera : MonoBehaviour {
         private void OnEnable() {
             Game.Rendering.SetPrimaryCamera(GetComponent<Camera>());

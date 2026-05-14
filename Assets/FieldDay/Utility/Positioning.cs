@@ -221,6 +221,22 @@ namespace FieldDay {
 
         #endregion // Pivot
 
+        #region Size Delta
+
+        static public void SetWidthDelta(RectTransform rect, float widthDelta) {
+            Vector2 sizeDelta = rect.sizeDelta;
+            sizeDelta.x = widthDelta;
+            rect.sizeDelta = sizeDelta;
+        }
+
+        static public void SetHeightDelta(RectTransform rect, float heightDelta) {
+            Vector2 sizeDelta = rect.sizeDelta;
+            sizeDelta.y = heightDelta;
+            rect.sizeDelta = sizeDelta;
+        }
+
+        #endregion // Size Delta
+
         #region Horizontal Layout
 
         /// <summary>

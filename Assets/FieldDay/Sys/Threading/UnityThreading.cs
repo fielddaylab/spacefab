@@ -94,9 +94,6 @@ namespace FieldDay.Threading {
         }
 
         private void FreeHandle(AtomicSafetyHandle handle) {
-            if (m_AllocatedHandles >= m_Handles.Length) {
-                throw new InsufficientMemoryException(string.Format("Ran out of AtomicSafetyHandles with pool size {0}", m_Handles.Length));
-            }
             Assert.True(AtomicSafetyHandle.IsHandleValid(handle), "Invalid handle");
             
             for(int i = 0; i < m_AllocatedHandles; i++) {

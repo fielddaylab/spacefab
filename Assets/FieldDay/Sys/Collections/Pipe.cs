@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using BeauUtil;
+using BeauUtil.Debugger;
 
 namespace FieldDay.Collections {
     public interface IPipe<T> where T : struct {
@@ -7,6 +8,11 @@ namespace FieldDay.Collections {
         /// Returns if the pipe is currently full.
         /// </summary>
         bool IsFull();
+
+        /// <summary>
+        /// Writes a value to the beginning of the pipe.
+        /// </summary>
+        void Interrupt(T value);
 
         /// <summary>
         /// Writes a value to the pipe.
@@ -58,12 +64,18 @@ namespace FieldDay.Collections {
         }
 
         public Pipe(RingBuffer<T> data) {
+            Assert.NotNull(data);
             m_Data = data;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsFull() {
             return m_Data.IsFull();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Interrupt(T value) {
+            m_Data.PushFront(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
