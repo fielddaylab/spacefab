@@ -41,10 +41,12 @@ namespace FieldDay.Scripting {
             }
             m_OverrideHandler.Base = null;
             m_OwnerThread = null;
+            OnThreadReleased();
         }
 
         void IScriptThreadOwned.OnThreadAcquire(LeafThreadHandle threadHandle) {
             m_OwnerThread = threadHandle.GetThread<ScriptThread>();
+            OnThreadAcquired();
         }
 
         #endregion // IScriptThreadOwned
@@ -74,6 +76,10 @@ namespace FieldDay.Scripting {
         public abstract void FastForwardLine(int visibleCount, int richCount);
         public abstract void UpdateCharacter(DialogueCharacterState character);
         public abstract IEnumerator CompleteLine();
+
+        protected virtual void OnThreadAcquired() { }
+
+        protected virtual void OnThreadReleased() { }
 
         protected ScriptThread CurrentThread {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

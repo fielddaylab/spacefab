@@ -23,10 +23,11 @@ namespace FieldDay.UI {
         public CanvasSortKey SortKey;
         public StringHash32 GroupId;
         public InputLayerFlags Flags;
+        public int LayerMask;
     }
 
     [Flags]
-    public enum InputLayerFlags {
+    public enum InputLayerFlags : uint {
         None = 0x00,
         IgnoreSortOrder = 0x01,
         ForceOn = 0x02,

@@ -1,0 +1,17 @@
+# basePath  Ch1.Comic
+
+:: Preload
+@function   ComicPreload
+$call ComicPreloadPage(0)
+$call ComicSnapCamera("Camera")
+
+:: Execute
+@trigger    ComicExecute
+@cutscene
+$call ComicOpenPage(0)
+$call ComicOpenPage(1)
+$call ComicOpenPage(2)
+$call ComicOpenPage(3)
+$call ComicOpenPage(4)
+$call ComicOpenPage(5)
+$wait 5

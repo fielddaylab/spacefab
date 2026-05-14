@@ -42,11 +42,10 @@ namespace FieldDay.Animation {
         public float TimeRemaining;
         public float Duration;
         public Curve Easing;
+        public byte StateId;
         public ushort Flags;
-        public int StateId;
         public LiteAnimatorStateParam InitParamA;
         public LiteAnimatorStateParam InitParamB;
-        public LiteAnimatorStateParam StateParam;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetTime(float duration) {
@@ -101,5 +100,13 @@ namespace FieldDay.Animation {
         [FieldOffset(0)] public Color ColorF;
         [FieldOffset(0)] public Color32 Color;
         [FieldOffset(0)] public unsafe fixed uint PackedColors[4];
+
+        [FieldOffset(0)] public unsafe fixed ulong PackedStruct[3];
+
+        public unsafe ref T Packed<T>() where T : unmanaged {
+            fixed(ulong* bytes = PackedStruct) {
+                return ref Unsafe.AsRef((T*)bytes);
+            }
+        }
     }
 }
