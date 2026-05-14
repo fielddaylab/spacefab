@@ -43,7 +43,7 @@ namespace SpaceFab
 
     public static class InputUtility
     {
-        public const int DefaultLayerMask = LayerMasks.Default_Mask | LayerMasks.UI_Mask| LayerMasks.InterruptUI_Mask;
+        public const int DefaultLayerMask = LayerMasks.Default_Mask | LayerMasks.UI_Mask| LayerMasks.Interrupt_UI_Mask;
 
         public static void SetInputEnabled(InputState state, bool enabled)
         {
