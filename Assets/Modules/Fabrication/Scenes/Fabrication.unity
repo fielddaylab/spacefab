@@ -232,6 +232,11 @@ CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 3429503826527071165, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
   m_PrefabInstance: {fileID: 80312476}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &80312478 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 8031574023162616219, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
+  m_PrefabInstance: {fileID: 80312476}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &177737468 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7724547138388147494, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -1854,6 +1859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FaderGroup: {fileID: 513888590}
   PopupGroup: {fileID: 80312477}
+  InstructionsGroup: {fileID: 80312478}
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0

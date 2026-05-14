@@ -15,6 +15,7 @@ namespace SpaceFab.Fabrication.Layout
     {
         public CanvasGroup FaderGroup;
         public CanvasGroup PopupGroup;
+        public CanvasGroup InstructionsGroup;
 
         public void OnDeregister()
         {
@@ -27,6 +28,9 @@ namespace SpaceFab.Fabrication.Layout
 
             PopupGroup.alpha = 0;
             PopupGroup.blocksRaycasts = false;
+
+            InstructionsGroup.alpha = 0;
+            InstructionsGroup.blocksRaycasts = false;
         }
     }
 }
