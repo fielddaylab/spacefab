@@ -5,43 +5,23 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Layout
 {
+    public enum KeyType
+    {
+        Space,
+        LRArrows,
+        FullArrows,
+        Mouse
+    }
+
     [CreateAssetMenu(menuName = "SpaceFab/Fabrication/InstructionLookup")]
     public class InstructionsLookup : GlobalAsset
     {
         [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
+        public KeyType FurnaceKey;
+        public string FurnaceInstruction;
+        public string FurnaceSubtitle;
 
-        [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
-
-        [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
-
-        [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
-
-        [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
-
-        [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
-
-        [Header("Furnace Instructions")]
-        public GameObject SpaceBar;
-        public string Instruction;
-        public string Subtitle;
+        
     }
 
     public static class InstructionsLookupUtility
