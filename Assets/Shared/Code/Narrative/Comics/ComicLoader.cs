@@ -1,17 +1,15 @@
 using BeauUtil;
-using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Scenes;
 using FieldDay.Scripting;
-using Leaf;
 using Leaf.Runtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Comic {
-    public sealed class ComicController : SceneController, ISceneLoadDependency {
+    public sealed class ComicLoader : SceneController, ISceneLoadDependency {
         public SceneReference NextScene;
         
         [Header("-- DEBUG --")]
@@ -33,16 +31,22 @@ namespace SpaceFab.Comic {
 
         protected override void OnSceneEnable() {
             Game.Scenes.RegisterLoadDependency(this);
-            if (ComicSequenceManifest.Current != null) {
-                ComicId = ComicSequenceManifest.Current.name;
+            if (ComicsUtility.Manifest != null) {
+                ComicId = ComicsUtility.Manifest.name;
             } else {
                 ComicId = null;
             }
 
             if (!ComicId.IsEmpty) {
+                ComicsUtility.SnapCamera(0);
+
                 using (var table = TempVarTable.Alloc()) {
                     table.Set("comicId", ComicId);
-                    ScriptUtility.Invoke("ComicPreload", table);
+                    int preloadThreads = ScriptUtility.Invoke("ComicPreload", table);
+                    if (preloadThreads <= 0) {
+                        ComicsUtility.PreloadPage(0);
+                        ComicResourceUtility.AllocatePageHierarchy(0);
+                    }
                 }
             }
 
@@ -57,7 +61,7 @@ namespace SpaceFab.Comic {
                     table.Set("comicId", ComicId);
                     ThreadHandle = ScriptUtility.Trigger("ComicExecute", table);
                     if (!ThreadHandle.IsRunning()) {
-                        GameLoop.QueuePreUpdate(Finish);
+                        //GameLoop.QueuePreUpdate(Finish);
                     }
                 }
             }

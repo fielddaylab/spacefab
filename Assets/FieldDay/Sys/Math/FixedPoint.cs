@@ -60,6 +60,24 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// [-1024, 1023] + [1/16]
+        /// </summary>
+        [Il2CppEagerStaticClassConstruction]
+        static public class Q11_4 {
+            private const int FractionalBits = 4;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static public short FromFloat(float value) {
+                return FloatToShort(value, FractionalBits);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static public float ToFloat(short value) {
+                return ShortToFloat(value, FractionalBits);
+            }
+        }
+
+        /// <summary>
         /// [-8, 7] + [1/4096]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]

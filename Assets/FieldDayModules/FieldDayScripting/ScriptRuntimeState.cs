@@ -954,7 +954,7 @@ namespace FieldDay.Scripting {
         /// Invoked when a cutscene ends.
         /// </summary>
         static public ActionEvent OnCutsceneEnd {
-            get { return Runtime.OnCutsceneStart; }
+            get { return Runtime.OnCutsceneEnd; }
         }
 
         #endregion // Cutscenes

@@ -14,6 +14,8 @@ namespace SpaceFab.Comic {
         public const int BufferSizeMiB = 8;
 
         public ComicRenderElement.Pool ElementPool;
+        public TransformPool ParentPool;
+
         public Material BaseMaterial;
 
         [NonSerialized] public IPool<Mesh> MeshPool;
@@ -22,7 +24,7 @@ namespace SpaceFab.Comic {
         [NonSerialized] public Dictionary<ushort, Mesh> ActiveMeshes;
 
         [NonSerialized] public Unsafe.ArenaHandle Allocator;
-        [NonSerialized] public MeshData16<ComicMeshVertex> MaskMeshBuilder;
+        [NonSerialized] public MeshData16<ComicMeshVertex> MaskBuilder;
         [NonSerialized] public VertexLayout MeshVertexLayout;
 
         void IRegistrationCallbacks.OnDeregister() {
@@ -32,12 +34,13 @@ namespace SpaceFab.Comic {
             ActiveMeshes.Clear();
 
             ElementPool.Dispose();
+            ParentPool.Dispose();
 
             MeshPool.Dispose();
             MaterialPool.Dispose();
 
+            MaskBuilder.Dispose();
             Allocator.Release();
-            MaskMeshBuilder.Dispose();
         }
 
         void IRegistrationCallbacks.OnRegister() {
@@ -46,7 +49,7 @@ namespace SpaceFab.Comic {
             
             MeshVertexLayout = VertexUtility.GenerateLayout(typeof(ComicMeshVertex), 0);
 
-            MeshPool = new DynamicPool<Mesh>(ElementPool.Capacity, (p) => {
+            MeshPool = new FixedPool<Mesh>(256, (p) => {
                 Mesh mesh = new Mesh();
                 mesh.MarkDynamic();
                 return mesh;
@@ -54,11 +57,13 @@ namespace SpaceFab.Comic {
             MeshPool.Config.RegisterOnFree((l, m) => m.Clear(true));
             MeshPool.Config.RegisterOnDestruct((p, m) => DestroyImmediate(m));
 
-            MaterialPool = new DynamicPool<Material>(ElementPool.Capacity / 4, (p) => new Material(BaseMaterial));
+            MaterialPool = new FixedPool<Material>(64, (p) => new Material(BaseMaterial));
             MaterialPool.Config.RegisterOnDestruct((p, m) => DestroyImmediate(m));
 
+            ParentPool.Initialize();
+
             Allocator = Unsafe.CreateArena(Unsafe.MiB * BufferSizeMiB, "Comics", Unsafe.AllocatorFlags.Default);
-            MaskMeshBuilder = new MeshData16<ComicMeshVertex>(4, 6, MeshTopology.Triangles, false);
+            MaskBuilder = new MeshData16<ComicMeshVertex>(4, 6, MeshTopology.Triangles, false);
 
             ActiveMeshes = new Dictionary<ushort, Mesh>(32);
         }
@@ -67,6 +72,7 @@ namespace SpaceFab.Comic {
             ElementPool.Prewarm();
             MeshPool.Prewarm();
             MaterialPool.Prewarm();
+            ParentPool.Prewarm();
 
             // TODO: Fix incremental prewarm in BeauPools
             //int prewarmCounter = 1;
@@ -90,7 +96,7 @@ namespace SpaceFab.Comic {
         }
     }
 
-    static public class ComicResourceUtility {
+    static public partial class ComicResourceUtility {
         static public void OnRenderElementFreed(ComicResourcePool resourcePool, ComicRenderElement element) {
             element.CoroutineAnimation.Stop();
             Game.Animation.CancelAnimation(ref element.LiteAnimation);
@@ -101,11 +107,12 @@ namespace SpaceFab.Comic {
             element.Id = null;
             element.Visibility = 0;
 
-            if (element.MeshIndex != ComicMesh.NullIndex) {
-                if (resourcePool.ActiveMeshes.Remove(element.MeshIndex, out Mesh mesh)) {
+            if (element.MeshId != ComicMesh.NullIndex) {
+                if (resourcePool.ActiveMeshes.Remove(element.MeshId, out Mesh mesh)) {
                     resourcePool.MeshPool.Free(mesh);
                 }
-                element.MeshIndex = ComicMesh.NullIndex;
+                ComicsUtility.CancelMeshPreload(element.MeshId);
+                element.MeshId = ComicMesh.NullIndex;
             }
 
             if (element.TempMaterial != null) {

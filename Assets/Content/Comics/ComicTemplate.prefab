@@ -78,6 +78,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ClipHeight: 25
+  BackgroundColor:
+    serializedVersion: 2
+    rgba: 4279900700
 --- !u!1 &2963607171937846939
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,9 +253,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9b332cb72e9790489f4c70cee20f83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BackgroundColor:
-    serializedVersion: 2
-    rgba: 4279900700
 --- !u!1 &7285515222363404990
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,6 +379,7 @@ GameObject:
   m_Component:
   - component: {fileID: 760412909911316980}
   - component: {fileID: 7187921100395212401}
+  - component: {fileID: 6023858251418436729}
   m_Layer: 0
   m_Name: ComicTemplate
   m_TagString: Untagged
@@ -395,7 +396,7 @@ Transform:
   m_GameObject: {fileID: 8307515485380065297}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -100, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -415,3 +416,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Manifest: {fileID: 0}
+--- !u!114 &6023858251418436729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8307515485380065297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93bebe02eb2e63947b870156ec518c3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

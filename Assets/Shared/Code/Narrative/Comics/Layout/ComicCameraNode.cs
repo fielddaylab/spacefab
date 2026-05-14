@@ -9,11 +9,12 @@ namespace SpaceFab.Comic {
     public sealed class ComicCameraNode : MonoBehaviour, IEditModeOnly {
         [Range(0.1f, 100)]
         public float ClipHeight = 25;
+        public Color32 BackgroundColor = new Color(0.11f, 0.1f, 0.1f, 1);
 
 #if UNITY_EDITOR
 
         private void OnDrawGizmos() {
-            Gizmos.color = Color.yellow.WithAlpha(0.3f);
+            Gizmos.color = ((Color) BackgroundColor).WithAlpha(0.3f);
             Vector3 size = new Vector3(ClipHeight * 4 / 3, ClipHeight, 0);
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(default, size);
@@ -24,7 +25,7 @@ namespace SpaceFab.Comic {
                 return;
             }
 
-            Gizmos.color = Color.yellow.WithAlpha(0.3f);
+            Gizmos.color = ((Color) BackgroundColor).WithAlpha(0.3f);
             Vector3 size = new Vector3(ClipHeight * 4 / 3, ClipHeight, 0);
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawCube(default, size);
@@ -39,5 +40,6 @@ namespace SpaceFab.Comic {
         public PackedPoint Position;
         public short PackedRotation;
         public short PackedClipHeight;
+        public ushort PackedBackgroundColor;
     }
 }

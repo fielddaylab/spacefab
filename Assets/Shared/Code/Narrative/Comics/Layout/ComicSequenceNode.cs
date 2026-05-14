@@ -7,6 +7,8 @@ using SpaceFab.Design;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using FieldDay.Data;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -49,25 +51,31 @@ namespace SpaceFab.Comic {
             builder.OutputMeshes = null;
             builder.OutputTextures = null;
 
-            int childCount = root.childCount;
-            for(int i = 0; i < childCount; i++) {
-                Transform child = root.GetChild(i);
-                if (!child.gameObject.activeSelf) {
-                    continue;
-                }
+            using (Profiling.Time("Building Page Data")) {
+                int childCount = root.childCount;
+                for (int i = 0; i < childCount; i++) {
+                    Transform child = root.GetChild(i);
+                    if (!child.gameObject.activeSelf) {
+                        continue;
+                    }
 
-                if (child.TryGetComponent(out ComicPageNode page)) {
-                    PageData pageData = BuildPageData(ref builder, page);
-                    builder.Pages.Add(pageData);
-                }
+                    if (child.TryGetComponent(out ComicPageNode page)) {
+                        PageData pageData = BuildPageData(ref builder, page);
+                        builder.Pages.Add(pageData);
+                    }
 
-                if (child.TryGetComponent(out ComicCameraNode camera)) {
-                    CameraData cameraData = BuildCameraData(ref builder, camera);
-                    builder.Cameras.Add(cameraData);
+                    if (child.TryGetComponent(out ComicCameraNode camera)) {
+                        CameraData cameraData = BuildCameraData(ref builder, camera);
+                        builder.Cameras.Add(cameraData);
+                    }
                 }
             }
 
-            ScanAndPackLayers(ref builder);
+            using (Profiling.Time("Generating Meshes and Packing Textures")) {
+                ScanAndPackLayers(ref builder);
+            }
+
+            Assert.True(builder.Pages.Count <= ComicResourceUtility.MaxPages, "Cannot exceed " + ComicResourceUtility.MaxPages + " pages per comic");
 
             Baking.SetDirty(manifest);
 
@@ -117,7 +125,6 @@ namespace SpaceFab.Comic {
                 PackedY = FixedPoint.Q12_3.FromFloat(pos.y),
             };
             pageData.PackedRotation = PackDegrees(rot.eulerAngles.z);
-            pageData.PackedColor = PackColorRGB565(node.BackgroundColor);
 
             ushort panelStart = (ushort) builder.Panels.Count;
             ushort panelCount = 0;
@@ -157,8 +164,8 @@ namespace SpaceFab.Comic {
 
             panelData.Id = node.gameObject.name;
             panelData.Position = new PackedPoint() {
-                PackedX = FixedPoint.Q12_3.FromFloat(pos.x),
-                PackedY = FixedPoint.Q12_3.FromFloat(pos.y),
+                PackedX = FixedPoint.Q9_6.FromFloat(pos.x),
+                PackedY = FixedPoint.Q9_6.FromFloat(pos.y),
             };
             panelData.PackedRotation = PackDegrees(rot.eulerAngles.z);
 
@@ -221,8 +228,8 @@ namespace SpaceFab.Comic {
 
             layerData.Id = node.gameObject.name;
             layerData.Position = new PackedPoint() {
-                PackedX = FixedPoint.Q12_3.FromFloat(pos.x),
-                PackedY = FixedPoint.Q12_3.FromFloat(pos.y),
+                PackedX = FixedPoint.Q9_6.FromFloat(pos.x),
+                PackedY = FixedPoint.Q9_6.FromFloat(pos.y),
             };
             layerData.PackedRotation = PackDegrees(rot.eulerAngles.z);
 
@@ -248,8 +255,9 @@ namespace SpaceFab.Comic {
                 PackedY = FixedPoint.Q12_3.FromFloat(pos.y),
             };
             cameraData.PackedRotation = PackDegrees(rot.eulerAngles.z);
+            cameraData.PackedBackgroundColor = PackColorRGB565(node.BackgroundColor);
 
-            cameraData.PackedClipHeight = FixedPoint.Q12_3.FromFloat(node.ClipHeight);
+            cameraData.PackedClipHeight = FixedPoint.Q11_4.FromFloat(node.ClipHeight);
 
             return cameraData;
         }
@@ -266,23 +274,23 @@ namespace SpaceFab.Comic {
             Vector2 p3 = basePos + (Vector2)(rot * node.Offset3);
 
             maskData.P0 = new PackedPoint() {
-                PackedX = FixedPoint.Q12_3.FromFloat(p0.x),
-                PackedY = FixedPoint.Q12_3.FromFloat(p0.y)
+                PackedX = FixedPoint.Q9_6.FromFloat(p0.x),
+                PackedY = FixedPoint.Q9_6.FromFloat(p0.y)
             };
 
             maskData.P1 = new PackedPoint() {
-                PackedX = FixedPoint.Q12_3.FromFloat(p1.x),
-                PackedY = FixedPoint.Q12_3.FromFloat(p1.y)
+                PackedX = FixedPoint.Q9_6.FromFloat(p1.x),
+                PackedY = FixedPoint.Q9_6.FromFloat(p1.y)
             };
 
             maskData.P2 = new PackedPoint() {
-                PackedX = FixedPoint.Q12_3.FromFloat(p2.x),
-                PackedY = FixedPoint.Q12_3.FromFloat(p2.y)
+                PackedX = FixedPoint.Q9_6.FromFloat(p2.x),
+                PackedY = FixedPoint.Q9_6.FromFloat(p2.y)
             };
 
             maskData.P3 = new PackedPoint() {
-                PackedX = FixedPoint.Q12_3.FromFloat(p3.x),
-                PackedY = FixedPoint.Q12_3.FromFloat(p3.y)
+                PackedX = FixedPoint.Q9_6.FromFloat(p3.x),
+                PackedY = FixedPoint.Q9_6.FromFloat(p3.y)
             };
 
             maskData.PackedColor = PackColorRGB565(node.Color);
@@ -290,8 +298,104 @@ namespace SpaceFab.Comic {
             return maskData;
         }
 
-        static private void ScanAndPackLayers(ref SequenceBuilder builder) {
-            // TODO: tile packing
+        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder) {
+            // TODO: tile packing, setting flags
+
+            WorkList<Texture2D> textures = new WorkList<Texture2D>(builder.DiscoveredLayers.Count);
+            var blob = Unsafe.AllocSpan<byte>(Unsafe.MiB * 8);
+            var localBlob = Unsafe.AllocSpan<byte>(Unsafe.MiB * 3);
+            try {
+                ByteWriter finalBlobWriter = new ByteWriter(blob.Ptr, blob.Length);
+                ByteWriter localWriter = new ByteWriter(localBlob.Ptr, localBlob.Length);
+
+                for (int i = 0, len = builder.DiscoveredLayers.Count; i < len; i++) {
+                    ComicLayerNode layer = builder.DiscoveredLayers[i];
+                    ref LayerData data = ref builder.Layers[layer.CachedIndex];
+                    if (layer.Image) {
+                        Texture2D texture = layer.Image.texture;
+                        int textureIndex = textures.IndexOf(texture);
+                        if (textureIndex < 0) {
+                            textureIndex = textures.Count;
+                            textures.Add(texture);
+                        }
+
+                        data.TextureIndex = (ushort) textureIndex;
+
+                        Vector2 texSize = new Vector2(texture.width, texture.height);
+                        Rect uvRect = layer.Image.textureRect;
+                        uvRect.Set(uvRect.x / texSize.x, uvRect.y / texSize.y, uvRect.width / texSize.x, uvRect.height / texSize.y);
+                        Bounds bounds = layer.Image.bounds;
+
+                        Vector2 min = bounds.min;
+                        Vector2 max = bounds.max;
+                        Vector2 range = max - min;
+
+                        // range
+                        localWriter.Write(min);
+                        localWriter.Write(range);
+
+                        // vertices
+                        CompressedMeshVertex vertA, vertB, vertC, vertD;
+                        vertA.X = (ushort) ((min.x - min.x) / range.x * ComicMesh.PositionMultiplier);
+                        vertA.Y = (ushort) ((min.y - min.y) / range.y * ComicMesh.PositionMultiplier);
+                        vertA.U = (ushort) (uvRect.xMin * ComicMesh.UVMultiplier);
+                        vertA.V = (ushort) (uvRect.yMin * ComicMesh.UVMultiplier);
+
+                        vertB.X = (ushort) ((min.x - min.x) / range.x * ComicMesh.PositionMultiplier);
+                        vertB.Y = (ushort) ((max.y - min.y) / range.y * ComicMesh.PositionMultiplier);
+                        vertB.U = (ushort) (uvRect.xMin * ComicMesh.UVMultiplier);
+                        vertB.V = (ushort) (uvRect.yMax * ComicMesh.UVMultiplier);
+
+                        vertC.X = (ushort) ((max.x - min.x) / range.x * ComicMesh.PositionMultiplier);
+                        vertC.Y = (ushort) ((min.y - min.y) / range.y * ComicMesh.PositionMultiplier);
+                        vertC.U = (ushort) (uvRect.xMax * ComicMesh.UVMultiplier);
+                        vertC.V = (ushort) (uvRect.yMin * ComicMesh.UVMultiplier);
+
+                        vertD.X = (ushort) ((max.x - min.x) / range.x * ComicMesh.PositionMultiplier);
+                        vertD.Y = (ushort) ((max.y - min.y) / range.y * ComicMesh.PositionMultiplier);
+                        vertD.U = (ushort) (uvRect.xMax * ComicMesh.UVMultiplier);
+                        vertD.V = (ushort) (uvRect.yMax * ComicMesh.UVMultiplier);
+
+                        localWriter.Write(vertA);
+                        localWriter.Write(vertB);
+                        localWriter.Write(vertC);
+                        localWriter.Write(vertD);
+
+                        // indices (0, 1, 2, 3, 2, 1) (0, +1, +1, +1, -1, -1)
+                        localWriter.Write((ushort) 0);
+                        localWriter.Write((sbyte) 1);
+                        localWriter.Write((sbyte) 1);
+                        localWriter.Write((sbyte) 1);
+                        localWriter.Write((sbyte) -1);
+                        localWriter.Write((sbyte) -1);
+
+                        ComicMeshHeader header;
+                        header.VertexCount = 4;
+                        header.IndexCount = 6;
+
+                        header.BinaryOffset = finalBlobWriter.GetMarker();
+
+                        UnsafeSpan<byte> meshData = localWriter.GetData();
+                        var compressResult = LZCompression.Compress(meshData.Ptr, (uint) meshData.Length, finalBlobWriter.Head, finalBlobWriter.GetRemaining(), out uint size);
+                        Assert.False(LZCompression.IsError(compressResult));
+                        finalBlobWriter.Skip((int) size);
+
+                        header.BinaryLength = size;
+
+                        int meshIndex = builder.Meshes.Count;
+                        builder.Meshes.Add(header);
+                        data.MeshIndex = (ushort) meshIndex;
+
+                        localWriter.Reset();
+                    }
+                }
+
+                builder.OutputMeshes = finalBlobWriter.GetDataCopy();
+                builder.OutputTextures = textures.ToArray();
+            } finally {
+                Unsafe.Free(blob.Ptr);
+                Unsafe.Free(localBlob.Ptr);
+            }
         }
 #endif // UNITY_EDITOR
     }

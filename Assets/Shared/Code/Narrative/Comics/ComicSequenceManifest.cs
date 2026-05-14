@@ -45,8 +45,8 @@ namespace SpaceFab.Comic {
 
             m_PinnedMeshData = Unsafe.PinArray(CompressedMeshData);
 
-            Assert.True(Current == null, "Cannot have multiple comic sequences loaded at a time");
-            Current = this;
+            Assert.True(ComicsUtility.Manifest == null, "Cannot have multiple comic sequences loaded at a time");
+            ComicsUtility.Manifest = this;
         }
 
         protected override void Unmount(AssetMgr mgr) {
@@ -61,11 +61,13 @@ namespace SpaceFab.Comic {
 
             m_PinnedMeshData.Dispose();
 
-            if (Current == this) {
-                Current = null;
+            if (ComicsUtility.Manifest == this) {
+                ComicsUtility.Manifest = null;
             }
         }
+    }
 
-        static public ComicSequenceManifest Current { get; private set; }
+    static public partial class ComicsUtility {
+        static public ComicSequenceManifest Manifest { get; set; }
     }
 }

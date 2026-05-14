@@ -15,7 +15,7 @@ namespace SpaceFab.Comic {
 
         public Sprite Image;
 
-        [Header("CoroutineAnimation Linkage")]
+        [Header("Animation Linkage")]
         public ComicLayerNode Sibling;
 
 #if UNITY_EDITOR

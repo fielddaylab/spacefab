@@ -156,6 +156,14 @@ namespace FieldDay.Data {
         }
 
         /// <summary>
+        /// Returns the bytes remaining in the buffer.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public uint GetRemaining() {
+            return (uint)(Capacity - Written);
+        }
+
+        /// <summary>
         /// Returns the written data as a byte span.
         /// </summary>
         public unsafe UnsafeSpan<byte> GetData() {

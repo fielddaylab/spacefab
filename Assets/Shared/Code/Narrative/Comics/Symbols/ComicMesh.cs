@@ -13,6 +13,7 @@ namespace SpaceFab.Comic {
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct ComicMeshHeader {
         public ushort VertexCount;
         public ushort IndexCount;
@@ -43,8 +44,10 @@ namespace SpaceFab.Comic {
     }
 
     static public unsafe class ComicMesh {
-        public const float UVScale = 1.0f / (1 << 15);
-        public const float PositionScale = 1.0f / (1 << 15);
+        public const float UVMultiplier = (1 << 15);
+        public const float UVScale = 1.0f / UVMultiplier;
+        public const float PositionMultiplier = (1 << 15);
+        public const float PositionScale = 1.0f / PositionMultiplier;
 
         public const ushort NullIndex = ushort.MaxValue;
 
