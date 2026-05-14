@@ -39,6 +39,8 @@ namespace SpaceFab.Fabrication.Microgames
                 case ResistMicrogamePhase.Idle:
                     break;
                 case ResistMicrogamePhase.Entering:
+                    canvasState.FaderGroup.alpha = 1f;
+                    canvasState.FaderGroup.blocksRaycasts = true;
                     break;
                 case ResistMicrogamePhase.Sweeping:
                     ProcessSweeping(microgameState);

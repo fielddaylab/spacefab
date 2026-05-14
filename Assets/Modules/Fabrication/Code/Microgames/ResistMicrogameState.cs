@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
@@ -120,13 +121,18 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out ResistMicrogameState state);
+            Find.State(
+                out ResistMicrogameState state,
+                out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
+                );
             state.IsActive = false;
             
             // tear down dropper UI; return to idle.
             state.ResistUI.SetActive(false);
             state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
+            canvasState.FaderGroup.alpha = 0f;
+            canvasState.FaderGroup.blocksRaycasts = false;
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.
