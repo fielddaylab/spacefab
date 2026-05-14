@@ -17,9 +17,18 @@ namespace SpaceFab.Design
         public DynamicButton DismissButton;
         public DynamicButton RetryButton;
 
-        public void OnRegister()
+        private void Awake()
         {
             ResultStateUtility.SetEnabledResultsGroup(this, false);
+        }
+
+        public void OnRegister()
+        {
+
+            if (ResultsGroup != null)
+            {
+                ResultStateUtility.SetEnabledResultsGroup(this, false);
+            }
 
             if (DismissButton != null)
             {
@@ -86,7 +95,6 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
-            Debug.Log($"SetEnabledResultsGroup: enabled={isEnabled}, alpha={resultState.ResultsGroup.alpha}");
         }
         public static void ShowResults(ResultState resultState, bool allCorrect)
         {
