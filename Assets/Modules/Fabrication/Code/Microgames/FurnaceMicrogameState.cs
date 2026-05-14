@@ -128,6 +128,7 @@ namespace SpaceFab.Fabrication.Microgames
             
             // tear down heat dial UI; return to idle.
             state.FurnaceUI.SetActive(false);
+            state.MeterArrowAnchor.rotation = Quaternion.identity;
             state.Phase = FurnaceMicrogamePhase.Idle;
         }
 

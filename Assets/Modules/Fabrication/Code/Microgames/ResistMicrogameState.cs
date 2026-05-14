@@ -125,6 +125,7 @@ namespace SpaceFab.Fabrication.Microgames
             
             // tear down dropper UI; return to idle.
             state.ResistUI.SetActive(false);
+            state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
         }
 
