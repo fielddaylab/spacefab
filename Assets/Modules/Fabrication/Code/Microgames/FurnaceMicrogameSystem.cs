@@ -1,7 +1,8 @@
 using FieldDay;
 using FieldDay.Systems;
-using SpaceFab.Fabrication.Stations;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.StationControl;
+using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +27,11 @@ namespace SpaceFab.Fabrication.Microgames
         // Early-returns when the microgame is not active. Active body is TODO until mechanics are authored.
         static private void ProcessWork(float deltaTime)
         {
-            Find.State(out FurnaceMicrogameState microgameState);
+            Find.State(
+                out FurnaceMicrogameState microgameState, 
+                out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
+            );
+
             if (!microgameState.IsActive) { return; }
 
             switch (microgameState.Phase)
@@ -34,6 +39,8 @@ namespace SpaceFab.Fabrication.Microgames
                 case FurnaceMicrogamePhase.Idle:
                     break;
                 case FurnaceMicrogamePhase.Entering:
+                    canvasState.FaderGroup.alpha = 1f;
+                    canvasState.FaderGroup.blocksRaycasts = true;
                     break;
                 case FurnaceMicrogamePhase.Burning:
                     ProcessingBurning(microgameState, deltaTime);
