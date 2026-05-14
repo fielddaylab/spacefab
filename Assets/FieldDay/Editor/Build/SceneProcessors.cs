@@ -151,6 +151,40 @@ namespace FieldDay.Editor {
     }
 
     /// <summary>
+    /// Removes any IEditModeOnly or IEditorOnly components.
+    /// </summary>
+    public class CleanUpEditorOnlyComponents : IProcessSceneWithReport {
+        public int callbackOrder { get { return 21; } }
+
+        public void OnProcessScene(Scene scene, BuildReport report) {
+            if (PlayModeDelayedSceneProcessor.IsQueued()) {
+                PlayModeDelayedSceneProcessor.Queue(this, scene, report, null);
+                return;
+            }
+
+            List<IEditModeOnly> editModeOnly = new List<IEditModeOnly>(64);
+            scene.GetAllComponents(true, editModeOnly);
+            if (editModeOnly.Count > 0) {
+                Debug.LogFormat("removing {0} EditModeOnly components", editModeOnly.Count);
+                foreach (Component component in editModeOnly) {
+                    Baking.Destroy(component, true);
+                }
+            }
+
+            if (BuildPipeline.isBuildingPlayer) {
+                List<IEditorOnly> editorOnly = new List<IEditorOnly>(64);
+                scene.GetAllComponents(true, editorOnly);
+                if (editorOnly.Count > 0) {
+                    Debug.LogFormat("removing {0} editor-only components", editorOnly.Count);
+                    foreach(Component component in editorOnly) {
+                        Baking.Destroy(component, true);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Generates the SceneDataExt object.
     /// </summary>
     public class GenerateSceneDataExtProcessor : IProcessSceneWithReport {

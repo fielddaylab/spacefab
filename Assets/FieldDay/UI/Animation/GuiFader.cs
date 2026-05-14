@@ -119,7 +119,7 @@ namespace FieldDay.UI.Animation {
 
                 state.InitParamA.ColorF = currentColor;
                 state.InitParamB.ColorF = targetColor;
-                state.StateId = killOnFade ? 1 : 0;
+                state.StateId = killOnFade ? (byte) 1 : (byte)0;
             }
 
             public override void ResetAnimation(GuiFader target, ref LiteAnimatorState state) {

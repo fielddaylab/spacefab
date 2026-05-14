@@ -135,11 +135,17 @@ namespace FieldDay.Scripting {
 
         internal void SetCutscene(LeafThreadHandle handle) {
             if (m_RuntimeState.Cutscene != handle) {
+                bool wasRunning = m_RuntimeState.Cutscene.IsRunning();
                 m_RuntimeState.Cutscene.Kill();
                 m_RuntimeState.Cutscene = handle;
 
                 if (handle.IsRunning()) {
                     ScriptUtility.KillLowPriorityThreads(ScriptNodePriority.High);
+                }
+
+                if (!wasRunning) {
+                    m_RuntimeState.OnCutsceneStart.Invoke();
+                    m_RuntimeState.SignalMap.Dispatch("CutsceneStart");
                 }
             }
         }
@@ -147,6 +153,7 @@ namespace FieldDay.Scripting {
         internal void DereferenceCutscene(LeafThreadHandle handle) {
             if (m_RuntimeState.Cutscene == handle) {
                 m_RuntimeState.Cutscene = default;
+                m_RuntimeState.SignalMap.Dispatch("CutsceneEnd");
             }
         }
 

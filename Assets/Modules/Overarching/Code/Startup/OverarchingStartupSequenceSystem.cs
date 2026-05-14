@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using FieldDay.UI;
 using System.Collections;
@@ -152,6 +153,7 @@ namespace SpaceFab.Overarching {
             else {
                 if (selectState.Phase == ContractSelectPhase.Completed) {
                     //  confirm selected contract
+                    ScriptUtility.Trigger("OnContractSelected");
                     confirmState.Phase = ContractConfirmPhase.Waiting;
                     startupState.Phase = OverarchingStartupSequencePhase.ContractConfirmSystem;
                 }

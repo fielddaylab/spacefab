@@ -2,7 +2,8 @@ namespace FieldDay.Localization {
     public sealed class LocMgr {
         #region State
 
-        
+        private LocDb m_MainDb;
+        private LocDb m_SubDb;
 
         #endregion // State
 
@@ -10,10 +11,14 @@ namespace FieldDay.Localization {
 
         internal void Initialize(LanguageId defaultLanguage) {
             Loc.ConfigureDefaultLanguage(defaultLanguage);
+
+            m_MainDb = new LocDb(16);
+            m_SubDb = new LocDb(16);
         }
 
         internal void Shutdown() {
-
+            m_MainDb.Clear();
+            m_SubDb.Clear();
         }
 
         #endregion // Events

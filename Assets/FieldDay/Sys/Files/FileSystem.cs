@@ -345,6 +345,11 @@ namespace FieldDay.Files {
                     uwr.downloadHandler = audio;
                     break;
                 }
+                case FileBufferMode.AssetBundle: {
+                    DownloadHandlerAssetBundle bundle = new DownloadHandlerAssetBundle(resolvedPath, 0);
+                    uwr.downloadHandler = bundle;
+                    break;
+                }
             }
 
             uwr.SendWebRequest();

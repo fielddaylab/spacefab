@@ -8,11 +8,22 @@ namespace FieldDay.Localization {
         #region Cached Vars
 
         static private LanguageId s_DefaultLang;
+
         static private LanguageId s_CurrentLang;
+        static private LanguageFeatures s_CurrentLangFeatures;
+
+        static private bool s_IsLoaded;
 
         #endregion // Cached Vars
 
         #region Current Language
+
+        /// <summary>
+        /// If the current localization package is available.
+        /// </summary>
+        static public bool IsReady {
+            get { return s_IsLoaded; }
+        }
 
         /// <summary>
         /// Current language id.
@@ -32,6 +43,7 @@ namespace FieldDay.Localization {
         static public void ConfigureDefaultLanguage(LanguageId defaultLanguageId) {
             Assert.True(s_DefaultLang.IsEmpty && s_CurrentLang.IsEmpty, "Defaults have already been configured!");
             s_DefaultLang = s_CurrentLang = defaultLanguageId;
+            s_CurrentLangFeatures = Languages.GetFeatures(defaultLanguageId);
         }
 
         /// <summary>

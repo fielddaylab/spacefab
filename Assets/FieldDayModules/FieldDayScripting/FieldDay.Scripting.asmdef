@@ -11,7 +11,8 @@
         "FieldDay.Vox",
         "BeauData",
         "Unity.Timeline",
-        "ScriptableBake"
+        "ScriptableBake",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

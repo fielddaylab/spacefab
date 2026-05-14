@@ -18,12 +18,18 @@ namespace FieldDay.Localization {
             public int RichCharCount;
         }
 
+        public enum UpdatePriority {
+            Low,
+            High
+        }
+
         #endregion // Types
 
         #region Inspector
 
         [SerializeField, HideInEditor] private TMP_Text m_Graphic;
         [SerializeField] internal LocId m_DefaultId;
+        [SerializeField] private UpdatePriority m_UpdatePriority = UpdatePriority.High;
 
         [Header("Modifications")]
         [SerializeField] private string m_Prefix;
@@ -36,7 +42,7 @@ namespace FieldDay.Localization {
 
         [NonSerialized] private LocId m_LastAssignedId;
         [NonSerialized] private LanguageId m_LastKnownLanguage;
-        [NonSerialized] private TextMesh m_LastKnownMetrics;
+        [NonSerialized] private TextMetrics m_LastKnownMetrics;
 
         #region Unity Events
 

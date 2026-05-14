@@ -45,6 +45,14 @@ namespace FieldDay.Collections {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int IndexOf(T item) {
+            if (m_PooledList != null) {
+                return m_PooledList.IndexOf(item);
+            }
+            return -1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear() {
             m_PooledList?.Clear();
         }
@@ -66,6 +74,18 @@ namespace FieldDay.Collections {
         public void EnsureCapacity(int capacity) {
             Assert.NotNull(m_PooledList);
             m_PooledList.EnsureCapacity(capacity);
+        }
+
+        public T[] ToArray() {
+            if (m_PooledList == null) {
+                return Array.Empty<T>();
+            }
+
+            T[] values = new T[m_PooledList.Count];
+            for(int i = 0; i < values.Length; i++) {
+                values[i] = this[i];
+            }
+            return values;
         }
 
         static public TempReferenceBuffer<T> Create() {
