@@ -30,6 +30,9 @@ EditorBuildSettings:
     path: Assets/Modules/Credits/Scenes/Credits.unity
     guid: c0311ec26348df54aa1e44b94b3c1d02
   - enabled: 1
+    path: Assets/Shared/Scenes/Comic/ComicScene.unity
+    guid: 63c1e0049266d9b438a7c84edb535c62
+  - enabled: 1
     path: Assets/Shared/Scenes/ChapterAssets/Chapter1_Assets.unity
     guid: 654dfb704b792fe4e9bea91e4a1bad1c
   - enabled: 1

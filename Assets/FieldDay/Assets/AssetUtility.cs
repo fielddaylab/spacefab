@@ -4,7 +4,7 @@ using BeauUtil;
 using System.Runtime.CompilerServices;
 using BeauUtil.Debugger;
 using System.Collections.Generic;
-
+using FieldDay.Collections;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -198,6 +198,90 @@ namespace FieldDay.Assets {
         /// </summary>
         static public class Editor {
 #if UNITY_EDITOR
+            #region Array Modification
+
+            static public T[] StripNullAndDuplicateReferences<T>(T[] values) where T : class {
+                using (TempReferenceBuffer<T> tempBuffer = TempReferenceBuffer<T>.Create(values.Length)) {
+                    foreach (var value in values) {
+                        if (value != null && tempBuffer.IndexOf(value) < 0) {
+                            tempBuffer.Add(value);
+                        }
+                    }
+
+                    if (tempBuffer.Count != values.Length) {
+                        return tempBuffer.ToArray();
+                    }
+
+                    return values;
+                }
+            }
+
+            static public bool StripNullAndDuplicateReferences<T>(ref T[] values) where T : class {
+                T[] newValues = StripNullAndDuplicateReferences(values);
+                if (!ArrayUtils.ContentEquals(newValues, values)) {
+                    values = newValues;
+                    return true;
+                }
+
+                return false;
+            }
+
+            static public T[] StripNullAndDuplicateReferences<T>(T[] values, T exclude) where T : class {
+                using (TempReferenceBuffer<T> tempBuffer = TempReferenceBuffer<T>.Create(values.Length)) {
+                    foreach (var value in values) {
+                        if (value != null && value != exclude && tempBuffer.IndexOf(value) < 0) {
+                            tempBuffer.Add(value);
+                        }
+                    }
+
+                    if (tempBuffer.Count != values.Length) {
+                        return tempBuffer.ToArray();
+                    }
+
+                    return values;
+                }
+            }
+
+            static public bool StripNullAndDuplicateReferences<T>(ref T[] values, T exclude) where T : class {
+                T[] newValues = StripNullAndDuplicateReferences(values, exclude);
+                if (!ArrayUtils.ContentEquals(newValues, values)) {
+                    values = newValues;
+                    return true;
+                }
+
+                return false;
+            }
+
+            static public T[] StripNullAndDuplicateReferences<T>(T[] values, T exclude, Predicate<T> filter) where T : class {
+                using (TempReferenceBuffer<T> tempBuffer = TempReferenceBuffer<T>.Create(values.Length)) {
+                    foreach (var value in values) {
+                        if (value != null && value != exclude && filter(value) && tempBuffer.IndexOf(value) < 0) {
+                            tempBuffer.Add(value);
+                        }
+                    }
+
+                    if (tempBuffer.Count != values.Length) {
+                        return tempBuffer.ToArray();
+                    }
+
+                    return values;
+                }
+            }
+
+            static public bool StripNullAndDuplicateReferences<T>(ref T[] values, T exclude, Predicate<T> filter) where T : class {
+                T[] newValues = StripNullAndDuplicateReferences(values, exclude, filter);
+                if (!ArrayUtils.ContentEquals(newValues, values)) {
+                    values = newValues;
+                    return true;
+                }
+
+                return false;
+            }
+
+            #endregion // Array Modification
+
+            #region Find Assets
+
             static public T FindAsset<T>() where T : UnityEngine.Object {
                 string[] assetGuids = AssetDatabase.FindAssets(NameFilter(typeof(T)));
                 if (assetGuids == null)
@@ -373,6 +457,8 @@ namespace FieldDay.Assets {
                 assets.CopyTo(arr);
                 return arr;
             }
+
+            #endregion // Find Assets
 
             static public readonly Predicate<UnityEngine.Object> IgnoreTemplates = (o) => {
                 return char.IsLetterOrDigit(o.name[0]);

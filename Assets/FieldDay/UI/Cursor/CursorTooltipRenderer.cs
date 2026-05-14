@@ -1,5 +1,6 @@
 using BeauUtil;
 using BeauUtil.Debugger;
+using BeauUtil.Tags;
 using FieldDay.HID;
 using FieldDay.Localization;
 using FieldDay.Rendering;
@@ -47,6 +48,7 @@ namespace FieldDay.UI {
         [NonSerialized] private bool m_Visible;
         [NonSerialized] private long m_LastVersionKey;
 
+        [NonSerialized] private TagString m_TagBuilder;
         [NonSerialized] private StringBuilder m_HeaderBuilder;
         [NonSerialized] private StringBuilder m_ContentBuilder;
         [NonSerialized] private StringBuilder m_FooterBuilder;
@@ -191,7 +193,9 @@ namespace FieldDay.UI {
         }
 
         void IOnGuiUpdate.OnGuiUpdate() {
-            // TODO: don't show if localization is loading
+            if (!Loc.IsReady) {
+                return;
+            }
 
             CursorHint currentHint = CursorHint.Current;
             if (!CursorHint.HasTooltip(currentHint)) {

@@ -46,6 +46,10 @@ inline half Quantize8(half value)
 
 #endif // FD_SUPPORTS_HALF
 
+/// Screen Space
+
+#define     VaryingsFragCoords(channel)  half2 pixelCoords : VPOS
+
 /// Math
 
 inline float2x2 MatrixCreateRotation2d(float radians)

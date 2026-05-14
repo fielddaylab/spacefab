@@ -74,8 +74,8 @@ namespace SpaceFab
 
     public static class SettingsUtility
     {
-        public static StringHash32 MUSIC_BUS_ID = "Music";
-        public static StringHash32 SFX_BUS_ID = "Sfx";
+        public static StringHash32 MUSIC_BUS_ID = "Background";
+        public static StringHash32 SFX_BUS_ID = "Sounds";
 
         static public readonly CastableEvent<bool> OnSubtitlesEnabledUpdated = new CastableEvent<bool>();
 
