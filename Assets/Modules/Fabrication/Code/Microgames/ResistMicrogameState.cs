@@ -131,8 +131,8 @@ namespace SpaceFab.Fabrication.Microgames
             state.ResistUI.SetActive(false);
             state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
-            canvasState.FaderGroup.alpha = 0f;
-            canvasState.FaderGroup.blocksRaycasts = false;
+
+            canvasState.HideUI();
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.

@@ -12,21 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9afc54bdfd2ebe40b52cae749926077, type: 3}
   m_Name: Instructions
   m_EditorClassIdentifier: 
-  FurnaceKey: 0
-  FurnaceInstruction: HOLD
-  FurnaceSubtitle: to raise temperature
-  ResistKey: 0
-  ResistInstruction: PRESS
-  ResistSubtitle: to apply photoresist
-  PhotolithographyKey: 1
-  PhotolithographyInstruction: ARROWS
-  PhotolithographySubtitle: to align pattern
-  EtchKey: 2
-  EtchInstruction: ARROWS
-  EtchSubtitle: to trace path
-  IonKey: 3
-  IonInstruction: MOUSE
-  IonSubtitle: to sputter pattern
-  SputterKey: 4
-  SputterInstruction: KEYS
-  SputterSubtitle: to aim particles
+  FurnaceInstructions:
+    UIKey: 0
+    Instruction: HOLD
+    Subtitle: to raise temperature
+  ResistInstructions:
+    UIKey: 0
+    Instruction: PRESS
+    Subtitle: to apply photoresist
+  PhotolithographyInstructions:
+    UIKey: 1
+    Instruction: ARROWS
+    Subtitle: to align pattern
+  EtchInstructions:
+    UIKey: 2
+    Instruction: ARROWS
+    Subtitle: to trace path
+  IonInstructions:
+    UIKey: 3
+    Instruction: MOUSE
+    Subtitle: to sputter pattern
+  SputterInstructions:
+    UIKey: 4
+    Instruction: KEYS
+    Subtitle: to aim particles

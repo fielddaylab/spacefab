@@ -134,8 +134,8 @@ namespace SpaceFab.Fabrication.Microgames
             state.FurnaceUI.SetActive(false);
             state.MeterArrowAnchor.rotation = Quaternion.identity;
             state.Phase = FurnaceMicrogamePhase.Idle;
-            canvasState.FaderGroup.alpha = 0f;
-            canvasState.FaderGroup.blocksRaycasts = false;
+
+            canvasState.HideUI();
         }
 
         // Furnace-specific precision math: difference between final heat value and the target

@@ -1915,10 +1915,11 @@ MonoBehaviour:
   FaderGroup: {fileID: 513888590}
   PopupGroup: {fileID: 80312477}
   InstructionsGroup: {fileID: 80312478}
-  SpaceSprite: {fileID: 80312484}
-  LRArrowSprite: {fileID: 80312482}
-  FullArrowSprite: {fileID: 80312483}
-  ADArrowSprite: {fileID: 80312481}
+  SpaceImage: {fileID: 80312484}
+  LRArrowImage: {fileID: 80312482}
+  FullArrowImage: {fileID: 80312483}
+  MouseImage: {fileID: 1750579388}
+  ADArrowImage: {fileID: 80312481}
   InstructionTMP: {fileID: 80312480}
   SubtitleTMP: {fileID: 80312479}
   InstructionsLookup: {fileID: 11400000, guid: cf77bacdb976b04498657785bc191e72, type: 2}
@@ -2618,6 +2619,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1750579388 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6515946159348523112, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
+  m_PrefabInstance: {fileID: 80312476}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1823492265
 PrefabInstance:
   m_ObjectHideFlags: 0
