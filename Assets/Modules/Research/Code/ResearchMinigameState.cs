@@ -32,7 +32,7 @@ namespace SpaceFab.Research
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.SetupMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask | UpdateMasks.WikiMask;
         }
 
         // IMinigameState

@@ -72,6 +72,8 @@ namespace SpaceFab
 
         // Design: Grid
         public static readonly StringHash32 DesignGridModified = "design-grid:modified";
+        // Wiki
+        public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
     }
 
     public static class UpdateMasks
@@ -104,6 +106,9 @@ namespace SpaceFab
         // fab
         public const int MicrogameMask = 1 << 17;
 
+        // shared UI
+        public const int WikiMask = 1 << 18;
+        
         // tutorial
         public const int TutorialMask = 1 << 19;
     }

@@ -83,8 +83,9 @@ GameObject:
   - component: {fileID: 518234563781450344}
   - component: {fileID: 8902631178501730816}
   - component: {fileID: 7655658781834560961}
-  - component: {fileID: 4917964265796252707}
   - component: {fileID: 1807206960674959543}
+  - component: {fileID: 9068859788299082105}
+  - component: {fileID: 5367927135572604056}
   m_Layer: 0
   m_Name: State
   m_TagString: Untagged
@@ -206,18 +207,6 @@ MonoBehaviour:
     Risk: {r: 1, g: 0.6, b: 0, a: 1}
     SoftHighlight: {r: 0.2216981, g: 0.5032116, b: 1, a: 1}
     HardHighlight: {r: 0.100302614, g: 0.9245283, b: 0.21235952, a: 1}
---- !u!114 &4917964265796252707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 702368520693917882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f26965848ab8e5f4db802a0c46bfd75a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1807206960674959543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,6 +223,42 @@ MonoBehaviour:
   LastSelectedContractIndex: 0
   CurrAvailableContractsBundle: {fileID: 0}
   CurrChapterDef: {fileID: 0}
+--- !u!114 &9068859788299082105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702368520693917882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 706f2641905f6d64d924966dcaeba60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrComic: {fileID: 0}
+--- !u!114 &5367927135572604056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702368520693917882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65a0491bd8d22fa4faed5481dfdb2db8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Expanded: 0
+  Transitioning: 0
+  ActiveTabIndex: 0
+  ActivePageIndex: 0
+  OpenRequestedThisFrame: 0
+  CloseRequestedThisFrame: 0
+  OpenToRequestedThisFrame: 0
+  RequestedTabId:
+    m_HashValue: 0
+  RequestedPageId:
+    m_HashValue: 0
 --- !u!1 &4107408674079076998
 GameObject:
   m_ObjectHideFlags: 0
