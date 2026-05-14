@@ -30,7 +30,7 @@ namespace SpaceFab.Fabrication
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.SetupMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask | UpdateMasks.WikiMask;
         }
 
         // IMinigameState
@@ -52,15 +52,15 @@ namespace SpaceFab.Fabrication
     {
         public static void ImportState(FabricationSaveState saveState, FabricationMinigameState fabState)
         {
-            fabState.TotalCycles = saveState.TotalCycles;
-            fabState.Precision = saveState.Precision;
+            fabState.TotalCycles = saveState.FinalizedTotalCycles;
+            fabState.Precision = saveState.FinalizedPrecision;
         }
 
         public static void ExportState(ref FabricationSaveState saveState, FabricationMinigameState fabState)
         {
             // TODO: check if run completed
-            saveState.TotalCycles = fabState.TotalCycles;
-            saveState.Precision = fabState.Precision;
+            saveState.FinalizedTotalCycles = fabState.TotalCycles;
+            saveState.FinalizedPrecision = fabState.Precision;
         }
     }
 }

@@ -23,6 +23,8 @@ namespace SpaceFab.Design
                     .ReadShared<GridStackState>()
                     .ReadWriteShared<SimulateUIState>()
                     .ReadWriteShared<VisualGridStackState>()
+                    .ReadWriteShared<PlayerProgressState>()
+                    .ReadWriteShared<DesignMinigameState>()
             );
         }
 
@@ -37,7 +39,9 @@ namespace SpaceFab.Design
                 );
             Find.State(
                 out SimulateUIState uiState,
-                out VisualGridStackState visualState
+                out VisualGridStackState visualState,
+                out PlayerProgressState progressState,
+                out DesignMinigameState designState
                 );
 
             // Universal high-priority request: Cancel beats everything except Cancelling itself.
@@ -50,19 +54,19 @@ namespace SpaceFab.Design
             switch (runState.Phase)
             {
                 case SimulatePhase.Idle:
-                    ProcessIdle(runState);
+                    ProcessIdle(runState, uiState);
                     break;
                 case SimulatePhase.PreparingTest:
-                    ProcessPreparingTest(runState, runScratch, graphState, uiState, visualState);
+                    ProcessPreparingTest(runState, runScratch, graphState, uiState, visualState, progressState, gridStackState);
                     break;
                 case SimulatePhase.Propagating:
                     ProcessPropagating(runState, graphState, uiState, deltaTime);
                     break;
                 case SimulatePhase.Paused:
-                    ProcessPaused(runState);
+                    ProcessPaused(runState, uiState);
                     break;
                 case SimulatePhase.ResolvingTest:
-                    ProcessResolvingTest(runState, runScratch, graphState, uiState);
+                    ProcessResolvingTest(runState, runScratch, graphState, uiState, progressState, gridStackState, designState);
                     break;
                 case SimulatePhase.SuiteComplete:
                     ProcessSuiteComplete(runState, uiState);
@@ -75,18 +79,50 @@ namespace SpaceFab.Design
 
         // Idle: accept Play / PlaySingle. Graph is already built by ModeTransitionSystem on
         // Simulate-mode entry, so we can go straight to PreparingTest without a build phase.
-        static private void ProcessIdle(SimulateRunState runState)
+        // Branch order: a queued cancel-then-play (PendingPlayRowIndex) wins over an explicit
+        // PlayFullSuiteRequested if both somehow set the same frame, since the queue carries an
+        // older intent. PlayFullSuiteRequested then wins over PlaySingleTestRequested.
+        //
+        // Verdict-preservation rule: starting a single-test run wipes all model + UI verdicts so
+        // only the active row will carry a verdict at the end. Starting a full-suite run leaves
+        // existing verdicts intact — they preserve between tests during the run, with each row's
+        // SetVerdict overwriting its own slot as it resolves.
+        static private void ProcessIdle(SimulateRunState runState, SimulateUIState uiState)
         {
-            // TODO: if PlayFullSuiteRequested:
-            //           Scope = FullSuite; CurrentRow = 0;
-            //           SimulateControlUtility.ClearAllVerdicts(runState);
-            //           Phase = PreparingTest;
-            //           dispatch DesignSimPlayStarted.
-            // TODO: if PlaySingleTestRequested:
-            //           Scope = SingleTest; CurrentRow = RequestedRowIndex;
-            //           SimulateControlUtility.ClearAllVerdicts(runState);   // clear ALL rows to Untested
-            //           Phase = PreparingTest;
-            //           dispatch DesignSimPlayStarted.
+            // Cancel-then-play hand-off. SuiteRunRowButton's click handler sets PendingPlayRowIndex
+            // when the player clicks an inactive row mid-run; ProcessCancelling preserved it across
+            // the Cancelling -> Idle transition for us to consume here.
+            if (runState.PendingPlayRowIndex >= 0)
+            {
+                runState.Scope = RunScope.SingleTest;
+                runState.CurrentRow = runState.PendingPlayRowIndex;
+                runState.PendingPlayRowIndex = -1;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
+                return;
+            }
+
+            if (runState.PlayFullSuiteRequested)
+            {
+                runState.Scope = RunScope.FullSuite;
+                runState.CurrentRow = 0;
+                runState.Phase = SimulatePhase.PreparingTest;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
+                return;
+            }
+
+            if (runState.PlaySingleTestRequested)
+            {
+                runState.Scope = RunScope.SingleTest;
+                runState.CurrentRow = runState.RequestedRowIndex;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
+                return;
+            }
         }
 
         // PreparingTest: reset per-row sim state, prime input flows, advance to Propagating.
@@ -99,7 +135,7 @@ namespace SpaceFab.Design
         //     increment invalidates every per-cell mark from the prior test.
         //   - Edge state: none to reset. Cycle-detection flags are durable on CrucialEdge and
         //     computed at Build time, not per test.
-        static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
+        static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, PlayerProgressState progressState, GridStackState gridStackState)
         {
             // Per-node transient reset. Cheap: NodeCount is small.
             SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
@@ -111,26 +147,24 @@ namespace SpaceFab.Design
             // Prime InputFlowByNode for this row. Walk Input crucial nodes and materialize their
             // test-row value once; DepthStepSystem reads from the array per edge, avoiding a
             // per-edge TestData scan.
-            //
-            // MISSING DEPENDENCY: TestSuiteData for the current level is not yet plumbed through
-            // to Design's runtime state. When that pipeline lands (LevelData threaded through
-            // ContractAssetsWrapper → DesignMinigameState → here), uncomment the block below
-            // and delete this TODO. For now, InputFlowByNode stays zeroed (FlowState.Empty)
-            // which means Input-origin edges will propagate empty flow — harmless in the
-            // scaffold, but Simulate mode will not produce correct results until wired.
-            //
-            // TODO(level-data): replace with:
-            //   var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            //   TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
-            //   TestData currTest = suite.Tests[runState.CurrentRow];
-            //   for (int i = 0; i < graphState.NodeCount; i++) {
-            //       CrucialNode node = graphState.CrucialNodes[i];
-            //       GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
-            //       if (cell.CellType == CellType.Input) {
-            //           runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
-            //       }
-            //   }
-            //   SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
+            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+            TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
+            TestData currTest = suite.Tests[runState.CurrentRow];
+            for (int i = 0; i < graphState.NodeCount; i++)
+            {
+                CrucialNode node = graphState.CrucialNodes[i];
+                GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
+                if (cell.CellType == CellType.Input)
+                {
+                    runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                }
+            }
+            SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
+
+            // Wipe any leftover verdict marks from this row's previous run — the new propagation
+            // hasn't produced a result yet, so the per-output visualizers should read as "no
+            // verdict active" until ResolvingTest writes fresh ones.
+            SimulateUIUtility.HideRowVerdicts(uiState, runState.CurrentRow);
 
             // Mark visuals dirty so GridVisualsUpdateSystem redraws the now-empty-flow grid.
             visualState.VisualsNeedRefreshing = true;
@@ -143,101 +177,250 @@ namespace SpaceFab.Design
             runState.PhaseTimer = 0f;
             runState.Phase = SimulatePhase.Propagating;
 
+            // CurrentRow / Phase just changed; the active row's button needs to flip to Pause.
+            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
         }
 
         // Propagating: per-depth paint rhythm.
-        //   Entry-to-new-depth frame → PaintDepthThisFrame = true; PhaseTimer = 0.
-        //   Subsequent frames at same depth → accumulate PhaseTimer; PaintDepthThisFrame stays false.
+        //   First frame at a new depth (PhaseTimer == 0) → set PaintDepthThisFrame so DepthStepSystem
+        //     paints this depth's edges this same frame (it runs at Update order 2, after us at 1).
+        //   Every frame (including the paint frame) → accumulate deltaTime. The first frame's
+        //     accumulation is what pulls PhaseTimer off zero so the next frame doesn't re-paint.
         //   At PhaseTimer >= InterDepthDelay → depth boundary; check interrupts, then advance or resolve.
         static private void ProcessPropagating(SimulateRunState runState, SimulateGraphState graphState, SimulateUIState uiState, float deltaTime)
         {
-            // TODO: if PhaseTimer == 0 on first frame of this depth, PaintDepthThisFrame = true; return.
-            //       (Also covers CurrentDepth==0 entry from PreparingTest.)
-            // TODO: PhaseTimer += deltaTime. If PhaseTimer < InterDepthDelay, return (visuals playing).
-            //
-            // Depth boundary reached — check interrupts:
-            // TODO: if RestartTestRequested → Phase = PreparingTest (CurrentRow unchanged); return.
-            // TODO: if RestartSuiteRequested → Scope = FullSuite; CurrentRow = 0;
-            //         SimulateControlUtility.ClearAllVerdicts; Phase = PreparingTest; return.
-            // TODO: if PauseRequested → Phase = Paused; dispatch DesignSimPaused; return.
-            //
-            // No interrupt — advance depth or finish:
-            // TODO: CurrentDepth++. If CurrentDepth > graphState.MaxDepth → Phase = ResolvingTest;
-            //       PhaseTimer = 0; return.
-            // TODO: Otherwise PhaseTimer = 0; (next frame will paint.)
+            // First frame at this depth: signal DepthStepSystem to paint.
+            if (runState.PhaseTimer == 0f)
+            {
+                runState.PaintDepthThisFrame = true;
+            }
+
+            // Depth boundary reached. Check interrupts before advancing. Restarts beat Pause:
+            // a player who hits Restart while the run is mid-flight expects an immediate reset,
+            // not a pause-then-restart. Pause comes last so it's the catch-all if no Restart fired.
+
+            if (runState.RestartTestRequested)
+            {
+                // Same row, fresh sim state — ProcessPreparingTest re-primes inputs and resets
+                // the depth pointer. Verdicts for other rows stay untouched.
+                runState.Phase = SimulatePhase.PreparingTest;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
+
+            if (runState.RestartSuiteRequested)
+            {
+                runState.Scope = RunScope.FullSuite;
+                runState.CurrentRow = 0;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
+
+            if (runState.PauseRequested)
+            {
+                runState.Phase = SimulatePhase.Paused;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPaused);
+                // Active row's button should flip from Pause icon to Resume icon.
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
+
+            // Accumulate. Even on the paint frame: ensures next frame won't repaint and progress
+            // is made toward the InterDepthDelay threshold.
+            runState.PhaseTimer += deltaTime;
+            if (runState.PhaseTimer < runState.InterDepthDelay) { return; }
+
+            // No interrupt: advance depth or finish.
+            runState.CurrentDepth++;
+            runState.PhaseTimer = 0f;
+            if (runState.CurrentDepth > graphState.MaxDepth)
+            {
+                runState.Phase = SimulatePhase.ResolvingTest;
+                // Active row's button should flip back from Pause to Play.
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+            }
+            // Otherwise PhaseTimer == 0 → next frame's first-frame branch paints the new depth.
         }
 
-        // Paused: wait for Resume or Restart*. Cancel handled at top of ProcessWork.
-        static private void ProcessPaused(SimulateRunState runState)
+        // Paused: wait for Resume or Restart*. Cancel handled at top of ProcessWork. Restart
+        // wins over Resume if both somehow fired the same frame — Restart is the more-decisive
+        // intent (player wants the run to start over, not just to keep going).
+        static private void ProcessPaused(SimulateRunState runState, SimulateUIState uiState)
         {
-            // TODO: if ResumeRequested → Phase = Propagating; dispatch DesignSimResumed; return.
-            // TODO: if RestartTestRequested → Phase = PreparingTest (CurrentRow unchanged); return.
-            // TODO: if RestartSuiteRequested → Scope = FullSuite; CurrentRow = 0;
-            //         SimulateControlUtility.ClearAllVerdicts; Phase = PreparingTest; return.
+            if (runState.RestartTestRequested)
+            {
+                runState.Phase = SimulatePhase.PreparingTest;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
+
+            if (runState.RestartSuiteRequested)
+            {
+                runState.Scope = RunScope.FullSuite;
+                runState.CurrentRow = 0;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
+
+            if (runState.ResumeRequested)
+            {
+                runState.Phase = SimulatePhase.Propagating;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimResumed);
+                // Active row's button should flip from Resume icon back to Pause icon.
+                // PhaseTimer is left at its boundary value, so the next ProcessPropagating tick
+                // falls straight through to depth-advance — the just-painted depth doesn't get
+                // re-painted, the run continues at the next depth.
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
         }
 
         // ResolvingTest: score outputs for CurrentRow, write verdict, advance to next row or finish.
         //
-        // Per the flow-propagation plan, this handler reads per-output flow from runScratch.NodeFlow
-        // into runScratch.OutputFlowBuffer and compares each to expected values from the current
-        // test row. Only the OutputFlowBuffer collection is in scope for the propagation port;
-        // verdict decision, row advancement, and suite-completion wiring remain scaffolded until
-        // the phase machine's control-flow handlers are implemented.
-        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState)
+        // Reads per-output flow from runScratch.NodeFlow, fills runScratch.OutputFlowBuffer in
+        // CrucialNodes-Output order, and compares each value to the expected one from the current
+        // row's TestData. The verdict gets recorded on runState.RowVerdicts via SetVerdict and
+        // pushed to the UI via WriteRowVerdict (currently a stub — UI not yet implemented).
+        //
+        // Advance rules:
+        //   SingleTest scope                       → SuiteComplete (whole run is just this row).
+        //   FullSuite, more rows remain            → next row via PreparingTest.
+        //   FullSuite, last row resolved           → SuiteComplete with aggregate-correct flag.
+        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, PlayerProgressState progressState, GridStackState gridStackState, DesignMinigameState designState)
         {
-            // MISSING DEPENDENCY: same level-data gap as ProcessPreparingTest. When the current
-            // level's TestSuiteData is reachable here, scoring can be wired. For now, collect
-            // OutputFlowBuffer from runScratch.NodeFlow so downstream consumers have somewhere
-            // to read from.
-            //
-            // TODO(level-data): replace with full scoring:
-            //   var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            //   TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
-            //   TestData currTest = suite.Tests[runState.CurrentRow];
-            //   bool allCorrect = true;
-            //   int outputIdx = 0;
-            //   for (int i = 0; i < graphState.NodeCount; i++) {
-            //       CrucialNode node = graphState.CrucialNodes[i];
-            //       GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
-            //       if (cell.CellType != CellType.Output) { continue; }
-            //       FlowState actual = runScratch.NodeFlow[i];
-            //       FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
-            //       runScratch.OutputFlowBuffer[outputIdx++] = actual;
-            //       if (actual != expected) { allCorrect = false; }
-            //   }
-            //   TestRowVerdict verdict = runState.IsUnstable
-            //       ? TestRowVerdict.Unstable
-            //       : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
-            //   SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
-            //   SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, verdict, runScratch.OutputFlowBuffer);
-            //   Game.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
-            //
-            //   Advance based on Scope:
-            //   if (runState.Scope == RunScope.SingleTest) {
-            //       runState.Phase = SimulatePhase.SuiteComplete;
-            //       SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
-            //       Game.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
-            //   } else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length) {
-            //       runState.CurrentRow++;
-            //       runState.Phase = SimulatePhase.PreparingTest;
-            //   } else {
-            //       runState.Phase = SimulatePhase.SuiteComplete;
-            //       SimulateUIUtility.ShowResultsPanel(uiState, /* aggregate of RowVerdicts */);
-            //       Game.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
-            //   }
+            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+            TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
+            TestData currTest = suite.Tests[runState.CurrentRow];
+
+            // Score every Output crucial node against its expected value. OutputFlowBuffer is
+            // sized by SimulateRunScratchUtility.SizeOutputBuffer at Simulate-mode entry, in the
+            // same CrucialNodes ordering — so outputIdx walks both in lockstep. We also build
+            // actualPerCol — actual flow indexed by bundle column — so the UI layer can display
+            // per-output verdicts without re-walking the graph.
+            FlowState[] actualPerCol = new FlowState[currTest.Bundle.Length];
+            bool allCorrect = true;
+            int outputIdx = 0;
+            for (int i = 0; i < graphState.NodeCount; i++)
+            {
+                CrucialNode node = graphState.CrucialNodes[i];
+                GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
+                if (cell.CellType != CellType.Output) { continue; }
+
+                FlowState actual = runScratch.NodeFlow[i];
+                FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                runScratch.OutputFlowBuffer[outputIdx++] = actual;
+                if (actual != expected) { allCorrect = false; }
+
+                // Map this graph-output back to its bundle column by SubtypeLabel match so the
+                // UI's verdict visualizers (indexed by bundle col) can read the actual flow.
+                for (int col = 0; col < currTest.Bundle.Length; col++)
+                {
+                    if (currTest.Bundle[col].Id == cell.SubtypeLabel)
+                    {
+                        actualPerCol[col] = actual;
+                        break;
+                    }
+                }
+            }
+
+            // Unstable beats Correct/Incorrect: any unstable flow this row, even if all outputs
+            // happened to match expectations, is a fail-by-instability per the prototype.
+            TestRowVerdict verdict = runState.IsUnstable
+                ? TestRowVerdict.Unstable
+                : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
+            SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
+            SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
+            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
+
+            // Advance based on Scope.
+            if (runState.Scope == RunScope.SingleTest)
+            {
+                runState.Phase = SimulatePhase.SuiteComplete;
+                SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            }
+            else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length)
+            {
+                runState.CurrentRow++;
+                runState.Phase = SimulatePhase.PreparingTest;
+            }
+            else
+            {
+                runState.Phase = SimulatePhase.SuiteComplete;
+                bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
+                SimulateUIUtility.ShowResultsPanel(uiState, suiteAllCorrect);
+                // A passing full-suite run is the one moment FoundValidSolution flips true.
+                // It's reset to false on grid edits and on any subsequent test re-run via
+                // DesignMinigameState's event listeners — set directly here rather than via
+                // an event to keep the success signal coupled to the verdict array that
+                // produced it.
+                if (suiteAllCorrect)
+                {
+                    designState.FoundValidSolution = true;
+                }
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            }
+
+            // Phase or CurrentRow changed; the active row's button needs a repaint.
+            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+        }
+
+        // True iff every entry in verdicts is Correct. Used for the suite-level pass/fail flag
+        // pushed to the results panel at the end of a FullSuite run.
+        static private bool IsAllCorrect(TestRowVerdict[] verdicts)
+        {
+            for (int i = 0; i < verdicts.Length; i++)
+            {
+                if (verdicts[i] != TestRowVerdict.Correct) { return false; }
+            }
+            return true;
         }
 
         // SuiteComplete: wait on Dismiss or new Play request. Cancel handled at top.
+        // Both Play branches wipe all row verdicts and hide the results panel before re-running.
         static private void ProcessSuiteComplete(SimulateRunState runState, SimulateUIState uiState)
         {
-            // TODO: if DismissResultsRequested → SimulateUIUtility.HideResultsPanel(uiState); Phase = Idle.
-            // TODO: if PlayFullSuiteRequested → Scope = FullSuite; CurrentRow = 0;
-            //         SimulateControlUtility.ClearAllVerdicts; SimulateUIUtility.HideResultsPanel;
-            //         Phase = PreparingTest.
-            // TODO: if PlaySingleTestRequested → Scope = SingleTest; CurrentRow = RequestedRowIndex;
-            //         SimulateControlUtility.ClearAllVerdicts; SimulateUIUtility.HideResultsPanel;
-            //         Phase = PreparingTest.
+            if (runState.DismissResultsRequested)
+            {
+                SimulateUIUtility.HideResultsPanel(uiState);
+                runState.Phase = SimulatePhase.Idle;
+                SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+                return;
+            }
+
+            if (runState.PlayFullSuiteRequested)
+            {
+                // Full-suite re-run: preserve existing verdicts, each row's SetVerdict will
+                // overwrite its slot as the suite progresses.
+                runState.Scope = RunScope.FullSuite;
+                runState.CurrentRow = 0;
+                SimulateUIUtility.HideResultsPanel(uiState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
+                return;
+            }
+
+            if (runState.PlaySingleTestRequested)
+            {
+                // Single-test re-run: wipe everyone else's verdicts so only the active row
+                // ends up with a result.
+                runState.Scope = RunScope.SingleTest;
+                runState.CurrentRow = runState.RequestedRowIndex;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
+                SimulateUIUtility.HideResultsPanel(uiState);
+                runState.Phase = SimulatePhase.PreparingTest;
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
+                return;
+            }
         }
 
         // Cancelling: wipe sim visuals and exit Simulate mode via ModeTransitionState.
@@ -246,9 +429,11 @@ namespace SpaceFab.Design
         // temp-transform mark. GridVisualsUpdateSystem then redraws with empty flow.
         static private void ProcessCancelling(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
         {
-            SimulateRunScratchUtility.BumpFlowStamp(runScratch);
-            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
-            visualState.VisualsNeedRefreshing = true;
+            // Shared sim-state wipe. Lands runState.Phase at Idle so a subsequent Simulate
+            // entry starts clean. PendingPlayRowIndex is intentionally NOT touched here —
+            // ProcessIdle consumes it on the next frame to fire the queued PlaySingleTest
+            // (cancel-then-play hand-off from the suite-row click handler).
+            SimulateControlUtility.WipeRunState(runState, runScratch, graphState, uiState, visualState);
 
             // TODO: SimulateUIUtility.ClearAllEvalMarks(uiState); HideResultsPanel(uiState).
             // TODO: dispatch DesignSimCancelled.
@@ -257,14 +442,16 @@ namespace SpaceFab.Design
             //         SimulateGraphUtility.Clear(graphState);
             //         GameLoop.ResumeUpdates(UpdateMasks.ToolModeMask)).
             //       Final transition wiring lives in ModeTransitionSystem — this handler just signals.
-            // TODO: Phase = Idle (so a subsequent Simulate entry starts clean).
         }
 
         // Sets Phase = Cancelling and clears per-test progress. Does not itself perform the wipe —
         // that's ProcessCancelling's job on the next tick.
         static private void EnterCancelling(SimulateRunState runState)
         {
-            // TODO: Phase = Cancelling; PhaseTimer = 0; CurrentDepth = 0; PaintDepthThisFrame = false.
+            runState.Phase = SimulatePhase.Cancelling;
+            runState.PhaseTimer = 0f;
+            runState.CurrentDepth = 0;
+            runState.PaintDepthThisFrame = false;
         }
     }
 }

@@ -6,14 +6,20 @@ using UnityEngine;
 
 namespace SpaceFab.Comic
 {
-    public class ComicDisplaySystem : SharedStateSystemBehaviour<ComicDisplayState>
+    public class ComicDisplaySystem : SystemComponent
     {
-        static private void ProcessWork(float deltaTime) {
-            GetDependencies();
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            //ecs.Register()
         }
 
-        protected override unsafe SystemFunctionShim GetDelegate() {
-            return new SystemFunctionShim(&ProcessWork);
+        //static private void 
+
+        static private void HandleLoadRequests() {
+
+        }
+
+        static private void HandleSpawnRequests() {
+
         }
     }
 }

@@ -1,6 +1,8 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
+using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.Stations;
 using SpaceFab.Fabrication.StationControl;
 using System.Collections;
@@ -13,17 +15,21 @@ namespace SpaceFab.Fabrication.Movement {
     /// enters a microgame at the robot's current station; Down/Cancel exits a microgame mid-play.
     /// Gated by WorldInteractState.WorldInteractEnabled (outer kill switch) and the station-control
     /// machine's AllowsActivate / AllowsCancel queries.
-    /// Runs on any Update phase at order 10 under AttemptMask (after StationControlSystem at order 5).
+    /// Runs on any Update phase at order 5 under AttemptMask, before StationControlSystem at order 10 —
+    /// so same-frame RequestActivate / RequestCancel / RequestSkip flags are consumed by the state
+    /// machine this frame, not lost to the LateUpdate refresh.
     /// </summary>
     public class WorldInteractSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.Update, 10, UpdateMasks.AttemptMask),
+                new SysUpdate(GameLoopPhaseMask.Update, 5, UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadShared<WorldInteractState>()
                     .ReadShared<MovementState>()
                     .ReadShared<LayoutState>()
                     .ReadWriteShared<StationControlState>()
+                    .ReadWriteShared<RobotState>()
+                    .ReadWriteShared<RobotVisualsState>()
             );
         }
 
@@ -35,17 +41,21 @@ namespace SpaceFab.Fabrication.Movement {
                 out LayoutState layoutState,
                 out StationControlState stationState
                 );
+            Find.State(
+                out RobotState robotState,
+                out RobotVisualsState visualsState
+                );
 
             if (!interactState.WorldInteractEnabled) { return; }
 
-            ProcessInputs(interactState, movementState, layoutState, stationState);
+            ProcessInputs(interactState, movementState, layoutState, stationState, robotState, visualsState);
         }
 
         // Dispatches Activate (Up / Space) and Cancel (Down) keypresses. Validity is checked via
         // WorldInteractUtility against the station-control state; the machine itself makes the final decision.
-        static private void ProcessInputs(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState) {
+        static private void ProcessInputs(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
             if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1) || Game.Input.IsKeyPressed(FabricationConsts.Activate)) {
-                HandleActivate(interactState, movementState, layoutState, stationState);
+                HandleActivate(interactState, movementState, layoutState, stationState, robotState, visualsState);
             }
             // Skip and Down0 share the physical key S, so the Skip branch must come before Cancel.
             // The phase guard ensures Skip only fires during ExitingMicrogame while a process
@@ -60,21 +70,24 @@ namespace SpaceFab.Fabrication.Movement {
         }
 
         // Looks up the interfacer at the current slot and asks the station-control machine to activate it.
-        // No-op if the gate fails, the slot is invalid, or no interfacer is assigned.
-        static private void HandleActivate(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState) {
+        // No-op if the gate fails or the slot is invalid; a null interfacer is allowed through so the
+        // machine can stun the robot for a wrong-station attempt.
+        static private void HandleActivate(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
             if (!WorldInteractUtility.CanActivate(interactState, stationState)) { return; }
 
             int slotIndex = movementState.CurrSlotPosition;
             if (slotIndex < 0 || slotIndex >= layoutState.StationSlots.Length) { return; }
 
             MicrogameStationInterfacer interfacer = layoutState.StationSlots[slotIndex].AssignedStationInterfacer;
-            StationControlUtility.RequestActivate(stationState, interfacer);
+            Log.Msg("[WorldInteractSystem] Activate pressed at slot {0}; forwarding to RequestActivate", slotIndex);
+            StationControlUtility.RequestActivate(stationState, robotState, visualsState, interfacer);
         }
 
         // Forwards a Cancel request to the station-control machine. Honored only during InMicrogame.
         static private void HandleCancel(WorldInteractState interactState, StationControlState stationState) {
             if (!WorldInteractUtility.CanCancel(interactState, stationState)) { return; }
 
+            Log.Msg("[WorldInteractSystem] Cancel pressed; forwarding to RequestCancel");
             StationControlUtility.RequestCancel(stationState);
         }
 
@@ -84,6 +97,7 @@ namespace SpaceFab.Fabrication.Movement {
         // the outer WorldInteractEnabled kill switch is intentionally not consulted here, so a
         // disabled interact state can't strand the player behind the animation.
         static private void HandleSkipProcessAnimation(StationControlState stationState) {
+            Log.Msg("[WorldInteractSystem] Skip pressed; forwarding to RequestSkipProcessAnimation");
             StationControlUtility.RequestSkipProcessAnimation(stationState);
         }
     }

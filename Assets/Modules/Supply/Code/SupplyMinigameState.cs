@@ -20,6 +20,12 @@ namespace SpaceFab.Supply
 
         #endregion // Saved State
 
+        #region Runtime State
+
+        [HideInInspector] public SupplyChainMapData CurrSupplyChainMap;
+
+        #endregion // Runtime State
+
         #region Interfaces
 
         // IRegistrationCallbacks
@@ -30,7 +36,7 @@ namespace SpaceFab.Supply
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.SupplyMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask | UpdateMasks.WikiMask;
         }
 
         // IMinigameState
@@ -53,8 +59,8 @@ namespace SpaceFab.Supply
         public static void ImportState(SupplySaveState saveState, SupplyMinigameState supplyState)
         {
             supplyState.Reliability = saveState.FinalizedReliability;
-            supplyState.TotalCycles = saveState.FinalizedReliability;
-            supplyState.Cost = saveState.FinalizedReliability;
+            supplyState.TotalCycles = saveState.FinalizedTotalCycles;
+            supplyState.Cost = saveState.FinalizedCost;
         }
 
         public static void ExportState(ref SupplySaveState saveState, SupplyMinigameState supplyState)

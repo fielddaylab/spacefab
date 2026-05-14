@@ -11,6 +11,7 @@ namespace SpaceFab.Save
     public class DesignSaveState : IMinigameSaveState, ISaveStateChunkObject
     {
         public GridStack GridStack;
+        public bool FoundValidSolution;
 
         #region Interfaces
 
@@ -19,6 +20,7 @@ namespace SpaceFab.Save
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
             DesignSaveUtility.ReadGridStack(ref reader, consts, this, ref GridStack);
+            FoundValidSolution = reader.Read<bool>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
@@ -29,6 +31,8 @@ namespace SpaceFab.Save
             }
 
             DesignSaveUtility.WriteGridStack(ref writer, consts, this, ref GridStack);
+
+            writer.Write(FoundValidSolution);
         }
 
         // IMinigameSaveState

@@ -169,5 +169,44 @@ namespace SpaceFab.Design
         }
 
         #endregion // Queries
+
+        public static void ClearGridStack(GridStackState gridStackState)
+        {
+            for (int i = 0; i < gridStackState.GridStack.GridLayers.Length; i++)
+            {
+                GridLayer gridLayer = gridStackState.GridStack.GridLayers[i];
+                for (int col = 0; col < gridStackState.GridStack.LayerDims.X; col++)
+                {
+                    for (int row = 0; row < gridStackState.GridStack.LayerDims.Y; row++)
+                    {
+                        // if(gridLayer.Cells[row * gridStackState.GridStack.LayerDims.X + col].NodeEraseable && gridLayer.Cells[row * gridStackState.GridStack.LayerDims.X + col].TransferEraseable)
+                        // {
+                        //     GridLayerUtility.SetCell(gridLayer, col, row, new GridCell());
+                        // }
+                        GridCell cell = GridLayerUtility.GetCell(gridLayer, col, row);
+                        if (cell.NodeEraseable)
+                        {
+                            cell.CellType = CellType.NONE;
+                            cell.SubtypeLabel = default;
+                        }
+
+                        if (cell.TransferEraseable)
+                        {
+                            cell.TransferType = TransferType.NONE;
+                        }
+
+                        for (int edgeIndex = 0; edgeIndex < cell.Edges.Length; edgeIndex++)
+                        {
+                            if (cell.Edges[edgeIndex].Eraseable)
+                            {
+                                cell.Edges[edgeIndex].EdgeState = EdgeState.Disconnected;
+                            }
+                        }
+
+                        // GridLayerUtility.SetCell(gridLayer, col, row, cell);
+                    }
+                }
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace SpaceFab.Fabrication {
     public class PreAttemptSetupSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.PreUpdate, 0, UpdateMasks.PreAttemptMask),
+                new SysUpdate(GameLoopPhaseMask.Update, -10, UpdateMasks.PreAttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<LayoutState>()
                     .ReadWriteShared<ModeState>()
@@ -30,6 +30,8 @@ namespace SpaceFab.Fabrication {
             {
                 return;
             }
+
+            layoutState.NeedsReshuffling = true;
 
             // setup pre-attempt
             if (layoutState.NeedsReshuffling) {

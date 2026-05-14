@@ -14,10 +14,10 @@ namespace FieldDay.Editor {
     /// <summary>
     /// Adjust splash screen, exception, and logging settings during a build.
     /// </summary>
-    public class AdjustSettingsBuildProcessor : IPreprocessBuildWithReport {
-        public int callbackOrder { get { return -100; } }
+    public class AdjustSettingsBuildProcessor : BuildPlayerProcessor {
+        public override int callbackOrder { get { return -100; } }
 
-        public void OnPreprocessBuild(BuildReport report) {
+        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
             string branch = BuildUtils.GetSourceControlBranchName();
             bool isBatchMode = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
             if (isBatchMode) {
@@ -45,10 +45,10 @@ namespace FieldDay.Editor {
     /// <summary>
     /// Bakes all assets with a custom baking procedure.
     /// </summary>
-    public class BakeAssetsBuildPreprocessor : IPreprocessBuildWithReport {
-        public int callbackOrder { get { return 10; } }
+    public class BakeAssetsBuildPreprocessor : BuildPlayerProcessor {
+        public override int callbackOrder { get { return 10; } }
 
-        public void OnPreprocessBuild(BuildReport report) {
+        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
             bool batch = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
 
             try {
@@ -67,10 +67,10 @@ namespace FieldDay.Editor {
     /// <summary>
     /// Strips all assets with editor-only data.
     /// </summary>
-    public class StripEditorDataBuildPreprocesor : IPreprocessBuildWithReport {
-        public int callbackOrder { get { return 10000; } }
+    public class StripEditorDataBuildPreprocesor : BuildPlayerProcessor {
+        public override int callbackOrder { get { return 10000; } }
 
-        public void OnPreprocessBuild(BuildReport report) {
+        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
             bool batch = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
 
             List<IEditorOnlyData> toStrip = new List<IEditorOnlyData>(256);

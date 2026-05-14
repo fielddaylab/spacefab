@@ -16,18 +16,22 @@ namespace SpaceFab
         [SerializeField] private string m_title;
         [SerializeField] private string m_description;
         [SerializeField] private string m_client;
+        [SerializeField] private int m_payout;
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
         [SerializeField] private AssetPack m_contractAssets;
         [AssetName(typeof(ContractAssetsWrapper))][SerializeField] public StringHash32 ContractAssetsWrapperId;
+        //[AssetName(typeof(MaterialAsset))][SerializeField] private StringHash32[] m_requiredResearchMaterials;
 
 
         public int Value() { return m_value; }
-        public MaterialPropertyCheck[] RequiredMaterials() { return m_requiredMaterialProperties; }
+        public MaterialPropertyCheck[] RequiredMaterialProperties() { return m_requiredMaterialProperties; }
+        // public StringHash32[] RequiredResearchMaterials() { return m_requiredResearchMaterials; }
         public StringHash32 DesignLevel() { return m_designLevel; }
         public string Title() { return m_title; }
         public string Description() { return m_description; }
         public string Client() { return m_client; }
+        public int Payout() { return m_payout; }
         public int ExpectedDuration() { return m_expectedDuration; }
         public int ExpectedProfit() { return m_expectedProfit; }
         public AssetPack ContractAssets() { return m_contractAssets; }

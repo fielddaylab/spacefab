@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
   m_Name: Chapter 1 Def
   m_EditorClassIdentifier: 
-  AvailableContracts: {fileID: 11400000, guid: de7644da1e072a74991215bd9dfbd480, type: 2}
-  AvailableContractsBundleId:
-    m_HashValue: 3906590269
+  m_availableMaterials:
+  - m_HashValue: 1163381446
+  - m_HashValue: 3821421172

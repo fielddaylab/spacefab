@@ -102,3 +102,5 @@ InitTestScene*.unity*
 
 # Local save files
 [Ss]aves/*
+node_modules/
+/.vscode

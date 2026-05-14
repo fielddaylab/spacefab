@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Data;
 using FieldDay.SharedState;
+using SpaceFab.Materials;
 using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,11 +15,13 @@ namespace SpaceFab
     {
         #region Save State
 
-        public HashSet<StringHash32> AvailableMaterials;
-        public HashSet<StringHash32> ResearchedMaterials;
-
         public bool RecentlyCompletedChapter;
-        public List<StringHash32> CompletedContractIds;
+
+        public int ElapsedCycles;
+        public int Funds;
+
+        public uint CompletedContractBuffer;
+        public MaterialPropertyRecord[] MaterialPropertyBuffer;
 
         // Wiki pages the player has unlocked. Populated by WikiUtility.UnlockPage; read by
         // WikiAvailabilityUtility and WikiUtility's lock queries to decide which tabs/pages
@@ -27,7 +30,11 @@ namespace SpaceFab
         
         #endregion // Save State
 
+        public Dictionary<StringHash32, MaterialPropertyRecord> MaterialProperties;
+        public HashSet<StringHash32> CompletedContractIds;
+
         public StringHash32 ContractAssetsWrapperId;
+        public StringHash32 CurrContractId;
 
         public void OnDeregister()
         {
@@ -35,6 +42,8 @@ namespace SpaceFab
 
         public void OnRegister()
         {
+            CompletedContractIds = new HashSet<StringHash32>();
+            MaterialProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
             SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
         }
 
@@ -46,17 +55,17 @@ namespace SpaceFab
         {
             RecentlyCompletedChapter = reader.Read<bool>();
 
-            // Appended field — gate on Remaining so pre-wiki saves don't crash.
             UnlockedWikiPages ??= new HashSet<StringHash32>();
             UnlockedWikiPages.Clear();
-            if (reader.Remaining > 0)
+            int count = reader.Read<int>();
+            for (int i = 0; i < count; i++)
             {
-                int count = reader.Read<int>();
-                for (int i = 0; i < count; i++)
-                {
-                    UnlockedWikiPages.Add(reader.Read<StringHash32>());
-                }
+                UnlockedWikiPages.Add(reader.Read<StringHash32>());
             }
+            ElapsedCycles = reader.Read<int>();
+            Funds = reader.Read<int>();
+            PlayerProgressUtility.UnpackCompletedContracts(this, reader.Read<uint>());
+            PlayerProgressUtility.UnpackMaterialProperties(this, ref reader);
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
@@ -72,6 +81,10 @@ namespace SpaceFab
                     writer.Write(id);
                 }
             }
+            writer.Write(ElapsedCycles);
+            writer.Write(Funds);
+            writer.Write(PlayerProgressUtility.PackCompletedContracts(this));
+            PlayerProgressUtility.PackMaterialProperties(this, ref writer);
         }
 
         #endregion // Interfaces
@@ -87,6 +100,113 @@ namespace SpaceFab
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Packs CompletedContractIds into a bitmask using ContractOrderAsset for stable indices.
+        /// </summary>
+        public static uint PackCompletedContracts(PlayerProgressState state)
+        {
+            var contractOrder = Find.GlobalAsset<ContractOrderAsset>();
+            state.CompletedContractBuffer = 0;
+            foreach (var id in state.CompletedContractIds)
+            {
+                if (contractOrder.TryGetIndex(id, out int idx))
+                {
+                    state.CompletedContractBuffer |= (1u << idx);
+                }
+            }
+            return state.CompletedContractBuffer;
+        }
+
+        /// <summary>
+        /// Unpacks a saved bitmask back into CompletedContractIds using ContractOrderAsset.
+        /// </summary>
+        public static void UnpackCompletedContracts(PlayerProgressState state, uint mask)
+        {
+            var contractOrder = Find.GlobalAsset<ContractOrderAsset>();
+            state.CompletedContractIds.Clear();
+            for (int i = 0; i < contractOrder.Count; i++)
+            {
+                if ((mask & (1u << i)) != 0)
+                {
+                    state.CompletedContractIds.Add(contractOrder.GetId(i));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the given persistent property has been confirmed for the material.
+        /// For dynamic labels (PDopantFor / NDopantFor), contextMaterialId names the X
+        /// in "P-Type Dopant for X". For static labels, contextMaterialId is ignored.
+        /// Observation-only labels always return false.
+        /// </summary>
+        public static bool HasConfirmed(PlayerProgressState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
+        {
+            if (!state.MaterialProperties.TryGetValue(materialId, out var record))
+            {
+                return false;
+            }
+            return MaterialPropertyRecordUtility.Has(record, label, contextMaterialId);
+        }
+
+        /// <summary>
+        /// Marks the given persistent property as confirmed for the material.
+        /// Observation-only labels are silently ignored. For dynamic labels,
+        /// contextMaterialId is required and resolved through MaterialOrderAsset.
+        /// Idempotent (OR-mask semantics).
+        /// </summary>
+        public static void Confirm(PlayerProgressState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
+        {
+            state.MaterialProperties.TryGetValue(materialId, out var record);
+            if (MaterialPropertyRecordUtility.TrySet(ref record, label, contextMaterialId))
+            {
+                state.MaterialProperties[materialId] = record;
+            }
+        }
+
+        /// <summary>
+        /// Stages MaterialProperties into MaterialPropertyBuffer (in MaterialOrderAsset order)
+        /// and writes the buffer to the save stream.
+        /// </summary>
+        public static void PackMaterialProperties(PlayerProgressState state, ref ByteWriter writer)
+        {
+            var materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
+            int count = materialOrder.Count;
+            if (state.MaterialPropertyBuffer == null || state.MaterialPropertyBuffer.Length != count)
+            {
+                state.MaterialPropertyBuffer = new MaterialPropertyRecord[count];
+            }
+            for (int i = 0; i < count; i++)
+            {
+                state.MaterialProperties.TryGetValue(materialOrder.GetId(i), out var record);
+                state.MaterialPropertyBuffer[i] = record;
+            }
+            writer.WriteBuffer(state.MaterialPropertyBuffer);
+        }
+
+        /// <summary>
+        /// Reads MaterialPropertyBuffer from the save stream and rebuilds MaterialProperties,
+        /// skipping all-zero entries to keep the dictionary sparse.
+        /// </summary>
+        public static void UnpackMaterialProperties(PlayerProgressState state, ref ByteReader reader)
+        {
+            var materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
+            int count = materialOrder.Count;
+            if (state.MaterialPropertyBuffer == null || state.MaterialPropertyBuffer.Length != count)
+            {
+                state.MaterialPropertyBuffer = new MaterialPropertyRecord[count];
+            }
+            reader.ReadBuffer(state.MaterialPropertyBuffer);
+            state.MaterialProperties.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                var record = state.MaterialPropertyBuffer[i];
+                if (!MaterialPropertyRecordUtility.IsEmpty(record))
+                {
+                    state.MaterialProperties[materialOrder.GetId(i)] = record;
+                }
+            }
         }
     }
 }

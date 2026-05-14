@@ -10,6 +10,8 @@ namespace SpaceFab
     [CreateAssetMenu(menuName ="SpaceFab/Overarching/Contract Asset Wrapper")]
     public class ContractAssetsWrapper : NamedAsset
     {
+        public ContractDef ContractDef;
+
         public LevelData DesignLevelData;
 
         // Sequence definition for the Fabrication minigame under this contract. Populated into

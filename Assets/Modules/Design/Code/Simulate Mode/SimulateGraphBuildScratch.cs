@@ -70,8 +70,15 @@ namespace SpaceFab.Design
         // Populated as DFS encounters crucial cells downstream of the current origin. After DFS
         // on one outgoing neighbor finishes, Pass 2 walks this list to emit one CrucialEdge per
         // reached crucial node. Reset (DfsReachedCrucialCount = 0) at the start of each DFS run.
+        //
+        // DfsReachedPathStart / DfsReachedPathLength are parallel arrays storing the path slice
+        // captured at TryRecordReachedCrucial time (when DfsPathBuffer holds the full origin→
+        // reached trail). TryEmitEdge later uses these instead of re-snapshotting from the
+        // already-backtracked DfsPathBuffer.
 
         [HideInInspector] public int[] DfsReachedCrucial;
+        [HideInInspector] public int[] DfsReachedPathStart;
+        [HideInInspector] public int[] DfsReachedPathLength;
         [HideInInspector] public int DfsReachedCrucialCount;
 
         // ---- Postponed gate-dependency pairs ----
@@ -94,6 +101,13 @@ namespace SpaceFab.Design
         [HideInInspector] public bool[] AwaitingDependency;
         [HideInInspector] public bool[] EvaluatedForDependency;
         [HideInInspector] public bool[] DisallowAdditionalDep;
+
+        // Set to true when a crucial node is dequeued in Pass 2's BFS. Read by
+        // TryRecordReachedCrucial to drop any DFS-reach of an already-processed crucial
+        // (back-edges in the cell-adjacency graph). Without this, the BFS infinite-loops on
+        // any pair of mutually-cell-reachable crucials — see SimulateGraphUtility.Pass2.
+
+        [HideInInspector] public bool[] Processed;
 
         // ---- NoReturn stamps (replaces per-origin List<GraphCoord> NoReturnList in prototype) ----
         //

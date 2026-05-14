@@ -70,6 +70,8 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
 
+        // Design: Grid
+        public static readonly StringHash32 DesignGridModified = "design-grid:modified";
         // Wiki
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
     }
@@ -104,11 +106,14 @@ namespace SpaceFab
         // fab
         public const int MicrogameMask = 1 << 17;
 
-        // shared UI
-        public const int WikiMask = 1 << 18;
+        // research chambers (Battery, Thermal, Combiner, Junction)
+        public const int ResearchChamberMask = 1 << 18;
         
         // tutorial
         public const int TutorialMask = 1 << 19;
+
+        // shared UI
+        public const int WikiMask = 1 << 20;
     }
 
     static public class LayerMasks
@@ -134,5 +139,13 @@ namespace SpaceFab
         // Layer 24: Interrupt UI
         public const int Interrupt_UI_Index = 24;
         public const int Interrupt_UI_Mask = 1 << 24;
+
+        // Layer 6: ResearchSlot — Physics2D layer for slot collider overlap queries
+        public const int ResearchSlot_Index = 20;
+        public const int ResearchSlot_Mask = 1 << 20;
+
+        // Layer 7: ResearchGem — Physics2D layer for free-floating draggable colliders
+        public const int ResearchGem_Index = 21;
+        public const int ResearchGem_Mask = 1 << 21;
     }
 }

@@ -5,16 +5,22 @@ namespace SpaceFab.Design
 {
     /// <summary>
     /// Clears SimulateRunState's one-frame request flags (Play / Pause / Resume / Restart* / Cancel /
-    /// Dismiss) and the PaintDepthThisFrame scratch flag at end of frame. Every Update-phase consumer
-    /// gets one-frame visibility before they are wiped here.
-    /// Runs on LateUpdate at order 100 under SimulateModeMask.
+    /// Dismiss) and the PaintDepthThisFrame scratch flag. Runs on Update at order 100 under
+    /// SimulateModeMask, after every Update-phase consumer (ModeTransitionSystem at order 0,
+    /// SimulateModeSystem at order 1, DepthStepSystem at order 2) has had a chance to read them.
+    ///
+    /// The order matters: Unity UI button clicks fire AFTER FieldDay's Update phase. If clearing
+    /// happened in LateUpdate (or anywhere between the click and the next Update), a flag set by
+    /// a click in frame N would be wiped before frame N+1's SimulateModeSystem could read it. By
+    /// clearing within Update — before the click happens this frame — flags set by the click
+    /// survive into the next frame's Update consumers and get processed exactly once.
     /// </summary>
     public class SimulateControlRefreshSystem : SystemComponent
     {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.LateUpdate, 100, UpdateMasks.SimulateModeMask),
+                new SysUpdate(GameLoopPhase.Update, 100, UpdateMasks.SimulateModeMask),
                 new SysPermissions()
                     .ReadWriteShared<SimulateRunState>()
             );

@@ -91,6 +91,11 @@ namespace SpaceFab.Design {
             }
             Log.Msg("[InteractMgr] Click Coords: (x: " + gridPos.x + " , y: " + gridPos.y + ")");
 
+            // A click in-bounds with an active tool may have changed the grid; broadcast so
+            // FoundValidSolution and similar derived flags can re-evaluate. Dispatched here
+            // (delegating site) rather than per-handler to keep the count to one per input.
+            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified);
+
             // begin dragging
             toolModeState.LastKnownDragCoord = gridPos;
         }
@@ -152,6 +157,11 @@ namespace SpaceFab.Design {
                     DragOccupiedTLayerCell(toolModeState, gridStackState, visualState, gridPos);
                 }
             }
+
+            // A drag step in-bounds with an active tool may have changed the grid; broadcast so
+            // FoundValidSolution and similar derived flags can re-evaluate. Fires once per
+            // crossed cell — handlers downstream are idempotent.
+            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified);
 
             // continue dragging
             if (gridPos != toolModeState.LastTerminatedDragCoord) {
