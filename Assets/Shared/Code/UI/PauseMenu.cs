@@ -118,7 +118,7 @@ namespace SpaceFab
                 GameLoop.SuspendUpdates(Bits.All32);
                 GameLoop.ResumeUpdates(UpdateMasks.PauseUpdateMask);
                 state.StashedEventMask = input.Raycaster.eventMask;
-                InputUtility.SetClickableMaskCustom(input, LayerMasks.InterruptUI_Mask);
+                InputUtility.SetClickableMaskCustom(input, LayerMasks.Interrupt_UI_Mask);
                 Game.Gui.PushPriority(state.InputLayer);
                 Game.Events.Dispatch(GameEvents.OnGamePaused);
             }

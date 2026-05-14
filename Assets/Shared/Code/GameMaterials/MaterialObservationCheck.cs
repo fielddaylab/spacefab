@@ -34,6 +34,7 @@ namespace SpaceFab.Materials
 
     public static class MaterialUtility
     {
+        /*
         public static bool Equals(MaterialObservationCheck checkAgainst, MaterialObservation toCheck)
         {
             return toCheck.Label == checkAgainst.Label && toCheck.InComparisonTo.Equals(checkAgainst.InComparisonTo);
@@ -43,5 +44,6 @@ namespace SpaceFab.Materials
         {
             return toCheck.Label == checkAgainst.Label && toCheck.InComparisonTo.Equals(checkAgainst.InComparisonTo);
         }
+        */
     }
 }

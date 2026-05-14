@@ -20,6 +20,9 @@ namespace SpaceFab.Research {
                     .ReadShared<ChapterState>()
                     .ReadShared<PlayerProgressState>()
                     .ReadWriteShared<ResearchMinigameState>()
+                    .ReadWriteShared<ResearchSampleTrayState>()
+                    .ReadWriteShared<ChamberInterfacerState>()
+                    .ReadWriteShared<BatteryChamberState>()
             );
         }
 
@@ -27,8 +30,13 @@ namespace SpaceFab.Research {
             Find.State(
                 out ChapterState chapterState,
                 out PlayerProgressState playerProgress,
-                out ResearchMinigameState researchState
+                out ResearchMinigameState researchState,
+                out ResearchSampleTrayState trayState
             );
+            Find.State(
+                out ChamberInterfacerState interfacerState,
+                out BatteryChamberState batteryChamberState
+                );
 
             researchState.AvailableMaterials.Clear();
             if (chapterState.CurrChapterDef != null) {
@@ -37,16 +45,46 @@ namespace SpaceFab.Research {
                 }
             }
 
-            researchState.RequiredResearchMaterials.Clear();
-            ContractDef contractDef = Find.NamedAsset<ContractDef>(playerProgress.CurrContractId);
-            if (contractDef != null) {
-                foreach (var id in contractDef.RequiredResearchMaterials()) {
-                    researchState.RequiredResearchMaterials.Add(id);
+            //researchState.RequiredResearchGoals.Clear();
+            if (Game.Assets.HasNamed<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId))
+            {
+                ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+                ContractDef contractDef = contractAssets.ContractDef;
+                if (contractDef != null)
+                {
+                    researchState.RequiredResearchGoals = contractDef.RequiredMaterialProperties();
                 }
             }
 
+            // Seed the sandbox with previously-confirmed properties for the
+            // materials in this chapter's scope. Must run after AvailableMaterials
+            // is populated (above). Mid-session
+            // resume goes through ResearchStateUtility.ImportState instead and
+            // bypasses this load.
+            ResearchStateUtility.LoadFromPlayerProgress(researchState, playerProgress);
+
+            // Spawn the tray's draggable samples for this chapter's available
+            // materials. Idempotent on re-entry — the utility clears any
+            // previously-spawned gems before refilling.
+            ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
+
+            // Init Battery Chamber
+            ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();
+            if (config != null)
+            {
+                batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
+                VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+            }
+
+            // Activate the Battery chamber. This is the only chamber today;
+            // when the station-transition system lands, this hardcoded
+            // activation moves into station logic and reacts to player nav.
+            // TODO: clear ActiveChamber + receptive flags on minigame exit.
+            ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Battery);
+            ChamberInterfacerUtility.SetReceptive(interfacerState, ChamberSlotKind.Primary, true);
+
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
-            GameLoop.ResumeUpdates(UpdateMasks.ResearchMask);
+            GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
         }
     }
 }

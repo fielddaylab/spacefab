@@ -45,6 +45,7 @@ namespace SpaceFab.Fabrication {
             sequenceState.Level = contractAssets.FabricationLevel;
             // hide progress meter
             ProgressMeterUtility.Hide(meterState.ActiveMeter);
+
             Log.Msg("[FabricationTransitionSystem] Setup complete!");
 
             // Enter Pre-Attempt Mode

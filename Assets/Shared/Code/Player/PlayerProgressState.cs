@@ -136,66 +136,33 @@ namespace SpaceFab
         }
 
         /// <summary>
-        /// Returns true if the given static property has been confirmed for the material.
+        /// Returns true if the given persistent property has been confirmed for the material.
+        /// For dynamic labels (PDopantFor / NDopantFor), contextMaterialId names the X
+        /// in "P-Type Dopant for X". For static labels, contextMaterialId is ignored.
+        /// Observation-only labels always return false.
         /// </summary>
-        public static bool HasConfirmedStatic(PlayerProgressState state, StringHash32 materialId, StaticProperty property)
-        {
-            if (state.MaterialProperties.TryGetValue(materialId, out var record))
-            {
-                return (record.StaticMask & (1 << (int)property)) != 0;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Marks the given static property as confirmed for the material.
-        /// </summary>
-        public static void ConfirmStatic(PlayerProgressState state, StringHash32 materialId, StaticProperty property)
-        {
-            state.MaterialProperties.TryGetValue(materialId, out var record);
-            record.StaticMask |= (ushort)(1 << (int)property);
-            state.MaterialProperties[materialId] = record;
-        }
-
-        /// <summary>
-        /// Returns true if the given dynamic property has been confirmed for materialId against otherMaterialId.
-        /// </summary>
-        public static bool HasConfirmedDynamic(PlayerProgressState state, StringHash32 materialId, DynamicProperty property, StringHash32 otherMaterialId)
+        public static bool HasConfirmed(PlayerProgressState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
         {
             if (!state.MaterialProperties.TryGetValue(materialId, out var record))
             {
                 return false;
             }
-            var materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
-            if (!materialOrder.TryGetIndex(otherMaterialId, out int idx))
-            {
-                return false;
-            }
-            ushort mask = property == DynamicProperty.PDopantForX ? record.DynamicMask_PDopant : record.DynamicMaskNDopant;
-            return (mask & (1 << idx)) != 0;
+            return MaterialPropertyRecordUtility.Has(record, label, contextMaterialId);
         }
 
         /// <summary>
-        /// Marks the given dynamic property as confirmed for materialId against otherMaterialId.
+        /// Marks the given persistent property as confirmed for the material.
+        /// Observation-only labels are silently ignored. For dynamic labels,
+        /// contextMaterialId is required and resolved through MaterialOrderAsset.
+        /// Idempotent (OR-mask semantics).
         /// </summary>
-        public static void ConfirmDynamic(PlayerProgressState state, StringHash32 materialId, DynamicProperty property, StringHash32 otherMaterialId)
+        public static void Confirm(PlayerProgressState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
         {
-            var materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
-            if (!materialOrder.TryGetIndex(otherMaterialId, out int idx))
-            {
-                return;
-            }
             state.MaterialProperties.TryGetValue(materialId, out var record);
-            ushort bit = (ushort)(1 << idx);
-            if (property == DynamicProperty.PDopantForX)
+            if (MaterialPropertyRecordUtility.TrySet(ref record, label, contextMaterialId))
             {
-                record.DynamicMask_PDopant |= bit;
+                state.MaterialProperties[materialId] = record;
             }
-            else
-            {
-                record.DynamicMaskNDopant |= bit;
-            }
-            state.MaterialProperties[materialId] = record;
         }
 
         /// <summary>
@@ -235,7 +202,7 @@ namespace SpaceFab
             for (int i = 0; i < count; i++)
             {
                 var record = state.MaterialPropertyBuffer[i];
-                if (record.StaticMask != 0 || record.DynamicMask_PDopant != 0 || record.DynamicMaskNDopant != 0)
+                if (!MaterialPropertyRecordUtility.IsEmpty(record))
                 {
                     state.MaterialProperties[materialOrder.GetId(i)] = record;
                 }
