@@ -21,6 +21,7 @@ namespace SpaceFab
 
         public TMP_Text PlayerCodeDisplay;
         public SettingsMenu SettingsMenu;
+        public BaseRaycasterInputLayer InputLayer;
 
         [Header("Button")]
         public Button Button;
@@ -107,8 +108,7 @@ namespace SpaceFab
             }
 
             Routine.Settings.Paused = paused;
-            Time.timeScale = paused ? 0 : 1;
-            AudioListener.pause = paused;
+            GameLoop.TimeScale = paused ? 0 : 1;
             Sfx.SetBusPaused(AudioBus.Master, paused);
 
             InputState input = Find.State<InputState>();
@@ -119,6 +119,7 @@ namespace SpaceFab
                 GameLoop.ResumeUpdates(UpdateMasks.PauseUpdateMask);
                 state.StashedEventMask = input.Raycaster.eventMask;
                 InputUtility.SetClickableMaskCustom(input, LayerMasks.Interrupt_UI_Mask);
+                Game.Gui.PushPriority(state.InputLayer);
                 Game.Events.Dispatch(GameEvents.OnGamePaused);
             }
             else
@@ -126,6 +127,7 @@ namespace SpaceFab
                 InputUtility.SetClickableMaskDefault(input);
                 InputUtility.SetClickableMaskCustom(input, state.StashedEventMask);
                 GameLoop.ResumeUpdates(state.StashedUpdateMask);
+                Game.Gui.PopPriority(state.InputLayer);
                 Game.Events.Dispatch(GameEvents.OnGameResumed);
             }
         }

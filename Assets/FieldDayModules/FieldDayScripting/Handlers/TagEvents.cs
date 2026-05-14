@@ -13,6 +13,11 @@ namespace FieldDay.Scripting {
         static public readonly StringHash32 VoxOnly = "vox-only";
         static public readonly StringHash32 SetStyle = "set-style";
 
+        static public readonly StringHash32 PlayQuip = "play-quip";
+
+        static public readonly StringHash32 AutoContinue = "auto-continue";
+        static public readonly StringHash32 InterpretAsClose = "interpret-at-end";
+
         static internal void ConfigureParsers(CustomTagParserConfig parser, ILeafPlugin plugin) {
             LeafUtils.ConfigureDefaultParsers(parser, plugin, null);
 
@@ -27,6 +32,11 @@ namespace FieldDay.Scripting {
             parser.AddEvent("style", SetStyle).WithStringHashData();
 
             parser.AddReplace("icon", ReplaceIcon);
+
+            parser.AddEvent("auto", AutoContinue);
+            parser.AddEvent("close", InterpretAsClose);
+
+            parser.AddEvent("quip", PlayQuip).WithStringHashData();
         }
 
         static internal void ConfigureHandlers(TagStringEventHandler handler, ILeafPlugin plugin) {

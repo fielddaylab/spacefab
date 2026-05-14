@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay.Components;
+using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,8 +29,15 @@ namespace SpaceFab.Fabrication.Stations {
         [HideInInspector] public MicrogameInterfacerPhase Phase;
 
         // Set by the microgame (via MicrogameStationInterfacerUtility.SignalCompleted) when its internal
-        // state machine reaches "done". Consumed same frame by StationControlSystem.
+        // state machine reaches "done". Forwarded same frame to StationControlState.MicrogameCompletedThisFrame
+        // by MicrogameStationInterfacerBridgeSystem; cleared at end of frame by MicrogameStationInterfacerRefreshSystem.
         [HideInInspector] public bool CompletedThisFrame;
+
+        // Set by the microgame (via MicrogameStationInterfacerUtility.SignalProcessAnimationStarted) when
+        // it starts a parallel process animation during InMicrogame. Forwarded same frame to
+        // StationControlState.ProcessAnimationInProgress by MicrogameStationInterfacerBridgeSystem;
+        // cleared at end of frame by MicrogameStationInterfacerRefreshSystem.
+        [HideInInspector] public bool ProcessAnimationStartedThisFrame;
 
         // The microgame component hosted at this station. Must implement IMicrogame. Optional: when null,
         // the station has no microgame and Activate attempts will no-op.
@@ -39,48 +47,62 @@ namespace SpaceFab.Fabrication.Stations {
     }
 
     /// <summary>
-    /// Paired utility for MicrogameStationInterfacer. Invoked by StationControlSystem on each state
-    /// machine transition, and by concrete microgames signaling their completion.
+    /// Paired utility for MicrogameStationInterfacer. The state-machine lifecycle methods (BeginEnter,
+    /// EnterComplete, BeginExit, ExitComplete) are called by StationControlSystem on phase transitions.
+    /// The Signal* methods are called by concrete microgames and only mutate the interfacer —
+    /// MicrogameStationInterfacerBridgeSystem is responsible for forwarding their flags into
+    /// StationControlState on the same frame.
     /// </summary>
     public static class MicrogameStationInterfacerUtility {
         // Called by StationControlSystem on AtStation -> EnteringMicrogame.
         public static void BeginEnter(MicrogameStationInterfacer interfacer) {
-            // TODO: set Phase = Entering; invoke interfacer.Microgame?.OnEnterBegin().
+            interfacer.Phase = MicrogameInterfacerPhase.Entering;
+            interfacer.Microgame?.OnEnterBegin();
         }
 
         // Called by StationControlSystem on EnteringMicrogame -> InMicrogame.
         public static void EnterComplete(MicrogameStationInterfacer interfacer) {
-            // TODO: set Phase = Active; invoke interfacer.Microgame?.OnEnterComplete().
+            interfacer.Phase = MicrogameInterfacerPhase.Active;
+            interfacer.Microgame?.OnEnterComplete();
         }
 
-        // Called by StationControlSystem on InMicrogame -> ExitingMicrogame. completedNormally = false on cancel from StationControlUtility.RequestCancel()
-        public static void BeginExit(MicrogameStationInterfacer interfacer, bool completedNormally) {
-            // TODO: set Phase = Exiting; invoke interfacer.Microgame?.OnExitBegin(completedNormally).
-            //       StationControlState stationState = Find.State<StationControlState>().
-            //       If completedNormally: if (!stationState.ProcessAnimationInProgress) stationState.ProcessAnimationInProgress = true.
-            //         (Idempotent — leave true if the microgame already started one in parallel.)
-            //       Else (cancel): stationState.ProcessAnimationInProgress = false. Drops any in-flight animation.
+        // Called by StationControlSystem on InMicrogame -> ExitingMicrogame. completedNormally = false
+        // when the player cancelled. Raises ProcessAnimationInProgress on a normal completion (idempotent —
+        // the microgame may already have started one in parallel) and drops it on cancel.
+        public static void BeginExit(MicrogameStationInterfacer interfacer, StationControlState stationState, bool completedNormally) {
+            interfacer.Phase = MicrogameInterfacerPhase.Exiting;
+            interfacer.Microgame?.OnExitBegin(completedNormally);
+            if (completedNormally) {
+                // Idempotent — preserve a flag the microgame already raised in parallel.
+                if (!stationState.ProcessAnimationInProgress) {
+                    stationState.ProcessAnimationInProgress = true;
+                }
+            } else {
+                // Cancel drops any in-flight animation; the exit timer runs unblocked.
+                stationState.ProcessAnimationInProgress = false;
+            }
         }
 
         // Called by StationControlSystem on ExitingMicrogame -> AtStation.
         public static void ExitComplete(MicrogameStationInterfacer interfacer) {
-            // TODO: set Phase = Idle; invoke interfacer.Microgame?.OnExitComplete().
+            interfacer.Phase = MicrogameInterfacerPhase.Idle;
+            interfacer.Microgame?.OnExitComplete();
         }
 
-        // Called by the concrete microgame when its internal state is ready to exit normally.
-        // Sets the one-frame flag AND notifies the shared state, so StationControlSystem picks it up this frame.
+        // Called by the concrete microgame when its internal state is ready to exit normally. Only
+        // mutates the interfacer's one-frame flag; MicrogameStationInterfacerBridgeSystem forwards
+        // it to StationControlState.MicrogameCompletedThisFrame the same frame.
         public static void SignalCompleted(MicrogameStationInterfacer interfacer) {
-            // TODO: set interfacer.CompletedThisFrame = true; call StationControlUtility.NotifyMicrogameCompleted.
+            interfacer.CompletedThisFrame = true;
         }
 
         // Called by a concrete microgame to begin a "process animation" that plays in parallel
-        // with the active microgame. Once raised, the station-control machine will hold
-        // ExitingMicrogame (when the microgame eventually completes successfully) until
-        // IsProcessAnimationComplete() returns true OR the player presses Skip. No-op if not
-        // currently in InMicrogame, so a stray call after exit can't accidentally re-arm the flag.
+        // with the active microgame. Only mutates the interfacer's one-frame flag;
+        // MicrogameStationInterfacerBridgeSystem forwards it to StationControlState the same frame
+        // and the bridge / NotifyProcessAnimationStarted is what enforces the "only while InMicrogame"
+        // guard.
         public static void SignalProcessAnimationStarted(MicrogameStationInterfacer interfacer) {
-            // TODO: StationControlState stationState = Find.State<StationControlState>().
-            //       if (stationState.Phase == StationControlPhase.InMicrogame) stationState.ProcessAnimationInProgress = true.
+            interfacer.ProcessAnimationStartedThisFrame = true;
         }
     }
 }

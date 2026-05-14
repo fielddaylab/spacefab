@@ -31,7 +31,7 @@ namespace SpaceFab.Design
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.DesignMask | UpdateMasks.SetupMask | UpdateMasks.ToolModeMask;
+            DefaultUpdateMask = UpdateMasks.DesignMask | UpdateMasks.SetupMask | UpdateMasks.ToolModeMask | UpdateMasks.WikiMask;
         }
 
         // IMinigameState

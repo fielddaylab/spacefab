@@ -8,6 +8,7 @@ using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 namespace SpaceFab.Fabrication
 {
@@ -18,6 +19,8 @@ namespace SpaceFab.Fabrication
         public CanvasGroup ResultsGroup;
         public DynamicButton RetryButton;
         public DynamicButton FinalizeButton;
+
+        public TMP_Text AccuracyText, TimeText, ProductionTimeText;
 
         public Routine ResultsTransitionRoutine;
 
@@ -63,9 +66,29 @@ namespace SpaceFab.Fabrication
 
         private static IEnumerator ShowResultsRoutine(ResultDisplayState displayState)
         {
-            // TODO: populate relevant results data (time elapsed, number of cycles, precision, etc.)
+            displayState.AccuracyText.text = "";
+            displayState.TimeText.text = "";
+            displayState.ProductionTimeText.text = "";
+
+            yield return 1f;
 
             SetEnabledResultsGroup(displayState, true);
+
+            yield return 0.5f;
+
+            WaferState waferState = Find.State<WaferState>();
+            displayState.AccuracyText.text = $"{WaferStateUtility.GetAggregatedPrecision(waferState):F2}%";
+
+            yield return 0.5f;
+
+            TimeState timeState = Find.State<TimeState>();
+            displayState.TimeText.text = $"{TimeStateUtility.GetElapsed(timeState):F2}s";
+
+            yield return 0.5f;
+
+            float secondssPerCycle = 30;
+            displayState.ProductionTimeText.text = $"{Mathf.Ceil(TimeStateUtility.GetElapsed(timeState) / secondssPerCycle)} cycles";
+
             yield break;
         }
 

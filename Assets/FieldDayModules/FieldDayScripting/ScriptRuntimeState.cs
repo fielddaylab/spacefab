@@ -78,6 +78,10 @@ namespace FieldDay.Scripting {
         // temporary script table
         internal VariantTable SceneLocalTable;
 
+        // Watchers
+        internal readonly ActionEvent OnCutsceneStart = new ActionEvent(4);
+        internal readonly ActionEvent OnCutsceneEnd = new ActionEvent(4);
+
         // skipping
         internal Routine SkipCutsceneRoutine;
         internal bool IsSkippingCutscene;
@@ -175,6 +179,11 @@ namespace FieldDay.Scripting {
         }
 
         #endregion // ISceneLoadDependency
+    }
+
+    internal struct ScriptCallback {
+        public LeafThreadHandle Thread;
+        public CastableAction<LeafThreadHandle> Action;
     }
 
     [Flags]
@@ -893,6 +902,34 @@ namespace FieldDay.Scripting {
             }
         }
 
+        /// <summary>
+        /// Counts the number of function threads currently running.
+        /// </summary>
+        static public int CountFunctionThreads() {
+            int count = 0;
+            foreach (var handle in Runtime.ActiveThreads) {
+                ScriptThread thread = handle.GetThread<ScriptThread>();
+                if (thread != null && thread.IsFunction()) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Counts the number of trigger threads currently running.
+        /// </summary>
+        static public int CountTriggerThreads() {
+            int count = 0;
+            foreach (var handle in Runtime.ActiveThreads) {
+                ScriptThread thread = handle.GetThread<ScriptThread>();
+                if (thread != null && thread.IsTrigger()) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         #endregion // Active Threads
 
         #region Cutscenes
@@ -904,6 +941,20 @@ namespace FieldDay.Scripting {
         [Il2CppSetOption(Option.NullChecks, false)]
         static public bool IsSkippingCutscene() {
             return Runtime.IsSkippingCutscene;
+        }
+
+        /// <summary>
+        /// Invoked when a cutscene begins.
+        /// </summary>
+        static public ActionEvent OnCutsceneStart {
+            get { return Runtime.OnCutsceneStart; }
+        }
+
+        /// <summary>
+        /// Invoked when a cutscene ends.
+        /// </summary>
+        static public ActionEvent OnCutsceneEnd {
+            get { return Runtime.OnCutsceneEnd; }
         }
 
         #endregion // Cutscenes
@@ -935,13 +986,14 @@ namespace FieldDay.Scripting {
             Runtime.SignalMap.DeregisterAllForContext(context);
         }
 
-        [LeafMember]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Il2CppSetOption(Option.NullChecks, false)]
         static public void DispatchSignal(StringHash32 eventId, Variant argument = default) {
             Runtime.SignalMap.Dispatch(eventId, argument);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Il2CppSetOption(Option.NullChecks, false)]
         static public void QueueSignal(StringHash32 eventId, Variant argument = default) {
             Runtime.SignalMap.Queue(eventId, argument);
         }

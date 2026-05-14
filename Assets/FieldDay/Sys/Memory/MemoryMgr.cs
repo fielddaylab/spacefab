@@ -34,6 +34,7 @@ namespace FieldDay.Memory {
         private long m_MostRecentGCTimestamp;
 
         private long m_MainThreadAllocationTracker;
+        private long m_LastKnownSystemMemorySize;
 
         private IPool<Mesh> m_MeshPool;
         private IPool<Material> m_MaterialPool;
@@ -98,6 +99,14 @@ namespace FieldDay.Memory {
                     Log.Trace("[MemoryMgr] GC allocated {0}b", diff);
                 }
                 m_MainThreadAllocationTracker = allocated;
+            }
+
+            long memSize = SystemInfo.systemMemorySize * Unsafe.MiB;
+            long lastMemSize = m_LastKnownSystemMemorySize;
+            if (memSize != lastMemSize) {
+                m_LastKnownSystemMemorySize = memSize;
+                Log.Warn("[MemoryMgr] Memory size expanded from {0}MiB to {1}MiB!", Unsafe.FormatBytes(lastMemSize), Unsafe.FormatBytes(memSize));
+                Mem.InvokeHeapSizeChanged(memSize);
             }
         }
 
@@ -214,6 +223,7 @@ namespace FieldDay.Memory {
             m_GCCollectCounts = new int[genCount];
             m_GCCollectTimestamps = new long[genCount];
             m_LastKnownGenerationCount = genCount;
+            m_LastKnownSystemMemorySize = SystemInfo.systemMemorySize * Unsafe.MiB;
 
             m_StringSliceFrameAllocator.Current = new StringArena(configuration.DoubleBufferedStringCapacityKB * Unsafe.KiB / 2);
             m_StringSliceFrameAllocator.Back = new StringArena(configuration.DoubleBufferedStringCapacityKB * Unsafe.KiB / 2);

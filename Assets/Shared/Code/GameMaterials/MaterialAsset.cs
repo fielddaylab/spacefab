@@ -34,5 +34,7 @@ namespace SpaceFab.Materials
 
         public int[] ValenceElectronCounts;
         public int[] AtomicRadii;
+
+        public MaterialPropertyLabel[] Properties;
     }
 }

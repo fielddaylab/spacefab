@@ -11,41 +11,17 @@ namespace SpaceFab.Fabrication.Microgames
     /// unglitches the current sequence step's card (handled by SequenceSystem on
     /// FabMicrogameCompleted). Does not advance the sequence or run an alignment check.
     /// Player mashes Activate to fill the Defrag meter against its decay.
+    ///
+    /// Unity-side handle for the IMicrogame interface; logic and data live in
+    /// DefragMicrogameState / DefragMicrogameUtility / DefragMicrogameSystem.
     /// </summary>
     public class DefragMicrogame : BatchedComponent, IMicrogame
     {
-        public bool CanActivateNow()
-        {
-            // TODO: Defrag is always activatable (it's the escape hatch for glitched steps).
-            return true;
-        }
-
-        public void OnEnterBegin()
-        {
-            // TODO: play intro; spawn Defrag meter UI.
-        }
-
-        public void OnEnterComplete()
-        {
-            // TODO: start accepting Activate-mash input; begin meter decay.
-        }
-
-        public void OnExitBegin(bool completedNormally)
-        {
-            // TODO: freeze meter. Unglitch is dispatched by SequenceSystem on completedNormally; nothing to do here.
-        }
-
-        // TODO: track process animation state (parallel or sequential) and return true once the
-        // animation has finished playing. Scaffold returns true so the exit gate doesn't stall
-        // before per-microgame animations are authored.
-        public bool IsProcessAnimationComplete()
-        {
-            return true;
-        }
-
-        public void OnExitComplete()
-        {
-            // TODO: tear down Defrag meter UI; return to idle.
-        }
+        public bool CanActivateNow() => DefragMicrogameUtility.CanActivate();
+        public void OnEnterBegin() => DefragMicrogameUtility.EnterBegin();
+        public void OnEnterComplete() => DefragMicrogameUtility.EnterComplete();
+        public void OnExitBegin(bool completedNormally) => DefragMicrogameUtility.ExitBegin(completedNormally);
+        public bool IsProcessAnimationComplete() => DefragMicrogameUtility.IsProcessAnimationComplete();
+        public void OnExitComplete() => DefragMicrogameUtility.ExitComplete();
     }
 }

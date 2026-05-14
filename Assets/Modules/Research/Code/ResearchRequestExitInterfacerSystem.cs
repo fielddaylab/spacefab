@@ -17,6 +17,8 @@ namespace SpaceFab.Research {
                 new SysPermissions()
                     .ReadWriteShared<ResearchRequestExitInterfacerState>()
                     .ReadWriteShared<MinigameRequestExitState>()
+                    .ReadWriteShared<ResearchMinigameState>()
+                    .ReadWriteShared<PlayerProgressState>()
             );
         }
 
@@ -24,7 +26,9 @@ namespace SpaceFab.Research {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ResearchRequestExitInterfacerState researchInterfacerState,
-                out MinigameRequestExitState requestExitState
+                out MinigameRequestExitState requestExitState,
+                out ResearchMinigameState researchState,
+                out PlayerProgressState playerProgress
                 );
 
             if (requestExitState.ExitRequestState == RequestState.Requested) {
@@ -36,6 +40,8 @@ namespace SpaceFab.Research {
                 requestExitState.ExitRequestState = RequestState.Confirmed;
             }
             else if (requestExitState.ExitRequestState == RequestState.Confirmed) {
+                ResearchStateUtility.CommitToPlayerProgress(researchState, playerProgress);
+
                 researchInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.HideExitConfirmationModal(researchInterfacerState.ExitConfirmationModal));
             }
         }

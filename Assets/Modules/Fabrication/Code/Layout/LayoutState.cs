@@ -36,10 +36,12 @@ namespace SpaceFab.Fabrication.Layout
             }
 
             // Fisher-Yates shuffle
-            for (int i = 0; i < numElements - 2; i++)
+            for (int i = 0; i < numElements - 1; i++)
             {
                 int swapIndex = Random.Range(i, numElements);
-                stationOrder[swapIndex] = stationOrder[i];
+                int temp = stationOrder[i];
+                stationOrder[i] = stationOrder[swapIndex];
+                stationOrder[swapIndex] = temp;
             }
 
             // Apply shuffle
@@ -51,7 +53,7 @@ namespace SpaceFab.Fabrication.Layout
 
         public static void AssignStationToSlot(LayoutState layoutState, MicrogameStationInterfacer stationInterfacer, int slotIndex)
         {
-            if (slotIndex <= layoutState.StationSlots.Length)
+            if (slotIndex < layoutState.StationSlots.Length)
             {
                 StationSlotUtility.AssignStation(ref layoutState.StationSlots[slotIndex], ref stationInterfacer);
             }

@@ -30,7 +30,7 @@ namespace SpaceFab.Fabrication
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.SetupMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask | UpdateMasks.WikiMask;
         }
 
         // IMinigameState

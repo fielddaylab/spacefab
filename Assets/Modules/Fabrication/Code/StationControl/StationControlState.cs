@@ -1,7 +1,9 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Movement;
+using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
@@ -81,20 +83,17 @@ namespace SpaceFab.Fabrication.StationControl {
 
         // True when movement input should be processed (Traveling or AtStation).
         public static bool AllowsMovement(StationControlState stationState) {
-            // TODO: return Phase == Traveling || Phase == AtStation.
-            return false;
+            return stationState.Phase == StationControlPhase.Traveling || stationState.Phase == StationControlPhase.AtStation;
         }
 
         // True when an Activate press should be forwarded to RequestActivate (AtStation only).
         public static bool AllowsActivate(StationControlState stationState) {
-            // TODO: return Phase == AtStation.
-            return false;
+            return stationState.Phase == StationControlPhase.AtStation;
         }
 
         // True when a Cancel press should be forwarded to RequestCancel (InMicrogame only).
         public static bool AllowsCancel(StationControlState stationState) {
-            // TODO: return Phase == InMicrogame.
-            return false;
+            return stationState.Phase == StationControlPhase.InMicrogame;
         }
 
         // True when a Skip press should be forwarded to RequestSkipProcessAnimation. Honored
@@ -106,42 +105,83 @@ namespace SpaceFab.Fabrication.StationControl {
 
         // True when the state machine considers a microgame to currently own input.
         public static bool IsMicrogameOwned(StationControlState stationState) {
-            // TODO: return Phase == InMicrogame.
-            return false;
+            return stationState.Phase == StationControlPhase.InMicrogame;
         }
 
         // ---- Commands (Leaf-integration surface) ----
 
         // Called by WorldInteractSystem when the player presses Activate at a station.
         // Routes to either EnteringMicrogame (if CanActivateNow) or Stunned (otherwise).
-        public static void RequestActivate(StationControlState stationState, MicrogameStationInterfacer interfacer) {
-            // TODO: if Phase != AtStation, no-op. If interfacer/Microgame null or !CanActivateNow, TriggerStun(AtStation).
-            // Otherwise: ActiveInterfacer = interfacer; BeginEnter(interfacer); PhaseTimer=0; Phase = EnteringMicrogame;
-            // dispatch FabStationEnterBegin.
+        public static void RequestActivate(StationControlState stationState, RobotState robotState, RobotVisualsState visualsState, MicrogameStationInterfacer interfacer) {
+            if (stationState.Phase != StationControlPhase.AtStation) {
+                Log.Msg("[StationControlUtility] RequestActivate ignored; Phase is {0}, not AtStation", stationState.Phase);
+                return;
+            }
+            // Bad-target branch: no interfacer, no microgame component, or the microgame refuses activation right now.
+            if (interfacer == null || interfacer.Microgame == null || !interfacer.Microgame.CanActivateNow()) {
+                Log.Msg("[StationControlUtility] RequestActivate: wrong-station attempt; routing to stun");
+                Game.Events.Dispatch(GameEvents.FabWrongStationAttempt);
+                TriggerStun(stationState, robotState, visualsState, StationControlPhase.AtStation);
+                return;
+            }
+            stationState.ActiveInterfacer = interfacer;
+            MicrogameStationInterfacerUtility.BeginEnter(interfacer);
+            stationState.PhaseTimer = 0f;
+            stationState.Phase = StationControlPhase.EnteringMicrogame;
+            Log.Msg("[StationControlUtility] RequestActivate accepted; AtStation -> EnteringMicrogame");
+            Game.Events.Dispatch(GameEvents.FabStationEnterBegin);
         }
 
-        // Called by WorldInteractSystem when the player presses Cancel. Sets the one-frame flag.
+        // Called by WorldInteractSystem when the player presses Cancel. Sets the one-frame flag;
+        // ProcessInMicrogame picks it up the same frame and drives the BeginExit / phase transition.
         public static void RequestCancel(StationControlState stationState) {
-            // TODO: if Phase == InMicrogame, set CancelRequestedThisFrame = true.
-            // Also thread into MicrogameStationInterfacerUtility.BeginExit(false)
+            if (stationState.Phase != StationControlPhase.InMicrogame) {
+                Log.Msg("[StationControlUtility] RequestCancel ignored; Phase is {0}, not InMicrogame", stationState.Phase);
+                return;
+            }
+            stationState.CancelRequestedThisFrame = true;
+            Log.Msg("[StationControlUtility] RequestCancel accepted; CancelRequestedThisFrame raised");
         }
 
-        // Called by MicrogameStationInterfacerUtility.SignalCompleted when a microgame finishes naturally.
+        // Called by MicrogameStationInterfacerBridgeSystem when a microgame's CompletedThisFrame flag is observed.
         public static void NotifyMicrogameCompleted(StationControlState stationState) {
-            // TODO: if Phase == InMicrogame, set MicrogameCompletedThisFrame = true.
+            if (stationState.Phase != StationControlPhase.InMicrogame) {
+                return;
+            }
+            stationState.MicrogameCompletedThisFrame = true;
+            Log.Msg("[StationControlUtility] microgame signaled completion; MicrogameCompletedThisFrame raised");
+        }
+
+        // Called by MicrogameStationInterfacerBridgeSystem when a microgame's ProcessAnimationStartedThisFrame
+        // flag is observed. Only raises ProcessAnimationInProgress while in InMicrogame — a stray signal after
+        // exit can't re-arm the flag.
+        public static void NotifyProcessAnimationStarted(StationControlState stationState) {
+            if (stationState.Phase != StationControlPhase.InMicrogame) {
+                return;
+            }
+            stationState.ProcessAnimationInProgress = true;
+            Log.Msg("[StationControlUtility] microgame signaled process animation start; ProcessAnimationInProgress raised");
         }
 
         // Called by WorldInteractSystem when the player presses Skip during ExitingMicrogame to
         // dismiss the process animation. Lowers ProcessAnimationInProgress so the exit timer can
         // resume. No-op if the animation isn't actually running.
         public static void RequestSkipProcessAnimation(StationControlState stationState) {
-            // TODO: if (Phase == ExitingMicrogame && ProcessAnimationInProgress) ProcessAnimationInProgress = false.
+            if (stationState.Phase == StationControlPhase.ExitingMicrogame && stationState.ProcessAnimationInProgress) {
+                stationState.ProcessAnimationInProgress = false;
+                Log.Msg("[StationControlUtility] RequestSkipProcessAnimation accepted; ProcessAnimationInProgress cleared");
+            }
         }
 
         // Forces transition into Stunned for StunDuration seconds. After the stun, machine returns to returnPhase.
-        public static void TriggerStun(StationControlState stationState, StationControlPhase returnPhase) {
-            // TODO: PostStunPhase = returnPhase; PhaseTimer = 0; Phase = Stunned; dispatch FabStunBegin.
-            // Caller is responsible for applying the RobotState stun via RobotUtility.ApplyStun.
+        // Applies the robot stun (idempotent via RobotUtility.ApplyStun) so callers don't need to thread that separately.
+        public static void TriggerStun(StationControlState stationState, RobotState robotState, RobotVisualsState visualsState, StationControlPhase returnPhase) {
+            stationState.PostStunPhase = returnPhase;
+            stationState.PhaseTimer = 0f;
+            stationState.Phase = StationControlPhase.Stunned;
+            RobotUtility.ApplyStun(robotState, visualsState);
+            Log.Msg("[StationControlUtility] TriggerStun; -> Stunned, PostStunPhase = {0}", returnPhase);
+            Game.Events.Dispatch(GameEvents.FabStunBegin);
         }
     }
 }

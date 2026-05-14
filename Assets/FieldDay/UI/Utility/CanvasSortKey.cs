@@ -39,22 +39,23 @@ namespace FieldDay.UI {
         /// Creates a CanvasSortKey for the given Canvas.
         /// </summary>
         static public CanvasSortKey Create(Canvas canvas) {
-            canvas = canvas.rootCanvas;
+            Canvas modeCanvas = canvas.rootCanvas;
+            Canvas sortCanvas = canvas.overrideSorting ? canvas : modeCanvas;
 
             uint cameraOrder, renderType, planeDistance, sortingLayer, sortingOrder;
-            sortingOrder = (uint) Math.Clamp(canvas.sortingOrder + SortingOrderMask / 2, 0, SortingOrderMask);
-            sortingLayer = (uint)Math.Clamp(canvas.cachedSortingLayerValue + SortingLayerMask / 2, 0, SortingLayerMask);
+            sortingOrder = (uint) Math.Clamp(sortCanvas.sortingOrder + SortingOrderMask / 2, 0, SortingOrderMask);
+            sortingLayer = (uint)Math.Clamp(sortCanvas.cachedSortingLayerValue + SortingLayerMask / 2, 0, SortingLayerMask);
 
-            RenderMode renderMode = canvas.renderMode;
+            RenderMode renderMode = modeCanvas.renderMode;
             renderType = (uint) (3 - renderMode);
 
-            canvas.TryGetCamera(out Camera renderCam);
+            modeCanvas.TryGetCamera(out Camera renderCam);
             cameraOrder = GetCameraOrder(renderCam);
 
             if (renderMode != RenderMode.ScreenSpaceCamera || !renderCam) {
                 planeDistance = 0;
             } else {
-                planeDistance = (uint)(Math.Clamp(canvas.planeDistance / renderCam.farClipPlane, 0, 1) * SortingOrderMask);
+                planeDistance = (uint)(Math.Clamp(modeCanvas.planeDistance / renderCam.farClipPlane, 0, 1) * PlaneDistanceMask);
             }
 
             return new CanvasSortKey(BitwiseKey(cameraOrder, renderType, planeDistance, sortingLayer, sortingOrder));
@@ -90,7 +91,7 @@ namespace FieldDay.UI {
 
             if (CameraUtility.IsOverlayCamera(camera)) {
                 // TODO: Implement
-                return 1;
+                return (uint)Math.Clamp((int)camera.depth + CameraOrderMask / 2, 1, CameraOrderMask - 1);
             }
 
             return 0;
