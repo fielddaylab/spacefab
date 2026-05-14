@@ -126,24 +126,19 @@ namespace FieldDay.Localization {
 
         #endregion // Operators
 
-        static public readonly LanguageId English = new LanguageId("en");
-        static public readonly LanguageId Spanish = new LanguageId("es");
-        static public readonly LanguageId French = new LanguageId("fr");
-        static public readonly LanguageId German = new LanguageId("de");
-        static public readonly LanguageId Italian = new LanguageId("it");
-        static public readonly LanguageId Dutch = new LanguageId("nl");
-        static public readonly LanguageId Japanese = new LanguageId("ja");
-
         /// <summary>
         /// Identifies a two-letter language code in a file path.
         /// File name should be of the format "fileName.code.ext" (ex. "mainText.es.ext")
         /// </summary>
         static public LanguageId IdentifyLanguageFromPath(string filePath, string expectedExtensionWithDot) {
-            StringSlice pathWithoutExt;
-            if (filePath.EndsWith(expectedExtensionWithDot)) {
-                pathWithoutExt = Path.GetFileNameWithoutExtension(filePath);
-            } else {
-                pathWithoutExt = Path.GetFileName(filePath);
+            StringSlice pathWithoutExt = filePath;
+            int lastSlash = Math.Max(filePath.LastIndexOf('/'), filePath.LastIndexOf('\\'));
+            if (lastSlash >= 0) {
+                pathWithoutExt = pathWithoutExt.Substring(lastSlash + 1);
+            }
+
+            if (pathWithoutExt.EndsWith(expectedExtensionWithDot)) {
+                pathWithoutExt = pathWithoutExt.Substring(0, pathWithoutExt.Length - expectedExtensionWithDot.Length);
             }
 
             if (pathWithoutExt.Length > 3 && pathWithoutExt[pathWithoutExt.Length - 3] == '.') {

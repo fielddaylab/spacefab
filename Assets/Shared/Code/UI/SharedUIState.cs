@@ -97,12 +97,14 @@ namespace SpaceFab
 
         public static IEnumerator OnBeginLoading(SharedUIState uiState)
         {
-            uiState.IsLoading = true;
-            uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
-            InputState input = Find.State<InputState>();
-            Game.Input.PauseRaycasts();
-            InputUtility.SetInputEnabled(input, false);
-            CursorHint.TryLock(uiState.LoadingCursor);
+            if (!uiState.IsLoading) {
+                uiState.IsLoading = true;
+                uiState.CursorWasLocked = CursorHint.IsLocked(uiState.LoadingCursor);
+                InputState input = Find.State<InputState>();
+                Game.Input.PauseRaycasts();
+                InputUtility.SetInputEnabled(input, false);
+                CursorHint.TryLock(uiState.LoadingCursor);
+            }
 
             uiState.FaderGroup.blocksRaycasts = true;
             uiState.FaderGroup.alpha = 1;
@@ -126,7 +128,7 @@ namespace SpaceFab
             }
 
             // disperse fader
-            yield return FadeOut(uiState, 1.5f);
+            yield return FadeOut(uiState, 0.5f);
 
             InputState input = Find.State<InputState>();
             Game.Input.ResumeRaycasts();

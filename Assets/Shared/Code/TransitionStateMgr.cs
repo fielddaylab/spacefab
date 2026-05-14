@@ -66,6 +66,11 @@ namespace SpaceFab
                             m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
                         });
                     }
+                    else
+                    {
+                        SharedUIState uiState = Find.State<SharedUIState>();
+                        m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
+                    }
                 }
             }
         }

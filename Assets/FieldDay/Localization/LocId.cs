@@ -19,6 +19,10 @@ namespace FieldDay.Localization {
             m_HashValue = hash.HashValue;
         }
 
+        public LocId(uint hashValue) {
+            m_HashValue = hashValue;
+        }
+
         public LocId(StringSlice source) {
             m_HashValue = new StringHash32(source).HashValue;
         }

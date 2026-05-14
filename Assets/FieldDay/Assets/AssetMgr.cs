@@ -2,18 +2,26 @@
 #define DEVELOPMENT
 #endif // (UNITY_EDITOR && !IGNORE_UNITY_EDITOR) || DEVELOPMENT_BUILD
 
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
-using Unity.IL2CPP.CompilerServices;
-using System.Collections;
 using BeauUtil.IO;
-using UnityEngine;
-using BeauPools;
-using FieldDay.Debugging;
+using BeauUtil.Streaming;
 using EasyAssetStreaming;
+using FieldDay.Data;
+using FieldDay.Debugging;
+using FieldDay.Files;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.CompilerServices;
+using Unity.IL2CPP.CompilerServices;
+using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif // UNITY_EDITOR
 
 using NamedAssetCollection = FieldDay.Assets.AssetCollection<FieldDay.Assets.INamedAsset>;
 
@@ -21,12 +29,61 @@ namespace FieldDay.Assets {
     /// <summary>
     /// Asset manager.
     /// </summary>
-    public sealed class AssetMgr {
+    public sealed partial class AssetMgr {
+        public const int MaxStreamedPackages = 32;
+        public const string StreamedPackagePath = "packs/";
+        public const string StreamedManifestPath = StreamedPackagePath + "manifest.toc";
+        public const string StreamedRootAddressableName = "^root";
+
+        #region Types
+
+        private enum StreamedPackageManifestState : byte {
+            Loading,
+            Success,
+            Error
+        }
+
+        private enum StreamedPackageLoadState : byte {
+            Downloading,
+            UnpackingRoot,
+            Success,
+            Error,
+        }
+
+        private struct StreamedPackageData {
+            public StringHash32 Id;
+            public StreamedPackageLoadState LoadState;
+            public ushort RefCount;
+            public StreamedPack Package;
+            public AssetBundle Bundle;
+        }
+
+        private struct StreamedPackageRootLoad {
+            public AssetBundleRequest Request;
+            public AssetBundle Bundle;
+            public StringHash32 Id;
+        }
+
+        private struct StreamedPackageUnload {
+            public AssetBundleUnloadOperation Request;
+            public StringHash32 Id;
+        }
+
+        #endregion // Types
+
         private readonly IGlobalAsset[] m_GlobalAssetTable = new IGlobalAsset[GlobalAssetIndex.Capacity];
         private readonly IAssetCollection[] m_LiteAssetTable = new IAssetCollection[LiteAssetIndex.Capacity];
         private readonly NamedAssetCollection[] m_NamedAssetTable = new NamedAssetCollection[NamedAssetIndex.Capacity];
         private readonly HashSet<IAssetPackage> m_LoadedPackages = new HashSet<IAssetPackage>(16);
         private readonly RingBuffer<IAssetPackage> m_UnloadQueue = new RingBuffer<IAssetPackage>(16, RingBufferMode.Expand);
+
+        private readonly Dictionary<StringHash32, string> m_StreamedPackagePathLookup = new Dictionary<StringHash32, string>(MaxStreamedPackages * 4);
+        private StreamedPackageManifestState m_StreamedPackageManifestLoad = StreamedPackageManifestState.Loading;
+
+        private readonly RingBuffer<StreamedPackageRootLoad> m_ActiveStreamedRootLoads = new RingBuffer<StreamedPackageRootLoad>(MaxStreamedPackages);
+        private readonly RingBuffer<StreamedPackageUnload> m_ActiveStreamedUnloads = new RingBuffer<StreamedPackageUnload>(MaxStreamedPackages);
+        private readonly StreamedPackageData[] m_StreamedPackageData = new StreamedPackageData[MaxStreamedPackages];
+        private int m_StreamedPackageCount = 0;
 
         private readonly CastableAction<INamedAsset>[] m_NamedAssetPostLoadCallbackTable = new CastableAction<INamedAsset>[NamedAssetIndex.Capacity];
         private readonly CastableAction<INamedAsset>[] m_NamedAssetUnloadCallbackTable = new CastableAction<INamedAsset>[NamedAssetIndex.Capacity];
@@ -35,9 +92,48 @@ namespace FieldDay.Assets {
 
         #region Events
 
+        internal void Initialize() {
+            LoadStreamedManifest();
+        }
+
+        private void LoadStreamedManifest() {
+#if UNITY_EDITOR
+            if (StreamedEditor.ShouldLoadFromProject()) {
+                Log.Msg("[AssetMgr] Skipping manifest - loading StreamedPacks directly from project");
+                m_StreamedPackageManifestLoad = StreamedPackageManifestState.Success;
+                return;
+            }
+#endif // UNITY_EDITOR
+            FileLoadRequest loadRequest = FileLoadRequest.Buffer(StreamedManifestPath, FileLocation.Streaming, HandleStreamingManifestDownloadResult, this);
+            loadRequest.SetInfiniteRetries();
+            Game.Files.RequestFile(loadRequest, FileLoadPriority.Urgent);
+        }
+
         internal void Update() {
             if (IsSafeToUnloadPackages()) {
-                ProcessQueuedPackageUnloads();
+                ProcessQueuedPackageUnloads(true);
+            }
+
+            int activeStreamedRootLoads = m_ActiveStreamedRootLoads.Count;
+            while (activeStreamedRootLoads-- > 0) {
+                StreamedPackageRootLoad process = m_ActiveStreamedRootLoads.PeekFront();
+                if (process.Request.isDone) {
+                    HandleRootAssetLoadSuccess(process);
+                    m_ActiveStreamedRootLoads.PopFront();
+                } else {
+                    m_ActiveStreamedRootLoads.MoveFrontToBack();
+                }
+            }
+
+            int activeStreamedUnloads = m_ActiveStreamedUnloads.Count;
+            while (activeStreamedUnloads-- > 0) {
+                StreamedPackageUnload process = m_ActiveStreamedUnloads.PeekFront();
+                if (process.Request.isDone) {
+                    Log.Msg("[AssetMgr] Finished unloading AssetBundle '{0}'!", process.Id);
+                    m_ActiveStreamedUnloads.PopFront();
+                } else {
+                    m_ActiveStreamedUnloads.MoveFrontToBack();
+                }
             }
 
 #if DEVELOPMENT
@@ -46,7 +142,12 @@ namespace FieldDay.Assets {
         }
 
         internal void Shutdown() {
-            ProcessQueuedPackageUnloads();
+            ProcessQueuedPackageUnloads(false);
+
+            m_ActiveStreamedRootLoads.Clear();
+            m_ActiveStreamedUnloads.Clear();
+            Array.Clear(m_StreamedPackageData, 0, m_StreamedPackageData.Length);
+            m_StreamedPackageCount = 0;
 
             for (int i = 0; i < LiteAssetIndex.Count; i++) {
                 if (m_LiteAssetTable[i] != null) {
@@ -69,6 +170,8 @@ namespace FieldDay.Assets {
             Array.Clear(m_LiteAssetTable, 0, m_LiteAssetTable.Length);
             Array.Clear(m_NamedAssetTable, 0, m_NamedAssetTable.Length);
             Array.Clear(m_GlobalAssetTable, 0, m_GlobalAssetTable.Length);
+
+            AssetBundle.UnloadAllAssetBundles(true);
         }
 
         private bool IsSafeToUnloadPackages() {
@@ -173,6 +276,7 @@ namespace FieldDay.Assets {
         /// Loads the given package into the asset manager.
         /// </summary>
         public void LoadPackage(IAssetPackage package) {
+            Assert.NotNullOrDestroyed(package, "Cannot load null package");
             if (!AssetUtility.AddReference(package) || !m_LoadedPackages.Add(package)) {
                 return;
             }
@@ -191,6 +295,7 @@ namespace FieldDay.Assets {
         /// Unloads the given package from the asset manager.
         /// </summary>
         public void UnloadPackage(IAssetPackage package) {
+            Assert.NotNullOrDestroyed(package, "Cannot load null package");
             if (!AssetUtility.RemoveReference(package) || !m_LoadedPackages.Remove(package)) {
                 return;
             }
@@ -199,11 +304,32 @@ namespace FieldDay.Assets {
             m_UnloadQueue.PushBack(package);
         }
 
-        private void ProcessQueuedPackageUnloads() {
+        private void ProcessQueuedPackageUnloads(bool async) {
             while(m_UnloadQueue.TryPopFront(out IAssetPackage package)) {
                 Log.Msg("[AssetMgr] Unloading package '{0}'...", AssetUtility.NameOf(package));
                 package.Unmount(this);
                 Log.Msg("[AssetMgr] ...finished unloading package '{0}'", AssetUtility.NameOf(package));
+
+                for(int i = m_StreamedPackageCount; i-- > 0;) {
+                    ref StreamedPackageData packageData = ref m_StreamedPackageData[i];
+                    if (ReferenceEquals(packageData.Package, package)) {
+                        if (packageData.Bundle) {
+                            if (async) {
+                                Log.Msg("[AssetMgr] Unloading AssetBundle '{0}' asynchronously...", packageData.Id);
+                                AssetBundleUnloadOperation unloadOp = packageData.Bundle.UnloadAsync(true);
+                                m_ActiveStreamedUnloads.PushBack(new StreamedPackageUnload() {
+                                    Id = packageData.Id,
+                                    Request = unloadOp
+                                });
+                            } else {
+                                packageData.Bundle.Unload(true);
+                                Log.Msg("[AssetMgr] Unloaded AssetBundle '{0}' synchronously", packageData.Id);
+                            }
+                        }
+                        ArrayUtils.FastRemoveAt(m_StreamedPackageData, ref m_StreamedPackageCount, i);
+                        break;
+                    }
+                }
             }
         }
 
@@ -286,6 +412,260 @@ namespace FieldDay.Assets {
         #endregion // Lite
 
         #endregion // Registration
+
+        #region Streaming
+
+        /// <summary>
+        /// Is the streaming manifest ready?
+        /// </summary>
+        public bool IsReadyToStream() {
+            return m_StreamedPackageManifestLoad != StreamedPackageManifestState.Loading;
+        }
+
+        /// <summary>
+        /// Loads a streaming package.
+        /// </summary>
+        public void LoadStreamedPackage(StringHash32 packageId) {
+            Assert.True(!packageId.IsEmpty, "Cannot load a null package id");
+            Assert.True(m_StreamedPackageManifestLoad != StreamedPackageManifestState.Loading, "Streaming package manifest not yet loaded");
+
+            int index = IndexOfStreamingBundle(packageId);
+            if (index < 0) {
+                BeginStreamedPackageLoad(packageId);
+                return;
+            }
+
+            m_StreamedPackageData[index].RefCount++;
+            Assert.True(m_StreamedPackageData[index].RefCount > 0, "Ref count wrapped around");
+
+            IAssetPackage package = m_StreamedPackageData[index].Package;
+            if (package != null && m_UnloadQueue.FastRemove(package)) {
+                Log.Msg("[AssetMgr] Streamed package '{0}' unload cancelled", AssetUtility.NameOf(package));
+            }
+        }
+
+        private void BeginStreamedPackageLoad(StringHash32 packageId) {
+            Assert.True(m_StreamedPackageCount < MaxStreamedPackages, "Maximum number of streamed packages ({0}) reached!", MaxStreamedPackages);
+
+            ref StreamedPackageData data = ref m_StreamedPackageData[m_StreamedPackageCount++];
+            data.Id = packageId;
+            data.LoadState = StreamedPackageLoadState.Downloading;
+            data.Package = null;
+            data.Bundle = null;
+            data.RefCount = 1;
+
+#if UNITY_EDITOR
+            if (StreamedEditor.ShouldLoadFromProject()) {
+                StreamedPack pack = StreamedEditor.LoadPackWithId(packageId);
+                Assert.NotNullOrDestroyed(pack, "No streamed package with the given id '{0}' could be found", packageId);
+                pack.EditorRebuild();
+                data.Package = pack;
+                data.LoadState = StreamedPackageLoadState.Success;
+                LoadPackage(pack);
+                return;
+            }
+#endif // UNITY_EDITOR
+
+            Assert.True(m_StreamedPackagePathLookup.ContainsKey(packageId), "No streamed package path with the given id '{0}' is available", packageId);
+
+            FileLoadRequest loadRequest = FileLoadRequest.AssetBundle(m_StreamedPackagePathLookup[packageId], FileLocation.Streaming, HandleAssetBundleDownloadResult, this);
+            loadRequest.SetIdentifiers(packageId, "StreamedPackages");
+            Game.Files.RequestFile(loadRequest, FileLoadPriority.High);
+        }
+
+        /// <summary>
+        /// Unloads a streaming package.
+        /// </summary>
+        public void UnloadStreamedPackage(StringHash32 packageId) {
+            int index = IndexOfStreamingBundle(packageId);
+            if (index < 0) {
+                Log.Warn("[AssetMgr] No streamed package with id '{0}' is loaded!", packageId);
+                return;
+            }
+
+            ref StreamedPackageData data = ref m_StreamedPackageData[index];
+            Assert.True(data.RefCount > 0, "Unbalanaced asset refs");
+            if (data.RefCount-- == 1) {
+                switch (data.LoadState) {
+                    case StreamedPackageLoadState.Downloading: {
+                        Game.Files.CancelRequestsWithId(data.Id);
+                        Log.Msg("[AssetMgr] Cancelling streamed bundle request '{0}'", data.Id);
+                        ArrayUtils.FastRemoveAt(m_StreamedPackageData, ref m_StreamedPackageCount, index);
+                        break;
+                    }
+                    case StreamedPackageLoadState.UnpackingRoot: {
+                        Log.Msg("[AssetMgr] Cancelling streamed bundle request '{0}'", data.Id);
+                        for (int i = m_ActiveStreamedRootLoads.Count; i-- > 0;) {
+                            if (m_ActiveStreamedRootLoads[i].Id == packageId) {
+                                m_ActiveStreamedRootLoads[i].Bundle.Unload(true);
+                                m_ActiveStreamedRootLoads.FastRemoveAt(i);
+                                break;
+                            }
+                        }
+                        ArrayUtils.FastRemoveAt(m_StreamedPackageData, ref m_StreamedPackageCount, index);
+                        break;
+                    }
+                    case StreamedPackageLoadState.Error: {
+                        Log.Msg("[AssetMgr] Removing errored streamed bundle '{0}'", data.Id);
+                        ArrayUtils.FastRemoveAt(m_StreamedPackageData, ref m_StreamedPackageCount, index);
+                        break;
+                    }
+                    case StreamedPackageLoadState.Success: {
+                        UnloadPackage(data.Package);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Are there any streamed packages currently streaming?
+        /// </summary>
+        public bool IsLoadingStreamedPackages() {
+            for (int i = m_StreamedPackageCount; i-- > 0;) {
+                ref StreamedPackageData data = ref m_StreamedPackageData[i];
+                if (data.LoadState < StreamedPackageLoadState.Success) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static private void HandleAssetBundleDownloadResult(FileLoadRequest request, FileLoadResult result, object context) {
+            AssetMgr mgr = (AssetMgr)context;
+            StringHash32 id = request.Name;
+
+            int index = mgr.IndexOfStreamingBundle(id);
+            if (index < 0) {
+                Log.Warn("[AssetMgr] Streamed package '{0}' was unloaded before file could finish downloading", id);
+                return;
+            }
+
+            ref StreamedPackageData data = ref mgr.m_StreamedPackageData[index];
+
+            if (data.LoadState != StreamedPackageLoadState.Downloading) {
+                Log.Warn("[AssetMgr] Streamed package '{0}' download was interrupted");
+                return;
+            }
+
+            if (result.Response != FileLoadResponse.Success) {
+                Log.Error("[AssetMgr] Streamed package '{0}' was unable to be loaded", id);
+                data.LoadState = StreamedPackageLoadState.Error;
+                return;
+            }
+
+
+            AssetBundle bundle = result.ReadAssetBundle();
+            AssetBundleRequest assetRequest = bundle.LoadAssetAsync(StreamedRootAddressableName);
+
+            mgr.m_ActiveStreamedRootLoads.PushBack(new StreamedPackageRootLoad() {
+                Id = id,
+                Request = assetRequest,
+                Bundle = bundle
+            });
+
+            data.LoadState = StreamedPackageLoadState.UnpackingRoot;
+        }
+
+        private void HandleRootAssetLoadSuccess(StreamedPackageRootLoad loadProcess) {
+            int index = IndexOfStreamingBundle(loadProcess.Id);
+            if (index < 0) {
+                Log.Warn("[AssetMgr] Streamed package '{0}' was unloaded before root load could finish", loadProcess.Id);
+                loadProcess.Bundle.Unload(true);
+                return;
+            }
+
+            ref StreamedPackageData data = ref m_StreamedPackageData[index];
+
+            if (data.LoadState != StreamedPackageLoadState.UnpackingRoot) {
+                Log.Warn("[AssetMgr] Streamed package '{0}' root package asset load was interrupted");
+                loadProcess.Bundle.Unload(true);
+                return;
+            }
+
+            StreamedPack package = (StreamedPack)loadProcess.Request.asset;
+            if (package == null) {
+                Log.Error("[AssetMgr] Unable to load root package asset from streamed package '{0}'", loadProcess.Id);
+                data.LoadState = StreamedPackageLoadState.Error;
+                loadProcess.Bundle.Unload(true);
+                return;
+            }
+
+            Log.Msg("[AssetMgr] Found root package '{0}' in bundle '{1}'", package.name, loadProcess.Bundle.name);
+            //package.name = loadProcess.Bundle.name;
+
+            data.Bundle = loadProcess.Bundle;
+            data.Package = package;
+            data.LoadState = StreamedPackageLoadState.Success;
+            LoadPackage(package);
+        }
+
+        static private unsafe void HandleStreamingManifestDownloadResult(FileLoadRequest request, FileLoadResult result, object context) {
+            AssetMgr mgr = (AssetMgr)context;
+
+            if (result.Response != FileLoadResponse.Success) {
+                Log.Warn("[AssetMgr] No streamed package manifest loaded!");
+                mgr.m_StreamedPackageManifestLoad = StreamedPackageManifestState.Error;
+                return;
+            }
+
+            ByteReader reader = result.CreateByteReader();
+            ushort count = reader.Read<ushort>();
+            mgr.m_StreamedPackagePathLookup.EnsureCapacity(count);
+
+            int i = count;
+            while (i-- > 0) {
+                StringHash32 id = reader.Read<StringHash32>();
+                string path = reader.ReadUTF8();
+                mgr.m_StreamedPackagePathLookup.Add(id, path);
+            }
+
+            Log.Msg("[AssetMgr] Read streamed manifest - {0} entries", count);
+
+            mgr.m_StreamedPackageManifestLoad = StreamedPackageManifestState.Success;
+        }
+
+        private int IndexOfStreamingBundle(StringHash32 id) {
+            for (int i = 0, len = m_StreamedPackageCount; i < len; i++) {
+                if (m_StreamedPackageData[i].Id == id) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+#if UNITY_EDITOR
+        static private class StreamedEditor {
+            static public bool ShouldLoadFromProject() {
+                return !EditorPrefs.GetBool(EditorTestPrefsKey);
+            }
+
+            private const string EditorTestPrefsKey = "FieldDay/UseStreamedBundles";
+            private const string EditorTestMenuItem = "Field Day/Testing/Test with Streamed Package Bundles";
+
+            [MenuItem(EditorTestMenuItem, validate = false)]
+            static private void TestingCheckbox() {
+                bool isSet = EditorPrefs.GetBool(EditorTestPrefsKey);
+                EditorPrefs.SetBool(EditorTestPrefsKey, !isSet);
+                Menu.SetChecked(EditorTestMenuItem, !isSet);
+            }
+
+            [MenuItem(EditorTestMenuItem, validate = true)]
+            static private bool TestingCheckbox_Validate() {
+                bool isSet = EditorPrefs.GetBool(EditorTestPrefsKey);
+                Menu.SetChecked(EditorTestMenuItem, isSet);
+                return !EditorApplication.isPlayingOrWillChangePlaymode;
+            }
+
+            static public StreamedPack LoadPackWithId(StringHash32 id) {
+                return AssetUtility.Editor.FindAsset<StreamedPack>(id);
+            }
+        }
+#endif // UNITY_EDITOR
+
+        #endregion // Streaming
 
         #region Lookup
 

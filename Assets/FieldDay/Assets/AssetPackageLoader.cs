@@ -9,12 +9,12 @@ namespace FieldDay.Assets {
     /// </summary>
     [PreloadOrder(int.MinValue)]
     public sealed class AssetPackageLoader : MonoBehaviour, IScenePreload {
-        [SerializeField] private AssetPack[] m_Packs;
+        [SerializeField] private AssetPackBase[] m_Packs;
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
             foreach(var pack in m_Packs) {
 #if UNITY_EDITOR
-                AssetPack.ReadFromEditorDirectory(pack);
+                pack.EditorRebuild();
 #endif // UNITY_EDITOR
                 Game.Assets.LoadPackage(pack);
                 yield return null;

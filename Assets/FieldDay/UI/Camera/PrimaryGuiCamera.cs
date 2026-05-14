@@ -5,7 +5,7 @@ namespace FieldDay.UI {
     /// Sets the given camera as the primary gui camera.
     /// </summary>
     [RequireComponent(typeof(Camera)), DisallowMultipleComponent]
-    [DefaultExecutionOrder(-10000)]
+    [DefaultExecutionOrder(-21000)]
     public sealed class PrimaryGuiCamera : MonoBehaviour {
         private void OnEnable() {
             Game.Gui.SetPrimaryCamera(GetComponent<Camera>());
