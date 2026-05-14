@@ -747,6 +747,8 @@ MonoBehaviour:
   CollapsedRoot: {fileID: 4593179902122571542}
   PageContentWidgets: {fileID: 2410260213636064714}
   PaginatorContent: {fileID: 3136626549489983546}
+  PrevPage: {fileID: 0}
+  NextPage: {fileID: 0}
   PageThumbStride: 5
 --- !u!1 &4795094185740187759
 GameObject:
