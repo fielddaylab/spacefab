@@ -10,54 +10,17 @@ namespace SpaceFab.Fabrication.Microgames
     /// Plasma Etcher station microgame: "Etch-a-sketch." Players steer a plasma beam across the
     /// developed photoresist pattern with arrow keys; the interaction ends when the beam exits the
     /// wafer. Precision is accuracy against the target pattern.
+    ///
+    /// Unity-side handle for the IMicrogame interface; logic and data live in
+    /// EtchMicrogameState / EtchMicrogameUtility / EtchMicrogameSystem.
     /// </summary>
     public class EtchMicrogame : BatchedComponent, IMicrogame
     {
-        public bool CanActivateNow()
-        {
-            // TODO: gate based on sequence / wafer state. Default true.
-            return true;
-        }
-
-        public void OnEnterBegin()
-        {
-            // TODO: play intro; spawn plasma beam at pattern entry.
-        }
-
-        public void OnEnterComplete()
-        {
-            // TODO: start accepting directional input; begin beam travel.
-        }
-
-        // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
-        public void OnExitBegin(bool completedNormally)
-        {
-            // TODO: freeze beam.
-            if (!completedNormally) { return; }
-
-            MicrogameUtility.CommitStepPrecision(ComputePrecision());
-        }
-
-        // TODO: track process animation state (parallel or sequential) and return true once the
-        // animation has finished playing. Scaffold returns true so the exit gate doesn't stall
-        // before per-microgame animations are authored.
-        public bool IsProcessAnimationComplete()
-        {
-            return true;
-        }
-
-        public void OnExitComplete()
-        {
-            // TODO: tear down beam UI; return to idle.
-        }
-
-        // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam
-        // correctly traversed, minus cells incorrectly traversed. Scaffold returns 0.
-        private float ComputePrecision()
-        {
-            // TODO: precision = (correctCells - incorrectCells) / targetCells, clamped to [0,1].
-            return 0f;
-        }
+        public bool CanActivateNow() => EtchMicrogameUtility.CanActivate();
+        public void OnEnterBegin() => EtchMicrogameUtility.EnterBegin();
+        public void OnEnterComplete() => EtchMicrogameUtility.EnterComplete();
+        public void OnExitBegin(bool completedNormally) => EtchMicrogameUtility.ExitBegin(completedNormally);
+        public bool IsProcessAnimationComplete() => EtchMicrogameUtility.IsProcessAnimationComplete();
+        public void OnExitComplete() => EtchMicrogameUtility.ExitComplete();
     }
 }

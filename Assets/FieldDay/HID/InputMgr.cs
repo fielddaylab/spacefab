@@ -231,12 +231,19 @@ namespace FieldDay.HID {
         public bool IsKeyDown(KeyCode keyCode) {
             return m_DevicePauseCounter == 0 && !m_InputConsumed && keyCode > 0 && Input.GetKey(keyCode);
         }
-
+        
         /// <summary>
         /// Returns if a keyboard key was pressed this frame.
         /// </summary>
         public bool IsKeyPressed(KeyCode keyCode) {
             return m_DevicePauseCounter == 0 && !m_InputConsumed && keyCode > 0 && Input.GetKeyDown(keyCode);
+        }
+
+        /// <summary>
+        /// Returns if a keyboard key was released this frame.
+        /// </summary>
+        public bool IsKeyUp(KeyCode keyCode) {
+            return m_DevicePauseCounter == 0 && !m_InputConsumed && keyCode > 0 && Input.GetKeyUp(keyCode);
         }
 
         /// <summary>
