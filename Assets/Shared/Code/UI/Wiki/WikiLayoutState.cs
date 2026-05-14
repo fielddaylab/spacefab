@@ -1,6 +1,7 @@
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using FieldDay.Scenes;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +17,7 @@ namespace SpaceFab.UI {
     /// the visuals system each frame; the transition routines (WikiUtility.ExpandRoutine /
     /// CollapseRoutine) tween the CanvasGroup alphas while Transitioning is true.
     /// </summary>
-    public class WikiLayoutState : SharedStateComponent, IRegistrationCallbacks {
+    public class WikiLayoutState : SharedStateComponent, IRegistrationCallbacks, ISceneLateInitialize {
         // Full-panel root. Fully visible (alpha == 1, blocksRaycasts == true) in the expanded
         // steady state; faded out and non-interactive when collapsed.
         public CanvasGroup ExpandedRoot;
@@ -40,10 +41,20 @@ namespace SpaceFab.UI {
         // slots. Authored to match the prefab's thumb layout group spacing + cell width.
         public float PageThumbStride;
 
-        public void OnRegister() {
+        public void OnRegister()
+        {
         }
 
         public void OnDeregister() {
+        }
+
+        public void LateInitialize()
+        {
+            // Enforce the initial steady state based on the default WikiState.Expanded value.
+            Find.State(out WikiState wikiState);
+            WikiLayoutUtility.ApplyExpandedSteadyState(this, wikiState.Expanded);
+            WikiLayoutUtility.ScrollPaginator(this, 0);
+            wikiState.NeedsRebuild = true;
         }
     }
 
