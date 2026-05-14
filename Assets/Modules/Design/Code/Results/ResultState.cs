@@ -84,10 +84,9 @@ namespace SpaceFab.Design
         }
         public static void ShowResults(ResultState resultState, bool allCorrect)
         {
-            Debug.Log($"ResultStateUtility.ShowResults: resultState={resultState != null}, allCorrect={allCorrect}");
             if (resultState.TitleText != null)
             {
-                resultState.TitleText.SetText(allCorrect ? "Success" : "Review Results");
+                resultState.TitleText.SetText(allCorrect ? "Success" : "Failure");
             }
 
             if (resultState.SummaryText != null)
