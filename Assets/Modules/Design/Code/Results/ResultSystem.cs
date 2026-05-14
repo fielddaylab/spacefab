@@ -1,3 +1,4 @@
+using UnityEngine;
 using FieldDay;
 using FieldDay.Systems;
 
@@ -35,6 +36,7 @@ namespace SpaceFab.Design
             Find.State(out ResultState resultState, out SimulateUIState uiState, out SimulateRunState runState);
 
             bool isVisible = uiState.ResultsPanelVisible;
+            Debug.Log($"ResultSystem.ProcessWork: isVisible={isVisible}, s_wasVisible={s_wasVisible}");
 
             // Rising edge only: panel just became visible this frame.
             if (isVisible && !s_wasVisible)

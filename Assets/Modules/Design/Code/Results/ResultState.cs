@@ -23,11 +23,13 @@ namespace SpaceFab.Design
 
             if (DismissButton != null)
             {
+                DismissButton.gameObject.SetActive(true);
                 DismissButton.onClick.AddListener(OnDismissClicked);
             }
 
             if (RetryButton != null)
             {
+                RetryButton.gameObject.SetActive(true);
                 RetryButton.onClick.AddListener(OnRetryClicked);
             }
         }
@@ -70,14 +72,19 @@ namespace SpaceFab.Design
         public static void SetEnabledResultsGroup(ResultState resultState, bool isEnabled)
         {
             if (resultState.ResultsGroup == null)
+            {
+                Debug.LogWarning("ResultState.ResultsGroup is null!");
                 return;
+            }
 
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
+            Debug.Log($"SetEnabledResultsGroup: enabled={isEnabled}, alpha={resultState.ResultsGroup.alpha}");
         }
         public static void ShowResults(ResultState resultState, bool allCorrect)
         {
+            Debug.Log($"ResultStateUtility.ShowResults: resultState={resultState != null}, allCorrect={allCorrect}");
             if (resultState.TitleText != null)
             {
                 resultState.TitleText.SetText(allCorrect ? "Success" : "Review Results");
