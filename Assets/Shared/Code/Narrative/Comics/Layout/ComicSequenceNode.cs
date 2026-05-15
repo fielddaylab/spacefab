@@ -311,33 +311,8 @@ namespace SpaceFab.Comic {
         private const int MaxTextureSize = 4096;
         private const int MaxPaletteEntries = 4096;
 
-        static private readonly int[] TileSizeTable = new int[] { 4, 8, 12, 16, 20, 24, 28, 32, 64, 128 };
-
-        static private int GetTextureSizeForPixelCount(long pixelCount) {
-            const long count256 = 256 * 256;
-            const long count512 = 512 * 512;
-            const long count1024 = 1024 * 1024;
-            const long count2048 = 2048 * 2048;
-            const long count4096 = 4096 * 4096;
-
-            if (pixelCount <= count256) {
-                return 256;
-            }
-            if (pixelCount <= count512) {
-                return 512;
-            }
-            if (pixelCount <= count1024) {
-                return 1024;
-            }
-            if (pixelCount <= count2048) {
-                return 2048;
-            }
-            if (pixelCount <= count4096) {
-                return 4096;
-            }
-            Assert.Fail("Texture size too big! Cannot fit into maximum 4096x4096 texture!");
-            return -1;
-        }
+        static private readonly int[] TileSizeTable = new int[] { 4, 8, 10, 16, 20, 24, 32, 40, 64, 128 };
+        private const int MaxTileSizes = 9;
 
         static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, int slicing) {
             // TODO: tile packing, setting flags
@@ -516,11 +491,12 @@ namespace SpaceFab.Comic {
             PixelRGBA32* tileBuffer;
             try {
                 for (int i = 0; i < condenserBuffer->TileCount; i++) {
-                    EditorUtility.DisplayProgressBar("Exporting debug tile textures...", string.Empty, i / (float) condenserBuffer->TileCount);
+                    EditorUtility.DisplayProgressBar("Exporting debug tile textures...", i.ToStringLookup(), i / (float) condenserBuffer->TileCount);
                     tileBuffer = condenserBuffer->TileColorBuffer + i * tilePixelSize;
                     Unsafe.FastCopyArray(tileBuffer, tilePixelSize, dstBuffer);
                     byte[] pngData = tempTex.EncodeToPNG();
-                    File.WriteAllBytes(string.Format("Temp/ImageSlicerDEBUG/{0}.png", i), pngData);
+                    TileReuseStats reuseStats = condenserBuffer->TileStatsBuffer[i];
+                    File.WriteAllBytes(string.Format("Temp/ImageSlicerDEBUG/{0}-reused{1}.png", i, reuseStats.DirectReuse + reuseStats.TransformedReuse), pngData);
                 }
             } finally {
                 pixelData.Dispose();

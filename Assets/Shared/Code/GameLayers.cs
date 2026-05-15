@@ -18,6 +18,21 @@ static public class LayerMasks {
     // Layer 5: UI
     public const int UI_Index = 5;
     public const int UI_Mask = 32;
+    // Layer 6: SupplyChainPlanet
+    public const int SupplyChainPlanet_Index = 6;
+    public const int SupplyChainPlanet_Mask = 64;
+    // Layer 7: SupplyChainHazard
+    public const int SupplyChainHazard_Index = 7;
+    public const int SupplyChainHazard_Mask = 128;
+    // Layer 8: SupplyChainRoute
+    public const int SupplyChainRoute_Index = 8;
+    public const int SupplyChainRoute_Mask = 256;
+    // Layer 20: ResearchSlot
+    public const int ResearchSlot_Index = 20;
+    public const int ResearchSlot_Mask = 1048576;
+    // Layer 21: ResearchGem
+    public const int ResearchGem_Index = 21;
+    public const int ResearchGem_Mask = 2097152;
     // Layer 24: InterruptUI
     public const int InterruptUI_Index = 24;
     public const int InterruptUI_Mask = 16777216;
@@ -32,12 +47,58 @@ static public class SortingLayers {
     public const int GridNodes = -1740079061;
     // Layer GridOverlay
     public const int GridOverlay = 1497403345;
+    // Layer Design_Blank4
+    public const int Design_Blank4 = 264871581;
+    // Layer Design_Blank5
+    public const int Design_Blank5 = 1568843517;
+    // Layer Fab_Stations
+    public const int Fab_Stations = 1447053067;
+    // Layer Fabrication_Blank2
+    public const int Fabrication_Blank2 = -1951696231;
+    // Layer Fab_MicrogameFader
+    public const int Fab_MicrogameFader = -458660017;
+    // Layer Fab_Microgame
+    public const int Fab_Microgame = 330957413;
+    // Layer Fabrication_Blank5
+    public const int Fabrication_Blank5 = -102647171;
+    // Layer Research_Blank1
+    public const int Research_Blank1 = 937666309;
+    // Layer Research_Blank2
+    public const int Research_Blank2 = -2133937865;
+    // Layer Research_Blank3
+    public const int Research_Blank3 = -13538375;
+    // Layer Research_Blank4
+    public const int Research_Blank4 = 1052301453;
+    // Layer Research_Blank5
+    public const int Research_Blank5 = -654168565;
+    // Layer Supply_BG
+    public const int Supply_BG = 1988389837;
+    // Layer Supply_Route
+    public const int Supply_Route = -1244595335;
+    // Layer Supply_Planet
+    public const int Supply_Planet = -1591661009;
+    // Layer Supply_Hazard
+    public const int Supply_Hazard = 395253121;
+    // Layer Supply_Overlay
+    public const int Supply_Overlay = 553282945;
+    // Layer Overarching_Blank1
+    public const int Overarching_Blank1 = -1960641237;
+    // Layer Overarching_Blank2
+    public const int Overarching_Blank2 = 946045133;
+    // Layer Overarching_Blank3
+    public const int Overarching_Blank3 = -988097429;
+    // Layer Overarching_Blank4
+    public const int Overarching_Blank4 = 1966761349;
+    // Layer Overarching_Blank5
+    public const int Overarching_Blank5 = 2009844541;
+    // Layer SupplyChainBG
+    public const int SupplyChainBG = -1477039571;
     // Layer UI
-    public const int UI = 264871581;
+    public const int UI = 1461900991;
     // Layer Pop-Up UI
-    public const int Pop_UpUI = 1568843517;
+    public const int Pop_UpUI = -1112968087;
     // Layer Shared UI
-    public const int SharedUI = 1447053067;
+    public const int SharedUI = -1426292637;
 }
 static public class UnityTags {
     

@@ -83,8 +83,14 @@ namespace FieldDay.ImageSlicer {
                 return false;
             }
 
-            // TODO: finish
+            int totalTileSize = condenser->TileSize + exporter->Padding * 2;
+            int tilesX = exporter->TextureWidth / totalTileSize;
+            int tilesY = exporter->TextureHeight / totalTileSize;
             return true;
+        }
+
+        static public void CopyTileToTexture(PixelRGBA32* src, int srcCount, int srcWidth, int padding, PixelRGBA32* dst, int dstWidth) {
+
         }
     }
 }

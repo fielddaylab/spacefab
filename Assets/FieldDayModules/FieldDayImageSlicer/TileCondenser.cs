@@ -1,5 +1,6 @@
 using BeauUtil;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace FieldDay.ImageSlicer {
     public struct OrientedTileHashes {
@@ -92,7 +93,7 @@ namespace FieldDay.ImageSlicer {
 
         static public int CommitPaletteEntry(TileCondenserBuffer* buffer, PixelRGBA32 singleColor) {
             for(int i = 0; i < buffer->PaletteEntryCount; i++) {
-                if (buffer->PaletteEntries[i].Raw == singleColor.Raw) {
+                if (TileUtility.ColorComparison(buffer->PaletteEntries[i], singleColor)) {
                     return i;
                 }
             }
@@ -243,11 +244,17 @@ namespace FieldDay.ImageSlicer {
 
         static public bool AreIdentical(PixelRGBA32* a, PixelRGBA32* b, int count) {
             while(count-- > 0) {
-                if ((*a++).Raw != ((*b++).Raw)) {
+                if (!ColorComparison(*a++, *b++)) {
                     return false;
                 }
             }
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public bool ColorComparison(in PixelRGBA32 a, in PixelRGBA32 b) {
+            //return PixelRGBA32.ApproximatelyEquals(a, b);
+            return PixelRGBA32.Equals(a, b);
         }
 
         static public OrientedTileHashes ComputeOrientedHashes(TileCondenserBuffer* buffer, PixelRGBA32* pixels, int count, int tileSize) {
