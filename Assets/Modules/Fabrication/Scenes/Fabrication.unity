@@ -218,6 +218,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2766677894178579313, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7841174464335247826, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_Camera
       value: 
@@ -1915,8 +1919,8 @@ MonoBehaviour:
   FaderGroup: {fileID: 513888590}
   PopupGroup: {fileID: 80312477}
   InstructionsGroup: {fileID: 80312478}
-  SpaceImage: {fileID: 80312484}
-  LRArrowImage: {fileID: 80312482}
+  m_SpaceImage: {fileID: 80312484}
+  _LRArrowImage: {fileID: 80312482}
   FullArrowImage: {fileID: 80312483}
   MouseImage: {fileID: 1750579388}
   ADArrowImage: {fileID: 80312481}

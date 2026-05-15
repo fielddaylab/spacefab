@@ -19,9 +19,9 @@ namespace SpaceFab.Fabrication.Layout
         public CanvasGroup FaderGroup;
         public CanvasGroup PopupGroup;
         public CanvasGroup InstructionsGroup;
-        public GameObject SpaceImage, LRArrowImage, FullArrowImage, MouseImage, ADArrowImage;
-        public TextMeshProUGUI InstructionTMP, SubtitleTMP;
         public InstructionLookup InstructionsLookup;
+        [SerializeField] private GameObject m_SpaceImage, m_LRArrowImage, m_FullArrowImage, m_MouseImage, m_ADArrowImage;
+        [SerializeField] private TextMeshProUGUI m_InstructionTMP, m_SubtitleTMP;
 
         public void OnDeregister()
         {
@@ -38,11 +38,11 @@ namespace SpaceFab.Fabrication.Layout
             InstructionsGroup.alpha = 0;
             InstructionsGroup.blocksRaycasts = false;
 
-            SpaceImage.SetActive(false);
-            LRArrowImage.SetActive(false);
-            FullArrowImage.SetActive(false);
-            MouseImage.SetActive(false);
-            ADArrowImage.SetActive(false);
+            m_SpaceImage.SetActive(false);
+            m_LRArrowImage.SetActive(false);
+            m_FullArrowImage.SetActive(false);
+            m_MouseImage.SetActive(false);
+            m_ADArrowImage.SetActive(false);
         }
 
         public void ShowUI(SerializedHash32 stationID)
@@ -57,25 +57,25 @@ namespace SpaceFab.Fabrication.Layout
 
             switch (uiInstructions.UIKey)
             {
-                case KeyType.Space:
-                    SpaceImage.SetActive(true);
+                case KeyImage.Space:
+                    m_SpaceImage.SetActive(true);
                     break;
-                case KeyType.LRArrows:
-                    LRArrowImage.SetActive(true);
+                case KeyImage.LRArrows:
+                    m_LRArrowImage.SetActive(true);
                     break;
-                case KeyType.FullArrows:
-                    FullArrowImage.SetActive(true);
+                case KeyImage.FullArrows:
+                    m_FullArrowImage.SetActive(true);
                     break;
-                case KeyType.Mouse:
-                    MouseImage.SetActive(true);
+                case KeyImage.Mouse:
+                    m_MouseImage.SetActive(true);
                     break;
-                case KeyType.ADKeys:
-                    ADArrowImage.SetActive(true);
+                case KeyImage.ADKeys:
+                    m_ADArrowImage.SetActive(true);
                     break;
             }
 
-            InstructionTMP.text = uiInstructions.Instruction;
-            SubtitleTMP.text = uiInstructions.Subtitle;
+            m_InstructionTMP.text = uiInstructions.Instruction;
+            m_SubtitleTMP.text = uiInstructions.Subtitle;
         }
 
         public void HideUI()
@@ -86,7 +86,7 @@ namespace SpaceFab.Fabrication.Layout
             InstructionsGroup.alpha = 0f;
             InstructionsGroup.blocksRaycasts = false;
 
-            // setting the canvas shouldn't be necessary as it gets updated on show ui, but maybe change?
+            // setting the canvas shouldn't be necessary as it gets updated on ShowUI, but maybe change?
         }
     }
 }

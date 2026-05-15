@@ -10,7 +10,7 @@ namespace SpaceFab.Fabrication.Layout
     /// <summary>
     /// Key type image the microgame will display
     /// </summary>
-    public enum KeyType
+    public enum KeyImage
     {
         Space,
         LRArrows,
@@ -41,7 +41,7 @@ namespace SpaceFab.Fabrication.Layout
     [System.Serializable]
     public class InstructionSet
     {
-        public KeyType UIKey;
+        public KeyImage UIKey;
         public string Instruction;
         public string Subtitle;
     }
