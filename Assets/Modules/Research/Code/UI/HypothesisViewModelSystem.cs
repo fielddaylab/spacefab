@@ -76,7 +76,7 @@ namespace SpaceFab.Research {
             uint prevSatisfied = viewModelState.ActivePageSatisfiedMask;
             uint prevLocked = viewModelState.ActivePageLockedMask;
             bool prevSubmit = viewModelState.SubmitButtonVisible;
-            bool prevFulfilled = viewModelState.ActivePageIsFulfilled;
+            uint prevFulfilledMask = viewModelState.PageFulfilledMask;
 
             // 1. Apply page cycle. Wrapping in both directions; bail to 0
             // when the page list is empty.
@@ -86,9 +86,9 @@ namespace SpaceFab.Research {
                 viewModelState.ActivePageSatisfiedMask = 0;
                 viewModelState.ActivePageLockedMask = 0;
                 viewModelState.ActivePageSatisfiedCount = 0;
-                viewModelState.ActivePageIsFulfilled = false;
+                viewModelState.PageFulfilledMask = 0;
                 viewModelState.SubmitButtonVisible = false;
-                viewModelState.HypothesisChangedThisFrame = prevIndex != 0 || prevSatisfied != 0 || prevSubmit;
+                viewModelState.HypothesisChangedThisFrame = prevIndex != 0 || prevSatisfied != 0 || prevSubmit || prevFulfilledMask != 0;
                 return;
             }
 
@@ -152,17 +152,26 @@ namespace SpaceFab.Research {
             viewModelState.ActivePageSatisfiedCount = satisfiedCount;
             viewModelState.SubmitButtonVisible = leafCount > 0 && satisfiedCount == leafCount;
 
-            // 4. Header checkmark: any known material has this (Label, Context)
-            // confirmed. Sandbox shadows progress, so an OR over both keyed by
-            // the same materialId is fine.
-            viewModelState.ActivePageIsFulfilled = AnyMaterialFulfills(researchState, progressState, page.Label, page.Context);
+            // 4. Per-page fulfilled mask: bit i = page i has been
+            // confirmed by some known material (sandbox or saved
+            // PlayerProgress). Drives the paginator's per-dot
+            // confirmed-overlay state.
+            uint pageFulfilledMask = 0;
+            int maskBound = pageCount > 32 ? 32 : pageCount;
+            for (int p = 0; p < maskBound; p++) {
+                HypothesisPage pageEntry = pagesState.Pages[p];
+                if (AnyMaterialFulfills(researchState, progressState, pageEntry.Label, pageEntry.Context)) {
+                    pageFulfilledMask |= 1u << p;
+                }
+            }
+            viewModelState.PageFulfilledMask = pageFulfilledMask;
 
             // 5. Frame-flag — any change drives the panel's LateUpdate render.
             bool changed = viewModelState.ActivePageIndex != prevIndex
                 || satisfiedMask != prevSatisfied
                 || lockedMask != prevLocked
                 || viewModelState.SubmitButtonVisible != prevSubmit
-                || viewModelState.ActivePageIsFulfilled != prevFulfilled;
+                || pageFulfilledMask != prevFulfilledMask;
             viewModelState.HypothesisChangedThisFrame = changed;
         }
 

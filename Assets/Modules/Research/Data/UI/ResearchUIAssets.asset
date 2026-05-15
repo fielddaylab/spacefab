@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be94885d8ce25d34c9838739426a2847, type: 3}
-  m_Name: ConductorNaive
+  m_Script: {fileID: 11500000, guid: 1398bc1de578a4d4d83d26a66d9e07f5, type: 3}
+  m_Name: ResearchUIAssets
   m_EditorClassIdentifier: 
-  Label: 14
-  Dependencies: 
+  DotActiveColor: {r: 1, g: 1, b: 1, a: 1}
+  DotInactiveColor: {r: 0.11764707, g: 0.11764707, b: 0.11764707, a: 1}

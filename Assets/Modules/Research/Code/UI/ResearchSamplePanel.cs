@@ -27,6 +27,8 @@ namespace SpaceFab.Research {
         public GameObject ChipPickerOverlay;
         public ResearchObservationChip[] PickerChips;
 
+        public CursorHint SubmitButton;
+
         public GameObject[] ChamberSwitchButtonStubs;
 
         // Whether the picker overlay is currently open. Per-instance
@@ -72,6 +74,9 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Register(HandleAddObservation);
             }
+            if (SubmitButton != null) {
+                SubmitButton.onClick.Register(HandleSubmit);
+            }
 
             SamplePanelInputUtility.ClosePicker(this);
         }
@@ -94,6 +99,9 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Deregister(HandleAddObservation);
             }
+            if (SubmitButton != null) {
+                SubmitButton.onClick.Deregister(HandleSubmit);
+            }
         }
 
         private void HandleAddObservation() {
@@ -107,6 +115,10 @@ namespace SpaceFab.Research {
 
         private void HandleSlotClick(int index) {
             SamplePanelInputUtility.RequestSlotRemove(this, Find.State<ResearchUIInputState>(), Find.State<HypothesisViewModelState>(), index);
+        }
+
+        private void HandleSubmit() {
+            ResearchUIInputUtility.RequestSubmit(Find.State<ResearchUIInputState>());
         }
     }
 

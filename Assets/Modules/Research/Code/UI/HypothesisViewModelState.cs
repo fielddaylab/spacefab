@@ -30,10 +30,14 @@ namespace SpaceFab.Research {
 
         [NonSerialized] public int ActivePageSatisfiedCount;
 
-        // True when any material the player knows of (sandbox or saved
-        // PlayerProgress) has this page's (Label, Context) confirmed.
-        // Drives the header checkmark.
-        [NonSerialized] public bool ActivePageIsFulfilled;
+        // Bit i = page i has been fulfilled by some known material.
+        // Drives the per-dot "confirmed" overlay on the paginator. The
+        // active page's bit is what the (removed) header checkmark used
+        // to read — consumers that need just the active page can do
+        // (PageFulfilledMask >> ActivePageIndex) & 1. Capped at 32 pages
+        // (same uint limit as the satisfied / locked masks); pages
+        // beyond bit 31 silently render unconfirmed.
+        [NonSerialized] public uint PageFulfilledMask;
 
         // True when the slotted material has satisfied every chip on the
         // active page. Drives the submit button's visibility.

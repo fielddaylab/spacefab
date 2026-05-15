@@ -1,7 +1,9 @@
+using BeauPools;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -18,6 +20,7 @@ namespace SpaceFab.Research {
                 new SysPermissions()
                     .ReadShared<ResearchHypothesisPagesState>()
                     .ReadShared<HypothesisViewModelState>()
+                    .ReadWriteShared<ResearchPools>()
                     .ReadWrite<ResearchHypothesisPanel>()
             );
         }
@@ -25,23 +28,25 @@ namespace SpaceFab.Research {
         private static void ProcessWork(float deltaTime) {
             Find.State(
                 out ResearchHypothesisPagesState pagesState,
-                out HypothesisViewModelState viewModel
+                out HypothesisViewModelState viewModel,
+                out ResearchPools pools
             );
 
             foreach (var panel in Find.Components<ResearchHypothesisPanel>()) {
-                HypothesisPanelVisualUtility.Apply(panel, pagesState, viewModel);
+                HypothesisPanelVisualUtility.Apply(panel, pagesState, viewModel, pools);
             }
         }
     }
 
     /// <summary>
     /// Pushes viewmodel state into a ResearchHypothesisPanel's
-    /// inspector-assigned visuals. All mutation here is on Unity components
-    /// the panel owns (text, image color, GameObject active); the shared
-    /// state arguments are read-only.
+    /// inspector-assigned visuals and into the shared dot pool. Mutation
+    /// is on Unity components owned by the panel + dot instances (text,
+    /// GameObject active, transform position); the shared state
+    /// arguments are read-only.
     /// </summary>
     public static class HypothesisPanelVisualUtility {
-        public static void Apply(ResearchHypothesisPanel panel, ResearchHypothesisPagesState pagesState, HypothesisViewModelState viewModel) {
+        public static void Apply(ResearchHypothesisPanel panel, ResearchHypothesisPagesState pagesState, HypothesisViewModelState viewModel, ResearchPools pools) {
             if (panel == null || pagesState == null || viewModel == null) {
                 return;
             }
@@ -49,14 +54,37 @@ namespace SpaceFab.Research {
             int pageCount = pagesState.Pages.Count;
             int activeIdx = viewModel.ActivePageIndex;
 
-            // 1. Pagination dots — enable up to pageCount, tint the active.
-            if (panel.PaginationDots != null) {
-                for (int i = 0; i < panel.PaginationDots.Length; i++) {
-                    bool show = i < pageCount;
-                    panel.PaginationDots[i].gameObject.SetActive(show);
-                    if (show) {
-                        panel.PaginationDots[i].color = (i == activeIdx) ? panel.DotActiveColor : panel.DotInactiveColor;
+            // 1. Pagination dots — grow / shrink ActivePaginationDots
+            // to match pageCount via the shared PaginationDotPool, then
+            // toggle each dot's ConfirmedOverlay against the viewmodel's
+            // per-page fulfilled mask. Newly alloced dots are reparented
+            // under the panel's PaginationDotContainer so the panel's
+            // layout group can position them. Base sprites are inspector-
+            // authored on each dot prefab and always render.
+            SyncPaginationDots(pools, panel.PaginationDotContainer, pageCount);
+            uint fulfilledMask = viewModel.PageFulfilledMask;
+            ResearchPaginationDot activeDot = null;
+            if (pools != null && pools.ActivePaginationDots != null) {
+                for (int i = 0; i < pools.ActivePaginationDots.Count; i++) {
+                    ResearchPaginationDot dot = pools.ActivePaginationDots[i];
+                    if (dot == null) continue;
+                    if (dot.ConfirmedOverlay != null) {
+                        bool confirmed = (fulfilledMask & (1u << i)) != 0;
+                        dot.ConfirmedOverlay.enabled = confirmed;
                     }
+                    if (i == activeIdx) {
+                        activeDot = dot;
+                    }
+                }
+            }
+
+            // 1b. CurrentHypothesisIndicator — move to the active dot's
+            // world position and show it; hide when there are no pages.
+            if (panel.CurrentHypothesisIndicator != null) {
+                bool indicatorVisible = pageCount > 0 && activeDot != null;
+                panel.CurrentHypothesisIndicator.gameObject.SetActive(indicatorVisible);
+                if (indicatorVisible) {
+                    panel.CurrentHypothesisIndicator.position = activeDot.transform.position;
                 }
             }
 
@@ -74,28 +102,17 @@ namespace SpaceFab.Research {
                     panel.HeaderLabel.text = string.Empty;
                 }
                 ClearChips(panel);
-                if (panel.FulfilledCheckmark != null) {
-                    panel.FulfilledCheckmark.SetActive(false);
-                }
-                if (panel.SubmitButton != null) {
-                    panel.SubmitButton.gameObject.SetActive(false);
-                }
                 return;
             }
 
-            // 4. Active page header + chips + fulfilled / submit visibility.
+            // 4. Active page header + chips. Per-page fulfilled state is
+            // already on each dot's ConfirmedOverlay above. Submit
+            // button visibility lives on the sample panel.
             HypothesisPage page = pagesState.Pages[activeIdx];
             if (panel.HeaderLabel != null) {
                 panel.HeaderLabel.text = "FIND A " + MaterialPropertyLabelDisplay.GetPropertyName(page.Label);
             }
             RenderChips(panel, page, viewModel.ActivePageSatisfiedMask, viewModel.ActivePageLockedMask);
-
-            if (panel.FulfilledCheckmark != null) {
-                panel.FulfilledCheckmark.SetActive(viewModel.ActivePageIsFulfilled);
-            }
-            if (panel.SubmitButton != null) {
-                panel.SubmitButton.gameObject.SetActive(viewModel.SubmitButtonVisible);
-            }
         }
 
         private static void RenderChips(ResearchHypothesisPanel panel, HypothesisPage page, uint satisfiedMask, uint lockedMask) {
@@ -122,6 +139,47 @@ namespace SpaceFab.Research {
             }
             for (int i = 0; i < panel.Chips.Length; i++) {
                 panel.Chips[i].gameObject.SetActive(false);
+            }
+        }
+
+        // Grows or shrinks ResearchPools.ActivePaginationDots to match
+        // `count` by Alloc/TryFree against PaginationDotPool. Mirrors
+        // how VFX instances are alloced from ExplosionEffectPool /
+        // BoltZapEffectPool. Newly alloced dots are reparented under
+        // `container` (the panel's PaginationDotContainer) so the
+        // panel's layout group lays them out; freed dots return to the
+        // pool's own root via SerializablePool's default free behavior.
+        // No-op if the pools state isn't wired.
+        private static void SyncPaginationDots(ResearchPools pools, RectTransform container, int count) {
+            if (pools == null || pools.ActivePaginationDots == null || pools.PaginationDotPool == null) {
+                return;
+            }
+
+            var active = pools.ActivePaginationDots;
+
+            // Grow: alloc new dots until we hit the target count.
+            // SetParent(container, false) preserves the prefab's local
+            // layout values so the layout group on container takes over
+            // cleanly.
+            while (active.Count < count) {
+                ResearchPaginationDot dot = pools.PaginationDotPool.Alloc();
+                if (dot == null) {
+                    break;
+                }
+                if (container != null) {
+                    dot.transform.SetParent(container, false);
+                }
+                active.Add(dot);
+            }
+
+            // Shrink: free surplus dots back to the pool.
+            while (active.Count > count) {
+                int last = active.Count - 1;
+                ResearchPaginationDot dot = active[last];
+                active.RemoveAt(last);
+                if (dot != null) {
+                    Pool.TryFree(dot);
+                }
             }
         }
     }

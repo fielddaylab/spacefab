@@ -8,7 +8,7 @@ namespace SpaceFab.Research {
     /// <summary>
     /// Pooled particle-effect holder. One instance wraps one or more
     /// ParticleSystem renderers plus an optional Routine used to drive any
-    /// supplemental animation. Allocated from a ResearchVfxPool, played via
+    /// supplemental animation. Allocated from ResearchPools, played via
     /// ResearchVfxUtility, and reclaimed by ResearchVfxMonitorSystem once all
     /// particle systems and the animation routine have finished.
     /// </summary>

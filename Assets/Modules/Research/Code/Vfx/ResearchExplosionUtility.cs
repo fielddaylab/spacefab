@@ -38,7 +38,7 @@ namespace SpaceFab.Research {
         // itself — the routine does that at the end of the sequence.
         public static void ExplodeSlot(
             ResearchExplosionState explosionState,
-            ResearchVfxPool vfxPool,
+            ResearchPools vfxPool,
             ChamberInterfacerState interfacerState,
             ResearchSlot slot,
             ChamberSlotKind kind,
@@ -59,7 +59,7 @@ namespace SpaceFab.Research {
         // finally clears the slot via the standard FillInSlot path so the
         // chamber's frame-flag refires on the next frame.
         private static IEnumerator ExplosionRoutine(
-            ResearchVfxPool vfxPool,
+            ResearchPools vfxPool,
             ChamberInterfacerState interfacerState,
             ResearchSlot slot,
             ChamberSlotKind kind,

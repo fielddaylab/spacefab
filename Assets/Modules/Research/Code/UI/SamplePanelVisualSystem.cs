@@ -65,6 +65,16 @@ namespace SpaceFab.Research {
             ResearchSlot primarySlot = interfacerState.PrimarySlot;
             MaterialAsset slottedMaterial = primarySlot != null ? primarySlot.CurrentMaterial : null;
 
+            // Submit button mirrors the hypothesis viewmodel's
+            // SubmitButtonVisible flag (true only when the slotted
+            // material satisfies every leaf on the active page).
+            // Driven explicitly here so it works in both the empty-state
+            // and filled-state paths regardless of where the button
+            // sits in the panel hierarchy.
+            if (panel.SubmitButton != null) {
+                panel.SubmitButton.gameObject.SetActive(hypoVm.SubmitButtonVisible);
+            }
+
             // 1. Empty-state path: no material slotted.
             if (slottedMaterial == null) {
                 if (panel.EmptyState != null) {

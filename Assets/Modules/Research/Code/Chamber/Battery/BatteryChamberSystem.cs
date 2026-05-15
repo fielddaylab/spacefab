@@ -24,7 +24,7 @@ namespace SpaceFab.Research
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
                     .ReadWriteShared<ResearchExplosionState>()
-                    .ReadWriteShared<ResearchVfxPool>()
+                    .ReadWriteShared<ResearchPools>()
                     .ReadWrite<CircuitRenderer>()
                     .ReadWrite<ResearchSlot>()
             );
@@ -40,7 +40,7 @@ namespace SpaceFab.Research
 
             Find.State(out BatteryChamberState batteryChamberState,
                        out ResearchExplosionState explosionState,
-                       out ResearchVfxPool vfxPool);
+                       out ResearchPools vfxPool);
 
             // Read once outside the per-Battery loop so the multi-Battery case
             // (unlikely today but cheap to support) doesn't re-poll the flag.
@@ -60,7 +60,7 @@ namespace SpaceFab.Research
 
         // Single-Battery update: read material + voltage, run stability, drive
         // visuals. Splits out of ProcessWork so the loop body stays linear.
-        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState battery, ResearchExplosionState explosionState, ResearchVfxPool vfxPool)
+        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState battery, ResearchExplosionState explosionState, ResearchPools vfxPool)
         {
             MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, battery.SlotKind);
             float voltage = battery.VoltageControl != null ? battery.VoltageControl.CurrentVoltage : 0f;

@@ -15,7 +15,7 @@ namespace SpaceFab.Research {
     public class ObservationCollectSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 100, UpdateMasks.ResearchMask),
+                new SysUpdate(GameLoopPhase.Update, 50, UpdateMasks.ResearchMask),
                 new SysPermissions()
                     .ReadShared<ResearchUIInputState>()
                     .ReadShared<ResearchHypothesisPagesState>()
