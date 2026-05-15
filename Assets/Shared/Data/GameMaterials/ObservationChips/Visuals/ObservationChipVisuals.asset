@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57e19f3c5ec908f449858e9588e2d771, type: 3}
+  m_Name: ObservationChipVisuals
+  m_EditorClassIdentifier: 
+  m_ObservationSprites:
+  - ObservationType: 0
+    EmptyChip: {fileID: 0}
+    FilledChip: {fileID: 0}
+  - ObservationType: 1
+    EmptyChip: {fileID: 0}
+    FilledChip: {fileID: 0}
+  - ObservationType: 2
+    EmptyChip: {fileID: 0}
+    FilledChip: {fileID: 0}
+  - ObservationType: 3
+    EmptyChip: {fileID: 0}
+    FilledChip: {fileID: 0}
+  - ObservationType: 4
+    EmptyChip: {fileID: 0}
+    FilledChip: {fileID: 0}
+  m_LabelFilledColor: {r: 0, g: 0, b: 0, a: 1}
+  m_LabelEmptyColor: {r: 1, g: 1, b: 1, a: 1}

@@ -1,8 +1,38 @@
 using BeauUtil;
 using FieldDay;
+using System.Collections.Generic;
 
 namespace SpaceFab.Materials
 {
+    /// <summary>
+    /// A single (label, context) observation leaf in a hypothesis's
+    /// decomposition. Output element of MaterialPropertyDefinitionUtility.
+    /// DecomposeToObservations. Context is the X in "P-Type Dopant for X"
+    /// inherited down the dependency tree; for static observations it is
+    /// StringHash32.Null.
+    ///
+    /// AncestorProperty (when HasAncestorProperty is true) names the
+    /// outermost sub-property — i.e., the direct child of the page's top-
+    /// level definition that this leaf descended from. The UI uses this to
+    /// auto-populate the leaf's chip when AncestorProperty is already
+    /// confirmed for the slotted material: the player doesn't have to
+    /// re-collect observations for a sub-property they've already proven.
+    ///
+    /// ObservationType is cached at decomposition time from the static
+    /// MaterialObservationChamberLookup; the observation chip uses it to
+    /// look up the right sprite pair. Observations can sit outside any
+    /// chamber (e.g. Special, ConfirmedProperty), which is why this is
+    /// an ObservationType — broader than ChamberType.
+    /// </summary>
+    public struct MaterialObservationEntry
+    {
+        public MaterialPropertyLabel Label;
+        public StringHash32 Context;
+        public ObservationType ObservationType;
+        public MaterialPropertyLabel AncestorProperty;
+        public bool HasAncestorProperty;
+    }
+
     /// <summary>
     /// Evaluator for MaterialPropertyDefinition dependency trees. Answers
     /// "for material M, with X as the dynamic context (or none for static
@@ -156,6 +186,112 @@ namespace SpaceFab.Materials
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Walks a definition's dependency tree and appends every leaf
+        /// (observation) entry to output. Sub-property dependencies recurse
+        /// into their canonical (first-registered) definition, since the
+        /// caller has already split per-definition at the hypothesis-page
+        /// level. Inherited context propagates down the tree.
+        ///
+        /// Each leaf carries the outermost sub-property it descended from
+        /// (the direct child of the supplied top-level definition), so the
+        /// UI can auto-populate that leaf when its outermost ancestor is
+        /// already confirmed for the slotted material. Nested sub-properties
+        /// do not overwrite the ancestor: the rule is "if any ancestor on
+        /// the path is confirmed, the leaf is auto-populated," and the
+        /// outermost ancestor is sufficient to make that decision because
+        /// the evaluator's record-Has check short-circuits at the outermost
+        /// confirmed level.
+        /// </summary>
+        public static void DecomposeToObservations(
+            MaterialPropertyDefinition definition,
+            StringHash32 inheritedContext,
+            List<MaterialObservationEntry> output)
+        {
+            if (definition == null || definition.Dependencies == null)
+            {
+                return;
+            }
+
+            MaterialPropertyDefinitionAsset registry = Find.GlobalAsset<MaterialPropertyDefinitionAsset>();
+
+            for (int i = 0; i < definition.Dependencies.Length; i++)
+            {
+                MaterialPropertyLabel dep = definition.Dependencies[i];
+
+                if (!MaterialPropertyLabelUtility.IsPersistent(dep))
+                {
+                    // Direct observation dependency — no ancestor sub-property.
+                    output.Add(new MaterialObservationEntry
+                    {
+                        Label = dep,
+                        Context = inheritedContext,
+                        ObservationType = MaterialObservationChamberLookup.GetChamberType(dep),
+                        HasAncestorProperty = false,
+                    });
+                    continue;
+                }
+
+                if (registry == null)
+                {
+                    continue;
+                }
+
+                MaterialPropertyDefinition[] subDefs = registry.GetDefinitions(dep);
+                if (subDefs.Length > 0)
+                {
+                    // Descended into a sub-property. dep becomes the
+                    // outermost ancestor for every leaf below this point.
+                    DecomposeUnderAncestor(subDefs[0], inheritedContext, dep, output, registry);
+                }
+            }
+        }
+
+        // Continues the decomposition under an established outermost ancestor.
+        // Nested sub-property descents reuse the same ancestor — only the
+        // outermost matters for auto-population.
+        private static void DecomposeUnderAncestor(
+            MaterialPropertyDefinition definition,
+            StringHash32 inheritedContext,
+            MaterialPropertyLabel outermostAncestor,
+            List<MaterialObservationEntry> output,
+            MaterialPropertyDefinitionAsset registry)
+        {
+            if (definition == null || definition.Dependencies == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < definition.Dependencies.Length; i++)
+            {
+                MaterialPropertyLabel dep = definition.Dependencies[i];
+
+                if (!MaterialPropertyLabelUtility.IsPersistent(dep))
+                {
+                    output.Add(new MaterialObservationEntry
+                    {
+                        Label = dep,
+                        Context = inheritedContext,
+                        ObservationType = MaterialObservationChamberLookup.GetChamberType(dep),
+                        AncestorProperty = outermostAncestor,
+                        HasAncestorProperty = true,
+                    });
+                    continue;
+                }
+
+                if (registry == null)
+                {
+                    continue;
+                }
+
+                MaterialPropertyDefinition[] subDefs = registry.GetDefinitions(dep);
+                if (subDefs.Length > 0)
+                {
+                    DecomposeUnderAncestor(subDefs[0], inheritedContext, outermostAncestor, output, registry);
+                }
+            }
         }
     }
 }

@@ -23,6 +23,8 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<ResearchSampleTrayState>()
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
+                    .ReadWriteShared<ResearchHypothesisPagesState>()
+                    .ReadWriteShared<HypothesisViewModelState>()
             );
         }
 
@@ -36,6 +38,10 @@ namespace SpaceFab.Research {
             Find.State(
                 out ChamberInterfacerState interfacerState,
                 out BatteryChamberState batteryChamberState
+                );
+            Find.State(
+                out ResearchHypothesisPagesState hypothesisPagesState,
+                out HypothesisViewModelState hypothesisViewModelState
                 );
 
             researchState.AvailableMaterials.Clear();
@@ -67,6 +73,11 @@ namespace SpaceFab.Research {
             // materials. Idempotent on re-entry — the utility clears any
             // previously-spawned gems before refilling.
             ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
+
+            // Build the hypothesis page list for the contract's required
+            // research goals. One page per (goal × registered definition).
+            // Resets the viewmodel's active page index to 0.
+            ResearchHypothesisUtility.BuildPages(researchState, hypothesisPagesState, hypothesisViewModelState);
 
             // Init Battery Chamber
             ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();

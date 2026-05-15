@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be94885d8ce25d34c9838739426a2847, type: 3}
-  m_Name: NDopantFor_Alt
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: ObservationVisuals
   m_EditorClassIdentifier: 
-  Label: 25
-  Dependencies: 0e00000010000000
+  m_GlobalAssets:
+  - {fileID: 11400000, guid: a4fe1e470658cbc4fb9e6f6d3530ef8e, type: 2}
+  m_NamedAssets: []
+  m_LiteAssets: []

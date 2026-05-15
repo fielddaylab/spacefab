@@ -14,21 +14,25 @@ namespace SpaceFab.Materials
         // the end of this block to keep existing serialized assets stable.
         Conductive,
         NonConductive,
+
         HeatActivated,
         HeatDeactivated,
         HeatUnaffected,
         HeatVulnerable,
         HeatResistant,
+
         AtomicRadiusLessThan,
         AtomicRadiusGreaterThan,
+        ValenceOneLessThan,
+        ValenceOneMoreThan,
+        //FormsDiodeWithKnownNIn,
+        //FormsDiodeWithKnownPIn,
+        //IncreasesConductivityOf,
+        //DoesNotIncreaseConductivityOf,
+
         LightEmitting,
         HighMobility,
         VoltageResistant,
-        ValenceOneLessThan,
-        ValenceOneMoreThan,
-        IncreasesConductivityOf,
-        FormsDiodeWithKnownNIn,
-        FormsDiodeWithKnownPIn,
 
         // Persistent property block. Confirmable; round-trips to
         // PlayerProgressState. Bit positions assigned by
@@ -53,6 +57,13 @@ namespace SpaceFab.Materials
         Electrical,
         Thermal,
         Dopant,
+    }
+
+    public enum ObservationType
+    {
+        Electrical,
+        Thermal,
+        Dopant,
         Special,
         ConfirmedProperty,
     }
@@ -62,6 +73,38 @@ namespace SpaceFab.Materials
     {
         public MaterialPropertyLabel Label;
         [AssetName(typeof(MaterialAsset))] public StringHash32 InComparisonTo;
+    }
+
+    /// <summary>
+    /// Hardcoded observation-label → ObservationType lookup. Pure
+    /// compile-time switch — no registry, no asset, no allocation. Used
+    /// by the hypothesis decomposition + the observation chip widget to
+    /// know which sprite pair an observation chip should render with.
+    /// Returns ObservationType (not ChamberType) because some observation
+    /// buckets (Special, ConfirmedProperty) don't correspond to a
+    /// chamber.
+    /// </summary>
+    public static class MaterialObservationChamberLookup
+    {
+        public static ObservationType GetChamberType(MaterialPropertyLabel label)
+        {
+            if (label < MaterialPropertyLabel.HeatActivated)
+            {
+                return ObservationType.Electrical;
+            }
+            else if (label <= MaterialPropertyLabel.AtomicRadiusLessThan)
+            {
+                return ObservationType.Thermal;
+            }
+            else if (label <= MaterialPropertyLabel.LightEmitting)
+            {
+                return ObservationType.Dopant;
+            }
+            else
+            {
+                return ObservationType.Special;
+            }
+        }
     }
 
     /**

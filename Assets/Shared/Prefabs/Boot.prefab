@@ -235,7 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706f2641905f6d64d924966dcaeba60f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrComic: {fileID: 0}
 --- !u!114 &5367927135572604056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,6 +251,7 @@ MonoBehaviour:
   Transitioning: 0
   ActiveTabIndex: 0
   ActivePageIndex: 0
+  PageWindowStartIndex: 0
   OpenRequestedThisFrame: 0
   CloseRequestedThisFrame: 0
   OpenToRequestedThisFrame: 0
@@ -483,6 +483,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 46f0252d572bab34da906dc24d3b78b1, type: 2}
   - {fileID: 11400000, guid: 52d80346b54751b4c9a3f960500b0a93, type: 2}
   - {fileID: 11400000, guid: e05e28840a1d672429f6d7e01d1337ae, type: 2}
+  - {fileID: 11400000, guid: 538e73164294ef846a0c15a9422da501, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:
   m_ObjectHideFlags: 0
