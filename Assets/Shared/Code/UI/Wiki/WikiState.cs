@@ -47,6 +47,7 @@ namespace SpaceFab.UI {
         // Expand/collapse routine handle. Owned here so WikiUtility can Replace() it without
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
+        
         [HideInInspector] public bool NeedsRebuild;
 
         public void OnRegister() {

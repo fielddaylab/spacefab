@@ -19,7 +19,11 @@ namespace SpaceFab.Design
 
         public void OnRegister()
         {
-            ResultStateUtility.SetEnabledResultsGroup(this, false);
+
+            if (ResultsGroup != null)
+            {
+                ResultStateUtility.SetEnabledResultsGroup(this, false);
+            }
 
             if (DismissButton != null)
             {
@@ -86,7 +90,6 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
-            Debug.Log($"SetEnabledResultsGroup: enabled={isEnabled}, alpha={resultState.ResultsGroup.alpha}");
         }
         public static void ShowResults(ResultState resultState, bool allCorrect)
         {

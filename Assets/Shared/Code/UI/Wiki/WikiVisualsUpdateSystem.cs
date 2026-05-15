@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.Systems;
 using FieldDay.SharedState;
 using UnityEngine.UI;
+using Debug = UnityEngine.Debug;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -122,6 +123,7 @@ namespace SpaceFab.UI {
             if (activeTab != null && activeTab.Pages != null && wikiState.ActivePageIndex >= 0 && wikiState.ActivePageIndex < activeTab.Pages.Length)
             {
                 activePage = activeTab.Pages[wikiState.ActivePageIndex];
+                Debug.Log("ActivePage: " + activeTab.Pages[wikiState.ActivePageIndex].Title);
             }
 
             if (layoutState.PageContentWidgets != null && activePage != null)
@@ -130,9 +132,11 @@ namespace SpaceFab.UI {
 
                 if (widgets.TitleText != null)
                     widgets.TitleText.text = activePage.Title ?? string.Empty;
+                    Debug.Log("Title: " + widgets.TitleText.text);
 
                 if (widgets.BodyText != null)
                     widgets.BodyText.text = activePage.Body ?? string.Empty;
+                    Debug.Log("Body: " + widgets.BodyText.text);
 
                 if (widgets.IllustrationImage != null) {
                     bool hasIllustration = activePage.Illustration != null;

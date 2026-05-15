@@ -4,7 +4,6 @@ using FieldDay.SharedState;
 using FieldDay.Systems;
 using FieldDay.Scenes;
 
-
 namespace SpaceFab.UI {
     /// <summary>
     /// Authoring-level trigger for WikiPoolUtility.RebuildStrips. Runs on PostUpdate order 100
@@ -33,8 +32,9 @@ namespace SpaceFab.UI {
                 out PlayerProgressState progressState
                 );
 
+            
+            Debug.Log("NeedsRebuild: " + wikiState.NeedsRebuild);
             if (!wikiState.NeedsRebuild) { return; }
-            wikiState.NeedsRebuild = false;
 
             var contents = Find.Components<WikiContent>();
             if (contents.Count == 0) { return; }
@@ -43,10 +43,10 @@ namespace SpaceFab.UI {
             var pools = Find.Components<WikiPools>();
             if (pools.Count == 0) { return; }
 
+            Debug.Log("Rebuilding wiki button strips.");
             WikiPoolUtility.RebuildStrips(content, pools[0]);
             WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
-
-            GameLoop.SuspendUpdates(UpdateMasks.WikiMask);
+            wikiState.NeedsRebuild = false;
         }
     }
 }

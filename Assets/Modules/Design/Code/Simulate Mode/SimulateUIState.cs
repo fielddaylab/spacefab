@@ -207,7 +207,7 @@ namespace SpaceFab.Design
         public static void ShowResultsPanel(SimulateUIState uiState, bool allCorrect)
         {
             uiState.ResultsPanelVisible = true;
-
+            ResultStateUtility.ShowResults(Find.State<ResultState>(), allCorrect);
         }
 
         // Hides the results panel. Called on Dismiss or on a fresh Play from SuiteComplete.
