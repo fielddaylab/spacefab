@@ -1,6 +1,8 @@
+using FieldDay;
 using FieldDay.SharedState;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication
@@ -9,9 +11,25 @@ namespace SpaceFab.Fabrication
     /// Holds data for the attempt stopwatch. Ticks up from 0 for the duration of the attempt.
     /// Gets reset to 0 on reset. Pauses on pause, request exit system, and on results screen.
     /// </summary>
-    public class TimeState : SharedStateComponent
+    public class TimeState : SharedStateComponent, IRegistrationCallbacks
     {
-        // TODO: stopwatch fields (elapsed time, paused flag, etc.).
+        // UI element to update with current time
+        [SerializeField] public TextMeshProUGUI TimerText;
+        // flag to disable incrementing the timer
+        [HideInInspector] public bool IsPaused = false;
+        // storing elapsed time of a current run
+        [HideInInspector] public float ElapsedTime;
+
+        public void OnRegister()
+        {
+            Find.State(out TimeState state);
+            state.TimerText.text = "00.00";
+        }
+
+        public void OnDeregister()
+        {
+
+        }
     }
 
     /// <summary>
@@ -21,19 +39,17 @@ namespace SpaceFab.Fabrication
     /// </summary>
     public static class TimeStateUtility
     {
-        // Returns the elapsed time since the attempt began (in whatever unit TimeState uses).
-        // Scaffold default: 0.
+        // Returns the elapsed time since the attempt began in seconds
         public static float GetElapsed(TimeState state)
         {
-            // TODO: return state.<elapsed-field>.
-            return 0f;
+            return state.ElapsedTime;
         }
 
         // Sets the elapsed time. Used by checkpoint restoration to roll the stopwatch back to the
         // value captured at the checkpoint.
         public static void SetElapsed(TimeState state, float value)
         {
-            // TODO: assign value onto state.
+            state.ElapsedTime = value;
         }
     }
 }

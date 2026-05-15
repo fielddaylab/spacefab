@@ -502,6 +502,7 @@ GameObject:
   - component: {fileID: 392984998}
   - component: {fileID: 392984997}
   - component: {fileID: 392984999}
+  - component: {fileID: 392985000}
   m_Layer: 0
   m_Name: Fabrication Systems
   m_TagString: Untagged
@@ -800,6 +801,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a70c9dafe5a32234db01f708a83d71f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &392985000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392984972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec54bd13a11556942ab02409766f8744, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &425520832
@@ -1664,6 +1677,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13413264fec01924a9dc4defd71552f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TimerText: {fileID: 2102284731}
+  IsPaused: 0
+  ElapsedTime: 0
 --- !u!114 &879438733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3010,6 +3026,17 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 2873105108506592383, guid: e04ee8f47a2a216458b521f4d5cf34ea, type: 3}
   m_PrefabInstance: {fileID: 2054010281}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2102284731 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 548391961431599056, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
+  m_PrefabInstance: {fileID: 5336318902443731965}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1635035147627034880
 PrefabInstance:
   m_ObjectHideFlags: 0
