@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace FieldDay.Scenes {
+    [LateInitializeOrder(-100)]
     public abstract class SceneController : MonoBehaviour, IScenePreload, ISceneLateInitialize {
         /// <summary>
         /// Invoked when the scene is preloading.

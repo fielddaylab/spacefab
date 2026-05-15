@@ -6943,6 +6943,14 @@ PrefabInstance:
       propertyPath: Manifest
       value: 
       objectReference: {fileID: 11400000, guid: e4b28e1ab6be9b7449943ba2f2e9913e, type: 2}
+    - target: {fileID: 7187921100395212401, guid: d2982777c8102c148b7a490afc74929c, type: 3}
+      propertyPath: SlicingSettings
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187921100395212401, guid: d2982777c8102c148b7a490afc74929c, type: 3}
+      propertyPath: SlicingTileSize
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 7214192240165230087, guid: d2982777c8102c148b7a490afc74929c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.43

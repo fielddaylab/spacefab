@@ -12,6 +12,7 @@ namespace SpaceFab.Comic {
     [ExecuteAlways]
     public sealed class ComicLayerNode : MonoBehaviour, IEditModeOnly {
         [NonSerialized] public ushort CachedIndex;
+        [NonSerialized] public ushort CachedPageIndex;
 
         public Sprite Image;
 
@@ -50,14 +51,13 @@ namespace SpaceFab.Comic {
 
             MeshData16<VertexP3U2> meshData = new MeshData16<VertexP3U2>(4, 6, MeshTopology.Triangles, false);
             if (Image) {
-                if (Image.packed && Image.packingMode != SpritePackingMode.Rectangle) {
-                    Log.Error("Sprite must be set to Full Rect packing mode");
+                if (Image.packed) {
+                    Log.Error("Sprite must not be packed");
                 } else {
                     s_SharedPropertyBlock.SetTexture("_MainTex", Image.texture);
 
                     Vector2 texSize = new Vector2(Image.texture.width, Image.texture.height);
-                    Rect uvRect = Image.textureRect;
-                    uvRect.Set(uvRect.x / texSize.x, uvRect.y / texSize.y, uvRect.width / texSize.x, uvRect.height / texSize.y);
+                    Rect uvRect = new Rect(0, 0, 1, 1);
                     Bounds bounds = Image.bounds;
 
                     Vector2 min = bounds.min;

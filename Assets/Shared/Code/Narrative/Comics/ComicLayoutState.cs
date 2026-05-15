@@ -4,6 +4,7 @@ using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Collections;
+using FieldDay.Scenes;
 using FieldDay.SharedState;
 using System;
 using System.Collections;
@@ -13,10 +14,37 @@ using UnityEngine;
 
 namespace SpaceFab.Comic
 {
-    public class ComicLayoutState : SharedStateComponent
+    [LateInitializeOrder(-250)]
+    public class ComicLayoutState : SharedStateComponent, ISceneLateInitialize
     {
-        [NonSerialized] public Transform[] PageHierarchies = new Transform[ComicResourceUtility.MaxPages];
+        [NonSerialized] public Transform[] PageHierarchies;
         [NonSerialized] public BitSet64 AllocatedPageMask;
+
+        [NonSerialized] public RingBuffer<LayoutSpawnRequest> SpawnBuffer;
+        [NonSerialized] public UnsafeBitSet SpawnedLayersMask;
+        [NonSerialized] public UnsafeBitSet SpawnedMasksMask;
+
+        void ISceneLateInitialize.LateInitialize() {
+            Find.State(out ComicResourcePool resourcePool);
+            var manifest = ComicsUtility.Manifest;
+
+            if (manifest != null) {
+                int pageCount = manifest.Pages.Length;
+                int layerCount = manifest.Layers.Length;
+                int maskCount = manifest.Masks.Length;
+
+                PageHierarchies = new Transform[pageCount];
+                SpawnBuffer = new RingBuffer<LayoutSpawnRequest>(layerCount + maskCount, RingBufferMode.Fixed);
+                SpawnedLayersMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(layerCount)));
+                SpawnedMasksMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(maskCount)));
+            }
+        }
+    }
+
+    public struct LayoutSpawnRequest {
+        public ushort Index;
+        public byte PageIndex;
+        public bool IsMask;
     }
 
     static public partial class ComicResourceUtility {
