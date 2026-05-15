@@ -23,6 +23,8 @@ namespace SpaceFab.Research
                 new SysPermissions()
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
+                    .ReadWriteShared<ResearchExplosionState>()
+                    .ReadWriteShared<ResearchVfxPool>()
                     .ReadWrite<CircuitRenderer>()
                     .ReadWrite<ResearchSlot>()
             );
@@ -36,7 +38,9 @@ namespace SpaceFab.Research
                 return;
             }
 
-            Find.State(out BatteryChamberState batteryChamberState);
+            Find.State(out BatteryChamberState batteryChamberState,
+                       out ResearchExplosionState explosionState,
+                       out ResearchVfxPool vfxPool);
 
             // Read once outside the per-Battery loop so the multi-Battery case
             // (unlikely today but cheap to support) doesn't re-poll the flag.
@@ -48,7 +52,7 @@ namespace SpaceFab.Research
 
             if (dirty)
             {
-                UpdateBattery(interfacerState, batteryChamberState);
+                UpdateBattery(interfacerState, batteryChamberState, explosionState, vfxPool);
             }
 
             batteryChamberState.VoltageChangedThisFrame = false;
@@ -56,7 +60,7 @@ namespace SpaceFab.Research
 
         // Single-Battery update: read material + voltage, run stability, drive
         // visuals. Splits out of ProcessWork so the loop body stays linear.
-        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState battery)
+        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState battery, ResearchExplosionState explosionState, ResearchVfxPool vfxPool)
         {
             MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, battery.SlotKind);
             float voltage = battery.VoltageControl != null ? battery.VoltageControl.CurrentVoltage : 0f;
@@ -79,9 +83,10 @@ namespace SpaceFab.Research
 
             if (!MaterialPhysicsUtility.IsStableAtVoltage(profile, voltage))
             {
-                Debug.LogFormat("[BatteryChamberSystem] '{0}' unstable at voltage {1:0.00}; clearing slot.", material.name, voltage);
                 ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, battery.SlotKind);
-                ResearchSlotUtility.FillInSlot(interfacerState, slot, battery.SlotKind, null);
+                ResearchExplosionUtility.ExplodeSlot(
+                    explosionState, vfxPool, interfacerState, slot, battery.SlotKind,
+                    ExplosionStyle.VoltageBreakdown, delay: 1f);
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
                 CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
                 return;
