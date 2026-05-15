@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.Systems;
+using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -62,10 +63,12 @@ namespace SpaceFab.UI {
             }
 
             for (int i = 0; i < buttons.Count; i++) {
-                if (!buttons[i].Available) { continue; }
+                if (!buttons[i].Available) { continue; } // todo: Investigate why this is false
                 if (!buttons[i].ClickedThisFrame) { continue; }
 
                 DispatchClick(wikiState, content, progressState, buttons[i]);
+                Debug.Log($"Wiki button clicked: {buttons[i].name}");
+                wikiState.NeedsRebuild = true;
             }
         }
 
@@ -73,6 +76,8 @@ namespace SpaceFab.UI {
         // transition routines via BeauRoutine.Replace, and applies tab/page selection for
         // OpenTo. Clears each flag inline on consumption.
         static private void ApplyExternalRequests(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
+            Debug.Log("Applying external Wiki requests");
+            
             if (wikiState.OpenRequestedThisFrame) {
                 wikiState.OpenRequestedThisFrame = false;
                 if (!wikiState.Expanded && !wikiState.Transitioning) {
@@ -92,6 +97,8 @@ namespace SpaceFab.UI {
 
                 // Apply the tab + page selection first so if the panel is already expanded, the
                 // visuals system sees the new selection on the same frame as the request.
+                Debug.Log($"OpenTo request: tab {wikiState.RequestedTabId}, page {wikiState.RequestedPageId}");
+
                 WikiUtility.SelectTabById(wikiState, content, progressState, wikiState.RequestedTabId);
                 WikiUtility.SelectPageById(wikiState, content, progressState, wikiState.RequestedPageId);
 
@@ -115,6 +122,7 @@ namespace SpaceFab.UI {
                     break;
 
                 case WikiButtonKind.PageThumb:
+                    Debug.Log($"Page thumb clicked: {button.PageIndex}");
                     WikiUtility.SelectPage(wikiState, content, progressState, button.PageIndex);
                     break;
 

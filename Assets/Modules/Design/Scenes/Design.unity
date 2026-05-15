@@ -771,6 +771,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 994501228}
+    - target: {fileID: 3724818327508688982, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+      propertyPath: PrevPage
+      value: 
+      objectReference: {fileID: 988736005}
     - target: {fileID: 3758386193833896865, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 31.375
@@ -1172,6 +1176,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &988736005 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 58570161226162581, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+  m_PrefabInstance: {fileID: 598644245}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eee9c2c266d7b04086359698c88f959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0

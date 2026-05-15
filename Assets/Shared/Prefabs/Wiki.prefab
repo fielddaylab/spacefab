@@ -747,8 +747,8 @@ MonoBehaviour:
   CollapsedRoot: {fileID: 4593179902122571542}
   PageContentWidgets: {fileID: 2410260213636064714}
   PaginatorContent: {fileID: 3136626549489983546}
-  PrevPage: {fileID: 0}
-  NextPage: {fileID: 0}
+  PrevPage: {fileID: 4556910697408247541}
+  NextPage: {fileID: 94936485814163094}
   PageThumbStride: 5
 --- !u!1 &4795094185740187759
 GameObject:
@@ -951,9 +951,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44321bf600b6e8e439cdddd0906a4e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TitleText: {fileID: 0}
-  IllustrationImage: {fileID: 0}
-  BodyText: {fileID: 0}
+  TitleText: {fileID: 8976627725711163196}
+  IllustrationImage: {fileID: 2760527626956818556}
+  BodyText: {fileID: 4632649332736737111}
 --- !u!1 &5267488773845142315
 GameObject:
   m_ObjectHideFlags: 0

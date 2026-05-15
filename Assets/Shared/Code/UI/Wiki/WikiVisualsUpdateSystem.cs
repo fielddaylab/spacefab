@@ -3,6 +3,7 @@ using FieldDay.Systems;
 using FieldDay.SharedState;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
+using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -102,13 +103,16 @@ namespace SpaceFab.UI {
             // 2.
             for (int i = 0; i < pools.TabActive.Count; i++) {
                 WikiButton tab = pools.TabActive[i];
+                tab.gameObject.SetActive(true);
+                tab.DynamicButton.image.sprite = content.Tabs[tab.TabIndex].Icon;
+
                 if (tab.DynamicButton == null) { continue; }
                 bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
 
                 if (tab.DynamicButton != null) {
                     tab.DynamicButton.image.color = selected ?
-                        tab.DynamicButton.colors.highlightedColor :
-                        tab.DynamicButton.colors.normalColor;
+                        Color.blue : // highlight active tab button in blue for testing
+                        Color.green;
                 }
             }
 
@@ -131,12 +135,12 @@ namespace SpaceFab.UI {
                 var widgets = layoutState.PageContentWidgets;
 
                 if (widgets.TitleText != null)
-                    widgets.TitleText.text = activePage.Title ?? string.Empty;
-                    Debug.Log("Title: " + widgets.TitleText.text);
+                    Debug.Log("Title: " + activePage.Title);
+                    widgets.TitleText.text = activePage.Title ?? " ";
 
                 if (widgets.BodyText != null)
-                    widgets.BodyText.text = activePage.Body ?? string.Empty;
                     Debug.Log("Body: " + widgets.BodyText.text);
+                    widgets.BodyText.text = activePage.Body ?? " ";
 
                 if (widgets.IllustrationImage != null) {
                     bool hasIllustration = activePage.Illustration != null;
@@ -146,6 +150,7 @@ namespace SpaceFab.UI {
             }
 
             // 4.
+            Debug.Log("pools.PageThumbActive.Count: " + pools.PageThumbActive.Count);
             for (int i = 0; i < pools.PageThumbActive.Count; i++) {
                 WikiButton thumb = pools.PageThumbActive[i];
                 if (thumb.DynamicButton == null) { continue; }
@@ -157,19 +162,20 @@ namespace SpaceFab.UI {
                 }
 
                 int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
-                bool isLocked = unlockedIndex == -1;
+                bool isLocked = unlockedIndex != -1; // should be == -1 but set all as locked by default for testing
                 if (isLocked) {
                     thumb.gameObject.SetActive(false);
                     continue;
                 }
 
                 bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + content.PageWindowSize;
-                thumb.gameObject.SetActive(inWindow);
+                thumb.gameObject.SetActive(true); // should be setActive(inWindow) but set all as active for testing
+                thumb.DynamicButton.image.sprite = activeTab.Pages[thumb.PageIndex].Icon;
 
                 if (thumb.DynamicButton != null) {
                     thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
-                        thumb.DynamicButton.colors.highlightedColor :
-                        thumb.DynamicButton.colors.normalColor;
+                        Color.magenta : // highlight active page thumb in yellow for testing
+                        Color.cyan;
                 }
             }
 

@@ -119,6 +119,9 @@ namespace SpaceFab.UI {
             wikiState.ActiveTabIndex = tabIndex;
             wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
             wikiState.PageWindowStartIndex = 0;
+
+            Debug.Log("Triggers rebuild: " + tabIndex);
+            wikiState.NeedsRebuild = true;
         }
 
         // ID-based variant — resolves tabId → index via WikiContent.Tabs. Drops the request
@@ -152,6 +155,9 @@ namespace SpaceFab.UI {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
             }
+
+            Debug.Log("Triggers rebuild: " + pageIndex);
+            wikiState.NeedsRebuild = true;
         }
 
         // ID-based variant. Drops the request if the ID doesn't match a page in the active tab.
@@ -202,6 +208,7 @@ namespace SpaceFab.UI {
         public static bool IsPageUnlocked(PlayerProgressState progressState, StringHash32 pageId) {
             if (progressState.UnlockedWikiPages == null) { return false; }
             return progressState.UnlockedWikiPages.Contains(pageId);
+
         }
 
         // True iff at least one page in the given tab is unlocked.
@@ -432,12 +439,14 @@ namespace SpaceFab.UI {
 
         private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
             bool available = false;
+            //bool available = true;
             if (content != null && content.Tabs != null
                 && button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length) {
                 available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
             }
 
-            button.Available = available;
+            //button.Available = available;
+            button.Available = true;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
         }

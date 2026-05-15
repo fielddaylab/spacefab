@@ -32,8 +32,6 @@ namespace SpaceFab.UI {
                 out PlayerProgressState progressState
                 );
 
-            
-            Debug.Log("NeedsRebuild: " + wikiState.NeedsRebuild);
             if (!wikiState.NeedsRebuild) { return; }
 
             var contents = Find.Components<WikiContent>();
