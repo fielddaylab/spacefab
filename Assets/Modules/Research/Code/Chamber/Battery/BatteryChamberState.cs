@@ -23,6 +23,18 @@ namespace SpaceFab.Research
         public CircuitRenderer Circuit;
         public VoltageControl VoltageControl;
 
+        // Scene-wired empty Transform under which the meter-rig prefab
+        // (SmallBatteryMeter / BigBatteryMeter) is instantiated by
+        // ResearchTransitionSystem at minigame setup.
+        public Transform BatteryContainer;
+
+        // Runtime ref to the instantiated meter rig's ChamberBattery.
+        // Assigned by ResearchTransitionSystem after Instantiate; null
+        // until then. VoltageUtility reads VoltageLevelSlots.Length off
+        // this to cap voltage magnitude, and writes per-slot sprites
+        // when refreshing visual state.
+        [NonSerialized] public ChamberBattery Battery;
+
         // Observation chips the player can add while this chamber is active.
         // Read by the chip-picker UI (Tier 4).
         public MaterialPropertyLabel[] AvailableObservations = new MaterialPropertyLabel[]

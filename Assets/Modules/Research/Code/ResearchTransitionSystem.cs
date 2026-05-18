@@ -79,12 +79,25 @@ namespace SpaceFab.Research {
             // Resets the viewmodel's active page index to 0.
             ResearchHypothesisUtility.BuildPages(researchState, hypothesisPagesState, hypothesisViewModelState);
 
-            // Init Battery Chamber
+            // Init Battery Chamber. Instantiate the meter rig variant for
+            // this save's unlock state under BatteryContainer, then prime
+            // the dial: assigning Battery first lets RefreshVisualState
+            // populate the freshly-spawned slots in the same pass.
             ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();
-            if (config != null)
+            if (config != null && batteryChamberState.BatteryContainer != null && batteryChamberState.Battery == null)
             {
-                batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
-                VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+                GameObject meterPrefab = playerProgress.BigBatteryUnlocked ? config.BigBatteryMeterPrefab : config.SmallBatteryMeterPrefab;
+                if (meterPrefab != null)
+                {
+                    GameObject meterInstance = UnityEngine.Object.Instantiate(meterPrefab, batteryChamberState.BatteryContainer, false);
+                    batteryChamberState.Battery = meterInstance.GetComponent<ChamberBattery>();
+                }
+
+                if (batteryChamberState.VoltageControl != null)
+                {
+                    batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
+                    VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+                }
             }
 
             // Activate the Battery chamber. This is the only chamber today;
