@@ -41,7 +41,7 @@ public class SquarePainter : MonoBehaviour
         m_Columns = Mathf.FloorToInt(width * m_Density);
         m_Rows = Mathf.FloorToInt(height * m_Density);
 
-        // these should be the same but yeah
+        // these should be the same but just in case
         m_CellWidth = width / m_Columns;
         m_CellHeight = height / m_Rows;
         float halfWidth = m_CellWidth * 0.5f;
@@ -60,7 +60,7 @@ public class SquarePainter : MonoBehaviour
                 Vector3 cellCenter = new Vector3(
                     bottomLeft.x + (x * m_CellWidth) + halfWidth,
                     bottomLeft.y + (y * m_CellHeight) + halfHeight,
-                    -0.1f // place slightly towards camera to fix some rendering issues
+                    -0.1f // place slightly towards camera to fix some rendering issues?
                 );
 
                 IonPoints[y * m_Columns + x] = new IonPoint()

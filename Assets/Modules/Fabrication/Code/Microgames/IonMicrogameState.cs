@@ -18,6 +18,7 @@ namespace SpaceFab.Fabrication.Microgames
         // IonMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
         public GameObject IonUI;
+        public Transform DropperAnchor;
         // TODO: dropper position and any other simulation fields once mechanics are defined.
 
         public void OnDeregister()

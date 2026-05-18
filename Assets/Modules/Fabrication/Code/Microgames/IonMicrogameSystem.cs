@@ -27,6 +27,8 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out IonMicrogameState state);
             if (!state.IsActive) { return; }
 
+            state.DropperAnchor.position = Game.Rendering.PrimaryCamera.WorldToScreenPoint(Input.mousePosition);
+
             // TODO: drive the Ion Implanter mechanics once defined.
         }
     }
