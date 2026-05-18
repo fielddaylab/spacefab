@@ -53,6 +53,7 @@ namespace SpaceFab.UI {
             // Enforce the initial steady state based on the default WikiState.Expanded value.
             Find.State(out WikiState wikiState);
             WikiLayoutUtility.ApplyExpandedSteadyState(this, wikiState.Expanded);
+            Debug.Log($"ScrollPaginator called with start={wikiState.PageWindowStartIndex}");
             WikiLayoutUtility.ScrollPaginator(this, 0);
             wikiState.NeedsRebuild = true;
         }

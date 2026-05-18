@@ -41,7 +41,6 @@ namespace SpaceFab.UI {
             var pools = Find.Components<WikiPools>();
             if (pools.Count == 0) { return; }
 
-            Debug.Log("Rebuilding wiki button strips.");
             WikiPoolUtility.RebuildStrips(content, pools[0]);
             WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
             wikiState.NeedsRebuild = false;

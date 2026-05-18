@@ -100,6 +100,9 @@ namespace SpaceFab.UI {
                 return;
             }
 
+            Debug.Log($"ScrollPaginator called with start={wikiState.PageWindowStartIndex}");
+            WikiLayoutUtility.ScrollPaginator(layoutState, wikiState.PageWindowStartIndex);
+
             // 2.
             for (int i = 0; i < pools.TabActive.Count; i++) {
                 WikiButton tab = pools.TabActive[i];
@@ -127,20 +130,19 @@ namespace SpaceFab.UI {
             if (activeTab != null && activeTab.Pages != null && wikiState.ActivePageIndex >= 0 && wikiState.ActivePageIndex < activeTab.Pages.Length)
             {
                 activePage = activeTab.Pages[wikiState.ActivePageIndex];
-                Debug.Log("ActivePage: " + activeTab.Pages[wikiState.ActivePageIndex].Title);
             }
 
             if (layoutState.PageContentWidgets != null && activePage != null)
             {
                 var widgets = layoutState.PageContentWidgets;
 
-                if (widgets.TitleText != null)
-                    Debug.Log("Title: " + activePage.Title);
+                if (widgets.TitleText != null) {
                     widgets.TitleText.text = activePage.Title ?? " ";
+                }
 
-                if (widgets.BodyText != null)
-                    Debug.Log("Body: " + widgets.BodyText.text);
+                if (widgets.BodyText != null) {
                     widgets.BodyText.text = activePage.Body ?? " ";
+                }
 
                 if (widgets.IllustrationImage != null) {
                     bool hasIllustration = activePage.Illustration != null;
@@ -150,7 +152,8 @@ namespace SpaceFab.UI {
             }
 
             // 4.
-            Debug.Log("pools.PageThumbActive.Count: " + pools.PageThumbActive.Count);
+            Debug.Log($"PageWindowStartIndex={wikiState.PageWindowStartIndex}, PageWindowSize={content.PageWindowSize}");
+            Debug.Log($"PageThumbActive.Count: {pools.PageThumbActive.Count}");
             for (int i = 0; i < pools.PageThumbActive.Count; i++) {
                 WikiButton thumb = pools.PageThumbActive[i];
                 if (thumb.DynamicButton == null) { continue; }
@@ -158,30 +161,33 @@ namespace SpaceFab.UI {
                 bool belongsToActiveTab = thumb.TabIndex == wikiState.ActiveTabIndex;
                 if (!belongsToActiveTab) {
                     thumb.gameObject.SetActive(false);
+                    Debug.Log($"{thumb.name} is set to false");
                     continue;
                 }
 
                 int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
-                bool isLocked = unlockedIndex != -1; // should be == -1 but set all as locked by default for testing
-                if (isLocked) {
-                    thumb.gameObject.SetActive(false);
-                    continue;
-                }
+                bool isLocked = unlockedIndex == -1;
+                // if (isLocked) {
+                //     thumb.gameObject.SetActive(false);
+                //     Debug.Log($"{thumb.name} is set to false");
+                //     continue;
+                // }
 
-                bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + content.PageWindowSize;
-                thumb.gameObject.SetActive(true); // should be setActive(inWindow) but set all as active for testing
+                int pageWindowSize = Mathf.Max(1, content.PageWindowSize);
+                bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
+                thumb.gameObject.SetActive(true);
+                if (thumb.DynamicButton == null) { continue; }
+
+                thumb.DynamicButton.interactable = true; // isLocked ? false : true;
                 thumb.DynamicButton.image.sprite = activeTab.Pages[thumb.PageIndex].Icon;
-
-                if (thumb.DynamicButton != null) {
-                    thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
-                        Color.magenta : // highlight active page thumb in yellow for testing
-                        Color.cyan;
-                }
+                thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
+                    Color.magenta : // highlight active page thumb in yellow for testing
+                    Color.cyan;
             }
 
             // 5.
             if (layoutState.PrevPage != null) {
-                layoutState.PrevPage.interactable = WikiUtility.CanScrollPageWindowLeft(wikiState);
+                layoutState.PrevPage.interactable = WikiUtility.CanScrollPageWindowLeft(wikiState, content, progressState);
             }
             if (layoutState.NextPage != null) {
                 layoutState.NextPage.interactable = WikiUtility.CanScrollPageWindowRight(wikiState, content, progressState);

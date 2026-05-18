@@ -119,8 +119,6 @@ namespace SpaceFab.UI {
             wikiState.ActiveTabIndex = tabIndex;
             wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
             wikiState.PageWindowStartIndex = 0;
-
-            Debug.Log("Triggers rebuild: " + tabIndex);
             wikiState.NeedsRebuild = true;
         }
 
@@ -156,7 +154,6 @@ namespace SpaceFab.UI {
                 EnsureWindowContains(wikiState, content, tab, progressState);
             }
 
-            Debug.Log("Triggers rebuild: " + pageIndex);
             wikiState.NeedsRebuild = true;
         }
 
@@ -206,6 +203,8 @@ namespace SpaceFab.UI {
 
         // True iff pageId appears in PlayerProgressState.UnlockedWikiPages.
         public static bool IsPageUnlocked(PlayerProgressState progressState, StringHash32 pageId) {
+            return true; // set by default for now
+
             if (progressState.UnlockedWikiPages == null) { return false; }
             return progressState.UnlockedWikiPages.Contains(pageId);
 
@@ -358,6 +357,7 @@ namespace SpaceFab.UI {
             int maxStart = Mathf.Max(0, unlockedCount - windowSize);
             start = Mathf.Clamp(start, 0, maxStart);
 
+            Debug.Log($"EnsureWindowContains: selectedSlot={selectedSlot}, start={start}, windowSize={windowSize}, unlockedCount={unlockedCount}");
             wikiState.PageWindowStartIndex = start;
         }
 
@@ -367,17 +367,16 @@ namespace SpaceFab.UI {
 
         // True iff the paginator window can still scroll one slot further left. Used by
         // WikiVisualsUpdateSystem to grey out the `<` arrow button at the leftmost state.
-        public static bool CanScrollPageWindowLeft(WikiState wikiState) {
-            return wikiState.PageWindowStartIndex > 0;
+        public static bool CanScrollPageWindowLeft(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
+            WikiTabData tab = ActiveTab(wikiState, content);
+            return tab != null && UnlockedCount(tab, progressState) > 1;
         }
 
         // True iff the paginator window can still scroll one slot further right. Used by
         // WikiVisualsUpdateSystem to grey out the `>` arrow button at the rightmost state.
         public static bool CanScrollPageWindowRight(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             WikiTabData tab = ActiveTab(wikiState, content);
-            if (tab == null) { return false; }
-            int unlockedCount = UnlockedCount(tab, progressState);
-            return wikiState.PageWindowStartIndex + content.PageWindowSize < unlockedCount;
+            return tab != null && UnlockedCount(tab, progressState) > 1;
         }
 
         // Translates a raw page index into its unlocked-list position (or -1 if the page is
@@ -475,6 +474,7 @@ namespace SpaceFab.UI {
                 }
             }
 
+            available = true; // set by default for now
             button.Available = available;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
