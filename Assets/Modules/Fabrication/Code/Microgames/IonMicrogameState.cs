@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,13 +12,23 @@ namespace SpaceFab.Fabrication.Microgames
     /// Holds in-flight data for the Ion Implanter microgame, and lifecycle flags consumed by
     /// IonMicrogameSystem. Mechanics are not yet specified.
     /// </summary>
-    public class IonMicrogameState : SharedStateComponent
+    public class IonMicrogameState : SharedStateComponent, IRegistrationCallbacks
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // IonMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
-
+        public GameObject IonUI;
         // TODO: dropper position and any other simulation fields once mechanics are defined.
+
+        public void OnDeregister()
+        {
+        }
+
+        public void OnRegister()
+        {
+            // Disable UI on start
+            IonUI.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -34,9 +45,15 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out IonMicrogameState state);
+            Find.State(
+                out IonMicrogameState state,
+                out MicrogameCanvasState canvasState
+                );
             state.IsActive = true;
             // TODO:
+
+            state.IonUI.SetActive(true);
+            canvasState.ShowUI(FabricationConsts.ION_STATION_ID);
         }
 
         public static void EnterComplete()
