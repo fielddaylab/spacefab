@@ -2,7 +2,6 @@ using FieldDay;
 using FieldDay.Systems;
 using FieldDay.SharedState;
 using UnityEngine.UI;
-using Debug = UnityEngine.Debug;
 using UnityEngine;
 
 namespace SpaceFab.UI {
@@ -100,7 +99,6 @@ namespace SpaceFab.UI {
                 return;
             }
 
-            Debug.Log($"ScrollPaginator called with start={wikiState.PageWindowStartIndex}");
             WikiLayoutUtility.ScrollPaginator(layoutState, wikiState.PageWindowStartIndex);
 
             // 2.
@@ -152,8 +150,6 @@ namespace SpaceFab.UI {
             }
 
             // 4.
-            Debug.Log($"PageWindowStartIndex={wikiState.PageWindowStartIndex}, PageWindowSize={content.PageWindowSize}");
-            Debug.Log($"PageThumbActive.Count: {pools.PageThumbActive.Count}");
             for (int i = 0; i < pools.PageThumbActive.Count; i++) {
                 WikiButton thumb = pools.PageThumbActive[i];
                 if (thumb.DynamicButton == null) { continue; }
@@ -161,7 +157,6 @@ namespace SpaceFab.UI {
                 bool belongsToActiveTab = thumb.TabIndex == wikiState.ActiveTabIndex;
                 if (!belongsToActiveTab) {
                     thumb.gameObject.SetActive(false);
-                    Debug.Log($"{thumb.name} is set to false");
                     continue;
                 }
 
@@ -169,7 +164,6 @@ namespace SpaceFab.UI {
                 bool isLocked = unlockedIndex == -1;
                 // if (isLocked) {
                 //     thumb.gameObject.SetActive(false);
-                //     Debug.Log($"{thumb.name} is set to false");
                 //     continue;
                 // }
 

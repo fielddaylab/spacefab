@@ -48,7 +48,6 @@ namespace SpaceFab.UI {
         [HideInInspector] public bool Available = true;
 
         public void OnRegister() {
-            Debug.Log($"WikiButton.OnRegister: {gameObject.name}");
             if (DynamicButton == null) { return; }
             DynamicButton.onClick.AddListener(HandleClick);
             DynamicButton.onPointerEnter.AddListener(HandlePointerEnter);
@@ -68,7 +67,6 @@ namespace SpaceFab.UI {
         // surface — matches ToolbarButton pattern and gives Leaf a clean hook later.
 
         private void HandleClick() {
-            Debug.Log($"WikiButton.HandleClick: {this.gameObject.name} (kind={Kind}, tabIndex={TabIndex}, pageIndex={PageIndex})");
             WikiUtility.OnClick(this);
         }
 
