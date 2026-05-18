@@ -80,7 +80,7 @@ public class SquarePainter : MonoBehaviour
             Vector2 mousePosition = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
-            if (hit.collider != null)
+            if (hit.collider != null && hit.collider == m_BoxCollider)
             {
                 Debug.Log("Box clicked at " + hit.point);
 

@@ -1,5 +1,7 @@
 using FieldDay;
+using FieldDay.HID;
 using FieldDay.SharedState;
+using FieldDay.UI;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
@@ -55,6 +57,7 @@ namespace SpaceFab.Fabrication.Microgames
 
             state.IonUI.SetActive(true);
             canvasState.ShowUI(FabricationConsts.ION_STATION_ID);
+            CursorUtility.HideCursor();
         }
 
         public static void EnterComplete()
