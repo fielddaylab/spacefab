@@ -37,6 +37,11 @@ namespace SpaceFab.UI {
         public Button PrevPage;
         public Button NextPage;
 
+        public Sprite TabActiveSprite;
+        public Sprite TabInactiveSprite;
+        public Sprite PageThumbActiveSprite;
+        public Sprite PageThumbInactiveSprite;
+
         // Horizontal distance (in PaginatorContent's local space) between adjacent page-thumb
         // slots. Authored to match the prefab's thumb layout group spacing + cell width.
         public float PageThumbStride;

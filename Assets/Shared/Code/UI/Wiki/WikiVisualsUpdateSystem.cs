@@ -3,6 +3,7 @@ using FieldDay.Systems;
 using FieldDay.SharedState;
 using UnityEngine.UI;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -104,16 +105,27 @@ namespace SpaceFab.UI {
             // 2.
             for (int i = 0; i < pools.TabActive.Count; i++) {
                 WikiButton tab = pools.TabActive[i];
-                tab.gameObject.SetActive(true);
-                tab.DynamicButton.image.sprite = content.Tabs[tab.TabIndex].Icon;
+                var tabContent = tab.transform.Find("Tab Content");
+                Debug.Log($"[{tab.name}] TabIndex={tab.TabIndex}, tabContent={(tabContent == null ? "NULL" : tabContent.name)}");
+
+                if (tabContent != null) {
+                    var icon = tabContent.GetComponent<Image>();
+                    Debug.Log($"WikiVisualsUpdateSystem: processing tab button '{tab.gameObject.name}' (TabIndex={tab.TabIndex}) {icon}");
+                    
+                    if (icon != null && content.Tabs != null && tab.TabIndex >= 0 && tab.TabIndex < content.Tabs.Length) {
+                        icon.sprite = content.Tabs[tab.TabIndex].Icon;
+                        Debug.Log($"WikiVisualsUpdateSystem: set tab icon sprite to {icon.sprite}");
+                        icon.color = Color.white;
+                    }
+                }
 
                 if (tab.DynamicButton == null) { continue; }
                 bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
 
                 if (tab.DynamicButton != null) {
-                    tab.DynamicButton.image.color = selected ?
-                        Color.blue : // highlight active tab button in blue for testing
-                        Color.green;
+                    tab.DynamicButton.image.sprite = selected ? layoutState.TabActiveSprite : layoutState.TabInactiveSprite;
+                    tab.DynamicButton.image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, selected ? 70f : 65f); // temp visual highlight since the active tab's text is invisible until the page content is implemented
+                    tab.DynamicButton.interactable = true; // content.Tabs[tab.TabIndex].Unlocked;
                 }
             }
 
