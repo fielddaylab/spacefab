@@ -19,7 +19,7 @@ namespace SpaceFab.Research
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 100, UpdateMasks.ResearchChamberMask),
+                new SysUpdate(GameLoopPhase.Update, 110, UpdateMasks.ResearchChamberMask),
                 new SysPermissions()
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
@@ -56,6 +56,14 @@ namespace SpaceFab.Research
             }
 
             batteryChamberState.VoltageChangedThisFrame = false;
+
+            if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
+            if (interfacerState.LastUpdatedKind != batteryChamberState.SlotKind) return;
+            if (batteryChamberState.SampleHolder == null) return;
+
+            bool filled = ChamberInterfacerUtility.GetCurrent(interfacerState, batteryChamberState.SlotKind) != null;
+            batteryChamberState.SampleHolder.SetActive(filled);
+
         }
 
         // Single-Battery update: read material + voltage, run stability, drive

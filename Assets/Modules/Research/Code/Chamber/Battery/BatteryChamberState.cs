@@ -1,3 +1,4 @@
+using FieldDay;
 using FieldDay.Components;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
@@ -14,7 +15,7 @@ namespace SpaceFab.Research
     /// per-frame "voltage changed" flag set by VoltageUtility and consumed
     /// by BatteryChamberSystem.
     /// </summary>
-    public class BatteryChamberState : SharedStateComponent
+    public class BatteryChamberState : SharedStateComponent, IRegistrationCallbacks
     {
         // Which slot kind on ChamberInterfacerState this Battery reads.
         // Battery is single-slot; defaults to Primary.
@@ -27,6 +28,8 @@ namespace SpaceFab.Research
         // (SmallBatteryMeter / BigBatteryMeter) is instantiated by
         // ResearchTransitionSystem at minigame setup.
         public Transform BatteryContainer;
+
+        public GameObject SampleHolder;
 
         // Runtime ref to the instantiated meter rig's ChamberBattery.
         // Assigned by ResearchTransitionSystem after Instantiate; null
@@ -52,5 +55,20 @@ namespace SpaceFab.Research
         // Set by VoltageUtility on a button press; consumed and cleared by
         // BatteryChamberSystem.
         [NonSerialized] public bool VoltageChangedThisFrame;
+
+        public void OnRegister()
+        {
+            // Hide the sample holder until the player drops a material into
+            // the primary slot. BatteryChamberSystem.UpdateBattery toggles
+            // it on the slot-change frame.
+            if (SampleHolder != null)
+            {
+                SampleHolder.SetActive(false);
+            }
+        }
+
+        public void OnDeregister()
+        {
+        }
     }
 }
