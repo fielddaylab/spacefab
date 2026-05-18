@@ -150,6 +150,8 @@ MonoBehaviour:
   Width: 1.23
   IonMesh: {fileID: -2124705421725058983, guid: 2248d1c0e7d25eb4bb03e77ce13167a2, type: 3}
   IonMaterial: {fileID: 2100000, guid: 57f08166e5599df469c17145624679cc, type: 2}
+  SortingLayer: 0
+  OrderInLayer: 999
   baseScale: 1
 --- !u!1 &1849362969303826332
 GameObject:

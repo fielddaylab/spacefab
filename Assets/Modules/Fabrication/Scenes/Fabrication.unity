@@ -1219,6 +1219,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sweeper Anchor
       objectReference: {fileID: 0}
+    - target: {fileID: 1070603677827316990, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+      propertyPath: SortingLayer
+      value: 330957413
+      objectReference: {fileID: 0}
     - target: {fileID: 1096186380155069608, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

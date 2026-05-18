@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using BeauUtil;
 using FieldDay;
 using FieldDay.Rendering;
 using UnityEngine;
@@ -13,15 +14,20 @@ public class SquarePainter : MonoBehaviour
     public Mesh IonMesh;
     public Material IonMaterial;
 
+    [SortingLayer] public int SortingLayer = 0;
+    public int OrderInLayer = 0;
+
     public float baseScale = 1f;
+
+    public int layer;
+    public uint renderingLayerMask;
+    public int rendererPriority;
 
     public struct IonPoint
     {
         public Vector2 Position;
-        public float Size;
-        public float Percentage;
+        public Matrix4x4 Matrix;
         public bool IsFilled;
-        public Matrix4x4 matrix;
     }
 
     public IonPoint[] ionPoints;
@@ -33,6 +39,8 @@ public class SquarePainter : MonoBehaviour
 
     public void Setup()
     {
+        Debug.Log("Sorting layer set to: " + SortingLayer);
+        
         ionPoints = new IonPoint[Rows * Columns];
 
         for (int y = 0; y < Rows; y++)
@@ -44,7 +52,7 @@ public class SquarePainter : MonoBehaviour
                 float cellHeight = Height / Rows;
 
                 Vector3 cellCenter = bottomLeft + new Vector2(x * cellWidth, y * cellHeight);
-                cellCenter.z = -1f;
+               cellCenter.z = -0.1f; // stops z fighting or getting completely masked out
 
                 //GameObject point = Instantiate(m_PointPrefab, cellCenter, Quaternion.identity);
                 //point.transform.localScale = new Vector3(cellWidth, cellHeight, 1f);
@@ -52,7 +60,11 @@ public class SquarePainter : MonoBehaviour
                 ionPoints[y * Columns + x] = new IonPoint()
                 {
                     Position = cellCenter,
-                    matrix = Matrix4x4.TRS(cellCenter, Quaternion.identity, 1f * Vector3.one),
+                    Matrix = Matrix4x4.TRS(
+                        cellCenter, // position of graphic within center of cell
+                        Quaternion.Euler(0, 180, 0), // circle mesh used to render a point is incorrectly flipped around for some reason
+                        1f * Vector3.one // scale for now, will change later
+                        ),
                     IsFilled = false
                 };
             }
@@ -98,6 +110,9 @@ public class SquarePainter : MonoBehaviour
     {
         DefaultInstancedMeshParams* paramBuffer = stackalloc DefaultInstancedMeshParams[512]; 
         RenderParams renderParams = new RenderParams(IonMaterial);
+        renderParams.layer = layer;
+        renderParams.renderingLayerMask = renderingLayerMask;
+        renderParams.rendererPriority = rendererPriority;
         //Transform cameraTransform = Game.Rendering.PrimaryCamera.transform;
         Mesh mesh = IonMesh;
         var instanceHelper = new InstancedMeshBuffer<DefaultInstancedMeshParams>(paramBuffer, 512, renderParams, mesh);
@@ -106,7 +121,7 @@ public class SquarePainter : MonoBehaviour
         {
             if (ionPoints[i].IsFilled)
             {
-                RenderPoint(ionPoints[i].matrix, ref instanceHelper);
+                RenderPoint(ionPoints[i].Matrix, ref instanceHelper);
             }
         }
 
