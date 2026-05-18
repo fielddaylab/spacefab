@@ -118,7 +118,7 @@ namespace SpaceFab.Research
         public static void Decrease(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null || !control.CanAdjust) return;
-            int minIndex = config.CenterIndex - GetMaxMagnitude(control);
+            int minIndex = config.CenterIndex;
             if (control.VoltageIndex <= minIndex) return;
             control.VoltageIndex--;
             ApplyChange(control, config);
@@ -222,7 +222,7 @@ namespace SpaceFab.Research
             if (control == null || config == null) return;
 
             int maxMag = GetMaxMagnitude(control);
-            bool atLow = control.VoltageIndex <= config.CenterIndex - maxMag;
+            bool atLow = control.VoltageIndex <= config.CenterIndex;
             bool atHigh = control.VoltageIndex >= config.CenterIndex + maxMag;
             bool show = control.CanAdjust;
 
