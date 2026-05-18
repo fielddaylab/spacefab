@@ -8,20 +8,14 @@ using UnityEngine;
 public class SquarePainter : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D m_BoxCollider;
-    public int Rows, Columns;
-    public float Height, Width;
 
+    private int m_Rows, m_Columns;
+    private float m_CellWidth, m_CellHeight;
+
+    [SerializeField] private float m_Density;
+    
     public Mesh IonMesh;
     public Material IonMaterial;
-
-    [SortingLayer] public int SortingLayer = 0;
-    public int OrderInLayer = 0;
-
-    public float baseScale = 1f;
-
-    public int layer;
-    public uint renderingLayerMask;
-    public int rendererPriority;
 
     public struct IonPoint
     {
@@ -30,7 +24,7 @@ public class SquarePainter : MonoBehaviour
         public bool IsFilled;
     }
 
-    public IonPoint[] ionPoints;
+    private IonPoint[] IonPoints;
 
     void Start()
     {
@@ -39,32 +33,40 @@ public class SquarePainter : MonoBehaviour
 
     public void Setup()
     {
-        Debug.Log("Sorting layer set to: " + SortingLayer);
+        Vector2 bottomLeft = m_BoxCollider.bounds.min;
+        Vector2 topRight = m_BoxCollider.bounds.max;
+        float width = topRight.x - bottomLeft.x;
+        float height = topRight.y - bottomLeft.y;
+    
+        m_Columns = Mathf.FloorToInt(width * m_Density);
+        m_Rows = Mathf.FloorToInt(height * m_Density);
+
+        // these should be the same but yeah
+        m_CellWidth = width / m_Columns;
+        m_CellHeight = height / m_Rows;
+        float halfWidth = m_CellWidth * 0.5f;
+        float halfHeight = m_CellHeight * 0.5f;
+
+        Vector3 cellScale = new Vector3(m_CellWidth, m_CellHeight, 1);
+        Vector3 forwardCamera = Game.Rendering.PrimaryCamera.transform.forward;
+        Quaternion cellRotation = Quaternion.LookRotation(-forwardCamera, Vector3.up); // drawing to face the camera, should port specific line from bloom
         
-        ionPoints = new IonPoint[Rows * Columns];
+        IonPoints = new IonPoint[m_Rows * m_Columns];
 
-        for (int y = 0; y < Rows; y++)
+        for (int y = 0; y < m_Rows; y++)
         {
-            for (int x = 0; x < Columns; x++)
+            for (int x = 0; x < m_Columns; x++)
             {
-                Vector2 bottomLeft = m_BoxCollider.bounds.min;
-                float cellWidth = Width / Columns;
-                float cellHeight = Height / Rows;
+                Vector3 cellCenter = new Vector3(
+                    bottomLeft.x + (x * m_CellWidth) + halfWidth,
+                    bottomLeft.y + (y * m_CellHeight) + halfHeight,
+                    -0.1f // place slightly towards camera to fix some rendering issues
+                );
 
-                Vector3 cellCenter = bottomLeft + new Vector2(x * cellWidth, y * cellHeight);
-               cellCenter.z = -0.1f; // stops z fighting or getting completely masked out
-
-                //GameObject point = Instantiate(m_PointPrefab, cellCenter, Quaternion.identity);
-                //point.transform.localScale = new Vector3(cellWidth, cellHeight, 1f);
-
-                ionPoints[y * Columns + x] = new IonPoint()
+                IonPoints[y * m_Columns + x] = new IonPoint()
                 {
                     Position = cellCenter,
-                    Matrix = Matrix4x4.TRS(
-                        cellCenter, // position of graphic within center of cell
-                        Quaternion.Euler(0, 180, 0), // circle mesh used to render a point is incorrectly flipped around for some reason
-                        1f * Vector3.one // scale for now, will change later
-                        ),
+                    Matrix = Matrix4x4.TRS(cellCenter, cellRotation, cellScale),
                     IsFilled = false
                 };
             }
@@ -73,7 +75,7 @@ public class SquarePainter : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             Vector2 mousePosition = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
@@ -85,15 +87,15 @@ public class SquarePainter : MonoBehaviour
                 Vector2 bottomLeft = hit.collider.bounds.min;
                 Vector2 localClick = mousePosition - bottomLeft;
 
-                int xPosition = Mathf.FloorToInt((localClick.x / Width) * Columns);
-                int yPosition = Mathf.FloorToInt((localClick.y / Height) * Rows);
+                int xPosition = Mathf.FloorToInt(localClick.x / m_CellWidth);
+                int yPosition = Mathf.FloorToInt(localClick.y / m_CellHeight);
 
                 Debug.Log("Corresponding to square at " + xPosition + ", " + yPosition);
 
-                int positionalIndex = yPosition * Columns + xPosition;    
-                if (positionalIndex >= 0 && positionalIndex < ionPoints.Length)
+                int positionalIndex = yPosition * m_Columns + xPosition;    
+                if (positionalIndex >= 0 && positionalIndex < IonPoints.Length)
                 {
-                    ionPoints[positionalIndex].IsFilled = true;
+                    IonPoints[positionalIndex].IsFilled = true;
                 }
 
                 Debug.Log("Leading to index of " + positionalIndex);
@@ -110,29 +112,20 @@ public class SquarePainter : MonoBehaviour
     {
         DefaultInstancedMeshParams* paramBuffer = stackalloc DefaultInstancedMeshParams[512]; 
         RenderParams renderParams = new RenderParams(IonMaterial);
-        renderParams.layer = layer;
-        renderParams.renderingLayerMask = renderingLayerMask;
-        renderParams.rendererPriority = rendererPriority;
-        //Transform cameraTransform = Game.Rendering.PrimaryCamera.transform;
         Mesh mesh = IonMesh;
         var instanceHelper = new InstancedMeshBuffer<DefaultInstancedMeshParams>(paramBuffer, 512, renderParams, mesh);
         
-        for (int i = 0; i < ionPoints.Length; i++)
+        for (int i = 0; i < IonPoints.Length; i++)
         {
-            if (ionPoints[i].IsFilled)
+            if (IonPoints[i].IsFilled)
             {
-                RenderPoint(ionPoints[i].Matrix, ref instanceHelper);
+                DefaultInstancedMeshParams instParams = default;
+                instParams.objectToWorld = IonPoints[i].Matrix;
+                instanceHelper.Queue(instParams);
             }
         }
 
         instanceHelper.Flush();
         instanceHelper.Dispose();
-    }
-
-    void RenderPoint(Matrix4x4 matrix, ref InstancedMeshBuffer<DefaultInstancedMeshParams> instancing)
-    {
-        DefaultInstancedMeshParams instParams = default;
-        instParams.objectToWorld = matrix;
-        instancing.Queue(instParams);
     }
 }

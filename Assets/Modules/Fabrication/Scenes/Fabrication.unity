@@ -1220,6 +1220,14 @@ PrefabInstance:
       value: Sweeper Anchor
       objectReference: {fileID: 0}
     - target: {fileID: 1070603677827316990, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+      propertyPath: m_Density
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1070603677827316990, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+      propertyPath: IonMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 98d18fb0f49e4cc4597c669ee187c55f, type: 2}
+    - target: {fileID: 1070603677827316990, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
       propertyPath: SortingLayer
       value: 330957413
       objectReference: {fileID: 0}
