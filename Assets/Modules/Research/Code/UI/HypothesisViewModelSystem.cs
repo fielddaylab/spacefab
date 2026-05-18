@@ -18,16 +18,23 @@ namespace SpaceFab.Research {
     /// viewmodel — its visual consumers continue to read the same state
     /// that was last computed.
     ///
-    /// On rebuild, for the active page, builds:
-    ///   - SatisfiedMask: bit i set if leaf i is satisfied (player has
-    ///     collected the observation, or the leaf's outermost ancestor
-    ///     sub-property is confirmed for the slotted material).
-    ///   - LockedMask: subset of SatisfiedMask where satisfaction came
-    ///     from the ancestor path (the sample panel renders these as
-    ///     immutable).
-    ///   - IsFulfilled: true when any material the player knows of has
-    ///     the page's (Label, Context) confirmed.
-    ///   - SubmitButtonVisible: every leaf satisfied.
+    /// On rebuild builds two parallel views for the active page:
+    ///
+    /// * Leaf view (LeafSatisfiedMask / LeafLockedMask): bit L =
+    ///   leaf L is satisfied / auto-confirmed. Drives the hypothesis
+    ///   panel (which is leaf-indexed: shows the hypothesis's required
+    ///   observations).
+    ///
+    /// * Slot view (SlotLabels / SlotContexts / SlotCount /
+    ///   SlotLockedMask): the ordered list of observations occupying
+    ///   the sample panel's N slots. Auto-locked entries (ancestor-
+    ///   confirmed) come first; player picks follow in
+    ///   researchState.Observations insertion order. Player picks may
+    ///   include observations that don't match any leaf — they still
+    ///   take a slot.
+    ///
+    /// PageFulfilledMask drives the paginator's per-dot confirmed
+    /// overlay. SubmitButtonVisible is true when every leaf is satisfied.
     /// </summary>
     public class HypothesisViewModelSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
@@ -73,8 +80,10 @@ namespace SpaceFab.Research {
 
             int pageCount = pagesState.Pages.Count;
             int prevIndex = viewModelState.ActivePageIndex;
-            uint prevSatisfied = viewModelState.ActivePageSatisfiedMask;
-            uint prevLocked = viewModelState.ActivePageLockedMask;
+            uint prevLeafSatisfied = viewModelState.ActivePageLeafSatisfiedMask;
+            uint prevLeafLocked = viewModelState.ActivePageLeafLockedMask;
+            uint prevSlotLocked = viewModelState.ActivePageSlotLockedMask;
+            int prevSlotCount = viewModelState.ActivePageSlotCount;
             bool prevSubmit = viewModelState.SubmitButtonVisible;
             uint prevFulfilledMask = viewModelState.PageFulfilledMask;
 
@@ -83,12 +92,16 @@ namespace SpaceFab.Research {
             if (pageCount == 0) {
                 viewModelState.ActivePageIndex = 0;
                 viewModelState.ActivePageObservationCount = 0;
-                viewModelState.ActivePageSatisfiedMask = 0;
-                viewModelState.ActivePageLockedMask = 0;
-                viewModelState.ActivePageSatisfiedCount = 0;
+                viewModelState.ActivePageLeafSatisfiedMask = 0;
+                viewModelState.ActivePageLeafLockedMask = 0;
+                viewModelState.ActivePageLeafSatisfiedCount = 0;
+                viewModelState.ActivePageSlotCount = 0;
+                viewModelState.ActivePageSlotLockedMask = 0;
                 viewModelState.PageFulfilledMask = 0;
                 viewModelState.SubmitButtonVisible = false;
-                viewModelState.HypothesisChangedThisFrame = prevIndex != 0 || prevSatisfied != 0 || prevSubmit || prevFulfilledMask != 0;
+                viewModelState.HypothesisChangedThisFrame =
+                    prevIndex != 0 || prevLeafSatisfied != 0 || prevSubmit || prevFulfilledMask != 0
+                    || prevSlotCount != 0 || prevSlotLocked != 0;
                 return;
             }
 
@@ -106,20 +119,20 @@ namespace SpaceFab.Research {
             HypothesisPage page = pagesState.Pages[viewModelState.ActivePageIndex];
             MaterialObservationEntry[] leaves = page.DecomposedObservations;
             int leafCount = leaves != null ? leaves.Length : 0;
-            if (leafCount > 32) {
-                // The mask is a uint; chips beyond bit 31 silently fall off.
-                leafCount = 32;
+            int slotCap = HypothesisViewModelState.MaxObservationsPerPage;
+            if (leafCount > slotCap) {
+                // Mask is a uint; chips beyond bit 31 silently fall off.
+                leafCount = slotCap;
             }
             viewModelState.ActivePageObservationCount = leafCount;
 
-            // 3. Build the per-leaf satisfied + locked masks. A leaf is
-            // satisfied if either (a) the player has the observation in
-            // the slotted material's list, or (b) the leaf's outermost
-            // ancestor sub-property is already confirmed for the slotted
-            // material (auto-population). Locked is the (b)-only subset.
-            uint satisfiedMask = 0;
-            uint lockedMask = 0;
-            int satisfiedCount = 0;
+            // 3. Build the slot view. Auto-locked entries first (one per
+            // ancestor-confirmed leaf), then player picks in insertion
+            // order. Cap at leafCount.
+            int slotCount = 0;
+            uint slotLockedMask = 0;
+            MaterialPropertyLabel[] slotLabels = viewModelState.ActivePageSlotLabels;
+            StringHash32[] slotContexts = viewModelState.ActivePageSlotContexts;
 
             // Lookup the slotted material's confirmed record once.
             MaterialPropertyRecord slottedRecord = default;
@@ -129,30 +142,92 @@ namespace SpaceFab.Research {
                 }
             }
 
-            for (int i = 0; i < leafCount; i++) {
+            // 3a. Auto-locked entries.
+            //
+            // Two paths auto-populate:
+            //   (1) The page's own property is already confirmed for the
+            //       slotted material — i.e., the player previously
+            //       confirmed this hypothesis (or it was confirmed via
+            //       another path). Every leaf is "known" and locked.
+            //   (2) The leaf's AncestorProperty is confirmed — a
+            //       sub-property already proven for this material
+            //       implies the leaf is satisfied.
+            // Path (1) takes precedence: if the whole hypothesis is
+            // confirmed, every leaf is locked regardless of ancestor
+            // state.
+            bool pageConfirmed = slottedMaterial != null
+                && MaterialPropertyRecordUtility.Has(slottedRecord, page.Label, page.Context);
+            for (int i = 0; i < leafCount && slotCount < leafCount; i++) {
                 MaterialObservationEntry leaf = leaves[i];
-                bool ancestorConfirmed = false;
-                if (leaf.HasAncestorProperty && slottedMaterial != null) {
-                    ancestorConfirmed = MaterialPropertyRecordUtility.Has(slottedRecord, leaf.AncestorProperty, leaf.Context);
+                if (slottedMaterial == null) {
+                    continue;
                 }
-                bool playerCollected = slottedMaterial != null
-                    && ResearchInventoryUtility.HasObservation(researchState, slottedId, leaf.Label, leaf.Context);
+                bool locked = pageConfirmed
+                    || (leaf.HasAncestorProperty
+                        && MaterialPropertyRecordUtility.Has(slottedRecord, leaf.AncestorProperty, leaf.Context));
+                if (!locked) {
+                    continue;
+                }
+                slotLabels[slotCount] = leaf.Label;
+                slotContexts[slotCount] = leaf.Context;
+                slotLockedMask |= 1u << slotCount;
+                slotCount++;
+            }
 
-                if (ancestorConfirmed || playerCollected) {
-                    satisfiedMask |= 1u << i;
-                    satisfiedCount++;
-                    if (ancestorConfirmed && !playerCollected) {
-                        lockedMask |= 1u << i;
+            // 3b. Push player-picked entries from researchState.Observations
+            // in insertion order, skipping any duplicate (label, context)
+            // already in the slot buffer.
+            if (slottedMaterial != null && slotCount < leafCount
+                && researchState.Observations.TryGetValue(slottedId, out var pickedList)) {
+                int pickedCount = pickedList.Count;
+                for (int p = 0; p < pickedCount && slotCount < leafCount; p++) {
+                    MaterialPropertyLabel label = MaterialObservationListUtility.GetLabel(pickedList, p);
+                    StringHash32 context = MaterialObservationListUtility.GetContext(pickedList, p);
+                    if (ContainsSlot(slotLabels, slotContexts, slotCount, label, context)) {
+                        continue;
                     }
+                    slotLabels[slotCount] = label;
+                    slotContexts[slotCount] = context;
+                    slotCount++;
                 }
             }
 
-            viewModelState.ActivePageSatisfiedMask = satisfiedMask;
-            viewModelState.ActivePageLockedMask = lockedMask;
-            viewModelState.ActivePageSatisfiedCount = satisfiedCount;
-            viewModelState.SubmitButtonVisible = leafCount > 0 && satisfiedCount == leafCount;
+            viewModelState.ActivePageSlotCount = slotCount;
+            viewModelState.ActivePageSlotLockedMask = slotLockedMask;
 
-            // 4. Per-page fulfilled mask: bit i = page i has been
+            // 4. Build the leaf view. For each leaf L, leaf is satisfied
+            // iff some slot entry [0..slotCount) has matching (label,
+            // context). Locked = satisfied AND the matching slot is
+            // locked (i.e., ancestor-confirmed for this leaf's
+            // AncestorProperty).
+            uint leafSatisfiedMask = 0;
+            uint leafLockedMask = 0;
+            int leafSatisfiedCount = 0;
+            for (int L = 0; L < leafCount; L++) {
+                MaterialObservationEntry leaf = leaves[L];
+                int slotIdx = FindSlot(slotLabels, slotContexts, slotCount, leaf.Label, leaf.Context);
+                if (slotIdx < 0) {
+                    continue;
+                }
+                leafSatisfiedMask |= 1u << L;
+                leafSatisfiedCount++;
+                if ((slotLockedMask & (1u << slotIdx)) != 0) {
+                    leafLockedMask |= 1u << L;
+                }
+            }
+
+            viewModelState.ActivePageLeafSatisfiedMask = leafSatisfiedMask;
+            viewModelState.ActivePageLeafLockedMask = leafLockedMask;
+            viewModelState.ActivePageLeafSatisfiedCount = leafSatisfiedCount;
+            // Submit shows whenever the slot view is full, regardless
+            // of correctness — the submit handler validates against
+            // leaves and removes any slot whose (label, context) doesn't
+            // match. The hypothesis is only confirmed if every slot
+            // also matches; otherwise the wrong picks get culled and
+            // the player tries again.
+            viewModelState.SubmitButtonVisible = leafCount > 0 && slotCount == leafCount;
+
+            // 5. Per-page fulfilled mask: bit i = page i has been
             // confirmed by some known material (sandbox or saved
             // PlayerProgress). Drives the paginator's per-dot
             // confirmed-overlay state.
@@ -166,13 +241,36 @@ namespace SpaceFab.Research {
             }
             viewModelState.PageFulfilledMask = pageFulfilledMask;
 
-            // 5. Frame-flag — any change drives the panel's LateUpdate render.
+            // 6. Frame-flag — any change drives the panel's LateUpdate render.
             bool changed = viewModelState.ActivePageIndex != prevIndex
-                || satisfiedMask != prevSatisfied
-                || lockedMask != prevLocked
+                || leafSatisfiedMask != prevLeafSatisfied
+                || leafLockedMask != prevLeafLocked
+                || slotCount != prevSlotCount
+                || slotLockedMask != prevSlotLocked
                 || viewModelState.SubmitButtonVisible != prevSubmit
                 || pageFulfilledMask != prevFulfilledMask;
             viewModelState.HypothesisChangedThisFrame = changed;
+        }
+
+        // Returns true if any of slotLabels[0..count) matches (label, context).
+        private static bool ContainsSlot(MaterialPropertyLabel[] slotLabels, StringHash32[] slotContexts, int count, MaterialPropertyLabel label, StringHash32 context) {
+            for (int i = 0; i < count; i++) {
+                if (slotLabels[i] == label && slotContexts[i] == context) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Returns index of the slot in [0..count) that matches (label,
+        // context), or -1 if not present.
+        private static int FindSlot(MaterialPropertyLabel[] slotLabels, StringHash32[] slotContexts, int count, MaterialPropertyLabel label, StringHash32 context) {
+            for (int i = 0; i < count; i++) {
+                if (slotLabels[i] == label && slotContexts[i] == context) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         // True if any material in either the in-session sandbox or the

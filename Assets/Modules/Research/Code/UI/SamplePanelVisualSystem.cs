@@ -83,6 +83,17 @@ namespace SpaceFab.Research {
                 if (panel.MainContent != null) {
                     panel.MainContent.SetActive(false);
                 }
+                // Explicitly hide the slot chips even if MainContent's
+                // hierarchy doesn't parent them — otherwise stale
+                // filled chips from the previously-slotted material
+                // remain visible after the sample is pulled.
+                if (panel.SlotChips != null) {
+                    for (int i = 0; i < panel.SlotChips.Length; i++) {
+                        if (panel.SlotChips[i] != null) {
+                            panel.SlotChips[i].gameObject.SetActive(false);
+                        }
+                    }
+                }
                 SamplePanelInputUtility.ClosePicker(panel);
                 return;
             }
@@ -101,64 +112,42 @@ namespace SpaceFab.Research {
                 panel.SampleHeader.text = "SAMPLE " + sampleNumber.ToString();
             }
 
-            // 3. Slot chips mirror the active hypothesis page's leaves
-            // and read fill state from the hypothesis viewmodel.
-            int pageCount = pagesState.Pages.Count;
-            int leafCount = 0;
-            HypothesisPage page = default;
-            if (pageCount > 0 && hypoVm.ActivePageIndex >= 0 && hypoVm.ActivePageIndex < pageCount) {
-                page = pagesState.Pages[hypoVm.ActivePageIndex];
-                leafCount = page.DecomposedObservations != null ? page.DecomposedObservations.Length : 0;
-            }
+            // 3. Slot chips render the viewmodel's slot view (auto-
+            // locked entries first, then player picks in insertion
+            // order). Capacity = ActivePageObservationCount (= leaf
+            // count). Filled slots [0..SlotCount) show the picked
+            // label + that label's per-type sprite; remaining slots
+            // up to capacity render dashed-empty.
+            int slotCapacity = hypoVm.ActivePageObservationCount;
+            int slotCount = hypoVm.ActivePageSlotCount;
 
             if (panel.SlotChips != null) {
                 for (int i = 0; i < panel.SlotChips.Length; i++) {
-                    if (i >= leafCount) {
+                    if (i >= slotCapacity) {
                         panel.SlotChips[i].gameObject.SetActive(false);
                         continue;
                     }
                     panel.SlotChips[i].gameObject.SetActive(true);
-                    bool filled = (hypoVm.ActivePageSatisfiedMask & (1u << i)) != 0;
-                    bool locked = (hypoVm.ActivePageLockedMask & (1u << i)) != 0;
-                    MaterialObservationEntry leaf = page.DecomposedObservations[i];
-                    panel.SlotChips[i].SetState(MaterialPropertyLabelDisplay.GetObservationName(leaf.Label), filled, locked, leaf.ObservationType);
+                    bool filled = i < slotCount;
+                    bool locked = filled && (hypoVm.ActivePageSlotLockedMask & (1u << i)) != 0;
+                    string label = null;
+                    ObservationType type = default;
+                    if (filled) {
+                        MaterialPropertyLabel slotLabel = hypoVm.ActivePageSlotLabels[i];
+                        label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
+                        type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
+                    }
+                    panel.SlotChips[i].SetState(label, filled, locked, type, useEmptyDashedSprite: true);
                 }
             }
 
-            // 4. Picker overlay. Populate only while open; visibility
-            // mirrors the panel's transient PickerOpen flag.
-            if (panel.PickerOpen) {
-                PopulatePicker(panel, battery);
-            }
+            // 4. Picker overlay. Population + layout + resize happen
+            // once on chamber load (ObservationPickerLoadUtility);
+            // disabled-state refresh happens in
+            // ObservationPickerRefreshSystem when the viewmodel changes.
+            // Here we only mirror the transient PickerOpen flag.
             if (panel.ChipPickerOverlay != null) {
                 panel.ChipPickerOverlay.SetActive(panel.PickerOpen);
-            }
-        }
-
-        // Fills the panel's picker chip pool from the active chamber's
-        // AvailableObservations. Battery only today; extend via a switch
-        // on ChamberInterfacerState.ActiveChamber when other chambers
-        // come online. ObservationType per label comes from the static
-        // MaterialObservationChamberLookup so the picker sprites match
-        // the slot-side sprites.
-        private static void PopulatePicker(ResearchSamplePanel panel, BatteryChamberState battery) {
-            MaterialPropertyLabel[] available = battery != null ? battery.AvailableObservations : null;
-            int availableCount = available != null ? available.Length : 0;
-
-            if (panel.PickerChips == null || panel.PickerLabels == null) {
-                return;
-            }
-
-            for (int i = 0; i < panel.PickerChips.Length; i++) {
-                if (i >= availableCount) {
-                    panel.PickerChips[i].gameObject.SetActive(false);
-                    panel.PickerLabels[i] = default;
-                    continue;
-                }
-                panel.PickerChips[i].gameObject.SetActive(true);
-                panel.PickerLabels[i] = available[i];
-                ObservationType observationType = MaterialObservationChamberLookup.GetChamberType(available[i]);
-                panel.PickerChips[i].SetState(MaterialPropertyLabelDisplay.GetObservationName(available[i]), false, false, observationType);
             }
         }
     }

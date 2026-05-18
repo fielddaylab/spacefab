@@ -29,7 +29,11 @@ namespace SpaceFab.Research {
         // Applies the chip's appearance from the global visual asset.
         // observationType selects the sprite pair; filled selects within
         // that pair and the label color; text == null hides the label.
-        public void SetState(string text, bool filled, bool locked, ObservationType observationType) {
+        // useEmptyDashedSprite swaps the per-type empty sprite for the
+        // shared dashed-outline EmptySlotSprite when filled == false —
+        // used by sample-panel slot chips to indicate "the hypothesis
+        // requires a value here, but the player hasn't picked one yet."
+        public void SetState(string text, bool filled, bool locked, ObservationType observationType, bool useEmptyDashedSprite = false) {
             ResearchObservationChipAssets asset = Find.GlobalAsset<ResearchObservationChipAssets>();
 
             if (LabelText != null) {
@@ -40,7 +44,17 @@ namespace SpaceFab.Research {
             }
 
             if (Background != null) {
-                if (asset != null && asset.TryGetSprite(observationType, filled, out Sprite sprite)) {
+                Sprite sprite = null;
+                bool spriteOk = false;
+                if (asset != null) {
+                    if (!filled && useEmptyDashedSprite && asset.EmptySlotSprite != null) {
+                        sprite = asset.EmptySlotSprite;
+                        spriteOk = true;
+                    } else {
+                        spriteOk = asset.TryGetSprite(observationType, filled, out sprite);
+                    }
+                }
+                if (spriteOk) {
                     Background.sprite = sprite;
                     Background.enabled = true;
                 } else {
@@ -54,6 +68,14 @@ namespace SpaceFab.Research {
             if (LockedOverlay != null) {
                 LockedOverlay.SetActive(filled && locked);
             }
+        }
+
+        // Applies the "already filled in a sample slot" greyed-out look
+        // for picker chips. Empty for now; the visual contract is TBD.
+        // Called per-frame from ObservationPickerRefreshSystem when the
+        // hypothesis viewmodel changes. When implemented, must also gate
+        // Click so a disabled chip is non-interactive.
+        public void SetPickerChipDisabledVisual(bool disabled) {
         }
     }
 }

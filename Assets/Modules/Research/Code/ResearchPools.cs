@@ -24,6 +24,7 @@ namespace SpaceFab.Research {
     public class ResearchPools : SharedStateComponent, IScenePreload {
         [Serializable] public sealed class VfxPool : SerializablePool<ResearchVfxInstance> { }
         [Serializable] public sealed class DotPool : SerializablePool<ResearchPaginationDot> { }
+        [Serializable] public sealed class ObservationChipPool : SerializablePool<ResearchObservationChip> { }
 
         [Header("VFX")]
         public VfxPool ExplosionEffectPool;
@@ -35,6 +36,7 @@ namespace SpaceFab.Research {
 
         [Header("UI")]
         public DotPool PaginationDotPool;
+        public ObservationChipPool PickerChipPool;
 
         // Currently-allocated pagination dots, grown/shrunk by
         // HypothesisPanelVisualUtility against PaginationDotPool. List
@@ -45,11 +47,21 @@ namespace SpaceFab.Research {
         // today there is one in scope.
         [NonSerialized] public List<ResearchPaginationDot> ActivePaginationDots;
 
+        // Currently-allocated observation picker chips, grown/shrunk
+        // once per chamber load by ObservationPickerLoadUtility against
+        // PickerChipPool. ObservationPickerRefreshSystem walks this list
+        // every frame the viewmodel changes to apply per-chip disabled
+        // state. Single sample panel today; multiple would need their
+        // own tracking.
+        [NonSerialized] public List<ResearchObservationChip> ActivePickerChips;
+
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
             ExplosionEffectPool.Prewarm();
             BoltZapEffectPool.Prewarm();
             PaginationDotPool.Prewarm();
+            PickerChipPool.Prewarm();
             ActivePaginationDots = new List<ResearchPaginationDot>(4);
+            ActivePickerChips = new List<ResearchObservationChip>(8);
             return null;
         }
     }

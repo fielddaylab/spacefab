@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: SiliconPhys
+  m_Name: Copper
   m_EditorClassIdentifier: 
   MaterialId:
-    m_Source: Silicon
-    m_HashValue: 1163381446
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
+    m_Source: Copper
+    m_HashValue: 3821421172
+  ConductionMultiplier: 0.9
+  ThermalMultiplier: 0.5
   MaxTemperature: 0.6
-  MaxVoltage: 0.6
+  MaxVoltage: 1
   IsHighMobility: 0
   IsLightEmitting: 0

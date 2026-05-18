@@ -11,14 +11,22 @@ namespace SpaceFab.Research {
     /// from the chip picker's selection emit; remove comes from clicking a
     /// non-locked filled slot in the observations panel. Both fan out into
     /// the existing ResearchInventoryUtility add/remove helpers.
+    ///
+    /// Runs on LateUpdate at order 50 so it sits *after* Unity's
+    /// EventSystem has dispatched any same-frame click (CursorHint's
+    /// onClick fires during the EventSystem update, which on this
+    /// project lands after FieldDay's Update phase but before LateUpdate)
+    /// and *before* HypothesisViewModelSystem at order 100 — so a click
+    /// added this frame is visible in the viewmodel rebuild that same
+    /// frame. ResearchUIInputRefreshSystem at order 1000 clears the
+    /// flags after every consumer has had a chance to read them.
     /// </summary>
     public class ObservationCollectSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 50, UpdateMasks.ResearchMask),
+                new SysUpdate(GameLoopPhase.LateUpdate, 50, UpdateMasks.ResearchMask),
                 new SysPermissions()
                     .ReadShared<ResearchUIInputState>()
-                    .ReadShared<ResearchHypothesisPagesState>()
                     .ReadWriteShared<HypothesisViewModelState>()
                     .ReadWriteShared<ResearchMinigameState>()
                     .ReadShared<ChamberInterfacerState>()
@@ -54,23 +62,23 @@ namespace SpaceFab.Research {
                 }
             }
 
-            // Remove path: slot index → (label, context) via the active
-            // page's decomposition. Locked slots are filtered out client-
-            // side by ResearchSamplePanel before the click fires; the
-            // server-side guard here is the slot-index range check.
+            // Remove path: slot index → (label, context) via the
+            // viewmodel's slot buffer. Slot buffer entries may differ
+            // from the active page's leaves (player picks not matching
+            // any leaf still occupy slots). Locked slots are filtered
+            // client-side by SamplePanelInputUtility before the click
+            // fires; the server-side guard here is the slot-index range
+            // check + the locked-mask test.
             if (inputState.RemoveObservationClickedThisFrame) {
-                Find.State(
-                    out ResearchHypothesisPagesState pagesState,
-                    out HypothesisViewModelState viewModelState
-                );
+                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
 
                 int idx = inputState.RemoveObservationSlotIndex;
-                int pageIndex = viewModelState.ActivePageIndex;
-                if (pageIndex >= 0 && pageIndex < pagesState.Pages.Count) {
-                    var leaves = pagesState.Pages[pageIndex].DecomposedObservations;
-                    if (leaves != null && idx >= 0 && idx < leaves.Length) {
-                        MaterialObservationEntry leaf = leaves[idx];
-                        if (ResearchInventoryUtility.RemoveObservation(researchState, slottedId, leaf.Label, leaf.Context)) {
+                if (viewModelState != null && idx >= 0 && idx < viewModelState.ActivePageSlotCount) {
+                    bool locked = (viewModelState.ActivePageSlotLockedMask & (1u << idx)) != 0;
+                    if (!locked) {
+                        MaterialPropertyLabel label = viewModelState.ActivePageSlotLabels[idx];
+                        StringHash32 context = viewModelState.ActivePageSlotContexts[idx];
+                        if (ResearchInventoryUtility.RemoveObservation(researchState, slottedId, label, context)) {
                             viewModelDirty = true;
                         }
                     }

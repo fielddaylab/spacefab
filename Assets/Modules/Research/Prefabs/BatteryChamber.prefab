@@ -752,7 +752,7 @@ MonoBehaviour:
   VoltageControl: {fileID: 7392688052064913634}
   BatteryContainer: {fileID: 6779361194467327614}
   SampleHolder: {fileID: 3546955409230533120}
-  AvailableObservations: 00010b0a
+  AvailableObservations: 00010d0c
   Temperature: 0
 --- !u!1 &6299981595805713164
 GameObject:

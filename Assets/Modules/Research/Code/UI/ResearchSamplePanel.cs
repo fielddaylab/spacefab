@@ -1,20 +1,28 @@
+using BeauPools;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.HID;
 using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
     /// View component for the bottom Observations / sample panel. Pure
-    /// view: inspector-assigned references plus a transient picker-open
-    /// flag + per-instance picker label cache (NonSerialized runtime
-    /// fields, mirroring the VoltageControl precedent). Click handlers
-    /// route through ResearchUIInputUtility and SamplePanelInputUtility.
-    /// Per-frame visual render is in SamplePanelVisualSystem.
+    /// view: inspector-assigned references plus transient runtime state
+    /// (PickerOpen, the pool-mirrored PickerLabels / PickerClickHandlers
+    /// lists). Click handlers route through ResearchUIInputUtility and
+    /// SamplePanelInputUtility. Per-frame visual render is in
+    /// SamplePanelVisualSystem.
+    ///
+    /// Picker chips are not authored on this panel — they live in the
+    /// pool on ResearchPools.PickerChipPool and are sync'd in
+    /// ObservationPickerLoadUtility.LoadFor on chamber load. The panel
+    /// only owns the PickerChipContainer the alloced chips reparent
+    /// under, and the parallel labels + handlers lists.
     /// </summary>
     public class ResearchSamplePanel : BatchedComponent, IRegistrationCallbacks {
         public TMP_Text SampleHeader;
@@ -25,7 +33,11 @@ namespace SpaceFab.Research {
 
         public CursorHint AddObservationButton;
         public GameObject ChipPickerOverlay;
-        public ResearchObservationChip[] PickerChips;
+
+        // Scene-wired RectTransform under ChipPickerOverlay that pool-
+        // alloced picker chips are reparented under. The load utility
+        // lays chips out here vertically and resizes the overlay to fit.
+        public RectTransform PickerChipContainer;
 
         public CursorHint SubmitButton;
 
@@ -33,34 +45,28 @@ namespace SpaceFab.Research {
 
         // Whether the picker overlay is currently open. Per-instance
         // transient state; the visual system reads it to decide whether
-        // to populate + show the overlay.
+        // to show the overlay.
         [NonSerialized] public bool PickerOpen;
 
-        // Parallel to PickerChips: label bound to each picker chip slot,
-        // populated by the visual system from the active chamber's
-        // AvailableObservations. Click handlers index into this to know
-        // which label to emit. Allocated in OnRegister.
-        [NonSerialized] public MaterialPropertyLabel[] PickerLabels;
+        // Parallel to ResearchPools.ActivePickerChips: label bound to
+        // each active picker chip, populated by
+        // ObservationPickerLoadUtility on chamber load. Click handlers
+        // index into this to know which label to emit.
+        [NonSerialized] public List<MaterialPropertyLabel> PickerLabels;
 
-        // Cached delegate references for picker / slot click handlers so
-        // OnDeregister can detach precisely (matching what OnRegister
-        // attached). Without this, anonymous closures captured by index
-        // could not be removed by reference.
-        [NonSerialized] private Action[] m_PickerClickHandlers;
+        // Captured-index click handlers, parallel to ActivePickerChips.
+        // Registered on chip Alloc, deregistered on Free. Lifecycle
+        // managed by SamplePanelInputUtility / ObservationPickerLoadUtility.
+        [NonSerialized] public List<Action> PickerClickHandlers;
+
+        // Cached delegate references for slot click handlers so
+        // OnDeregister can detach precisely.
         [NonSerialized] private Action[] m_SlotClickHandlers;
 
         public void OnRegister() {
-            if (PickerChips != null) {
-                PickerLabels = new MaterialPropertyLabel[PickerChips.Length];
-                m_PickerClickHandlers = new Action[PickerChips.Length];
-                for (int i = 0; i < PickerChips.Length; i++) {
-                    int captured = i;
-                    m_PickerClickHandlers[i] = () => HandlePickerChip(captured);
-                    if (PickerChips[i] != null && PickerChips[i].Click != null) {
-                        PickerChips[i].Click.onClick.Register(m_PickerClickHandlers[i]);
-                    }
-                }
-            }
+            PickerLabels = new List<MaterialPropertyLabel>(8);
+            PickerClickHandlers = new List<Action>(8);
+
             if (SlotChips != null) {
                 m_SlotClickHandlers = new Action[SlotChips.Length];
                 for (int i = 0; i < SlotChips.Length; i++) {
@@ -82,13 +88,11 @@ namespace SpaceFab.Research {
         }
 
         public void OnDeregister() {
-            if (PickerChips != null && m_PickerClickHandlers != null) {
-                for (int i = 0; i < PickerChips.Length; i++) {
-                    if (PickerChips[i] != null && PickerChips[i].Click != null && m_PickerClickHandlers[i] != null) {
-                        PickerChips[i].Click.onClick.Deregister(m_PickerClickHandlers[i]);
-                    }
-                }
+            if (Game.SharedState.Has<ResearchPools>())
+            {
+                SamplePanelInputUtility.FreeAllPickerChips(this, Find.State<ResearchPools>());
             }
+
             if (SlotChips != null && m_SlotClickHandlers != null) {
                 for (int i = 0; i < SlotChips.Length; i++) {
                     if (SlotChips[i] != null && SlotChips[i].Click != null && m_SlotClickHandlers[i] != null) {
@@ -106,10 +110,19 @@ namespace SpaceFab.Research {
 
         private void HandleAddObservation() {
             ResearchUIInputUtility.RequestAddObservation(Find.State<ResearchUIInputState>());
-            SamplePanelInputUtility.OpenPicker(this);
+            // Toggle: re-clicking the button while the picker is open
+            // closes it. Off-click-elsewhere dismissal lives in
+            // ObservationPickerOffClickSystem.
+            if (PickerOpen) {
+                SamplePanelInputUtility.ClosePicker(this);
+            } else {
+                SamplePanelInputUtility.OpenPicker(this);
+            }
         }
 
-        private void HandlePickerChip(int index) {
+        // Picker chip click. Public so ObservationPickerLoadUtility can
+        // bind a captured-index closure to each alloced chip's Click.
+        public void HandlePickerChip(int index) {
             SamplePanelInputUtility.SubmitPickerSelection(this, Find.State<ResearchUIInputState>(), index);
         }
 
@@ -124,8 +137,9 @@ namespace SpaceFab.Research {
 
     /// <summary>
     /// Mutators paired with ResearchSamplePanel. Open/close picker,
-    /// submit a picker selection, request a slot removal — all funnel
-    /// here so the panel keeps no logic of its own beyond click dispatch.
+    /// submit a picker selection, request a slot removal, free all
+    /// pool-held picker chips — all funnel here so the panel keeps no
+    /// logic of its own beyond click dispatch.
     /// </summary>
     public static class SamplePanelInputUtility {
         public static void OpenPicker(ResearchSamplePanel panel) {
@@ -141,38 +155,62 @@ namespace SpaceFab.Research {
             }
         }
 
-        // Picker chip click. Resolves the bound label, requests the add,
-        // and closes the picker. Out-of-range index is treated as a
+        // Picker chip click. Resolves the bound label, requests the add.
+        // Out-of-range index is treated as a
         // close-only.
         public static void SubmitPickerSelection(ResearchSamplePanel panel, ResearchUIInputState inputState, int index) {
             if (panel == null) {
                 return;
             }
-            if (panel.PickerLabels == null || index < 0 || index >= panel.PickerLabels.Length) {
+            if (panel.PickerLabels == null || index < 0 || index >= panel.PickerLabels.Count) {
                 ClosePicker(panel);
                 return;
             }
             ResearchUIInputUtility.RequestPickerSelection(inputState, panel.PickerLabels[index]);
-            ClosePicker(panel);
         }
 
-        // Sample-slot click. Filtered: only filled, non-locked slots can
-        // be removed. Locked = auto-populated via a confirmed ancestor
-        // sub-property; empty = nothing to remove.
+        // Sample-slot click. Filtered: only filled, non-locked slots in
+        // the viewmodel's slot view can be removed. Locked = auto-
+        // populated via a confirmed ancestor sub-property; index past
+        // SlotCount = empty placeholder.
         public static void RequestSlotRemove(ResearchSamplePanel panel, ResearchUIInputState inputState, HypothesisViewModelState viewModel, int index) {
             if (panel == null || viewModel == null) {
                 return;
             }
-            if (index < 0 || index >= viewModel.ActivePageObservationCount) {
+            if (index < 0 || index >= viewModel.ActivePageSlotCount) {
                 return;
             }
-            uint bit = 1u << index;
-            bool filled = (viewModel.ActivePageSatisfiedMask & bit) != 0;
-            bool locked = (viewModel.ActivePageLockedMask & bit) != 0;
-            if (!filled || locked) {
+            bool locked = (viewModel.ActivePageSlotLockedMask & (1u << index)) != 0;
+            if (locked) {
                 return;
             }
             ResearchUIInputUtility.RequestRemoveObservation(inputState, index);
+        }
+
+        // Returns every pool-held picker chip to the pool, deregistering
+        // its captured-index click handler in lockstep. Called from
+        // ResearchSamplePanel.OnDeregister and as the first step of
+        // ObservationPickerLoadUtility.LoadFor (clean slate on chamber
+        // load). No-op if pools or its active list is null (mid-tear-
+        // down, or pre-Preload).
+        public static void FreeAllPickerChips(ResearchSamplePanel panel, ResearchPools pools) {
+            if (panel == null || pools == null || pools.ActivePickerChips == null) return;
+            int n = pools.ActivePickerChips.Count;
+            for (int i = n - 1; i >= 0; i--) {
+                ResearchObservationChip chip = pools.ActivePickerChips[i];
+                Action handler = panel.PickerClickHandlers != null && i < panel.PickerClickHandlers.Count
+                    ? panel.PickerClickHandlers[i]
+                    : null;
+                if (chip != null && chip.Click != null && handler != null) {
+                    chip.Click.onClick.Deregister(handler);
+                }
+                if (chip != null) {
+                    Pool.TryFree(chip);
+                }
+            }
+            pools.ActivePickerChips.Clear();
+            if (panel.PickerClickHandlers != null) panel.PickerClickHandlers.Clear();
+            if (panel.PickerLabels != null) panel.PickerLabels.Clear();
         }
     }
 }

@@ -135,7 +135,7 @@ namespace SpaceFab.Research {
             if (panel.HeaderLabel != null) {
                 panel.HeaderLabel.text = "FIND A " + MaterialPropertyLabelDisplay.GetPropertyName(page.Label);
             }
-            RenderChips(panel, page, viewModel.ActivePageSatisfiedMask, viewModel.ActivePageLockedMask);
+            RenderChips(panel, page, viewModel.ActivePageLeafSatisfiedMask, viewModel.ActivePageLeafLockedMask);
         }
 
         private static void RenderChips(ResearchHypothesisPanelState panel, HypothesisPage page, uint satisfiedMask, uint lockedMask) {
@@ -162,50 +162,11 @@ namespace SpaceFab.Research {
         // gap.
         private const float ChipGap = 8f;
 
-        // Lays the first `visibleCount` chips out vertically, centered
-        // on the parent transform's local Y=0. Chip 0 sits at the top
-        // (reading order). X/Z are left untouched so the chip prefab's
-        // authored horizontal alignment stays intact. Heights are read
-        // from each RectTransform's rect.height so the layout adapts to
-        // prefab changes without a magic constant.
+        // Delegates to ResearchUILayoutUtility so the picker uses the
+        // same vertical-centered math. Hypothesis panel doesn't resize
+        // its parent, so the returned height is discarded.
         private static void LayoutChips(ResearchObservationChip[] chips, int visibleCount) {
-            if (chips == null || visibleCount <= 0) {
-                return;
-            }
-            if (visibleCount > chips.Length) {
-                visibleCount = chips.Length;
-            }
-
-            // 1. Sum heights to compute the total column height including gaps.
-            float totalHeight = 0f;
-            for (int i = 0; i < visibleCount; i++) {
-                ResearchObservationChip chip = chips[i];
-                if (chip == null) continue;
-                RectTransform rect = chip.transform as RectTransform;
-                totalHeight += rect != null ? rect.rect.height : 0f;
-            }
-            totalHeight += ChipGap * (visibleCount - 1);
-
-            // 2. Walk top-to-bottom starting at +totalHeight/2, placing
-            // each chip's center at cursor - height/2, then advancing
-            // the cursor downward by height + gap.
-            float cursor = totalHeight * 0.5f;
-            for (int i = 0; i < visibleCount; i++) {
-                ResearchObservationChip chip = chips[i];
-                if (chip == null) continue;
-                RectTransform rect = chip.transform as RectTransform;
-                float height = rect != null ? rect.rect.height : 0f;
-                if (rect != null) {
-                    Vector3 pos = rect.anchoredPosition3D;
-                    pos.y = cursor - height * 0.5f;
-                    rect.anchoredPosition3D = pos;
-                } else {
-                    Vector3 pos = chip.transform.localPosition;
-                    pos.y = cursor - height * 0.5f;
-                    chip.transform.localPosition = pos;
-                }
-                cursor -= height + ChipGap;
-            }
+            ResearchUILayoutUtility.LayoutVerticalCentered(chips, visibleCount, ChipGap);
         }
 
         private static void ClearChips(ResearchHypothesisPanelState panel) {

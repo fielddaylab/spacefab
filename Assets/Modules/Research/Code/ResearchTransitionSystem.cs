@@ -25,6 +25,8 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<BatteryChamberState>()
                     .ReadWriteShared<ResearchHypothesisPagesState>()
                     .ReadWriteShared<HypothesisViewModelState>()
+                    .ReadWriteShared<ResearchPools>()
+                    .ReadWrite<ResearchSamplePanel>()
             );
         }
 
@@ -97,6 +99,23 @@ namespace SpaceFab.Research {
                 {
                     batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
                     VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+                }
+            }
+
+            // Load the observation picker chip set for the active
+            // chamber. Available observations are constant per chamber,
+            // so this is a one-shot sync — pool alloc + layout + overlay
+            // resize. Per-chip disabled state is refreshed reactively by
+            // ObservationPickerRefreshSystem. When the station-transition
+            // system lands and the active chamber goes dynamic, this
+            // call moves alongside the SetActiveChamber switch.
+            ResearchPools pools = Find.State<ResearchPools>();
+            if (pools != null)
+            {
+                foreach (var samplePanel in Find.Components<ResearchSamplePanel>())
+                {
+                    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, batteryChamberState.AvailableObservations);
+                    break;
                 }
             }
 

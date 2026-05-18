@@ -27,10 +27,18 @@ namespace SpaceFab.Research {
         [SerializeField] private Color m_LabelFilledColor = Color.black;
         [SerializeField] private Color m_LabelEmptyColor = new Color(0f, 0f, 0f, 0.5f);
 
+        // Generic dashed-outline sprite used for sample-panel slots
+        // that exist (the active hypothesis page has a leaf for them)
+        // but haven't been satisfied yet. Shared across all
+        // ObservationTypes — slot-empty visuals don't carry type info.
+        [SerializeField] private Sprite m_EmptySlotSprite;
+
         private Dictionary<ObservationType, ObservationSpritePair> m_Lookup;
 
         public Color LabelFilledColor => m_LabelFilledColor;
         public Color LabelEmptyColor => m_LabelEmptyColor;
+
+        public Sprite EmptySlotSprite => m_EmptySlotSprite;
 
         public override void Mount() {
             int count = m_ObservationSprites != null ? m_ObservationSprites.Length : 0;
