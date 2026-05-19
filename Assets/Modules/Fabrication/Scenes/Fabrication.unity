@@ -3235,7 +3235,7 @@ MonoBehaviour:
   IonUI: {fileID: 1118988153}
   DropperAnchor: {fileID: 649665540}
   PointDensity: 10
-  FillRadius: 3
+  FillRadius: 0.2
   IonPattern: {fileID: 1277993893}
   Phase: 0
 --- !u!114 &1858924073
