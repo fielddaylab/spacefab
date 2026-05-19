@@ -8,11 +8,90 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using SpaceFab;
+using System.Diagnostics.Tracing;
+using FieldDay.Analytics;
+using System.Linq;
+using SpaceFab.Design;
+
 
 namespace SpaceFab.Logging
 {
     public class Logging : MonoBehaviour
     {
+        public enum ToolID : byte
+        {
+            PTYPE,
+            NTYPE,
+            METAL,
+            CONTACT,
+            GATE
+        }
+
+        public enum Minigame: byte
+        {
+            RESEARCH,
+            DESIGN,
+            SUPPLY_CHAIN,
+            FABRICATION
+        }
+
+        public enum Layer: byte
+        {
+            METAL,
+            TRANSISTOR
+        }
+
+        public struct GridCoordinate
+        {
+            public int X;
+            public int Y;
+            public Layer Layer;
+
+            public GridCoordinate(int x, int y, Layer layer)
+            {
+                X = x;
+                Y = y;
+                Layer = layer;
+            }
+        }
+
+        public struct DesignIO
+        {
+            public List<GridCoordinate> Inputs;
+            public List<GridCoordinate> Outputs;
+        }
+
+        public struct DesignGrid
+        {
+            public List<List<HashSet<ToolID>>> Grid;
+
+            public JsonBuilder ToJson(JsonBuilder json)
+            {
+                /*
+                json.BeginArray();
+                for (int i = 0; i < Grid.Count; i++)
+                {
+                    json.BeginArray();
+                    for (int j = 0; j < Grid[i].Count; j++)
+                    {
+                        json.BeginArray();
+                        foreach (ToolID tool in Grid[i][j])
+                        {
+                            json.Value(tool.ToString());
+                        }
+                        json.EndArray();
+                    }
+                    json.EndArray();
+                }
+                */
+
+                return json;
+            }
+        }
+
+        // public  List<List<HashSet<ToolID>>> DesignGrid;
+
         private const ushort CLIENT_LOG_VERSION = 0;
         private readonly JsonBuilder m_JsonBuilder = new JsonBuilder(Unsafe.KiB * 64); // json allocation capacity
         private OGDLog m_Log;
@@ -23,6 +102,12 @@ namespace SpaceFab.Logging
         [SerializeField, Required] private string m_AppVersion;
         [SerializeField] private FirebaseConsts m_Firebase;
         [SerializeField] private bool m_Testing;
+
+        [NonSerialized] private float m_SecondsFromLaunch;
+        [NonSerialized] private string m_CurrentContract;
+        [NonSerialized] private Minigame? m_CurrentMinigame;
+        [NonSerialized] private Dictionary<string, int> m_ContractLevels;
+        [NonSerialized] private DesignGrid? m_DesignGrid;
 
         #endregion //Inspector
 
@@ -40,6 +125,37 @@ namespace SpaceFab.Logging
             m_JsonBuilder.Clear();
 
             // TODO
+            m_JsonBuilder.Begin()
+                .Field("seconds_from_launch", m_SecondsFromLaunch)
+                .Field("current_contract", m_CurrentContract);
+
+            if (m_CurrentMinigame.HasValue)
+            {
+                m_JsonBuilder.Field("current_minigame", m_CurrentMinigame.Value.ToString());
+            }
+            else
+            {
+                m_JsonBuilder.Field("current_minigame", (string) null);
+            }
+            
+            m_JsonBuilder.BeginObject("contract_levels");
+            foreach (var kvp in m_ContractLevels)
+            {
+                m_JsonBuilder.Field(kvp.Key, kvp.Value);
+            }
+            m_JsonBuilder.EndObject();
+
+            if (m_DesignGrid.HasValue)
+            {
+                m_JsonBuilder.BeginArray("design_grid");
+                m_DesignGrid.Value.ToJson(m_JsonBuilder);
+                m_JsonBuilder.EndArray();
+            }
+            else
+            {
+                m_JsonBuilder.Field("design_grid", (string) null);
+            }
+            
 
             m_Log.GameState(m_JsonBuilder.End());
         }
@@ -110,6 +226,8 @@ namespace SpaceFab.Logging
 
         #region Logging Variables
 
+        [NonSerialized] private string m_CurrentContractId;
+
         #endregion // Logging Variables
 
         #region State Handlers
@@ -117,6 +235,311 @@ namespace SpaceFab.Logging
         #endregion // State Handlers
 
         #region Logging
+
+        private void LogSessionStart()
+        {
+            m_Log.NewEvent("session_start");
+        }
+
+        private void LogGameStart(bool fromResume)
+        {
+            using (var e = m_Log.NewEvent("game_start")) {
+            e.Param("from_resume", fromResume);
+    }
+        }
+
+        private void LogClickNewGame()
+        {
+            m_Log.NewEvent("click_new_game");
+        }
+
+        private void LogClickResumeGame()
+        {
+            m_Log.NewEvent("click_resume_game");
+        }
+
+        private void LogAcceptContract(string contractId, Dictionary<string, int> contractLevels)
+        {
+            m_CurrentContractId = contractId;
+            m_ContractLevels = contractLevels;
+            SubmitGameState();
+
+            m_JsonBuilder.Begin();
+            foreach (var kvp in contractLevels)
+            {
+                m_JsonBuilder.Field(kvp.Key, kvp.Value);
+            }
+            string levelsJson = m_JsonBuilder.End().ToString();
+
+            using (var e = m_Log.NewEvent("accept_contract"))
+            {
+                e.Param("contract_id", contractId);
+                e.Param("contract_levels", levelsJson);
+            }
+        }
+
+        private void LogOpenContractView(string contractName)
+        {
+            using (var e = m_Log.NewEvent("open_contract_view"))
+            {
+                e.Param("contract_name", contractName);
+            }
+        }
+
+        private void LogStartChangeContract(string contractId)
+        {
+            using (var e = m_Log.NewEvent("start_change_contract"))
+            {
+                e.Param("contract_id", contractId);
+            }
+        }
+
+        private void LogConfirmChangeContract(string contractId)
+        {
+            m_CurrentContractId = contractId;
+            SubmitGameState();
+
+            using (var e = m_Log.NewEvent("confirm_change_contract"))
+            {
+                e.Param("contract_id", contractId);
+            }
+        }
+
+        private void LogCancelChangeContract(string contractId)
+        {
+            using (var e = m_Log.NewEvent("cancel_change_contract"))
+            {
+                e.Param("contract_id", contractId);
+            }
+        }
+
+        private void LogShipMenuDisplayed()
+        {
+            m_Log.NewEvent("ship_menu_displayed");
+        }
+
+        private void LogSelectResearch()
+        {
+            m_Log.NewEvent("select_research");
+        }
+
+        private void LogSelectDesign()
+        {
+            m_Log.NewEvent("select_design");
+        }
+
+        private void LogSelectSupplyChain()
+        {
+            m_Log.NewEvent("select_supply_chain");
+        }
+
+        private void LogSelectFabrication()
+        {
+            m_Log.NewEvent("select_fabrication");
+        }
+
+        private void LogStartResearch()
+        {
+            m_CurrentMinigame = Minigame.RESEARCH;
+            SubmitGameState();
+
+            m_Log.NewEvent("start_research");
+        }
+
+        private void LogStartDesign()
+        {
+            m_CurrentMinigame = Minigame.DESIGN;
+            SubmitGameState();
+
+            m_Log.NewEvent("start_design");
+        }
+
+        private void LogStartSupplyChain()
+        {
+            m_CurrentMinigame = Minigame.SUPPLY_CHAIN;
+            SubmitGameState();
+
+            m_Log.NewEvent("start_supply_chain");
+        }
+
+        private void LogStartFabrication()
+        {
+            m_CurrentMinigame = Minigame.FABRICATION;
+            SubmitGameState();
+
+            m_Log.NewEvent("start_fabrication");
+        }
+
+        private void LogLevelMenuDisplayed()
+        {
+            m_Log.NewEvent("level_menu_displayed");
+        }
+
+        private void LogSelectLevel(string levelId)
+        {
+            using (var e = m_Log.NewEvent("select_level"))
+            {
+                e.Param("level_id", levelId);
+            }
+        }
+
+        private void LogDesignLevelBegin(
+            DesignGrid InitialGridState,
+            List<GridCoordinate> inputs,
+            List<GridCoordinate> outputs
+            )
+        {
+            m_DesignGrid = new DesignGrid() { Grid = InitialGridState.Grid };
+            SubmitGameState();
+
+            m_JsonBuilder.Begin();
+            InitialGridState.ToJson(m_JsonBuilder);
+            string gridJson = m_JsonBuilder.End().ToString();
+
+            m_JsonBuilder.Begin();
+            m_JsonBuilder.BeginArray("inputs");
+            foreach (var input in inputs)
+            {
+                m_JsonBuilder.BeginObject()
+                    .Field("x", input.X)
+                    .Field("y", input.Y)
+                    .Field("layer", input.Layer.ToString())
+                    .EndObject();
+            }
+            m_JsonBuilder.EndArray();
+            string inputsJson = m_JsonBuilder.End().ToString();
+
+            m_JsonBuilder.Begin();
+            m_JsonBuilder.BeginArray("outputs");
+            foreach (var output in outputs){
+                m_JsonBuilder.BeginObject()
+                    .Field("x", output.X)
+                    .Field("y", output.Y)
+                    .Field("layer", output.Layer.ToString())
+                    .EndObject();
+            }
+            m_JsonBuilder.EndArray();
+            string outputsJson = m_JsonBuilder.End().ToString();
+
+            using(var e = m_Log.NewEvent("design_level_begin"))
+            {
+                e.Param("initial_grid_state", gridJson);
+                e.Param("inputs", inputsJson);
+                e.Param("outputs", outputsJson);
+            }
+        }
+
+        private void LogSelectTool(ToolID toolId)
+        {
+            using (var e = m_Log.NewEvent("select_tool"))
+            {
+                e.Param("tool_id", toolId.ToString());
+            }
+        }
+
+        private void LogFillGrid(ToolID toolId, GridCoordinate coordinate)
+        {
+            // TODO
+        }
+
+        private void LogSubmitDesign(List<GridCoordinate> inputs, List<GridCoordinate> outputs) // ? inputs outputs type
+        {
+            // TODO
+        }
+
+        private void LogSubmissionSucceeded(string message)
+        {
+            using (var e = m_Log.NewEvent("submission_succeeded"))
+            {
+                e.Param("message", message);
+            }
+        }
+
+        private void LogSubmissionFailed(string message)
+        {
+            using (var e = m_Log.NewEvent("submission_failed"))
+            {
+                e.Param("message", message);
+            }
+        }
+
+        private void LogExitDesign()
+        {
+            m_CurrentMinigame = null;
+            m_DesignGrid = null;
+            SubmitGameState();
+
+            m_Log.NewEvent("exit_design");
+        }
+
+        private void LogGenerateWafer()
+        {
+            m_Log.NewEvent("generate_wafer");
+        }
+
+        private void LogTimerStart()
+        {
+            m_Log.NewEvent("timer_start");
+        }
+
+        private void LogInstructionUpdated(string nextStation, bool isHidden)
+        {
+            // TODO
+
+            using (var e = m_Log.NewEvent("instruction_updated"))
+            {
+                e.Param("next_station", nextStation);
+                e.Param("is_hidden", isHidden);
+            }
+        }
+
+        private void LogActivateStation(string stationId)
+        {
+            using (var e = m_Log.NewEvent("activate_station"))
+            {
+                e.Param("station_id", stationId);
+            }
+        }
+
+        private void LogInvalidActivation(string stationId, string nextStation)
+        {
+            using (var e = m_Log.NewEvent("invalid_activation"))
+            {
+                e.Param("station_id", stationId);
+                e.Param("reason", nextStation);
+            }
+        }
+
+        private void LogStationComplete(string stationId, float accuracy, bool isAutomated)
+        {
+            using (var e = m_Log.NewEvent("station_complete"))
+            {
+                e.Param("station_id", stationId);
+                e.Param("accuracy", accuracy);
+                e.Param("is_automated", isAutomated);
+            }
+        }
+
+        private void LogFabricationComplete()
+        {
+            m_CurrentMinigame = null;
+            SubmitGameState();
+
+            m_Log.NewEvent("fabrication_complete");
+        }
+
+        private void LogUseAutomation(string stationId)
+        {
+            using (var e = m_Log.NewEvent("use_automation"))
+            {
+                e.Param("station_id", stationId);
+            }
+        }
+
+        private void LogFabricationSuccess(float accuracy, float time, int production_cycles)
+        {
+            // TODO
+        }
 
         #endregion // Logging
     }
