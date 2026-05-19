@@ -61,6 +61,21 @@ namespace SpaceFab.Research {
             }
 
             HypothesisPage page = pagesState.Pages[pageIndex];
+
+            // Pre-validate every non-locked pick against (a) the
+            // hypothesis page's leaves and (b) the slotted material's
+            // ground-truth Properties array. Any pick that fails either
+            // check gets pruned now; the hypothesis is rejected (no
+            // confirm) if any pruning happens. This keeps Silicon +
+            // Conductive from confirming "Conductor" just because the
+            // observation evaluator's logic is satisfied — Conductive
+            // simply isn't true for Silicon.
+            bool anyPruned = PruneIncorrectPicks(researchState, slotted, page, viewModelState);
+            if (anyPruned) {
+                HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                return;
+            }
+
             if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, slotted.AssetId, page.Label, page.Context)) {
                 // A new property bit flipped (or the property was already
                 // confirmed and the call was idempotent). Either way the
@@ -68,25 +83,23 @@ namespace SpaceFab.Research {
                 // record state — request a rebuild so the visual updates
                 // next LateUpdate.
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
-            } else {
-                // Verification failed. Strip any slot whose (label,
-                // context) doesn't match a leaf on this page — the
-                // player picked the wrong observations. Locked slots
-                // are ancestor-confirmed (not in researchState.Observations)
-                // and can't be removed; they remain regardless.
-                if (PruneIncorrectPicks(researchState, slotted.AssetId, page, viewModelState)) {
-                    HypothesisViewModelUtility.RequestRebuild(viewModelState);
-                }
             }
         }
 
-        // For each non-locked slot whose (label, context) isn't a leaf
-        // of `page`, remove it from researchState.Observations. Returns
-        // true if any removal happened.
-        private static bool PruneIncorrectPicks(ResearchMinigameState researchState, StringHash32 materialId, HypothesisPage page, HypothesisViewModelState viewModelState) {
+        // For each non-locked slot, prune it if the (label, context) is
+        // either not on the active page's leaves OR not actually true
+        // for the slotted material. "Actually true" means the
+        // observation appears in the decomposition of some persistent
+        // property in MaterialAsset.Properties — see
+        // MaterialPropertyDefinitionUtility.IsObservationTrueForProperties.
+        // Returns true if any removal happened. Locked slots are
+        // ancestor-confirmed (not in researchState.Observations) and
+        // can't be removed; they remain regardless.
+        private static bool PruneIncorrectPicks(ResearchMinigameState researchState, MaterialAsset material, HypothesisPage page, HypothesisViewModelState viewModelState) {
             int slotCount = viewModelState.ActivePageSlotCount;
             MaterialObservationEntry[] leaves = page.DecomposedObservations;
             int leafCount = leaves != null ? leaves.Length : 0;
+            MaterialPropertyLabel[] trueProperties = material.Properties;
             bool anyRemoved = false;
 
             for (int i = 0; i < slotCount; i++) {
@@ -95,9 +108,12 @@ namespace SpaceFab.Research {
 
                 MaterialPropertyLabel slotLabel = viewModelState.ActivePageSlotLabels[i];
                 StringHash32 slotContext = viewModelState.ActivePageSlotContexts[i];
-                if (LeafMatches(leaves, leafCount, slotLabel, slotContext)) continue;
 
-                if (ResearchInventoryUtility.RemoveObservation(researchState, materialId, slotLabel, slotContext)) {
+                bool onLeaf = LeafMatches(leaves, leafCount, slotLabel, slotContext);
+                bool materialHasIt = MaterialPropertyDefinitionUtility.IsObservationTrueForProperties(trueProperties, slotLabel, slotContext);
+                if (onLeaf && materialHasIt) continue;
+
+                if (ResearchInventoryUtility.RemoveObservation(researchState, material.AssetId, slotLabel, slotContext)) {
                     anyRemoved = true;
                 }
             }

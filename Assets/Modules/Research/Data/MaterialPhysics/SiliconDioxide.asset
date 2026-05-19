@@ -9,11 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3fa937c2c803464d8f0eaff2033531d, type: 3}
+  m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
   m_Name: SiliconDioxide
   m_EditorClassIdentifier: 
-  DisplayName: Silicon Dioxide
-  ShortName: Si02
-  ValenceElectronCounts: 0400000002000000
-  AtomicRadii: 6f0000003c000000
-  Properties: 0f10
+  MaterialId:
+    m_Source: SiliconDioxide
+    m_HashValue: 1571298950
+  ConductionMultiplier: 0
+  ThermalMultiplier: 2
+  MaxTemperature: 0.6
+  MaxVoltage: 0.6
+  IsHighMobility: 0
+  IsLightEmitting: 0

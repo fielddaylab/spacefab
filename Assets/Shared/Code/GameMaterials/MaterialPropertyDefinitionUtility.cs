@@ -249,6 +249,55 @@ namespace SpaceFab.Materials
             }
         }
 
+        /// <summary>
+        /// True iff the given observation (label, context) appears as a
+        /// leaf in the decomposition of any persistent property in
+        /// `materialProperties` (the MaterialAsset.Properties array).
+        /// Used as the "is this observation actually true for this
+        /// material?" ground-truth check — distinct from the evaluator,
+        /// which only asks whether the player *claimed* the observation.
+        ///
+        /// Walks every registered definition for each property
+        /// (alternate satisfaction paths) so the check accepts any
+        /// observation that supports any valid way to confirm any
+        /// property the material has.
+        /// </summary>
+        public static bool IsObservationTrueForProperties(
+            MaterialPropertyLabel[] materialProperties,
+            MaterialPropertyLabel observationLabel,
+            StringHash32 observationContext)
+        {
+            if (materialProperties == null || materialProperties.Length == 0) return false;
+
+            MaterialPropertyDefinitionAsset registry = Find.GlobalAsset<MaterialPropertyDefinitionAsset>();
+            if (registry == null) return false;
+
+            // Reuse a single scratch list across each property so a
+            // material with N authored properties stays O(total leaves)
+            // and doesn't allocate per property.
+            List<MaterialObservationEntry> scratch = new List<MaterialObservationEntry>(8);
+            for (int i = 0; i < materialProperties.Length; i++) {
+                MaterialPropertyLabel prop = materialProperties[i];
+                if (!MaterialPropertyLabelUtility.IsPersistent(prop)) continue;
+
+                MaterialPropertyDefinition[] defs = registry.GetDefinitions(prop);
+                for (int d = 0; d < defs.Length; d++) {
+                    scratch.Clear();
+                    // inheritedContext: Null at the top — material
+                    // properties don't carry per-material context here
+                    // (dynamic properties like PDopantFor would, but
+                    // those aren't part of the Battery scope today).
+                    DecomposeToObservations(defs[d], StringHash32.Null, scratch);
+                    for (int s = 0; s < scratch.Count; s++) {
+                        if (scratch[s].Label == observationLabel && scratch[s].Context == observationContext) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         // Continues the decomposition under an established outermost ancestor.
         // Nested sub-property descents reuse the same ancestor — only the
         // outermost matters for auto-population.

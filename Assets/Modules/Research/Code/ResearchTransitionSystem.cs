@@ -48,7 +48,9 @@ namespace SpaceFab.Research {
 
             researchState.AvailableMaterials.Clear();
             if (chapterState.CurrChapterDef != null) {
+                StringHash32[] excluded = chapterState.CurrChapterDef.ExcludeFromResearch();
                 foreach (var id in chapterState.CurrChapterDef.AvailableMaterials()) {
+                    if (IsExcluded(excluded, id)) continue;
                     researchState.AvailableMaterials.Add(id);
                 }
             }
@@ -128,6 +130,17 @@ namespace SpaceFab.Research {
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
+        }
+
+        // Linear membership check against ChapterDef.ExcludeFromResearch.
+        // The list is small (handful of ids per chapter) so a hash-set
+        // build is not worth the allocation.
+        private static bool IsExcluded(StringHash32[] excluded, StringHash32 id) {
+            if (excluded == null) return false;
+            for (int i = 0; i < excluded.Length; i++) {
+                if (excluded[i] == id) return true;
+            }
+            return false;
         }
     }
 }
