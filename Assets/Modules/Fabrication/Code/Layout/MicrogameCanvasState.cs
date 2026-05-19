@@ -86,7 +86,11 @@ namespace SpaceFab.Fabrication.Layout
             InstructionsGroup.alpha = 0f;
             InstructionsGroup.blocksRaycasts = false;
 
-            // setting the canvas shouldn't be necessary as it gets updated on ShowUI, but maybe change?
+            m_SpaceImage.SetActive(false);
+            m_LRArrowImage.SetActive(false);
+            m_FullArrowImage.SetActive(false);
+            m_MouseImage.SetActive(false);
+            m_ADArrowImage.SetActive(false);
         }
     }
 }
