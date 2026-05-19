@@ -2,41 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IonPatternData : MonoBehaviour
+namespace SpaceFab.Fabrication.Microgames
 {
-    public IonFillRenderer[] IonFillRenderers;
-
-    private int m_TotalPoints, m_FilledPoints;
-
-    public bool CompletelyFilled => m_TotalPoints == m_FilledPoints;
-
-    public void SetupRenderers(float density, float fillRadius)
+    public class IonPatternData : MonoBehaviour
     {
-        foreach (var i in IonFillRenderers)
-        {
-            m_TotalPoints += i.Setup(density, fillRadius);
-            i.IsRendering = true;
-        }
-    }
+        public IonFillRenderer[] IonFillRenderers;
 
-    public void ProcessWork()
-    {
-        m_FilledPoints = 0;
-        
-        foreach (var i in IonFillRenderers)
+        private int m_TotalPoints, m_FilledPoints;
+
+        public bool CompletelyFilled => m_TotalPoints == m_FilledPoints;
+
+        public void SetupRenderers(float density, float fillRadius)
         {
-            m_FilledPoints += i.ProcessWork();
+            foreach (var i in IonFillRenderers)
+            {
+                m_TotalPoints += i.Setup(density, fillRadius);
+                i.IsRendering = true;
+            }
         }
 
-        Debug.Log("Total points:" + m_TotalPoints + "Filled points: " + m_FilledPoints);
-    }
-
-    // decouple from process work as this must be called during exit
-    public void PerformRendering()
-    {
-        foreach (var i in IonFillRenderers)
+        public void ProcessWork()
         {
-            i.PerformRendering();
+            m_FilledPoints = 0;
+            
+            foreach (var i in IonFillRenderers)
+            {
+                m_FilledPoints += i.ProcessWork();
+            }
+
+            Debug.Log("Total points:" + m_TotalPoints + "Filled points: " + m_FilledPoints);
+        }
+
+        // decouple from process work as this must be called during exit
+        public void PerformRendering()
+        {
+            foreach (var i in IonFillRenderers)
+            {
+                i.PerformRendering();
+            }
         }
     }
 }
