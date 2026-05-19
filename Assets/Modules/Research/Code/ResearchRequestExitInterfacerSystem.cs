@@ -31,6 +31,13 @@ namespace SpaceFab.Research {
                 out PlayerProgressState playerProgress
                 );
 
+            // The Requested → Confirmed transition and the Confirmed-
+            // branch handling MUST both run in the same frame: the
+            // shared MinigameRequestExitSystem (Update order 10)
+            // consumes Confirmed and flips state to None in the same
+            // frame Requested was raised. If these were else-if'd,
+            // we'd miss the Confirmed branch entirely and
+            // CommitToPlayerProgress would never run.
             if (requestExitState.ExitRequestState == RequestState.Requested) {
                 /*
                 researchInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.ShowExitConfirmationModal(researchInterfacerState.ExitConfirmationModal));
@@ -39,7 +46,7 @@ namespace SpaceFab.Research {
                 */
                 requestExitState.ExitRequestState = RequestState.Confirmed;
             }
-            else if (requestExitState.ExitRequestState == RequestState.Confirmed) {
+            if (requestExitState.ExitRequestState == RequestState.Confirmed) {
                 ResearchStateUtility.CommitToPlayerProgress(researchState, playerProgress);
 
                 researchInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.HideExitConfirmationModal(researchInterfacerState.ExitConfirmationModal));

@@ -23,6 +23,7 @@ namespace SpaceFab.Research {
                     .ReadShared<ResearchHypothesisPagesState>()
                     .ReadShared<HypothesisViewModelState>()
                     .ReadShared<BatteryChamberState>()
+                    .ReadShared<ResearchMinigameState>()
                     .ReadWrite<ResearchSamplePanel>()
             );
         }
@@ -34,9 +35,10 @@ namespace SpaceFab.Research {
                 out HypothesisViewModelState hypoVm,
                 out BatteryChamberState battery
             );
+            ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
-                SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, battery);
+                SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, battery, researchState);
             }
         }
     }
@@ -56,7 +58,8 @@ namespace SpaceFab.Research {
             ChamberInterfacerState interfacerState,
             ResearchHypothesisPagesState pagesState,
             HypothesisViewModelState hypoVm,
-            BatteryChamberState battery
+            BatteryChamberState battery,
+            ResearchMinigameState researchState
         ) {
             if (panel == null || interfacerState == null || pagesState == null || hypoVm == null) {
                 return;
@@ -107,9 +110,19 @@ namespace SpaceFab.Research {
 
             // 2. Sample header — derived from the slotted material's view.
             if (panel.SampleHeader != null) {
-                ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(slottedMaterial.AssetId);
-                int sampleNumber = view != null ? view.SampleNumber : 0;
-                panel.SampleHeader.text = "SAMPLE " + sampleNumber.ToString();
+                // Known materials (any property confirmed in the sandbox)
+                // show their ShortName; unknown materials show their
+                // sample number prefixed with "SAMPLE ".
+                bool known = researchState != null
+                    && researchState.SandboxProperties.TryGetValue(slottedMaterial.AssetId, out var record)
+                    && !MaterialPropertyRecordUtility.IsEmpty(record);
+                if (known) {
+                    panel.SampleHeader.text = slottedMaterial.ShortName;
+                } else {
+                    ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(slottedMaterial.AssetId);
+                    int sampleNumber = view != null ? view.SampleNumber : 0;
+                    panel.SampleHeader.text = "SAMPLE " + sampleNumber.ToString();
+                }
             }
 
             // 3. Slot chips render the viewmodel's slot view (auto-

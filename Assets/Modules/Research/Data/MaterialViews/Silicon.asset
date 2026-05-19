@@ -15,8 +15,9 @@ MonoBehaviour:
   MaterialId:
     m_Source: Silicon
     m_HashValue: 1163381446
-  SingleAtomSprite: {fileID: 21300000, guid: b8f3b3ad74400d340a1ac2817b8421de, type: 3}
+  SingleAtomSprite: {fileID: 21300000, guid: c09ba6faf804e9a45a0fe5affeb74db0, type: 3}
   MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
   GemColor: {r: 1, g: 1, b: 1, a: 1}
   GemScale: 1
   IsMultiAtom: 0
+  SampleNumber: 0

@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using SpaceFab.Save;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,6 +40,14 @@ namespace SpaceFab.Research
         // the observation is being made about (the dynamic context material,
         // when relevant, lives inside each observation entry).
         [HideInInspector] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
+
+        // Set for one frame after ResearchPropertyConfirmBridge writes a
+        // newly-confirmed property into SandboxProperties. Drives the
+        // tray-rig label refresh so a material whose first property was
+        // just confirmed flips from sample-number to ShortName the same
+        // frame. Cleared by ResearchMinigameStateRefreshSystem at end
+        // of frame.
+        [NonSerialized] public bool PropertyConfirmedThisFrame;
 
         #endregion // Runtime State
 

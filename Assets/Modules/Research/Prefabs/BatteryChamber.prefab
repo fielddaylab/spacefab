@@ -141,8 +141,8 @@ MonoBehaviour:
   - {fileID: -1484974630440746749, guid: 5e4fc4527cd008b429e293ce85ca630e, type: 3}
   - {fileID: -3813807012547726159, guid: 5e4fc4527cd008b429e293ce85ca630e, type: 3}
   Bulb: {fileID: 8551773372432589053}
-  BulbOffSprite: {fileID: -928199606015216653, guid: 93683f8213600be419c4b34010eeab88, type: 3}
-  BulbOnSprite: {fileID: 2574863000967551387, guid: 93683f8213600be419c4b34010eeab88, type: 3}
+  BulbOffSprite: {fileID: 21300000, guid: 53112fc6237083b4183efe14f3f1b2b9, type: 3}
+  BulbOnSprite: {fileID: 21300000, guid: 8928533cb5a8aad4b900c54caa769552, type: 3}
   BulbShines: []
   AnimSpeedMultiplier: 11
 --- !u!1 &2264733710519542096
@@ -1164,12 +1164,12 @@ SpriteRenderer:
   m_SortingLayerID: -2133937865
   m_SortingLayer: 12
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: 19456d0a4fd16d74cae32c82fbe41ea3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 53112fc6237083b4183efe14f3f1b2b9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.07, y: 2.37}
+  m_Size: {x: 1.86, y: 2.13}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1211,8 +1211,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.24, y: 1.42}
-    newSize: {x: 2.07, y: 2.37}
+    oldSize: {x: 1.86, y: 2.13}
+    newSize: {x: 1.86, y: 2.13}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0

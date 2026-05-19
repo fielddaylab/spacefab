@@ -65,7 +65,10 @@ namespace SpaceFab.Research {
                 if (material == null) {
                     ResearchMaterialVisualRigUtility.ClearRig(slot.Rig);
                 } else {
-                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material);
+                    // The slot rig's label is hidden in the chamber
+                    // prefab — pass null for researchState since the
+                    // known/unknown distinction only affects the label.
+                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material, null);
                 }
             }
 
