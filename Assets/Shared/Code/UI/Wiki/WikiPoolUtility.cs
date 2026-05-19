@@ -33,9 +33,6 @@ namespace SpaceFab.UI {
                 if (tabButton == null) { continue; }
                     tabButton.TabIndex = tabIndex;
                     tabButton.PageIndex = -1;
-                    if (tabButton.DynamicButton == null) {
-                        Debug.LogWarning($"WikiPool: TabButton instance '{tabButton.gameObject.name}' has no DynamicButton assigned.");
-                    }
             }
 
             // Spawn one thumb per (tab, page) pair across every authored tab. Thumbs for the
@@ -49,9 +46,6 @@ namespace SpaceFab.UI {
                     if (thumb == null) { continue; }
                         thumb.TabIndex = tabIndex;
                         thumb.PageIndex = pageIndex;
-                        if (thumb.DynamicButton == null) {
-                            Debug.LogWarning($"WikiPool: PageThumb instance '{thumb.gameObject.name}' (tab={tabIndex}, page={pageIndex}) has no DynamicButton assigned.");
-                        }
                 }
             }
         }
@@ -61,7 +55,6 @@ namespace SpaceFab.UI {
         // activeList. Returns null if prefab is missing (logged for authoring-error visibility).
         private static WikiButton Acquire(WikiButton prefab, List<WikiButton> activeList, List<WikiButton> freeList, RectTransform activeParent) {
             if (prefab == null) {
-                Debug.LogError("[WikiPoolUtility] Acquire called with null prefab — prefab ref not wired on WikiPools.");
                 return null;
             }
 
@@ -89,7 +82,6 @@ namespace SpaceFab.UI {
                 if (instance == null) { continue; }
                 instance.transform.SetParent(freeParent, false);
                 instance.gameObject.SetActive(false);
-                Debug.Log($"{instance.name} is set to false and moved to free list");
                 freeList.Add(instance);
             }
             activeList.Clear();

@@ -26,8 +26,8 @@ MonoBehaviour:
     EmptyChip: {fileID: 21300000, guid: 1a192e4a973ffdb4a977503dcc09dd65, type: 3}
     FilledChip: {fileID: 21300000, guid: e8c495b22bc7f324fb5f1316eb315e9d, type: 3}
   - ObservationType: 4
-    EmptyChip: {fileID: 0}
-    FilledChip: {fileID: 0}
+    EmptyChip: {fileID: 21300000, guid: a4dab091e77253840a40df3b942c3c7d, type: 3}
+    FilledChip: {fileID: 21300000, guid: 2403d6f44a05f8b4bb2facdcfb5fb2d7, type: 3}
   m_LabelFilledColor: {r: 0, g: 0, b: 0, a: 1}
   m_LabelEmptyColor: {r: 1, g: 1, b: 1, a: 1}
   m_EmptySlotSprite: {fileID: 21300000, guid: a3e760bc496504e48bf083cd7aa934b9, type: 3}

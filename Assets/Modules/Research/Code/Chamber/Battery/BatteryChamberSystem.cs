@@ -83,7 +83,6 @@ namespace SpaceFab.Research
             MaterialPhysicsProfile profile = Find.NamedAsset<MaterialPhysicsProfile>(material.AssetId);
             if (profile == null)
             {
-                Debug.LogWarningFormat("[BatteryChamberSystem] No MaterialPhysicsProfile registered for material '{0}'; treating as insulator.", material.name);
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
                 CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
                 return;

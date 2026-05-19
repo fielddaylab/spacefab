@@ -79,6 +79,10 @@ namespace SpaceFab.UI {
                 wikiState.OpenRequestedThisFrame = false;
                 if (!wikiState.Expanded && !wikiState.Transitioning) {
                     wikiState.TransitionRoutine.Replace(WikiUtility.ExpandRoutine(wikiState));
+                    // Treat opening as a page-change so one-shot view
+                    // loads (e.g., material-characteristics chip list)
+                    // rebuild against fresh state on open.
+                    wikiState.ActivePageChangedThisFrame = true;
                 }
             }
 

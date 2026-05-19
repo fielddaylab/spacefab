@@ -1,6 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
 using FieldDay.SharedState;
+using SpaceFab.Research;
 using UnityEngine.UI;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -106,15 +107,12 @@ namespace SpaceFab.UI {
             for (int i = 0; i < pools.TabActive.Count; i++) {
                 WikiButton tab = pools.TabActive[i];
                 var tabContent = tab.transform.Find("Tab Content");
-                Debug.Log($"[{tab.name}] TabIndex={tab.TabIndex}, tabContent={(tabContent == null ? "NULL" : tabContent.name)}");
 
                 if (tabContent != null) {
                     var icon = tabContent.GetComponent<Image>();
-                    Debug.Log($"WikiVisualsUpdateSystem: processing tab button '{tab.gameObject.name}' (TabIndex={tab.TabIndex}) {icon}");
                     
                     if (icon != null && content.Tabs != null && tab.TabIndex >= 0 && tab.TabIndex < content.Tabs.Length) {
                         icon.sprite = content.Tabs[tab.TabIndex].Icon;
-                        Debug.Log($"WikiVisualsUpdateSystem: set tab icon sprite to {icon.sprite}");
                         icon.color = Color.white;
                     }
                 }
@@ -145,18 +143,44 @@ namespace SpaceFab.UI {
             if (layoutState.PageContentWidgets != null && activePage != null)
             {
                 var widgets = layoutState.PageContentWidgets;
+                bool materialPage = activePage.IsMaterialPage;
 
+                // Title always renders.
                 if (widgets.TitleText != null) {
                     widgets.TitleText.text = activePage.Title ?? " ";
                 }
 
-                if (widgets.BodyText != null) {
+                // Body wrapper visible only on default pages.
+                if (widgets.DefaultGroup != null) {
+                    widgets.DefaultGroup.SetActive(!materialPage);
+                }
+                if (!materialPage && widgets.BodyText != null) {
                     widgets.BodyText.text = activePage.Body ?? " ";
                 }
 
+                // Characteristics group visible only on material pages.
+                // Chip allocation is owned by
+                // WikiCharacteristicsRefreshSystem, which runs at
+                // PreUpdate 5 (before this system at PreUpdate 10).
+                if (widgets.MaterialCharacteristicsGroup != null) {
+                    widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
+                }
+
+                // Illustration source depends on page kind. Default
+                // pages use the authored sprite; material pages pull
+                // from the material's ResearchMaterialView.
                 if (widgets.IllustrationImage != null) {
-                    bool hasIllustration = activePage.Illustration != null;
-                    widgets.IllustrationImage.sprite = hasIllustration ? activePage.Illustration : null;
+                    Sprite illustration = null;
+                    if (materialPage) {
+                        ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(activePage.MaterialId);
+                        if (view != null) {
+                            illustration = view.IsMultiAtom ? view.MultiAtomSprite : view.SingleAtomSprite;
+                        }
+                    } else {
+                        illustration = activePage.Illustration;
+                    }
+                    bool hasIllustration = illustration != null;
+                    widgets.IllustrationImage.sprite = hasIllustration ? illustration : null;
                     widgets.IllustrationImage.gameObject.SetActive(hasIllustration);
                 }
             }
@@ -185,7 +209,20 @@ namespace SpaceFab.UI {
                 if (thumb.DynamicButton == null) { continue; }
 
                 thumb.DynamicButton.interactable = true; // isLocked ? false : true;
-                thumb.DynamicButton.image.sprite = activeTab.Pages[thumb.PageIndex].Icon;
+                // Material pages pull their thumbnail from the
+                // ResearchMaterialView (same single/multi-atom
+                // selection as the page illustration), not from
+                // WikiPageData.Icon. Default pages keep using the
+                // authored icon.
+                WikiPageData thumbPage = activeTab.Pages[thumb.PageIndex];
+                Sprite thumbSprite = thumbPage != null ? thumbPage.Icon : null;
+                if (thumbPage != null && thumbPage.IsMaterialPage) {
+                    ResearchMaterialView thumbView = Find.NamedAsset<ResearchMaterialView>(thumbPage.MaterialId);
+                    if (thumbView != null) {
+                        thumbSprite = thumbView.IsMultiAtom ? thumbView.MultiAtomSprite : thumbView.SingleAtomSprite;
+                    }
+                }
+                thumb.DynamicButton.image.sprite = thumbSprite;
                 thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
                     Color.magenta : // highlight active page thumb in yellow for testing
                     Color.cyan;

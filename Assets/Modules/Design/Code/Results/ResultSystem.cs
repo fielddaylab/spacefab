@@ -40,7 +40,6 @@ namespace SpaceFab.Design
             // Rising edge only: panel just became visible this frame.
             if (isVisible && !s_wasVisible)
             {
-                Debug.Log($"ResultSystem: Detected rising edge of ResultsPanelVisible; processing show request.");
                 bool allCorrect = ResultStateUtility.IsAllCorrect(runState);
                 ResultStateUtility.ShowResults(resultState, allCorrect);
             }

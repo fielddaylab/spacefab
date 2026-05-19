@@ -47,8 +47,15 @@ namespace SpaceFab.UI {
         // Expand/collapse routine handle. Owned here so WikiUtility can Replace() it without
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
-        
+
         [HideInInspector] public bool NeedsRebuild;
+
+        // Set for one frame whenever the active page (tab/page index)
+        // just changed, or the wiki just expanded onto a page. Drives
+        // one-shot view loads (WikiCharacteristicsLoadUtility) so they
+        // rebuild only when the page actually changes. Cleared by
+        // WikiRefreshSystem at end-of-frame.
+        [HideInInspector] public bool ActivePageChangedThisFrame;
 
         public void OnRegister() {
             Expanded = false;
@@ -120,6 +127,7 @@ namespace SpaceFab.UI {
             wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
             wikiState.PageWindowStartIndex = 0;
             wikiState.NeedsRebuild = true;
+            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // ID-based variant — resolves tabId → index via WikiContent.Tabs. Drops the request
@@ -155,6 +163,7 @@ namespace SpaceFab.UI {
             }
 
             wikiState.NeedsRebuild = true;
+            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // ID-based variant. Drops the request if the ID doesn't match a page in the active tab.
@@ -168,6 +177,7 @@ namespace SpaceFab.UI {
                     if (IsPageUnlocked(progressState, pageId)) {
                         wikiState.ActivePageIndex = i;
                         EnsureWindowContains(wikiState, content, tab, progressState);
+                        wikiState.ActivePageChangedThisFrame = true;
                     }
                     return;
                 }
@@ -271,6 +281,7 @@ namespace SpaceFab.UI {
             if (resolved >= 0) {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
+                wikiState.ActivePageChangedThisFrame = true;
             }
         }
 
@@ -357,7 +368,6 @@ namespace SpaceFab.UI {
             int maxStart = Mathf.Max(0, unlockedCount - windowSize);
             start = Mathf.Clamp(start, 0, maxStart);
 
-            Debug.Log($"EnsureWindowContains: selectedSlot={selectedSlot}, start={start}, windowSize={windowSize}, unlockedCount={unlockedCount}");
             wikiState.PageWindowStartIndex = start;
         }
 
