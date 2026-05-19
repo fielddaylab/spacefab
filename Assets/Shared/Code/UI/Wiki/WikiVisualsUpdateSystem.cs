@@ -2,6 +2,8 @@ using FieldDay;
 using FieldDay.Systems;
 using FieldDay.SharedState;
 using UnityEngine.UI;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -98,16 +100,32 @@ namespace SpaceFab.UI {
                 return;
             }
 
+            WikiLayoutUtility.ScrollPaginator(layoutState, wikiState.PageWindowStartIndex);
+
             // 2.
             for (int i = 0; i < pools.TabActive.Count; i++) {
                 WikiButton tab = pools.TabActive[i];
+                var tabContent = tab.transform.Find("Tab Content");
+                Debug.Log($"[{tab.name}] TabIndex={tab.TabIndex}, tabContent={(tabContent == null ? "NULL" : tabContent.name)}");
+
+                if (tabContent != null) {
+                    var icon = tabContent.GetComponent<Image>();
+                    Debug.Log($"WikiVisualsUpdateSystem: processing tab button '{tab.gameObject.name}' (TabIndex={tab.TabIndex}) {icon}");
+                    
+                    if (icon != null && content.Tabs != null && tab.TabIndex >= 0 && tab.TabIndex < content.Tabs.Length) {
+                        icon.sprite = content.Tabs[tab.TabIndex].Icon;
+                        Debug.Log($"WikiVisualsUpdateSystem: set tab icon sprite to {icon.sprite}");
+                        icon.color = Color.white;
+                    }
+                }
+
                 if (tab.DynamicButton == null) { continue; }
                 bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
 
                 if (tab.DynamicButton != null) {
-                    tab.DynamicButton.image.color = selected ?
-                        tab.DynamicButton.colors.highlightedColor :
-                        tab.DynamicButton.colors.normalColor;
+                    tab.DynamicButton.image.sprite = selected ? layoutState.TabActiveSprite : layoutState.TabInactiveSprite;
+                    tab.DynamicButton.image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, selected ? 70f : 65f); // temp visual highlight since the active tab's text is invisible until the page content is implemented
+                    tab.DynamicButton.interactable = true; // content.Tabs[tab.TabIndex].Unlocked;
                 }
             }
 
@@ -128,11 +146,13 @@ namespace SpaceFab.UI {
             {
                 var widgets = layoutState.PageContentWidgets;
 
-                if (widgets.TitleText != null)
-                    widgets.TitleText.text = activePage.Title ?? string.Empty;
+                if (widgets.TitleText != null) {
+                    widgets.TitleText.text = activePage.Title ?? " ";
+                }
 
-                if (widgets.BodyText != null)
-                    widgets.BodyText.text = activePage.Body ?? string.Empty;
+                if (widgets.BodyText != null) {
+                    widgets.BodyText.text = activePage.Body ?? " ";
+                }
 
                 if (widgets.IllustrationImage != null) {
                     bool hasIllustration = activePage.Illustration != null;
@@ -154,24 +174,26 @@ namespace SpaceFab.UI {
 
                 int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
                 bool isLocked = unlockedIndex == -1;
-                if (isLocked) {
-                    thumb.gameObject.SetActive(false);
-                    continue;
-                }
+                // if (isLocked) {
+                //     thumb.gameObject.SetActive(false);
+                //     continue;
+                // }
 
-                bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + content.PageWindowSize;
-                thumb.gameObject.SetActive(inWindow);
+                int pageWindowSize = Mathf.Max(1, content.PageWindowSize);
+                bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
+                thumb.gameObject.SetActive(true);
+                if (thumb.DynamicButton == null) { continue; }
 
-                if (thumb.DynamicButton != null) {
-                    thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
-                        thumb.DynamicButton.colors.highlightedColor :
-                        thumb.DynamicButton.colors.normalColor;
-                }
+                thumb.DynamicButton.interactable = true; // isLocked ? false : true;
+                thumb.DynamicButton.image.sprite = activeTab.Pages[thumb.PageIndex].Icon;
+                thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
+                    Color.magenta : // highlight active page thumb in yellow for testing
+                    Color.cyan;
             }
 
             // 5.
             if (layoutState.PrevPage != null) {
-                layoutState.PrevPage.interactable = WikiUtility.CanScrollPageWindowLeft(wikiState);
+                layoutState.PrevPage.interactable = WikiUtility.CanScrollPageWindowLeft(wikiState, content, progressState);
             }
             if (layoutState.NextPage != null) {
                 layoutState.NextPage.interactable = WikiUtility.CanScrollPageWindowRight(wikiState, content, progressState);

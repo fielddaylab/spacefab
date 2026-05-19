@@ -31,8 +31,11 @@ namespace SpaceFab.UI {
             for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
                 WikiButton tabButton = Acquire(pools.TabButtonPrefab, pools.TabActive, pools.TabFree, pools.TabButtonActiveParent);
                 if (tabButton == null) { continue; }
-                tabButton.TabIndex = tabIndex;
-                tabButton.PageIndex = -1;
+                    tabButton.TabIndex = tabIndex;
+                    tabButton.PageIndex = -1;
+                    if (tabButton.DynamicButton == null) {
+                        Debug.LogWarning($"WikiPool: TabButton instance '{tabButton.gameObject.name}' has no DynamicButton assigned.");
+                    }
             }
 
             // Spawn one thumb per (tab, page) pair across every authored tab. Thumbs for the
@@ -44,8 +47,11 @@ namespace SpaceFab.UI {
                 for (int pageIndex = 0; pageIndex < tab.Pages.Length; pageIndex++) {
                     WikiButton thumb = Acquire(pools.PageThumbPrefab, pools.PageThumbActive, pools.PageThumbFree, pools.PageThumbActiveParent);
                     if (thumb == null) { continue; }
-                    thumb.TabIndex = tabIndex;
-                    thumb.PageIndex = pageIndex;
+                        thumb.TabIndex = tabIndex;
+                        thumb.PageIndex = pageIndex;
+                        if (thumb.DynamicButton == null) {
+                            Debug.LogWarning($"WikiPool: PageThumb instance '{thumb.gameObject.name}' (tab={tabIndex}, page={pageIndex}) has no DynamicButton assigned.");
+                        }
                 }
             }
         }
@@ -83,6 +89,7 @@ namespace SpaceFab.UI {
                 if (instance == null) { continue; }
                 instance.transform.SetParent(freeParent, false);
                 instance.gameObject.SetActive(false);
+                Debug.Log($"{instance.name} is set to false and moved to free list");
                 freeList.Add(instance);
             }
             activeList.Clear();

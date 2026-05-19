@@ -1,3 +1,4 @@
+using UnityEngine;
 using FieldDay;
 using FieldDay.Systems;
 
@@ -20,7 +21,7 @@ namespace SpaceFab.Design
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 3, UpdateMasks.SimulateModeMask),
+                new SysUpdate(GameLoopPhase.Update, 5, UpdateMasks.SimulateModeMask),
                 new SysPermissions()
                     .ReadWriteShared<ResultState>()
                     .ReadShared<SimulateUIState>()
@@ -39,7 +40,8 @@ namespace SpaceFab.Design
             // Rising edge only: panel just became visible this frame.
             if (isVisible && !s_wasVisible)
             {
-                bool allCorrect = IsAllCorrect(runState);
+                Debug.Log($"ResultSystem: Detected rising edge of ResultsPanelVisible; processing show request.");
+                bool allCorrect = ResultStateUtility.IsAllCorrect(runState);
                 ResultStateUtility.ShowResults(resultState, allCorrect);
             }
 
@@ -52,14 +54,14 @@ namespace SpaceFab.Design
         // long as ClearAllVerdicts initialises unused slots to Correct (or the suite length
         // is 1). If your default is Incorrect/Unstable, scope the loop to [0..CurrentRow]
         // for SingleTest runs instead.
-        static private bool IsAllCorrect(SimulateRunState runState)
-        {
-            TestRowVerdict[] verdicts = runState.RowVerdicts;
-            for (int i = 0; i < verdicts.Length; i++)
-            {
-                if (verdicts[i] != TestRowVerdict.Correct) { return false; }
-            }
-            return true;
-        }
+        // static private bool IsAllCorrect(SimulateRunState runState)
+        // {
+        //     TestRowVerdict[] verdicts = runState.RowVerdicts;
+        //     for (int i = 0; i < verdicts.Length; i++)
+        //     {
+        //         if (verdicts[i] != TestRowVerdict.Correct) { return false; }
+        //     }
+        //     return true;
+        // }
     }
 }
