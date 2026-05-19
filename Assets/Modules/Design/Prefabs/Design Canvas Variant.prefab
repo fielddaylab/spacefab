@@ -445,7 +445,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1743397502244653520, guid: 4d1ef1806342a2f44b7d3b90e65c66ea, type: 3}
       propertyPath: m_Name
-      value: ' Eraser Toolbar'
+      value: Eraser Toolbar
       objectReference: {fileID: 0}
     - target: {fileID: 6673354229829966755, guid: 4d1ef1806342a2f44b7d3b90e65c66ea, type: 3}
       propertyPath: m_Pivot.x
@@ -991,7 +991,8 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.089844
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 496767558273208562, guid: a4c7977c8e0b20d45a030cef91b62018, type: 3}
     m_RemovedGameObjects:
     - {fileID: 8653988310825990580, guid: a4c7977c8e0b20d45a030cef91b62018, type: 3}
     m_AddedGameObjects: []

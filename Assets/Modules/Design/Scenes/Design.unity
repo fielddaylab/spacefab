@@ -961,7 +961,6 @@ GameObject:
   - component: {fileID: 709705227}
   - component: {fileID: 709705228}
   - component: {fileID: 709705233}
-  - component: {fileID: 709705232}
   - component: {fileID: 709705229}
   - component: {fileID: 709705234}
   - component: {fileID: 709705236}
@@ -1031,23 +1030,6 @@ MonoBehaviour:
   ActiveTool: 0
   LastKnownDragCoord: {x: 0, y: 0}
   LastTerminatedDragCoord: {x: 0, y: 0}
---- !u!114 &709705232
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 709705224}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86a24ea86a400364380e2f2d6ab530f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ResultsGroup: {fileID: 0}
-  TitleText: {fileID: 0}
-  SummaryText: {fileID: 0}
-  DismissButton: {fileID: 0}
-  RetryButton: {fileID: 0}
 --- !u!114 &709705233
 MonoBehaviour:
   m_ObjectHideFlags: 0
