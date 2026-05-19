@@ -79,8 +79,12 @@ namespace SpaceFab.UI {
             // Gate: refresh only when something changed. If neither
             // trigger fired this frame, leave the existing chip set
             // alone.
-            ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
-            bool propertyConfirmed = researchState != null && researchState.PropertyConfirmedThisFrame;
+            bool propertyConfirmed = false;
+            if (Game.SharedState.Has<ResearchMinigameState>())
+            {
+                ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
+                propertyConfirmed = researchState.PropertyConfirmedThisFrame;
+            }
             bool pageChanged = wikiState.ActivePageChangedThisFrame;
             if (!propertyConfirmed && !pageChanged) return;
 
