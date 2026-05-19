@@ -5,17 +5,23 @@ using FieldDay;
 using FieldDay.Rendering;
 using UnityEngine;
 
-public class SquarePainter : MonoBehaviour
+/// <summary>
+/// Rendering class for ion points making use of instance buffer
+/// </summary>
+public class IonFillRenderer : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D m_BoxCollider;
 
     private int m_Rows, m_Columns;
     private float m_CellWidth, m_CellHeight;
+    private float m_FillRadius;
 
-    [SerializeField] private float m_Density;
+    private int m_TotalFilledPoints;
     
     public Mesh IonMesh;
     public Material IonMaterial;
+
+    public bool IsRendering = false;
 
     public struct IonPoint
     {
@@ -26,20 +32,17 @@ public class SquarePainter : MonoBehaviour
 
     private IonPoint[] IonPoints;
 
-    void Start()
+    public int Setup(float density, float fillRadius)
     {
-        Setup();
-    }
+        m_FillRadius = fillRadius;
 
-    public void Setup()
-    {
         Vector2 bottomLeft = m_BoxCollider.bounds.min;
         Vector2 topRight = m_BoxCollider.bounds.max;
         float width = topRight.x - bottomLeft.x;
         float height = topRight.y - bottomLeft.y;
     
-        m_Columns = Mathf.FloorToInt(width * m_Density);
-        m_Rows = Mathf.FloorToInt(height * m_Density);
+        m_Columns = Mathf.FloorToInt(width * density);
+        m_Rows = Mathf.FloorToInt(height * density);
 
         // these should be the same but just in case
         m_CellWidth = width / m_Columns;
@@ -71,9 +74,11 @@ public class SquarePainter : MonoBehaviour
                 };
             }
         }
+
+        return IonPoints.Length; // for IonPatternData to use in determining when all grids are filled
     }
-    
-    void Update()
+
+    public int ProcessWork()
     {
         if (Input.GetMouseButton(0))
         {
@@ -82,33 +87,41 @@ public class SquarePainter : MonoBehaviour
 
             if (hit.collider != null && hit.collider == m_BoxCollider)
             {
-                Debug.Log("Box clicked at " + hit.point);
+                // this is a direct lookup per point, which is less expensive
+                // Vector2 bottomLeft = hit.collider.bounds.min;
+                // Vector2 localClick = mousePosition - bottomLeft;
 
-                Vector2 bottomLeft = hit.collider.bounds.min;
-                Vector2 localClick = mousePosition - bottomLeft;
+                // int xPosition = Mathf.FloorToInt(localClick.x / m_CellWidth);
+                // int yPosition = Mathf.FloorToInt(localClick.y / m_CellHeight);
 
-                int xPosition = Mathf.FloorToInt(localClick.x / m_CellWidth);
-                int yPosition = Mathf.FloorToInt(localClick.y / m_CellHeight);
-
-                Debug.Log("Corresponding to square at " + xPosition + ", " + yPosition);
-
-                int positionalIndex = yPosition * m_Columns + xPosition;    
-                if (positionalIndex >= 0 && positionalIndex < IonPoints.Length)
+                // int positionalIndex = yPosition * m_Columns + xPosition;    
+                // if (positionalIndex >= 0 && positionalIndex < IonPoints.Length && !IonPoints[positionalIndex].IsFilled)
+                // {
+                //     IonPoints[positionalIndex].IsFilled = true;
+                //     m_TotalFilledPoints++;
+                // }
+                
+                // this iterates over all with a distance check, which may be too much? Unsure
+                for (int i = 0; i < IonPoints.Length; i++)
                 {
-                    IonPoints[positionalIndex].IsFilled = true;
+                    if (!IonPoints[i].IsFilled && Vector2.Distance(IonPoints[i].Position, mousePosition) <= m_FillRadius)
+                    {
+                        IonPoints[i].IsFilled = true;
+                        m_TotalFilledPoints++;
+                    }
                 }
-
-                Debug.Log("Leading to index of " + positionalIndex);
             }
         }
+
+        return m_TotalFilledPoints; // use for counting
     }
 
     void LateUpdate()
     {
-        PerformRendering();
+        if (IsRendering) PerformRendering();
     }
 
-    unsafe void PerformRendering()
+    public unsafe void PerformRendering()
     {
         DefaultInstancedMeshParams* paramBuffer = stackalloc DefaultInstancedMeshParams[512]; 
         RenderParams renderParams = new RenderParams(IonMaterial);

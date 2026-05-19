@@ -988,6 +988,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1316793691771253811, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
   m_PrefabInstance: {fileID: 699037342}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &649665540 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4628900925921652771, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &683430573 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4234622222351680474, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -2749,6 +2754,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 330872947077792637, guid: f6ebed0b4538a3e48b149cd5c56c8fb2, type: 3}
   m_PrefabInstance: {fileID: 1243787403}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1277993893 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4892380234791795458, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22a3bf8095416e5448a8e8d062655f5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1341681695 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1054600925397860044, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -3215,7 +3231,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActive: 0
+  InputAccepted: 0
   IonUI: {fileID: 1118988153}
+  DropperAnchor: {fileID: 649665540}
+  PointDensity: 10
+  FillRadius: 3
+  IonPattern: {fileID: 1277993893}
+  Phase: 0
 --- !u!114 &1858924073
 MonoBehaviour:
   m_ObjectHideFlags: 0

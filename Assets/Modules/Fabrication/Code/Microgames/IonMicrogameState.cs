@@ -10,6 +10,14 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
 {
+    public enum IonMicrogamePhase
+    {
+        Idle,
+        Entering,
+        Filling,
+        Exiting
+    }
+
     /// <summary>
     /// Holds in-flight data for the Ion Implanter microgame, and lifecycle flags consumed by
     /// IonMicrogameSystem. Mechanics are not yet specified.
@@ -19,9 +27,16 @@ namespace SpaceFab.Fabrication.Microgames
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // IonMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
+        [HideInInspector] public bool InputAccepted;
+        
         public GameObject IonUI;
         public Transform DropperAnchor;
-        // TODO: dropper position and any other simulation fields once mechanics are defined.
+
+        public float PointDensity = 10;
+        public float FillRadius = 3;
+        public IonPatternData IonPattern;
+
+        [HideInInspector] public IonMicrogamePhase Phase;
 
         public void OnDeregister()
         {
@@ -53,25 +68,36 @@ namespace SpaceFab.Fabrication.Microgames
                 out MicrogameCanvasState canvasState
                 );
             state.IsActive = true;
-            // TODO:
-
+            
+            // setup UI
             state.IonUI.SetActive(true);
             canvasState.ShowUI(FabricationConsts.ION_STATION_ID);
-            CursorUtility.HideCursor();
+            HintedCursor.Visibility = HintedCursor.VisiblityMode.Invisible;
+
+            // setup IonPoints
+            state.IonPattern.SetupRenderers(state.PointDensity, state.FillRadius);
+            state.Phase = IonMicrogamePhase.Entering;
         }
 
         public static void EnterComplete()
         {
             // TODO: start accepting input.
+            Find.State(out IonMicrogameState state);
+            state.InputAccepted = true;
+            state.Phase = IonMicrogamePhase.Filling;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
         // On cancel, nothing is recorded.
         public static void ExitBegin(bool completedNormally)
         {
+            Find.State(out IonMicrogameState state);
+            state.Phase = IonMicrogamePhase.Exiting;
+            
             // TODO: freeze dropper.
             if (!completedNormally) { return; }
 
+            HintedCursor.Visibility = HintedCursor.VisiblityMode.Always;
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
         }
 
@@ -85,16 +111,25 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out IonMicrogameState state);
+            Find.State(
+                out IonMicrogameState state,
+                out MicrogameCanvasState canvasState
+                );
             state.IsActive = false;
             // TODO: tear down dropper UI; return to idle.
+
+            state.IonUI.SetActive(false);
+            state.Phase = IonMicrogamePhase.Idle;
+
+            canvasState.HideUI();
         }
 
         // Scaffold returns 0 until precision math is defined.
         private static float ComputePrecision()
         {
-            // TODO: precision = ????
-            return 0f;
+            // This microgame should not exit until the pattern is completely filled
+            // in that sense precision should always be one, but this can be reviewed later
+            return 1f;
         }
     }
 }
