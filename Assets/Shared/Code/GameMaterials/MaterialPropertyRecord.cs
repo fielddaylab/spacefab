@@ -18,7 +18,7 @@ namespace SpaceFab.Materials
     {
         public ushort StaticMask;
         public ushort DynamicMask_PDopant;
-        public ushort DynamicMaskNDopant;
+        public ushort DynamicMask_NDopant;
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ namespace SpaceFab.Materials
         {
             return record.StaticMask == 0
                 && record.DynamicMask_PDopant == 0
-                && record.DynamicMaskNDopant == 0;
+                && record.DynamicMask_NDopant == 0;
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace SpaceFab.Materials
                 {
                     return false;
                 }
-                ushort mask = label == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMaskNDopant;
+                ushort mask = label == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMask_NDopant;
                 return (mask & (1 << idx)) != 0;
             }
             else
@@ -101,8 +101,8 @@ namespace SpaceFab.Materials
                 }
                 else
                 {
-                    if ((record.DynamicMaskNDopant & bit) != 0) return false;
-                    record.DynamicMaskNDopant |= bit;
+                    if ((record.DynamicMask_NDopant & bit) != 0) return false;
+                    record.DynamicMask_NDopant |= bit;
                 }
                 return true;
             }
@@ -125,7 +125,7 @@ namespace SpaceFab.Materials
         {
             target.StaticMask |= other.StaticMask;
             target.DynamicMask_PDopant |= other.DynamicMask_PDopant;
-            target.DynamicMaskNDopant |= other.DynamicMaskNDopant;
+            target.DynamicMask_NDopant |= other.DynamicMask_NDopant;
         }
     }
 }
