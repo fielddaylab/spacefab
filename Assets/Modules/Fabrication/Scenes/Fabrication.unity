@@ -2920,6 +2920,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActive: 0
+  InputAccepted: 0
+  SputterUI: {fileID: 0}
+  Phase: 0
+  IncidentBeam: {fileID: 0}
+  ReflectedBeam: []
+  ReflectionPoint: {fileID: 0}
 --- !u!1 &1904662654
 GameObject:
   m_ObjectHideFlags: 0

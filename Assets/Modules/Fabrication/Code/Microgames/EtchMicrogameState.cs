@@ -33,9 +33,9 @@ namespace SpaceFab.Fabrication.Microgames
         public LineRenderer PreviewBeam;
         public LineRenderer PlayerBeam;
 
-        [HideInInspector] public readonly List<Vector3> PreviewPoints = new();
-        [HideInInspector] public readonly List<Vector3> PlayerPoints = new();
-        [HideInInspector] public Vector3[] CachedPreviewPoints;
+        [HideInInspector] public readonly List<Vector2> PreviewPoints = new();
+        [HideInInspector] public readonly List<Vector2> PlayerPoints = new();
+        [HideInInspector] public Vector2[] CachedPreviewPoints;
         [HideInInspector] public Vector2 Direction;
 
         [HideInInspector] public int PreviewVisibleCount;
@@ -89,7 +89,7 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = EtchMicrogamePhase.Active;
             state.InputAccepted = true;
 
-            Vector3 start = state.PreviewPoints[0];
+            Vector2 start = state.PreviewPoints[0];
             state.PlayerPoints.Add(start);
             state.PlayerBeam.positionCount = 1;
             state.PlayerBeam.SetPosition(0, start);
@@ -146,7 +146,7 @@ namespace SpaceFab.Fabrication.Microgames
             return Mathf.Clamp01(precision);
             }
 
-        private static float AverageDistance(List<Vector3> points, LineRenderer targetLine)
+        private static float AverageDistance(List<Vector2> points, LineRenderer targetLine)
         {
             if (points.Count == 0)
                 return 1f;
@@ -161,21 +161,21 @@ namespace SpaceFab.Fabrication.Microgames
             return total / points.Count;
         }
 
-        private static float DistanceToPreview(Vector3 point, LineRenderer line)
+        private static float DistanceToPreview(Vector2 point, LineRenderer line)
         {
             int count = line.positionCount;
             if (count <= 0)
                 return 0f;
 
             if (count == 1)
-                return Vector3.Distance(point, line.GetPosition(0));
+                return Vector2.Distance(point, line.GetPosition(0));
 
             float bestSqr = float.MaxValue;
-            Vector3 prev = line.GetPosition(0);
+            Vector2 prev = line.GetPosition(0);
 
             for (int i = 1; i < count; i++)
             {
-                Vector3 next = line.GetPosition(i);
+                Vector2 next = line.GetPosition(i);
                 float sqr = PointToSegmentDistanceSqr(point, prev, next);
                 if (sqr < bestSqr)
                     bestSqr = sqr;
@@ -185,18 +185,18 @@ namespace SpaceFab.Fabrication.Microgames
             return Mathf.Sqrt(bestSqr);
         }
 
-        private static float PointToSegmentDistanceSqr(Vector3 p, Vector3 a, Vector3 b)
+        private static float PointToSegmentDistanceSqr(Vector2 p, Vector2 a, Vector2 b)
         {
-            Vector3 ab = b - a;
-            float abSqr = Vector3.Dot(ab, ab);
+            Vector2 ab = b - a;
+            float abSqr = Vector2.Dot(ab, ab);
 
             if (abSqr <= 0.000001f)
                 return (p - a).sqrMagnitude;
 
-            float t = Vector3.Dot(p - a, ab) / abSqr;
+            float t = Vector2.Dot(p - a, ab) / abSqr;
             t = Mathf.Clamp01(t);
 
-            Vector3 projection = a + t * ab;
+            Vector2 projection = a + t * ab;
             return (p - projection).sqrMagnitude;
         }
     }

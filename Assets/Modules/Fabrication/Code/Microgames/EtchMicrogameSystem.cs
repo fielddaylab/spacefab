@@ -86,8 +86,8 @@ namespace SpaceFab.Fabrication.Microgames
                 state.Direction = Vector2.right;
 
             float beamSpeed = 2f;
-            Vector3 current = state.PlayerPoints[state.PlayerPoints.Count - 1];
-            Vector3 next = current + (Vector3)(state.Direction * beamSpeed * deltaTime);
+            Vector2 current = state.PlayerPoints[state.PlayerPoints.Count - 1];
+            Vector2 next = current + (Vector2)(state.Direction * beamSpeed * deltaTime);
 
             float waferRadius = 2.8f;
 
