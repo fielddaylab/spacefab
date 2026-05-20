@@ -198,17 +198,17 @@ namespace SpaceFab.UI {
 
                 int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
                 bool isLocked = unlockedIndex == -1;
-                // if (isLocked) {
-                //     thumb.gameObject.SetActive(false);
-                //     continue;
-                // }
+                if (isLocked) {
+                    thumb.gameObject.SetActive(false);
+                    continue;
+                }
 
                 int pageWindowSize = Mathf.Max(1, content.PageWindowSize);
                 bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
                 thumb.gameObject.SetActive(true);
                 if (thumb.DynamicButton == null) { continue; }
 
-                thumb.DynamicButton.interactable = true; // isLocked ? false : true;
+                thumb.DynamicButton.interactable = true;
                 // Material pages pull their thumbnail from the
                 // ResearchMaterialView (same single/multi-atom
                 // selection as the page illustration), not from

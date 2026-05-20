@@ -5,6 +5,7 @@ using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using SpaceFab.Save;
+using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,12 @@ namespace SpaceFab
         public bool RecentlyCompletedChapter;
 
         public bool BigBatteryUnlocked;
+
+        // Tracks whether the one-shot wiki initial-unlocks pass has
+        // already run for this save. OverarchingStartupSequenceSystem
+        // applies WikiInitialUnlocksConfig.InitialUnlockedPages once
+        // when this is false, then sets it true.
+        public bool InitialUnlocksApplied;
 
         public int ElapsedCycles;
         public int Funds;
@@ -46,6 +53,7 @@ namespace SpaceFab
         {
             CompletedContractIds = new HashSet<StringHash32>();
             MaterialProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
+            UnlockedWikiPages ??= new HashSet<StringHash32>();
             SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
         }
 
@@ -72,6 +80,7 @@ namespace SpaceFab
             // version gate. When SaveVersion is fixed, move into a
             // versioned slot.
             BigBatteryUnlocked = reader.Read<bool>();
+            InitialUnlocksApplied = reader.Read<bool>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
@@ -92,6 +101,7 @@ namespace SpaceFab
             writer.Write(PlayerProgressUtility.PackCompletedContracts(this));
             PlayerProgressUtility.PackMaterialProperties(this, ref writer);
             writer.Write(BigBatteryUnlocked);
+            writer.Write(InitialUnlocksApplied);
         }
 
         #endregion // Interfaces
@@ -214,6 +224,43 @@ namespace SpaceFab
                     state.MaterialProperties[materialOrder.GetId(i)] = record;
                 }
             }
+        }
+
+        /// <summary>
+        /// Applies the WikiInitialUnlocksConfig page-id list on first
+        /// startup per save. Short-circuits when the save has already
+        /// had its initial-unlock pass run (the InitialUnlocksApplied
+        /// flag is persisted), so this is a one-shot per save —
+        /// editing the config afterwards only affects fresh saves.
+        /// Missing config and empty/null id arrays are treated as
+        /// no-ops (still sets the flag so the system doesn't keep
+        /// checking the asset forever). UnlockPage itself
+        /// short-circuits per-id duplicates via HashSet.Add.
+        ///
+        /// Called from OverarchingStartupSequenceSystem on entry to
+        /// the Overarching scene; could be called from any startup
+        /// site that runs once per save after the save buffer has
+        /// been read.
+        /// </summary>
+        public static void TryApplyInitialWikiUnlocks(PlayerProgressState progressState)
+        {
+            if (progressState == null || progressState.InitialUnlocksApplied)
+            {
+                return;
+            }
+            WikiInitialUnlocksConfig config = Find.GlobalAsset<WikiInitialUnlocksConfig>();
+            if (config != null)
+            {
+                StringHash32[] ids = config.InitialUnlockedPages;
+                if (ids != null)
+                {
+                    for (int i = 0; i < ids.Length; i++)
+                    {
+                        WikiUtility.UnlockPage(progressState, ids[i]);
+                    }
+                }
+            }
+            progressState.InitialUnlocksApplied = true;
         }
     }
 }
