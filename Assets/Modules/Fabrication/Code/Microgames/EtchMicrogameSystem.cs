@@ -41,8 +41,6 @@ namespace SpaceFab.Fabrication.Microgames
                     ProcessActive(state, deltaTime);
                     break;
             }
-
-            // TODO: read directional input; advance beam over pattern; tally correct/incorrect cells; detect wafer-exit.
         }
 
         static private void ProcessEntering(EtchMicrogameState state, float deltaTime)
@@ -56,8 +54,6 @@ namespace SpaceFab.Fabrication.Microgames
             int visibleCount = Mathf.Clamp(Mathf.FloorToInt(state.PreviewProgress),
                 0, state.PreviewPoints.Count);
             
-            // Debug.Log($"Etch microgame entering: progress={state.PreviewProgress} visibleCount={visibleCount}");
-
             if (visibleCount != state.PreviewVisibleCount)
             {
                 state.PreviewVisibleCount = visibleCount;
@@ -72,7 +68,6 @@ namespace SpaceFab.Fabrication.Microgames
             if (state.PreviewVisibleCount >= state.PreviewPoints.Count)
             {
                 state.Phase = EtchMicrogamePhase.Active;
-                // Debug.Log($"Etch Enter Complete, {state.PreviewPoints.Count} preview points visible");
             }
         }
 
@@ -90,11 +85,13 @@ namespace SpaceFab.Fabrication.Microgames
             else if (Game.Input.IsKeyPressed(FabricationConsts.Right0) || Game.Input.IsKeyPressed(FabricationConsts.Right1))
                 state.Direction = Vector2.right;
 
+            float beamSpeed = 2f;
             Vector3 current = state.PlayerPoints[state.PlayerPoints.Count - 1];
+            Vector3 next = current + (Vector3)(state.Direction * beamSpeed * deltaTime);
 
-            Vector3 next = current + (Vector3)(state.Direction * state.BeamSpeed * deltaTime);
+            float waferRadius = 2.8f;
 
-            if (next.sqrMagnitude > state.WaferRadius * state.WaferRadius)
+            if (next.sqrMagnitude > waferRadius * waferRadius)
             {
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);

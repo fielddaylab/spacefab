@@ -2791,18 +2791,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsActive: 0
+  InputAccepted: 0
   EtchUI: {fileID: 516946605}
   Phase: 0
   PreviewBeam: {fileID: 688921219}
   PlayerBeam: {fileID: 1938538705}
-  WaferRadius: 2.8
-  BeamSpeed: 2
-  MatchDistance: 0.25
   CachedPreviewPoints: []
   Direction: {x: 1, y: 0}
-  PreviewProgress: 0
-  InputAccepted: 0
   PreviewVisibleCount: 0
+  PreviewProgress: 0
 --- !u!114 &1858924069
 MonoBehaviour:
   m_ObjectHideFlags: 0

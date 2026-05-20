@@ -26,24 +26,20 @@ namespace SpaceFab.Fabrication.Microgames
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // EtchMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
+        [HideInInspector] public bool InputAccepted;
         public GameObject EtchUI;
         public EtchMicrogamePhase Phase;
 
         public LineRenderer PreviewBeam;
         public LineRenderer PlayerBeam;
 
-        public float WaferRadius = 2.8f;
-        public float BeamSpeed = 2f;
-        public float MatchDistance = 0.25f;
-
         [HideInInspector] public readonly List<Vector3> PreviewPoints = new();
         [HideInInspector] public readonly List<Vector3> PlayerPoints = new();
         [HideInInspector] public Vector3[] CachedPreviewPoints;
         [HideInInspector] public Vector2 Direction;
-        [HideInInspector] public float PreviewProgress;
 
-        [HideInInspector] public bool InputAccepted;
         [HideInInspector] public int PreviewVisibleCount;
+        [HideInInspector] public float PreviewProgress;
     }
 
     /// <summary>
@@ -134,25 +130,36 @@ namespace SpaceFab.Fabrication.Microgames
 
         // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam
         // correctly traversed, minus cells incorrectly traversed. Scaffold returns 0.
-        // TODO: consider different methods of evaluating precision
         private static float ComputePrecision()
         {
             Find.State(out EtchMicrogameState state);
 
             if (state.PlayerPoints.Count == 0) { return 0f; }
 
-            float totalDistance = 0f;
-            // Debug.Log($"Computing precision for {state.PlayerPoints.Count} player points against {state.PreviewBeam.positionCount} preview points");
-            for (int i = 0; i < state.PlayerPoints.Count; i++)
-                totalDistance += DistanceToPreview(state.PlayerPoints[i], state.PreviewBeam);
+            float playerToPreview = AverageDistance(state.PlayerPoints, state.PreviewBeam);
+            float previewToPlayer = AverageDistance(state.PreviewPoints, state.PlayerBeam);
+            float previewToPlayerWeight = 0.7f; // weight on missing target points is higher than extra points off-target
 
-            float averageDistance = totalDistance / state.PlayerPoints.Count;
+            float totalError = (playerToPreview * (1 - previewToPlayerWeight) + previewToPlayer * previewToPlayerWeight) * 0.5f;
+            float precision = 1f - totalError;
 
-            float precision = 1f - (averageDistance / Mathf.Max(0.0001f, state.MatchDistance));
-            // Debug.Log($"Average Distance: {averageDistance}, Precision: {precision}");
             return Mathf.Clamp01(precision);
+            }
+
+        private static float AverageDistance(List<Vector3> points, LineRenderer targetLine)
+        {
+            if (points.Count == 0)
+                return 1f;
+
+            float total = 0f;
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                total += DistanceToPreview(points[i], targetLine);
+            }
+
+            return total / points.Count;
         }
-            // TODO: precision = (correctCells - incorrectCells) / targetCells, clamped to [0,1].
 
         private static float DistanceToPreview(Vector3 point, LineRenderer line)
         {
