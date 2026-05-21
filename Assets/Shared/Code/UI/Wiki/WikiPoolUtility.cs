@@ -31,8 +31,8 @@ namespace SpaceFab.UI {
             for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
                 WikiButton tabButton = Acquire(pools.TabButtonPrefab, pools.TabActive, pools.TabFree, pools.TabButtonActiveParent);
                 if (tabButton == null) { continue; }
-                tabButton.TabIndex = tabIndex;
-                tabButton.PageIndex = -1;
+                    tabButton.TabIndex = tabIndex;
+                    tabButton.PageIndex = -1;
             }
 
             // Spawn one thumb per (tab, page) pair across every authored tab. Thumbs for the
@@ -44,8 +44,8 @@ namespace SpaceFab.UI {
                 for (int pageIndex = 0; pageIndex < tab.Pages.Length; pageIndex++) {
                     WikiButton thumb = Acquire(pools.PageThumbPrefab, pools.PageThumbActive, pools.PageThumbFree, pools.PageThumbActiveParent);
                     if (thumb == null) { continue; }
-                    thumb.TabIndex = tabIndex;
-                    thumb.PageIndex = pageIndex;
+                        thumb.TabIndex = tabIndex;
+                        thumb.PageIndex = pageIndex;
                 }
             }
         }
@@ -55,7 +55,6 @@ namespace SpaceFab.UI {
         // activeList. Returns null if prefab is missing (logged for authoring-error visibility).
         private static WikiButton Acquire(WikiButton prefab, List<WikiButton> activeList, List<WikiButton> freeList, RectTransform activeParent) {
             if (prefab == null) {
-                Debug.LogError("[WikiPoolUtility] Acquire called with null prefab — prefab ref not wired on WikiPools.");
                 return null;
             }
 

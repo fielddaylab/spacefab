@@ -35,6 +35,13 @@ namespace SpaceFab.Research
             }
 
             ResearchStateUtility.Confirm(researchState, materialId, propertyLabel, contextMaterialId);
+
+            // Frame-flag for downstream view refreshes (e.g., the tray
+            // rig labels flipping from sample number to ShortName once
+            // the material becomes "known"). Idempotent confirms still
+            // raise it — the consumers are cheap and the cost is one
+            // pass over a small set per confirmation.
+            researchState.PropertyConfirmedThisFrame = true;
         }
     }
 }

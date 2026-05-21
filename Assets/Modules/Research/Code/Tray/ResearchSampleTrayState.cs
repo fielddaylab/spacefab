@@ -89,7 +89,7 @@ namespace SpaceFab.Research {
                 // click-to-lift, just invisible.
                 ResearchMaterialVisualRig rig = sampleObj.GetComponent<ResearchMaterialVisualRig>();
                 if (rig != null) {
-                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material);
+                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material, researchState);
                 }
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each

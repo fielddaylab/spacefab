@@ -62,7 +62,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 1447053067
+  m_SortingLayerID: -1426292637
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &5584457055421387544
@@ -104,6 +104,9 @@ MonoBehaviour:
   LoadIcon: {fileID: 2840171565894083882}
   SaveIcon: {fileID: 3803677181503541076}
   LoadingCursor: {fileID: 7931595944060875362}
+  CursorWasLocked: 0
+  IsLoading: 0
+  isSaving: 0
 --- !u!114 &7931595944060875362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,6 +126,7 @@ MonoBehaviour:
   Flags: 0
   TooltipHeader: 
   Tooltip: 
+  TooltipFooter: 
 --- !u!1 &2115447731249382538
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,6 +260,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -872,6 +877,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

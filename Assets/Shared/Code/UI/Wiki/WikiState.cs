@@ -48,6 +48,15 @@ namespace SpaceFab.UI {
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
 
+        [HideInInspector] public bool NeedsRebuild;
+
+        // Set for one frame whenever the active page (tab/page index)
+        // just changed, or the wiki just expanded onto a page. Drives
+        // one-shot view loads (WikiCharacteristicsLoadUtility) so they
+        // rebuild only when the page actually changes. Cleared by
+        // WikiRefreshSystem at end-of-frame.
+        [HideInInspector] public bool ActivePageChangedThisFrame;
+
         public void OnRegister() {
             Expanded = false;
             Transitioning = false;
@@ -117,6 +126,8 @@ namespace SpaceFab.UI {
             wikiState.ActiveTabIndex = tabIndex;
             wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
             wikiState.PageWindowStartIndex = 0;
+            wikiState.NeedsRebuild = true;
+            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // ID-based variant — resolves tabId → index via WikiContent.Tabs. Drops the request
@@ -150,6 +161,9 @@ namespace SpaceFab.UI {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
             }
+
+            wikiState.NeedsRebuild = true;
+            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // ID-based variant. Drops the request if the ID doesn't match a page in the active tab.
@@ -163,6 +177,7 @@ namespace SpaceFab.UI {
                     if (IsPageUnlocked(progressState, pageId)) {
                         wikiState.ActivePageIndex = i;
                         EnsureWindowContains(wikiState, content, tab, progressState);
+                        wikiState.ActivePageChangedThisFrame = true;
                     }
                     return;
                 }
@@ -198,8 +213,11 @@ namespace SpaceFab.UI {
 
         // True iff pageId appears in PlayerProgressState.UnlockedWikiPages.
         public static bool IsPageUnlocked(PlayerProgressState progressState, StringHash32 pageId) {
+            return true; // set by default for now
+
             if (progressState.UnlockedWikiPages == null) { return false; }
             return progressState.UnlockedWikiPages.Contains(pageId);
+
         }
 
         // True iff at least one page in the given tab is unlocked.
@@ -263,6 +281,7 @@ namespace SpaceFab.UI {
             if (resolved >= 0) {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
+                wikiState.ActivePageChangedThisFrame = true;
             }
         }
 
@@ -358,17 +377,16 @@ namespace SpaceFab.UI {
 
         // True iff the paginator window can still scroll one slot further left. Used by
         // WikiVisualsUpdateSystem to grey out the `<` arrow button at the leftmost state.
-        public static bool CanScrollPageWindowLeft(WikiState wikiState) {
-            return wikiState.PageWindowStartIndex > 0;
+        public static bool CanScrollPageWindowLeft(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
+            WikiTabData tab = ActiveTab(wikiState, content);
+            return tab != null && UnlockedCount(tab, progressState) > 1;
         }
 
         // True iff the paginator window can still scroll one slot further right. Used by
         // WikiVisualsUpdateSystem to grey out the `>` arrow button at the rightmost state.
         public static bool CanScrollPageWindowRight(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             WikiTabData tab = ActiveTab(wikiState, content);
-            if (tab == null) { return false; }
-            int unlockedCount = UnlockedCount(tab, progressState);
-            return wikiState.PageWindowStartIndex + content.PageWindowSize < unlockedCount;
+            return tab != null && UnlockedCount(tab, progressState) > 1;
         }
 
         // Translates a raw page index into its unlocked-list position (or -1 if the page is
@@ -430,12 +448,14 @@ namespace SpaceFab.UI {
 
         private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
             bool available = false;
+            //bool available = true;
             if (content != null && content.Tabs != null
                 && button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length) {
                 available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
             }
 
-            button.Available = available;
+            //button.Available = available;
+            button.Available = true;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
         }
@@ -464,6 +484,7 @@ namespace SpaceFab.UI {
                 }
             }
 
+            available = true; // set by default for now
             button.Available = available;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }

@@ -33,5 +33,11 @@ namespace SpaceFab.Research {
 
         // Whether the material's gem uses the multi-atom sprite path.
         public bool IsMultiAtom;
+
+        // Human-readable per-material identifier shown in UI ("SAMPLE 13").
+        // Authored per asset; independent of asset id, ordering, or runtime
+        // indexing so artists can place numbers freely.
+        public int SampleNumber;
+
     }
 }
