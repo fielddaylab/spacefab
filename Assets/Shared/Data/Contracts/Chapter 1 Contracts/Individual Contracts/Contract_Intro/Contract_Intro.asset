@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 318cdd041ad469e4dae79dcc4f242e18, type: 3}
-  m_Name: Contract_Test
+  m_Name: Contract_Intro
   m_EditorClassIdentifier: 
   m_value: 6
   m_requiredMaterialProperties:
   - {fileID: 11400000, guid: 80908861703739945a1a052c2bbc110b, type: 2}
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
   m_designLevel:
-    m_HashValue: 3136544910
-  m_title: Test Contract
+    m_HashValue: 1727982144
+  m_title: Intro Contract
   m_description: This is where the contract is described
   m_client: '[Client Name]'
   m_payout: 6

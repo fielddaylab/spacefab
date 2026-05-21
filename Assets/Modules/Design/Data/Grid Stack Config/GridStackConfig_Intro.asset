@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cdfb41291a9df764ea8382b0100074c2, type: 3}
-  m_Name: GridStackConfig_Test
+  m_Name: GridStackConfig_Intro
   m_EditorClassIdentifier: 
   LayerDims:
     X: 8
