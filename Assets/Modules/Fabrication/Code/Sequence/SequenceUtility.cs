@@ -68,9 +68,11 @@ namespace SpaceFab.Fabrication.Sequence
         // Called by SequenceSystem when a microgame completes at a station matching the current
         // step AND the wafer matches the expected snapshot. Captures a checkpoint if this step was
         // a checkpoint, increments the step pointer, transitions to Completed on the last step,
-        // dispatches FabSequenceStepCompleted (and FabSequenceCompleted on final step), and signals
-        // the visuals layer to play the stamp-and-swipe (or completion) animation.
-        public static void AdvanceStep(SequenceState sequenceState, WaferState waferState, TimeState timeState, MovementState movementState, SequenceVisualsState visualsState)
+        // dispatches FabSequenceStepCompleted (and FabSequenceCompleted on final step), and arms
+        // the recap layer. The top-panel SequenceCard swap is NOT set here — CompletionRecapSystem
+        // fires AdvanceRequested / CompletionRequested at the end of the recap so the top panel
+        // keeps showing the just-completed step until the recap fades.
+        public static void AdvanceStep(SequenceState sequenceState, WaferState waferState, TimeState timeState, MovementState movementState, SequenceVisualsState visualsState, CompletionRecapState recapState)
         {
             if (GetCurrentStep(sequenceState) == null) return; // safety check
 
@@ -84,10 +86,11 @@ namespace SpaceFab.Fabrication.Sequence
             if (sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length) {
                 sequenceState.Status = SequenceStatus.Completed;
                 Game.Events.Dispatch(GameEvents.FabSequenceCompleted);
-                visualsState.CompletionRequested = true;
-            } else {
-                visualsState.AdvanceRequested = true;
             }
+
+            recapState.RecapJustCompletedIndex = justCompleted;
+            recapState.RecapRequested = true;
+
             Game.Events.Dispatch(GameEvents.FabSequenceStepCompleted);
         }
 

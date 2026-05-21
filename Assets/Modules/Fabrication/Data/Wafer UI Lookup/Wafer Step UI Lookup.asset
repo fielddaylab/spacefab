@@ -53,3 +53,7 @@ MonoBehaviour:
       m_Source: metal
       m_HashValue: 3612782300
     Sprite: {fileID: 21300000, guid: e893e9006aebff142af55fd8297d8d00, type: 3}
+  - Id:
+      m_Source: mystery
+      m_HashValue: 834242614
+    Sprite: {fileID: 21300000, guid: 82e4cb912f979434aa0140b6030bb80f, type: 3}

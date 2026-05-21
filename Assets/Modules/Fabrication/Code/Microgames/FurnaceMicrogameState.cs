@@ -101,17 +101,22 @@ namespace SpaceFab.Fabrication.Microgames
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
+        // Also hides the microgame UI here (rather than at ExitComplete) so the step-completion
+        // recap doesn't play over the still-visible furnace panel.
+        // On cancel, nothing is recorded and UI hide is deferred to ExitComplete (existing flow).
         public static void ExitBegin(bool completedNormally)
         {
-            Find.State(out FurnaceMicrogameState state);
-            
+            Find.State(out FurnaceMicrogameState state, out MicrogameCanvasState canvasState);
+
             // freeze heat simulation
             state.Phase = FurnaceMicrogamePhase.Exiting;
-            
+
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
+
+            state.FurnaceUI.SetActive(false);
+            canvasState.HideUI();
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the

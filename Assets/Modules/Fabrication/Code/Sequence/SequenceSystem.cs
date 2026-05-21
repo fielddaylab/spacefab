@@ -28,6 +28,7 @@ namespace SpaceFab.Fabrication.Sequence
                 new SysPermissions()
                     .ReadWriteShared<SequenceState>()
                     .ReadWriteShared<SequenceVisualsState>()
+                    .ReadWriteShared<CompletionRecapState>()
                     .ReadShared<StationControlState>()
                     .ReadShared<MovementState>()
                     .ReadShared<LayoutState>()
@@ -49,14 +50,15 @@ namespace SpaceFab.Fabrication.Sequence
             Find.State(
                 out WaferState waferState,
                 out TimeState timeState,
-                out SequenceVisualsState visualsState
+                out SequenceVisualsState visualsState,
+                out CompletionRecapState recapState
                 );
 
             if (sequenceState.Status != SequenceStatus.Active && sequenceState.Status != SequenceStatus.Restoring) {
                 return;
             }
 
-            HandleMicrogameCompleted(sequenceState, stationState, movementState, layoutState, waferState, timeState, visualsState);
+            HandleMicrogameCompleted(sequenceState, stationState, movementState, layoutState, waferState, timeState, visualsState, recapState);
         }
 
         // On microgame completion:
@@ -65,7 +67,7 @@ namespace SpaceFab.Fabrication.Sequence
         //     snapshot. Advance on success, flag misalignment on failure.
         // A microgame that is cancelled (rather than completed) does NOT trigger either path, because
         // StationControlState.MicrogameCompletedThisFrame is only set on a normal completion.
-        static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState, SequenceVisualsState visualsState)
+        static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState, SequenceVisualsState visualsState, CompletionRecapState recapState)
         {
             if (!stationState.MicrogameCompletedThisFrame) {
                 return;
@@ -115,8 +117,9 @@ namespace SpaceFab.Fabrication.Sequence
             }
 
             // 5. Advance — increments CurrentStepIndex, captures a checkpoint if this step is one,
-            //    and flags the visuals layer to play the swap-and-pre-load routine.
-            SequenceUtility.AdvanceStep(sequenceState, waferState, timeState, movementState, visualsState);
+            //    and arms the recap layer. The recap system fires the top-panel swap when its
+            //    routine finishes.
+            SequenceUtility.AdvanceStep(sequenceState, waferState, timeState, movementState, visualsState, recapState);
         }
     }
 }
