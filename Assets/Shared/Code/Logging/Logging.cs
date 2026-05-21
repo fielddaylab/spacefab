@@ -106,7 +106,7 @@ namespace SpaceFab.Logging
         [NonSerialized] private float m_SecondsFromLaunch;
         [NonSerialized] private string m_CurrentContract;
         [NonSerialized] private Minigame? m_CurrentMinigame;
-        [NonSerialized] private Dictionary<string, int> m_ContractLevels;
+        [NonSerialized] private Dictionary<string, Dictionary<string, int>> m_ContractLevels; // number of levels of each minigame, specified by the contract
         [NonSerialized] private DesignGrid? m_DesignGrid;
 
         #endregion //Inspector
@@ -127,21 +127,18 @@ namespace SpaceFab.Logging
             // TODO
             m_JsonBuilder.Begin()
                 .Field("seconds_from_launch", m_SecondsFromLaunch)
-                .Field("current_contract", m_CurrentContract);
-
-            if (m_CurrentMinigame.HasValue)
-            {
-                m_JsonBuilder.Field("current_minigame", m_CurrentMinigame.Value.ToString());
-            }
-            else
-            {
-                m_JsonBuilder.Field("current_minigame", (string) null);
-            }
+                .Field("current_contract", m_CurrentContract)
+                .Field("current_minigame", m_CurrentMinigame.HasValue ? m_CurrentMinigame.Value.ToString() : null);
             
-            m_JsonBuilder.BeginObject("contract_levels");
+            m_JsonBuilder.BeginObject("contract_levels"); // key: contract
             foreach (var kvp in m_ContractLevels)
             {
-                m_JsonBuilder.Field(kvp.Key, kvp.Value);
+                m_JsonBuilder.BeginObject(kvp.Key); // key: minigame
+                foreach (var minigameKvp in kvp.Value)
+                {
+                    m_JsonBuilder.Field(minigameKvp.Key, minigameKvp.Value); // value: number of levels
+                }
+                m_JsonBuilder.EndObject();
             }
             m_JsonBuilder.EndObject();
 
@@ -156,7 +153,6 @@ namespace SpaceFab.Logging
                 m_JsonBuilder.Field("design_grid", (string) null);
             }
             
-
             m_Log.GameState(m_JsonBuilder.End());
         }
 
@@ -220,6 +216,8 @@ namespace SpaceFab.Logging
             SpacefabGame.Events.Register<string>(GameEvents.TitleProfileStarting, SetAnalyticsUserCode);
 
             // TODO: Logging events
+            SpacefabGame.Events.Register(GameEvents.TitleStartGameClicked, LogClickNewGame);
+            SpacefabGame.Events.Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame);
 
         }
         #endregion
@@ -258,7 +256,7 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("click_resume_game");
         }
 
-        private void LogAcceptContract(string contractId, Dictionary<string, int> contractLevels)
+        private void LogAcceptContract(string contractId, Dictionary<string, Dictionary<string, int>> contractLevels)
         {
             m_CurrentContractId = contractId;
             m_ContractLevels = contractLevels;
@@ -267,7 +265,12 @@ namespace SpaceFab.Logging
             m_JsonBuilder.Begin();
             foreach (var kvp in contractLevels)
             {
-                m_JsonBuilder.Field(kvp.Key, kvp.Value);
+                m_JsonBuilder.BeginObject(kvp.Key); // key: minigame
+                foreach (var minigameKvp in kvp.Value)
+                {
+                    m_JsonBuilder.Field(minigameKvp.Key, minigameKvp.Value); // value: number of levels
+                }
+                m_JsonBuilder.EndObject();
             }
             string levelsJson = m_JsonBuilder.End().ToString();
 
@@ -318,24 +321,10 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("ship_menu_displayed");
         }
 
+        # region Research
         private void LogSelectResearch()
         {
             m_Log.NewEvent("select_research");
-        }
-
-        private void LogSelectDesign()
-        {
-            m_Log.NewEvent("select_design");
-        }
-
-        private void LogSelectSupplyChain()
-        {
-            m_Log.NewEvent("select_supply_chain");
-        }
-
-        private void LogSelectFabrication()
-        {
-            m_Log.NewEvent("select_fabrication");
         }
 
         private void LogStartResearch()
@@ -346,41 +335,21 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("start_research");
         }
 
+        #endregion // Research
+
+        #region Design
+
+        private void LogSelectDesign()
+        {
+            m_Log.NewEvent("select_design");
+        }
+
         private void LogStartDesign()
         {
             m_CurrentMinigame = Minigame.DESIGN;
             SubmitGameState();
 
             m_Log.NewEvent("start_design");
-        }
-
-        private void LogStartSupplyChain()
-        {
-            m_CurrentMinigame = Minigame.SUPPLY_CHAIN;
-            SubmitGameState();
-
-            m_Log.NewEvent("start_supply_chain");
-        }
-
-        private void LogStartFabrication()
-        {
-            m_CurrentMinigame = Minigame.FABRICATION;
-            SubmitGameState();
-
-            m_Log.NewEvent("start_fabrication");
-        }
-
-        private void LogLevelMenuDisplayed()
-        {
-            m_Log.NewEvent("level_menu_displayed");
-        }
-
-        private void LogSelectLevel(string levelId)
-        {
-            using (var e = m_Log.NewEvent("select_level"))
-            {
-                e.Param("level_id", levelId);
-            }
         }
 
         private void LogDesignLevelBegin(
@@ -440,11 +409,20 @@ namespace SpaceFab.Logging
         private void LogFillGrid(ToolID toolId, GridCoordinate coordinate)
         {
             // TODO
+            using (var e = m_Log.NewEvent("fill_grid"))
+            {
+                e.Param("tool_id", toolId.ToString());
+                e.Param("x", coordinate.X);
+                e.Param("y", coordinate.Y);
+                e.Param("layer", coordinate.Layer.ToString());
+            }
         }
 
         private void LogSubmitDesign(List<GridCoordinate> inputs, List<GridCoordinate> outputs) // ? inputs outputs type
         {
             // TODO
+            m_DesignGrid = null;
+            SubmitGameState();
         }
 
         private void LogSubmissionSucceeded(string message)
@@ -472,6 +450,40 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("exit_design");
         }
 
+        #endregion // Design
+
+        #region Supply Chain
+
+        private void LogSelectSupplyChain()
+        {
+            m_Log.NewEvent("select_supply_chain");
+        }
+
+        private void LogStartSupplyChain()
+        {
+            m_CurrentMinigame = Minigame.SUPPLY_CHAIN;
+            SubmitGameState();
+
+            m_Log.NewEvent("start_supply_chain");
+        }
+
+        #endregion // Supply Chain
+
+        #region Fabrication
+
+        private void LogSelectFabrication()
+        {
+            m_Log.NewEvent("select_fabrication");
+        }
+        
+        private void LogStartFabrication()
+        {
+            m_CurrentMinigame = Minigame.FABRICATION;
+            SubmitGameState();
+
+            m_Log.NewEvent("start_fabrication");
+        }
+
         private void LogGenerateWafer()
         {
             m_Log.NewEvent("generate_wafer");
@@ -483,6 +495,21 @@ namespace SpaceFab.Logging
         }
 
         private void LogInstructionUpdated(string nextStation, bool isHidden)
+        /*
+         "instruction_updated": {
+            "description": "When the instruction shown to the player is updated.",
+            "event_data": {
+                "next_station" : {
+                    "type" : "str",
+                    "description" : "The next station the player needs to complete, as indicated by the instruction."
+                },
+                "is_hidden" : {
+                    "type" : "bool",
+                    "description" : "Whether the instruction is currently hidden from the player or not."
+                }
+            }
+        }
+        */
         {
             // TODO
 
@@ -538,9 +565,30 @@ namespace SpaceFab.Logging
 
         private void LogFabricationSuccess(float accuracy, float time, int production_cycles)
         {
-            // TODO
+            using (var e = m_Log.NewEvent("fabrication_success"))
+            {
+                e.Param("accuracy", accuracy);
+                e.Param("time", time);
+                e.Param("production_cycles", production_cycles);
+            }
         }
 
+        #endregion // Fabrication
+
+        private void LogLevelMenuDisplayed()
+        {
+            m_Log.NewEvent("level_menu_displayed");
+        }
+
+        private void LogSelectLevel(string levelId)
+        {
+            using (var e = m_Log.NewEvent("select_level"))
+            {
+                e.Param("level_id", levelId);
+            }
+        }
+
+        
         #endregion // Logging
     }
 }
