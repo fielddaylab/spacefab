@@ -9,7 +9,7 @@ namespace SpaceFab.Design
     /// SimulateModeMask, after every Update-phase consumer (ModeTransitionSystem at order 0,
     /// SimulateModeSystem at order 1, DepthStepSystem at order 2) has had a chance to read them.
     ///
-    /// The order matters: Unity UI button clicks fire AFTER FieldDay's Update phase. If clearing
+    /// The order matters: Unity UI button clicks fire AFTER Update phase. If clearing
     /// happened in LateUpdate (or anywhere between the click and the next Update), a flag set by
     /// a click in frame N would be wiped before frame N+1's SimulateModeSystem could read it. By
     /// clearing within Update — before the click happens this frame — flags set by the click

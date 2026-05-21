@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 427bfc4e1f732e74181f054fae4cdfac, type: 3}
+  m_Name: Wafer Step UI Lookup
+  m_EditorClassIdentifier: 
+  m_Entries:
+  - Id:
+      m_Source: base
+      m_HashValue: 1037866200
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: oxide
+      m_HashValue: 2866236174
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: resist
+      m_HashValue: 3194704535
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: mask
+      m_HashValue: 3883353449
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: mask-aligner
+      m_HashValue: 1272740242
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: etch
+      m_HashValue: 298640959
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: dopant-n
+      m_HashValue: 329340218
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: dopant-p
+      m_HashValue: 4120978944
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: dopant-np
+      m_HashValue: 821642110
+    Sprite: {fileID: 0}
+  - Id:
+      m_Source: metal
+      m_HashValue: 3612782300
+    Sprite: {fileID: 0}
