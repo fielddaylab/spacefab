@@ -68,24 +68,22 @@ namespace SpaceFab.Logging
 
             public JsonBuilder ToJson(JsonBuilder json)
             {
-                /*
                 json.BeginArray();
-                for (int i = 0; i < Grid.Count; i++)
+                foreach (var row in Grid)
                 {
                     json.BeginArray();
-                    for (int j = 0; j < Grid[i].Count; j++)
+                    foreach (var cell in row)
                     {
                         json.BeginArray();
-                        foreach (ToolID tool in Grid[i][j])
+                        foreach (var toolId in cell)
                         {
-                            json.Value(tool.ToString());
+                            json.Item(toolId.ToString());
                         }
                         json.EndArray();
                     }
                     json.EndArray();
                 }
-                */
-
+                json.EndArray();
                 return json;
             }
         }
@@ -103,10 +101,10 @@ namespace SpaceFab.Logging
         [SerializeField] private FirebaseConsts m_Firebase;
         [SerializeField] private bool m_Testing;
 
-        [NonSerialized] private float m_SecondsFromLaunch;
+        //[NonSerialized] private float m_SecondsFromLaunch;
         [NonSerialized] private string m_CurrentContract;
         [NonSerialized] private Minigame? m_CurrentMinigame;
-        [NonSerialized] private Dictionary<string, Dictionary<string, int>> m_ContractLevels; // number of levels of each minigame, specified by the contract
+        [NonSerialized] private Dictionary<string, Dictionary<Minigame, int>> m_ContractLevels; // number of levels of each minigame, specified by the contract
         [NonSerialized] private DesignGrid? m_DesignGrid;
 
         #endregion //Inspector
@@ -119,14 +117,13 @@ namespace SpaceFab.Logging
 
         #region Game State
 
-
         private void SubmitGameState()
         {
             m_JsonBuilder.Clear();
 
             // TODO
             m_JsonBuilder.Begin()
-                .Field("seconds_from_launch", m_SecondsFromLaunch)
+                //.Field("seconds_from_launch", m_SecondsFromLaunch)
                 .Field("current_contract", m_CurrentContract)
                 .Field("current_minigame", m_CurrentMinigame.HasValue ? m_CurrentMinigame.Value.ToString() : null);
             
@@ -136,7 +133,7 @@ namespace SpaceFab.Logging
                 m_JsonBuilder.BeginObject(kvp.Key); // key: minigame
                 foreach (var minigameKvp in kvp.Value)
                 {
-                    m_JsonBuilder.Field(minigameKvp.Key, minigameKvp.Value); // value: number of levels
+                    m_JsonBuilder.Field(minigameKvp.Key.ToString(), minigameKvp.Value); // value: number of levels
                 }
                 m_JsonBuilder.EndObject();
             }
@@ -154,6 +151,11 @@ namespace SpaceFab.Logging
             }
             
             m_Log.GameState(m_JsonBuilder.End());
+        }
+
+        private void UpdateContractLevels(string contract, Minigame minigame, int numLevel)
+        {
+            m_ContractLevels[contract][minigame] += numLevel ;
         }
 
         #endregion // Game State
@@ -188,11 +190,11 @@ namespace SpaceFab.Logging
             m_Log.ConfigureScheduling(sched);
         }
 
-
         private void SetAnalyticsUserCode(string userCode)
         {
             Log.Msg("[OGDLog] Assigning user code {0}", userCode);
             m_Log.SetUserId(userCode);
+            m_Log.NewEvent("session_start");
             m_Log.Initialize(CreateOGDConsts());
             m_Log.NewEvent("session_start");
         }
@@ -216,8 +218,22 @@ namespace SpaceFab.Logging
             SpacefabGame.Events.Register<string>(GameEvents.TitleProfileStarting, SetAnalyticsUserCode);
 
             // TODO: Logging events
-            SpacefabGame.Events.Register(GameEvents.TitleStartGameClicked, LogClickNewGame);
-            SpacefabGame.Events.Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame);
+            SpacefabGame.Events
+                .Register<bool>(GameEvents.TitleStartGameClicked, LogGameStart)
+                .Register(GameEvents.TitleNewGameClicked, LogClickNewGame)
+                .Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame)
+                .Register<string>(GameEvents.OpenContractView, LogOpenContractView)
+                .Register<string>(GameEvents.ConfirmSelectContract, LogAcceptContract)
+                .Register<string>(GameEvents.StartChangeContract, LogStartChangeContract)
+                .Register<string>(GameEvents.ConfirmChangeContract, LogConfirmChangeContract)
+                .Register<string>(GameEvents.CancelChangeContract, LogCancelChangeContract)
+                .Register<int>(GameEvents.SelectMinigame, HandleMinigameSelect)
+                .Register<int>(GameEvents.StartMinigame, HandleMinigameStart);
+
+            // Fabrication
+            SpacefabGame.Events
+                .Register(GameEvents.FabActivateStation, (string stationId) => LogActivateStation(stationId))
+                .Register(GameEvents.FabInvalidActivateStation, (string stationId) => LogInvalidActivation(stationId));
         }
         #endregion
 
@@ -232,11 +248,6 @@ namespace SpaceFab.Logging
         #endregion // State Handlers
 
         #region Logging
-
-        private void LogSessionStart()
-        {
-            m_Log.NewEvent("session_start");
-        }
 
         private void LogGameStart(bool fromResume)
         {
@@ -255,19 +266,33 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("click_resume_game");
         }
 
-        private void LogAcceptContract(string contractId, Dictionary<string, Dictionary<string, int>> contractLevels)
+        private void LogAcceptContract(string contractId)
+        /*
+         "accept_contract": {
+             "description": "When the player accepts a new contract.",
+             "event_data": {
+                "contract_id" : {
+                   "type" : "str",
+                   "description" : "The ID for the specific contract."
+                },
+                "contract_levels" : {
+                   "type" : "Dict",
+                   "description" : "JSON structure indicating the number of levels of each minigame, specified by the contract."
+                }
+             }
+          }
+         */
         {
             m_CurrentContractId = contractId;
-            m_ContractLevels = contractLevels;
             SubmitGameState();
 
             m_JsonBuilder.Begin();
-            foreach (var kvp in contractLevels)
+            foreach (var kvp in m_ContractLevels)
             {
                 m_JsonBuilder.BeginObject(kvp.Key); // key: minigame
                 foreach (var minigameKvp in kvp.Value)
                 {
-                    m_JsonBuilder.Field(minigameKvp.Key, minigameKvp.Value); // value: number of levels
+                    m_JsonBuilder.Field(minigameKvp.Key.ToString(), minigameKvp.Value); // value: number of levels
                 }
                 m_JsonBuilder.EndObject();
             }
@@ -315,9 +340,49 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogShipMenuDisplayed()
+        private void HandleMinigameSelect(int zoneIndex)
         {
-            m_Log.NewEvent("ship_menu_displayed");
+            switch(zoneIndex)
+            {
+                case 0:
+                    LogSelectSupplyChain();
+                    break;
+                case 1:
+                    LogSelectDesign();
+                    break;
+                case 2:
+                    LogSelectFabrication();
+                    break;
+                case 3:
+                    LogSelectResearch();
+                    break;
+                default:
+                    Log.Msg("[Logging] Unrecognized minigame zone index: {0}", zoneIndex);
+                    break;
+            }
+        }
+
+        // Ensure the indices, which is different from minigame zone select
+        public void HandleMinigameStart(int zoneIndex)
+        {
+            switch(zoneIndex)
+            {
+                case 0:
+                    LogStartResearch();
+                    break;
+                case 1:
+                    LogStartDesign();
+                    break;
+                case 2:
+                    LogStartSupplyChain();
+                    break;
+                case 3:
+                    LogStartFabrication();
+                    break;
+                default:
+                    Log.Msg("[Logging] Unrecognized minigame zone index: {0}", zoneIndex);
+                    break;
+            }
         }
 
         # region Research
@@ -466,6 +531,11 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("start_supply_chain");
         }
 
+        private void LogShipMenuDisplayed()
+        {
+            m_Log.NewEvent("ship_menu_displayed");
+        }
+
         #endregion // Supply Chain
 
         #region Fabrication
@@ -527,13 +597,29 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogInvalidActivation(string stationId, string nextStation)
+        private void LogInvalidActivation(string stationId)
+        /*
+         "invalid_activation": {
+             "description": "When the player attempted to activate the wrong station.",
+             "event_data": {
+                "station_id" : {
+                   "type" : "str",
+                   "description" : "The ID of the station the player activated."
+                },
+                "next_station" : {
+                   "type" : "str",
+                   "description" : "The actual next station the player was supposed to activate."
+                }
+             }
+          }
+         */
         {
             using (var e = m_Log.NewEvent("invalid_activation"))
             {
                 e.Param("station_id", stationId);
-                e.Param("reason", nextStation);
             }
+
+            // TODO: Log next station id
         }
 
         private void LogStationComplete(string stationId, float accuracy, bool isAutomated)
@@ -562,13 +648,13 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogFabricationSuccess(float accuracy, float time, int production_cycles)
+        private void LogFabricationSuccess(float accuracy, float time, int productionCycles)
         {
             using (var e = m_Log.NewEvent("fabrication_success"))
             {
                 e.Param("accuracy", accuracy);
                 e.Param("time", time);
-                e.Param("production_cycles", production_cycles);
+                e.Param("production_cycles", productionCycles);
             }
         }
 

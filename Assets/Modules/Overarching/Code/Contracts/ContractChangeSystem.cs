@@ -42,6 +42,8 @@ namespace SpaceFab.Overarching {
             switch (changeState.Phase) {
                 case ContractChangePhase.Starting:
                     ProcessStarting(changeState, selectState, layoutState, chapterState);
+                    SpacefabGame.Events.Dispatch(GameEvents.StartChangeContract, changeState.StashedSelectedContractIndex);
+                    Debug.Log("[ContractChangeSystem] dispatch prior contract: " + changeState.StashedSelectedContractIndex);
                     break;
                 /*case ContractChangePhase.Viewing:
                     break;*/
@@ -50,9 +52,13 @@ namespace SpaceFab.Overarching {
                     break;
                 case ContractChangePhase.DoubleConfirmContract:
                     ProcessDoubleConfirmContract(changeState, confirmState);
+                    SpacefabGame.Events.Dispatch(GameEvents.ConfirmChangeContract, selectState.SelectedContractIndex);
+                    Debug.Log("[ContractChangeSystem] dispatch new contract: " + selectState.SelectedContractIndex);
                     break;
                 case ContractChangePhase.DoubleCancelContract:
                     ProcessDoubleCancelContract(changeState, selectState, layoutState);
+                    Debug.Log("[ContractChangeSystem] dispatch cancel change");
+                    SpacefabGame.Events.Dispatch(GameEvents.CancelChangeContract, changeState.StashedSelectedContractIndex);
                     break;
                 case ContractChangePhase.ContractConfirmSystem:
                     ProcessContractConfirmSystem(changeState, layoutState, confirmState);

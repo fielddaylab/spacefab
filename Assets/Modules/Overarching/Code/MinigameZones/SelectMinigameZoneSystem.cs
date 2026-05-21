@@ -50,6 +50,7 @@ namespace SpaceFab.Overarching
 				MinigameZone zone = components[i];
 				if (zone.ClickedThisFrame)
                 {
+                    SpacefabGame.Events.Dispatch(GameEvents.SelectMinigame, i);
                     MinigameZonesUtility.ClickZone(state, palette, zone.ZoneIndex);
                 }
             }

@@ -39,11 +39,15 @@ namespace SpaceFab
         public static readonly StringHash32 OnGameResumed = "shared:on-game-resumed";
 
         // Minigame Navigation
+        public static readonly StringHash32 SelectMinigame = "shared:select-minigame";
+        public static readonly StringHash32 StartMinigame = "shared:start-minigame";
         public static readonly StringHash32 OnMinigameLoad = "shared:on-minigame-load";
         public static readonly StringHash32 OnMinigameExit = "shared:on-minigame-exit";
 
         // Fabrication: Station Control
         public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
+        public static readonly StringHash32 FabActivateStation = "fab:Activate-station"; // Check conflicts with other consts
+        public static readonly StringHash32 FabInvalidActivateStation = "fab:invalid-activate-station";
         public static readonly StringHash32 FabStationLeft = "fab:station-left";
         public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
         public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
@@ -77,6 +81,13 @@ namespace SpaceFab
         public static readonly StringHash32 DesignGridModified = "design-grid:modified";
         // Wiki
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
+
+        // Overarching
+        public static readonly StringHash32 OpenContractView = "overarching:open-contract-view";
+        public static readonly StringHash32 ConfirmSelectContract = "overarching:confirm-select-contract";
+        public static readonly StringHash32 StartChangeContract = "overarching:start-change-contract";
+        public static readonly StringHash32 ConfirmChangeContract = "overarching:confirm-change-contract";
+        public static readonly StringHash32 CancelChangeContract = "overarching:cancel-change-contract";
     }
 
     public static class UpdateMasks

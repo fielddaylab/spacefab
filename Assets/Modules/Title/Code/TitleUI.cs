@@ -156,6 +156,9 @@ namespace SpaceFab.Title
                     SaveUtility.SetDebugFlag(true);
                     SpacefabGame.SaveBuffer.Clear();
                     HandleStartAccepted();
+                    // Debug.Log("New Game");
+                    // SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
+
                     SaveUtility.Save(SaveSlot.Main);
                 }
                 else
