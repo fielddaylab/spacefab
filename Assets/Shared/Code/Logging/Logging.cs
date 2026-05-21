@@ -218,7 +218,6 @@ namespace SpaceFab.Logging
             // TODO: Logging events
             SpacefabGame.Events.Register(GameEvents.TitleStartGameClicked, LogClickNewGame);
             SpacefabGame.Events.Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame);
-
         }
         #endregion
 
