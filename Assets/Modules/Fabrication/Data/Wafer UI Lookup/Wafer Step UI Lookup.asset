@@ -16,27 +16,27 @@ MonoBehaviour:
   - Id:
       m_Source: base
       m_HashValue: 1037866200
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 3dd0d0decd78b8a4cb086aae774b5968, type: 3}
   - Id:
       m_Source: oxide
       m_HashValue: 2866236174
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 03c1603fa90129f4eabf3f2f6aee001c, type: 3}
   - Id:
       m_Source: resist
       m_HashValue: 3194704535
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 9ddcdac2b0cd67d41841afc5e4e82707, type: 3}
   - Id:
       m_Source: mask
       m_HashValue: 3883353449
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 862659f106c85fb4eb8a1d328f3095b2, type: 3}
   - Id:
       m_Source: mask-aligner
       m_HashValue: 1272740242
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 1f8cbb4d65aa5064db3a1cb397fd34c0, type: 3}
   - Id:
       m_Source: etch
       m_HashValue: 298640959
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 6fbcf08dffca7bd47819513aa1744d3f, type: 3}
   - Id:
       m_Source: dopant-n
       m_HashValue: 329340218
@@ -48,8 +48,8 @@ MonoBehaviour:
   - Id:
       m_Source: dopant-np
       m_HashValue: 821642110
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: 71d09420bfb4e3b4b9f4ffa9ba4aa46b, type: 3}
   - Id:
       m_Source: metal
       m_HashValue: 3612782300
-    Sprite: {fileID: 0}
+    Sprite: {fileID: 21300000, guid: e893e9006aebff142af55fd8297d8d00, type: 3}

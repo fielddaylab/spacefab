@@ -1,8 +1,10 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.StationControl;
+using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -65,31 +67,56 @@ namespace SpaceFab.Fabrication.Sequence
         // StationControlState.MicrogameCompletedThisFrame is only set on a normal completion.
         static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState, SequenceVisualsState visualsState)
         {
-            // TODO:
-            //   if (!stationState.MicrogameCompletedThisFrame) return
-            //   if (sequenceState.Status != SequenceStatus.Active) return   // can't complete a step during Restoring
-            //   MicrogameStationInterfacer interfacer = layoutState.StationSlots[movementState.CurrSlotPosition].AssignedStationInterfacer
-            //   if (interfacer == null) return
-            //
-            //   // Defrag branch: completion at the Defrag station unglitches without advancing.
-            //   if (SequenceUtility.IsDefragStation(interfacer.Id)) {
-            //       SequenceUtility.UnglitchCurrentStep(sequenceState)
-            //       return
-            //   }
-            //
-            //   // Non-Defrag branch: check station + wafer against the current step.
-            //   FabricationStep? step = SequenceUtility.GetCurrentStep(sequenceState)
-            //   if (step == null) return
-            //   SerializedHash32 expectedStation = Find.GlobalAsset<SequenceLookup>().GetStationForStep(step.Value.StepId)
-            //   if (interfacer.Id != expectedStation) {
-            //       SequenceUtility.FlagMisalignment(sequenceState)
-            //       return
-            //   }
-            //   if (!WaferStateUtility.MatchesSnapshot(waferState, step.Value.ExpectedWaferAfter)) {
-            //       SequenceUtility.FlagMisalignment(sequenceState)
-            //       return
-            //   }
-            //   SequenceUtility.AdvanceStep(sequenceState, waferState, timeState, movementState, visualsState)
+            if (!stationState.MicrogameCompletedThisFrame) {
+                return;
+            }
+            // The outer ProcessWork early-out allows Restoring through (so this code path runs while
+            // the restore coroutine is pacing the lead-in). The completion check itself, however,
+            // can only validly land during Active — a microgame can't be "completed" mid-restore.
+            if (sequenceState.Status != SequenceStatus.Active) {
+                return;
+            }
+
+            // 1. Resolve which station's microgame just finished from the robot's current slot.
+            if (movementState.CurrSlotPosition < 0 || layoutState.StationSlots == null || movementState.CurrSlotPosition >= layoutState.StationSlots.Length) {
+                return;
+            }
+            MicrogameStationInterfacer interfacer = layoutState.StationSlots[movementState.CurrSlotPosition].AssignedStationInterfacer;
+            if (interfacer == null) {
+                return;
+            }
+
+            // 2. Defrag branch: completion at the universal Defrag station unglitches the current
+            //    step without advancing the sequence pointer.
+            if (SequenceUtility.IsDefragStation(interfacer.Id)) {
+                SequenceUtility.UnglitchCurrentStep(sequenceState);
+                return;
+            }
+
+            // 3. Non-Defrag branch: verify the activated station matches the current step.
+            FabricationStep? step = SequenceUtility.GetCurrentStep(sequenceState);
+            if (step == null) {
+                return;
+            }
+            SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
+            StringHash32 expectedStation = lookup.GetStationForStep(step.Value.StepId);
+            StringHash32 actualStation = interfacer.Id;
+            if (actualStation != expectedStation) {
+                SequenceUtility.FlagMisalignment(sequenceState);
+                return;
+            }
+
+            // 4. Verify the wafer ended in the step's expected postcondition snapshot. While the
+            //    wafer model is scaffold-only, MatchesSnapshot returns true by default so the
+            //    pipeline runs end-to-end.
+            if (!WaferStateUtility.MatchesSnapshot(waferState, step.Value.ExpectedWaferAfter)) {
+                SequenceUtility.FlagMisalignment(sequenceState);
+                return;
+            }
+
+            // 5. Advance — increments CurrentStepIndex, captures a checkpoint if this step is one,
+            //    and flags the visuals layer to play the swap-and-pre-load routine.
+            SequenceUtility.AdvanceStep(sequenceState, waferState, timeState, movementState, visualsState);
         }
     }
 }

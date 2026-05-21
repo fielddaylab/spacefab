@@ -50,6 +50,10 @@ namespace SpaceFab.Fabrication.Sequence
             ResetRequested = false;
             AdvanceRequested = false;
             CompletionRequested = false;
+
+            // Start hidden. Cards only become visible once ModeTransitionSystem transitions into
+            // AttemptLeadIn and sets ResetRequested (consumed by SequenceVisualsSystem).
+            SequenceVisualsUtility.HideAllCards(this);
         }
 
         public void OnDeregister()
@@ -99,52 +103,48 @@ namespace SpaceFab.Fabrication.Sequence
                 SetCardVisible(visualsState.FrontCard, false);
             }
 
-            // 5. Populate and show the back card with the next step (if in range).
+            // 5. Pre-load the back card with the next step (if in range) but keep it hidden — it
+            //    only becomes visible when AdvanceRoutine reveals it during the transition.
             int nextIndex = currentIndex + 1;
             if (nextIndex < steps.Length) {
                 PopulateCard(visualsState.BackCard, steps[nextIndex], GetRuntime(sequenceState, nextIndex), lookup, waferLookup);
-                SetCardVisible(visualsState.BackCard, true);
-            } else {
-                SetCardVisible(visualsState.BackCard, false);
             }
+            SetCardVisible(visualsState.BackCard, false);
         }
 
-        // Non-final step advance. Hides the just-completed front card, swaps the front/back
-        // pointers so the previously-back card (which already holds the new current step's data)
-        // takes over the front, then repopulates the now-back card with the new "next" step. The
-        // placeholder visual is a flat CanvasGroup-alpha toggle bracketing the swap.
+        // Non-final step advance. Reveals the pre-loaded back card (which already holds the
+        // just-advanced-to step's content), hides the old front, swaps the front/back pointers,
+        // and pre-loads the now-back card with the new "next" step — kept hidden until the next
+        // transition. The placeholder visual is a flat CanvasGroup-alpha toggle.
         public static IEnumerator AdvanceRoutine(SequenceVisualsState visualsState, SequenceState sequenceState, int justCompletedIndex)
         {
-            // 1. Hide the outgoing front card for the duration of the swap.
+            // 1. Reveal the back card — it already holds the new current step's content
+            //    (pre-loaded on the previous Reset or Advance). Hide the outgoing front.
+            SetCardVisible(visualsState.BackCard, true);
             SetCardVisible(visualsState.FrontCard, false);
 
             yield return visualsState.TransitionDurationSeconds;
 
-            // 2. Swap which authored slot is front vs. back. The previously-back card already holds
-            //    the just-advanced-to step's content (pre-loaded on the previous transition or on
-            //    Reset), so promoting it requires no repopulate.
+            // 2. Swap which authored slot is front vs. back. The newly-visible card becomes the
+            //    front; the just-hidden card becomes the back and will be re-used for step N+2.
             SequenceCard newFront = visualsState.BackCard;
             SequenceCard newBack = visualsState.FrontCard;
             visualsState.FrontCard = newFront;
             visualsState.BackCard = newBack;
             BringToFront(newFront);
 
-            // 3. Pre-load the new back card with the step after the new current step (if any).
-            //    SequenceUtility.AdvanceStep has already incremented CurrentStepIndex, so the new
-            //    upcoming "next" step is CurrentStepIndex + 1 == justCompletedIndex + 2.
+            // 3. Pre-load the new back card with the step after the new current step (if any),
+            //    but keep it hidden — it only becomes visible at the next advance. AdvanceStep has
+            //    already incremented CurrentStepIndex, so the new upcoming "next" step is
+            //    CurrentStepIndex + 1 == justCompletedIndex + 2.
             FabricationStep[] steps = sequenceState.Level != null ? sequenceState.Level.Steps : null;
             int newBackIndex = justCompletedIndex + 2;
             if (steps != null && newBackIndex < steps.Length) {
                 SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
                 WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
                 PopulateCard(newBack, steps[newBackIndex], GetRuntime(sequenceState, newBackIndex), lookup, waferLookup);
-                SetCardVisible(newBack, true);
-            } else {
-                SetCardVisible(newBack, false);
             }
-
-            // 4. Reveal the new front card (which was already populated; just needs to become visible).
-            SetCardVisible(newFront, true);
+            SetCardVisible(newBack, false);
         }
 
         // Final-step completion. Hides both cards and leaves them hidden until the next reset.
@@ -189,6 +189,14 @@ namespace SpaceFab.Fabrication.Sequence
                 return default;
             }
             return sequenceState.StepRuntime[stepIndex];
+        }
+
+        // Hides both pooled cards. Used by OnRegister to enforce "cards start hidden until the
+        // first lead-in transition", and as the terminal state after CompletionRoutine.
+        public static void HideAllCards(SequenceVisualsState visualsState)
+        {
+            SetCardVisible(visualsState.CardSlotA, false);
+            SetCardVisible(visualsState.CardSlotB, false);
         }
 
         // Toggles a card's CanvasGroup visibility + interactability in one place so the routines
