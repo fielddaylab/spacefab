@@ -235,7 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706f2641905f6d64d924966dcaeba60f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrComic: {fileID: 0}
 --- !u!114 &5367927135572604056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,6 +251,7 @@ MonoBehaviour:
   Transitioning: 0
   ActiveTabIndex: 0
   ActivePageIndex: 0
+  PageWindowStartIndex: 0
   OpenRequestedThisFrame: 0
   CloseRequestedThisFrame: 0
   OpenToRequestedThisFrame: 0
@@ -404,6 +404,7 @@ GameObject:
   - component: {fileID: 823238093238279537}
   - component: {fileID: 4072522671193519559}
   - component: {fileID: 8316876410859674016}
+  - component: {fileID: 4006053134420901605}
   m_Layer: 0
   m_Name: Boot
   m_TagString: Untagged
@@ -546,6 +547,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4006053134420901605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306788214401512335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df42cfd66a6d3f46882e48eedf9ff1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AppId: SPACEFAB
+  m_AppVersion: 0.1
+  m_Firebase:
+    ApiKey: AIzaSyDALfC2i5zGEPvjKS5obUEFi-xXgPJqXk8
+    ProjectId: 'lockes-gambit '
+    StorageBucket: lockes-gambit..appspot.com
+    MessagingSenderId: 441174316468
+    AppId: 1:441174316468:web:5a6b1e02814e02c3c54ee1
+    MeasurementId: 
+  m_Testing: 0
 --- !u!1 &8315598592219549968
 GameObject:
   m_ObjectHideFlags: 0
