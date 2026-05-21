@@ -17,6 +17,8 @@ namespace SpaceFab
 
         public bool RecentlyCompletedChapter;
 
+        public bool BigBatteryUnlocked;
+
         public int ElapsedCycles;
         public int Funds;
 
@@ -66,6 +68,10 @@ namespace SpaceFab
             Funds = reader.Read<int>();
             PlayerProgressUtility.UnpackCompletedContracts(this, reader.Read<uint>());
             PlayerProgressUtility.UnpackMaterialProperties(this, ref reader);
+            // Appended at the tail; SaveVersion is -1 (in flux), so no
+            // version gate. When SaveVersion is fixed, move into a
+            // versioned slot.
+            BigBatteryUnlocked = reader.Read<bool>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
@@ -85,6 +91,7 @@ namespace SpaceFab
             writer.Write(Funds);
             writer.Write(PlayerProgressUtility.PackCompletedContracts(this));
             PlayerProgressUtility.PackMaterialProperties(this, ref writer);
+            writer.Write(BigBatteryUnlocked);
         }
 
         #endregion // Interfaces

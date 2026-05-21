@@ -6,13 +6,6 @@ using UnityEngine;
 
 namespace SpaceFab.Materials
 {
-    [Serializable]
-    public struct AtomicRadius
-    {
-        public int PM;
-        public int Calculated;
-    }
-
     public enum MaterialType
     {
         Silicon,
@@ -31,6 +24,7 @@ namespace SpaceFab.Materials
     public class MaterialAsset : NamedAsset
     {
         public string DisplayName;
+        public string ShortName;
 
         public int[] ValenceElectronCounts;
         public int[] AtomicRadii;

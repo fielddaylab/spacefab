@@ -1,3 +1,4 @@
+using BeauRoutine;
 using FieldDay;
 using FieldDay.Components;
 using SpaceFab.Materials;
@@ -28,11 +29,18 @@ namespace SpaceFab.Research {
 
         [NonSerialized] public MaterialAsset CurrentMaterial;
 
+        // Handle to the slot's in-flight explosion routine, when the held
+        // material has been triggered to explode (e.g. voltage breakdown).
+        // Owned by ResearchExplosionUtility; ResearchExplosionSystem reads
+        // its truthiness to know when the global explosion lock can lift.
+        [NonSerialized] public Routine ExplosionRoutine;
+
         public void OnRegister() {
         }
 
         public void OnDeregister() {
             CurrentMaterial = null;
+            ExplosionRoutine.Stop();
         }
     }
 
@@ -57,7 +65,10 @@ namespace SpaceFab.Research {
                 if (material == null) {
                     ResearchMaterialVisualRigUtility.ClearRig(slot.Rig);
                 } else {
-                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material);
+                    // The slot rig's label is hidden in the chamber
+                    // prefab — pass null for researchState since the
+                    // known/unknown distinction only affects the label.
+                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material, null);
                 }
             }
 

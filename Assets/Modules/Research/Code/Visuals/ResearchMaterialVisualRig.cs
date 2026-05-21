@@ -32,10 +32,13 @@ namespace SpaceFab.Research {
     /// and label. Falls back gracefully if no view is registered.
     /// </summary>
     public static class ResearchMaterialVisualRigUtility {
-        // Applies a material's visual properties to the rig. View is looked up
-        // by MaterialAsset.AssetId; a missing view leaves the rig untouched
-        // and logs a warning.
-        public static void ApplyPropertiesToRig(ResearchMaterialVisualRig rig, MaterialAsset material) {
+        // Applies a material's visual properties to the rig. View is
+        // looked up by MaterialAsset.AssetId; a missing view leaves the
+        // rig untouched and logs a warning. researchState is consulted
+        // for the "is this material known?" check (any sandbox property
+        // confirmed); pass null when not available — the rig falls back
+        // to the unknown label (sample number).
+        public static void ApplyPropertiesToRig(ResearchMaterialVisualRig rig, MaterialAsset material, ResearchMinigameState researchState) {
             if (rig == null) {
                 return;
             }
@@ -60,17 +63,6 @@ namespace SpaceFab.Research {
                 rig.ShadowRenderer.sprite = bodySprite;
             }
 
-            // 2. Hash-derived rotation: deterministic per-material variation
-            // so two gems of the same material always face the same way.
-            float rotation = (material.AssetId.HashValue) / (float)uint.MaxValue;
-            Quaternion rot = Quaternion.Euler(0, 0, rotation * 360f);
-            if (rig.RendererPosition != null) {
-                rig.RendererPosition.localRotation = rot;
-            }
-            if (rig.ShadowPosition != null) {
-                rig.ShadowPosition.localRotation = rot;
-            }
-
             // 3. Uniform scale, baked into the view.
             Vector3 scale = new Vector3(view.GemScale, view.GemScale, 1f);
             if (rig.RendererPosition != null) {
@@ -80,9 +72,13 @@ namespace SpaceFab.Research {
                 rig.ShadowPosition.localScale = scale;
             }
 
-            // 4. Label uses the material's display name.
+            // 4. Label: ShortName once any property is confirmed for
+            // this material in the sandbox; sample number until then.
             if (rig.Label != null) {
-                rig.Label.SetText(material.DisplayName);
+                bool known = researchState != null
+                    && researchState.SandboxProperties.TryGetValue(material.AssetId, out var record)
+                    && !MaterialPropertyRecordUtility.IsEmpty(record);
+                rig.Label.SetText(known ? material.ShortName : view.SampleNumber.ToString());
             }
         }
 

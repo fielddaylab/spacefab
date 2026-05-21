@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: Chapter 1 Def
   m_EditorClassIdentifier: 
   m_availableMaterials:
-  - m_HashValue: 1163381446
+  - m_HashValue: 1571298950
   - m_HashValue: 3821421172
+  - m_HashValue: 1163381446
+  m_excludeFromResearch:
+  - m_HashValue: 1163381446

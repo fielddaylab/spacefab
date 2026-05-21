@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using System;
+using System.Collections.Generic;
 
 namespace SpaceFab.Materials
 {
@@ -18,7 +19,7 @@ namespace SpaceFab.Materials
     {
         public ushort StaticMask;
         public ushort DynamicMask_PDopant;
-        public ushort DynamicMaskNDopant;
+        public ushort DynamicMask_NDopant;
     }
 
     /// <summary>
@@ -38,7 +39,7 @@ namespace SpaceFab.Materials
         {
             return record.StaticMask == 0
                 && record.DynamicMask_PDopant == 0
-                && record.DynamicMaskNDopant == 0;
+                && record.DynamicMask_NDopant == 0;
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace SpaceFab.Materials
                 {
                     return false;
                 }
-                ushort mask = label == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMaskNDopant;
+                ushort mask = label == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMask_NDopant;
                 return (mask & (1 << idx)) != 0;
             }
             else
@@ -101,8 +102,8 @@ namespace SpaceFab.Materials
                 }
                 else
                 {
-                    if ((record.DynamicMaskNDopant & bit) != 0) return false;
-                    record.DynamicMaskNDopant |= bit;
+                    if ((record.DynamicMask_NDopant & bit) != 0) return false;
+                    record.DynamicMask_NDopant |= bit;
                 }
                 return true;
             }
@@ -125,7 +126,72 @@ namespace SpaceFab.Materials
         {
             target.StaticMask |= other.StaticMask;
             target.DynamicMask_PDopant |= other.DynamicMask_PDopant;
-            target.DynamicMaskNDopant |= other.DynamicMaskNDopant;
+            target.DynamicMask_NDopant |= other.DynamicMask_NDopant;
+        }
+
+        /// <summary>
+        /// Appends every confirmed (label, contextMaterialId) pair in
+        /// the record to `output`. Static bits resolve to (label,
+        /// Null); dynamic bits resolve to (label, materialId-at-bit-
+        /// index) via MaterialOrderAsset. Caller-allocates output; does
+        /// NOT clear it. Returns the number of pairs appended this
+        /// call.
+        ///
+        /// Order: static bits first (in GetStaticBitIndex order),
+        /// then PDopantFor entries (in MaterialOrderAsset order), then
+        /// NDopantFor entries. Stable for UIs that display the list
+        /// directly. Bits past the registered MaterialOrderAsset count
+        /// or with no static-label mapping are silently skipped.
+        /// </summary>
+        public static int EnumerateConfirmed(in MaterialPropertyRecord record, ICollection<KeyValuePair<MaterialPropertyLabel, StringHash32>> output)
+        {
+            if (output == null) return 0;
+            int count = 0;
+
+            // 1. Static bits. Bits 0..9 map to specific persistent
+            // labels; bits 10..15 are reserved and treated as no-ops.
+            ushort staticMask = record.StaticMask;
+            for (int bit = 0; bit < 16 && staticMask != 0; bit++)
+            {
+                if ((staticMask & (1 << bit)) == 0) continue;
+                staticMask &= unchecked((ushort)~(1 << bit));
+                if (MaterialPropertyLabelUtility.TryGetStaticLabelAt(bit, out var label))
+                {
+                    output.Add(new KeyValuePair<MaterialPropertyLabel, StringHash32>(label, StringHash32.Null));
+                    count++;
+                }
+            }
+
+            // 2. Dynamic bits. Each bit index resolves to a material id
+            // via MaterialOrderAsset. Skip if the registry is missing
+            // or the bit position has no corresponding registered id.
+            MaterialOrderAsset materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
+            if (materialOrder != null)
+            {
+                int orderCount = materialOrder.Count;
+
+                ushort pMask = record.DynamicMask_PDopant;
+                for (int bit = 0; bit < 16 && pMask != 0; bit++)
+                {
+                    if ((pMask & (1 << bit)) == 0) continue;
+                    pMask &= unchecked((ushort)~(1 << bit));
+                    if (bit >= orderCount) continue;
+                    output.Add(new KeyValuePair<MaterialPropertyLabel, StringHash32>(MaterialPropertyLabel.PDopantFor, materialOrder.GetId(bit)));
+                    count++;
+                }
+
+                ushort nMask = record.DynamicMask_NDopant;
+                for (int bit = 0; bit < 16 && nMask != 0; bit++)
+                {
+                    if ((nMask & (1 << bit)) == 0) continue;
+                    nMask &= unchecked((ushort)~(1 << bit));
+                    if (bit >= orderCount) continue;
+                    output.Add(new KeyValuePair<MaterialPropertyLabel, StringHash32>(MaterialPropertyLabel.NDopantFor, materialOrder.GetId(bit)));
+                    count++;
+                }
+            }
+
+            return count;
         }
     }
 }

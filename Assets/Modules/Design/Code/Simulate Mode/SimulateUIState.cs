@@ -206,12 +206,15 @@ namespace SpaceFab.Design
         // single, named attachment point.
         public static void ShowResultsPanel(SimulateUIState uiState, bool allCorrect)
         {
+            uiState.ResultsPanelVisible = true;
+            ResultStateUtility.ShowResults(Find.State<ResultState>(), allCorrect);
         }
 
         // Hides the results panel. Called on Dismiss or on a fresh Play from SuiteComplete.
         public static void HideResultsPanel(SimulateUIState uiState)
         {
             // TODO: deactivate the results panel GameObject. Set ResultsPanelVisible = false.
+            uiState.ResultsPanelVisible = false;
         }
 
         #region Helpers

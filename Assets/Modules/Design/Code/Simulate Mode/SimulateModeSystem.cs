@@ -83,10 +83,9 @@ namespace SpaceFab.Design
         // PlayFullSuiteRequested if both somehow set the same frame, since the queue carries an
         // older intent. PlayFullSuiteRequested then wins over PlaySingleTestRequested.
         //
-        // Verdict-preservation rule: starting a single-test run wipes all model + UI verdicts so
-        // only the active row will carry a verdict at the end. Starting a full-suite run leaves
-        // existing verdicts intact — they preserve between tests during the run, with each row's
-        // SetVerdict overwriting its own slot as it resolves.
+        // Verdict-clearing rule: any new run (single-test or full-suite) wipes all model + UI
+        // verdicts up front. Each row's SetVerdict then writes its own slot as it resolves, so a
+        // full-suite run accumulates verdicts row-by-row from a clean slate.
         static private void ProcessIdle(SimulateRunState runState, SimulateUIState uiState)
         {
             // Cancel-then-play hand-off. SuiteRunRowButton's click handler sets PendingPlayRowIndex
@@ -108,6 +107,8 @@ namespace SpaceFab.Design
             {
                 runState.Scope = RunScope.FullSuite;
                 runState.CurrentRow = 0;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
                 return;
@@ -398,10 +399,10 @@ namespace SpaceFab.Design
 
             if (runState.PlayFullSuiteRequested)
             {
-                // Full-suite re-run: preserve existing verdicts, each row's SetVerdict will
-                // overwrite its slot as the suite progresses.
                 runState.Scope = RunScope.FullSuite;
                 runState.CurrentRow = 0;
+                SimulateControlUtility.ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
                 SimulateUIUtility.HideResultsPanel(uiState);
                 runState.Phase = SimulatePhase.PreparingTest;
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
@@ -410,8 +411,6 @@ namespace SpaceFab.Design
 
             if (runState.PlaySingleTestRequested)
             {
-                // Single-test re-run: wipe everyone else's verdicts so only the active row
-                // ends up with a result.
                 runState.Scope = RunScope.SingleTest;
                 runState.CurrentRow = runState.RequestedRowIndex;
                 SimulateControlUtility.ClearAllVerdicts(runState);
