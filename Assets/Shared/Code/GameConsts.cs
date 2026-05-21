@@ -23,6 +23,9 @@ namespace SpaceFab
 
         static public readonly StringHash32 TitleProfileStarting = "title:profile-starting";
 
+        static public readonly StringHash32 TitleNewGameClicked = "title:new-game-clicked";
+
+
         // Save
         public static readonly StringHash32 ProfileSaveBegin = "save:profile-save-begin";
         public static readonly StringHash32 ProfileSaveError = "save:profile-save-error";

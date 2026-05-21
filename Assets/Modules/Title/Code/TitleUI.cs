@@ -269,6 +269,7 @@ namespace SpaceFab.Title
             SaveUtility.Save(SaveSlot.Main);
 
             // TODO: set this in OGD
+            SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
             Game.Scenes.LoadMainScene(m_NextScene);
         }

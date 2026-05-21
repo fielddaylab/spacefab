@@ -220,7 +220,7 @@ namespace SpaceFab.Logging
             SpacefabGame.Events.Register<string>(GameEvents.TitleProfileStarting, SetAnalyticsUserCode);
 
             // TODO: Logging events
-
+            SpacefabGame.Events.Register(GameEvents.TitleNewGameClicked, LogClickNewGame);
         }
         #endregion
 
