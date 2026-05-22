@@ -40,6 +40,7 @@ Material:
     - _DestBlend: 10
     - _EnableAlphaClip: 0
     - _EnableFog: 0
+    - _IntensityAlphaMinThreshold: 0
     - _IntensityAlphaThreshold: 1
     - _IntensityColorMinThreshold: 0.001
     - _IntensityColorThreshold: 1

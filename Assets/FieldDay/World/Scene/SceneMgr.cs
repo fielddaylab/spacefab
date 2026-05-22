@@ -1280,6 +1280,15 @@ namespace FieldDay.Scenes {
                 }
             }
 
+            if (data.SceneLocalPoolRoot == null) {
+                GameObject localPool = new GameObject("__ScenePool");
+                localPool.SetActive(false);
+                SceneManager.MoveGameObjectToScene(localPool, scene);
+                localPool.hideFlags = HideFlags.DontSave;
+                data.SceneLocalPoolRoot = localPool.transform;
+                data.SceneLocalPoolRoot.hierarchyCapacity = 1024;
+            }
+
             FlushSceneLoadCallbacks(data, scene, args.Type == SceneType.Main);
 
             args.Counter.Decrement();
@@ -2005,6 +2014,30 @@ namespace FieldDay.Scenes {
             var sceneData = SceneDataExt.Get(SceneManager.GetActiveScene());
             if (sceneData) {
                 return sceneData.GetComponent<TData>();
+            } else {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the scene-local pool root for the given scene.
+        /// </summary>
+        static public Transform GetLocalPool(Scene scene) {
+            var sceneData = SceneDataExt.Get(scene);
+            if (sceneData) {
+                return sceneData.SceneLocalPoolRoot;
+            } else {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the scene-local pool root for the current scene.
+        /// </summary>
+        static public Transform GetActiveSceneLocalPool() {
+            var sceneData = SceneDataExt.Get(SceneManager.GetActiveScene());
+            if (sceneData) {
+                return sceneData.SceneLocalPoolRoot;
             } else {
                 return null;
             }

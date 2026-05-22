@@ -3,7 +3,7 @@ Shader "FieldDay/Lines/Configurable"
     Properties
     {
 		[Header(Textures)] [Space]
-        _MainTex ("Sprite Texture", 2D) = "white" {}
+        _MainTex ("Texture", 2D) = "white" {}
         
 		[Header(Colors)] [Space]
 		_Color ("Tint", Color) = (1,1,1,1)

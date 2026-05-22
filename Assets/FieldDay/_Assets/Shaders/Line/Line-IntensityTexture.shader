@@ -3,7 +3,7 @@ Shader "FieldDay/Lines/Intensity Texture"
     Properties
     {
 		[Header(Textures)] [Space]
-        _MainTex ("Intensity Texture", 2D) = "white" {}
+        _MainTex ("Texture", 2D) = "white" {}
         [KeywordEnum(R,G,B,A)] FD_SAMPLE ("Sample Channel", Int) = 0
 
 		[Header(Intensity Texture)] [Space]
@@ -11,6 +11,7 @@ Shader "FieldDay/Lines/Intensity Texture"
 		_IntensityColorThreshold("Intensity Color Threshold", Range(0.001, 1)) = 1
         _IntensityColorMinThreshold("Intensity Color Min Threshold", Range(0, 1)) = 0.001
 		_IntensityAlphaThreshold("Intensity Alpha Threshold", Range(0.001, 1)) = 1
+        _IntensityAlphaMinThreshold("Intensity Alpha Min Threshold", Range(0, 1)) = 0
 
 		[Header(Colors)] [Space]
         _Color ("Tint", Color) = (1,1,1,1)

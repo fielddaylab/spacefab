@@ -220,6 +220,7 @@ MonoBehaviour:
     m_HashValue: 1163381446
   ConversionInputType:
     m_HashValue: 0
+  Collider: {fileID: 1921850755403689519}
 --- !u!1001 &1746746586659135197
 PrefabInstance:
   m_ObjectHideFlags: 0

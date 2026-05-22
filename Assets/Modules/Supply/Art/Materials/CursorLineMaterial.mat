@@ -40,6 +40,7 @@ Material:
     - _DestBlend: 10
     - _EnableAlphaClip: 0
     - _EnableFog: 0
+    - _IntensityAlphaMinThreshold: 0
     - _IntensityAlphaThreshold: 1
     - _IntensityColorMinThreshold: 0.001
     - _IntensityColorThreshold: 1
@@ -48,5 +49,5 @@ Material:
     - _ZTestMode: 4
     - _ZWriteMode: 0
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 1}
   m_BuildTextureStacks: []

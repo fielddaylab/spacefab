@@ -1,5 +1,6 @@
 using BeauPools;
 using FieldDay.Components;
+using System;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
@@ -8,6 +9,7 @@ namespace SpaceFab.Supply {
         public EdgeCollider2D Collider;
         public LineRenderer StaticLine;
         public LineRenderer ReturnLine;
-        public LineRenderer CursorLine;
+
+        [NonSerialized] public int RouteIndex;
     }
 }

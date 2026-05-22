@@ -293,8 +293,7 @@ namespace FieldDay.Debugging {
             s_Instance = this;
             useGUILayout = false;
 
-            s_TempAllocator = Game.Memory.CreateDebugArena(Unsafe.MiB, "DebugDraw", default);
-
+            s_TempAllocator = Unsafe.CreateArena(Unsafe.MiB, "DebugDraw");
 
             m_MainMesh = CreateVolatileMesh("DEBUG_DepthTest");
             m_OverlayMesh = CreateVolatileMesh("DEBUG_Overlay");
@@ -329,7 +328,7 @@ namespace FieldDay.Debugging {
 
             s_Instance = null;
 
-            s_TempAllocator.Release();
+            Unsafe.TryDestroyArena(ref s_TempAllocator);
             UnityHelper.SafeDestroy(ref m_MainMesh);
             UnityHelper.SafeDestroy(ref m_OverlayMesh);
             m_TempMaterialPropertyBlock.Clear();

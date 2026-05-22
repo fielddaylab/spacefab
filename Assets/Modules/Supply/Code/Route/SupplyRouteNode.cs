@@ -19,6 +19,9 @@ namespace SpaceFab.Supply {
         [AssetName(typeof(MaterialAsset), true)] public StringHash32 MaterialType;
         [AssetName(typeof(MaterialAsset), true)] public StringHash32 ConversionInputType;
 
+        [Header("Components")]
+        public Collider2D Collider;
+
         [NonSerialized] public StringHash32 Id;
         [NonSerialized] public int Index;
 
