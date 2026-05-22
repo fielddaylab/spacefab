@@ -10,7 +10,7 @@ namespace SpaceFab.Save
     /// implements HasValidSolution(), and provides virtual SetDefaults / Read / Write
     /// that handle the shared flag. Concrete save states override Read / Write to
     /// lay out their own bytes and call base.Read / base.Write at the position
-    /// where FoundValidSolution should appear (currently the tail of the chunk).
+    /// where FoundValidSolution should appear (currently the top of the chunk).
     /// </summary>
     public abstract class MinigameSaveStateBase : IMinigameSaveState, ISaveStateChunkObject
     {
