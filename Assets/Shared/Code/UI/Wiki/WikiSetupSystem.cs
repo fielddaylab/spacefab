@@ -2,7 +2,7 @@ using UnityEngine;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
-
+using FieldDay.Scenes;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -15,12 +15,13 @@ namespace SpaceFab.UI {
     public class WikiSetupSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.WikiMask),
+                new SysUpdate(GameLoopPhase.LateUpdate, 100, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadWrite<WikiButton>()
                     .Read<WikiContent>()
                     .ReadWrite<WikiPools>()
                     .ReadWriteShared<WikiState>()
+                    .ReadWriteShared<WikiLayoutState>()
                     .ReadWriteShared<PlayerProgressState>()
             );
         }
@@ -31,14 +32,18 @@ namespace SpaceFab.UI {
                 out PlayerProgressState progressState
                 );
 
+            if (!wikiState.NeedsRebuild) { return; }
+
             var contents = Find.Components<WikiContent>();
             if (contents.Count == 0) { return; }
             WikiContent content = contents[0];
 
             var pools = Find.Components<WikiPools>();
             if (pools.Count == 0) { return; }
+
             WikiPoolUtility.RebuildStrips(content, pools[0]);
             WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
+            wikiState.NeedsRebuild = false;
         }
     }
 }

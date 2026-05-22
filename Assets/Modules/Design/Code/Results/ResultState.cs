@@ -19,15 +19,21 @@ namespace SpaceFab.Design
 
         public void OnRegister()
         {
-            ResultStateUtility.SetEnabledResultsGroup(this, false);
+
+            if (ResultsGroup != null)
+            {
+                ResultStateUtility.SetEnabledResultsGroup(this, false);
+            }
 
             if (DismissButton != null)
             {
+                DismissButton.gameObject.SetActive(true);
                 DismissButton.onClick.AddListener(OnDismissClicked);
             }
 
             if (RetryButton != null)
             {
+                RetryButton.gameObject.SetActive(true);
                 RetryButton.onClick.AddListener(OnRetryClicked);
             }
         }
@@ -47,10 +53,16 @@ namespace SpaceFab.Design
 
         private void OnDismissClicked()
         {
-            // Set the request flag so SimulateModeSystem.ProcessSuiteComplete transitions
-            // to Idle on its next tick. Hide the panel immediately so it doesn't linger.
-            Find.State(out SimulateRunState runState);
-            runState.DismissResultsRequested = true;
+            // Return to overarching scene
+            Find.State(
+                out SimulateRunState runState,
+                out MinigameRequestExitState requestExitState
+            );
+            runState.PlayFullSuiteRequested = false; // in case we were on a single-test pass
+            if (ResultStateUtility.IsAllCorrect(runState))
+            {
+                requestExitState.ExitRequestState = RequestState.Confirmed;
+            }
             ResultStateUtility.SetEnabledResultsGroup(this, false);
         }
 
@@ -70,7 +82,10 @@ namespace SpaceFab.Design
         public static void SetEnabledResultsGroup(ResultState resultState, bool isEnabled)
         {
             if (resultState.ResultsGroup == null)
+            {
+                Debug.LogWarning("ResultState.ResultsGroup is null!");
                 return;
+            }
 
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
@@ -80,7 +95,8 @@ namespace SpaceFab.Design
         {
             if (resultState.TitleText != null)
             {
-                resultState.TitleText.SetText(allCorrect ? "Success" : "Review Results");
+                resultState.TitleText.SetText(allCorrect ? "Success" : "Failure");
+                resultState.TitleText.color = allCorrect ? Color.green : Color.red;
             }
 
             if (resultState.SummaryText != null)
@@ -90,8 +106,17 @@ namespace SpaceFab.Design
                         ? "All outputs matched the expected values."
                         : "Some outputs were incorrect or unstable.");
             }
-
             SetEnabledResultsGroup(resultState, true);
+        }
+
+        static public bool IsAllCorrect(SimulateRunState runState)
+        {
+            TestRowVerdict[] verdicts = runState.RowVerdicts;
+            for (int i = 0; i < verdicts.Length; i++)
+            {
+                if (verdicts[i] != TestRowVerdict.Correct) { return false; }
+            }
+            return true;
         }
     }
 }

@@ -82,5 +82,32 @@ namespace SpaceFab.Materials
                 default: return -1;
             }
         }
+
+        /// <summary>
+        /// Reverse of GetStaticBitIndex: resolves a wire-format bit
+        /// position back to its persistent static label. Returns true
+        /// if the index maps to a known static label; false otherwise
+        /// (e.g., bits 10-15 are reserved for future expansion).
+        ///
+        /// MUST stay in lockstep with GetStaticBitIndex — adding or
+        /// reordering a case in either requires the same in both.
+        /// </summary>
+        public static bool TryGetStaticLabelAt(int bitIndex, out MaterialPropertyLabel label)
+        {
+            switch (bitIndex)
+            {
+                case 0: label = MaterialPropertyLabel.ConductorNaive; return true;
+                case 1: label = MaterialPropertyLabel.InsulatorNaive; return true;
+                case 2: label = MaterialPropertyLabel.Insulator; return true;
+                case 3: label = MaterialPropertyLabel.Conductor; return true;
+                case 4: label = MaterialPropertyLabel.Semiconductor; return true;
+                case 5: label = MaterialPropertyLabel.HiTempConductor; return true;
+                case 6: label = MaterialPropertyLabel.HiTempSemiConductor; return true;
+                case 7: label = MaterialPropertyLabel.LightEmittingSemiconductor; return true;
+                case 8: label = MaterialPropertyLabel.HighVoltageSemiconductor; return true;
+                case 9: label = MaterialPropertyLabel.HighMobilitySemiconductor; return true;
+                default: label = default; return false;
+            }
+        }
     }
 }

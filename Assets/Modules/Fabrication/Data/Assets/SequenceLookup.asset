@@ -17,44 +17,114 @@ MonoBehaviour:
     StationId:
       m_Source: station:furnace
       m_HashValue: 5417925
-    StepSprite: {fileID: 0}
-    StepText: 
-  - StepId: 1
-    StationId:
-      m_Source: station:sputter
-      m_HashValue: 2865545500
-    StepSprite: {fileID: 0}
-    StepText: 
+    ConvertFrom:
+      m_Source: base
+      m_HashValue: 1037866200
+    ConvertToA:
+      m_Source: oxide
+      m_HashValue: 2866236174
+    ConvertToB:
+      m_Source: 
+      m_HashValue: 0
+    StationIconSprite: {fileID: 21300000, guid: 0b0940a4583ec844d971d12d9791ed54, type: 3}
+    StationLabel: FURNACE
+    InstructionLabel: Apply Oxide Layer
   - StepId: 2
     StationId:
       m_Source: station:resist
       m_HashValue: 1292633441
-    StepSprite: {fileID: 0}
-    StepText: 
+    ConvertFrom:
+      m_Source: oxide
+      m_HashValue: 2866236174
+    ConvertToA:
+      m_Source: resist
+      m_HashValue: 3194704535
+    ConvertToB:
+      m_Source: 
+      m_HashValue: 0
+    StationIconSprite: {fileID: 21300000, guid: 9f830cc135a5eab4db9ae26810996c2d, type: 3}
+    StationLabel: SPIN COAT MACHINE
+    InstructionLabel: Apply Photo Resist
   - StepId: 3
     StationId:
       m_Source: station:photolithograpy
       m_HashValue: 2361559002
-    StepSprite: {fileID: 0}
-    StepText: 
+    ConvertFrom:
+      m_Source: resist
+      m_HashValue: 3194704535
+    ConvertToA:
+      m_Source: mask
+      m_HashValue: 3883353449
+    ConvertToB:
+      m_Source: mask-aligner
+      m_HashValue: 1272740242
+    StationIconSprite: {fileID: 21300000, guid: 04be6752c65ebe04c8a761f2c29bb1df, type: 3}
+    StationLabel: MASK ALIGNER
+    InstructionLabel: Align Mask
   - StepId: 4
     StationId:
       m_Source: station:etch
       m_HashValue: 418197577
-    StepSprite: {fileID: 0}
-    StepText: 
+    ConvertFrom:
+      m_Source: mask
+      m_HashValue: 3883353449
+    ConvertToA:
+      m_Source: etch
+      m_HashValue: 298640959
+    ConvertToB:
+      m_Source: 
+      m_HashValue: 0
+    StationIconSprite: {fileID: 21300000, guid: 3e0abb2e85922b746b76427836c07d09, type: 3}
+    StationLabel: ETCHER
+    InstructionLabel: Etch Path
+  - StepId: 1
+    StationId:
+      m_Source: station:sputter
+      m_HashValue: 2865545500
+    ConvertFrom:
+      m_Source: 
+      m_HashValue: 0
+    ConvertToA:
+      m_Source: 
+      m_HashValue: 0
+    ConvertToB:
+      m_Source: 
+      m_HashValue: 0
+    StationIconSprite: {fileID: 0}
+    StationLabel: 
+    InstructionLabel: 
   - StepId: 5
     StationId:
       m_Source: station:sputter
       m_HashValue: 2865545500
-    StepSprite: {fileID: 0}
-    StepText: 
+    ConvertFrom:
+      m_Source: dopant-np
+      m_HashValue: 821642110
+    ConvertToA:
+      m_Source: metal
+      m_HashValue: 3612782300
+    ConvertToB:
+      m_Source: 
+      m_HashValue: 0
+    StationIconSprite: {fileID: 21300000, guid: 3dd73ff47aaac054697e55a84a150997, type: 3}
+    StationLabel: SPUTTER MACHINE
+    InstructionLabel: Apply Metal Layer
   - StepId: 6
     StationId:
       m_Source: station:ion
       m_HashValue: 1666425855
-    StepSprite: {fileID: 0}
-    StepText: 
+    ConvertFrom:
+      m_Source: etch
+      m_HashValue: 298640959
+    ConvertToA:
+      m_Source: dopant-np
+      m_HashValue: 821642110
+    ConvertToB:
+      m_Source: 
+      m_HashValue: 0
+    StationIconSprite: {fileID: 21300000, guid: 1f87f57ecfc1d5249a0d19af5da9f8d6, type: 3}
+    StationLabel: ION IMPLANTER
+    InstructionLabel: Apply Dopant
   m_Chunks:
   - Chunk: 0
     ChunkSprite: {fileID: 0}

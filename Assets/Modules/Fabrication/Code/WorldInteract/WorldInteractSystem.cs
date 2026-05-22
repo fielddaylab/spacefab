@@ -63,10 +63,10 @@ namespace SpaceFab.Fabrication.Movement {
             else if (Game.Input.IsKeyPressed(FabricationConsts.Skip) && StationControlUtility.AllowsSkipProcessAnimation(stationState)) {
                 HandleSkipProcessAnimation(stationState);
             }
-            else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1)) {
-                HandleCancel(interactState, stationState);
-                // TODO: Handle Close Results
-            }
+            // else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1)) {
+            //     HandleCancel(interactState, stationState);
+            //     // TODO: Handle Close Results
+            // }
         }
 
         // Looks up the interfacer at the current slot and asks the station-control machine to activate it.

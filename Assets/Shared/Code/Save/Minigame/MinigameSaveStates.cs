@@ -32,6 +32,10 @@ namespace SpaceFab.Save
 
         public void OnRegister()
         {
+            Design = new DesignSaveState();
+            Fabrication = new FabricationSaveState();
+            Research = new ResearchSaveState();
+            Supply = new SupplySaveState();
             MinigameSaveUtility.ClearMinigameState(this);
 
             SpacefabGame.SaveBuffer.RegisterHandler("DesignSaveState", Design);
@@ -47,16 +51,9 @@ namespace SpaceFab.Save
     {
         public static void ClearMinigameState(MinigameSaveStates saveStates)
         {
-            saveStates.Design = new DesignSaveState();
             saveStates.Design.SetDefaults();
-
-            saveStates.Fabrication = new FabricationSaveState();
             saveStates.Fabrication.SetDefaults();
-
-            saveStates.Research = new ResearchSaveState();
             saveStates.Research.SetDefaults();
-
-            saveStates.Supply = new SupplySaveState();
             saveStates.Supply.SetDefaults();
         }
     }

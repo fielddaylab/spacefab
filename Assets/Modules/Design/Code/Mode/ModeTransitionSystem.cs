@@ -124,7 +124,7 @@ namespace SpaceFab.Design
                 runState.RowVerdicts = new TestRowVerdict[suite.Tests.Length];
             }
 
-            // Flip masks. Both calls are idempotent in FieldDay's GameLoop, so no harm if a future
+            // Flip masks. Both calls are idempotent in GameLoop, so no harm if a future
             // path enters this in an already-Simulate state (currently gated by modeState.Mode).
             GameLoop.SuspendUpdates(UpdateMasks.ToolModeMask);
             GameLoop.ResumeUpdates(UpdateMasks.SimulateModeMask);

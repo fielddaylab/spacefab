@@ -7,6 +7,13 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
 {
+    public enum SputterMicrogamePhase
+    {
+        Idle,
+        Active,
+        Exiting
+    }
+    
     /// <summary>
     /// Holds in-flight data for the Sputter ("Spraypaint") microgame: the sputter head's position,
     /// the fill state of the etched target area, and lifecycle flags consumed by SputterMicrogameSystem.
@@ -16,6 +23,13 @@ namespace SpaceFab.Fabrication.Microgames
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // SputterMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
+        [HideInInspector] public bool InputAccepted;
+        public GameObject SputterUI;
+        public SputterMicrogamePhase Phase;
+
+        public LineRenderer IncidentBeam;
+        public LineRenderer[] ReflectedBeam;
+        public Transform ReflectionPoint;
 
         // TODO: head position, head velocity / input delta.
         // TODO: fill grid (filledCells / targetCells) for precision math.

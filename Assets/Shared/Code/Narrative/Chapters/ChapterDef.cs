@@ -12,7 +12,10 @@ namespace SpaceFab
     public class ChapterDef : NamedAsset
     {
         [AssetName(typeof(MaterialAsset))] [SerializeField] private StringHash32[] m_availableMaterials;
+        [AssetName(typeof(MaterialAsset))] [SerializeField] private StringHash32[] m_excludeFromResearch;
 
         public StringHash32[] AvailableMaterials() { return m_availableMaterials; }
+        public StringHash32[] ExcludeFromResearch() { return m_excludeFromResearch; }
+
     }
 }

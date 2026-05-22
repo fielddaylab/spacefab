@@ -23,6 +23,10 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<ResearchSampleTrayState>()
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
+                    .ReadWriteShared<ResearchHypothesisPagesState>()
+                    .ReadWriteShared<HypothesisViewModelState>()
+                    .ReadWriteShared<ResearchPools>()
+                    .ReadWrite<ResearchSamplePanel>()
             );
         }
 
@@ -37,10 +41,16 @@ namespace SpaceFab.Research {
                 out ChamberInterfacerState interfacerState,
                 out BatteryChamberState batteryChamberState
                 );
+            Find.State(
+                out ResearchHypothesisPagesState hypothesisPagesState,
+                out HypothesisViewModelState hypothesisViewModelState
+                );
 
             researchState.AvailableMaterials.Clear();
             if (chapterState.CurrChapterDef != null) {
+                StringHash32[] excluded = chapterState.CurrChapterDef.ExcludeFromResearch();
                 foreach (var id in chapterState.CurrChapterDef.AvailableMaterials()) {
+                    if (IsExcluded(excluded, id)) continue;
                     researchState.AvailableMaterials.Add(id);
                 }
             }
@@ -68,12 +78,47 @@ namespace SpaceFab.Research {
             // previously-spawned gems before refilling.
             ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
 
-            // Init Battery Chamber
+            // Build the hypothesis page list for the contract's required
+            // research goals. One page per (goal × registered definition).
+            // Resets the viewmodel's active page index to 0.
+            ResearchHypothesisUtility.BuildPages(researchState, hypothesisPagesState, hypothesisViewModelState);
+
+            // Init Battery Chamber. Instantiate the meter rig variant for
+            // this save's unlock state under BatteryContainer, then prime
+            // the dial: assigning Battery first lets RefreshVisualState
+            // populate the freshly-spawned slots in the same pass.
             ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();
-            if (config != null)
+            if (config != null && batteryChamberState.BatteryContainer != null && batteryChamberState.Battery == null)
             {
-                batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
-                VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+                GameObject meterPrefab = playerProgress.BigBatteryUnlocked ? config.BigBatteryMeterPrefab : config.SmallBatteryMeterPrefab;
+                if (meterPrefab != null)
+                {
+                    GameObject meterInstance = UnityEngine.Object.Instantiate(meterPrefab, batteryChamberState.BatteryContainer, false);
+                    batteryChamberState.Battery = meterInstance.GetComponent<ChamberBattery>();
+                }
+
+                if (batteryChamberState.VoltageControl != null)
+                {
+                    batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
+                    VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+                }
+            }
+
+            // Load the observation picker chip set for the active
+            // chamber. Available observations are constant per chamber,
+            // so this is a one-shot sync — pool alloc + layout + overlay
+            // resize. Per-chip disabled state is refreshed reactively by
+            // ObservationPickerRefreshSystem. When the station-transition
+            // system lands and the active chamber goes dynamic, this
+            // call moves alongside the SetActiveChamber switch.
+            ResearchPools pools = Find.State<ResearchPools>();
+            if (pools != null)
+            {
+                foreach (var samplePanel in Find.Components<ResearchSamplePanel>())
+                {
+                    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, batteryChamberState.AvailableObservations);
+                    break;
+                }
             }
 
             // Activate the Battery chamber. This is the only chamber today;
@@ -85,6 +130,17 @@ namespace SpaceFab.Research {
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
+        }
+
+        // Linear membership check against ChapterDef.ExcludeFromResearch.
+        // The list is small (handful of ids per chapter) so a hash-set
+        // build is not worth the allocation.
+        private static bool IsExcluded(StringHash32[] excluded, StringHash32 id) {
+            if (excluded == null) return false;
+            for (int i = 0; i < excluded.Length; i++) {
+                if (excluded[i] == id) return true;
+            }
+            return false;
         }
     }
 }

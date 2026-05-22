@@ -75,7 +75,10 @@ namespace SpaceFab.Research {
 
             instance.Material = material;
             instance.OriginSource = originSource;
-            ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(instance.Rig, material);
+            // Drag-instance labels are hidden in the prefab — pass null
+            // for researchState since the known/unknown distinction only
+            // affects the label.
+            ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(instance.Rig, material, null);
             instance.gameObject.SetActive(true);
             pool.Active.Add(instance);
             return instance;
