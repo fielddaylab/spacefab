@@ -53,6 +53,16 @@ namespace SpaceFab.Overarching
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);
             GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
 
+            // Pre-arm Research's FoundValidSolution when the player's existing knowledge already
+            // covers every property requirement on the accepted contract. Unlike Design or
+            // Fabrication, Research's "valid solution" is purely a knowledge-coverage check, so
+            // it can be satisfied before the minigame is ever entered. The flag is read from
+            // save by ResearchStateUtility.ImportState when the Research scene loads.
+            if (ContractProgressUtility.IsContractSatisfied(playerProgress, contractAssets.ContractDef))
+            {
+                minigameSaveState.Research.FoundValidSolution = true;
+            }
+
             SaveUtility.Save(SaveSlot.Main);
 
             yield return 0.5f;
