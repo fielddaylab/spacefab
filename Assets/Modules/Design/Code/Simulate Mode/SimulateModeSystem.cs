@@ -365,7 +365,7 @@ namespace SpaceFab.Design
                 // produced it.
                 if (suiteAllCorrect)
                 {
-                    designState.FoundValidSolution = true;
+                    designState.MarkFoundValidSolution();
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
             }
