@@ -61,6 +61,8 @@ namespace SpaceFab.Supply
             supplyState.Reliability = saveState.FinalizedReliability;
             supplyState.TotalCycles = saveState.FinalizedTotalCycles;
             supplyState.Cost = saveState.FinalizedCost;
+
+            supplyState.FoundValidSolution = saveState.FoundValidSolution;
         }
 
         public static void ExportState(ref SupplySaveState saveState, SupplyMinigameState supplyState)
@@ -68,6 +70,8 @@ namespace SpaceFab.Supply
             saveState.FinalizedReliability = supplyState.Reliability;
             saveState.FinalizedTotalCycles = supplyState.TotalCycles;
             saveState.FinalizedCost = supplyState.Cost;
+
+            saveState.FoundValidSolution = supplyState.FoundValidSolution;
         }
     }
 }
