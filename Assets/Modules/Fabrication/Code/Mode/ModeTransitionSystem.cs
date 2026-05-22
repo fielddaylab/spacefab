@@ -139,7 +139,7 @@ namespace SpaceFab.Fabrication {
                 // Continue (Finalize) on the results screen is the one moment the Fabrication
                 // attempt is treated as a valid solution. The flag is propagated to
                 // FabricationSaveState by FabricationStateUtility.ExportState on minigame exit.
-                fabState.FoundValidSolution = true;
+                fabState.MarkFoundValidSolution();
                 exitState.ExitRequestState = RequestState.Confirmed;
             }
         }
@@ -168,7 +168,7 @@ namespace SpaceFab.Fabrication {
 
             // Beginning a new attempt invalidates any prior "valid solution" verdict. The flag
             // only re-flips true if the player presses Continue on the results screen.
-            fabState.FoundValidSolution = false;
+            fabState.ClearFoundValidSolution();
 
             visualsState.ResetRequested = true;
         }
