@@ -6,14 +6,12 @@ using UnityEngine;
 
 namespace SpaceFab.Save
 {
-    public class SupplySaveState : IMinigameSaveState, ISaveStateChunkObject
+    public class SupplySaveState : MinigameSaveStateBase, ISaveStateChunkObject
     {
         // outputs
         public int FinalizedReliability;
         public int FinalizedTotalCycles;
         public int FinalizedCost;
-
-        public bool FoundValidSolution;
 
         // layout
         // TODO: paths
@@ -22,28 +20,30 @@ namespace SpaceFab.Save
 
         // ISaveStateChunkObject
 
-        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
+        public override void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
+            base.Read(self, ref reader, consts);
+
             FinalizedReliability = reader.Read<int>();
             FinalizedTotalCycles = reader.Read<int>();
             FinalizedCost = reader.Read<int>();
-
-            FoundValidSolution = reader.Read<bool>();
         }
 
-        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        public override void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
+            base.Write(self, ref writer, consts);
+
             writer.Write(FinalizedReliability);
             writer.Write(FinalizedTotalCycles);
             writer.Write(FinalizedCost);
-
-            writer.Write(FoundValidSolution);
         }
 
         // IMinigameSaveState
 
-        public void SetDefaults()
+        public override void SetDefaults()
         {
+            base.SetDefaults();
+
             FinalizedReliability = -1;
             FinalizedTotalCycles = -1;
             FinalizedCost = -1;

@@ -41,7 +41,7 @@ namespace SpaceFab.Design
         {
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             if (designState == null) { return; }
-            designState.FoundValidSolution = false;
+            designState.ClearFoundValidSolution();
         }
     }
 }

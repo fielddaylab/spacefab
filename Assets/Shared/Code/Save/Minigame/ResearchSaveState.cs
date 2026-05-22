@@ -6,29 +6,27 @@ using UnityEngine;
 
 namespace SpaceFab.Save
 {
-    public class ResearchSaveState : IMinigameSaveState, ISaveStateChunkObject
+    public class ResearchSaveState : MinigameSaveStateBase, ISaveStateChunkObject
     {
-        public bool FoundValidSolution;
-
         #region Interfaces
 
         // ISaveStateChunkObject
 
-        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
+        public override void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-            FoundValidSolution = reader.Read<bool>();
+            base.Read(self, ref reader, consts);
         }
 
-        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        public override void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
-            writer.Write(FoundValidSolution);
+            base.Write(self, ref writer, consts);
         }
 
         // IMinigameSaveState
 
-        public void SetDefaults()
+        public override void SetDefaults()
         {
-
+            base.SetDefaults();
         }
 
         #endregion // Interfaces
