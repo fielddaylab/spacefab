@@ -26,6 +26,7 @@ namespace SpaceFab.Fabrication {
                     .ReadShared<InterruptState>()
                     .ReadWriteShared<MinigameRequestExitState>()
                     .ReadWriteShared<SequenceVisualsState>()
+                    .ReadWriteShared<FabricationMinigameState>()
             );
         }
 
@@ -39,22 +40,23 @@ namespace SpaceFab.Fabrication {
                 );
             Find.State(
                 out MinigameRequestExitState exitState,
-                out SequenceVisualsState visualsState
+                out SequenceVisualsState visualsState,
+                out FabricationMinigameState fabState
                 );
 
             switch (modeState.CurrMode)
             {
                 case LevelMode.PreAttempt:
-                    ProcessPreAttempt(modeState, sequenceState, visualsState);
+                    ProcessPreAttempt(modeState, sequenceState, visualsState, fabState);
                     break;
                 case LevelMode.AttemptLeadIn:
                     ProcessAttemptLeadIn(modeState, countdownState);
                     break;
                 case LevelMode.Attempt:
-                    ProcessAttempt(modeState, sequenceState, interruptState, visualsState);
+                    ProcessAttempt(modeState, sequenceState, interruptState, visualsState, fabState);
                     break;
                 case LevelMode.PostAttempt:
-                    ProcessPostAttempt(modeState, sequenceState, interruptState, exitState, visualsState);
+                    ProcessPostAttempt(modeState, sequenceState, interruptState, exitState, visualsState, fabState);
                     break;
                 default:
                     break;
@@ -63,13 +65,13 @@ namespace SpaceFab.Fabrication {
 
         #region Helpers
 
-        static private void ProcessPreAttempt(ModeState modeState, SequenceState sequenceState, SequenceVisualsState visualsState)
+        static private void ProcessPreAttempt(ModeState modeState, SequenceState sequenceState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
         {
             // TODO: poll for move into Attempt
             if (Input.GetKeyDown(FabricationConsts.Activate))
             {
                 Log.Msg("[ModeTransitionSystem] received input for new wafer -- entering Attempt Mode");
-                TransitionToAttemptLeadIn(modeState, sequenceState, visualsState);
+                TransitionToAttemptLeadIn(modeState, sequenceState, visualsState, fabState);
             }
         }
 
@@ -87,7 +89,7 @@ namespace SpaceFab.Fabrication {
             }
         }
 
-        static private void ProcessAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState, SequenceVisualsState visualsState)
+        static private void ProcessAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
         {
             // TODO: poll for move into post-attempt
             if (sequenceState.Status == SequenceStatus.Completed)
@@ -103,7 +105,7 @@ namespace SpaceFab.Fabrication {
             {
                 Log.Msg("[ModeTransitionSystem] Attempt reset. Moving to AttemptLeadIn Mode");
                 ResetUtility.ResetAttempt();
-                TransitionToAttemptLeadIn(modeState, sequenceState, visualsState);
+                TransitionToAttemptLeadIn(modeState, sequenceState, visualsState, fabState);
             }
 
             // Checkpoint restore stays in Attempt mode (no countdown lead-in). Roll the sequence
@@ -120,20 +122,24 @@ namespace SpaceFab.Fabrication {
             }
         }
 
-        static private void ProcessPostAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState, MinigameRequestExitState exitState, SequenceVisualsState visualsState)
+        static private void ProcessPostAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState, MinigameRequestExitState exitState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
         {
             // poll for reset triggers
             if (interruptState.ResetRequestedThisFrame)
             {
                 Log.Msg("[ModeTransitionSystem] PostAttempt completed. Resetting to AttemptLeadIn Mode");
                 ResetUtility.ResetAttempt();
-                TransitionToAttemptLeadIn(modeState, sequenceState, visualsState);
+                TransitionToAttemptLeadIn(modeState, sequenceState, visualsState, fabState);
             }
 
             // poll for finalize triggers
             if (interruptState.FinalizeAttemptRequestedThisFrame)
             {
                 Log.Msg("[ModeTransitionSystem] PostAttempt completed. Finalizing and exiting level");
+                // Continue (Finalize) on the results screen is the one moment the Fabrication
+                // attempt is treated as a valid solution. The flag is propagated to
+                // FabricationSaveState by FabricationStateUtility.ExportState on minigame exit.
+                fabState.FoundValidSolution = true;
                 exitState.ExitRequestState = RequestState.Confirmed;
             }
         }
@@ -145,7 +151,7 @@ namespace SpaceFab.Fabrication {
         // ResetSequence sets it to 0 for fresh/reset starts; for the checkpoint flow callers set
         // it to checkpoint+1 via RestoreCheckpoint before transitioning. RebuildAllCards reads
         // CurrentStepIndex when it consumes the ResetRequested flag.
-        static private void TransitionToAttemptLeadIn(ModeState modeState, SequenceState sequenceState, SequenceVisualsState visualsState)
+        static private void TransitionToAttemptLeadIn(ModeState modeState, SequenceState sequenceState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
         {
             // Move into AttemptLeadIn Mode -- will generate wafer, countdown to start
             ModeUtility.SetNewMode(modeState, LevelMode.AttemptLeadIn);
@@ -159,6 +165,10 @@ namespace SpaceFab.Fabrication {
             if (sequenceState.Status != SequenceStatus.Restoring) {
                 sequenceState.Status = SequenceStatus.Active;
             }
+
+            // Beginning a new attempt invalidates any prior "valid solution" verdict. The flag
+            // only re-flips true if the player presses Continue on the results screen.
+            fabState.FoundValidSolution = false;
 
             visualsState.ResetRequested = true;
         }
