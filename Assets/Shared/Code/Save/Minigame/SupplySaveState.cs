@@ -13,6 +13,8 @@ namespace SpaceFab.Save
         public int FinalizedTotalCycles;
         public int FinalizedCost;
 
+        public bool FoundValidSolution;
+
         // layout
         // TODO: paths
 
@@ -25,6 +27,8 @@ namespace SpaceFab.Save
             FinalizedReliability = reader.Read<int>();
             FinalizedTotalCycles = reader.Read<int>();
             FinalizedCost = reader.Read<int>();
+
+            FoundValidSolution = reader.Read<bool>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
@@ -32,6 +36,8 @@ namespace SpaceFab.Save
             writer.Write(FinalizedReliability);
             writer.Write(FinalizedTotalCycles);
             writer.Write(FinalizedCost);
+
+            writer.Write(FoundValidSolution);
         }
 
         // IMinigameSaveState

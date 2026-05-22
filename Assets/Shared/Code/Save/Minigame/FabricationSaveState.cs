@@ -11,6 +11,8 @@ namespace SpaceFab.Save
         public int FinalizedTotalCycles;
         public float FinalizedPrecision;
 
+        public bool FoundValidSolution;
+
         #region Interfaces
 
         // ISaveStateChunkObject
@@ -19,12 +21,16 @@ namespace SpaceFab.Save
         {
             FinalizedTotalCycles = reader.Read<int>();
             FinalizedPrecision = reader.Read<float>();
+
+            FoundValidSolution = reader.Read<bool>();
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
             writer.Write(FinalizedTotalCycles);
             writer.Write(FinalizedPrecision);
+
+            writer.Write(FoundValidSolution);
         }
 
         // IMinigameSaveState
