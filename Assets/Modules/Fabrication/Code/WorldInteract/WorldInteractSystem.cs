@@ -73,18 +73,13 @@ namespace SpaceFab.Fabrication.Movement {
         // No-op if the gate fails or the slot is invalid; a null interfacer is allowed through so the
         // machine can stun the robot for a wrong-station attempt.
         static private void HandleActivate(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
-            if (!WorldInteractUtility.CanActivate(interactState, stationState)) 
-            {
-                SpacefabGame.Events.Dispatch(GameEvents.FabInvalidActivateStation, );
-                return; 
-            }
+            if (!WorldInteractUtility.CanActivate(interactState, stationState)) { return; }
 
             int slotIndex = movementState.CurrSlotPosition;
             if (slotIndex < 0 || slotIndex >= layoutState.StationSlots.Length) { return; }
 
             MicrogameStationInterfacer interfacer = layoutState.StationSlots[slotIndex].AssignedStationInterfacer;
             Log.Msg("[WorldInteractSystem] Activate pressed at slot {0}; forwarding to RequestActivate", slotIndex);
-            SpacefabGame.Events.Dispatch(GameEvents.FabActivateStation, slotIndex); // if slotindex identifies station
             StationControlUtility.RequestActivate(stationState, robotState, visualsState, interfacer);
         }
 

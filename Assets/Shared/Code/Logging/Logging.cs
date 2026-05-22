@@ -42,50 +42,15 @@ namespace SpaceFab.Logging
             TRANSISTOR
         }
 
-        public struct GridCoordinate
-        {
-            public int X;
-            public int Y;
-            public Layer Layer;
-
-            public GridCoordinate(int x, int y, Layer layer)
-            {
-                X = x;
-                Y = y;
-                Layer = layer;
-            }
-        }
-
         public struct DesignIO
         {
-            public List<GridCoordinate> Inputs;
-            public List<GridCoordinate> Outputs;
+            public List<GridCoord> Inputs;
+            public List<GridCoord> Outputs;
         }
 
         public struct DesignGrid
         {
             public List<List<HashSet<ToolID>>> Grid;
-
-            public JsonBuilder ToJson(JsonBuilder json)
-            {
-                json.BeginArray();
-                foreach (var row in Grid)
-                {
-                    json.BeginArray();
-                    foreach (var cell in row)
-                    {
-                        json.BeginArray();
-                        foreach (var toolId in cell)
-                        {
-                            json.Item(toolId.ToString());
-                        }
-                        json.EndArray();
-                    }
-                    json.EndArray();
-                }
-                json.EndArray();
-                return json;
-            }
         }
 
         // public  List<List<HashSet<ToolID>>> DesignGrid;
@@ -105,7 +70,7 @@ namespace SpaceFab.Logging
         [NonSerialized] private string m_CurrentContract;
         [NonSerialized] private Minigame? m_CurrentMinigame;
         [NonSerialized] private Dictionary<string, Dictionary<Minigame, int>> m_ContractLevels; // number of levels of each minigame, specified by the contract
-        [NonSerialized] private DesignGrid? m_DesignGrid;
+        [NonSerialized] private DesignGrid? m_DesignGrid = null;
 
         #endregion //Inspector
 
@@ -142,7 +107,15 @@ namespace SpaceFab.Logging
             if (m_DesignGrid.HasValue)
             {
                 m_JsonBuilder.BeginArray("design_grid");
-                m_DesignGrid.Value.ToJson(m_JsonBuilder);
+                m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell =>
+                {
+                    m_JsonBuilder.BeginArray();
+                    foreach (var toolId in cell)
+                    {
+                        m_JsonBuilder.Item(toolId.ToString());
+                    }
+                    m_JsonBuilder.EndArray();
+                }));
                 m_JsonBuilder.EndArray();
             }
             else
@@ -230,10 +203,14 @@ namespace SpaceFab.Logging
                 .Register<int>(GameEvents.SelectMinigame, HandleMinigameSelect)
                 .Register<int>(GameEvents.StartMinigame, HandleMinigameStart);
 
+            // Design
+            SpacefabGame.Events
+                .Register<GridStackConfig>(GameEvents.DesignGridModified, UpdateDesignGridState);
+
             // Fabrication
             SpacefabGame.Events
                 .Register(GameEvents.FabActivateStation, (string stationId) => LogActivateStation(stationId))
-                .Register(GameEvents.FabInvalidActivateStation, (string stationId) => LogInvalidActivation(stationId));
+                .Register<(string, string)>(GameEvents.FabInvalidActivateStation, LogInvalidActivation);
         }
         #endregion
 
@@ -244,6 +221,47 @@ namespace SpaceFab.Logging
         #endregion // Logging Variables
 
         #region State Handlers
+
+        private void UpdateDesignGridState(GridStackConfig config)
+        {
+            for (int row = 0; row < config.LayerDims.X; row++)
+            {
+                for (int col = 0; col < config.LayerDims.Y; col++)
+                {
+                    if (config.Cells[row * config.LayerDims.X + col].LayerIndex == (int)Layer.METAL)
+                    {
+                        GridCellConfig cell = config.Cells[row * config.LayerDims.X + col];
+                        if (cell.CellType != CellType.NONE)
+                        {
+                            switch (cell.CellType)
+                            {
+                                case CellType.Metal:
+                                    m_DesignGrid.Value.Grid[row][col].Add(ToolID.METAL);
+                                    break;
+                                case CellType.PTransistor:
+                                    m_DesignGrid.Value.Grid[row][col].Add(ToolID.PTYPE);
+                                    break;
+                                case CellType.NTransistor:
+                                    m_DesignGrid.Value.Grid[row][col].Add(ToolID.NTYPE);
+                                    break;
+                            }
+                        }
+
+                        if (cell.TransferType != TransferType.NONE) // Exclude TransferType.Implicit
+                        {
+                            if (cell.TransferType == TransferType.Via)
+                            {
+                                m_DesignGrid.Value.Grid[row][col].Add(ToolID.CONTACT);
+                            }
+                            else if (cell.TransferType == TransferType.GateAbove || cell.TransferType == TransferType.GateBelow)
+                            {
+                                m_DesignGrid.Value.Grid[row][col].Add(ToolID.GATE);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         #endregion // State Handlers
 
@@ -416,49 +434,56 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("start_design");
         }
 
-        private void LogDesignLevelBegin(
-            DesignGrid InitialGridState,
-            List<GridCoordinate> inputs,
-            List<GridCoordinate> outputs
-            )
+
+        private void LogDesignLevelBegin(GridStackConfig config)
+            /*
+             "design_level_begin": {
+                 "description": "When the player begins a new level in teh design minigame.",
+                 "event_data": {
+                    "initial_board_state" : {
+                       "type" : "DesignGrid",
+                       "description" : "The initial state of the design grid, when the player began the level."
+                    },
+                    "inputs" : {
+                       "type" : "TBD",
+                       "description" : "The inputs. Not 100% sure what this was. Possibly the coordinates of the input points?"
+                    },
+                    "outputs" : {
+                       "type" : "TBD",
+                       "description" : "The outputs. Not 100% sure what this was. Possibly the coordinates of the output point?"
+                    }
+                 }
+              }
+             */
         {
-            m_DesignGrid = new DesignGrid() { Grid = InitialGridState.Grid };
+            UpdateDesignGridState(config);
             SubmitGameState();
 
             m_JsonBuilder.Begin();
-            InitialGridState.ToJson(m_JsonBuilder);
+            m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell => 
+                { 
+                    m_JsonBuilder.BeginArray(); foreach (var toolId in cell) 
+                    { 
+                        m_JsonBuilder.Item(toolId.ToString()); 
+                    } 
+                    m_JsonBuilder.EndArray(); 
+                }));
             string gridJson = m_JsonBuilder.End().ToString();
 
-            m_JsonBuilder.Begin();
-            m_JsonBuilder.BeginArray("inputs");
-            foreach (var input in inputs)
-            {
-                m_JsonBuilder.BeginObject()
-                    .Field("x", input.X)
-                    .Field("y", input.Y)
-                    .Field("layer", input.Layer.ToString())
-                    .EndObject();
-            }
             m_JsonBuilder.EndArray();
-            string inputsJson = m_JsonBuilder.End().ToString();
 
-            m_JsonBuilder.Begin();
-            m_JsonBuilder.BeginArray("outputs");
-            foreach (var output in outputs){
-                m_JsonBuilder.BeginObject()
-                    .Field("x", output.X)
-                    .Field("y", output.Y)
-                    .Field("layer", output.Layer.ToString())
-                    .EndObject();
-            }
-            m_JsonBuilder.EndArray();
-            string outputsJson = m_JsonBuilder.End().ToString();
-
-            using(var e = m_Log.NewEvent("design_level_begin"))
+            List<(int, int)> inputs = new List<(int, int)>();
+            List<(int, int)> outputs = new List<(int, int)>();
+            for (int i = 0; i < config.LayerDims.X; i++)
             {
-                e.Param("initial_grid_state", gridJson);
-                e.Param("inputs", inputsJson);
-                e.Param("outputs", outputsJson);
+                for (int j = 0; j < config.LayerDims.Y; j++)
+                {
+                    GridCellConfig cell = config.Cells[i * config.LayerDims.X + j];
+                    if (cell.CellType == CellType.Input)
+                    {
+                        inputs.Add((i, j));
+                    }
+                }
             }
         }
 
@@ -470,19 +495,19 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogFillGrid(ToolID toolId, GridCoordinate coordinate)
+        private void LogFillGrid(ToolID toolId, GridCoord coordinate)
         {
             // TODO
             using (var e = m_Log.NewEvent("fill_grid"))
             {
                 e.Param("tool_id", toolId.ToString());
-                e.Param("x", coordinate.X);
-                e.Param("y", coordinate.Y);
+                e.Param("x", coordinate.Row);
+                e.Param("y", coordinate.Col);
                 e.Param("layer", coordinate.Layer.ToString());
             }
         }
 
-        private void LogSubmitDesign(List<GridCoordinate> inputs, List<GridCoordinate> outputs) // ? inputs outputs type
+        private void LogSubmitDesign(List<GridCoord> inputs, List<GridCoord> outputs) // ? inputs outputs type
         {
             // TODO
             m_DesignGrid = null;
@@ -569,12 +594,12 @@ namespace SpaceFab.Logging
             "description": "When the instruction shown to the player is updated.",
             "event_data": {
                 "next_station" : {
-                    "type" : "str",
-                    "description" : "The next station the player needs to complete, as indicated by the instruction."
+                   "type" : "str",
+                   "description" : "The next station the player needs to complete, as indicated by the instruction."
                 },
                 "is_hidden" : {
-                    "type" : "bool",
-                    "description" : "Whether the instruction is currently hidden from the player or not."
+                   "type" : "bool",
+                   "description" : "Whether the instruction is currently hidden from the player or not."
                 }
             }
         }
@@ -597,7 +622,7 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogInvalidActivation(string stationId)
+        private void LogInvalidActivation((string, string) stationIds)
         /*
          "invalid_activation": {
              "description": "When the player attempted to activate the wrong station.",
@@ -616,10 +641,9 @@ namespace SpaceFab.Logging
         {
             using (var e = m_Log.NewEvent("invalid_activation"))
             {
-                e.Param("station_id", stationId);
+                e.Param("station_id", stationIds.Item1);
+                e.Param("next_station", stationIds.Item2);
             }
-
-            // TODO: Log next station id
         }
 
         private void LogStationComplete(string stationId, float accuracy, bool isAutomated)

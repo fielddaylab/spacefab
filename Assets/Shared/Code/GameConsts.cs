@@ -78,6 +78,7 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
 
         // Design: Grid
+        public static readonly StringHash32 DeisgnGridSetup = "design-grid:setup";
         public static readonly StringHash32 DesignGridModified = "design-grid:modified";
         // Wiki
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
