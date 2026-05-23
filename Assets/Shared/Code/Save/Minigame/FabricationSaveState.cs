@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SpaceFab.Save
 {
-    public class FabricationSaveState : IMinigameSaveState, ISaveStateChunkObject
+    public class FabricationSaveState : MinigameSaveStateBase, ISaveStateChunkObject
     {
         public int FinalizedTotalCycles;
         public float FinalizedPrecision;
@@ -15,22 +15,28 @@ namespace SpaceFab.Save
 
         // ISaveStateChunkObject
 
-        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
+        public override void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
+            base.Read(self, ref reader, consts);
+
             FinalizedTotalCycles = reader.Read<int>();
             FinalizedPrecision = reader.Read<float>();
         }
 
-        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        public override void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
+            base.Write(self, ref writer, consts);
+
             writer.Write(FinalizedTotalCycles);
             writer.Write(FinalizedPrecision);
         }
 
         // IMinigameSaveState
 
-        public void SetDefaults()
+        public override void SetDefaults()
         {
+            base.SetDefaults();
+
             FinalizedTotalCycles = -1;
             FinalizedPrecision = -1;
         }

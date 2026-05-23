@@ -17,7 +17,6 @@ namespace SpaceFab.Design
         #region Saved State
 
         // public GridStack GridStack; // delegate to GridStackState
-        public bool FoundValidSolution;
 
         #endregion // Saved State
 

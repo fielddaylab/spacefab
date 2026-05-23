@@ -85,12 +85,14 @@ namespace SpaceFab.Research
         // supported feature today; this exists only to satisfy IMinigameState.
         public static void ImportState(ResearchSaveState saveState, ResearchMinigameState researchState)
         {
+            researchState.FoundValidSolution = saveState.FoundValidSolution;
         }
 
         // Mid-session save-chunk export hook. Mid-session resume is not a
         // supported feature today; this exists only to satisfy IMinigameState.
         public static void ExportState(ref ResearchSaveState saveState, ResearchMinigameState researchState)
         {
+            saveState.FoundValidSolution = researchState.FoundValidSolution;
         }
 
         #region Sandbox helpers

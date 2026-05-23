@@ -8,37 +8,39 @@ using UnityEngine;
 
 namespace SpaceFab.Save
 {
-    public class DesignSaveState : IMinigameSaveState, ISaveStateChunkObject
+    public class DesignSaveState : MinigameSaveStateBase, ISaveStateChunkObject
     {
         public GridStack GridStack;
-        public bool FoundValidSolution;
 
         #region Interfaces
 
         // ISaveStateChunkObject
 
-        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
+        public override void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
+            base.Read(self, ref reader, consts);
+
             DesignSaveUtility.ReadGridStack(ref reader, consts, this, ref GridStack);
-            FoundValidSolution = reader.Read<bool>();
         }
 
-        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        public override void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
+            base.Write(self, ref writer, consts);
+
             if (GridStack == null)
             {
                 GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
             }
 
             DesignSaveUtility.WriteGridStack(ref writer, consts, this, ref GridStack);
-
-            writer.Write(FoundValidSolution);
         }
 
         // IMinigameSaveState
 
-        public void SetDefaults()
+        public override void SetDefaults()
         {
+            base.SetDefaults();
+
             GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
         }
 
