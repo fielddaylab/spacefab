@@ -20,6 +20,14 @@ namespace SpaceFab.Design
 
         #endregion // Saved State
 
+        #region Session State
+
+        // Switches between the classic per-row "Run" buttons and the new toggle-the-grid-and-Test flow.
+        // Session-only; not serialized to save data. Defaults to true (new mode) on each game launch.
+        public bool UseToggleInputMode = true;
+
+        #endregion // Session State
+
         #region Interfaces
 
         // IRegistrationCallbacks
@@ -58,12 +66,30 @@ namespace SpaceFab.Design
             }
 
             designState.FoundValidSolution = saveState.FoundValidSolution;
+
+            // InputToggleState may not be registered during very early boot. The seed system will
+            // still merge defaults if no saved entries are staged, so a missing state isn't fatal.
+            InputToggleState toggleState = Find.State<InputToggleState>();
+            if (toggleState != null)
+            {
+                InputToggleUtility.ImportFromSaveData(toggleState, saveState.InputToggles);
+            }
         }
 
         public static void ExportState(ref DesignSaveState saveState, DesignMinigameState designState)
         {
             saveState.GridStack = Find.State<GridStackState>().GridStack;
             saveState.FoundValidSolution = designState.FoundValidSolution;
+
+            InputToggleState toggleState = Find.State<InputToggleState>();
+            if (toggleState != null)
+            {
+                InputToggleUtility.ExportToSaveData(toggleState, ref saveState.InputToggles);
+            }
+            else
+            {
+                saveState.InputToggles.Count = 0;
+            }
         }
     }
 }
