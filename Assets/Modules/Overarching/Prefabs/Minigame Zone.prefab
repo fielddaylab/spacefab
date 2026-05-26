@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &457547894819493604
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2761901257139964041}
+  m_Layer: 0
+  m_Name: Alert Icon Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2761901257139964041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 457547894819493604}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.03, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6647263500822826055}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1927586538187820840
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,6 +409,7 @@ Transform:
   - {fileID: 1060483360200844954}
   - {fileID: 6873423246364412922}
   - {fileID: 1828879772581654070}
+  - {fileID: 2761901257139964041}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6519104967692260173
@@ -397,6 +429,7 @@ MonoBehaviour:
   MinigameScene:
     m_ScenePath: 
     m_GUID: 
+  Minigame: 0
   ClickedThisFrame: 0
   PointerEnterThisFrame: 0
   PointerExitThisFrame: 0
@@ -404,6 +437,7 @@ MonoBehaviour:
   EmphasisHighlight: {fileID: 0}
   HighlightRenderer: {fileID: 8531460993172419748}
   StationLabel: {fileID: 6783994990659074629}
+  AlertIconContainer: {fileID: 2761901257139964041}
 --- !u!1001 &2037735179039283220
 PrefabInstance:
   m_ObjectHideFlags: 0

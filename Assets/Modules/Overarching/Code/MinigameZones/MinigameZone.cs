@@ -15,6 +15,10 @@ namespace SpaceFab.Overarching
         public PointerListener PointerListener;
         public SceneReference MinigameScene;
 
+        // Identifies which minigame this zone represents. Drives the per-zone alert mask lookup
+        // in OverarchingAlertState and the FoundValidSolution auto-rule.
+        public MinigameId Minigame;
+
         public bool ClickedThisFrame;
         public bool PointerEnterThisFrame;
         public bool PointerExitThisFrame;
@@ -24,6 +28,10 @@ namespace SpaceFab.Overarching
         public Sprite EmphasisHighlight;
         public SpriteRenderer HighlightRenderer;
         public TMP_Text StationLabel;
+
+        // Worldspace child transform where OverarchingAlertSystem parents pooled AlertIconView
+        // instances. Icons are positioned at fixed horizontal offsets per stack index.
+        public Transform AlertIconContainer;
 
         public void OnRegister()
         {
