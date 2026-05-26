@@ -456,13 +456,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Interact Zone
       objectReference: {fileID: 0}
+    - target: {fileID: 9065006198855432801, guid: 1fc1cbd33543e4d499dfd4eef30b8737, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6153400595608793913, guid: 1fc1cbd33543e4d499dfd4eef30b8737, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3359015160812930247, guid: 1fc1cbd33543e4d499dfd4eef30b8737, type: 3}
-      insertIndex: -1
+      insertIndex: 2
       addedObject: {fileID: 2015180055454594206}
   m_SourcePrefab: {fileID: 100100000, guid: 1fc1cbd33543e4d499dfd4eef30b8737, type: 3}
 --- !u!4 &1828879772581654070 stripped

@@ -101,9 +101,12 @@ namespace SpaceFab.Overarching
                 {
                     CancelSelected(state, palette);
                 }
+
+                // Click immediately enters minigame now
                 state.CurrSelectedIndex = indexToClick;
                 SetHighlightSprite(state.Zones[indexToClick].HighlightRenderer, state.Zones[indexToClick].EmphasisHighlight, state.Zones[indexToClick].StationLabel);
                 SetHighlightColor(state.Zones[indexToClick].HighlightRenderer, palette.CurrPalette.HardHighlight);
+                ConfirmEnterMinigame(state);
             }
         }
 

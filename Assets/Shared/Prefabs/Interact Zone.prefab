@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 370985324057490978}
   - component: {fileID: 9065006198855432801}
+  - component: {fileID: 8338528146378967448}
   - component: {fileID: 6153400595608793913}
   m_Layer: 0
   m_Name: Interact Zone
@@ -47,6 +48,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AlwaysFireClickEvents: 0
   AcceptedMouseButtons: 1
+--- !u!114 &8338528146378967448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3359015160812930247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 4083764610
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!65 &6153400595608793913
 BoxCollider:
   m_ObjectHideFlags: 0
