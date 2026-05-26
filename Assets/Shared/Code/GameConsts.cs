@@ -39,6 +39,7 @@ namespace SpaceFab
         public static readonly StringHash32 OnGameResumed = "shared:on-game-resumed";
 
         // Minigame Navigation
+        public static readonly StringHash32 ShipMenuDisplayed = "shared:ship-menu-displayed";
         public static readonly StringHash32 SelectMinigame = "shared:select-minigame";
         public static readonly StringHash32 StartMinigame = "shared:start-minigame";
         public static readonly StringHash32 OnMinigameLoad = "shared:on-minigame-load";

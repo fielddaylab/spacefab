@@ -83,6 +83,8 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
 
             ScriptUtility.Trigger("OnContractSelectOpen");
+            Debug.Log("[OverarchingStartupSequenceSystem] dispatch OpenContractView");
+            SpacefabGame.Events.Dispatch(GameEvents.OpenContractView);
         }
 
         public static void LoadAvailableContractIntoOptionButton(ContractOptionButton optionBtn, ContractDef contract) 

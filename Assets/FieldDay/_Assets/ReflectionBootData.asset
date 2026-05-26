@@ -57,11 +57,15 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 1
+      TypeCount: 2
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
     - TypeName: SpaceFab.SpacefabGame
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
+    - TypeName: SpaceFab.Design.DesignTriggers
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -71,6 +75,8 @@ MonoBehaviour:
       OverloadCount: 0
     Members:
     - MemberName: OnBoot
+      Type: 8
+    - MemberName: Init
       Type: 8
     - MemberName: OnBoot
       Type: 8
@@ -124,7 +130,7 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: FieldDay.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 11
+      TypeCount: 10
     Types:
     - TypeName: FieldDay.Scenes.SceneMgr
       Self: 0
@@ -158,10 +164,6 @@ MonoBehaviour:
       Self: 0
       MemberCount: 1
       OverloadCount: 0
-    - TypeName: FieldDay.Debugging.SmokeTestMgr
-      Self: 0
-      MemberCount: 1
-      OverloadCount: 0
     - TypeName: FieldDay.Audio.AudioMgr
       Self: 0
       MemberCount: 1
@@ -184,8 +186,6 @@ MonoBehaviour:
     - MemberName: CreateDebugMenu
       Type: 8
     - MemberName: CreateSystemsDebugMenu
-      Type: 8
-    - MemberName: CreateDebugMenu
       Type: 8
     - MemberName: CreateDebugMenu
       Type: 8

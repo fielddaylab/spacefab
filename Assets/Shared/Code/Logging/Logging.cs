@@ -13,6 +13,7 @@ using System.Diagnostics.Tracing;
 using FieldDay.Analytics;
 using System.Linq;
 using SpaceFab.Design;
+using Debug = UnityEngine.Debug;
 
 
 namespace SpaceFab.Logging
@@ -197,6 +198,7 @@ namespace SpaceFab.Logging
                 .Register<bool>(GameEvents.TitleStartGameClicked, LogGameStart)
                 .Register(GameEvents.TitleNewGameClicked, LogClickNewGame)
                 .Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame)
+                .Register(GameEvents.ShipMenuDisplayed, LogShipMenuDisplayed)
                 .Register(GameEvents.OpenContractView, LogOpenContractView)
                 .Register<string>(GameEvents.ConfirmSelectContract, LogAcceptContract)
                 .Register<string>(GameEvents.StartChangeContract, LogStartChangeContract)
@@ -304,6 +306,11 @@ namespace SpaceFab.Logging
             m_Log.NewEvent("click_resume_game");
         }
 
+        private void LogShipMenuDisplayed()
+        {
+            using (m_Log.NewEvent("ship_menu_displayed")) { }
+        }
+
         private void LogAcceptContract(string contractId)
         /*
          "accept_contract": {
@@ -349,7 +356,7 @@ namespace SpaceFab.Logging
 
         private void LogOpenContractView()
         {
-            m_Log.NewEvent("open_contract_view");
+            using (m_Log.NewEvent("open_contract_view")) { }
         }
 
         private void LogStartChangeContract(string contractId)
@@ -387,6 +394,7 @@ namespace SpaceFab.Logging
                     LogSelectSupplyChain();
                     break;
                 case 1:
+                    Debug.Log("Design selected");
                     LogSelectDesign();
                     break;
                 case 2:
@@ -410,6 +418,7 @@ namespace SpaceFab.Logging
                     LogStartResearch();
                     break;
                 case 1:
+                    Debug.Log("Design started");
                     LogStartDesign();
                     break;
                 case 2:
@@ -427,7 +436,7 @@ namespace SpaceFab.Logging
         # region Research
         private void LogSelectResearch()
         {
-            m_Log.NewEvent("select_research");
+            using (m_Log.NewEvent("select_research")) { }
         }
 
         private void LogStartResearch()
@@ -435,7 +444,7 @@ namespace SpaceFab.Logging
             m_CurrentMinigame = Minigame.RESEARCH;
             SubmitGameState();
 
-            m_Log.NewEvent("start_research");
+            using (m_Log.NewEvent("start_research")) { }
         }
 
         #endregion // Research
@@ -444,15 +453,16 @@ namespace SpaceFab.Logging
 
         private void LogSelectDesign()
         {
-            m_Log.NewEvent("select_design");
+            using (m_Log.NewEvent("select_design")) { }
         }
 
         private void LogStartDesign()
         {
+            Debug.Log($"LogStartDesign called. m_Log null? {m_Log == null}");
             m_CurrentMinigame = Minigame.DESIGN;
             SubmitGameState();
-
-            m_Log.NewEvent("start_design");
+            using (m_Log.NewEvent("start_design")) { }
+            Debug.Log("start_design event scope disposed");
         }
 
 
@@ -555,7 +565,7 @@ namespace SpaceFab.Logging
             m_DesignGrid = null;
             SubmitGameState();
 
-            m_Log.NewEvent("exit_design");
+            using (m_Log.NewEvent("exit_design")) { }
         }
 
         #endregion // Design
@@ -564,7 +574,7 @@ namespace SpaceFab.Logging
 
         private void LogSelectSupplyChain()
         {
-            m_Log.NewEvent("select_supply_chain");
+            using (m_Log.NewEvent("select_supply_chain")) { }
         }
 
         private void LogStartSupplyChain()
@@ -572,12 +582,7 @@ namespace SpaceFab.Logging
             m_CurrentMinigame = Minigame.SUPPLY_CHAIN;
             SubmitGameState();
 
-            m_Log.NewEvent("start_supply_chain");
-        }
-
-        private void LogShipMenuDisplayed()
-        {
-            m_Log.NewEvent("ship_menu_displayed");
+            using (m_Log.NewEvent("start_supply_chain")) { }
         }
 
         #endregion // Supply Chain
@@ -586,7 +591,7 @@ namespace SpaceFab.Logging
 
         private void LogSelectFabrication()
         {
-            m_Log.NewEvent("select_fabrication");
+            using (m_Log.NewEvent("select_fabrication")) { }
         }
         
         private void LogStartFabrication()
@@ -594,17 +599,17 @@ namespace SpaceFab.Logging
             m_CurrentMinigame = Minigame.FABRICATION;
             SubmitGameState();
 
-            m_Log.NewEvent("start_fabrication");
+            using (m_Log.NewEvent("start_fabrication")) { }
         }
 
         private void LogGenerateWafer()
         {
-            m_Log.NewEvent("generate_wafer");
+            using (m_Log.NewEvent("generate_wafer")) { }
         }
 
         private void LogTimerStart()
         {
-            m_Log.NewEvent("timer_start");
+            using (m_Log.NewEvent("timer_start")) { } ;
         }
 
         private void LogInstructionUpdated(string nextStation, bool isHidden)
@@ -680,7 +685,7 @@ namespace SpaceFab.Logging
             m_CurrentMinigame = null;
             SubmitGameState();
 
-            m_Log.NewEvent("fabrication_complete");
+            using (m_Log.NewEvent("fabrication_complete")) { } ;
         }
 
         private void LogUseAutomation(string stationId)
@@ -705,7 +710,7 @@ namespace SpaceFab.Logging
 
         private void LogLevelMenuDisplayed()
         {
-            m_Log.NewEvent("level_menu_displayed");
+            using (m_Log.NewEvent("level_menu_displayed")) { } ;
         }
 
         private void LogSelectLevel(string levelId)
