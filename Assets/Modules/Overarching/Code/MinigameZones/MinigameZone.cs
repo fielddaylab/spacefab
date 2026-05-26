@@ -4,6 +4,7 @@ using FieldDay;
 using FieldDay.Components;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Overarching
@@ -19,13 +20,19 @@ namespace SpaceFab.Overarching
         public bool PointerExitThisFrame;
 
         [Header("Visuals")]
+        public Sprite NormalHighlight;
+        public Sprite EmphasisHighlight;
         public SpriteRenderer HighlightRenderer;
+        public TMP_Text StationLabel;
 
         public void OnRegister()
         {
             PointerListener.onClick.AddListener(HandleClick);
             PointerListener.onPointerEnter.AddListener(HandlePointerEnter);
             PointerListener.onPointerExit.AddListener(HandlePointerExit);
+
+            HighlightRenderer.enabled = false;
+            StationLabel.enabled = false;
         }
 
         public void OnDeregister()
