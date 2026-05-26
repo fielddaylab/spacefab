@@ -108,11 +108,16 @@ namespace SpaceFab.Overarching
         {
             if (mask == AlertType.None) { return; }
 
+
+
             int stackIndex = 0;
             for (int b = 0; b < DisplayOrder.Length; b++)
             {
                 AlertType bit = DisplayOrder[b];
                 if ((mask & bit) == 0) { continue; }
+
+                // locked overrides any other alerts
+                if (((mask & AlertType.Locked)) != 0 && (bit != AlertType.Locked)) { continue; }
 
                 AlertIconView icon = pools.AlertPool.Alloc();
                 if (icon == null) { continue; }

@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using Leaf.Runtime;
 using SpaceFab.Save;
 using UnityEngine;
 
@@ -21,6 +22,12 @@ namespace SpaceFab.Overarching
     /// </summary>
     public class OverarchingAlertState : SharedStateComponent, IRegistrationCallbacks
     {
+        // Designer-authored progression order. When the auto-rule runs, every minigame that
+        // comes after the first unsolved entry in this sequence has Locked OR'd into its mask.
+        // Leave empty (length 0 or null) to disable progression locking entirely. Order matters;
+        // duplicates are allowed but redundant.
+        public MinigameId[] ProgressionSequence;
+
         // Flat mask per minigame, indexed by (int)MinigameId. Sized to (int)MinigameId.COUNT.
         [HideInInspector] public AlertType[] Masks;
 
@@ -67,7 +74,6 @@ namespace SpaceFab.Overarching
             return (GetMask(state, mg) & bit) != 0;
         }
 
-        // [LeafMember("SetMinigameAlert")] when Leaf wires in
         public static void SetAlertBit(OverarchingAlertState state, MinigameId mg, AlertType bit)
         {
             if (state == null || state.Masks == null) { return; }
@@ -80,9 +86,24 @@ namespace SpaceFab.Overarching
             state.AlertVisualsDirty = true;
         }
 
-        // [LeafMember("ClearMinigameAlert")] when Leaf wires in
-        public static void ClearAlertBit(OverarchingAlertState state, MinigameId mg, AlertType bit)
+        [LeafMember("SetMinigameAlert")]
+        public static void SetAlertBitLeaf(MinigameId mg, AlertType bit)
         {
+            var state = Find.State<OverarchingAlertState>();
+            if (state == null || state.Masks == null) { return; }
+            int idx = (int)mg;
+            if (idx < 0 || idx >= state.Masks.Length) { return; }
+            AlertType prev = state.Masks[idx];
+            AlertType next = prev | bit;
+            if (next == prev) { return; }
+            state.Masks[idx] = next;
+            state.AlertVisualsDirty = true;
+        }
+
+        [LeafMember("ClearMinigameAlert")]
+        public static void ClearAlertBitLeaf(MinigameId mg, AlertType bit)
+        {
+            var state = Find.State<OverarchingAlertState>();
             if (state == null || state.Masks == null) { return; }
             int idx = (int)mg;
             if (idx < 0 || idx >= state.Masks.Length) { return; }
@@ -93,23 +114,57 @@ namespace SpaceFab.Overarching
             state.AlertVisualsDirty = true;
         }
 
-        // One-shot derivation. For each minigame that has a save state, set NeedsAttention if
-        // FoundValidSolution is false, or Complete if it's true. Does NOT clear other bits —
-        // Leaf hooks that set bits before scene entry will be ORed against, not overwritten.
-        // Called exactly once per Overarching scene load by OverarchingAlertSystem.
+        // One-shot derivation. Runs in two passes:
+        //   (1) For every MinigameId, set NeedsAttention if !FoundValidSolution, Complete if true.
+        //   (2) Walk ProgressionSequence in order; once we hit the first entry with
+        //       !FoundValidSolution, every subsequent entry gets Locked OR'd into its mask.
+        // Both passes use SetAlertBit, which only ORs in — Leaf hooks that pre-set bits before
+        // scene entry are preserved. Called exactly once per Overarching scene load.
         public static void ApplyAutoRuleFromSaveStates(OverarchingAlertState state, MinigameSaveStates saveStates)
         {
             if (state == null || saveStates == null) { return; }
-            ApplyOne(state, MinigameId.Design,      saveStates.Design      != null && saveStates.Design.FoundValidSolution);
-            ApplyOne(state, MinigameId.Research,    saveStates.Research    != null && saveStates.Research.FoundValidSolution);
-            ApplyOne(state, MinigameId.Fabrication, saveStates.Fabrication != null && saveStates.Fabrication.FoundValidSolution);
-            ApplyOne(state, MinigameId.Supply,      saveStates.Supply      != null && saveStates.Supply.FoundValidSolution);
+
+            // Pass 1: NeedsAttention / Complete per minigame.
+            for (int i = 0; i < (int)MinigameId.COUNT; i++)
+            {
+                MinigameId mg = (MinigameId)i;
+                bool solved = GetSolvedFlag(saveStates, mg);
+                SetAlertBit(state, mg, solved ? AlertType.Complete : AlertType.NeedsAttention);
+            }
+
+            // Pass 2: progression-order locking. Lock every minigame that appears in the sequence
+            // after the player's current frontier (the first unsolved entry). Skipped entirely
+            // when no progression sequence is authored.
+            if (state.ProgressionSequence == null || state.ProgressionSequence.Length == 0) { return; }
+            bool reachedFrontier = false;
+            for (int i = 0; i < state.ProgressionSequence.Length; i++)
+            {
+                MinigameId mg = state.ProgressionSequence[i];
+                if (reachedFrontier)
+                {
+                    SetAlertBit(state, mg, AlertType.Locked);
+                    continue;
+                }
+                if (!GetSolvedFlag(saveStates, mg))
+                {
+                    reachedFrontier = true;
+                }
+            }
         }
 
-        // Sets exactly one of the two mutually-exclusive auto-rule bits for the given minigame.
-        private static void ApplyOne(OverarchingAlertState state, MinigameId mg, bool solved)
+        // Resolves a MinigameId to its corresponding MinigameSaveStates.FoundValidSolution flag.
+        // Returns false for any id without a save-state slot (defensive — none today, but the
+        // enum could grow with non-save-backed entries in the future).
+        private static bool GetSolvedFlag(MinigameSaveStates saveStates, MinigameId mg)
         {
-            SetAlertBit(state, mg, solved ? AlertType.Complete : AlertType.NeedsAttention);
+            switch (mg)
+            {
+                case MinigameId.Design:      return saveStates.Design      != null && saveStates.Design.FoundValidSolution;
+                case MinigameId.Research:    return saveStates.Research    != null && saveStates.Research.FoundValidSolution;
+                case MinigameId.Fabrication: return saveStates.Fabrication != null && saveStates.Fabrication.FoundValidSolution;
+                case MinigameId.Supply:      return saveStates.Supply      != null && saveStates.Supply.FoundValidSolution;
+                default:                     return false;
+            }
         }
     }
 }
