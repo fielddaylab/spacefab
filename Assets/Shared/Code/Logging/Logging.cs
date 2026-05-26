@@ -61,7 +61,7 @@ namespace SpaceFab.Logging
         [NonSerialized] private bool m_Debug;
 
         #region Inspector
-        [SerializeField, Required] private string m_AppId;
+        [SerializeField, Required] private string m_AppId = "SPACEFAB";
         [SerializeField, Required] private string m_AppVersion;
         [SerializeField] private FirebaseConsts m_Firebase;
         [SerializeField] private bool m_Testing;
@@ -69,7 +69,7 @@ namespace SpaceFab.Logging
         //[NonSerialized] private float m_SecondsFromLaunch;
         [NonSerialized] private string m_CurrentContract;
         [NonSerialized] private Minigame? m_CurrentMinigame;
-        [NonSerialized] private Dictionary<string, Dictionary<Minigame, int>> m_ContractLevels; // number of levels of each minigame, specified by the contract
+        [NonSerialized] private Dictionary<string, Dictionary<Minigame, int>> m_ContractLevels = new Dictionary<string, Dictionary<Minigame, int>>(); // number of levels of each minigame, specified by the contract
         [NonSerialized] private DesignGrid? m_DesignGrid = null;
 
         #endregion //Inspector
@@ -93,14 +93,17 @@ namespace SpaceFab.Logging
                 .Field("current_minigame", m_CurrentMinigame.HasValue ? m_CurrentMinigame.Value.ToString() : null);
             
             m_JsonBuilder.BeginObject("contract_levels"); // key: contract
-            foreach (var kvp in m_ContractLevels)
+            if (m_ContractLevels != null)
             {
-                m_JsonBuilder.BeginObject(kvp.Key); // key: minigame
-                foreach (var minigameKvp in kvp.Value)
+                foreach (var kvp in m_ContractLevels)
                 {
-                    m_JsonBuilder.Field(minigameKvp.Key.ToString(), minigameKvp.Value); // value: number of levels
+                    m_JsonBuilder.BeginObject(kvp.Key); // key: minigame
+                    foreach (var minigameKvp in kvp.Value)
+                    {
+                        m_JsonBuilder.Field(minigameKvp.Key.ToString(), minigameKvp.Value); // value: number of levels
+                    }
+                    m_JsonBuilder.EndObject();
                 }
-                m_JsonBuilder.EndObject();
             }
             m_JsonBuilder.EndObject();
 
@@ -169,7 +172,6 @@ namespace SpaceFab.Logging
             m_Log.SetUserId(userCode);
             m_Log.NewEvent("session_start");
             m_Log.Initialize(CreateOGDConsts());
-            m_Log.NewEvent("session_start");
         }
 
         private OGDLogConsts CreateOGDConsts()
@@ -195,7 +197,7 @@ namespace SpaceFab.Logging
                 .Register<bool>(GameEvents.TitleStartGameClicked, LogGameStart)
                 .Register(GameEvents.TitleNewGameClicked, LogClickNewGame)
                 .Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame)
-                .Register<string>(GameEvents.OpenContractView, LogOpenContractView)
+                .Register(GameEvents.OpenContractView, LogOpenContractView)
                 .Register<string>(GameEvents.ConfirmSelectContract, LogAcceptContract)
                 .Register<string>(GameEvents.StartChangeContract, LogStartChangeContract)
                 .Register<string>(GameEvents.ConfirmChangeContract, LogConfirmChangeContract)
@@ -224,6 +226,24 @@ namespace SpaceFab.Logging
 
         private void UpdateDesignGridState(GridStackConfig config)
         {
+            // initialize design grid for horizontal slice
+            if (m_DesignGrid == null)
+            {
+                m_DesignGrid = new DesignGrid()
+                {
+                    Grid = new List<List<HashSet<ToolID>>>()
+                };
+                for (int i = 0; i < config.LayerDims.X; i++)
+                {
+                    List<HashSet<ToolID>> row = new List<HashSet<ToolID>>();
+                    for (int j = 0; j < config.LayerDims.Y; j++)
+                    {
+                        row.Add(new HashSet<ToolID>());
+                    }
+                    m_DesignGrid.Value.Grid.Add(row);
+                }
+            }
+
             for (int row = 0; row < config.LayerDims.X; row++)
             {
                 for (int col = 0; col < config.LayerDims.Y; col++)
@@ -302,6 +322,10 @@ namespace SpaceFab.Logging
          */
         {
             m_CurrentContractId = contractId;
+            if (!m_ContractLevels.ContainsKey(contractId))
+            {
+                m_ContractLevels[contractId] = new Dictionary<Minigame, int>();
+            }
             SubmitGameState();
 
             m_JsonBuilder.Begin();
@@ -323,12 +347,9 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogOpenContractView(string contractName)
+        private void LogOpenContractView()
         {
-            using (var e = m_Log.NewEvent("open_contract_view"))
-            {
-                e.Param("contract_name", contractName);
-            }
+            m_Log.NewEvent("open_contract_view");
         }
 
         private void LogStartChangeContract(string contractId)
@@ -469,8 +490,6 @@ namespace SpaceFab.Logging
                     m_JsonBuilder.EndArray(); 
                 }));
             string gridJson = m_JsonBuilder.End().ToString();
-
-            m_JsonBuilder.EndArray();
 
             List<(int, int)> inputs = new List<(int, int)>();
             List<(int, int)> outputs = new List<(int, int)>();

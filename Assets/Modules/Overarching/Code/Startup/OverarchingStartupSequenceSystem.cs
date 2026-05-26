@@ -79,7 +79,7 @@ namespace SpaceFab.Overarching {
                 case OverarchingStartupSequencePhase.ContractConfirmSystem:
                     ProcessContractConfirmSystem(startupState, contractLoadState, confirmState);
                     Debug.Log("[OverarchingStartupSequenceSystem] dispatch ConfirmSelectContract");
-                    SpacefabGame.Events.Dispatch(GameEvents.ConfirmSelectContract, selectState.SelectedContractIndex);
+                    SpacefabGame.Events.Dispatch(GameEvents.ConfirmSelectContract, selectState.SelectedContractIndex.ToString());
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
                     ProcessLoadSelectedContract(startupState, chapterLoadState, contractLoadState, meterState);

@@ -1,0 +1,21 @@
+﻿<Solution>
+  <Project Path="FieldDay.Core.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="FieldDay.Scripting.csproj" />
+  <Project Path="Unity.TextMeshPro.csproj" />
+  <Project Path="FieldDay.Layout.csproj" />
+  <Project Path="FieldDay.Vox.csproj" />
+  <Project Path="Unity.TextMeshPro.Editor.csproj" />
+  <Project Path="UWTStream.csproj" />
+  <Project Path="FieldDay.Core.Editor.csproj" />
+  <Project Path="NativeInput.csproj" />
+  <Project Path="EasyBugReporter.csproj" />
+  <Project Path="NativePrefetch.csproj" />
+  <Project Path="ScriptableBake.csproj" />
+  <Project Path="EasyAssetStreaming.csproj" />
+  <Project Path="Unity.TextMeshPro.Editor.Tests.csproj" />
+  <Project Path="EasyAssetStreaming.Editor.csproj" />
+  <Project Path="Unity.TextMeshPro.Tests.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="FieldDay.Analytics.csproj" />
+</Solution>
