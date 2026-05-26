@@ -261,6 +261,7 @@ MonoBehaviour:
   RequestedPageId:
     m_HashValue: 0
   NeedsRebuild: 0
+  ActivePageChangedThisFrame: 0
 --- !u!1 &4107408674079076998
 GameObject:
   m_ObjectHideFlags: 0
@@ -568,7 +569,7 @@ MonoBehaviour:
   m_Firebase:
     ApiKey: AIzaSyDALfC2i5zGEPvjKS5obUEFi-xXgPJqXk8
     ProjectId: 'lockes-gambit '
-    StorageBucket: lockes-gambit..appspot.com
+    StorageBucket: lockes-gambit.appspot.com
     MessagingSenderId: 441174316468
     AppId: 1:441174316468:web:5a6b1e02814e02c3c54ee1
     MeasurementId: 
