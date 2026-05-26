@@ -1,6 +1,8 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using System;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace FieldDay.ImageSlicer {
     public struct OrientedTileHashes {
@@ -53,6 +55,10 @@ namespace FieldDay.ImageSlicer {
 
     public unsafe struct CondensedMesh {
         public int Id;
+        public int TotalWidth;
+        public int TotalHeight;
+        public int ExcessPixelsX;
+        public int ExcessPixelsY;
         public int TileCount;
         public CondensedMeshTile* Tiles;
         public TileCondenserBuffer* Condenser;
@@ -93,7 +99,7 @@ namespace FieldDay.ImageSlicer {
 
         static public int CommitPaletteEntry(TileCondenserBuffer* buffer, PixelRGBA32 singleColor) {
             for(int i = 0; i < buffer->PaletteEntryCount; i++) {
-                if (TileUtility.ColorComparison(buffer->PaletteEntries[i], singleColor)) {
+                if (PixelRGBA32.ApproximatelyEquals(buffer->PaletteEntries[i], singleColor)) {
                     return i;
                 }
             }
@@ -201,6 +207,11 @@ namespace FieldDay.ImageSlicer {
     static public unsafe partial class TileUtility {
         static public bool CondenseTilesFromSlices(ImageSlicingBuffer* buffer, ImageInstance* instance, TileCondenserBuffer* condenser, Unsafe.ArenaHandle allocator, ref TileCondenserTransferStats stats, out CondensedMesh result) {
             int tilesToAllocate = buffer->TileContentCount + buffer->SingleColorCount;
+            result.TotalWidth = (instance->GridWidth * instance->TileSize);
+            result.TotalHeight = (instance->GridHeight * instance->TileSize);
+            result.ExcessPixelsX = instance->ExcessPixelsX;
+            result.ExcessPixelsY = instance->ExcessPixelsY;
+
             result.TileCount = tilesToAllocate;
             result.Tiles = allocator.AllocArray<CondensedMeshTile>(tilesToAllocate);
             result.Condenser = condenser;
@@ -216,8 +227,8 @@ namespace FieldDay.ImageSlicer {
                     continue;
                 }
 
-                writeTile->X = (ushort) (i % instance->GridWidth);
-                writeTile->Y = (ushort) (i / instance->GridHeight);
+                writeTile->X = (ushort) ((i % instance->GridWidth) * condenser->TileSize);
+                writeTile->Y = (ushort) ((i / instance->GridWidth) * condenser->TileSize);
                 writeTile->IsSingleColor = blockInfo.Type == ImageBlockType.SingleColor;
 
                 if (blockInfo.Type == ImageBlockType.SingleColor) {
@@ -234,6 +245,8 @@ namespace FieldDay.ImageSlicer {
 
                 writeTile++;
             }
+
+            Assert.True(writeTile == result.Tiles + tilesToAllocate, "Wrote incorrect number of tiles out!");
 
             return true;
         }
@@ -326,6 +339,53 @@ namespace FieldDay.ImageSlicer {
 
             stats.TotalContentReused = reuseCount;
             stats.TotalContentReusedTransformed = transformCount;
+        }
+    
+        static public Rect ComputeMeshBounds(in CondensedMesh mesh, float pixelsPerUnit, Vector2 pivot) {
+            float worldWidth = mesh.TotalWidth / pixelsPerUnit;
+            float worldHeight = mesh.TotalHeight / pixelsPerUnit;
+
+            float x = (worldWidth - mesh.ExcessPixelsX / pixelsPerUnit) * -pivot.x;
+            float y = (worldHeight - mesh.ExcessPixelsY / pixelsPerUnit) * -pivot.y;
+
+            return new Rect(x, y, worldWidth, worldHeight);
+        }
+
+        static public Vector4 ComputeMeshTileTexCoords(in CondensedMeshTile meshTile, TileExporter* exporter) {
+            if (meshTile.IsSingleColor) {
+                ExportedPaletteEntryInfo paletteEntry = exporter->ExportedColors[meshTile.TileIndex];
+                return new Vector4(paletteEntry.U, paletteEntry.V, paletteEntry.U, paletteEntry.V);
+            } else {
+                ExportedTileInfo tileInfo = exporter->ExportedTiles[meshTile.TileIndex];
+                float left, right, bottom, top;
+                
+                if ((meshTile.Transform & TileTransform.FlipX) == 0) {
+                    left = tileInfo.U0;
+                    right = tileInfo.U1;
+                } else {
+                    left = tileInfo.U1;
+                    right = tileInfo.U0;
+                }
+
+                if ((meshTile.Transform & TileTransform.FlipY) == 0) {
+                    bottom = tileInfo.V0;
+                    top = tileInfo.V1;
+                } else {
+                    bottom = tileInfo.V1;
+                    top = tileInfo.V0;
+                }
+
+                return new Vector4(left, bottom, right, top);
+            }
+        }
+
+        static public Vector4 ComputeMeshTilePositions(in CondensedMesh mesh, in CondensedMeshTile meshTile) {
+            float tileSize = mesh.Condenser->TileSize;
+            float x0 = (float)meshTile.X / mesh.TotalWidth;
+            float y0 = (float)meshTile.Y / mesh.TotalHeight;
+            float x1 = (float)(meshTile.X + tileSize) / mesh.TotalWidth;
+            float y1 = (float)(meshTile.Y + tileSize) / mesh.TotalHeight;
+            return new Vector4(x0, y0, x1, y1);
         }
     }
 }

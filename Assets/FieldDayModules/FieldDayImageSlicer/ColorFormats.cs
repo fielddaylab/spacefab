@@ -37,11 +37,8 @@ namespace FieldDay.ImageSlicer {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public bool ApproximatelyEquals(in PixelRGBA32 a, in PixelRGBA32 b) {
-            int diffA = Math.Abs(a.A - b.A);
-            int diffR = Math.Abs(a.R - b.R);
-            int diffG = Math.Abs(a.G - b.G);
-            int diffB = Math.Abs(a.B - b.B);
-            return diffA < 2 & diffR < 2 && diffG < 2 && diffB < 2;
+            int diff = Math.Abs(a.A - b.A) + Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
+            return diff < 3;
         }
     }
 

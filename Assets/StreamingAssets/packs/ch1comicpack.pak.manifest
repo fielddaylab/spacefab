@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 4287448169
+CRC: 2015286839
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: bfba678a1165c5f6d0bd300aa4b7601d
+    Hash: 0750aad6f62fbdfb8a24244fdf228ccb
   TypeTreeHash:
     serializedVersion: 2
     Hash: 5c96aad99a185c07300ac1e0922e342d
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: bfba678a1165c5f6d0bd300aa4b7601d
+    Hash: 0750aad6f62fbdfb8a24244fdf228ccb
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -29,8 +29,6 @@ SerializeReferenceClassIdentifiers:
   ClassName: SpaceFab.Comic.ComicMeshHeader
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Comic.LayerData
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Comic.MaskData
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Comic.PackedPoint
 - AssemblyName: Assembly-CSharp

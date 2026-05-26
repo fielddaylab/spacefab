@@ -16,7 +16,7 @@ namespace SpaceFab.Comic {
         public CameraData[] Cameras;
         public MaskData[] Masks;
         public ComicMeshHeader[] Meshes;
-        public byte[] CompressedMeshData;
+        [HideInInspector] public byte[] CompressedMeshData;
         public Texture2D[] Textures;
 
         [Header("Configuration")]

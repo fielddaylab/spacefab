@@ -247,15 +247,15 @@ namespace FieldDay.ImageSlicer {
             PixelRGBA32* readHead = block;
 
             PixelRGBA32 first = *readHead++;
-            bool fullyTransparent = first.A == 0;
+            bool fullyTransparent = first.A < 2;
             bool sameColor = true;
 
             count--;
 
             while(count-- > 0) {
                 PixelRGBA32 pixel = *readHead++;
-                fullyTransparent &= pixel.A == 0;
-                sameColor &= ColorComparison(pixel, first);
+                fullyTransparent &= pixel.A < 2;
+                sameColor &= PixelRGBA32.ApproximatelyEquals(pixel, first);
             }
 
             if (fullyTransparent) {

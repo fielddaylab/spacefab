@@ -36,7 +36,7 @@ namespace SpaceFab.Comic
                 PageHierarchies = new Transform[pageCount];
                 SpawnBuffer = new RingBuffer<LayoutSpawnRequest>(layerCount + maskCount, RingBufferMode.Fixed);
                 SpawnedLayersMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(layerCount)));
-                SpawnedMasksMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(maskCount)));
+                SpawnedMasksMask = maskCount > 0 ? new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(maskCount))) : default;
             }
         }
     }
@@ -49,6 +49,8 @@ namespace SpaceFab.Comic
 
     static public partial class ComicResourceUtility {
         public const int MaxPages = 32;
+
+        #region Hierarchies
 
         static public void AllocatePageHierarchy(int pageIndex) {
             Find.State(out ComicResourcePool resourcePool, out ComicLayoutState layout);
@@ -115,5 +117,11 @@ namespace SpaceFab.Comic
             }
             resourcePool.ParentPool.Free(panel);
         }
+
+        #endregion // Hierarchies
+
+        #region Masks
+
+        #endregion // Masks
     }
 }

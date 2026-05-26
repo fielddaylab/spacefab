@@ -22,6 +22,7 @@ namespace SpaceFab.Comic {
         [NonSerialized] public IPool<Material> MaterialPool;
 
         [NonSerialized] public Dictionary<ushort, Mesh> ActiveMeshes;
+        [NonSerialized] public Material[] TextureMaterials;
 
         [NonSerialized] public Unsafe.ArenaHandle Allocator;
         [NonSerialized] public MeshData16<ComicMeshVertex> MaskBuilder;
@@ -66,6 +67,7 @@ namespace SpaceFab.Comic {
             MaskBuilder = new MeshData16<ComicMeshVertex>(4, 6, MeshTopology.Triangles, false);
 
             ActiveMeshes = new Dictionary<ushort, Mesh>(32);
+            TextureMaterials = new Material[32];
         }
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {

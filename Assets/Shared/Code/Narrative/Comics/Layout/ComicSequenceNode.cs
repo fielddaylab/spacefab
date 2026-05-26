@@ -11,10 +11,7 @@ using FieldDay.Data;
 using FieldDay.ImageSlicer;
 using BeauPools;
 using System.IO;
-
-
-
-
+using FieldDay.Assets;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -23,7 +20,8 @@ using UnityEditor;
 namespace SpaceFab.Comic {
     public sealed class ComicSequenceNode : MonoBehaviour {
         public ComicSequenceManifest Manifest;
-        [Range(0, 9)] public int SlicingTileSize = 3;
+        [Range(8, 128)] public int SlicingTileSize = 16;
+        [Range(0, 4)] public int TilePadding = 1;
 
 #if UNITY_EDITOR
 
@@ -33,15 +31,16 @@ namespace SpaceFab.Comic {
                 base.OnInspectorGUI();
 
                 GUILayout.Space(12);
+
                 if (GUILayout.Button("Compile")) {
                     foreach(ComicSequenceNode node in targets) {
-                        BuildManifest(node.transform, node.Manifest, node.SlicingTileSize);
+                        BuildManifest(node.transform, node.Manifest, node.SlicingTileSize, node.TilePadding);
                     }
                 }
             }
         }
 
-        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, int slicing) {
+        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, int slicing, int padding) {
             if (!manifest) {
                 Log.Error("[ComicSequenceNode] No manifest provided to export {0}", root.gameObject.name);
                 return false;
@@ -57,6 +56,7 @@ namespace SpaceFab.Comic {
             builder.DiscoveredLayers = new WorkList<ComicLayerNode>(128);
             builder.OutputMeshes = null;
             builder.OutputTextures = null;
+            builder.ExportedSequencePath = Baking.GetAssetDirectory(manifest) + "/" + manifest.name;
 
             using (Profiling.Time("Building Page Data")) {
                 int childCount = root.childCount;
@@ -79,7 +79,7 @@ namespace SpaceFab.Comic {
             }
 
             using (Profiling.Time("Generating Meshes and Packing Textures")) {
-                ScanAndPackLayers(ref builder, slicing);
+                ScanAndPackLayers(ref builder, slicing, padding);
             }
 
             Assert.True(builder.Pages.Count <= ComicResourceUtility.MaxPages, "Cannot exceed " + ComicResourceUtility.MaxPages + " pages per comic");
@@ -107,6 +107,8 @@ namespace SpaceFab.Comic {
             public WorkList<ComicMeshHeader> Meshes;
 
             public WorkList<ComicLayerNode> DiscoveredLayers;
+
+            public string ExportedSequencePath;
             
             public Texture2D[] OutputTextures;
             public byte[] OutputMeshes;
@@ -311,16 +313,15 @@ namespace SpaceFab.Comic {
         private const int MaxTextureSize = 4096;
         private const int MaxPaletteEntries = 4096;
 
-        static private readonly int[] TileSizeTable = new int[] { 4, 8, 10, 16, 20, 24, 32, 40, 64, 128 };
-        private const int MaxTileSizes = 9;
+        private const int MaxQuads = ushort.MaxValue / 6;
 
-        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, int slicing) {
+        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, int slicing, int padding) {
             // TODO: tile packing, setting flags
 
             TilePackingSettings packingSettings;
-            packingSettings.Padding = 1;
-            packingSettings.PaletteTileSize = 4;
-            packingSettings.TileSize = TileSizeTable[slicing];
+            packingSettings.Padding = padding;
+            packingSettings.PaletteTileSize = 2;
+            packingSettings.TileSize = slicing;
 
             WorkList<Sprite> discoveredSprites = new WorkList<Sprite>(builder.DiscoveredLayers.Count);
             WorkList<CondensedMesh> condensedMeshes = new WorkList<CondensedMesh>(builder.DiscoveredLayers.Count);
@@ -331,18 +332,22 @@ namespace SpaceFab.Comic {
             try {
                 ImageSlicingBuffer* imageSlicer = arena.AllocArray<ImageSlicingBuffer>(1);
                 TileCondenserBuffer* tileCondenser = arena.AllocArray<TileCondenserBuffer>(1);
+                TileExporter* tileExporter = arena.AllocArray<TileExporter>(1);
 
                 ImageSlicingBuffer.Initialize(imageSlicer, 2048, packingSettings.TileSize, packingSettings.TileSize, arena);
                 TileCondenserBuffer.Initialize(tileCondenser, (MaxTextureSize / packingSettings.TileSize) * (MaxTextureSize / packingSettings.TileSize), MaxPaletteEntries, packingSettings.TileSize, arena);
 
-                // always commit a single white palette entry (for use later)
+                // always commit a white and black palette entries (for use later)
                 TileCondenserBuffer.CommitPaletteEntry(tileCondenser, new PixelRGBA32() { Raw = 0xFFFFFFFF });
+                TileCondenserBuffer.CommitPaletteEntry(tileCondenser, new PixelRGBA32() { R = 0, G = 0, B = 0, A = 255 });
 
                 ByteWriter finalBlobWriter = new ByteWriter(blob.Ptr, blob.Length);
                 ByteWriter localWriter = new ByteWriter(localBlob.Ptr, localBlob.Length);
 
                 TileCondenserTransferStats transferStats = default;
                 TileCondenserStats condenserStats = default;
+
+                long srcPixels = 0;
 
                 for (int i = 0, len = builder.DiscoveredLayers.Count; i < len; i++) {
                     ComicLayerNode layer = builder.DiscoveredLayers[i];
@@ -355,6 +360,8 @@ namespace SpaceFab.Comic {
                         if (meshIndex < 0) {
                             meshIndex = discoveredSprites.Count;
                             discoveredSprites.Add(sprite);
+
+                            srcPixels += texture.width * texture.height;
 
                             try {
                                 EditorUtility.DisplayProgressBar("Slicing image...", texture.name, 0);
@@ -375,8 +382,31 @@ namespace SpaceFab.Comic {
                 }
 
                 TileUtility.ComputeCondenserStats(tileCondenser, out condenserStats);
-                long totalSourceTexturePixels = transferStats.TotalProcessedTiles * tileCondenser->TilePixelSize;
-                long totalExportPixels = TileUtility.CalculateTotalExportPixels(tileCondenser, packingSettings);
+                bool canExport = TileExporter.Initialize(tileExporter, tileCondenser, packingSettings, arena);
+                if (!canExport) {
+                    // TODO: do something
+                    Assert.Fail("cannot export");
+                }
+
+                Texture2D exportedTexture = TileUtility.CreateExportTexture(tileExporter);
+                bool wroteToTexture = TileUtility.WriteTilesToTexture(tileCondenser, tileExporter, exportedTexture);
+
+                byte[] exportedPNG = exportedTexture.EncodeToPNG();
+                string pngPath = builder.ExportedSequencePath + "_tex.png";
+
+                DestroyImmediate(exportedTexture);
+
+                File.WriteAllBytes(pngPath, exportedPNG);
+
+                AssetDatabase.ImportAsset(pngPath, ImportAssetOptions.ForceSynchronousImport);
+
+                TextureImporter importer = (TextureImporter) TextureImporter.GetAtPath(pngPath);
+                importer.maxTextureSize = TileUtility.MaxExportSize;
+                importer.mipmapEnabled = false;
+                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.SaveAndReimport();
+
+                exportedTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(pngPath);
 
                 using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
                     psb.Builder.Append("Condensed ").AppendNoAlloc(discoveredSprites.Count).Append(" textures into ")
@@ -389,8 +419,12 @@ namespace SpaceFab.Comic {
                     psb.Builder.Append("\n").AppendNoAlloc(percentEmpty).Append("% empty, ").AppendNoAlloc(percentColor).Append("% color, ").AppendNoAlloc(percentContent).Append("% content");
                     psb.Builder.Append("\n").AppendNoAlloc(condenserStats.TotalContentReused).Append(" tiles reused at least once, ").AppendNoAlloc(condenserStats.TotalContentReusedTransformed).Append(" tiles reused with a transformation");
 
-                    int percentSaved = 100 - (int) (100 * totalExportPixels / totalSourceTexturePixels);
-                    psb.Builder.Append("\nPixel content shrunk by ").AppendNoAlloc(percentSaved).Append("%");
+                    long finalPixels = tileExporter->TextureWidth * tileExporter->TextureHeight;
+
+                    uint percentChange = (uint) (100 * finalPixels / srcPixels);
+
+                    psb.Builder.Append("\nFinal Texture Size: ").AppendNoAlloc(tileExporter->TextureWidth).Append("x").AppendNoAlloc(tileExporter->TextureHeight)
+                        .Append(" (").AppendNoAlloc(percentChange).Append("% of original source images)");
                     
                     //psb.Builder.Append("\nCondensed from ");
                     //Unsafe.FormatBytes(totalTexturePixels * 4, psb);
@@ -400,78 +434,118 @@ namespace SpaceFab.Comic {
                     Log.Msg(psb.Builder.Flush());
                 }
 
-                ExportDebugTiles(tileCondenser);
+                //ExportDebugTiles(tileCondenser);
 
-                for(int i = 0; i < condensedMeshes.Count; i++) {
-                    //Vector2 texSize = new Vector2(texture.width, texture.height);
-                    //Rect uvRect = layer.Image.textureRect;
-                    //uvRect.Set(uvRect.x / texSize.x, uvRect.y / texSize.y, uvRect.width / texSize.x, uvRect.height / texSize.y);
-                    //Bounds bounds = layer.Image.bounds;
+                long uncompressedSize = 0;
 
-                    //Vector2 min = bounds.min;
-                    //Vector2 max = bounds.max;
-                    //Vector2 range = max - min;
+                for (int i = 0; i < condensedMeshes.Count; i++) {
+                    CondensedMesh mesh = condensedMeshes[i];
+                    Sprite sprite = discoveredSprites[i];
+                    Rect originalSpace = sprite.rect;
+                    Vector2 pivot = sprite.pivot;
+                    pivot.x /= originalSpace.width;
+                    pivot.y /= originalSpace.height;
 
-                    //// range
-                    //localWriter.Write(min);
-                    //localWriter.Write(range);
+                    Rect worldBounds = TileUtility.ComputeMeshBounds(mesh, sprite.pixelsPerUnit, pivot);
+
+                    Vector2 min = worldBounds.min;
+                    Vector2 range = worldBounds.size;
+
+                    Bounds originalBounds = sprite.bounds;
+                    Bounds newBounds = new Bounds();
+                    newBounds.SetMinMax(min, min + range);
+
+                    Assert.True(Mathf.Approximately(originalBounds.min.x, newBounds.min.x) && Mathf.Approximately(originalBounds.min.y, newBounds.min.y), "Computed bounds do not line up with original bounds");
+
+                    // range
+                    localWriter.Write(min);
+                    localWriter.Write(range);
+
+                    CompressedMeshVertex vertA, vertB, vertC, vertD;
+                    int meshTileCount = mesh.TileCount;
+                    int meshTileSize = mesh.Condenser->TileSize;
+
+                    // TODO: condense rectlinear single-color regions into larger quads
+
+                    //Log.Msg("mesh {0} has {1} quads", i, meshTileCount);
+
+                    Assert.True(meshTileCount <= MaxQuads, "Mesh {0} has too many quads ({1} vs {2})", i, meshTileCount, MaxQuads);
 
                     //// vertices
-                    //CompressedMeshVertex vertA, vertB, vertC, vertD;
-                    //vertA.X = (ushort) ((min.x - min.x) / range.x * ComicMesh.PositionMultiplier);
-                    //vertA.Y = (ushort) ((min.y - min.y) / range.y * ComicMesh.PositionMultiplier);
-                    //vertA.U = (ushort) (uvRect.xMin * ComicMesh.UVMultiplier);
-                    //vertA.V = (ushort) (uvRect.yMin * ComicMesh.UVMultiplier);
+                    for(int meshTileIdx = 0; meshTileIdx < meshTileCount; meshTileIdx++) {
+                        CondensedMeshTile meshTile = mesh.Tiles[meshTileIdx];
 
-                    //vertB.X = (ushort) ((min.x - min.x) / range.x * ComicMesh.PositionMultiplier);
-                    //vertB.Y = (ushort) ((max.y - min.y) / range.y * ComicMesh.PositionMultiplier);
-                    //vertB.U = (ushort) (uvRect.xMin * ComicMesh.UVMultiplier);
-                    //vertB.V = (ushort) (uvRect.yMax * ComicMesh.UVMultiplier);
+                        Vector4 pos = TileUtility.ComputeMeshTilePositions(mesh, meshTile);
 
-                    //vertC.X = (ushort) ((max.x - min.x) / range.x * ComicMesh.PositionMultiplier);
-                    //vertC.Y = (ushort) ((min.y - min.y) / range.y * ComicMesh.PositionMultiplier);
-                    //vertC.U = (ushort) (uvRect.xMax * ComicMesh.UVMultiplier);
-                    //vertC.V = (ushort) (uvRect.yMin * ComicMesh.UVMultiplier);
+                        //Log.Msg("quad: ({0}, {1}) -> ({2}, {3})", x0, y0, x1, y1);
 
-                    //vertD.X = (ushort) ((max.x - min.x) / range.x * ComicMesh.PositionMultiplier);
-                    //vertD.Y = (ushort) ((max.y - min.y) / range.y * ComicMesh.PositionMultiplier);
-                    //vertD.U = (ushort) (uvRect.xMax * ComicMesh.UVMultiplier);
-                    //vertD.V = (ushort) (uvRect.yMax * ComicMesh.UVMultiplier);
+                        vertA.X = (ushort) (pos.x * ComicMesh.PositionMultiplier);
+                        vertB.X = (ushort) (pos.x * ComicMesh.PositionMultiplier);
+                        vertC.X = (ushort) (pos.z * ComicMesh.PositionMultiplier);
+                        vertD.X = (ushort) (pos.z * ComicMesh.PositionMultiplier);
+                        
+                        vertA.Y = (ushort) (pos.y * ComicMesh.PositionMultiplier);
+                        vertB.Y = (ushort) (pos.w * ComicMesh.PositionMultiplier);
+                        vertC.Y = (ushort) (pos.y * ComicMesh.PositionMultiplier);
+                        vertD.Y = (ushort) (pos.w * ComicMesh.PositionMultiplier);
 
-                    //localWriter.Write(vertA);
-                    //localWriter.Write(vertB);
-                    //localWriter.Write(vertC);
-                    //localWriter.Write(vertD);
+                        Vector4 uvs = TileUtility.ComputeMeshTileTexCoords(meshTile, tileExporter);
 
-                    //// indices (0, 1, 2, 3, 2, 1) (0, +1, +1, +1, -1, -1)
-                    //localWriter.Write((ushort) 0);
-                    //localWriter.Write((sbyte) 1);
-                    //localWriter.Write((sbyte) 1);
-                    //localWriter.Write((sbyte) 1);
-                    //localWriter.Write((sbyte) -1);
-                    //localWriter.Write((sbyte) -1);
+                        vertA.U = (ushort) (uvs.x * ComicMesh.UVMultiplier);
+                        vertB.U = (ushort) (uvs.x * ComicMesh.UVMultiplier);
+                        vertC.U = (ushort) (uvs.z * ComicMesh.UVMultiplier);
+                        vertD.U = (ushort) (uvs.z * ComicMesh.UVMultiplier);
 
-                    //ComicMeshHeader header;
-                    //header.VertexCount = 4;
-                    //header.IndexCount = 6;
+                        vertA.V = (ushort) (uvs.y * ComicMesh.UVMultiplier);
+                        vertB.V = (ushort) (uvs.w * ComicMesh.UVMultiplier);
+                        vertC.V = (ushort) (uvs.y * ComicMesh.UVMultiplier);
+                        vertD.V = (ushort) (uvs.w * ComicMesh.UVMultiplier);
 
-                    //header.BinaryOffset = finalBlobWriter.GetMarker();
+                        localWriter.Write(vertA);
+                        localWriter.Write(vertB);
+                        localWriter.Write(vertC);
+                        localWriter.Write(vertD);
+                    }
 
-                    //UnsafeSpan<byte> meshData = localWriter.GetData();
-                    //var compressResult = LZCompression.Compress(meshData.Ptr, (uint) meshData.Length, finalBlobWriter.Head, finalBlobWriter.GetRemaining(), out uint size);
-                    //Assert.False(LZCompression.IsError(compressResult));
-                    //finalBlobWriter.Skip((int) size);
+                    for(int meshTileIdx = 0; meshTileIdx < meshTileCount; meshTileIdx++) {
+                        //// indices (0, 1, 2, 3, 2, 1) (0, +1, +1, +1, -1, -1)
+                        if (meshTileIdx == 0) {
+                            localWriter.Write((ushort) 0);
+                        } else {
+                            localWriter.Write((sbyte) 3);
+                        }
 
-                    //header.BinaryLength = size;
+                        localWriter.Write((sbyte) 1);
+                        localWriter.Write((sbyte) 1);
+                        localWriter.Write((sbyte) 1);
+                        localWriter.Write((sbyte) -1);
+                        localWriter.Write((sbyte) -1);
+                    }
 
-                    //builder.Meshes.Add(header);
 
-                    //localWriter.Reset();
+                    ComicMeshHeader header;
+                    header.VertexCount = (ushort) (meshTileCount * 4);
+                    header.IndexCount = (ushort) (meshTileCount * 6);
+
+                    header.BinaryOffset = finalBlobWriter.GetMarker();
+
+                    UnsafeSpan<byte> meshData = localWriter.GetData();
+                    var compressResult = LZCompression.Compress(meshData.Ptr, (uint) meshData.Length, finalBlobWriter.Head, finalBlobWriter.GetRemaining(), out uint compressedSize);
+                    Assert.False(LZCompression.IsError(compressResult));
+                    finalBlobWriter.Skip((int) compressedSize);
+
+                    header.BinaryLength = compressedSize;
+
+                    builder.Meshes.Add(header);
+
+                    uncompressedSize += localWriter.Written;
+                    localWriter.Reset();
                 }
 
+                Log.Msg("compression resulted in mesh blob being {0}% of original size", (int) (100 * finalBlobWriter.Written / uncompressedSize));
+
                 builder.OutputMeshes = finalBlobWriter.GetDataCopy();
-                // TODO: output texture
-                // builder.OutputTextures = discoveredSprites.ToArray();
+                builder.OutputTextures = new Texture2D[] { exportedTexture };
             } finally {
                 Unsafe.Free(blob.Ptr);
                 Unsafe.Free(localBlob.Ptr);
