@@ -7044,7 +7044,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2405f9e5dbbeb44d96ab4c090df71ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProgressionSequence: 01000000000000000200000003000000
+  ProgressionSequence: 
   Masks: 
   AlertVisualsDirty: 0
   AutoRuleApplied: 0
