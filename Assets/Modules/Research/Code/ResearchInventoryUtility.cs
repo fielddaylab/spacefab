@@ -87,7 +87,7 @@ namespace SpaceFab.Research
         // When multiple definitions match the label and more than one is
         // satisfied, the first satisfied definition (in registry order) wins
         // and only its dependencies are consumed.
-        public static bool TryConfirmHypothesis(ResearchMinigameState researchState, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
+        public static bool TryConfirmHypothesis(ResearchMinigameState researchState, PlayerProgressState progressState, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
         {
             if (researchState == null) return false;
 
@@ -130,7 +130,7 @@ namespace SpaceFab.Research
                 }
             }
 
-            ResearchPropertyConfirmBridge.HandleConfirmedProperty(researchState, materialId, label, contextMaterialId);
+            ResearchPropertyConfirmBridge.HandleConfirmedProperty(researchState, progressState, materialId, label, contextMaterialId);
             return true;
         }
     }

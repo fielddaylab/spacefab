@@ -4,6 +4,7 @@ using FieldDay.SharedState;
 using FieldDay.Systems;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Overarching
@@ -44,7 +45,7 @@ namespace SpaceFab.Overarching
 
                 if (state.CurrSelectedIndex != indexToCancel)
                 {
-                    SetHighlightEmpty(state.Zones[indexToCancel].HighlightRenderer);
+                    SetHighlightEmpty(state.Zones[indexToCancel].HighlightRenderer, state.Zones[indexToCancel].StationLabel);
                 }
             }
         }
@@ -64,6 +65,7 @@ namespace SpaceFab.Overarching
 
             if (state.CurrSelectedIndex != indexToHover)
             {
+                SetHighlightSprite(state.Zones[indexToHover].HighlightRenderer, state.Zones[indexToHover].NormalHighlight, state.Zones[indexToHover].StationLabel);
                 SetHighlightColor(state.Zones[indexToHover].HighlightRenderer, palette.CurrPalette.SoftHighlight);
             }
         }
@@ -73,16 +75,17 @@ namespace SpaceFab.Overarching
             if (state.CurrHoverIndex == state.CurrSelectedIndex)
             {
                 // replace selected with hover
+                SetHighlightSprite(state.Zones[state.CurrSelectedIndex].HighlightRenderer, state.Zones[state.CurrSelectedIndex].NormalHighlight, state.Zones[state.CurrSelectedIndex].StationLabel);
                 SetHighlightColor(state.Zones[state.CurrSelectedIndex].HighlightRenderer, palette.CurrPalette.SoftHighlight);
             }
             else
             {
                 // set previous selected to empty
-                SetHighlightEmpty(state.Zones[state.CurrSelectedIndex].HighlightRenderer);
+                SetHighlightEmpty(state.Zones[state.CurrSelectedIndex].HighlightRenderer, state.Zones[state.CurrSelectedIndex].StationLabel);
+                state.Zones[state.CurrSelectedIndex].StationLabel.enabled = false;
             }
 
             state.CurrSelectedIndex = -1;
-
         }
 
         public static void ClickZone(MinigameZonesState state, PaletteState palette, int indexToClick)
@@ -98,21 +101,32 @@ namespace SpaceFab.Overarching
                 {
                     CancelSelected(state, palette);
                 }
+
+                // Click immediately enters minigame now
                 state.CurrSelectedIndex = indexToClick;
+                SetHighlightSprite(state.Zones[indexToClick].HighlightRenderer, state.Zones[indexToClick].EmphasisHighlight, state.Zones[indexToClick].StationLabel);
                 SetHighlightColor(state.Zones[indexToClick].HighlightRenderer, palette.CurrPalette.HardHighlight);
+                ConfirmEnterMinigame(state);
             }
         }
 
         #region Zone Visuals
 
-        public static void SetHighlightEmpty(SpriteRenderer highlight)
+        public static void SetHighlightEmpty(SpriteRenderer highlight, TMP_Text label)
         {
             highlight.enabled = false;
+            label.enabled = false;
+        }
+
+        public static void SetHighlightSprite(SpriteRenderer highlight, Sprite sprite, TMP_Text label)
+        {
+            highlight.sprite = sprite;
+            highlight.enabled = true;
+            label.enabled = true;
         }
 
         public static void SetHighlightColor(SpriteRenderer highlight, Color color, bool enable = true)
         {
-            highlight.enabled = enable;
             highlight.color = color;
         }
 

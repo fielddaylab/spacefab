@@ -19,9 +19,12 @@ namespace SpaceFab.Research {
         public void OnRegister() {
             // Renders any Material assigned in the inspector. Tray-spawned
             // sources also get an explicit apply after Material is assigned;
-            // this covers scene-authored sources whose Material is already set.
+            // this covers scene-authored sources whose Material is already
+            // set. researchState may be null pre-registration; the rig
+            // falls back to the sample-number label and the tray refresh
+            // system corrects it once a property is confirmed.
             if (Rig != null && Material != null) {
-                ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(Rig, Material);
+                ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(Rig, Material, Find.State<ResearchMinigameState>());
             }
         }
 

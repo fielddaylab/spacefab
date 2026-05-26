@@ -25,7 +25,7 @@ namespace SpaceFab
     /// Bit math is delegated to MaterialPropertyRecordUtility - this file only
     /// owns the iteration and short-circuit logic.
     ///
-    /// Two flavors of every query:
+    /// Three flavors of query:
     ///   - Canonical: reads PlayerProgressState only. Used by Dashboard /
     ///     Overarching, where the player's "real" progress is what matters.
     ///   - Sandbox-aware: also folds in ResearchMinigameState.SandboxProperties
@@ -33,6 +33,13 @@ namespace SpaceFab
     ///     ticks slots live as the player confirms properties this session.
     ///     The sandbox can never un-satisfy a slot already satisfied by
     ///     canonical progress (additive merge).
+    ///   - Caller-provided material set: walks an explicit collection of
+    ///     material ids (e.g., Supply Chain's collected materials) rather
+    ///     than the player's entire PlayerProgressState. Used by Supply
+    ///     and any future minigame where the requirement is "do the
+    ///     materials I have in hand satisfy this?" — only properties the
+    ///     player has confirmed via Research count, since the query reads
+    ///     from PlayerProgressState.MaterialProperties.
     /// </summary>
     public static class ContractProgressUtility
     {
@@ -165,6 +172,74 @@ namespace SpaceFab
         }
 
         #endregion // Per-slot queries
+
+        #region Supply-style queries (caller-provided material set)
+
+        /// <summary>
+        /// Per-material player-knowledge check. True iff the player has
+        /// confirmed enough properties on `materialId` to satisfy
+        /// `check`. Returns false if the player has no record for this
+        /// material, or if their record doesn't yet have the required
+        /// property bit. The material's ground-truth
+        /// (MaterialAsset.Properties) is intentionally ignored — only
+        /// what the player *knows* counts.
+        ///
+        /// Used by Supply Chain (and any future minigame) where the
+        /// input is a single material the player has in hand and the
+        /// question is "have they discovered enough to count this
+        /// toward requirement X?"
+        /// </summary>
+        public static bool DoesMaterialSatisfyCheck(PlayerProgressState progress, StringHash32 materialId, MaterialPropertyCheck check)
+        {
+            if (progress == null || progress.MaterialProperties == null) return false;
+            if (!progress.MaterialProperties.TryGetValue(materialId, out var record)) return false;
+            return SatisfiesCheck(record, check);
+        }
+
+        /// <summary>
+        /// Player-knowledge check over a caller-provided set of
+        /// material IDs (e.g., the materials the player has collected
+        /// in their supply chain). Short-circuits on the first match.
+        /// Materials in the input that the player has no record for
+        /// are skipped, not counted.
+        /// </summary>
+        public static bool HasAnyFulfillingMaterial(PlayerProgressState progress, IReadOnlyCollection<StringHash32> materialIds, MaterialPropertyCheck check)
+        {
+            if (progress == null || progress.MaterialProperties == null || materialIds == null) return false;
+            foreach (StringHash32 id in materialIds)
+            {
+                if (progress.MaterialProperties.TryGetValue(id, out var record) && SatisfiesCheck(record, check))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Player-knowledge enumeration over a caller-provided set of
+        /// material IDs. Appends to `output` every ID whose confirmed
+        /// record satisfies the check. Returns the number of IDs
+        /// appended this call. Does NOT clear output. Useful for UIs
+        /// that want to highlight every fulfilling material in the
+        /// supply chain, not just whether at least one exists.
+        /// </summary>
+        public static int FindFulfillingMaterials(PlayerProgressState progress, IReadOnlyCollection<StringHash32> materialIds, MaterialPropertyCheck check, ICollection<StringHash32> output)
+        {
+            if (progress == null || progress.MaterialProperties == null || materialIds == null) return 0;
+            int count = 0;
+            foreach (StringHash32 id in materialIds)
+            {
+                if (progress.MaterialProperties.TryGetValue(id, out var record) && SatisfiesCheck(record, check))
+                {
+                    output.Add(id);
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        #endregion // Supply-style queries (caller-provided material set)
 
         #region Whole-contract queries
 

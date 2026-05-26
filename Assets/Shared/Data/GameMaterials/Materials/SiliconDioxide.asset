@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: SiliconDioxide
   m_EditorClassIdentifier: 
   DisplayName: Silicon Dioxide
+  ShortName: Si02
   ValenceElectronCounts: 0400000002000000
   AtomicRadii: 6f0000003c000000
+  Properties: 0f10

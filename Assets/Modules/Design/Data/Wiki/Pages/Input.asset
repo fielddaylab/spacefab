@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Input
   m_EditorClassIdentifier: 
   m_Title: Input
-  m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: d8fed4b9c1c12ff4ab13a758c35234bc, type: 3}
+  m_Illustration: {fileID: 21300000, guid: 258a85a7e71e71a4daeca33837896ea3, type: 3}
   m_Body: Inputs create different signals to be sent to the Output.

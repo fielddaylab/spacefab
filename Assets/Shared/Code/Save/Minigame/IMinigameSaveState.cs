@@ -7,5 +7,7 @@ namespace SpaceFab.Save
     public interface IMinigameSaveState
     {
         public void SetDefaults();
+
+        public bool HasValidSolution();
     }
 }

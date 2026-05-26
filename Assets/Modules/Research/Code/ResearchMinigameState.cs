@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using SpaceFab.Save;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,6 +41,14 @@ namespace SpaceFab.Research
         // when relevant, lives inside each observation entry).
         [HideInInspector] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
 
+        // Set for one frame after ResearchPropertyConfirmBridge writes a
+        // newly-confirmed property into SandboxProperties. Drives the
+        // tray-rig label refresh so a material whose first property was
+        // just confirmed flips from sample-number to ShortName the same
+        // frame. Cleared by ResearchMinigameStateRefreshSystem at end
+        // of frame.
+        [NonSerialized] public bool PropertyConfirmedThisFrame;
+
         #endregion // Runtime State
 
         #region Interfaces
@@ -76,12 +85,14 @@ namespace SpaceFab.Research
         // supported feature today; this exists only to satisfy IMinigameState.
         public static void ImportState(ResearchSaveState saveState, ResearchMinigameState researchState)
         {
+            researchState.FoundValidSolution = saveState.FoundValidSolution;
         }
 
         // Mid-session save-chunk export hook. Mid-session resume is not a
         // supported feature today; this exists only to satisfy IMinigameState.
         public static void ExportState(ref ResearchSaveState saveState, ResearchMinigameState researchState)
         {
+            saveState.FoundValidSolution = researchState.FoundValidSolution;
         }
 
         #region Sandbox helpers
@@ -177,6 +188,29 @@ namespace SpaceFab.Research
             }
 
             ClearSandbox(researchState);
+        }
+
+        // Recomputes FoundValidSolution against the current sandbox + player progress + active
+        // contract. Idempotent and monotonic: once the flag is true, this is a no-op (knowledge
+        // can't disappear within a session, so the flag never flips back false). Called from
+        // ResearchPropertyConfirmBridge.HandleConfirmedProperty after each sandbox confirmation.
+        // The contract-accept flow performs the equivalent check directly on the save state via
+        // ContractProgressUtility.IsContractSatisfied(progress, contract).
+        public static void RefreshFoundValidSolutionFromActiveContract(ResearchMinigameState researchState, PlayerProgressState playerProgress)
+        {
+            if (researchState.FoundValidSolution)
+            {
+                return;
+            }
+            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+            if (wrapper == null || wrapper.ContractDef == null)
+            {
+                return;
+            }
+            if (ContractProgressUtility.IsContractSatisfied(playerProgress, researchState, wrapper.ContractDef))
+            {
+                researchState.MarkFoundValidSolution();
+            }
         }
 
         #endregion // PlayerProgress bridge

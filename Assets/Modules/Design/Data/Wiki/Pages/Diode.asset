@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Title: Diode
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_Illustration: {fileID: 21300000, guid: deec7e66e54f7d340ba2a814b9425a83, type: 3}
   m_Body: A Diode is formed from N-Type connected to P-Type. It only allows HIGH
     signals, flowing from P to N.
