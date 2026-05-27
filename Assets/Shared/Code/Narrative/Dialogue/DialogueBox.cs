@@ -71,20 +71,35 @@ namespace SpaceFab.Narrative {
                 yield break;
             }
 
-            m_NextButton.gameObject.SetActive(true);
-            if ((m_CurrentLineFlags & LineFlags.IsEnd) != 0) {
-                m_NextButton.TextContent.SetText("END CALL");
-            } else {
-                m_NextButton.TextContent.SetText("NEXT");
-            }
+            if (m_NextButton != null)
+            {
+                m_NextButton.gameObject.SetActive(true);
+                if ((m_CurrentLineFlags & LineFlags.IsEnd) != 0)
+                {
+                    m_NextButton.TextContent.SetText("END CALL");
+                }
+                else
+                {
+                    m_NextButton.TextContent.SetText("NEXT");
+                }
 
-            m_NextButton.Layout.Sync();
+                m_NextButton.Layout.Sync();
 
-            m_NextButton.ConsumeClick();
-            while(!m_NextButton.ConsumeClick()) {
-                yield return null;
+                m_NextButton.ConsumeClick();
+                while (!m_NextButton.ConsumeClick())
+                {
+                    yield return null;
+                }
+                m_NextButton.gameObject.SetActive(false);
             }
-            m_NextButton.gameObject.SetActive(false);
+            else
+            {
+                while (true)
+                {
+                    // text box without next button remains up indefinitely until dismissed
+                    yield return null;
+                }
+            }
 
             if ((m_CurrentLineFlags & LineFlags.IsEnd) != 0) {
                 CurrentThread.ReleaseCurrentPrinter(ScriptThreadOwnershipClearReason.Completed);
@@ -172,12 +187,8 @@ namespace SpaceFab.Narrative {
             }
 
             if (charChanged || character.PoseId != m_CurrentCharacterState.PoseId) {
-                Sprite portrait = null;
-                if (def) {
-                    portrait = def.Portrait;
-                    // TODO: Implement per-pose portraits
-                }
-                m_CharacterPortrait.sprite = portrait;
+                // TODO: Implement per-pose portraits
+                m_CharacterPortrait.sprite = CharacterDef.ResolvePortrait(def);
             }
 
             m_CurrentCharacterState = character;
@@ -243,9 +254,9 @@ namespace SpaceFab.Narrative {
                 foldoutObj.enabled = false;
             }
 
-            m_NextButton.gameObject.SetActive(false);
+            m_NextButton?.gameObject.SetActive(false);
 
-            m_FoldOutTransform.anchoredPosition = new Vector2(0, m_FoldOutYPosOffscreen);
+            m_FoldOutTransform.anchoredPosition = new Vector2(m_FoldOutTransform.anchoredPosition.x, m_FoldOutYPosOffscreen);
             Positioning.SetWidthDelta(m_FoldOutTransform, m_FoldOutWidthCollapsed);
 
             m_VisiblityGroup.gameObject.SetActive(true);

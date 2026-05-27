@@ -47,4 +47,9 @@ namespace SpaceFab.Fabrication
 
         #endregion // Input Mappings
     }
+
+    public static class FabricationScriptTriggers
+    {
+
+    }
 }

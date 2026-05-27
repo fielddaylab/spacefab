@@ -76,6 +76,11 @@ namespace SpaceFab
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
     }
 
+    public static class ScriptTriggers
+    {
+        public static readonly StringHash32 OnMinigameLoad = "OnMinigameLoad";
+    }
+
     public static class UpdateMasks
     {
         public const int PauseUpdateMask = 1 << 0;
