@@ -94,11 +94,12 @@ namespace SpaceFab.Narrative {
             }
             else
             {
+                /* TODO: debug why this stays in flight through scene transitions
                 while (true)
                 {
                     // text box without next button remains up indefinitely until dismissed
                     yield return null;
-                }
+                */
             }
 
             if ((m_CurrentLineFlags & LineFlags.IsEnd) != 0) {
