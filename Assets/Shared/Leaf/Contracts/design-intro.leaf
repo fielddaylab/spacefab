@@ -1,0 +1,39 @@
+# basePath DesignIntro
+
+::IntroSelectTrace
+@trigger    OnMinigameLoad
+@when       minigame == "design"
+{@PAL} Select the Trace Tool.
+
+::DrawConnection
+@trigger    OnToolSelected
+@when       tool == "metal"
+{@PAL} Now click and drag to draw a connection between Input A and Output X.
+
+::TestConnection
+@trigger    OnDragEnded
+$call   HighlightElement(design:test-btn)
+{@PAL}  Test your connection.
+
+::TestIncorrect
+@trigger    OnSingleTestComplete
+@when       result == "failure"
+$call   ReleaseAllHighlights()
+{@PAL}  This line is incorrect. Make sure Input A is fully connected with Output X.
+
+::TestCorrect
+@trigger    OnSingleTestComplete
+@when       result == "success"
+@call   HighlightElement(design:input-a)
+{@PAL}  Correct! Tap the input to switch it from Low to High.
+
+::InputSwitch
+@trigger    OnInputSwitched
+@call   ReleaseAllHighlights()
+$call   HighlightElement(design:test-btn)
+{@PAL}  You'll need to test every case.
+
+::AllTestsPassed
+@trigger    OnAllTestsComplete
+@when       result == "success"
+{@PAL}  It looks like all test cases passed!

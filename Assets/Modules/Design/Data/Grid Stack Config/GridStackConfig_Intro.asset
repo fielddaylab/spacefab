@@ -20,13 +20,13 @@ MonoBehaviour:
     RowIndex: 2
     ColumnIndex: 1
     CellType: 1
-    SubtypeLabel: 4
+    SubtypeLabel: 8
     Edges: []
     TransferType: 0
   - LayerIndex: 1
     RowIndex: 2
     ColumnIndex: 4
     CellType: 5
-    SubtypeLabel: 64
+    SubtypeLabel: 128
     Edges: []
     TransferType: 0

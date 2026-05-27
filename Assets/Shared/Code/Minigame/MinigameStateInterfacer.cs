@@ -1,4 +1,5 @@
 using FieldDay.SharedState;
+using SpaceFab.Overarching;
 using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace SpaceFab
 {
     public class MinigameStateInterfacer : SharedStateComponent
     {
+        public MinigameId Id;
         public MinigameStateBase MinigameState;
     }
 }

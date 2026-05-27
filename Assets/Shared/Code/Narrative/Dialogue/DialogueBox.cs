@@ -99,6 +99,7 @@ namespace SpaceFab.Narrative {
                 {
                     // text box without next button remains up indefinitely until dismissed
                     yield return null;
+                }
                 */
             }
 
