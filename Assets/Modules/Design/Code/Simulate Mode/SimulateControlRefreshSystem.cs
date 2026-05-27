@@ -38,6 +38,7 @@ namespace SpaceFab.Design
             runState.RestartSuiteRequested = false;
             runState.CancelRequested = false;
             runState.DismissResultsRequested = false;
+            runState.PlayCurrentToggleComboRequested = false;
             runState.PaintDepthThisFrame = false;
         }
     }

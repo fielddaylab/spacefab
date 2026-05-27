@@ -51,7 +51,11 @@ namespace SpaceFab.Overarching
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);
-            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
+            GridStackConfig gridConfig = contractAssets.DesignLevelData.GetGridConfig();
+            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, gridConfig);
+            // Mirror the grid seed for toggle-input mode: walk the config's Input cells and copy
+            // each DefaultInputState into the save state. Runtime ImportState reads from here.
+            InputToggleUtility.SeedDefaultsFromConfig(ref minigameSaveState.Design.InputToggles, gridConfig);
 
             // Pre-arm Research's FoundValidSolution when the player's existing knowledge already
             // covers every property requirement on the accepted contract. Unlike Design or

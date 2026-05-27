@@ -22,6 +22,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<DesignTransitionState>()
                     .ReadWriteShared<SimulateUIState>()
                     .ReadWriteShared<SimulateRunState>()
+                    .ReadShared<DesignMinigameState>()
             );
         }
 
@@ -34,6 +35,7 @@ namespace SpaceFab.Design
                 out SimulateRunState simRunState,
                 out PlayerProgressState progressState
                 );
+            DesignMinigameState designState = Find.State<DesignMinigameState>();
 
             ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
             TestSuiteData suiteData = contractAssets.DesignLevelData.GetTestSuite();
@@ -44,7 +46,7 @@ namespace SpaceFab.Design
                 case DesignTransitionPhase.BuildSimTable:
                     Debug.Log("[SimTableLoadSystem] Building Sim Table...");
                     // build Sim table
-                    SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, suiteDB);
+                    SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, designState, suiteDB);
                     transitionState.Phase = DesignTransitionPhase.SetupComplete;
                     break;
                 case DesignTransitionPhase.SetupComplete:

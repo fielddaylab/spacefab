@@ -20,6 +20,7 @@ namespace SpaceFab.Design
                 new SysPermissions()
                     .ReadShared<SimulateRunState>()
                     .ReadWriteShared<SimulateUIState>()
+                    .ReadShared<DesignMinigameState>()
             );
         }
 
@@ -28,6 +29,26 @@ namespace SpaceFab.Design
         static private void ProcessWork(float deltaTime)
         {
             Find.State(out SimulateRunState runState, out SimulateUIState uiState);
+            DesignMinigameState designState = Find.State<DesignMinigameState>();
+
+            // Toggle-input mode hides every per-row Run button — keep them inactive every frame
+            // so a runtime mode flip via inspector takes effect without re-running BuildTable.
+            if (designState != null && designState.UseToggleInputMode)
+            {
+                if (uiState.Rows != null)
+                {
+                    for (int r = 0; r < uiState.Rows.Length; r++)
+                    {
+                        SuiteRow row = uiState.Rows[r];
+                        if (row != null && row.RunButton != null && row.RunButton.gameObject.activeSelf)
+                        {
+                            row.RunButton.gameObject.SetActive(false);
+                        }
+                    }
+                }
+                uiState.RunButtonsNeedRefreshing = false;
+                return;
+            }
 
             if (!uiState.RunButtonsNeedRefreshing) { return; }
             if (!uiState.TableBuilt || uiState.Rows == null) { return; }

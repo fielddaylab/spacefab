@@ -28,6 +28,11 @@ namespace SpaceFab.Design
         public DynamicButton SuiteRestartButton;
         public DynamicButton SuiteCancelButton;
 
+        // Toggle-input mode "Test" button. Visible only when DesignMinigameState.UseToggleInputMode
+        // is true; replaces the per-row + suite-run buttons. SuiteTestButtonRefreshSystem owns its
+        // interactable state and hides it otherwise.
+        public SuiteTestButton SuiteTestButton;
+
         #endregion // Inspector
 
         [HideInInspector] public bool TableBuilt;
@@ -84,8 +89,10 @@ namespace SpaceFab.Design
     public static class SimulateUIUtility
     {
         // Constructs the header row + one content row per test. Called once on Simulate entry.
-        // Ported from EvaluationMgr.ConstructSuiteTable.
-        public static void BuildTable(SimulateUIState uiState, TestSuiteData suite, SimulateRunState runState, SuiteVisualsDB suiteDB)
+        // Ported from EvaluationMgr.ConstructSuiteTable. designState gates the classic vs toggle-input
+        // chrome: toggle mode hides every per-row Run button and the suite Run/Restart/Cancel trio,
+        // surfacing only the single SuiteTestButton.
+        public static void BuildTable(SimulateUIState uiState, TestSuiteData suite, SimulateRunState runState, DesignMinigameState designState, SuiteVisualsDB suiteDB)
         {
             // Per-row CellVerdicts state arrays mirror the per-row Cols/Verdicts arrays created
             // in CreateRowsAndCols. Size the outer array here so CreateRowsAndCols can fill in
@@ -102,11 +109,36 @@ namespace SpaceFab.Design
             AssignRunListeners(uiState, suite, runState);
             AssignSuiteListeners(uiState, runState);
 
+            ApplyModeChrome(uiState, designState);
+
             uiState.TableBuilt = true;
 
             // Trigger the initial icon + verdict paint on every row, plus the suite-level controls.
             MarkAllRunButtonsDirty(uiState);
             uiState.VerdictsNeedRefreshing = true;
+        }
+
+        // Hides classic per-row + suite-level buttons in toggle-input mode (and shows the Test
+        // button); inverse in classic mode. Called once at BuildTable time. The refresh systems
+        // also self-gate per-frame to handle a runtime UseToggleInputMode flip.
+        private static void ApplyModeChrome(SimulateUIState uiState, DesignMinigameState designState)
+        {
+            bool toggleMode = designState != null && designState.UseToggleInputMode;
+
+            if (uiState.Rows != null)
+            {
+                for (int r = 0; r < uiState.Rows.Length; r++)
+                {
+                    SuiteRow row = uiState.Rows[r];
+                    if (row == null || row.RunButton == null) { continue; }
+                    row.RunButton.gameObject.SetActive(!toggleMode);
+                }
+            }
+
+            if (uiState.SuiteRunButton != null) { uiState.SuiteRunButton.gameObject.SetActive(!toggleMode); }
+            if (uiState.SuiteRestartButton != null) { uiState.SuiteRestartButton.gameObject.SetActive(!toggleMode); }
+            if (uiState.SuiteCancelButton != null) { uiState.SuiteCancelButton.gameObject.SetActive(!toggleMode); }
+            if (uiState.SuiteTestButton != null) { uiState.SuiteTestButton.gameObject.SetActive(toggleMode); }
         }
 
         // Raises both the per-row and suite-level run-button dirty flags. Use this anywhere
@@ -371,9 +403,9 @@ namespace SpaceFab.Design
             MarkAllRunButtonsDirty(uiState);
         }
 
-        // Wires the suite-level run / restart / cancel buttons to their click handlers. Refs may
-        // be null until the prefab layout for the suite-level toolbar is finalized; skip wiring
-        // any null slot rather than failing.
+        // Wires the suite-level run / restart / cancel buttons (classic mode) and the single
+        // Test button (toggle mode) to their click handlers. Refs may be null until the prefab
+        // layout for the suite-level toolbar is finalized; skip wiring any null slot rather than failing.
         private static void AssignSuiteListeners(SimulateUIState uiState, SimulateRunState runState)
         {
             if (uiState.SuiteRunButton != null)
@@ -387,6 +419,10 @@ namespace SpaceFab.Design
             if (uiState.SuiteCancelButton != null)
             {
                 uiState.SuiteCancelButton.onClick.AddListener(() => HandleSuiteCancelButtonClick(runState, uiState));
+            }
+            if (uiState.SuiteTestButton != null)
+            {
+                uiState.SuiteTestButton.onClick.AddListener(() => HandleSuiteTestButtonClick(runState, uiState));
             }
         }
 
@@ -430,6 +466,17 @@ namespace SpaceFab.Design
         private static void HandleSuiteCancelButtonClick(SimulateRunState runState, SimulateUIState uiState)
         {
             SimulateControlUtility.RequestCancel(runState);
+            MarkAllRunButtonsDirty(uiState);
+        }
+
+        // Toggle-input mode Test click. Reads the matched test-row index that
+        // SuiteTestButtonRefreshSystem last computed; the request is dropped silently when no
+        // row matches the current toggle combo (the button should also be greyed in that case).
+        private static void HandleSuiteTestButtonClick(SimulateRunState runState, SimulateUIState uiState)
+        {
+            InputToggleState toggleState = Find.State<InputToggleState>();
+            int matched = toggleState != null ? toggleState.LastMatchedRowIndex : -1;
+            SimulateControlUtility.RequestPlayCurrentToggleCombo(runState, matched);
             MarkAllRunButtonsDirty(uiState);
         }
 
