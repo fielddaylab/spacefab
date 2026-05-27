@@ -617,6 +617,7 @@ GameObject:
   - component: {fileID: 7216490201850614413}
   - component: {fileID: 7952506412729339855}
   - component: {fileID: 7543965941336083052}
+  - component: {fileID: 6392605551760967876}
   m_Layer: 5
   m_Name: Submit Chapter Button
   m_TagString: Untagged
@@ -642,7 +643,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -10, y: 10}
-  m_SizeDelta: {x: 207.92, y: 72}
+  m_SizeDelta: {x: 207.91998, y: 72}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &8201110999617282479
 CanvasRenderer:
@@ -749,6 +750,23 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6392605551760967876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6326147291050360371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: overarching:submit-chapter-btn
+    m_HashValue: 3963334376
+  RectTransform: {fileID: 8071710177200535866}
+  Collider: {fileID: 0}
 --- !u!1 &6592554259701323900
 GameObject:
   m_ObjectHideFlags: 0

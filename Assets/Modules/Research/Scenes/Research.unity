@@ -1341,6 +1341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c57724eb8eb6814591057b44a3db429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FoundValidSolution: 0
   RequiredResearchGoals: []
 --- !u!4 &854215820
 Transform:

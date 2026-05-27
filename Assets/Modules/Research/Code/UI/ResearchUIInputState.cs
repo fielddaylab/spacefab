@@ -5,6 +5,7 @@ using System;
 namespace SpaceFab.Research {
     /// <summary>
     /// Frame-flagged input from Research UI MonoBehaviours. Click handlers
+    /// Frame-flagged input from Research UI MonoBehaviours. Click handlers
     /// write their intent here; UI-driven systems consume the flags during
     /// Update; ResearchUIInputRefreshSystem clears them at end-of-frame.
     /// Replaces the prototype's per-MonoBehaviour CastableEvent listeners.
