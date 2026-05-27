@@ -4,6 +4,7 @@ using FieldDay;
 using FieldDay.Components;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Overarching
@@ -14,18 +15,32 @@ namespace SpaceFab.Overarching
         public PointerListener PointerListener;
         public SceneReference MinigameScene;
 
+        // Identifies which minigame this zone represents. Drives the per-zone alert mask lookup
+        // in OverarchingAlertState and the FoundValidSolution auto-rule.
+        public MinigameId Minigame;
+
         public bool ClickedThisFrame;
         public bool PointerEnterThisFrame;
         public bool PointerExitThisFrame;
 
         [Header("Visuals")]
+        public Sprite NormalHighlight;
+        public Sprite EmphasisHighlight;
         public SpriteRenderer HighlightRenderer;
+        public TMP_Text StationLabel;
+
+        // Worldspace child transform where OverarchingAlertSystem parents pooled AlertIconView
+        // instances. Icons are positioned at fixed horizontal offsets per stack index.
+        public Transform AlertIconContainer;
 
         public void OnRegister()
         {
             PointerListener.onClick.AddListener(HandleClick);
             PointerListener.onPointerEnter.AddListener(HandlePointerEnter);
             PointerListener.onPointerExit.AddListener(HandlePointerExit);
+
+            HighlightRenderer.enabled = false;
+            StationLabel.enabled = false;
         }
 
         public void OnDeregister()
