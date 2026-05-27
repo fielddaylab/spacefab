@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3833766971092807474}
   - component: {fileID: 2477237869192481450}
   - component: {fileID: 7590832895138994771}
+  - component: {fileID: 7205586287880589935}
   m_Layer: 5
   m_Name: Test Full Suite Btn (Revised)
   m_TagString: Untagged
@@ -131,6 +132,23 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   Icon: {fileID: 0}
+--- !u!114 &7205586287880589935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 944311000579652902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: design:test-btn
+    m_HashValue: 499934326
+  RectTransform: {fileID: 1241167336889361067}
+  Collider: {fileID: 0}
 --- !u!1 &1085600378437500565
 GameObject:
   m_ObjectHideFlags: 0

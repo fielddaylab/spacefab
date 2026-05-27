@@ -442,6 +442,7 @@ GameObject:
   - component: {fileID: 71046042942181199}
   - component: {fileID: 4951189390717952254}
   - component: {fileID: 5930513603944458690}
+  - component: {fileID: 4136025814031816267}
   m_Layer: 0
   m_Name: Input Toggle Visual
   m_TagString: Untagged
@@ -482,6 +483,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Collider: {fileID: 4951189390717952254}
   Cursor: {fileID: 5930513603944458690}
+  Tag: {fileID: 0}
   BackgroundRenderer: {fileID: 4948607152485315806}
   ArrowRenderer: {fileID: 1252159932155938492}
   ToggleHandleRenderer: {fileID: 5252248679516850910}
@@ -554,6 +556,23 @@ MonoBehaviour:
   TooltipHeader: Input Node
   Tooltip: 
   TooltipFooter: 
+--- !u!114 &4136025814031816267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5489615169377304727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: 
+    m_HashValue: 0
+  RectTransform: {fileID: 0}
+  Collider: {fileID: 4951189390717952254}
 --- !u!1 &7682957549309628650
 GameObject:
   m_ObjectHideFlags: 0

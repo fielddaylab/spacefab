@@ -9,8 +9,10 @@ namespace SpaceFab.Onboarding {
     /// Singleton id -> ElementTag index, populated incrementally as ElementTag
     /// instances register and deregister. Onboarding scripting resolves Leaf-supplied
     /// ids through this lookup before asking the highlight system to act on them.
-    /// Ids are unique by design: registration of a duplicate id asserts in editor and
-    /// logs a warning in builds (the first-registered tag wins).
+    /// Ids are unique by design — duplicate registration logs a warning and the second
+    /// tag is skipped (first registered wins). Collisions are treated as an authoring
+    /// error rather than a fatal failure so dynamically-tagged pooled objects (e.g.
+    /// the design-mode input overlays) survive a level with bad data.
     /// </summary>
     public class ElementTagLookup : SharedStateComponent, IRegistrationCallbacks {
         [System.NonSerialized] public Dictionary<StringHash32, ElementTag> ById;
@@ -38,9 +40,9 @@ namespace SpaceFab.Onboarding {
 
             StringHash32 id = tag.Id.Hash();
             if (lookup.ById.TryGetValue(id, out ElementTag existing)) {
-                // Duplicate ids are a setup bug — assert in editor so it surfaces during
-                // scene work, and skip the registration so the first tag remains addressable.
-                Assert.Fail("[Onboarding] Duplicate ElementTag id '{0}' (existing on '{1}', rejected on '{2}')",
+                // Duplicate id — treat as authoring error: warn and skip. The first tag stays
+                // addressable; the second tag is simply not registered (its lookup queries will miss).
+                Log.Warn("[Onboarding] Duplicate ElementTag id '{0}' (existing on '{1}', rejected on '{2}')",
                     tag.Id.Source(), existing.name, tag.name);
                 return;
             }

@@ -37,13 +37,41 @@ namespace SpaceFab.Onboarding {
                 Collider = GetComponent<Collider2D>();
             }
 
+            RegisterCurrentId();
+        }
+
+        public void OnDeregister() {
+            DeregisterCurrentId();
+        }
+
+        /// <summary>
+        /// Reassigns this tag's id at runtime, updating the lookup atomically: deregisters
+        /// the old id, swaps in the new one, registers under the new id. Pass default to
+        /// clear the tag from the lookup (e.g. when a pooled object is being returned).
+        /// </summary>
+        public void SetId(StringHash32 newIdHash) {
+            StringHash32 currentHash = Id.Hash();
+            if (currentHash == newIdHash) { return; }
+
+            DeregisterCurrentId();
+            // SerializedHash32 has an implicit operator from StringHash32, so this assignment
+            // round-trips the hash without preserving a source string. Source-string recovery
+            // is only needed for the inspector-authored case (warnings / debug logs); runtime
+            // SetId callers pass hashes whose source string isn't meaningful here.
+            Id = newIdHash;
+            RegisterCurrentId();
+        }
+
+        private void RegisterCurrentId() {
+            if (Id.IsEmpty) { return; }
             ElementTagLookup lookup = Find.State<ElementTagLookup>();
             if (lookup != null) {
                 ElementTagLookupUtility.Register(lookup, this);
             }
         }
 
-        public void OnDeregister() {
+        private void DeregisterCurrentId() {
+            if (Id.IsEmpty) { return; }
             ElementTagLookup lookup = Find.State<ElementTagLookup>();
             if (lookup != null) {
                 ElementTagLookupUtility.Deregister(lookup, this);

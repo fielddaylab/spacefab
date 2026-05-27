@@ -1,7 +1,9 @@
 using BeauPools;
+using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Design.Visuals;
+using SpaceFab.Onboarding;
 using System;
 using UnityEngine;
 
@@ -316,7 +318,13 @@ namespace SpaceFab.Design
             for (int i = n - 1; i >= 0; i--)
             {
                 InputToggleVisual overlay = pools.ActiveInputToggleOverlays[i];
-                if (overlay != null) { Pool.TryFree(overlay); }
+                if (overlay != null)
+                {
+                    // Clear the onboarding tag id before pooling so the lookup doesn't carry
+                    // stale entries pointing at parked overlays across level reloads.
+                    if (overlay.Tag != null) { overlay.Tag.SetId(default); }
+                    Pool.TryFree(overlay);
+                }
             }
             pools.ActiveInputToggleOverlays.Clear();
         }
@@ -395,11 +403,24 @@ namespace SpaceFab.Design
         }
 
         // Writes the per-input subtype label ("A", "B", ...) once on spawn — the input cell's
-        // SubtypeLabel doesn't change after the grid is loaded.
+        // SubtypeLabel doesn't change after the grid is loaded. Also stamps the onboarding
+        // ElementTag id ("design:input-a", "design:input-in", ...) so Leaf tutorial calls can
+        // address the overlay by subtype. Subtype is lowercased so the id format is consistent
+        // with other "module:kebab-case-name" event ids in the project.
         private static void ApplyOverlaySubtypeLabel(InputToggleVisual overlay, InputOutputNodeTypeFlags subtype)
         {
-            if (overlay.SubtypeText == null) { return; }
-            overlay.SubtypeText.SetText(GetInputSubtypeShortLabel(subtype));
+            string shortLabel = GetInputSubtypeShortLabel(subtype);
+            if (overlay.SubtypeText != null)
+            {
+                overlay.SubtypeText.SetText(shortLabel);
+            }
+            if (overlay.Tag != null)
+            {
+                StringHash32 tagId = string.IsNullOrEmpty(shortLabel)
+                    ? default
+                    : new StringHash32("design:input-" + shortLabel.ToLowerInvariant());
+                overlay.Tag.SetId(tagId);
+            }
         }
 
         #endregion // Visuals

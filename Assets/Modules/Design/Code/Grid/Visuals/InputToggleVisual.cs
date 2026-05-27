@@ -1,6 +1,8 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.UI;
+using SpaceFab.Onboarding;
 using System;
 using TMPro;
 using UnityEngine;
@@ -23,6 +25,11 @@ namespace SpaceFab.Design
         [Header("Interaction")]
         public Collider2D Collider;
         public CursorHint Cursor;
+
+        // Onboarding tag stamped per spawn by InputToggleUtility (id derived from the cell's
+        // subtype label, e.g. "design:input-a"). Pre-wired on the prefab with Collider already
+        // assigned — runtime only writes its Id via ElementTag.SetId.
+        public ElementTag Tag;
 
         [Header("Common (sprites set from GridSpriteDB on spawn)")]
         // Square frame behind the whole overlay. Sprite assigned from GridSpriteDB.InputToggleBackground;
@@ -69,6 +76,11 @@ namespace SpaceFab.Design
             {
                 Cursor.onClick.Deregister(HandleClick);
             }
+
+            // Clear the onboarding tag id so the lookup doesn't retain a stale entry if this
+            // overlay is destroyed outside the normal FreeAllInputOverlays path (e.g. scene
+            // unload while overlays are still active).
+            if (Tag != null) { Tag.SetId(default); }
         }
 
         private void HandleClick()
