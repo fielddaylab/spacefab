@@ -22,8 +22,7 @@ namespace SpaceFab.Fabrication
 
         public void OnRegister()
         {
-            Find.State(out TimeState state);
-            state.TimerText.text = "00.00";
+            TimerText.text = "00.00";
         }
 
         public void OnDeregister()

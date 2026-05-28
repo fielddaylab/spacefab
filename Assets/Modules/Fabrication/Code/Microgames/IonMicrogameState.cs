@@ -88,17 +88,22 @@ namespace SpaceFab.Fabrication.Microgames
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
+        // Also hides the microgame UI here (rather than at ExitComplete) so the step-completion
+        // recap doesn't play over the still-visible ion-implant panel.
+        // On cancel, nothing is recorded and UI hide is deferred to ExitComplete (existing flow).
         public static void ExitBegin(bool completedNormally)
         {
-            Find.State(out IonMicrogameState state);
+            Find.State(out IonMicrogameState state, out MicrogameCanvasState canvasState);
             state.Phase = IonMicrogamePhase.Exiting;
-            
+
             // TODO: freeze dropper.
             if (!completedNormally) { return; }
 
             HintedCursor.Visibility = HintedCursor.VisiblityMode.Always;
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
+
+            state.IonUI.SetActive(false);
+            canvasState.HideUI();
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the

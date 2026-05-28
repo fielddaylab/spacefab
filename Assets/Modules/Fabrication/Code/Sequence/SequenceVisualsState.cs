@@ -2,67 +2,58 @@ using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Sequence
 {
     /// <summary>
-    /// Holds the visuals layer for the Fabrication sequence: prefab and slot references for the
-    /// on-screen step "cards", plus polled dirty flags written by SequenceUtility when the sequence
-    /// resets, advances, or completes. Owned by the Fabrication minigame; consumed by
-    /// SequenceVisualsSystem in LateUpdate.
+    /// Holds the visuals layer for the Fabrication sequence: references to the two pooled
+    /// on-screen step cards (always loaded; never destroyed), the in-flight transition routine,
+    /// and the polled dirty flags written by SequenceUtility when the sequence resets, advances,
+    /// or completes. Consumed by SequenceVisualsSystem in LateUpdate.
     /// </summary>
     public class SequenceVisualsState : SharedStateComponent, IRegistrationCallbacks
     {
-        // Prefab instantiated for each on-screen card. Authored on the scene state holder.
-        public GameObject StepCardPrefab;
+        // Authored on the Sequence Panel Group prefab — both cards live there at the same local
+        // position. Which one is "in front" is controlled by sibling order, not by translation.
+        public SequenceCard CardSlotA;
+        public SequenceCard CardSlotB;
 
-        // Parent transform for instantiated cards. Authored on the scene state holder.
-        public Transform StepCardContainer;
+        // Placeholder transition timing. The current animation just toggles CanvasGroup alpha on
+        // the two cards across this duration; replace with a real tween when the visual is final.
+        public float TransitionDurationSeconds = 0.4f;
 
-        // Local position of the on-screen "current" card slot.
-        public Vector3 CurrentSlotLocalPos;
+        // Runtime pointers tracking which authored slot is currently in front vs. behind. Swapped
+        // by SequenceVisualsUtility.AdvanceRoutine. Initialized in OnRegister and on every Reset.
+        [HideInInspector] public SequenceCard FrontCard;
+        [HideInInspector] public SequenceCard BackCard;
 
-        // Local position of the pre-loaded "next" card slot, sitting below the current slot.
-        public Vector3 NextSlotLocalPos;
-
-        // Local position the swipe-out animation targets (off-screen left).
-        public Vector3 ExitLocalPos;
-
-        // Tunable: how long the "completed" stamp visual holds before the swipe-left begins.
-        public float StampDurationSeconds = 0.4f;
-
-        // Tunable: duration of the swipe-left + next-card-up animation.
-        public float SwipeDurationSeconds = 0.35f;
-
-        // Currently on-screen card. Null until the first ResetRequested is consumed.
-        [HideInInspector] public GameObject CurrentCard;
-
-        // Pre-loaded card sitting at NextSlotLocalPos. Null when the current step is the last step.
-        [HideInInspector] public GameObject NextCard;
-
-        // BeauRoutine handle for the active stamp-and-swipe animation.
+        // BeauRoutine handle for the active transition animation.
         [HideInInspector] public Routine TransitionRoutine;
 
-        // Set by SequenceUtility.ResetSequence. Consumed by SequenceVisualsSystem to rebuild both cards.
+        // Set by SequenceUtility.ResetSequence. Consumed by SequenceVisualsSystem to rebuild both
+        // cards' content from step 0 / step 1 and reset which slot is in front.
         [HideInInspector] public bool ResetRequested;
 
-        // Set by SequenceUtility.AdvanceStep on a non-final advance. Consumed by SequenceVisualsSystem
-        // to play the stamp-and-swipe routine and pre-load the next-next card.
+        // Set by SequenceUtility.AdvanceStep on a non-final advance. Drives the swap-and-repopulate
+        // transition.
         [HideInInspector] public bool AdvanceRequested;
 
-        // Set by SequenceUtility.AdvanceStep on the final advance. Consumed by SequenceVisualsSystem
-        // to play the stamp-and-swipe routine without promoting a next card.
+        // Set by SequenceUtility.AdvanceStep on the final advance. Hides both cards permanently
+        // until the next reset.
         [HideInInspector] public bool CompletionRequested;
 
         public void OnRegister()
         {
-            CurrentCard = null;
-            NextCard = null;
+            FrontCard = CardSlotA;
+            BackCard = CardSlotB;
             ResetRequested = false;
             AdvanceRequested = false;
             CompletionRequested = false;
+
+            // Start hidden. Cards only become visible once ModeTransitionSystem transitions into
+            // AttemptLeadIn and sets ResetRequested (consumed by SequenceVisualsSystem).
+            SequenceVisualsUtility.HideAllCards(this);
         }
 
         public void OnDeregister()
@@ -72,156 +63,162 @@ namespace SpaceFab.Fabrication.Sequence
     }
 
     /// <summary>
-    /// Pairs with SequenceVisualsState. Builds and animates the on-screen step cards in response to
-    /// sequence reset / advance / completion signals. The system consumes the dirty flags and calls
-    /// these methods; SequenceUtility never calls them directly.
+    /// Pairs with SequenceVisualsState. Populates and animates the two pooled SequenceCards in
+    /// response to sequence reset / advance / completion signals. The system consumes the dirty
+    /// flags and calls these methods; SequenceUtility never calls them directly.
     /// </summary>
     public static class SequenceVisualsUtility
     {
-        // Tears down any existing cards and instantiates fresh ones for the current step and the
-        // step immediately after it (if in range). Called when ResetRequested is observed.
+        // Resets the pool back to "CardSlotA is front, CardSlotB is back" and repopulates both
+        // with the current and next steps. Called when ResetRequested is observed. Hides either
+        // card whose step index is out of range (no level, no steps, last step alone, etc.).
         public static void RebuildAllCards(SequenceVisualsState visualsState, SequenceState sequenceState)
         {
-            // 1. Stop any in-flight animation; the rebuild supersedes it.
+            // 1. Stop any in-flight transition; the rebuild supersedes it.
             visualsState.TransitionRoutine.Stop();
 
-            // 2. Destroy any existing card instances.
-            if (visualsState.CurrentCard != null) {
-                Object.Destroy(visualsState.CurrentCard);
-                visualsState.CurrentCard = null;
-            }
-            if (visualsState.NextCard != null) {
-                Object.Destroy(visualsState.NextCard);
-                visualsState.NextCard = null;
-            }
+            // 2. Restore the canonical front/back pointers and bring the front card to the top.
+            visualsState.FrontCard = visualsState.CardSlotA;
+            visualsState.BackCard = visualsState.CardSlotB;
+            BringToFront(visualsState.FrontCard);
 
-            // 3. Bail if there is nothing to display (no level loaded, no steps).
+            // 3. Bail with both cards hidden if there is nothing to display.
             if (sequenceState.Level == null || sequenceState.Level.Steps == null || sequenceState.Level.Steps.Length == 0) {
+                SetCardVisible(visualsState.FrontCard, false);
+                SetCardVisible(visualsState.BackCard, false);
                 return;
             }
 
-            int currentIndex = sequenceState.CurrentStepIndex;
             SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
+            WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
 
-            // 4. Spawn the current card if the index is in range.
-            if (currentIndex >= 0 && currentIndex < sequenceState.Level.Steps.Length) {
-                visualsState.CurrentCard = SpawnCard(visualsState, sequenceState, currentIndex, visualsState.CurrentSlotLocalPos, lookup);
+            int currentIndex = sequenceState.CurrentStepIndex;
+            FabricationStep[] steps = sequenceState.Level.Steps;
+
+            // 4. Populate and show the front card with the current step (if in range).
+            if (currentIndex >= 0 && currentIndex < steps.Length) {
+                PopulateCard(visualsState.FrontCard, steps[currentIndex], GetRuntime(sequenceState, currentIndex), lookup, waferLookup);
+                SetCardVisible(visualsState.FrontCard, true);
+            } else {
+                SetCardVisible(visualsState.FrontCard, false);
             }
 
-            // 5. Spawn the next card if there is a step after the current one.
+            // 5. Pre-load the back card with the next step (if in range) but keep it hidden — it
+            //    only becomes visible when AdvanceRoutine reveals it during the transition.
             int nextIndex = currentIndex + 1;
-            if (nextIndex < sequenceState.Level.Steps.Length) {
-                visualsState.NextCard = SpawnCard(visualsState, sequenceState, nextIndex, visualsState.NextSlotLocalPos, lookup);
+            if (nextIndex < steps.Length) {
+                PopulateCard(visualsState.BackCard, steps[nextIndex], GetRuntime(sequenceState, nextIndex), lookup, waferLookup);
             }
+            SetCardVisible(visualsState.BackCard, false);
         }
 
-        // Stamp-and-swipe routine for a non-final step advance. The card representing the
-        // just-completed step is stamped "completed", then swipes off-screen left while the
-        // pre-loaded next card slides up into the current slot. Once the swipe finishes, a fresh
-        // next card is instantiated below for the new upcoming step (if one exists).
+        // Non-final step advance. Reveals the pre-loaded back card (which already holds the
+        // just-advanced-to step's content), hides the old front, swaps the front/back pointers,
+        // and pre-loads the now-back card with the new "next" step — kept hidden until the next
+        // transition. The placeholder visual is a flat CanvasGroup-alpha toggle.
         public static IEnumerator AdvanceRoutine(SequenceVisualsState visualsState, SequenceState sequenceState, int justCompletedIndex)
         {
-            // 1. Apply the "completed" stamp on the outgoing card. Placeholder until card prefab
-            //    structure is finalized.
-            ApplyCompletedStamp(visualsState.CurrentCard);
+            // 1. Reveal the back card — it already holds the new current step's content
+            //    (pre-loaded on the previous Reset or Advance). Hide the outgoing front.
+            SetCardVisible(visualsState.BackCard, true);
+            SetCardVisible(visualsState.FrontCard, false);
 
-            // 2. Hold the stamp for the configured duration.
-            yield return visualsState.StampDurationSeconds;
+            yield return visualsState.TransitionDurationSeconds;
 
-            // 3. Animate the outgoing card and the incoming card in parallel.
-            yield return Routine.Combine(
-                MoveCardLocal(visualsState.CurrentCard, visualsState.ExitLocalPos, visualsState.SwipeDurationSeconds),
-                MoveCardLocal(visualsState.NextCard, visualsState.CurrentSlotLocalPos, visualsState.SwipeDurationSeconds)
-            );
+            // 2. Swap which authored slot is front vs. back. The newly-visible card becomes the
+            //    front; the just-hidden card becomes the back and will be re-used for step N+2.
+            SequenceCard newFront = visualsState.BackCard;
+            SequenceCard newBack = visualsState.FrontCard;
+            visualsState.FrontCard = newFront;
+            visualsState.BackCard = newBack;
+            BringToFront(newFront);
 
-            // 4. Destroy the outgoing card and promote the incoming card to current.
-            if (visualsState.CurrentCard != null) {
-                Object.Destroy(visualsState.CurrentCard);
-            }
-            visualsState.CurrentCard = visualsState.NextCard;
-            visualsState.NextCard = null;
-
-            // 5. Pre-load a new next card for the step after the one we just promoted (if any).
-            int newNextIndex = justCompletedIndex + 2;
-            if (sequenceState.Level != null && sequenceState.Level.Steps != null && newNextIndex < sequenceState.Level.Steps.Length) {
+            // 3. Pre-load the new back card with the step after the new current step (if any),
+            //    but keep it hidden — it only becomes visible at the next advance. AdvanceStep has
+            //    already incremented CurrentStepIndex, so the new upcoming "next" step is
+            //    CurrentStepIndex + 1 == justCompletedIndex + 2.
+            FabricationStep[] steps = sequenceState.Level != null ? sequenceState.Level.Steps : null;
+            int newBackIndex = justCompletedIndex + 2;
+            if (steps != null && newBackIndex < steps.Length) {
                 SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
-                visualsState.NextCard = SpawnCard(visualsState, sequenceState, newNextIndex, visualsState.NextSlotLocalPos, lookup);
+                WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
+                PopulateCard(newBack, steps[newBackIndex], GetRuntime(sequenceState, newBackIndex), lookup, waferLookup);
             }
+            SetCardVisible(newBack, false);
         }
 
-        // Stamp-and-swipe routine for the final-step completion. Identical to AdvanceRoutine but
-        // does not promote or pre-load any next card; both slots end empty.
+        // Final-step completion. Hides both cards and leaves them hidden until the next reset.
         public static IEnumerator CompletionRoutine(SequenceVisualsState visualsState)
         {
-            // 1. Apply the "completed" stamp on the final card.
-            ApplyCompletedStamp(visualsState.CurrentCard);
+            SetCardVisible(visualsState.FrontCard, false);
+            SetCardVisible(visualsState.BackCard, false);
+            yield return visualsState.TransitionDurationSeconds;
+        }
 
-            // 2. Hold the stamp.
-            yield return visualsState.StampDurationSeconds;
+        // Pulls per-step display data from SequenceLookup and WaferStepUILookup and applies it to
+        // the card. ConvertToB is optional: if no entry id is authored, the overlay renderer is
+        // disabled so nothing layers on top of the base wafer.
+        private static void PopulateCard(SequenceCard card, FabricationStep step, StepRuntimeData runtime, SequenceLookup lookup, WaferStepUILookup waferLookup)
+        {
+            SequenceStepEntry entry = lookup.GetStep(step.StepId);
 
-            // 3. Swipe the final card off-screen.
-            yield return MoveCardLocal(visualsState.CurrentCard, visualsState.ExitLocalPos, visualsState.SwipeDurationSeconds);
-
-            // 4. Tear it down. NextCard is already null at completion.
-            if (visualsState.CurrentCard != null) {
-                Object.Destroy(visualsState.CurrentCard);
-                visualsState.CurrentCard = null;
+            // Wafer images: ConvertFrom + ConvertToA always set; ConvertToB only if authored.
+            card.WaferState1.sprite = waferLookup.GetSprite(entry.ConvertFrom);
+            card.WaferState2Base.sprite = waferLookup.GetSprite(entry.ConvertToA);
+            if (entry.ConvertToB.IsEmpty) {
+                card.WaferState2Overlay.enabled = false;
+            } else {
+                card.WaferState2Overlay.enabled = true;
+                card.WaferState2Overlay.sprite = waferLookup.GetSprite(entry.ConvertToB);
             }
+
+            // Station icon and text labels.
+            card.StationIcon.sprite = entry.StationIconSprite;
+            card.StationLabelText.text = entry.StationLabel;
+            card.InstructionLabelText.text = entry.InstructionLabel;
+
+            // TODO: when runtime.IsGlitched, apply lookup.GlitchOverlaySprite / GlitchOverlayText.
+            // Deferred until the card prefab carries a dedicated glitch overlay child.
         }
 
-        // Instantiates a single card under StepCardContainer at the given local position and
-        // populates its visuals from SequenceLookup.
-        private static GameObject SpawnCard(SequenceVisualsState visualsState, SequenceState sequenceState, int stepIndex, Vector3 localPos, SequenceLookup lookup)
+        // Looks up the per-step runtime data (IsGlitched, WasCheckpointReached) for the given step
+        // index, returning default if StepRuntime is unallocated or out of range.
+        private static StepRuntimeData GetRuntime(SequenceState sequenceState, int stepIndex)
         {
-            GameObject card = Object.Instantiate(visualsState.StepCardPrefab, visualsState.StepCardContainer);
-            card.transform.localPosition = localPos;
-            FabricationStep step = sequenceState.Level.Steps[stepIndex];
-            StepRuntimeData runtime = sequenceState.StepRuntime != null && stepIndex < sequenceState.StepRuntime.Length
-                ? sequenceState.StepRuntime[stepIndex]
-                : default;
-            PopulateCardVisuals(card, step, runtime, lookup);
-            return card;
+            if (sequenceState.StepRuntime == null || stepIndex < 0 || stepIndex >= sequenceState.StepRuntime.Length) {
+                return default;
+            }
+            return sequenceState.StepRuntime[stepIndex];
         }
 
-        // Pulls per-step and per-chunk display data from SequenceLookup and applies it to the card.
-        // Stub for now — the card prefab structure isn't authored yet. The signature is in place so
-        // callers don't need to be updated when the visual hookup is filled in.
-        private static void PopulateCardVisuals(GameObject card, FabricationStep step, StepRuntimeData runtime, SequenceLookup lookup)
+        // Hides both pooled cards. Used by OnRegister to enforce "cards start hidden until the
+        // first lead-in transition", and as the terminal state after CompletionRoutine.
+        public static void HideAllCards(SequenceVisualsState visualsState)
         {
-            // TODO: read SequenceStepEntry via lookup.GetStep(step.StepId), set the foreground sprite/text.
-            // TODO: read SequenceChunkEntry via lookup.GetChunk(step.Chunk), set the background sprite/text.
-            // TODO: if runtime.IsGlitched, apply lookup.GlitchOverlaySprite / GlitchOverlayText.
+            SetCardVisible(visualsState.CardSlotA, false);
+            SetCardVisible(visualsState.CardSlotB, false);
         }
 
-        // Toggles the "completed" stamp visual on a card. Stub until the card prefab carries a
-        // dedicated component for the stamp.
-        private static void ApplyCompletedStamp(GameObject card)
+        // Toggles a card's CanvasGroup visibility + interactability in one place so the routines
+        // can't drift apart on what "hidden" means.
+        private static void SetCardVisible(SequenceCard card, bool visible)
         {
-            // TODO: locate the stamp child renderer on the card prefab and enable it.
+            if (card == null || card.Group == null) {
+                return;
+            }
+            card.Group.alpha = visible ? 1f : 0f;
+            card.Group.interactable = visible;
+            card.Group.blocksRaycasts = visible;
         }
 
-        // Lerps a card's localPosition to the target over the given duration. Falls back to a
-        // direct snap if the card was destroyed mid-routine.
-        private static IEnumerator MoveCardLocal(GameObject card, Vector3 targetLocalPos, float duration)
+        // Puts a card on top by making it the last sibling under its parent. Sibling order is how
+        // the pool encodes "in front" vs. "behind" — both cards share a transform position.
+        private static void BringToFront(SequenceCard card)
         {
             if (card == null) {
-                yield break;
+                return;
             }
-            Transform t = card.transform;
-            Vector3 start = t.localPosition;
-            float elapsed = 0f;
-            while (elapsed < duration) {
-                if (card == null) {
-                    yield break;
-                }
-                elapsed += Routine.DeltaTime;
-                float k = Mathf.Clamp01(elapsed / duration);
-                t.localPosition = Vector3.Lerp(start, targetLocalPos, k);
-                yield return null;
-            }
-            if (card != null) {
-                t.localPosition = targetLocalPos;
-            }
+            card.transform.SetAsLastSibling();
         }
     }
 }
