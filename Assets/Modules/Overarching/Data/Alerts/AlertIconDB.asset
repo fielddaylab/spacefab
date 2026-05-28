@@ -12,7 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb982d403e67a684fb2f804ab4f8ac68, type: 3}
   m_Name: AlertIconDB
   m_EditorClassIdentifier: 
-  NeedsAttentionIcon: {fileID: 21300000, guid: 749b6b6590cf41c49bf8d0fe6f08e3a2, type: 3}
-  IncompleteIcon: {fileID: 21300000, guid: 94633cc7cb1abbc4780606da6eab8960, type: 3}
-  LockedIcon: {fileID: 21300000, guid: 2022fb4144bbfd9488d92a908d8da437, type: 3}
-  CompleteIcon: {fileID: 21300000, guid: c87295907eb2e4549be5cdff856889c2, type: 3}
+  NotStartedBaseIcon: {fileID: 0}
+  NotStartedInnerIcon: {fileID: 0}
+  NotStartedSymbolIcon: {fileID: 0}
+  NeedsAttentionBaseIcon: {fileID: 0}
+  NeedsAttentionInnerIcon: {fileID: 0}
+  NeedsAttentionSymbolIcon: {fileID: 0}
+  IncompleteBaseIcon: {fileID: 0}
+  IncompleteInnerIcon: {fileID: 0}
+  IncompleteSymbolIcon: {fileID: 0}
+  LockedBaseIcon: {fileID: 0}
+  LockedInnerIcon: {fileID: 0}
+  LockedSymbolIcon: {fileID: 0}
+  CompleteBaseIcon: {fileID: 21300000, guid: 274577c5ef847d04196c194580f76349, type: 3}
+  CompleteInnerIcon: {fileID: 21300000, guid: 9f48ef636e606184aa1ce1cca2c2cc20, type: 3}
+  CompleteSymbolIcon: {fileID: 21300000, guid: aee60fd44200bc4419532c690de21f57, type: 3}

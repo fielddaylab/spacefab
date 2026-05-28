@@ -7,26 +7,38 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     /// <summary>
+    /// One minigame's unlock prerequisites. The minigame is Locked until every entry in
+    /// Prerequisites is Complete (FoundValidSolution). Authored on OverarchingAlertState.UnlockRules.
+    /// </summary>
+    [System.Serializable]
+    public struct MinigameUnlockRule
+    {
+        public MinigameId Minigame;
+        // All must be Complete before Minigame unlocks. Empty (or no rule for a minigame at all)
+        // means the minigame is always available.
+        public MinigameId[] Prerequisites;
+    }
+
+    /// <summary>
     /// Per-minigame alert mask storage. One AlertType value per MinigameId, indexed by
     /// (int)MinigameId. Mutation, query, and the scene-entry auto-rule all live in
     /// OverarchingAlertUtility — this class is data-only.
     ///
     /// Lifecycle: scene-scoped (Overarching). OnRegister allocates Masks and flags the visuals
     /// dirty so OverarchingAlertSystem renders an initial pass; AutoRuleApplied is false so the
-    /// system also runs the FoundValidSolution → NeedsAttention / Complete derivation on the
-    /// first tick that has MinigameSaveStates available.
+    /// system also runs the save-flag → Complete / Incomplete / NotStarted derivation (and the
+    /// prerequisite locking) on the first tick that has MinigameSaveStates available.
     ///
     /// MinigameId covers the four save-backed minigames (Design / Research / Fabrication / Supply);
     /// the auto-rule maps each to its save state. If a future minigame is added, extend MinigameId
-    /// AND MinigameSaveStates AND the switch in ApplyAutoRuleFromSaveStates together.
+    /// AND MinigameSaveStates together.
     /// </summary>
     public class OverarchingAlertState : SharedStateComponent, IRegistrationCallbacks
     {
-        // Designer-authored progression order. When the auto-rule runs, every minigame that
-        // comes after the first unsolved entry in this sequence has Locked OR'd into its mask.
-        // Leave empty (length 0 or null) to disable progression locking entirely. Order matters;
-        // duplicates are allowed but redundant.
-        public MinigameId[] ProgressionSequence;
+        // Designer-authored unlock prerequisites. A minigame with a rule is Locked until every
+        // prerequisite is Complete; a minigame with no rule (or empty Prerequisites) is always
+        // available. Expresses arbitrary unlock graphs (e.g. Supply requires Design AND Research).
+        public MinigameUnlockRule[] UnlockRules;
 
         // Flat mask per minigame, indexed by (int)MinigameId. Sized to (int)MinigameId.COUNT.
         [HideInInspector] public AlertType[] Masks;
@@ -36,9 +48,9 @@ namespace SpaceFab.Overarching
         [HideInInspector] public bool AlertVisualsDirty;
 
         // False until OverarchingAlertSystem has run the one-shot scene-entry auto-rule that
-        // derives NeedsAttention / Complete bits from each minigame's FoundValidSolution. After
-        // it flips to true, Leaf and other callers can mutate masks freely without the system
-        // overwriting them on subsequent ticks.
+        // derives the Complete / Incomplete / NotStarted progress bit from each minigame's save
+        // flags. After it flips to true, Leaf and other callers can mutate masks freely without
+        // the system overwriting them on subsequent ticks.
         [HideInInspector] public bool AutoRuleApplied;
 
         public void OnRegister()
@@ -115,39 +127,50 @@ namespace SpaceFab.Overarching
         }
 
         // One-shot derivation. Runs in two passes:
-        //   (1) For every MinigameId, set NeedsAttention if !FoundValidSolution, Complete if true.
-        //   (2) Walk ProgressionSequence in order; once we hit the first entry with
-        //       !FoundValidSolution, every subsequent entry gets Locked OR'd into its mask.
-        // Both passes use SetAlertBit, which only ORs in — Leaf hooks that pre-set bits before
-        // scene entry are preserved. Called exactly once per Overarching scene load.
+        //   (1) For every MinigameId, set the progress bit from its save flags: Complete if solved,
+        //       else Incomplete if started-but-unsolved, else NotStarted.
+        //   (2) For every UnlockRule, lock the minigame until every prerequisite is Complete. A
+        //       minigame with no rule (or empty Prerequisites) is always available.
+        // Both passes use SetAlertBit, which only ORs in — Leaf hooks that pre-set bits (e.g.
+        // NeedsAttention) before scene entry are preserved. Called once per Overarching scene load.
         public static void ApplyAutoRuleFromSaveStates(OverarchingAlertState state, MinigameSaveStates saveStates)
         {
             if (state == null || saveStates == null) { return; }
 
-            // Pass 1: NeedsAttention / Complete per minigame.
+            // Pass 1: progress bit (Complete / Incomplete / NotStarted) per minigame.
             for (int i = 0; i < (int)MinigameId.COUNT; i++)
             {
                 MinigameId mg = (MinigameId)i;
-                bool solved = GetSolvedFlag(saveStates, mg);
-                SetAlertBit(state, mg, solved ? AlertType.Complete : AlertType.NeedsAttention);
+                MinigameSaveStateBase save = MinigameSaveUtility.GetState(saveStates, mg);
+                bool solved = save != null && save.FoundValidSolution;
+                bool started = save != null && save.Started;
+
+                AlertType progress = solved ? AlertType.Complete
+                    : (started ? AlertType.Incomplete : AlertType.NotStarted);
+                SetAlertBit(state, mg, progress);
             }
 
-            // Pass 2: progression-order locking. Lock every minigame that appears in the sequence
-            // after the player's current frontier (the first unsolved entry). Skipped entirely
-            // when no progression sequence is authored.
-            if (state.ProgressionSequence == null || state.ProgressionSequence.Length == 0) { return; }
-            bool reachedFrontier = false;
-            for (int i = 0; i < state.ProgressionSequence.Length; i++)
+            // Pass 2: prerequisite locking. A minigame with a rule is Locked until every
+            // prerequisite is Complete. Minigames without a rule are always available. Transitivity
+            // is automatic — a locked minigame can't be solved, so it keeps its dependents locked.
+            if (state.UnlockRules == null) { return; }
+            for (int i = 0; i < state.UnlockRules.Length; i++)
             {
-                MinigameId mg = state.ProgressionSequence[i];
-                if (reachedFrontier)
+                MinigameUnlockRule rule = state.UnlockRules[i];
+                if (rule.Prerequisites == null || rule.Prerequisites.Length == 0) { continue; }
+
+                bool allMet = true;
+                for (int p = 0; p < rule.Prerequisites.Length; p++)
                 {
-                    SetAlertBit(state, mg, AlertType.Locked);
-                    continue;
+                    if (!GetSolvedFlag(saveStates, rule.Prerequisites[p]))
+                    {
+                        allMet = false;
+                        break;
+                    }
                 }
-                if (!GetSolvedFlag(saveStates, mg))
+                if (!allMet)
                 {
-                    reachedFrontier = true;
+                    SetAlertBit(state, rule.Minigame, AlertType.Locked);
                 }
             }
         }
@@ -157,14 +180,8 @@ namespace SpaceFab.Overarching
         // enum could grow with non-save-backed entries in the future).
         private static bool GetSolvedFlag(MinigameSaveStates saveStates, MinigameId mg)
         {
-            switch (mg)
-            {
-                case MinigameId.Design:      return saveStates.Design      != null && saveStates.Design.FoundValidSolution;
-                case MinigameId.Research:    return saveStates.Research    != null && saveStates.Research.FoundValidSolution;
-                case MinigameId.Fabrication: return saveStates.Fabrication != null && saveStates.Fabrication.FoundValidSolution;
-                case MinigameId.Supply:      return saveStates.Supply      != null && saveStates.Supply.FoundValidSolution;
-                default:                     return false;
-            }
+            MinigameSaveStateBase save = MinigameSaveUtility.GetState(saveStates, mg);
+            return save != null && save.FoundValidSolution;
         }
     }
 }
