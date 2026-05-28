@@ -3,48 +3,79 @@
 ::IntroSelectTrace
 @trigger    OnMinigameLoad
 @when       minigame == "design"
-$if design:all-tests-passed == true
+$if temp:designTutorialStep == 4
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
 $else
+    $set temp:designTutorialStep = 0
     {@PAL} Select the Trace Tool.
-$end
-
+$endif
 
 ::DrawConnection
 @trigger    OnToolSelected
-@when       tool == "metal"
-{@PAL} Now click and drag to draw a connection between Input A and Output X.
+@when       tool == "DrawMetal"
+$if temp:designTutorialStep == 0
+    $set temp:designTutorialStep = 1
+    {@PAL} Now click and drag to draw a connection between Input A and Output X.
+$endif
 
 
-::TestConnection
-@trigger    OnDragEnded
+::TestConnectionDrag
+@trigger    OnDragReleased
 $call   HighlightElement(design:test-btn)
-{@PAL}  Test your connection.
+$if temp:designTutorialStep == 1
+    $set temp:designTutorialStep = 2
+    {@PAL}  Test your connection.
+$elseif temp:designTutorialStep == 2
+    // player has dragged again on the grid, potentially after running a single test
+    {@PAL}  Test your connection.
+$elseif temp:designTutorialStep == 3
+    // player has already tested at least one case before modifying the grid
+    {@PAL} You'll have to re-run all tests whenever you modify the grid.
+$elseif temp:designTutorialStep == 4
+    // player has already tested all test cases before modifying the grid
+    {@PAL} You'll have to re-run all tests whenever you modify the grid.
+$endif
+
+
+::TestConnectionClick
+@trigger    OnClickReleased
+$if temp:designTutorialStep == 1
+    {@PAL}  You'll need to click and DRAG to form a solid path.
+$endif
+
+
+::TestConnectionCore
+
 
 
 ::TestIncorrect
 @trigger    OnSingleTestComplete
 @when       result == "failure"
-$call   ReleaseAllHighlights()
-{@PAL}  This line is incorrect. Make sure Input A is fully connected with Output X.
-
+$if temp:designTutorialStep != 0
+    // only show this after the player knows how to select the trace tool
+    $call   ReleaseAllHighlights()
+    {@PAL}  This line is incorrect. Make sure Input A is fully connected with Output X.
+$endif
 
 ::TestCorrect
 @trigger    OnSingleTestComplete
 @when       result == "success"
-@call   HighlightElement(design:input-a)
-{@PAL}  Correct! Tap the input to switch it from Low to High.
-
+$if temp:designTutorialStep == 2
+    @call   HighlightElement(design:input-a)
+    {@PAL}  Correct! Tap the input to switch it from Low to High (or High to Low).
+$endif
 
 ::InputSwitch
-@trigger    OnInputSwitched
-@call   ReleaseAllHighlights()
-$call   HighlightElement(design:test-btn)
-{@PAL}  You'll need to test every case.
+@trigger    OnInputToggled
+$if temp:designTutorialStep == 2
+    @call   ReleaseAllHighlights()
+    $call   HighlightElement(design:test-btn)
+    $set temp:designTutorialStep = 3
+    {@PAL}  You'll need to test every case.
+$endif
 
 
 ::AllTestsPassed
 @trigger    OnAllTestsComplete
-@when       result == "success"
 {@PAL}  It looks like all test cases passed!
-$set    design:all-tests-passed = true
+$set    temp:designTutorialStep = 4

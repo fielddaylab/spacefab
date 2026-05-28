@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 
@@ -351,6 +352,13 @@ namespace SpaceFab.Design
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
             SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
             SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
+            
+            using (var table = TempVarTable.Alloc()) {
+                var resultStr = "failure";
+                if (verdict == TestRowVerdict.Correct) { resultStr = "success"; }
+                table.Set("result", resultStr);
+                ScriptUtility.Trigger(DesignScriptTriggers.OnSingleTestComplete, table);
+            }
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
 
             // Toggle-input mode: every Test click resolves a single row. Show the results panel
@@ -364,7 +372,7 @@ namespace SpaceFab.Design
                 if (suiteAllCorrect)
                 {
                     SimulateUIUtility.ShowResultsPanel(uiState, true);
-                    designState.MarkFoundValidSolution();
+                    ScriptUtility.Trigger(DesignScriptTriggers.OnAllTestsComplete);
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
                 SimulateUIUtility.MarkAllRunButtonsDirty(uiState);

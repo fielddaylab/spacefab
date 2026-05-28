@@ -15,6 +15,11 @@ namespace SpaceFab.Design
 
     public static class DesignScriptTriggers
     {
-
+        public static readonly StringHash32 OnToolSelected =        "OnToolSelected";
+        public static readonly StringHash32 OnClickReleased =       "OnClickReleased";
+        public static readonly StringHash32 OnDragReleased =        "OnDragReleased";
+        public static readonly StringHash32 OnInputToggled =        "OnInputToggled";
+        public static readonly StringHash32 OnSingleTestComplete =  "OnSingleTestComplete";
+        public static readonly StringHash32 OnAllTestsComplete =    "OnAllTestsComplete";
     }
 }

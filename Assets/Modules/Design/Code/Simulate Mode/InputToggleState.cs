@@ -1,6 +1,7 @@
 using BeauPools;
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using SpaceFab.Design.Visuals;
 using SpaceFab.Onboarding;
@@ -154,6 +155,8 @@ namespace SpaceFab.Design
             FlowState curr = state.Inputs[entryIndex].State;
             state.Inputs[entryIndex].State = (curr == FlowState.Hi) ? FlowState.Lo : FlowState.Hi;
             state.MatchDirty = true;
+
+            ScriptUtility.Trigger(DesignScriptTriggers.OnInputToggled);
         }
 
         // Short identifier label for an input subtype ("IN", "A", "B", "C"). Used by
