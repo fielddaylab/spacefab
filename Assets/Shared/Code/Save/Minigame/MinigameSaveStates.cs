@@ -81,5 +81,18 @@ namespace SpaceFab.Save
             MinigameSaveStateBase save = GetState(saveStates, mg);
             if (save != null) { save.Started = true; }
         }
+
+        // True only when every minigame has FoundValidSolution. Used to gate the submit-chapter
+        // button. Returns false defensively if the save states aren't available yet.
+        public static bool AllSolved(MinigameSaveStates saveStates)
+        {
+            if (saveStates == null) { return false; }
+            for (int i = 0; i < (int)MinigameId.COUNT; i++)
+            {
+                MinigameSaveStateBase save = GetState(saveStates, (MinigameId)i);
+                if (save == null || !save.FoundValidSolution) { return false; }
+            }
+            return true;
+        }
     }
 }

@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,8 @@ namespace SpaceFab.Overarching {
                     .ReadShared<ChapterState>()
                     .ReadShared<ContractLayoutState>()
                     .ReadShared<PlayerProgressState>()
+                    .ReadShared<OverarchingSubmitChapterSequenceState>()
+                    .ReadShared<MinigameSaveStates>()
             );
         }
 
@@ -58,6 +61,13 @@ namespace SpaceFab.Overarching {
             if (!loadState.LoadRoutine.Exists()) {
                 layoutState.ViewCurrContractButton.gameObject.SetActive(true);
                 loadState.Phase = ContractLoadPhase.Completed;
+
+                // Minigame completion is now settled for this contract/scene — re-evaluate the
+                // submit-chapter button here (covers both scene start and any mid-scene contract
+                // load) rather than polling every frame.
+                OverarchingSubmitButtonUtility.Refresh(
+                    Find.State<OverarchingSubmitChapterSequenceState>(),
+                    Find.State<MinigameSaveStates>());
             }
         }
     }
