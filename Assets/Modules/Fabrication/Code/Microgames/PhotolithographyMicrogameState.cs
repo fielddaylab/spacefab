@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +8,14 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
 {
+    public enum PhotolithographyMicrogamePhase
+    {
+        Idle,
+        Entering,
+        Active,
+        Exiting
+    }
+
     /// <summary>
     /// Holds in-flight data for the Photolithography ("Mask Drop") microgame: the photomask's
     /// current rotation and fall state, the target landing orientation, and lifecycle flags
@@ -17,8 +26,16 @@ namespace SpaceFab.Fabrication.Microgames
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // PhotolithographyMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
+        public GameObject PhotolithographyUI;
+        public PhotolithographyMicrogamePhase Phase;
 
-        // TODO: photomask current angle, current fall position / velocity, target angle.
+        public GameObject Photomask;
+
+        public float PhotomaskAngle;
+        public float PhotomaskY;
+        public float FallSpeed;
+
+        [HideInInspector] public bool InputAccepted;
     }
 
     /// <summary>
@@ -36,23 +53,39 @@ namespace SpaceFab.Fabrication.Microgames
         public static void EnterBegin()
         {
             Find.State(out PhotolithographyMicrogameState state);
+
+            state.PhotomaskAngle = 120f;
+            state.PhotomaskY = 4f;
+            state.FallSpeed = 1f;
+
+            state.Phase = PhotolithographyMicrogamePhase.Entering;
             state.IsActive = true;
-            // TODO: play intro; spawn photomask above wafer; begin slow fall.
+            state.InputAccepted = false;
+            state.PhotolithographyUI.SetActive(true);
         }
 
         public static void EnterComplete()
         {
-            // TODO: start accepting rotate + accelerate input.
+            Find.State(out PhotolithographyMicrogameState state);
+
+            state.Phase = PhotolithographyMicrogamePhase.Active;
+            state.InputAccepted = true;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
+        // Also hides the microgame UI here (rather than at ExitComplete) so the step-completion
+        // recap doesn't play over the still-visible photolithography panel.
+        // On cancel, nothing is recorded and UI hide is deferred to ExitComplete (existing flow).
         public static void ExitBegin(bool completedNormally)
         {
-            // TODO: freeze mask position.
+            Find.State(out PhotolithographyMicrogameState state, out MicrogameCanvasState canvasState);
+            state.Phase = PhotolithographyMicrogamePhase.Exiting;
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
+
+            state.PhotolithographyUI.SetActive(false);
+            canvasState.HideUI();
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -65,8 +98,13 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out PhotolithographyMicrogameState state);
+            Find.State(out PhotolithographyMicrogameState state, out MicrogameCanvasState canvasState);
+
             state.IsActive = false;
+            state.Phase = PhotolithographyMicrogamePhase.Idle;
+            state.PhotolithographyUI.SetActive(false);
+
+            canvasState.HideUI();
             // TODO: tear down photomask UI; return to idle.
         }
 
@@ -74,8 +112,13 @@ namespace SpaceFab.Fabrication.Microgames
         // Scaffold returns 0.
         private static float ComputePrecision()
         {
-            // TODO: precision = 1 - (abs(finalAngle - targetAngle) / 180f), clamped to [0,1].
-            return 0f;
+            Find.State(out PhotolithographyMicrogameState state);
+
+            float targetAngle = 0f;
+            float delta = Mathf.Abs(Mathf.DeltaAngle(state.PhotomaskAngle, targetAngle));
+            float precision = 1f - (delta / 180f);
+
+            return Mathf.Clamp01(precision);
         }
     }
 }

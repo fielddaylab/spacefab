@@ -21,6 +21,7 @@ namespace SpaceFab.Design {
                     .ReadWriteShared<DesignTransitionState>()
                     .ReadShared<GridStackState>()
                     .ReadWriteShared<VisualGridStackState>()
+                    .ReadWriteShared<DesignPools>()
             );
         }
 
@@ -31,6 +32,7 @@ namespace SpaceFab.Design {
                 out GridStackState gridStackState,
                 out VisualGridStackState visualState
                 );
+            DesignPools pools = Find.State<DesignPools>();
 
             switch (transitionState.Phase) {
                 case DesignTransitionPhase.SetupBaseLevel:
@@ -39,6 +41,9 @@ namespace SpaceFab.Design {
                     // Build the visual grid to match the logical grid's dimensions
                     VisualGridStackUtility.Init(ref visualState.VisualGridStack, gridStackState.GridStack.LayerDims.X, gridStackState.GridStack.LayerDims.Y, visualState.CellVisualsPrefab, visualState.CellVisualsContainer);
                     VisualGridStackUtility.RefreshGridSize(visualState.GridRenderer, gridStackState.GridStack.LayerDims.X, gridStackState.GridStack.LayerDims.Y);
+                    // Alloc one input-toggle overlay per Input cell from the pool, positioned at
+                    // its cell. Frees any leftover overlays from a prior level entry first.
+                    InputToggleUtility.SpawnInputOverlays(gridStackState, visualState, pools);
                     transitionState.Phase = DesignTransitionPhase.ApplySave;
                     break;
                 case DesignTransitionPhase.ApplySave:

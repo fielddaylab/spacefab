@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design;
 using SpaceFab.Save;
@@ -51,6 +52,10 @@ namespace SpaceFab {
                     // Suspend everything, then resume only the incoming minigame's own update mask
                     GameLoop.SuspendUpdates(Bits.All32);
                     GameLoop.ResumeUpdates(interfacer.MinigameState.DefaultUpdateMask);
+                    using (var table = TempVarTable.Alloc()) {
+                        table.Set("minigame", interfacer.Id.ToString().ToLower());
+                        ScriptUtility.Trigger(ScriptTriggers.OnMinigameLoad, table);
+                    }
                     loadExitState.Phase = MinigameLoadExitPhase.None;
                     break;
                 case MinigameLoadExitPhase.Exiting:

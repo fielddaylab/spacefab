@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace SpaceFab.Design
         public StackLayer ActiveLayer;
         public ToolType ActiveTool;
 
+        public Vector2Int StartingDragCoord;
         public Vector2Int LastKnownDragCoord;
         public Vector2Int LastTerminatedDragCoord;
 
@@ -58,9 +60,19 @@ namespace SpaceFab.Design
         {
             // stop tracking dragging
             if (!fullRelease) { toolModeState.LastTerminatedDragCoord = toolModeState.LastKnownDragCoord; }
-            else { toolModeState.LastTerminatedDragCoord = -Vector2Int.one; }
+            else {
+                if (toolModeState.StartingDragCoord == toolModeState.LastKnownDragCoord) {
+                    ScriptUtility.Trigger(DesignScriptTriggers.OnClickReleased);
+                }
+                else {
+                    ScriptUtility.Trigger(DesignScriptTriggers.OnDragReleased);
+                }
+
+                toolModeState.LastTerminatedDragCoord = -Vector2Int.one; 
+            }
 
             toolModeState.LastKnownDragCoord = -Vector2Int.one;
+            toolModeState.StartingDragCoord = -Vector2Int.one;
         }
 
         #endregion // Releases

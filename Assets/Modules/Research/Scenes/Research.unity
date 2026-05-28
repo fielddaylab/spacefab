@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 90222741}
   - component: {fileID: 90222740}
   - component: {fileID: 90222739}
+  - component: {fileID: 90222742}
   m_Layer: 5
   m_Name: Verify Btn
   m_TagString: Untagged
@@ -219,6 +220,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 90222737}
   m_CullTransparentMesh: 1
+--- !u!114 &90222742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 90222737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:verify-observation-btn
+    m_HashValue: 3863084521
+  RectTransform: {fileID: 90222738}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &154977751
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,6 +837,7 @@ GameObject:
   m_Component:
   - component: {fileID: 436549460}
   - component: {fileID: 436549459}
+  - component: {fileID: 436549461}
   m_Layer: 0
   m_Name: Research Assets
   m_TagString: Untagged
@@ -856,6 +876,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &436549461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436549458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d43d2e3ce72f4624f9b41d4c5e0041c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scripts:
+  - {fileID: -1942890987711236906, guid: ca6d5004868a07645bc7ddf700885706, type: 3}
 --- !u!1 &593356835
 GameObject:
   m_ObjectHideFlags: 0
@@ -868,6 +902,8 @@ GameObject:
   - component: {fileID: 593356839}
   - component: {fileID: 593356838}
   - component: {fileID: 593356837}
+  - component: {fileID: 593356840}
+  - component: {fileID: 593356841}
   m_Layer: 5
   m_Name: Add Obs Btn
   m_TagString: Untagged
@@ -953,6 +989,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593356835}
   m_CullTransparentMesh: 1
+--- !u!114 &593356840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593356835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808d7706b9890e74cb5c1f86dc9f8b53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Id:
+    m_Source: AddObsBtn
+    m_HashValue: 3062722890
+  m_ClassName:
+    m_Source: 
+    m_HashValue: 0
+--- !u!114 &593356841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593356835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:add-observation-btn
+    m_HashValue: 3278974483
+  RectTransform: {fileID: 593356836}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &622772030
 GameObject:
   m_ObjectHideFlags: 0
@@ -1179,9 +1251,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2353646413190301006, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 994501228}
     - target: {fileID: 3632801805165874648, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_Name
       value: Minigame Common
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132706226959445814, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -33.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: Id
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: MinigameState
@@ -1341,6 +1425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c57724eb8eb6814591057b44a3db429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FoundValidSolution: 0
   RequiredResearchGoals: []
 --- !u!4 &854215820
 Transform:
@@ -2284,6 +2369,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1470425396}
     m_Modifications:
+    - target: {fileID: 1301278793089183734, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
+      propertyPath: Id.m_Source
+      value: research:secondary-slot
+      objectReference: {fileID: 0}
+    - target: {fileID: 1301278793089183734, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 1512835007
+      objectReference: {fileID: 0}
     - target: {fileID: 2661240849518676373, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
       propertyPath: m_Name
       value: SecondarySlot
@@ -3094,6 +3187,14 @@ PrefabInstance:
       propertyPath: m_Size.y
       value: 1.35
       objectReference: {fileID: 0}
+    - target: {fileID: 1301278793089183734, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
+      propertyPath: Id.m_Source
+      value: research:primary-slot
+      objectReference: {fileID: 0}
+    - target: {fileID: 1301278793089183734, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 778225607
+      objectReference: {fileID: 0}
     - target: {fileID: 2661240849518676373, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
       propertyPath: m_Name
       value: PrimarySlot
@@ -3329,14 +3430,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 355
-      objectReference: {fileID: 0}
-    - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 186
-      objectReference: {fileID: 0}
-    - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -3387,6 +3480,10 @@ PrefabInstance:
     - target: {fileID: 5362101719829427920, guid: 88d822bfe08580b45a429a140b357837, type: 3}
       propertyPath: m_Name
       value: Hypothesis Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7622459308360167777, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+      propertyPath: m_fontSize
+      value: 15.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

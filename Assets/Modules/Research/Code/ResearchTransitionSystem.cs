@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using UnityEngine;
@@ -130,6 +131,11 @@ namespace SpaceFab.Research {
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
+
+            using (var table = TempVarTable.Alloc()) {
+                table.Set("minigame", "research");
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnSetupComplete, table);
+            }
         }
 
         // Linear membership check against ChapterDef.ExcludeFromResearch.

@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 358295353}
   - component: {fileID: 358295352}
+  - component: {fileID: 358295354}
   m_Layer: 0
   m_Name: Loader
   m_TagString: Untagged

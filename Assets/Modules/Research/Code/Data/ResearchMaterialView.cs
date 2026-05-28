@@ -15,7 +15,7 @@ namespace SpaceFab.Research {
     public class ResearchMaterialView : NamedAsset {
         // The MaterialAsset this view describes. [AssetName] renders the
         // inspector field as a dropdown of authored MaterialAsset assets via
-        // FieldDay's AssetNamePropertyDrawer.
+        // AssetNamePropertyDrawer.
         [AssetName(typeof(MaterialAsset), true)]
         public SerializedHash32 MaterialId;
 

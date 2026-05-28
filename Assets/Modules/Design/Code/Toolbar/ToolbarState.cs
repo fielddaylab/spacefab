@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using UnityEngine;
@@ -63,6 +64,10 @@ namespace SpaceFab.Design {
             toolModeState.ActiveLayer = row;
             toolbarState.FocusedRow = row;
             toolbarState.HoverOverrideActive = false;
+            using (var table = TempVarTable.Alloc()) {
+                table.Set("tool", toolModeState.ActiveTool.ToString());
+                ScriptUtility.Trigger(DesignScriptTriggers.OnToolSelected, table);
+            }
         }
 
         // Clear-button handler. Sets the one-frame request flag. Downstream (deferred): the
