@@ -143,13 +143,19 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Furnace-specific precision math: difference between final heat value and the target
         // range center. Scaffold returns 0.
         private static float ComputePrecision()
         {
             Find.State(out FurnaceMicrogameState state);
 
-            float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.TargetHalfWidth);
+            float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.MaxRange);
             precision = Mathf.Clamp(precision, 0f, 1f);   
 
             return precision;

@@ -21,6 +21,7 @@ namespace SpaceFab.Fabrication.Microgames
         public void OnEnterBegin() => DefragMicrogameUtility.EnterBegin();
         public void OnEnterComplete() => DefragMicrogameUtility.EnterComplete();
         public void OnExitBegin(bool completedNormally) => DefragMicrogameUtility.ExitBegin(completedNormally);
+        public float GetResultPrecision() => DefragMicrogameUtility.GetResultPrecision();
         public bool IsProcessAnimationComplete() => DefragMicrogameUtility.IsProcessAnimationComplete();
         public void OnExitComplete() => DefragMicrogameUtility.ExitComplete();
     }

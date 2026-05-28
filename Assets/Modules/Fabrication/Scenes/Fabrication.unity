@@ -2004,6 +2004,9 @@ MonoBehaviour:
   StunDuration: 1.5
   MicrogameCompletedThisFrame: 0
   CancelRequestedThisFrame: 0
+  MicrogamePassedThisFrame: 0
+  LastMicrogamePrecision: 0
+  CompletionVerdict: 0
   ProcessAnimationInProgress: 0
   PostStunPhase: 0
   ExitTimerExternalHold: 0
@@ -3324,7 +3327,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 0
   TargetRange: 5
-  TargetHalfWidth: 0
+  TargetHalfWidth: 1
   MaxRange: 10
   Sensitivity: 3
   CurrentValue: 0

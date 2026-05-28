@@ -2,6 +2,7 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using Leaf.Runtime;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.Stations;
@@ -18,8 +19,23 @@ namespace SpaceFab.Fabrication.StationControl {
         AtStation,          // Robot parked at a slot; movement live, Activate accepted.
         EnteringMicrogame,  // Intro animation running; all input blocked.
         InMicrogame,        // Microgame owns input; Cancel accepted at any sub-phase.
+        ResolvingCompletion,// Microgame finished; awaiting the Leaf precision gate's verdict. Only entered
+                            // when a gate node is still running (the no-gate / synchronous cases resolve
+                            // inline). All input blocked; no exit animation has started yet.
+        AwaitingRetry,      // Gate verdict was Retry (below precision); microgame frozen with the restart
+                            // panel up. All input blocked until RestartMicrogame.
         ExitingMicrogame,   // Outro animation running; all input blocked.
         Stunned,            // Wrong-station penalty; all input blocked; returns to PostStunPhase when done.
+    }
+
+    /// <summary>
+    /// Outcome of the post-completion Leaf precision gate. Pending until a gate node (or the no-gate
+    /// fallback) resolves it.
+    /// </summary>
+    public enum MicrogameExitVerdict {
+        Pending,    // Awaiting a verdict.
+        Proceed,    // Precision met (or no gate present); exit normally.
+        Retry,      // Precision below threshold; pause for restart.
     }
 
     /// <summary>
@@ -45,6 +61,23 @@ namespace SpaceFab.Fabrication.StationControl {
         // One-frame flags, cleared by StationControlFlagRefreshSystem in LateUpdate.
         [HideInInspector] public bool MicrogameCompletedThisFrame;
         [HideInInspector] public bool CancelRequestedThisFrame;
+
+        // One-frame flag raised when a completion is accepted (verdict Proceed) and the machine commits to
+        // exiting. SequenceSystem advances on this rather than raw completion, so a failed precision gate
+        // does not advance the sequence. Cleared by StationControlFlagRefreshSystem in LateUpdate.
+        [HideInInspector] public bool MicrogamePassedThisFrame;
+
+        // Result precision [0,1] of the just-completed microgame, cached the frame it signals completion
+        // (read from IMicrogame.GetResultPrecision before OnExitBegin). Read by the Leaf precision gate.
+        [HideInInspector] public float LastMicrogamePrecision;
+
+        // Verdict of the post-completion precision gate. Reset to Pending each completion, set by the Leaf
+        // RequireMicrogamePrecision member (or the no-gate fallback), consumed when resolving the exit.
+        [HideInInspector] public MicrogameExitVerdict CompletionVerdict;
+
+        // Handle to the OnFabMicrogameCompleted trigger thread, kept so ResolvingCompletion can tell a
+        // still-running gate node from one that finished (or never existed) without setting a verdict.
+        [HideInInspector] public LeafThreadHandle CompletionScriptHandle;
 
         // True while a post-microgame process animation is playing. Raised either by the
         // microgame itself via MicrogameStationInterfacerUtility.SignalProcessAnimationStarted
@@ -73,6 +106,10 @@ namespace SpaceFab.Fabrication.StationControl {
             PhaseTimer = 0f;
             MicrogameCompletedThisFrame = false;
             CancelRequestedThisFrame = false;
+            MicrogamePassedThisFrame = false;
+            LastMicrogamePrecision = 0f;
+            CompletionVerdict = MicrogameExitVerdict.Pending;
+            CompletionScriptHandle = default;
             ProcessAnimationInProgress = false;
             PostStunPhase = StationControlPhase.Traveling;
         }
@@ -178,6 +215,38 @@ namespace SpaceFab.Fabrication.StationControl {
                 stationState.ProcessAnimationInProgress = false;
                 Log.Msg("[StationControlUtility] RequestSkipProcessAnimation accepted; ProcessAnimationInProgress cleared");
             }
+        }
+
+        // Sets the post-completion precision-gate verdict. Reached (indirectly, via the Leaf
+        // RequireMicrogamePrecision member) in response to OnFabMicrogameCompleted. First write wins for a
+        // given completion — CompletionVerdict is reset to Pending at the start of each completion, so a
+        // stray call outside the resolution window (verdict already Proceed/Retry) is ignored.
+        public static void SetCompletionVerdict(StationControlState stationState, MicrogameExitVerdict verdict) {
+            if (verdict == MicrogameExitVerdict.Pending) {
+                return;
+            }
+            if (stationState.CompletionVerdict != MicrogameExitVerdict.Pending) {
+                return;
+            }
+            stationState.CompletionVerdict = verdict;
+            Log.Msg("[StationControlUtility] completion verdict set to {0}", verdict);
+        }
+
+        // Restarts a microgame paused in AwaitingRetry, resetting it to a fresh active play state (as if
+        // just entered, with no intro replay). Resumes MicrogameMask, re-runs the interfacer enter
+        // lifecycle, and returns to InMicrogame. No-op outside AwaitingRetry.
+        public static void RestartMicrogame(StationControlState stationState) {
+            if (stationState.Phase != StationControlPhase.AwaitingRetry) {
+                Log.Msg("[StationControlUtility] RestartMicrogame ignored; Phase is {0}, not AwaitingRetry", stationState.Phase);
+                return;
+            }
+            GameLoop.ResumeUpdates(UpdateMasks.MicrogameMask);
+            MicrogameStationInterfacerUtility.Reenter(stationState.ActiveInterfacer);
+            stationState.Phase = StationControlPhase.InMicrogame;
+            stationState.PhaseTimer = 0f;
+            stationState.CompletionVerdict = MicrogameExitVerdict.Pending;
+            Log.Msg("[StationControlUtility] RestartMicrogame; AwaitingRetry -> InMicrogame");
+            Game.Events.Dispatch(GameEvents.FabMicrogameRestarted);
         }
 
         // Forces transition into Stunned for StunDuration seconds. After the stun, machine returns to returnPhase.

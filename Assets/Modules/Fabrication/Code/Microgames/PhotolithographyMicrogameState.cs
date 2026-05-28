@@ -108,6 +108,12 @@ namespace SpaceFab.Fabrication.Microgames
             // TODO: tear down photomask UI; return to idle.
         }
 
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Mask-Drop-specific precision math: angle delta from target orientation at landing.
         // Scaffold returns 0.
         private static float ComputePrecision()

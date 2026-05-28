@@ -20,6 +20,7 @@ namespace SpaceFab.Fabrication.Microgames
         public void OnEnterBegin() => PhotolithographyMicrogameUtility.EnterBegin();
         public void OnEnterComplete() => PhotolithographyMicrogameUtility.EnterComplete();
         public void OnExitBegin(bool completedNormally) => PhotolithographyMicrogameUtility.ExitBegin(completedNormally);
+        public float GetResultPrecision() => PhotolithographyMicrogameUtility.GetResultPrecision();
         public bool IsProcessAnimationComplete() => PhotolithographyMicrogameUtility.IsProcessAnimationComplete();
         public void OnExitComplete() => PhotolithographyMicrogameUtility.ExitComplete();
     }

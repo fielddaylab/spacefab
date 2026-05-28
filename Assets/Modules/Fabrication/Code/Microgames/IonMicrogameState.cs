@@ -129,6 +129,12 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Scaffold returns 0 until precision math is defined.
         private static float ComputePrecision()
         {

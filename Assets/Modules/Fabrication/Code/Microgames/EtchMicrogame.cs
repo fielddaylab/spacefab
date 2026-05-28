@@ -20,6 +20,7 @@ namespace SpaceFab.Fabrication.Microgames
         public void OnEnterBegin() => EtchMicrogameUtility.EnterBegin();
         public void OnEnterComplete() => EtchMicrogameUtility.EnterComplete();
         public void OnExitBegin(bool completedNormally) => EtchMicrogameUtility.ExitBegin(completedNormally);
+        public float GetResultPrecision() => EtchMicrogameUtility.GetResultPrecision();
         public bool IsProcessAnimationComplete() => EtchMicrogameUtility.IsProcessAnimationComplete();
         public void OnExitComplete() => EtchMicrogameUtility.ExitComplete();
     }

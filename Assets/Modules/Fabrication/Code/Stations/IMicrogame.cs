@@ -21,6 +21,12 @@ namespace SpaceFab.Fabrication.Stations {
         // Called when the microgame is being exited; completedNormally=false means the player cancelled.
         void OnExitBegin(bool completedNormally);
 
+        // Side-effect-free query for the microgame's current result precision in [0,1]. Read by the
+        // station-control machine the frame the microgame signals completion (before OnExitBegin) so the
+        // Leaf precision gate can evaluate it before any exit animation plays. Stations with no precision
+        // concept (Defrag) return 1.
+        float GetResultPrecision();
+
         // Polled each frame during ExitingMicrogame after a successful completion. Returns true
         // once the microgame's process animation has finished playing. The animation may have
         // been started either in parallel (during InMicrogame, via SignalProcessAnimationStarted)

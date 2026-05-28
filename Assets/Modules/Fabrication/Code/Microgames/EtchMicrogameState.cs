@@ -133,6 +133,12 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam
         // correctly traversed, minus cells incorrectly traversed. Scaffold returns 0.
         private static float ComputePrecision()

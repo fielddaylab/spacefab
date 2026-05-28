@@ -57,6 +57,9 @@ namespace SpaceFab.Fabrication
 
     public static class FabricationScriptTriggers
     {
-
+        // Fired when a microgame signals completion, before any exit animation. A Leaf trigger node
+        // responds and calls RequireMicrogamePrecision(threshold) to gate the exit on precision.
+        // Table vars: "microgame" (station id string), "precision" (the result precision in [0,1]).
+        public static readonly StringHash32 OnMicrogameCompleted = "OnFabMicrogameCompleted";
     }
 }

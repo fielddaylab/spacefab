@@ -98,6 +98,12 @@ namespace SpaceFab.Fabrication.Microgames
             // TODO: tear down sputter UI; return to idle.
         }
 
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Spraypaint-specific precision math: percent of the etched target area that got filled
         // by the sputter head. Scaffold returns 0.
         private static float ComputePrecision()
