@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Robot
 {
+    public enum RobotStatus
+    {
+        Idle,
+        Holding,
+        Stunned
+    }
+    
     /// <summary>
     /// Holds robot (player avatar) data.
     /// </summary>
