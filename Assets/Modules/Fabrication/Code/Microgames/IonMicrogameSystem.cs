@@ -33,6 +33,9 @@ namespace SpaceFab.Fabrication.Microgames
             );
             if (!state.IsActive) { return; }
 
+            Vector2 mousePosition = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
+            state.DropperAnchor.position = mousePosition;
+
             switch (state.Phase)
             {
                 case IonMicrogamePhase.Idle:
@@ -52,9 +55,7 @@ namespace SpaceFab.Fabrication.Microgames
             }
 
             if (state.Phase == IonMicrogamePhase.Filling) {
-                Vector2 mousePosition = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
-                state.DropperAnchor.position = mousePosition;
-
+                
                 // TODO: drive the Ion Implanter mechanics once defined.
                 if (state.InputAccepted) state.IonPattern.ProcessWork();
                 if (state.IonPattern.CompletelyFilled)
