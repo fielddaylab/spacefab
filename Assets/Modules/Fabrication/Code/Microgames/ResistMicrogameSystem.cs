@@ -40,7 +40,7 @@ namespace SpaceFab.Fabrication.Microgames
                     break;
                 case ResistMicrogamePhase.Entering:
                     AnimateSweeping(state);
-                    canvasState.ShowUI(FabricationConsts.RESIST_STATION_ID);
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.RESIST_STATION_ID);
                     break;
                 case ResistMicrogamePhase.Sweeping:
                     AnimateSweeping(state);

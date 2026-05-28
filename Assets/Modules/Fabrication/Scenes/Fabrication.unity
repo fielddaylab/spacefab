@@ -225,11 +225,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2033650323809306908, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -291.00003
+      value: -291
       objectReference: {fileID: 0}
     - target: {fileID: 2766677894178579313, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6117759259440055766, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7841174464335247826, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_Camera
@@ -2103,11 +2107,11 @@ MonoBehaviour:
   PopupGroup: {fileID: 80312477}
   InstructionsGroup: {fileID: 80312478}
   InstructionsLookup: {fileID: 11400000, guid: cf77bacdb976b04498657785bc191e72, type: 2}
-  m_SpaceImage: {fileID: 80312484}
-  m_LRArrowImage: {fileID: 80312482}
-  m_FullArrowImage: {fileID: 80312483}
-  m_MouseImage: {fileID: 1750579388}
-  m_ADArrowImage: {fileID: 80312481}
+  SpaceImage: {fileID: 80312484}
+  LRArrowImage: {fileID: 80312482}
+  FullArrowImage: {fileID: 80312483}
+  MouseImage: {fileID: 1750579388}
+  ADArrowImage: {fileID: 80312481}
   m_InstructionTMP: {fileID: 80312480}
   m_SubtitleTMP: {fileID: 80312479}
 --- !u!114 &879438749
@@ -2599,7 +2603,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 6
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ff59c3b39543bd64d8c43f20d05200a5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2864,6 +2868,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RobotIdle: {fileID: 1535857057}
   RobotHold: {fileID: 1561710289}
+  InitialSortingLayerName: Fab_Microgame
+  GameSortingLayerName: Fab_MicrogameFader
 --- !u!114 &1487015768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2960,9 +2966,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingLayerID: 330957413
+  m_SortingLayer: 9
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 579f7b3bd7e68f042840b13a485b0a05, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -3050,9 +3056,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingLayerID: 330957413
+  m_SortingLayer: 9
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 0eb657ceb675cae4f8fa437355d1fe4c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -5108,6 +5114,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 994501228}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
       objectReference: {fileID: 0}
@@ -5537,7 +5547,8 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 994501228}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 4618595970548608706, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}

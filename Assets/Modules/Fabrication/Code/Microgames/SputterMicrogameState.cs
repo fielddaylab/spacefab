@@ -94,7 +94,7 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = SputterMicrogamePhase.Idle;
             state.SputterUI.SetActive(false);
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
             // TODO: tear down sputter UI; return to idle.
         }
 

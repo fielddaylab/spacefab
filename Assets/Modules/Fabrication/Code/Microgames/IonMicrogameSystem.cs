@@ -48,7 +48,6 @@ namespace SpaceFab.Fabrication.Microgames
                     state.IonPattern.PerformRendering();
                     break;
                 case IonMicrogamePhase.Exiting:
-                    state.IonPattern.PerformRendering();
                     break;
                 default:
                     break;
@@ -64,8 +63,6 @@ namespace SpaceFab.Fabrication.Microgames
                     MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
                 }
             }
-
-            state.IonPattern.PerformRendering();
         }
 
         private static void ProcessFilling(IonMicrogameState state)

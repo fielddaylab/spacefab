@@ -85,7 +85,7 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.PhotolithographyUI.SetActive(false);
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -104,7 +104,7 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = PhotolithographyMicrogamePhase.Idle;
             state.PhotolithographyUI.SetActive(false);
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
             // TODO: tear down photomask UI; return to idle.
         }
 

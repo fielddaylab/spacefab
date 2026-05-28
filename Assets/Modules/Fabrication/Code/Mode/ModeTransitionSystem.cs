@@ -85,6 +85,10 @@ namespace SpaceFab.Fabrication {
                 // start timer
                 Log.Msg("[ModeTransitionSystem] countdown completed. Moving to Attempt Mode");
 
+                // update robot visual
+                RobotVisualsUtility.UpdateLayer(Find.State<RobotVisualsState>());
+                MicrogameCanvasUtility.HideStationInstructions(Find.State<MicrogameCanvasState>());
+
                 ModeUtility.SetNewMode(modeState, LevelMode.Attempt);
                 GameLoop.SuspendUpdates(UpdateMasks.AttemptLeadInMask);
                 GameLoop.ResumeUpdates(UpdateMasks.AttemptMask);
