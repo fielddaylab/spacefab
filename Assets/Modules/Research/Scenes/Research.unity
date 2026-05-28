@@ -818,6 +818,7 @@ GameObject:
   m_Component:
   - component: {fileID: 436549460}
   - component: {fileID: 436549459}
+  - component: {fileID: 436549461}
   m_Layer: 0
   m_Name: Research Assets
   m_TagString: Untagged
@@ -856,6 +857,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &436549461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436549458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d43d2e3ce72f4624f9b41d4c5e0041c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scripts:
+  - {fileID: -1942890987711236906, guid: ca6d5004868a07645bc7ddf700885706, type: 3}
 --- !u!1 &593356835
 GameObject:
   m_ObjectHideFlags: 0
@@ -1179,9 +1194,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2353646413190301006, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 994501228}
     - target: {fileID: 3632801805165874648, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_Name
       value: Minigame Common
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132706226959445814, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -33.25
       objectReference: {fileID: 0}
     - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: MinigameState
@@ -1341,6 +1364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c57724eb8eb6814591057b44a3db429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FoundValidSolution: 0
   RequiredResearchGoals: []
 --- !u!4 &854215820
 Transform:
@@ -3329,14 +3353,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 355
-      objectReference: {fileID: 0}
-    - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 186
-      objectReference: {fileID: 0}
-    - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -3387,6 +3403,10 @@ PrefabInstance:
     - target: {fileID: 5362101719829427920, guid: 88d822bfe08580b45a429a140b357837, type: 3}
       propertyPath: m_Name
       value: Hypothesis Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7622459308360167777, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+      propertyPath: m_fontSize
+      value: 15.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

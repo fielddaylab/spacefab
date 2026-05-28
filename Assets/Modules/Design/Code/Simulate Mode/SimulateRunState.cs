@@ -59,6 +59,11 @@ namespace SpaceFab.Design
         [HideInInspector] public bool CancelRequested;
         [HideInInspector] public bool DismissResultsRequested; // TODO
 
+        // Toggle-input mode: the player clicked Test, and InputToggleState.LastMatchedRowIndex
+        // identified which TestData row to run. Carries through RequestedRowIndex like
+        // PlaySingleTestRequested but skips the verdict-wipe so prior runs' verdicts persist.
+        [HideInInspector] public bool PlayCurrentToggleComboRequested;
+
         // ---- Per-row verdicts. Sized to suite length on Simulate entry by ModeTransitionSystem. ----
 
         [HideInInspector] public TestRowVerdict[] RowVerdicts;
@@ -83,6 +88,7 @@ namespace SpaceFab.Design
             RestartSuiteRequested = false;
             CancelRequested = false;
             DismissResultsRequested = false;
+            PlayCurrentToggleComboRequested = false;
 
             RowVerdicts = null;
         }
@@ -163,6 +169,17 @@ namespace SpaceFab.Design
             runState.PlaySingleTestRequested = true;
         }
 
+        // Toggle-input mode "Test" button click. matchedRowIndex is the TestData row whose Bundle
+        // matches the player's current toggle combo (looked up via InputToggleUtility.FindMatchingTestRow).
+        // Drops the request silently if the player isn't allowed to play right now or no row matched.
+        public static void RequestPlayCurrentToggleCombo(SimulateRunState runState, int matchedRowIndex)
+        {
+            if (!CanAcceptPlay(runState)) { return; }
+            if (matchedRowIndex < 0) { return; }
+            runState.RequestedRowIndex = matchedRowIndex;
+            runState.PlayCurrentToggleComboRequested = true;
+        }
+
         public static void RequestPause(SimulateRunState runState)
         {
             if (!CanAcceptPause(runState)) { return; }
@@ -212,6 +229,17 @@ namespace SpaceFab.Design
             }
         }
 
+        // Classic per-run verdict wipe (model + UI). In toggle-input mode this is a no-op so
+        // verdicts persist across Test clicks until the player edits the grid. Replaces every
+        // inline ClearAllVerdicts + HideAllRowVerdicts pair in SimulateModeSystem so the gating
+        // lives in exactly one place.
+        public static void WipeVerdictsForNewRun(SimulateRunState runState, SimulateUIState uiState, DesignMinigameState designState)
+        {
+            if (designState != null && designState.UseToggleInputMode) { return; }
+            ClearAllVerdicts(runState);
+            SimulateUIUtility.HideAllRowVerdicts(uiState);
+        }
+
         // Writes a verdict for a specific row; no-op on out-of-range index.
         public static void SetVerdict(SimulateRunState runState, int rowIndex, TestRowVerdict verdict)
         {
@@ -226,14 +254,21 @@ namespace SpaceFab.Design
         // SimulateModeSystem.ProcessCancelling and ModeTransitionSystem.ExitSimulateMode.
         // Intentionally does NOT touch PendingPlayRowIndex so callers can decide whether to
         // consume or discard a queued play.
-        public static void WipeRunState(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
+        //
+        // In toggle-input mode the verdict wipe is suppressed: verdicts persist until the player
+        // edits the grid (handled by DesignTriggers.HandleGridModified). Exiting Simulate to pick
+        // a tool, or hitting Cancel mid-prop, leaves prior verdicts on the table.
+        public static void WipeRunState(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, DesignMinigameState designState)
         {
             SimulateRunScratchUtility.BumpFlowStamp(runScratch);
             SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
             visualState.VisualsNeedRefreshing = true;
 
-            ClearAllVerdicts(runState);
-            SimulateUIUtility.HideAllRowVerdicts(uiState);
+            if (designState == null || !designState.UseToggleInputMode)
+            {
+                ClearAllVerdicts(runState);
+                SimulateUIUtility.HideAllRowVerdicts(uiState);
+            }
 
             runState.Phase = SimulatePhase.Idle;
             SimulateUIUtility.MarkAllRunButtonsDirty(uiState);

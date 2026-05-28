@@ -727,22 +727,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6311573383912826505, guid: b5843d0c56b7c764c933a1ac3d54b4b0, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6311573383912826505, guid: b5843d0c56b7c764c933a1ac3d54b4b0, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6311573383912826505, guid: b5843d0c56b7c764c933a1ac3d54b4b0, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6311573383912826505, guid: b5843d0c56b7c764c933a1ac3d54b4b0, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7703755172934650838, guid: b5843d0c56b7c764c933a1ac3d54b4b0, type: 3}
       propertyPath: m_Name
       value: Toolbar
