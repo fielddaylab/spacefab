@@ -189,6 +189,39 @@ namespace SpaceFab.Design
             uiState.VerdictsNeedRefreshing = true;
         }
 
+        // Marks every output column across every row as Correct in uiState.CellVerdicts and
+        // flags the verdict visuals dirty. Called from SimTableLoadSystem on Design entry when
+        // the player has previously found a valid solution (DesignMinigameState.FoundValidSolution)
+        // — the contract is already solved, so the suite reads as passing on entry instead of
+        // requiring the player to re-run.
+        public static void MarkAllRowsCorrect(SimulateUIState uiState, TestSuiteData suite)
+        {
+            if (uiState.CellVerdicts == null || suite == null || suite.Tests == null) { return; }
+
+            int rowCount = uiState.CellVerdicts.Length;
+            if (suite.Tests.Length < rowCount) { rowCount = suite.Tests.Length; }
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                CellVerdict[] verdicts = uiState.CellVerdicts[row];
+                if (verdicts == null) { continue; }
+
+                TestEntry[] bundle = suite.Tests[row].Bundle;
+                int colCount = verdicts.Length;
+                if (bundle.Length < colCount) { colCount = bundle.Length; }
+
+                // Output columns get Correct; input columns stay Hidden — matches WriteRowVerdict's
+                // skip rule so input cells aren't decorated with a verdict mark they shouldn't carry.
+                for (int col = 0; col < colCount; col++)
+                {
+                    if (bundle[col].Id < InputOutputNodeTypeFlags.OUT) { continue; }
+                    verdicts[col] = CellVerdict.Correct;
+                }
+            }
+
+            uiState.VerdictsNeedRefreshing = true;
+        }
+
         // Marks every output column in the given row as Hidden in uiState.CellVerdicts and
         // flags the verdict visuals dirty. Called from ProcessPreparingTest so a re-run doesn't
         // keep the previous run's verdict visible while the new propagation plays out.

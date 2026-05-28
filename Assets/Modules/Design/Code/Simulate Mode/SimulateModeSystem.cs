@@ -373,6 +373,8 @@ namespace SpaceFab.Design
                 {
                     SimulateUIUtility.ShowResultsPanel(uiState, true);
                     ScriptUtility.Trigger(DesignScriptTriggers.OnAllTestsComplete);
+
+                    designState.MarkFoundValidSolution();
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
                 SimulateUIUtility.MarkAllRunButtonsDirty(uiState);

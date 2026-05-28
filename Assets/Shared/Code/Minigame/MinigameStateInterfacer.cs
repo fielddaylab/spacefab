@@ -14,5 +14,12 @@ namespace SpaceFab
     {
         public MinigameId Id;
         public MinigameStateBase MinigameState;
+
+        // Pass-through to the active minigame's runtime FoundValidSolution flag. Returns false
+        // if no minigame state is wired up (e.g. before scene init completes).
+        public bool HasValidSolution()
+        {
+            return MinigameState != null && MinigameState.FoundValidSolution;
+        }
     }
 }

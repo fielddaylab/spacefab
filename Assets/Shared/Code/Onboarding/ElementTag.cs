@@ -20,18 +20,21 @@ namespace SpaceFab.Onboarding {
         public SerializedHash32 Id;
 
         [Header("Targets")]
-        // Assign one of these in the inspector. RectTransform drives the UI highlight
-        // path; Collider drives the world highlight path. If both are left null, OnRegister
-        // falls back to GetComponent for each — the explicit assignment exists so a tag
-        // sitting on a parent can point at a child renderer/collider, and is preferred
-        // because it survives hierarchy refactors. If both are still null after fallback,
-        // HighlightElement on this id logs a warning.
+        // Assign one of these in the inspector. Selection priority when the highlight
+        // resolves a target: RectTransform -> SpriteRenderer -> Collider. Any field left
+        // null at OnRegister is filled via GetComponent against this GameObject; explicit
+        // assignment is preferred for parents that should point at a child target.
+        // If all three are null after fallback, HighlightElement on this id logs a warning.
         public RectTransform RectTransform;
+        public SpriteRenderer SpriteRenderer;
         public Collider2D Collider;
 
         public void OnRegister() {
             if (RectTransform == null) {
                 RectTransform = GetComponent<RectTransform>();
+            }
+            if (SpriteRenderer == null) {
+                SpriteRenderer = GetComponent<SpriteRenderer>();
             }
             if (Collider == null) {
                 Collider = GetComponent<Collider2D>();
@@ -72,8 +75,8 @@ namespace SpaceFab.Onboarding {
 
         private void DeregisterCurrentId() {
             if (Id.IsEmpty) { return; }
-            ElementTagLookup lookup = Find.State<ElementTagLookup>();
-            if (lookup != null) {
+            if (Game.SharedState.Has<ElementTagLookup>()) {
+                ElementTagLookup lookup = Find.State<ElementTagLookup>();
                 ElementTagLookupUtility.Deregister(lookup, this);
             }
         }

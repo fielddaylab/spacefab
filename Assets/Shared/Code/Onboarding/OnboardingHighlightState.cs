@@ -24,7 +24,7 @@ namespace SpaceFab.Onboarding {
         // Margin (px for UI targets, world units for sprite targets) added on every side of
         // a target when a Leaf call does not specify a margin override. -1 from the Leaf
         // signature means "use this default".
-        public float DefaultMargin = 8f;
+        public float DefaultMargin = 8;
 
         // Currently-shown highlights, indexed by the ElementTag id that summoned them.
         // Used to make HighlightElement idempotent on the same id and to resolve Release.

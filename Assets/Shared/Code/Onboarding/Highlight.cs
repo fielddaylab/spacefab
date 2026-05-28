@@ -40,12 +40,15 @@ namespace SpaceFab.Onboarding {
             if (tag.RectTransform != null) {
                 BindUI(tag.RectTransform, margin);
                 m_ActiveVisualRoot = m_UIRoot;
+            } else if (tag.SpriteRenderer != null) {
+                BindWorldSprite(tag.SpriteRenderer, margin / 128f);
+                m_ActiveVisualRoot = m_WorldRoot.transform;
             } else if (tag.Collider != null) {
-                BindWorld(tag.Collider, 0 /*margin / 32f*/);
+                BindWorldCollider(tag.Collider, margin / 128f);
                 m_ActiveVisualRoot = m_WorldRoot.transform;
             } else {
                 Debug.LogWarning(string.Format(
-                    "[Onboarding] ElementTag '{0}' has neither a RectTransform nor a Collider2D assigned.",
+                    "[Onboarding] ElementTag '{0}' has no RectTransform, SpriteRenderer, or Collider2D assigned.",
                     tag.Id.Source()), tag);
                 return;
             }
@@ -100,7 +103,7 @@ namespace SpaceFab.Onboarding {
         // target so it inherits movement, then converts the collider's world-space AABB
         // into the parent's local space so the sliced sprite's `size` (which is applied
         // pre-Transform) draws at exactly the collider's footprint.
-        private void BindWorld(Collider2D target, float margin) {
+        private void BindWorldCollider(Collider2D target, float margin) {
             m_WorldRoot.SetParent(target.transform, false);
             m_WorldRoot.localRotation = Quaternion.identity;
             m_WorldRoot.localScale = Vector3.one;
@@ -134,6 +137,31 @@ namespace SpaceFab.Onboarding {
                 m_WorldSprite.sortingLayerID = targetRenderer.sortingLayerID;
                 m_WorldSprite.sortingOrder = targetRenderer.sortingOrder + 1;
             }
+
+            m_WorldRoot.gameObject.SetActive(true);
+            SetWorldAlpha(m_PulseAlphaMax);
+        }
+
+        // Wraps a world target via its SpriteRenderer. Parents the world root to the target
+        // so it inherits movement, then sizes the sliced highlight to the sprite's intrinsic
+        // local size (sprite.bounds.size, in the sprite's own units — independent of the
+        // target's draw mode or scale). Centered on the sprite's local pivot since the
+        // sprite's transform pivot already places it correctly under the target.
+        private void BindWorldSprite(SpriteRenderer target, float margin) {
+            m_WorldRoot.SetParent(target.transform, false);
+            m_WorldRoot.localPosition = Vector3.zero;
+            m_WorldRoot.localRotation = Quaternion.identity;
+            m_WorldRoot.localScale = Vector3.one;
+
+            m_WorldSprite.drawMode = SpriteDrawMode.Sliced;
+            // sprite.bounds.size is the sprite's intrinsic size in its own local units;
+            // m_WorldSprite.size in Sliced mode is also pre-Transform, so this matches the
+            // visible footprint exactly when the highlight inherits the target's scale.
+            Vector2 localSize = target.sprite != null ? (Vector2) target.sprite.bounds.size : Vector2.one;
+            m_WorldSprite.size = localSize + new Vector2(margin * 2f, margin * 2f);
+
+            m_WorldSprite.sortingLayerID = target.sortingLayerID;
+            m_WorldSprite.sortingOrder = target.sortingOrder + 1;
 
             m_WorldRoot.gameObject.SetActive(true);
             SetWorldAlpha(m_PulseAlphaMax);
