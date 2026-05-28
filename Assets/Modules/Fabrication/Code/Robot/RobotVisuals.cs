@@ -8,7 +8,7 @@ namespace SpaceFab.Fabrication.Robot
 {
     public class RobotVisualsState : SharedStateComponent
     {
-
+        public GameObject RobotIdle, RobotHold;//, RobotStun;
     }
 
     /// <summary>
@@ -16,6 +16,27 @@ namespace SpaceFab.Fabrication.Robot
     /// </summary>
     public static class RobotVisualsUtility
     {
+        public static void UpdateVisuals(RobotVisualsState visuals, RobotStatus status)
+        {
+            visuals.RobotIdle.SetActive(false);
+            visuals.RobotHold.SetActive(false);
+            //visuals.RobotStun.SetActive(false);
+
+            switch (status)
+            {
+                case RobotStatus.Idle:
+                    visuals.RobotIdle.SetActive(true);
+                    break;
+                case RobotStatus.Holding:
+                    visuals.RobotHold.SetActive(true);
+                    break;
+                case RobotStatus.Stunned:
+                    //visuals.RobotStun.SetActive(true);
+                    break;
+            }
+        }
+        
+        
         public static void ApplyStunVisuals(RobotVisualsState visuals)
         {
             // TODO
