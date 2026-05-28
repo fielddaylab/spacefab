@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
@@ -59,6 +60,7 @@ namespace SpaceFab.Research {
             if (inputState.ChipPickerSelectedThisFrame) {
                 if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
                     viewModelDirty = true;
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
                 }
             }
 

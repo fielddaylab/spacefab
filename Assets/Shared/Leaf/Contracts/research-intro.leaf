@@ -9,21 +9,66 @@ $else
     $set temp:designTutorialStep = 0
     $call   HighlightElement(research:sample-copper)
     $call   HighlightElement(research:sample-SiliconDioxide)
-    {@PAL} Start by selecting a sample.
+    {@PAL}  Start by selecting a sample.
 $endif
 
 
 ::OnLiftFromTray
 @trigger    OnSampleLifted
-@when       source == "tray"
-$call ReleaseHighlight(research:sample-copper)
-$call ReleaseHighlight(research:sample-SiliconDioxide)
-$call HighlightElement(research:primary-slot)
-{@PAL} Place the sample in the Voltage Chamber.
+@when       source == "tray", !MinigameHasValidSolution()
+$call   ReleaseHighlight(research:sample-copper)
+$call   ReleaseHighlight(research:sample-SiliconDioxide)
+$call   HighlightElement(research:primary-slot)
+{@PAL}  Place the sample in the Voltage Chamber.
+
 
 ::OnPlaceIntoSlot
 @trigger    OnSlotFilled
-@when       slotType == "primary"
+@when       slotType == "primary", !MinigameHasValidSolution()
 $call   ReleaseHighlight(research:primary-slot)
 $call   HighlightElement(research:increase-voltage-btn)
+$call   AddObsBtn->SetActive(false)
 {@PAL}  Now add voltage and observe if anything happens.
+
+
+::OnVoltageIncreased
+@trigger    OnVoltageIncreased
+@when       !MinigameHasValidSolution()
+$call   ReleaseHighlight(research:increase-voltage-btn)
+$call   AddObsBtn->SetActive(true)
+$call   HighlightElement(research:add-observation-btn)
+{@PAL}  Now add your observation.
+
+
+::OnAddObsClicked
+@trigger    OnObservationPickerOpened
+@when       !MinigameHasValidSolution()
+$call   ReleaseHighlight(research:add-observation-btn)
+{@PAL}  Choose your observation.
+
+
+::OnObservationAdded
+@trigger    OnObservationAdded
+@when       !MinigameHasValidSolution()
+$call   HighlightElement(research:verify-observation-btn)
+{@PAL}  Now select "Verify" to check whether your observation is correct AND matches the selected Hypothesis.
+
+
+::OnHypothesisCorrect
+@trigger    OnHypothesisSubmitted
+@when       result == "success"
+{@PAL}  Correct.
+$wait 2
+$call   OpenWikiToLastDiscovery()
+
+
+::OnHypothesisIncorrect
+@trigger    OnHypothesisSubmitted
+@when       result == "failure", !MinigameHasValidSolution()
+{@PAL}  This is incorrect. Change your hypothesis, add a different observation, or choose a different sample.
+
+
+::OnWikiClosed
+@trigger    OnWikiClosed
+@when       !MinigameHasValidSolution()
+{@PAL}      Now see if you can find a sample that satisfies the other hypothesis.

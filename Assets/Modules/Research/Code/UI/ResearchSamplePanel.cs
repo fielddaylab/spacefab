@@ -2,6 +2,7 @@ using BeauPools;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.HID;
+using FieldDay.Scripting;
 using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
@@ -145,6 +146,7 @@ namespace SpaceFab.Research {
         public static void OpenPicker(ResearchSamplePanel panel) {
             if (panel == null) return;
             panel.PickerOpen = true;
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationPickerOpened);
         }
 
         public static void ClosePicker(ResearchSamplePanel panel) {
