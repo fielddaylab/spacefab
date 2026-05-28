@@ -26,5 +26,21 @@ namespace SpaceFab.Research {
 
             WikiUtility.OpenTo(tabId, pageId);
         }
+
+        // Resets the currently-active research chamber to its default state (e.g. the Battery's
+        // voltage dial back to its initial setting). No-op when no chamber interfacer is present
+        // or no chamber is active. Each chamber kind routes to its own ResetState below.
+        [LeafMember("ResetCurrentChamber")]
+        public static void Leaf_ResetCurrentChamber() {
+            if (!Game.SharedState.Has<ChamberInterfacerState>()) { return; }
+
+            switch (Find.State<ChamberInterfacerState>().ActiveChamber) {
+                case ActiveChamberKind.Battery:
+                    if (Game.SharedState.Has<BatteryChamberState>()) {
+                        BatteryChamberUtility.ResetState(Find.State<BatteryChamberState>());
+                    }
+                    break;
+            }
+        }
     }
 }

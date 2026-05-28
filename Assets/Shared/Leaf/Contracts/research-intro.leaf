@@ -7,6 +7,7 @@ $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else
     $set temp:designTutorialStep = 0
+    $call   ReleaseAllHighlights()
     $call   HighlightElement(research:sample-copper)
     $call   HighlightElement(research:sample-SiliconDioxide)
     {@PAL}  Start by selecting a sample.
@@ -16,8 +17,9 @@ $endif
 ::OnLiftFromTray
 @trigger    OnSampleLifted
 @when       source == "tray", !MinigameHasValidSolution()
-$call   ReleaseHighlight(research:sample-copper)
-$call   ReleaseHighlight(research:sample-SiliconDioxide)
+$call   ReleaseAllHighlights()
+//$call   ReleaseHighlight(research:sample-copper)
+//$call   ReleaseHighlight(research:sample-SiliconDioxide)
 $call   HighlightElement(research:primary-slot)
 {@PAL}  Place the sample in the Voltage Chamber.
 
@@ -25,7 +27,9 @@ $call   HighlightElement(research:primary-slot)
 ::OnPlaceIntoSlot
 @trigger    OnSlotFilled
 @when       slotType == "primary", !MinigameHasValidSolution()
-$call   ReleaseHighlight(research:primary-slot)
+$call   ResetCurrentChamber()
+$call   ReleaseAllHighlights()
+//$call   ReleaseHighlight(research:primary-slot)
 $call   HighlightElement(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(false)
 {@PAL}  Now add voltage and observe if anything happens.
@@ -34,7 +38,8 @@ $call   AddObsBtn->SetActive(false)
 ::OnVoltageIncreased
 @trigger    OnVoltageIncreased
 @when       !MinigameHasValidSolution()
-$call   ReleaseHighlight(research:increase-voltage-btn)
+$call   ReleaseAllHighlights()
+//$call   ReleaseHighlight(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(true)
 $call   HighlightElement(research:add-observation-btn)
 {@PAL}  Now add your observation.
@@ -43,13 +48,15 @@ $call   HighlightElement(research:add-observation-btn)
 ::OnAddObsClicked
 @trigger    OnObservationPickerOpened
 @when       !MinigameHasValidSolution()
-$call   ReleaseHighlight(research:add-observation-btn)
+$call   ReleaseAllHighlights()
+//$call   ReleaseHighlight(research:add-observation-btn)
 {@PAL}  Choose your observation.
 
 
 ::OnObservationAdded
 @trigger    OnObservationAdded
 @when       !MinigameHasValidSolution()
+$call   ReleaseAllHighlights()
 $call   HighlightElement(research:verify-observation-btn)
 {@PAL}  Now select "Verify" to check whether your observation is correct AND matches the selected Hypothesis.
 
