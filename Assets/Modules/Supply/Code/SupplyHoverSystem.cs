@@ -4,6 +4,7 @@ using FieldDay;
 using FieldDay.HID;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using FieldDay.UI;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,11 @@ using UnityEngine;
 namespace SpaceFab.Supply {
     public sealed class SupplyHoverSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            ecs.Register(&UpdateHover, new SysUpdate(GameLoopPhase.LateUpdate, 10, UpdateMasks.SupplyMask),
+            ecs.Register(&UpdateHover, new SysUpdate(GameLoopPhase.LateUpdate, -10, UpdateMasks.SupplyMask),
+                new SysPermissions()
+                    .ReadWriteShared<SupplyHoverState>());
+
+            ecs.Register(&UpdateDetailsDisplay, new SysUpdate(GameLoopPhase.LateUpdate, 15, UpdateMasks.SupplyMask),
                 new SysPermissions()
                     .ReadWriteShared<SupplyHoverState>());
         }
@@ -21,36 +26,68 @@ namespace SpaceFab.Supply {
 
             Vector3? mousePos = null;
             SupplyRouteNode hoverNode = null;
-            SupplyRouteRenderer hoverLine = null;
+            EdgeCollider2D hoverLine = null;
+
+            hoverState.HoverDirty = false;
 
             if (CursorUtility.IsCursorWithinVirtualViewport() && !Game.Input.IsPointerOverCanvas()) {
                 mousePos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
                 GameObject go = Game.Input.CurrentPointerOver();
+                if (go != null) {
+                    switch(go.layer) {
+                        case global::LayerMasks.SupplyChainPlanet_Index: {
+                            hoverNode = go.GetComponentInParent<SupplyRouteNode>();
+                            break;
+                        }
+                        case global::LayerMasks.SupplyChainRoute_Index: {
+                            hoverLine = go.GetComponent<EdgeCollider2D>();
+                            break;
+                        }
+                    }
+                }
             }
 
             hoverState.MousePosition = mousePos;
 
             if (hoverState.Node != hoverNode) {
                 if (hoverState.Node != null) {
-                    
+                    SupplyRouteUtility.RemoveNodeHoverFlag(hoverState.Node, SupplyHoverFlags.Node);
                 }
 
                 hoverState.Node = hoverNode;
 
                 if (hoverState.Node != hoverNode) {
-
+                    SupplyRouteUtility.AddNodeHoverFlag(hoverState.Node, SupplyHoverFlags.Node);
                 }
+
+                hoverState.HoverDirty = true;
             }
 
-            if (hoverState.Line != hoverLine) {
-                if (hoverState.Line != null) {
+            if (hoverState.Route != hoverLine) {
+                if (hoverState.Route != null) {
+                    
+                }
+
+                hoverState.Route = hoverLine;
+
+                if (hoverState.Route != null) {
 
                 }
 
-                hoverState.Line = hoverLine;
+                hoverState.HoverDirty = true;
+            }
+        }
+    
+        static private void UpdateDetailsDisplay(float dt) {
+            Find.State(out SupplyHoverState hoverState);
 
-                if (hoverState.Line != null) {
-
+            if (hoverState.HoverDirty) {
+                SupplyRouteNode node = hoverState.Node;
+                if (node && node.Type != SupplyRouteNodeType.Home) {
+                    SupplyRouteUtility.PopulateNodeDetailsDisplay(hoverState.DetailsDisplay, node);
+                    GuiCommands.SetActive(hoverState.DetailsDisplay, true);
+                } else {
+                    GuiCommands.SetActive(hoverState.DetailsDisplay, false);
                 }
             }
         }

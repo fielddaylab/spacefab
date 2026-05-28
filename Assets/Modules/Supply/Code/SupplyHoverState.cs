@@ -7,8 +7,11 @@ using UnityEngine;
 
 namespace SpaceFab.Supply {
     public sealed class SupplyHoverState : SharedStateComponent {
+        public SupplyRouteNodeDetailsDisplay DetailsDisplay;
+
         [NonSerialized] public SupplyRouteNode Node;
-        [NonSerialized] public SupplyRouteRenderer Line;
+        [NonSerialized] public EdgeCollider2D Route;
+        [NonSerialized] public bool HoverDirty = false;
 
         [NonSerialized] public Vector3? MousePosition;
     }

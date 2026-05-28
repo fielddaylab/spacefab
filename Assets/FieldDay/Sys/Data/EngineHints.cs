@@ -238,8 +238,8 @@ namespace FieldDay.Data {
         /// </summary>
         static public int GetHintInt(string name, int defaultValue) {
             HintEntry entry = GetEntry(name, false);
-                return entry.Value.AsInt(defaultValue);
             if (entry != null) {
+                return entry.Value.AsInt(defaultValue);
             }
             return defaultValue;
         }

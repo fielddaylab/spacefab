@@ -14,7 +14,7 @@ namespace FieldDay.Systems {
             int baseFieldCount = typeof(SystemComponent).GetFields().Length;
             foreach(var subclass in Reflect.FindAllDerivedTypes(typeof(SystemComponent))) {
                 if (subclass.GetFields().Length != baseFieldCount) {
-                    Log.Error("[SystemComponent] SystemComponent type '{0}' has fields, in violation of ECS best practices.", subclass.FullName);
+                    Log.Error("[SystemComponent] SystemComponent type '{0}' has additional fields, in violation of ECS best practices. Use alternate means to drive behavior.", subclass.FullName);
                 }
             }
         }

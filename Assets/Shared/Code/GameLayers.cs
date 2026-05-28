@@ -27,12 +27,18 @@ static public class LayerMasks {
     // Layer 8: SupplyChainRoute
     public const int SupplyChainRoute_Index = 8;
     public const int SupplyChainRoute_Mask = 256;
+    // Layer 9: SupplyChainOverlay
+    public const int SupplyChainOverlay_Index = 9;
+    public const int SupplyChainOverlay_Mask = 512;
     // Layer 20: ResearchSlot
     public const int ResearchSlot_Index = 20;
     public const int ResearchSlot_Mask = 1048576;
     // Layer 21: ResearchGem
     public const int ResearchGem_Index = 21;
     public const int ResearchGem_Mask = 2097152;
+    // Layer 22: TutorialFocus
+    public const int TutorialFocus_Index = 22;
+    public const int TutorialFocus_Mask = 4194304;
     // Layer 24: InterruptUI
     public const int InterruptUI_Index = 24;
     public const int InterruptUI_Mask = 16777216;
@@ -63,8 +69,8 @@ static public class SortingLayers {
     public const int Fabrication_Blank5 = -102647171;
     // Layer Research_Blank1
     public const int Research_Blank1 = 937666309;
-    // Layer Research_Blank2
-    public const int Research_Blank2 = -2133937865;
+    // Layer Research_Chamber
+    public const int Research_Chamber = -2133937865;
     // Layer Research_Blank3
     public const int Research_Blank3 = -13538375;
     // Layer Research_Blank4
@@ -91,8 +97,6 @@ static public class SortingLayers {
     public const int Overarching_Blank4 = 1966761349;
     // Layer Overarching_Blank5
     public const int Overarching_Blank5 = 2009844541;
-    // Layer SupplyChainBG
-    public const int SupplyChainBG = -1477039571;
     // Layer UI
     public const int UI = 1461900991;
     // Layer Pop-Up UI

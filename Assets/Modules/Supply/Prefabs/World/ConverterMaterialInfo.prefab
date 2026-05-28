@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4760938926092084841}
   - component: {fileID: 4182778021553155096}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Convert
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 5443633810249376521}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.03, y: 0, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6277463960934148171}
   - component: {fileID: 7484453829259604392}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ResultIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110,7 +110,7 @@ Transform:
   m_GameObject: {fileID: 7732880077277641200}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.38, y: 0, z: 0}
+  m_LocalPosition: {x: 0.45, y: 0, z: 0}
   m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -157,8 +157,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: a155db408243bf64bbc5346e2520fa4e, type: 3}
-  m_Color: {r: 0.8584906, g: 0.84160274, b: 0.01214843, a: 1}
+  m_Sprite: {fileID: 21300000, guid: c09ba6faf804e9a45a0fe5affeb74db0, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -178,7 +178,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1629291958627260583, guid: 00ae3a4afe299fd4089393a5c990b2bd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.38
+      value: -0.45
       objectReference: {fileID: 0}
     - target: {fileID: 1975859876592938199, guid: 00ae3a4afe299fd4089393a5c990b2bd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -236,6 +236,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ConverterMaterialInfo
       objectReference: {fileID: 0}
+    - target: {fileID: 8308985614359344794, guid: 00ae3a4afe299fd4089393a5c990b2bd, type: 3}
+      propertyPath: InputMaterialIcon
+      value: 
+      objectReference: {fileID: 4182778021553155096}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

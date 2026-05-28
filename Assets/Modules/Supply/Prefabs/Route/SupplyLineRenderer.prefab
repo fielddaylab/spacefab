@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7880cfd0f896534d9fc43c664a4da49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Collider: {fileID: 6717833935575857465}
   StaticLine: {fileID: 2591213975211608527}
   ReturnLine: {fileID: 3671216505583186136}
 --- !u!1 &3715753576789471721

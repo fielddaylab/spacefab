@@ -13,4 +13,9 @@ namespace SpaceFab.Supply {
         [Range(0, 2)] public int Speed;
         [Range(1, 3)] public int Capacity;
     }
+
+    public struct SupplyShipStats {
+        public int Speed;
+        public int Capacity;
+    }
 }

@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3687948971506205187, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_Name
-      value: Planet1 Variant
+      value: Planet1
       objectReference: {fileID: 0}
     - target: {fileID: 6285069881206567461, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -51,6 +51,22 @@ PrefabInstance:
     - target: {fileID: 6285069881206567461, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6969157722188741103, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6969157722188741103, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6969157722188741103, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.1999999
+      objectReference: {fileID: 0}
+    - target: {fileID: 6969157722188741103, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7488334245896658445, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: MaterialType.m_HashValue

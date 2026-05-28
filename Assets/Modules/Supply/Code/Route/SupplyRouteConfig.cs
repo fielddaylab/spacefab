@@ -5,6 +5,7 @@ using UnityEngine;
 namespace SpaceFab.Supply {
     [CreateAssetMenu(menuName = "SpaceFab/Supply/Route Config")]
     public sealed class SupplyRouteConfig : GlobalAsset {
+        [Header("Line Appearance")]
         public SupplyRouteLineConfig FragmentLine;
         public SupplyRouteLineConfig PendingFragmentLine;
         public SupplyRouteLineConfig EmptyCursorLine;
@@ -12,6 +13,9 @@ namespace SpaceFab.Supply {
         public SupplyRouteLineConfig InvalidCursorLine;
         public SupplyRouteLineConfig ReturnLine;
         public SupplyRouteLineConfig SolidLine;
+
+        [Header("Math Settings")]
+        public float[] ShipSpeeds;
     }
 
     [Serializable]
