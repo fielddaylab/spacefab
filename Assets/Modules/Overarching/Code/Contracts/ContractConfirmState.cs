@@ -52,6 +52,7 @@ namespace SpaceFab.Overarching
             var minigameSaveState = Find.State<MinigameSaveStates>();
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);
             GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, contractAssets.DesignLevelData.GetGridConfig());
+            SpacefabGame.Events.Dispatch(GameEvents.DeisgnGridSetup, EvtArgs.Ref(contractAssets.DesignLevelData.GetGridConfig()));
 
             SaveUtility.Save(SaveSlot.Main);
 

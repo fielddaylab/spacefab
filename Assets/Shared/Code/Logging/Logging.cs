@@ -209,6 +209,7 @@ namespace SpaceFab.Logging
 
             // Design
             SpacefabGame.Events
+                .Register<GridStackConfig>(GameEvents.DeisgnGridSetup, LogDesignLevelBegin)
                 .Register<GridStackConfig>(GameEvents.DesignGridModified, UpdateDesignGridState);
 
             // Fabrication
@@ -225,6 +226,36 @@ namespace SpaceFab.Logging
         #endregion // Logging Variables
 
         #region State Handlers
+        private ToolID ConvertToToolID(GridCellConfig cellConfig)
+        {
+            if (cellConfig.CellType != CellType.NONE)
+            {
+                switch (cellConfig.CellType)
+                {
+                    case CellType.Metal:
+                        return ToolID.METAL;
+                    case CellType.PTransistor:
+                        return ToolID.PTYPE;
+                    case CellType.NTransistor:
+                        return ToolID.NTYPE;
+                    default:
+                        throw new ArgumentException($"Unrecognized CellType: {cellConfig.CellType}");
+                }
+            }
+            else
+            {
+                switch(cellConfig.TransferType)
+                {
+                    case TransferType.Via:
+                        return ToolID.CONTACT;
+                    case TransferType.GateAbove:
+                    case TransferType.GateBelow:
+                        return ToolID.GATE;
+                    default:
+                        throw new ArgumentException($"Unrecognized TransferType: {cellConfig.TransferType}");
+                }
+            }
+        }
 
         private void UpdateDesignGridState(GridStackConfig config)
         {
@@ -246,40 +277,36 @@ namespace SpaceFab.Logging
                 }
             }
 
-            for (int row = 0; row < config.LayerDims.X; row++)
+           foreach (GridCellConfig cell in config.Cells)
             {
-                for (int col = 0; col < config.LayerDims.Y; col++)
-                {
-                    if (config.Cells[row * config.LayerDims.X + col].LayerIndex == (int)Layer.METAL)
-                    {
-                        GridCellConfig cell = config.Cells[row * config.LayerDims.X + col];
-                        if (cell.CellType != CellType.NONE)
-                        {
-                            switch (cell.CellType)
-                            {
-                                case CellType.Metal:
-                                    m_DesignGrid.Value.Grid[row][col].Add(ToolID.METAL);
-                                    break;
-                                case CellType.PTransistor:
-                                    m_DesignGrid.Value.Grid[row][col].Add(ToolID.PTYPE);
-                                    break;
-                                case CellType.NTransistor:
-                                    m_DesignGrid.Value.Grid[row][col].Add(ToolID.NTYPE);
-                                    break;
-                            }
-                        }
+                int row = cell.RowIndex;
+                int col = cell.ColumnIndex;
 
-                        if (cell.TransferType != TransferType.NONE) // Exclude TransferType.Implicit
-                        {
-                            if (cell.TransferType == TransferType.Via)
-                            {
-                                m_DesignGrid.Value.Grid[row][col].Add(ToolID.CONTACT);
-                            }
-                            else if (cell.TransferType == TransferType.GateAbove || cell.TransferType == TransferType.GateBelow)
-                            {
-                                m_DesignGrid.Value.Grid[row][col].Add(ToolID.GATE);
-                            }
-                        }
+                if (cell.CellType != CellType.NONE)
+                {
+                    switch (cell.CellType)
+                    {
+                        case CellType.Metal:
+                            m_DesignGrid.Value.Grid[row][col].Add(ToolID.METAL);
+                            break;
+                        case CellType.PTransistor:
+                            m_DesignGrid.Value.Grid[row][col].Add(ToolID.PTYPE);
+                            break;
+                        case CellType.NTransistor:
+                            m_DesignGrid.Value.Grid[row][col].Add(ToolID.NTYPE);
+                            break;
+                    }
+                }
+
+                if (cell.TransferType != TransferType.NONE) // Exclude TransferType.Implicit
+                {
+                    if (cell.TransferType == TransferType.Via)
+                    {
+                        m_DesignGrid.Value.Grid[row][col].Add(ToolID.CONTACT);
+                    }
+                    else if (cell.TransferType == TransferType.GateAbove || cell.TransferType == TransferType.GateBelow)
+                    {
+                        m_DesignGrid.Value.Grid[row][col].Add(ToolID.GATE);
                     }
                 }
             }
@@ -305,6 +332,8 @@ namespace SpaceFab.Logging
         {
             m_Log.NewEvent("click_resume_game");
         }
+
+        # region Overarching
 
         private void LogShipMenuDisplayed()
         {
@@ -433,7 +462,9 @@ namespace SpaceFab.Logging
             }
         }
 
-        # region Research
+        #endregion // Overarching
+
+        #region Research
         private void LogSelectResearch()
         {
             using (m_Log.NewEvent("select_research")) { }
@@ -467,51 +498,56 @@ namespace SpaceFab.Logging
 
 
         private void LogDesignLevelBegin(GridStackConfig config)
-            /*
-             "design_level_begin": {
-                 "description": "When the player begins a new level in teh design minigame.",
-                 "event_data": {
-                    "initial_board_state" : {
-                       "type" : "DesignGrid",
-                       "description" : "The initial state of the design grid, when the player began the level."
-                    },
-                    "inputs" : {
-                       "type" : "TBD",
-                       "description" : "The inputs. Not 100% sure what this was. Possibly the coordinates of the input points?"
-                    },
-                    "outputs" : {
-                       "type" : "TBD",
-                       "description" : "The outputs. Not 100% sure what this was. Possibly the coordinates of the output point?"
-                    }
-                 }
-              }
-             */
+        /*
+         "design_level_begin": {
+             "description": "When the player begins a new level in teh design minigame.",
+             "event_data": {
+                "initial_board_state" : {
+                   "type" : "DesignGrid",
+                   "description" : "The initial state of the design grid, when the player began the level."
+                },
+                "inputs" : {
+                   "type" : "TBD",
+                   "description" : "The inputs. Not 100% sure what this was. Possibly the coordinates of the input points?"
+                },
+                "outputs" : {
+                   "type" : "TBD",
+                   "description" : "The outputs. Not 100% sure what this was. Possibly the coordinates of the output point?"
+                }
+             }
+          }
+         */
         {
             UpdateDesignGridState(config);
             SubmitGameState();
 
             m_JsonBuilder.Begin();
-            m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell => 
-                { 
-                    m_JsonBuilder.BeginArray(); foreach (var toolId in cell) 
-                    { 
-                        m_JsonBuilder.Item(toolId.ToString()); 
-                    } 
-                    m_JsonBuilder.EndArray(); 
+            m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell =>
+                {
+                    m_JsonBuilder.BeginArray(); foreach (var toolId in cell)
+                    {
+                        m_JsonBuilder.Item(toolId.ToString());
+                    }
+                    m_JsonBuilder.EndArray();
                 }));
             string gridJson = m_JsonBuilder.End().ToString();
 
             List<(int, int)> inputs = new List<(int, int)>();
             List<(int, int)> outputs = new List<(int, int)>();
-            for (int i = 0; i < config.LayerDims.X; i++)
+
+            foreach (GridCellConfig cell in config.Cells)
             {
-                for (int j = 0; j < config.LayerDims.Y; j++)
+                if (cell.CellType == CellType.Input)
                 {
-                    GridCellConfig cell = config.Cells[i * config.LayerDims.X + j];
-                    if (cell.CellType == CellType.Input)
-                    {
-                        inputs.Add((i, j));
-                    }
+                    inputs.Add((cell.RowIndex, cell.ColumnIndex));
+                }
+                else if (cell.CellType == CellType.Output)
+                {
+                    outputs.Add((cell.RowIndex, cell.ColumnIndex));
+                }
+                else if (cell.CellType != CellType.NONE || cell.TransferType != TransferType.NONE)
+                {
+                    m_DesignGrid.Value.Grid[cell.RowIndex][cell.ColumnIndex].Add(ConvertToToolID(cell));
                 }
             }
         }

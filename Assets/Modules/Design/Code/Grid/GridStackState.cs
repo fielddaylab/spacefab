@@ -43,7 +43,6 @@ namespace SpaceFab.Design
         public static void LoadConfig(ref GridStack gridStack, GridStackConfig config)
         {
             InitEmptyGridStack(ref gridStack, config.LayerDims.X, config.LayerDims.Y);
-            SpacefabGame.Events.Dispatch(GameEvents.DeisgnGridSetup, EvtArgs.Ref(config));
             for (int i = 0; i < config.Cells.Length; i++)
             {
                 LoadCellConfig(ref gridStack, config.Cells[i]);
