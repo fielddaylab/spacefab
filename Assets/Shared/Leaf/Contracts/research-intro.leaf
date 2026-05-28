@@ -24,6 +24,14 @@ $call   HighlightElement(research:primary-slot)
 {@PAL}  Place the sample in the Voltage Chamber.
 
 
+::OnLiftFromSlot
+@trigger    OnSampleLifted
+@when       source == "slot", !MinigameHasValidSolution()
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:primary-slot)
+{@PAL}  Place a sample in the Voltage Chamber.
+
+
 ::OnPlaceIntoSlot
 @trigger    OnSlotFilled
 @when       slotType == "primary", !MinigameHasValidSolution()
