@@ -77,11 +77,6 @@ namespace SpaceFab.Overarching {
                 case OverarchingStartupSequencePhase.ContractConfirmSystem:
                     var prevConfirmPhase = confirmState.Phase;
                     ProcessContractConfirmSystem(startupState, contractLoadState, confirmState);
-                    if (prevConfirmPhase == ContractConfirmPhase.Waiting && confirmState.Phase == ContractConfirmPhase.Confirming)
-                    {
-                        Debug.Log("[OverarchingStartupSequenceSystem] dispatch ConfirmSelectContract");
-                        SpacefabGame.Events.Dispatch(GameEvents.ConfirmSelectContract, selectState.SelectedContractIndex.ToString());
-                    }
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
                     ProcessLoadSelectedContract(startupState, chapterLoadState, contractLoadState, meterState);
@@ -133,14 +128,15 @@ namespace SpaceFab.Overarching {
         // Starts loading available contracts, then either opens contract selection or jumps to loading the known-selected contract.
         static private void ProcessLoadCurrAvailableContracts(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractSelectState selectState, ChapterState chapterState) {
             // start load available contracts
-            Debug.Log("[OverarchingStartupSequenceSystem] dispatch OpenContractView");
-            SpacefabGame.Events.Dispatch(GameEvents.OpenContractView);
+            //Debug.Log("[OverarchingStartupSequenceSystem] ship menu displayed");
+            //SpacefabGame.Events.Dispatch(GameEvents.ShipMenuDisplayed);
             chapterLoadState.Phase = ChapterLoadPhase.LoadingAvailableContracts;
 
             // If no contract is selected yet, defer to selection; otherwise jump to loading the selected contract.
             if (chapterState.LastSelectedContractIndex == -1) {
                 startupState.Phase = OverarchingStartupSequencePhase.ContractSelectSystem;
                 selectState.Phase = ContractSelectPhase.Waiting;
+                SpacefabGame.Events.Dispatch(GameEvents.OpenContractView);
             }
             else {
                 // load selected contract
@@ -207,6 +203,7 @@ namespace SpaceFab.Overarching {
         // Marks startup complete and resumes the overarching scene's normal update mask.
         static private void Complete(OverarchingStartupSequenceState startupState) {
             startupState.Phase = OverarchingStartupSequencePhase.Completed;
+            SpacefabGame.Events.Dispatch(GameEvents.ShipMenuDisplayed);
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }

@@ -47,6 +47,8 @@ namespace SpaceFab.Design
             {
                 LoadCellConfig(ref gridStack, config.Cells[i]);
             }
+            Debug.Log("Initialize design level");
+            SpacefabGame.Events.Dispatch(GameEvents.DeisgnGridSetup, EvtArgs.Ref(config));
         }
 
         public static void LoadCellConfig(ref GridStack gridStack, GridCellConfig config)

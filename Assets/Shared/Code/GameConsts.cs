@@ -81,15 +81,18 @@ namespace SpaceFab
         // Design: Grid
         public static readonly StringHash32 DeisgnGridSetup = "design-grid:setup";
         public static readonly StringHash32 DesignGridModified = "design-grid:modified";
+        public static readonly StringHash32 DesignToolSelected = "design-grid:tool-selected";
+        public static readonly StringHash32 DesignClearSelected = "design-grid:clear-selected";
+
         // Wiki
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
 
         // Overarching
         public static readonly StringHash32 OpenContractView = "overarching:open-contract-view";
-        public static readonly StringHash32 ConfirmSelectContract = "overarching:confirm-select-contract";
-        public static readonly StringHash32 StartChangeContract = "overarching:start-change-contract";
-        public static readonly StringHash32 ConfirmChangeContract = "overarching:confirm-change-contract";
-        public static readonly StringHash32 CancelChangeContract = "overarching:cancel-change-contract";
+        public static readonly StringHash32 AcceptContract = "overarching:confirm-select-contract";
+        public static readonly StringHash32 StartSelectContract = "overarching:start-change-contract";
+        public static readonly StringHash32 ConfirmSelectContract = "overarching:confirm-change-contract";
+        public static readonly StringHash32 CancelSelectContract = "overarching:cancel-change-contract";
     }
 
     public static class ScriptTriggers

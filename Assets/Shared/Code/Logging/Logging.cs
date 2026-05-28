@@ -135,6 +135,72 @@ namespace SpaceFab.Logging
             m_ContractLevels[contract][minigame] += numLevel ;
         }
 
+        private void UpdateDesignGridState(Vector2Int gridPos, string tool)
+        {
+            if (m_CurrentMinigame != Minigame.DESIGN)
+            {
+                m_DesignGrid = null;
+                return;
+            }
+            // initialize design grid for horizontal slice
+            if (!m_DesignGrid.HasValue)
+            {
+                var grid = new List<List<HashSet<ToolID>>>(DesignConsts.NUM_GRID_ROWS);
+                for (int i = 0; i < DesignConsts.NUM_GRID_ROWS; i++)
+                {
+                    var row = new List<HashSet<ToolID>>(DesignConsts.NUM_GRID_COLS);
+                    for (int j = 0; j < DesignConsts.NUM_GRID_COLS; j++)
+                    {
+                        row.Add(new HashSet<ToolID>());
+                    }
+                    grid.Add(row);
+                }
+
+                m_DesignGrid = new DesignGrid() { Grid = grid };
+            }
+
+            switch (tool)
+            {
+                case "Erase":
+                    m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Clear();
+                    break;
+                case "Metal":
+                    if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.METAL))
+                    {
+                        m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.METAL);
+                    }
+                    break;
+                case "PNodes":
+                    if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.PTYPE))
+                    {
+                        m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.PTYPE);
+                    }
+                    break;
+                case "NNodes":
+                    if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.NTYPE))
+                    {
+                        m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.NTYPE);
+                    }
+                    break;
+                case "Via":
+                    if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.CONTACT))
+                    {
+                        m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.CONTACT);
+                    }
+                    break;
+                case "Gate":
+                    if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.GATE))
+                    {
+                        m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.GATE);
+                    }
+                    break;
+                default:
+                    throw new ArgumentException($"Unrecognized tool: {tool}");
+            }
+            SubmitGameState();
+        }
+
+
         #endregion // Game State
 
         #region Initialization
@@ -200,17 +266,19 @@ namespace SpaceFab.Logging
                 .Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame)
                 .Register(GameEvents.ShipMenuDisplayed, LogShipMenuDisplayed)
                 .Register(GameEvents.OpenContractView, LogOpenContractView)
-                .Register<string>(GameEvents.ConfirmSelectContract, LogAcceptContract)
-                .Register<string>(GameEvents.StartChangeContract, LogStartChangeContract)
-                .Register<string>(GameEvents.ConfirmChangeContract, LogConfirmChangeContract)
-                .Register<string>(GameEvents.CancelChangeContract, LogCancelChangeContract)
+                .Register<string>(GameEvents.AcceptContract, LogAcceptContract)
+                .Register<string>(GameEvents.StartSelectContract, LogStartSelectContract)
+                .Register<string>(GameEvents.ConfirmSelectContract, LogConfirmSelectContract)
+                .Register<string>(GameEvents.CancelSelectContract, LogCancelSelectContract)
                 .Register<int>(GameEvents.SelectMinigame, HandleMinigameSelect)
-                .Register<int>(GameEvents.StartMinigame, HandleMinigameStart);
+                .Register<int>(GameEvents.StartMinigame, HandleMinigameStart)
+                .Register(GameEvents.OnMinigameExit, HandleMinigameExit);
 
             // Design
             SpacefabGame.Events
                 .Register<GridStackConfig>(GameEvents.DeisgnGridSetup, LogDesignLevelBegin)
-                .Register<GridStackConfig>(GameEvents.DesignGridModified, UpdateDesignGridState);
+                .Register<ToolType>(GameEvents.DesignToolSelected, LogSelectTool)
+                .Register<(GridCoord, string)>(GameEvents.DesignGridModified, (data) => LogFillGrid(data.Item1, data.Item2));
 
             // Fabrication
             SpacefabGame.Events
@@ -253,61 +321,6 @@ namespace SpaceFab.Logging
                         return ToolID.GATE;
                     default:
                         throw new ArgumentException($"Unrecognized TransferType: {cellConfig.TransferType}");
-                }
-            }
-        }
-
-        private void UpdateDesignGridState(GridStackConfig config)
-        {
-            // initialize design grid for horizontal slice
-            if (m_DesignGrid == null)
-            {
-                m_DesignGrid = new DesignGrid()
-                {
-                    Grid = new List<List<HashSet<ToolID>>>()
-                };
-                for (int i = 0; i < config.LayerDims.X; i++)
-                {
-                    List<HashSet<ToolID>> row = new List<HashSet<ToolID>>();
-                    for (int j = 0; j < config.LayerDims.Y; j++)
-                    {
-                        row.Add(new HashSet<ToolID>());
-                    }
-                    m_DesignGrid.Value.Grid.Add(row);
-                }
-            }
-
-           foreach (GridCellConfig cell in config.Cells)
-            {
-                int row = cell.RowIndex;
-                int col = cell.ColumnIndex;
-
-                if (cell.CellType != CellType.NONE)
-                {
-                    switch (cell.CellType)
-                    {
-                        case CellType.Metal:
-                            m_DesignGrid.Value.Grid[row][col].Add(ToolID.METAL);
-                            break;
-                        case CellType.PTransistor:
-                            m_DesignGrid.Value.Grid[row][col].Add(ToolID.PTYPE);
-                            break;
-                        case CellType.NTransistor:
-                            m_DesignGrid.Value.Grid[row][col].Add(ToolID.NTYPE);
-                            break;
-                    }
-                }
-
-                if (cell.TransferType != TransferType.NONE) // Exclude TransferType.Implicit
-                {
-                    if (cell.TransferType == TransferType.Via)
-                    {
-                        m_DesignGrid.Value.Grid[row][col].Add(ToolID.CONTACT);
-                    }
-                    else if (cell.TransferType == TransferType.GateAbove || cell.TransferType == TransferType.GateBelow)
-                    {
-                        m_DesignGrid.Value.Grid[row][col].Add(ToolID.GATE);
-                    }
                 }
             }
         }
@@ -388,28 +401,28 @@ namespace SpaceFab.Logging
             using (m_Log.NewEvent("open_contract_view")) { }
         }
 
-        private void LogStartChangeContract(string contractId)
+        private void LogStartSelectContract(string contractId)
         {
-            using (var e = m_Log.NewEvent("start_change_contract"))
+            using (var e = m_Log.NewEvent("start_select_contract"))
             {
                 e.Param("contract_id", contractId);
             }
         }
 
-        private void LogConfirmChangeContract(string contractId)
+        private void LogConfirmSelectContract(string contractId)
         {
             m_CurrentContractId = contractId;
             SubmitGameState();
 
-            using (var e = m_Log.NewEvent("confirm_change_contract"))
+            using (var e = m_Log.NewEvent("confirm_select_contract"))
             {
                 e.Param("contract_id", contractId);
             }
         }
 
-        private void LogCancelChangeContract(string contractId)
+        private void LogCancelSelectContract(string contractId)
         {
-            using (var e = m_Log.NewEvent("cancel_change_contract"))
+            using (var e = m_Log.NewEvent("cancel_select_contract"))
             {
                 e.Param("contract_id", contractId);
             }
@@ -458,6 +471,25 @@ namespace SpaceFab.Logging
                     break;
                 default:
                     Log.Msg("[Logging] Unrecognized minigame zone index: {0}", zoneIndex);
+                    break;
+            }
+        }
+
+        public void HandleMinigameExit()
+        {
+            switch(m_CurrentMinigame)
+            {
+                case Minigame.RESEARCH:
+                    break;
+                case Minigame.DESIGN:
+                    LogExitDesign();
+                    break;
+                case Minigame.SUPPLY_CHAIN:
+                    break;
+                case Minigame.FABRICATION:
+                    break;
+                default:
+                    Log.Msg("[Logging] Unrecognized minigame on exit: {0}", m_CurrentMinigame);
                     break;
             }
         }
@@ -518,19 +550,9 @@ namespace SpaceFab.Logging
           }
          */
         {
-            UpdateDesignGridState(config);
-            SubmitGameState();
 
-            m_JsonBuilder.Begin();
-            m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell =>
-                {
-                    m_JsonBuilder.BeginArray(); foreach (var toolId in cell)
-                    {
-                        m_JsonBuilder.Item(toolId.ToString());
-                    }
-                    m_JsonBuilder.EndArray();
-                }));
-            string gridJson = m_JsonBuilder.End().ToString();
+            // need clarification: design level is initialized when a contract is selected, but design_grid should be null when not in design minigame
+            Debug.Log("Dispatch design level begin");
 
             List<(int, int)> inputs = new List<(int, int)>();
             List<(int, int)> outputs = new List<(int, int)>();
@@ -547,22 +569,102 @@ namespace SpaceFab.Logging
                 }
                 else if (cell.CellType != CellType.NONE || cell.TransferType != TransferType.NONE)
                 {
-                    m_DesignGrid.Value.Grid[cell.RowIndex][cell.ColumnIndex].Add(ConvertToToolID(cell));
+                    Vector2Int cellPos = new Vector2Int(cell.RowIndex, cell.ColumnIndex);
+                    UpdateDesignGridState(cellPos, ConvertToToolID(cell).ToString());
                 }
             }
+
+            m_JsonBuilder.Clear();
+            string gridJson = null;
+
+            m_JsonBuilder.Begin();
+            if (m_DesignGrid.HasValue)
+            {
+                m_JsonBuilder.BeginArray();
+                m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell =>
+                {
+                    m_JsonBuilder.BeginArray();
+                    foreach (var toolId in cell)
+                    {
+                        m_JsonBuilder.Item(toolId.ToString());
+                    }
+                    m_JsonBuilder.EndArray();
+                }));
+                m_JsonBuilder.EndArray();
+                gridJson = m_JsonBuilder.End().ToString();
+            }
+
+            using (var e = m_Log.NewEvent("design_level_begin"))
+            {
+                e.Param("initial_board_state", gridJson);
+                e.Param("inputs", string.Join(";", inputs.Select(coord => $"({coord.Item1},{coord.Item2})")));
+                e.Param("outputs", string.Join(";", outputs.Select(coord => $"({coord.Item1},{coord.Item2})")));
+            }
+
         }
 
-        private void LogSelectTool(ToolID toolId)
+        private void LogSelectTool(ToolType toolType)
         {
+            var toolId = ToolID.METAL; // by default
+            switch(toolType)
+            {
+                case ToolType.None:
+                    break;
+                case ToolType.DrawMetal:
+                    break;
+                case ToolType.DrawPNodes:
+                    toolId = ToolID.PTYPE;
+                    break;
+                case ToolType.DrawNNodes:
+                    toolId = ToolID.NTYPE;
+                    break;
+                case ToolType.DrawVia:
+                    toolId = ToolID.CONTACT;
+                    break;
+                case ToolType.DrawGate:
+                    toolId = ToolID.GATE;
+                    break;
+                case ToolType.Erase:
+                    break;
+                default:
+                    throw new ArgumentException($"Unrecognized ToolbarButtonKind: {toolType}");
+            }
+
             using (var e = m_Log.NewEvent("select_tool"))
             {
                 e.Param("tool_id", toolId.ToString());
             }
         }
 
-        private void LogFillGrid(ToolID toolId, GridCoord coordinate)
+        private void LogFillGrid(GridCoord coordinate, string tool)
         {
-            // TODO
+            var toolId = ToolID.METAL; // by default
+
+            switch(tool)
+            {
+                case "Erase":
+                    break;
+                case "Metal":
+                    toolId = ToolID.METAL;
+                    break;
+                case "PNodes":
+                    toolId = ToolID.PTYPE;
+                    break;
+                case "NNodes":
+                    toolId = ToolID.NTYPE;
+                    break;
+                case "Via":
+                    toolId = ToolID.CONTACT;
+                    break;
+                case "Gate":
+                    toolId = ToolID.GATE;
+                    break;
+                default:
+                    throw new ArgumentException($"Unrecognized tool: {tool}");
+            }
+
+            UpdateDesignGridState(new Vector2Int(coordinate.Row, coordinate.Col), tool);
+
             using (var e = m_Log.NewEvent("fill_grid"))
             {
                 e.Param("tool_id", toolId.ToString());
@@ -575,12 +677,13 @@ namespace SpaceFab.Logging
         private void LogSubmitDesign(List<GridCoord> inputs, List<GridCoord> outputs) // ? inputs outputs type
         {
             // TODO
-            m_DesignGrid = null;
-            SubmitGameState();
+            // need clarification: log every time the player submit each row or only log when the whole suite is submitted?
+
         }
 
         private void LogSubmissionSucceeded(string message)
         {
+            // need clarification: log when a row succeeds or only log when the whole suite succeeds?
             using (var e = m_Log.NewEvent("submission_succeeded"))
             {
                 e.Param("message", message);
@@ -589,6 +692,7 @@ namespace SpaceFab.Logging
 
         private void LogSubmissionFailed(string message)
         {
+            // need clarification: log when a row fails or only log when the whole suite fails?
             using (var e = m_Log.NewEvent("submission_failed"))
             {
                 e.Param("message", message);
