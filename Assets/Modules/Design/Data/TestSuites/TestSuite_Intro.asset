@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Tests:
   - Bundle:
-    - Id: 4
+    - Id: 8
       State: 1
-    - Id: 64
+    - Id: 128
       State: 1
   - Bundle:
-    - Id: 4
+    - Id: 8
       State: 2
-    - Id: 64
+    - Id: 128
       State: 2

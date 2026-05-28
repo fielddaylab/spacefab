@@ -38,11 +38,13 @@ namespace SpaceFab.Fabrication {
 
             Log.Msg("[FabricationTransitionSystem] Setting up level...");
             // setup
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
-            if (contractAssets == null) {
-                Log.Error("FabricationTransistionSystem] Tried to load contract assets but returned null!");
+            if (Game.Assets.HasNamed<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId)) {
+                var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+                sequenceState.Level = contractAssets.FabricationLevel;
             }
-            sequenceState.Level = contractAssets.FabricationLevel;
+            else {
+                Log.Warn("FabricationTransistionSystem] Tried to load contract assets but returned null!");
+            }
             // hide progress meter
             ProgressMeterUtility.Hide(meterState.ActiveMeter);
 

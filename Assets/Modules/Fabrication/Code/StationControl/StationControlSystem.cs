@@ -149,6 +149,12 @@ namespace SpaceFab.Fabrication.StationControl {
                     return;
                 }
             }
+            // External hold (e.g. CompletionRecapSystem during the step-completion recap). The
+            // hold is re-armed per-frame by the holder; once they stop setting it, the timer
+            // resumes on the next frame.
+            if (stationState.ExitTimerExternalHold) {
+                return;
+            }
             stationState.PhaseTimer += deltaTime;
             if (stationState.PhaseTimer >= stationState.ExitMicrogameDuration) {
                 MicrogameStationInterfacerUtility.ExitComplete(stationState.ActiveInterfacer);

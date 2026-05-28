@@ -205,8 +205,8 @@ MonoBehaviour:
     NType: {r: 0.78823537, g: 0.854902, b: 0.9725491, a: 1}
     PType: {r: 0.9568628, g: 0.8000001, b: 0.8000001, a: 1}
     Risk: {r: 1, g: 0.6, b: 0, a: 1}
-    SoftHighlight: {r: 0.2216981, g: 0.5032116, b: 1, a: 1}
-    HardHighlight: {r: 0.100302614, g: 0.9245283, b: 0.21235952, a: 1}
+    SoftHighlight: {r: 1, g: 1, b: 1, a: 1}
+    HardHighlight: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1807206960674959543
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -24,6 +24,7 @@ namespace SpaceFab.Design
                 new SysPermissions()
                     .ReadShared<SimulateRunState>()
                     .ReadWriteShared<SimulateUIState>()
+                    .ReadShared<DesignMinigameState>()
             );
         }
 
@@ -32,6 +33,24 @@ namespace SpaceFab.Design
         static private void ProcessWork(float deltaTime)
         {
             Find.State(out SimulateRunState runState, out SimulateUIState uiState);
+            DesignMinigameState designState = Find.State<DesignMinigameState>();
+
+            // Toggle-input mode hides the Restart + Cancel buttons (they make no sense for a
+            // one-row instant run from Tool mode). Still clear the dirty flag so the suite-button
+            // signal lifecycle stays consistent.
+            if (designState != null && designState.UseToggleInputMode)
+            {
+                if (uiState.SuiteRestartButton != null && uiState.SuiteRestartButton.gameObject.activeSelf)
+                {
+                    uiState.SuiteRestartButton.gameObject.SetActive(false);
+                }
+                if (uiState.SuiteCancelButton != null && uiState.SuiteCancelButton.gameObject.activeSelf)
+                {
+                    uiState.SuiteCancelButton.gameObject.SetActive(false);
+                }
+                uiState.SuiteButtonsNeedRefreshing = false;
+                return;
+            }
 
             if (!uiState.SuiteButtonsNeedRefreshing) { return; }
             if (!uiState.TableBuilt) { return; }

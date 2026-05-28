@@ -76,6 +76,11 @@ namespace SpaceFab
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
     }
 
+    public static class ScriptTriggers
+    {
+        public static readonly StringHash32 OnMinigameLoad = "OnMinigameLoad";
+    }
+
     public static class UpdateMasks
     {
         public const int PauseUpdateMask = 1 << 0;
@@ -147,5 +152,11 @@ namespace SpaceFab
         // Layer 7: ResearchGem — Physics2D layer for free-floating draggable colliders
         public const int ResearchGem_Index = 21;
         public const int ResearchGem_Mask = 1 << 21;
+
+        // Tutorial focus layer — onboarding parks lock-focused targets here while a
+        // tutorial gate is active so that PhysicsRaycaster.eventMask filters all
+        // other clicks out before they reach EventSystem.
+        public const int TutorialFocus_Index = 22;
+        public const int TutorialFocus_Mask = 1 << 22;
     }
 }

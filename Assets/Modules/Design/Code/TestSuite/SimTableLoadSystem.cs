@@ -22,6 +22,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<DesignTransitionState>()
                     .ReadWriteShared<SimulateUIState>()
                     .ReadWriteShared<SimulateRunState>()
+                    .ReadShared<DesignMinigameState>()
             );
         }
 
@@ -34,6 +35,7 @@ namespace SpaceFab.Design
                 out SimulateRunState simRunState,
                 out PlayerProgressState progressState
                 );
+            DesignMinigameState designState = Find.State<DesignMinigameState>();
 
             ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
             TestSuiteData suiteData = contractAssets.DesignLevelData.GetTestSuite();
@@ -43,8 +45,23 @@ namespace SpaceFab.Design
             {
                 case DesignTransitionPhase.BuildSimTable:
                     Debug.Log("[SimTableLoadSystem] Building Sim Table...");
+                    // Apply per-level toolbar availability before building the sim table so any
+                    // downstream UI code sees the correct Available flags. Disallowed tools end up
+                    // hidden + disabled — see ToolbarAvailabilityUtility.ApplyAllowedTools.
+                    ToolbarAvailabilityUtility.ApplyAllowedTools(contractAssets.DesignLevelData.GetAllowedTools());
+
                     // build Sim table
-                    SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, suiteDB);
+                    SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, designState, suiteDB);
+
+                    // If the player has already passed this contract's suite, present all rows as
+                    // Correct on entry rather than forcing them to re-run. FoundValidSolution is
+                    // hydrated by DesignStateUtility.ImportState during the prior Loading phase,
+                    // so it's authoritative here.
+                    if (designState.FoundValidSolution)
+                    {
+                        SimulateUIUtility.MarkAllRowsCorrect(simUIState, suiteData);
+                    }
+
                     transitionState.Phase = DesignTransitionPhase.SetupComplete;
                     break;
                 case DesignTransitionPhase.SetupComplete:

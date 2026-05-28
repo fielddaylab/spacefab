@@ -60,6 +60,13 @@ namespace SpaceFab.Fabrication.StationControl {
         // Phase to resume after Stunned clears. Set when TriggerStun is invoked.
         [HideInInspector] public StationControlPhase PostStunPhase;
 
+        // External "park the exit timer" flag, re-armed each frame by systems that need to hold
+        // ExitingMicrogame open beyond the microgame's own ProcessAnimationInProgress contract
+        // (e.g., CompletionRecapSystem while the step-completion recap is playing). Independent
+        // of ProcessAnimationInProgress so StationControlSystem's clearing logic for that flag
+        // doesn't fight with external holds.
+        [HideInInspector] public bool ExitTimerExternalHold;
+
         public void OnRegister() {
             Phase = StationControlPhase.Traveling;
             ActiveInterfacer = null;

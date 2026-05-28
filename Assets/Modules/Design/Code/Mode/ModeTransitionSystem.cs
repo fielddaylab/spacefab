@@ -30,6 +30,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<SimulateUIState>()
                     .ReadWriteShared<VisualGridStackState>()
                     .ReadWriteShared<PlayerProgressState>()
+                    .ReadShared<DesignMinigameState>()
                     .Read<ToolbarButton>()
             );
         }
@@ -60,6 +61,7 @@ namespace SpaceFab.Design
             {
                 bool playRequested = runState.PlayFullSuiteRequested
                     || runState.PlaySingleTestRequested
+                    || runState.PlayCurrentToggleComboRequested
                     || runState.PendingPlayRowIndex >= 0;
                 if (playRequested)
                 {
@@ -74,7 +76,8 @@ namespace SpaceFab.Design
             {
                 if (AnyToolbarClickThisFrame())
                 {
-                    ExitSimulateMode(modeState, runState, runScratch, graphState, uiState, visualState);
+                    DesignMinigameState designState = Find.State<DesignMinigameState>();
+                    ExitSimulateMode(modeState, runState, runScratch, graphState, uiState, visualState, designState);
                 }
             }
         }
@@ -124,7 +127,7 @@ namespace SpaceFab.Design
                 runState.RowVerdicts = new TestRowVerdict[suite.Tests.Length];
             }
 
-            // Flip masks. Both calls are idempotent in FieldDay's GameLoop, so no harm if a future
+            // Flip masks. Both calls are idempotent in GameLoop, so no harm if a future
             // path enters this in an already-Simulate state (currently gated by modeState.Mode).
             GameLoop.SuspendUpdates(UpdateMasks.ToolModeMask);
             GameLoop.ResumeUpdates(UpdateMasks.SimulateModeMask);
@@ -136,11 +139,12 @@ namespace SpaceFab.Design
         // update mask from Simulate to Tool. The toolbar button's one-frame click flag is left
         // alone — it'll survive until ToolbarSelectSystem (now active under ToolModeMask) sees
         // it next frame, which selects the clicked tool with no extra click routing.
-        static private void ExitSimulateMode(ModeTransitionState modeState, SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState)
+        static private void ExitSimulateMode(ModeTransitionState modeState, SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, DesignMinigameState designState)
         {
             // Shared sim-state wipe: bump flow stamp, clear node transients, mark visuals dirty,
-            // park Phase at Idle, flag run-button repaint.
-            SimulateControlUtility.WipeRunState(runState, runScratch, graphState, uiState, visualState);
+            // park Phase at Idle, flag run-button repaint. In toggle-input mode, verdicts persist
+            // through this path (only grid edits clear them) — designState gates that.
+            SimulateControlUtility.WipeRunState(runState, runScratch, graphState, uiState, visualState, designState);
 
             // Discard any queued play — the player's intent is to edit, not to run another test.
             runState.PendingPlayRowIndex = -1;
