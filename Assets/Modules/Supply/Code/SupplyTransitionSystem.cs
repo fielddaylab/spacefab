@@ -16,7 +16,7 @@ namespace SpaceFab.Supply {
                 new SysPermissions()
                     .ReadWriteShared<SupplyTransitionState>()
                     .ReadShared<ChapterState>()
-                    .ReadWriteShared<SupplyChainMapLookup>()
+                    .ReadWriteShared<SupplyChainMapLoader>()
                     .ReadWriteShared<SupplyMinigameState>()
             );
         }
@@ -25,7 +25,7 @@ namespace SpaceFab.Supply {
             Find.State(
                 out SupplyTransitionState transitionState,
                 out ChapterState chapterState,
-                out SupplyChainMapLookup lookup,
+                out SupplyChainMapLoader lookup,
                 out SupplyMinigameState supplyState
             );
 

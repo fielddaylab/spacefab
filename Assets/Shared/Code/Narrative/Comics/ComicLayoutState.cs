@@ -4,6 +4,7 @@ using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Collections;
+using FieldDay.Rendering;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
 using System;
@@ -21,6 +22,8 @@ namespace SpaceFab.Comic
         [NonSerialized] public BitSet64 AllocatedPageMask;
 
         [NonSerialized] public RingBuffer<LayoutSpawnRequest> SpawnBuffer;
+        [NonSerialized] public UniqueIdAllocator16 SpawnIdAllocator;
+        
         [NonSerialized] public UnsafeBitSet SpawnedLayersMask;
         [NonSerialized] public UnsafeBitSet SpawnedMasksMask;
 
@@ -34,21 +37,30 @@ namespace SpaceFab.Comic
                 int maskCount = manifest.Masks.Length;
 
                 PageHierarchies = new Transform[pageCount];
-                SpawnBuffer = new RingBuffer<LayoutSpawnRequest>(layerCount + maskCount, RingBufferMode.Fixed);
+                SpawnBuffer = new RingBuffer<LayoutSpawnRequest>(32, RingBufferMode.Fixed);
+                SpawnIdAllocator = new UniqueIdAllocator16(32, false);
                 SpawnedLayersMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(layerCount)));
-                SpawnedMasksMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(maskCount)));
+                SpawnedMasksMask = maskCount > 0 ? new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(maskCount))) : default;
             }
         }
     }
 
     public struct LayoutSpawnRequest {
-        public ushort Index;
-        public byte PageIndex;
+        public UniqueId16 RequestId;
+        public ushort LayerIndex;
+        public LayoutSpawnAnimationType Animation;
         public bool IsMask;
     }
 
+    public enum LayoutSpawnAnimationType : ushort {
+
+    }
+
     static public partial class ComicResourceUtility {
-        public const int MaxPages = 32;
+        public const int MaxPages = 64;
+        static public readonly StringHash32 MaskElementId = "_Mask";
+
+        #region Hierarchies
 
         static public void AllocatePageHierarchy(int pageIndex) {
             Find.State(out ComicResourcePool resourcePool, out ComicLayoutState layout);
@@ -115,5 +127,74 @@ namespace SpaceFab.Comic
             }
             resourcePool.ParentPool.Free(panel);
         }
+
+        static public Transform GetPanelTransform(ushort panelIndex) {
+            Find.State(out ComicLayoutState layout);
+            ushort pageIndex = ComicsUtility.GetPageIndexForPanel(panelIndex);
+            Assert.True(layout.AllocatedPageMask.IsSet(pageIndex), "Page hierarchy for page {0} not spawned!");
+            return layout.PageHierarchies[pageIndex].GetChild(panelIndex - ComicsUtility.Manifest.Pages[pageIndex].Panels.Offset);
+        }
+
+        #endregion // Hierarchies
+
+        #region Masks
+
+        static public ComicRenderElement SpawnMask(ushort maskIndex) {
+            Find.State(out ComicResourcePool resourcePool, out ComicLayoutState layout);
+            ComicSequenceManifest manifest = ComicsUtility.Manifest;
+            Assert.NotNullOrDestroyed(manifest);
+            Assert.True(maskIndex != ushort.MaxValue && maskIndex < manifest.Masks.Length);
+
+            ushort panelIndex = ComicsUtility.GetPanelIndexForMask(maskIndex);
+            Transform parent = GetPanelTransform(panelIndex);
+
+            if (layout.SpawnedMasksMask.IsSet(maskIndex)) {
+                // TODO: return spawned mask
+            }
+
+            ushort meshId = ComicsUtility.PackMeshId(maskIndex, StreamedMeshType.Mask);
+
+            MaskData maskData = manifest.Masks[maskIndex];
+            ComicRenderElement renderElement = resourcePool.ElementPool.Alloc(default, default, parent, false);
+            renderElement.Type = ComicRenderElementType.Mask;
+            renderElement.Id = MaskElementId;
+            renderElement.BaseMaterial = resourcePool.TextureMaterials[0];
+            renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
+
+            resourcePool.SharedPropertyBlock.SetColor(DefaultShaderProps.Color, ComicsUtility.UnpackColor565(maskData.PackedColor));
+            renderElement.MeshRenderer.SetPropertyBlock(resourcePool.SharedPropertyBlock);
+
+            return renderElement;
+        }
+
+        static public ComicRenderElement SpawnLayer(ushort layerIndex) {
+            Find.State(out ComicResourcePool resourcePool, out ComicLayoutState layout);
+            ComicSequenceManifest manifest = ComicsUtility.Manifest;
+            Assert.NotNullOrDestroyed(manifest);
+            Assert.True(layerIndex != ushort.MaxValue && layerIndex < manifest.Layers.Length);
+
+            ushort panelIndex = ComicsUtility.GetPanelIndexForLayer(layerIndex);
+            Transform parent = GetPanelTransform(layerIndex);
+
+            if (layout.SpawnedLayersMask.IsSet(layerIndex)) {
+                // TODO: return spawned layer
+            }
+
+            ushort meshId = ComicsUtility.PackMeshId(layerIndex, StreamedMeshType.Layer);
+
+            LayerData layerData = manifest.Layers[layerIndex];
+            ComicRenderElement renderElement = resourcePool.ElementPool.Alloc(ComicsUtility.UnpackPointPrecise(layerData.Position), Quaternion.Euler(0, 0, ComicsUtility.UnpackDegrees(layerData.PackedRotation)), parent, false);
+            renderElement.Type = ComicRenderElementType.Layer;
+            renderElement.Id = layerData.Id;
+            renderElement.BaseMaterial = resourcePool.TextureMaterials[0];
+            renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
+
+            resourcePool.SharedPropertyBlock.SetColor(DefaultShaderProps.Color, Color.white);
+            renderElement.MeshRenderer.SetPropertyBlock(resourcePool.SharedPropertyBlock);
+
+            return renderElement;
+        }
+
+        #endregion // Masks
     }
 }

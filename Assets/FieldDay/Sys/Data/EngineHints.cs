@@ -20,9 +20,17 @@ namespace FieldDay.Data {
                 StringValue = value ? "true" : null;
             }
 
+            public HintValue(int value) {
+                StringValue = value.ToStringLookup();
+            }
+
             public readonly bool AsBool() {
                 return !string.IsNullOrEmpty(StringValue) && !string.Equals(StringValue, "false", StringComparison.OrdinalIgnoreCase)
                     && !string.Equals(StringValue, "0", StringComparison.Ordinal);
+            }
+
+            public readonly int AsInt(int defaultValue) {
+                return StringParser.ParseInt(StringValue, defaultValue);
             }
 
             public bool Equals(HintValue other) {
@@ -54,6 +62,10 @@ namespace FieldDay.Data {
 
             static public implicit operator bool(HintValue value) {
                 return value.AsBool();
+            }
+
+            static public implicit operator int(HintValue value) {
+                return value.AsInt(0);
             }
         }
 
@@ -121,6 +133,24 @@ namespace FieldDay.Data {
         }
 
         /// <summary>
+        /// Sets a hint as a string.
+        /// </summary>
+        static public void SetHint(string name, int value) {
+            HintEntry entry = GetEntry(name, true);
+            if (entry.Locked) {
+                Log.Warn("[EngineHints] Hint '{0}' is locked!", name);
+                return;
+            }
+
+            if (entry.Value.AsInt(0) != value) {
+                HintValue hintVal = new HintValue(value);
+                entry.Value = hintVal;
+                Log.Msg("[EngineHints] Set hint '{0}'='{1}'", name, value);
+                entry.OnUpdated?.Invoke(hintVal);
+            }
+        }
+
+        /// <summary>
         /// Sets a hint as a boolean.
         /// </summary>
         static public void SetHint(string name, bool value) {
@@ -136,6 +166,49 @@ namespace FieldDay.Data {
                 Log.Msg("[EngineHints] Set hint '{0}'={1}", name, value ? "true" : "false");
                 entry.OnUpdated?.Invoke(hintVal);
             }
+        }
+
+
+        /// <summary>
+        /// Attempts to retrieve the hint.
+        /// </summary>
+        static public bool TryGetHint(string name, out HintValue value) {
+            HintEntry entry = GetEntry(name, false);
+            if (entry != null) {
+                value = entry.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to retrieve the hint.
+        /// </summary>
+        static public bool TryGetHintBool(string name, out bool value) {
+            HintEntry entry = GetEntry(name, false);
+            if (entry != null) {
+                value = entry.Value.AsBool();
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to retrieve the hint.
+        /// </summary>
+        static public bool TryGetHintInt(string name, out int value) {
+            HintEntry entry = GetEntry(name, false);
+            if (entry != null) {
+                value = entry.Value.AsInt(0);
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
         /// <summary>
@@ -156,6 +229,17 @@ namespace FieldDay.Data {
             HintEntry entry = GetEntry(name, false);
             if (entry != null) {
                 return entry.Value.AsBool();
+            }
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Retrieves the hint, as an integer.
+        /// </summary>
+        static public int GetHintInt(string name, int defaultValue) {
+            HintEntry entry = GetEntry(name, false);
+                return entry.Value.AsInt(defaultValue);
+            if (entry != null) {
             }
             return defaultValue;
         }

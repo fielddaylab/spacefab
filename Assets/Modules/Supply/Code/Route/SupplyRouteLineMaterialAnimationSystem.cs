@@ -20,7 +20,7 @@ namespace SpaceFab.Supply {
             Vector2 scrollVec = new Vector2(1 - scrollState.CurrentScroll, 0);
 
             for(int i = 0; i < scrollState.ScrollMaterials.Length; i++) {
-                scrollState.ScrollMaterials[i].SetTextureOffset(DefaultShaderProps._MainTex, scrollVec);
+                scrollState.ScrollMaterials[i].SetTextureOffset(DefaultShaderProps.MainTex, scrollVec);
             }
         }
     }

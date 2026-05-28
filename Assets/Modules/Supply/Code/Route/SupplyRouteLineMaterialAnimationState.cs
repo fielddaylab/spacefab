@@ -13,7 +13,7 @@ namespace SpaceFab.Supply {
 
         void IRegistrationCallbacks.OnDeregister() {
             foreach(var material in ScrollMaterials) {
-                material.SetTextureOffset(DefaultShaderProps._MainTex, default);
+                material.SetTextureOffset(DefaultShaderProps.MainTex, default);
             }
         }
 

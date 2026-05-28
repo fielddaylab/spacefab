@@ -2,31 +2,40 @@ using UnityEngine;
 
 namespace FieldDay.Rendering {
     static public class DefaultShaderProps {
-        static public int _MainTex { get; private set; }
+        static public int MainTex { get; private set; }
 
-        static public int _Color { get; private set; }
+        static public int Color { get; private set; }
 
-        static public int _LerpColor { get; private set; }
+        static public int LerpColor { get; private set; }
 
-        static public int _AdditiveColor { get; private set; }
+        static public int AdditiveColor { get; private set; }
 
-        static public int _IntensityColorThreshold { get; private set; }
+        static public int IntensityColorThreshold { get; private set; }
 
-        static public int _IntensityColorMinThreshold { get; private set; }
+        static public int IntensityColorMinThreshold { get; private set; }
 
-        static public int _IntensityAlphaThreshold { get; private set; }
+        static public int IntensityAlphaThreshold { get; private set; }
 
-        static public int _IntensityAlphaMinThreshold { get; private set; }
+        static public int IntensityAlphaMinThreshold { get; private set; }
+
+        static public int ZWrite { get; private set; }
+
+        static public int ZTest { get; private set; }
+
+        static public int Cull { get; private set; }
 
         static internal void Initialize() {
-            _MainTex = Shader.PropertyToID("_MainTex");
-            _Color = Shader.PropertyToID("_Color");
-            _LerpColor = Shader.PropertyToID("_LerpColor");
-            _AdditiveColor = Shader.PropertyToID("_AdditiveColor");
-            _IntensityColorThreshold = Shader.PropertyToID("_IntensityColorThreshold");
-            _IntensityColorMinThreshold = Shader.PropertyToID("_IntensityColorMinThreshold");
-            _IntensityAlphaThreshold = Shader.PropertyToID("_IntensityAlphaThreshold");
-            _IntensityAlphaMinThreshold = Shader.PropertyToID("_IntensityAlphaMinThreshold");
+            MainTex = Shader.PropertyToID("_MainTex");
+            Color = Shader.PropertyToID("_Color");
+            LerpColor = Shader.PropertyToID("_LerpColor");
+            AdditiveColor = Shader.PropertyToID("_AdditiveColor");
+            IntensityColorThreshold = Shader.PropertyToID("_IntensityColorThreshold");
+            IntensityColorMinThreshold = Shader.PropertyToID("_IntensityColorMinThreshold");
+            IntensityAlphaThreshold = Shader.PropertyToID("_IntensityAlphaThreshold");
+            IntensityAlphaMinThreshold = Shader.PropertyToID("_IntensityAlphaMinThreshold");
+            ZWrite = Shader.PropertyToID("_ZWrite");
+            ZTest = Shader.PropertyToID("_ZTest");
+            Cull = Shader.PropertyToID("_Cull");
         }
     }
 }

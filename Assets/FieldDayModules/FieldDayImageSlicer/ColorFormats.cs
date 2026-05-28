@@ -30,6 +30,24 @@ namespace FieldDay.ImageSlicer {
         [FieldOffset(2)] public byte B;
         [FieldOffset(3)] public byte A;
 
+        public PixelRGBA32(uint raw) : this() {
+            Raw = raw;
+        }
+
+        public PixelRGBA32(byte r, byte g, byte b, byte a) : this() {
+            R = r;
+            G = g;
+            B = b;
+            A = a;
+        }
+
+        public PixelRGBA32(byte r, byte g, byte b) : this() {
+            R = r;
+            G = g;
+            B = b;
+            A = 255;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public bool Equals(in PixelRGBA32 a, in PixelRGBA32 b) {
             return a.Raw == b.Raw;
@@ -37,11 +55,8 @@ namespace FieldDay.ImageSlicer {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public bool ApproximatelyEquals(in PixelRGBA32 a, in PixelRGBA32 b) {
-            int diffA = Math.Abs(a.A - b.A);
-            int diffR = Math.Abs(a.R - b.R);
-            int diffG = Math.Abs(a.G - b.G);
-            int diffB = Math.Abs(a.B - b.B);
-            return diffA < 2 & diffR < 2 && diffG < 2 && diffB < 2;
+            int diff = Math.Abs(a.A - b.A) + Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
+            return diff < 3;
         }
     }
 
