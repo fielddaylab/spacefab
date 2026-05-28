@@ -7,6 +7,7 @@ using SpaceFab.Fabrication.StationControl;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Sequence
@@ -105,6 +106,7 @@ namespace SpaceFab.Fabrication.Sequence
             StringHash32 actualStation = interfacer.Id;
             if (actualStation != expectedStation) {
                 SequenceUtility.FlagMisalignment(sequenceState);
+                Debug.Log($"Misalignment! Expected: {expectedStation.ToDebugString()}, got {actualStation.ToDebugString()}");
                 return;
             }
 
