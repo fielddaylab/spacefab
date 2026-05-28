@@ -36,7 +36,7 @@ namespace SpaceFab.Fabrication.Microgames
         public float FillRadius = 3;
         public IonPatternData IonPattern;
 
-        [HideInInspector] public IonMicrogamePhase Phase;
+        public IonMicrogamePhase Phase;
 
         public void OnDeregister()
         {
