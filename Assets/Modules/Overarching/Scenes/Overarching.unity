@@ -148,6 +148,7 @@ MonoBehaviour:
     m_Source: overarching:design-station
     m_HashValue: 1741034826
   RectTransform: {fileID: 0}
+  SpriteRenderer: {fileID: 0}
   Collider: {fileID: 65490942}
 --- !u!114 &262904317 stripped
 MonoBehaviour:

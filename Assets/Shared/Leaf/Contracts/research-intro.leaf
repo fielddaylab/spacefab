@@ -1,2 +1,29 @@
 # basePath ResearchIntro
 
+::IntroSelectTrace
+@trigger    OnSetupComplete
+@when       minigame == "research"
+$if MinigameHasValidSolution()
+    {@PAL}  You've already researched everything you need to!
+$else
+    $set temp:designTutorialStep = 0
+    $call   HighlightElement(research:sample-copper)
+    $call   HighlightElement(research:sample-SiliconDioxide)
+    {@PAL} Start by selecting a sample.
+$endif
+
+
+::OnLiftFromTray
+@trigger    OnSampleLifted
+@when       source == "tray"
+$call ReleaseHighlight(research:sample-copper)
+$call ReleaseHighlight(research:sample-SiliconDioxide)
+$call HighlightElement(research:primary-slot)
+{@PAL} Place the sample in the Voltage Chamber.
+
+::OnPlaceIntoSlot
+@trigger    OnSlotFilled
+@when       slotType == "primary"
+$call   ReleaseHighlight(research:primary-slot)
+$call   HighlightElement(research:increase-voltage-btn)
+{@PAL}  Now add voltage and observe if anything happens.
