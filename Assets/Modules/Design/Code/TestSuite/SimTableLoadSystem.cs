@@ -45,6 +45,11 @@ namespace SpaceFab.Design
             {
                 case DesignTransitionPhase.BuildSimTable:
                     Debug.Log("[SimTableLoadSystem] Building Sim Table...");
+                    // Apply per-level toolbar availability before building the sim table so any
+                    // downstream UI code sees the correct Available flags. Disallowed tools end up
+                    // hidden + disabled — see ToolbarAvailabilityUtility.ApplyAllowedTools.
+                    ToolbarAvailabilityUtility.ApplyAllowedTools(contractAssets.DesignLevelData.GetAllowedTools());
+
                     // build Sim table
                     SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, designState, suiteDB);
 

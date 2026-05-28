@@ -1069,6 +1069,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ActiveLayer: 0
   ActiveTool: 0
+  StartingDragCoord: {x: 0, y: 0}
   LastKnownDragCoord: {x: 0, y: 0}
   LastTerminatedDragCoord: {x: 0, y: 0}
 --- !u!114 &709705233
@@ -2107,26 +2108,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.78499985
       objectReference: {fileID: 0}
-    - target: {fileID: 2025775614864492009, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2025775614864492009, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2025775614864492009, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 115
-      objectReference: {fileID: 0}
-    - target: {fileID: 2025775614864492009, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2025775614864492009, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2208787009578989263, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -2655,18 +2636,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6549034545980762671, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_fontSize
-      value: 16
-      objectReference: {fileID: 0}
-    - target: {fileID: 6549034545980762671, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_fontStyle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6549034545980762671, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 16
-      objectReference: {fileID: 0}
     - target: {fileID: 6600655382255550427, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3106,6 +3075,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2353646413190301006, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 994501228}
     - target: {fileID: 3632801805165874648, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_Name
       value: Minigame Common
