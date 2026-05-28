@@ -21,6 +21,7 @@ namespace SpaceFab.Design
                 new SysPermissions()
                     .ReadShared<SimulateRunState>()
                     .ReadWriteShared<SimulateUIState>()
+                    .ReadShared<DesignMinigameState>()
             );
         }
 
@@ -29,6 +30,18 @@ namespace SpaceFab.Design
         static private void ProcessWork(float deltaTime)
         {
             Find.State(out SimulateRunState runState, out SimulateUIState uiState);
+            DesignMinigameState designState = Find.State<DesignMinigameState>();
+
+            // Toggle-input mode hides the suite Run button — keep it inactive on every frame.
+            // SuiteSecondaryButtonRefreshSystem (order 3) still clears SuiteButtonsNeedRefreshing.
+            if (designState != null && designState.UseToggleInputMode)
+            {
+                if (uiState.SuiteRunButton != null && uiState.SuiteRunButton.gameObject.activeSelf)
+                {
+                    uiState.SuiteRunButton.gameObject.SetActive(false);
+                }
+                return;
+            }
 
             if (!uiState.SuiteButtonsNeedRefreshing) { return; }
             if (!uiState.TableBuilt) { return; }

@@ -32,6 +32,7 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<HypothesisViewModelState>()
                     .ReadWriteShared<ResearchMinigameState>()
                     .ReadShared<ChamberInterfacerState>()
+                    .ReadWriteShared<PlayerProgressState>()
             );
         }
 
@@ -42,6 +43,10 @@ namespace SpaceFab.Research {
                 out HypothesisViewModelState viewModelState,
                 out ResearchMinigameState researchState
             );
+
+            Find.State(
+                out PlayerProgressState progressState
+                );
 
             if (!inputState.SubmitHypothesisClickedThisFrame) {
                 return;
@@ -76,7 +81,7 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, slotted.AssetId, page.Label, page.Context)) {
+            if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, slotted.AssetId, page.Label, page.Context)) {
                 // A new property bit flipped (or the property was already
                 // confirmed and the call was idempotent). Either way the
                 // viewmodel's IsFulfilled / SatisfiedMask depends on the

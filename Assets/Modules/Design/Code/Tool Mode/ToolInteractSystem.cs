@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 using System;
@@ -97,6 +98,7 @@ namespace SpaceFab.Design {
             SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified);
 
             // begin dragging
+            toolModeState.StartingDragCoord = gridPos;
             toolModeState.LastKnownDragCoord = gridPos;
         }
 

@@ -1,0 +1,7 @@
+# basePath ResearchCommon
+
+:: FirstMinigameLoad
+@trigger    OnMinigameLoad
+@once
+@cutscene
+{@PAL}      Welcome to research!

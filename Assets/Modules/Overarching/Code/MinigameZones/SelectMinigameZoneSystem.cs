@@ -21,6 +21,7 @@ namespace SpaceFab.Overarching
 					.ReadWrite<MinigameZone>()
 					.ReadWriteShared<MinigameZonesState>()
 					.ReadShared<PaletteState>()
+					.ReadShared<OverarchingAlertState>()
 			);
         }
 
@@ -28,11 +29,13 @@ namespace SpaceFab.Overarching
         {
             MinigameZonesState state = Find.State<MinigameZonesState>();
             PaletteState palette = Find.State<PaletteState>();
+            OverarchingAlertState alertState = Find.State<OverarchingAlertState>();
 
 			var components = Find.Components<MinigameZone>();
 
 			for(int i = 0; i < components.Count; i++) {
 				MinigameZone zone = components[i];
+				if (IsZoneLocked(alertState, zone)) { continue; }
 				if (zone.PointerExitThisFrame) {
 					MinigameZonesUtility.CancelHover(state, zone.ZoneIndex);
 				}
@@ -40,6 +43,7 @@ namespace SpaceFab.Overarching
 
 			for (int i = 0; i < components.Count; i++) {
 				MinigameZone zone = components[i];
+				if (IsZoneLocked(alertState, zone)) { continue; }
 				if (zone.PointerEnterThisFrame)
                 {
                     MinigameZonesUtility.BeginHover(state, palette, zone.ZoneIndex);
@@ -48,12 +52,23 @@ namespace SpaceFab.Overarching
 
 			for (int i = 0; i < components.Count; i++) {
 				MinigameZone zone = components[i];
+				if (IsZoneLocked(alertState, zone)) { continue; }
 				if (zone.ClickedThisFrame)
                 {
                     SpacefabGame.Events.Dispatch(GameEvents.SelectMinigame, i);
                     MinigameZonesUtility.ClickZone(state, palette, zone.ZoneIndex);
                 }
             }
+        }
+
+        // True when the zone's alert mask has the Locked bit set. Locked zones get no hover
+        // highlight, no selection highlight, no click-through to the minigame — they're
+        // visually frozen, with only the lock icon (spawned by OverarchingAlertSystem) signaling
+        // unavailability. Pointer one-frame flags still tick down via MinigameZoneRefreshSystem,
+        // so no leftover state lingers when Locked clears.
+        static private bool IsZoneLocked(OverarchingAlertState alertState, MinigameZone zone)
+        {
+            return OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Locked);
         }
     }
 }

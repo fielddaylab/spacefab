@@ -8,38 +8,48 @@ using UnityEngine;
 
 namespace SpaceFab.Save
 {
-    public class DesignSaveState : IMinigameSaveState, ISaveStateChunkObject
+    public class DesignSaveState : MinigameSaveStateBase, ISaveStateChunkObject
     {
         public GridStack GridStack;
-        public bool FoundValidSolution;
+
+        // Per-input Lo/Hi toggle states for the new toggle-input flow. Written as a separate
+        // count-prefixed chunk after the grid so old save files that lack this section read as
+        // empty (count = 0) when reader.Remaining drops to 0 inside ReadInputToggles.
+        public InputToggleSaveData InputToggles;
 
         #region Interfaces
 
         // ISaveStateChunkObject
 
-        public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
+        public override void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
+            base.Read(self, ref reader, consts);
+
             DesignSaveUtility.ReadGridStack(ref reader, consts, this, ref GridStack);
-            FoundValidSolution = reader.Read<bool>();
+            DesignSaveUtility.ReadInputToggles(ref reader, consts, this, ref InputToggles);
         }
 
-        public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
+        public override void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
+            base.Write(self, ref writer, consts);
+
             if (GridStack == null)
             {
                 GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
             }
 
             DesignSaveUtility.WriteGridStack(ref writer, consts, this, ref GridStack);
-
-            writer.Write(FoundValidSolution);
+            DesignSaveUtility.WriteInputToggles(ref writer, consts, this, ref InputToggles);
         }
 
         // IMinigameSaveState
 
-        public void SetDefaults()
+        public override void SetDefaults()
         {
+            base.SetDefaults();
+
             GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
+            InputToggles = default;
         }
 
         #endregion // Interfaces
@@ -90,6 +100,23 @@ namespace SpaceFab.Save
             writer.Write(gridCell.Edges[5]);
         }
 
+        // Count-prefixed list of input toggles. Each entry is a flat cell index (encoded by
+        // SimulateRunScratchUtility.CellIndex from (layer, col, row)), the input subtype label,
+        // and the player's chosen Lo/Hi state. Decoupled from the grid-cell chunk so the structural
+        // grid topology stays clean.
+        public static void WriteInputToggles(ref ByteWriter writer, SaveStateChunkConsts consts, DesignSaveState saveState, ref InputToggleSaveData data)
+        {
+            int count = data.Count;
+            writer.Write(count);
+            for (int i = 0; i < count; i++)
+            {
+                InputToggleSaveEntry entry = data.Entries[i];
+                writer.Write(entry.CellIndex);
+                writer.Write(entry.Subtype);
+                writer.Write(entry.State);
+            }
+        }
+
         #endregion // Write
 
         #region Read
@@ -135,6 +162,37 @@ namespace SpaceFab.Save
             gridCell.Edges[3] = reader.Read<EdgeStateData>();
             gridCell.Edges[4] = reader.Read<EdgeStateData>();
             gridCell.Edges[5] = reader.Read<EdgeStateData>();
+        }
+
+        // Symmetric reader for WriteInputToggles. Tolerates an empty / missing chunk on saves
+        // written before this section existed by checking reader.Remaining before each int.
+        public static void ReadInputToggles(ref ByteReader reader, SaveStateChunkConsts consts, DesignSaveState saveState, ref InputToggleSaveData data)
+        {
+            if (reader.Remaining < sizeof(int))
+            {
+                data.Count = 0;
+                return;
+            }
+
+            int count = reader.Read<int>();
+            if (count <= 0)
+            {
+                data.Count = 0;
+                return;
+            }
+
+            if (data.Entries == null || data.Entries.Length < count)
+            {
+                data.Entries = new InputToggleSaveEntry[count];
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                data.Entries[i].CellIndex = reader.Read<int>();
+                data.Entries[i].Subtype = reader.Read<InputOutputNodeTypeFlags>();
+                data.Entries[i].State = reader.Read<FlowState>();
+            }
+            data.Count = count;
         }
 
         #endregion // Read

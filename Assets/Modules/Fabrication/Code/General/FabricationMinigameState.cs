@@ -54,6 +54,8 @@ namespace SpaceFab.Fabrication
         {
             fabState.TotalCycles = saveState.FinalizedTotalCycles;
             fabState.Precision = saveState.FinalizedPrecision;
+
+            fabState.FoundValidSolution = saveState.FoundValidSolution;
         }
 
         public static void ExportState(ref FabricationSaveState saveState, FabricationMinigameState fabState)
@@ -61,6 +63,8 @@ namespace SpaceFab.Fabrication
             // TODO: check if run completed
             saveState.FinalizedTotalCycles = fabState.TotalCycles;
             saveState.FinalizedPrecision = fabState.Precision;
+
+            saveState.FoundValidSolution = fabState.FoundValidSolution;
         }
     }
 }

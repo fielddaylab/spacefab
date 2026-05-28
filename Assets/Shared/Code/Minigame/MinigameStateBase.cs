@@ -12,8 +12,20 @@ namespace SpaceFab
     {
         [NonSerialized] public int DefaultUpdateMask;
 
+        public bool FoundValidSolution;
+
         public abstract void ExportState(ref MinigameSaveStates saveStates);
 
         public abstract void ImportState(MinigameSaveStates saveStates);
+
+        public void MarkFoundValidSolution()
+        {
+            FoundValidSolution = true;
+        }
+
+        public void ClearFoundValidSolution()
+        {
+            FoundValidSolution = false;
+        }
     }
 }
