@@ -2048,6 +2048,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CountdownRequestedThisFrame: 0
   CountdownCompletedThisFrame: 0
+  CountDownText: {fileID: 1789784826}
+  CountDownCanvasGroup: {fileID: 1753212872}
+  AccruedTime: 0
+  IsCountingDown: 0
 --- !u!114 &879438746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2904,7 +2908,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1561710290
 Transform:
   m_ObjectHideFlags: 0
@@ -2998,6 +3002,22 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6515946159348523112, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
   m_PrefabInstance: {fileID: 80312476}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &1753212872 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 2409829585769624582, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
+  m_PrefabInstance: {fileID: 5336318902443731965}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1789784826 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1368177292406228595, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
+  m_PrefabInstance: {fileID: 5336318902443731965}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1823492265
 PrefabInstance:
   m_ObjectHideFlags: 0
