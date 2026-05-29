@@ -1,7 +1,8 @@
 using FieldDay;
+using FieldDay.Scenes;
 using FieldDay.SharedState;
 using FieldDay.Systems;
-using FieldDay.Scenes;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,8 @@ namespace SpaceFab.UI {
         // Small icon-button root. Mirror of ExpandedRoot: visible when collapsed, faded out
         // when expanded.
         public CanvasGroup CollapsedRoot;
+
+        public TextMeshProUGUI Header;
 
         // Page-text + illustration widgets the visuals system writes into each frame while
         // the panel is expanded.
@@ -96,5 +99,6 @@ namespace SpaceFab.UI {
             group.blocksRaycasts = visible;
             group.interactable = visible;
         }
+
     }
 }
