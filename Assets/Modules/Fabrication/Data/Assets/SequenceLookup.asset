@@ -47,8 +47,8 @@ MonoBehaviour:
     InstructionLabel: Apply Photo Resist
   - StepId: 3
     StationId:
-      m_Source: station:photolithograpy
-      m_HashValue: 2361559002
+      m_Source: station:photolithography
+      m_HashValue: 1024899852
     ConvertFrom:
       m_Source: resist
       m_HashValue: 3194704535

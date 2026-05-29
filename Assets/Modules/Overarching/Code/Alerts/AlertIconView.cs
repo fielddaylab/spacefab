@@ -11,6 +11,11 @@ namespace SpaceFab.Overarching
     /// </summary>
     public class AlertIconView : BatchedComponent
     {
-        public SpriteRenderer IconRenderer;
+        // Three layered sprites, back to front: the base plate, the inner shape (tinted per-minigame
+        // by OverarchingAlertSystem), and the white symbol on top. Sprites + inner color are set on
+        // spawn from AlertIconDB / MinigameZoneOverlayDB.
+        public SpriteRenderer BaseRenderer;
+        public SpriteRenderer InnerRenderer;
+        public SpriteRenderer SymbolRenderer;
     }
 }

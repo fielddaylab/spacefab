@@ -16,9 +16,15 @@ namespace SpaceFab.Save
     {
         public bool FoundValidSolution;
 
+        // True once the player has entered/begun this minigame at least once. Distinguishes a
+        // never-started minigame (NotStarted alert) from one that's been started but not solved
+        // (Incomplete alert). Set by the minigame's entry flow; never cleared except by SetDefaults.
+        public bool Started;
+
         public virtual void SetDefaults()
         {
             FoundValidSolution = false;
+            Started = false;
         }
 
         public bool HasValidSolution()
@@ -29,11 +35,13 @@ namespace SpaceFab.Save
         public virtual void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
             FoundValidSolution = reader.Read<bool>();
+            Started = reader.Read<bool>();
         }
 
         public virtual void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
             writer.Write(FoundValidSolution);
+            writer.Write(Started);
         }
     }
 }

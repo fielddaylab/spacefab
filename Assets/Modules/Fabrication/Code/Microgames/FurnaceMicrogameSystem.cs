@@ -39,7 +39,7 @@ namespace SpaceFab.Fabrication.Microgames
                 case FurnaceMicrogamePhase.Idle:
                     break;
                 case FurnaceMicrogamePhase.Entering:
-                    canvasState.ShowUI(FabricationConsts.FURNACE_STATION_ID);
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.FURNACE_STATION_ID);
                     break;
                 case FurnaceMicrogamePhase.Burning:
                     ProcessingBurning(microgameState, deltaTime);

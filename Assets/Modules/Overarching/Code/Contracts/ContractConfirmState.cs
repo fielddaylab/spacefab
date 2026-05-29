@@ -38,8 +38,33 @@ namespace SpaceFab.Overarching
     {
         public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup, SharedUIState sharedUIState, PlayerProgressState playerProgress)
         {
-            chapterState.LastSelectedContractIndex = selectState.SelectedContractIndex;
-            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
+            // Apply the selected contract's data (active contract id, loaded assets, seeded minigame save).
+            yield return ApplyContractByIndex(chapterState, playerProgress, lookup, selectState.SelectedContractIndex);
+
+            yield return 0.5f;
+
+            yield return Routine.Combine(
+                layoutState.SelectionCanvasGroup.FadeTo(0, 1f)
+            );
+
+            layoutState.SelectionCanvasGroup.blocksRaycasts = false;
+
+            yield return 0.5f;
+
+            layoutState.FaderGroup.alpha = 0;
+            layoutState.FaderGroup.blocksRaycasts = false;
+
+            confirmState.Phase = ContractConfirmPhase.Completed;
+        }
+
+        // Applies the contract at the given index into the chapter's available-contracts bundle: records it
+        // as the active contract, loads its asset scene, and seeds the minigame save state from the
+        // contract's assets. This is the data core shared by ConfirmContractRoutine and the debug
+        // "set contract" tool — no UI, no phase transition.
+        public static IEnumerator ApplyContractByIndex(ChapterState chapterState, PlayerProgressState playerProgress, ContractAssetsLookup lookup, int contractIndex)
+        {
+            chapterState.LastSelectedContractIndex = contractIndex;
+            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[contractIndex].AssetId;
 
             playerProgress.CurrContractId = contractId;
 
@@ -68,21 +93,6 @@ namespace SpaceFab.Overarching
             }
 
             SaveUtility.Save(SaveSlot.Main);
-
-            yield return 0.5f;
-
-            yield return Routine.Combine(
-                layoutState.SelectionCanvasGroup.FadeTo(0, 1f)
-            );
-
-            layoutState.SelectionCanvasGroup.blocksRaycasts = false;
-
-            yield return 0.5f;
-
-            layoutState.FaderGroup.alpha = 0;
-            layoutState.FaderGroup.blocksRaycasts = false;
-
-            confirmState.Phase = ContractConfirmPhase.Completed;
         }
     }
 }

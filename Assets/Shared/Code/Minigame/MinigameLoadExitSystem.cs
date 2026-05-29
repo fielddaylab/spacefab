@@ -45,6 +45,10 @@ namespace SpaceFab {
                     break;
                 case MinigameLoadExitPhase.Loaded:
                     Debug.Log("[MinigameLoadExitSystem] Imported!");
+                    // Entering a minigame counts as starting it — record it so the overarching
+                    // alert auto-rule shows Incomplete (not NotStarted) on the next visit. Persisted
+                    // by the save on exit below.
+                    MinigameSaveUtility.MarkStarted(saveStates, interfacer.Id);
                     // Suspend everything, then resume only the incoming minigame's own update mask
                     GameLoop.SuspendUpdates(Bits.All32);
                     GameLoop.ResumeUpdates(interfacer.MinigameState.DefaultUpdateMask);
