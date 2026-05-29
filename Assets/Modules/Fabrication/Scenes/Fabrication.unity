@@ -1172,6 +1172,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: e84a43f1fbd22b2438ccb1ed502e3c64, type: 2}
+    - target: {fileID: 264963316832654164, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 314247488055219262, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
       propertyPath: m_Name
       value: Meter Target Anchor
@@ -1324,9 +1328,13 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 4.5200005
       objectReference: {fileID: 0}
+    - target: {fileID: 4234622222351680474, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4598590421940923129, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5127689271215682807, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2033,6 +2041,7 @@ MonoBehaviour:
   CancelRequestedThisFrame: 0
   MicrogamePassedThisFrame: 0
   LastMicrogamePrecision: 0
+  LastRawMicrogamePrecision: 0
   CompletionVerdict: 0
   ProcessAnimationInProgress: 0
   PostStunPhase: 0

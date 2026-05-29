@@ -55,10 +55,11 @@ namespace SpaceFab.Fabrication.Microgames
     /// </summary>
     public static class IonMicrogameUtility
     {
+        // determines if microgame can be started based on if this step is next
         public static bool CanActivate()
         {
-            // TODO: gate based on sequence / wafer state. Default true.
-            return true;
+            Find.State(out SequenceState state);
+            return SequenceUtility.CheckNextStep(state, FabricationConsts.ION_STATION_ID);
         }
 
         public static void EnterBegin()
