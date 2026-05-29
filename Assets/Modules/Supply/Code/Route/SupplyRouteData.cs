@@ -6,7 +6,9 @@ using UnityEngine;
 
 namespace SpaceFab.Supply {
     public struct SupplyRouteData {
+        public const int MaxNodeIndices = 32;
         public const int MaxNodes = 16;
+        public const int MaxNonTerminalNodes = MaxNodes - 1;
         public const int MaxHazards = 3;
         public const int MaxShips = 5;
         public const int MaxCapacity = 3;
@@ -20,6 +22,25 @@ namespace SpaceFab.Supply {
 
         public void Create() {
             Nodes = new SupplyRouteNode[MaxNodes];
+        }
+
+        public void Clear() {
+            for(int i = NodeCount; i-- > 0;) {
+                Nodes[i] = null;
+            }
+
+            NodeCount = 0;
+            NodeMask = default;
+            Flags = default;
+        }
+
+        static public void Copy(in SupplyRouteData src, ref SupplyRouteData dst) {
+            dst.NodeCount = src.NodeCount;
+            dst.NodeMask = src.NodeMask;
+            dst.Flags = src.Flags;
+            for(int i = 0; i < MaxNodes; i++) {
+                dst.Nodes[i] = src.Nodes[i];
+            }
         }
     }
 
@@ -49,6 +70,7 @@ namespace SpaceFab.Supply {
         public byte Cost;
         public byte Risk;
         public byte HazardMask;
+        public byte MaterialCount;
         public fixed uint MaterialHashes[SupplyRouteData.MaxCapacity];
     }
 
@@ -58,13 +80,28 @@ namespace SpaceFab.Supply {
         NodeInAnotherPath = 0x02,
         NodeInInvalidSegment = 0x04,
         NodeInEarlierSegment = 0x08,
+        PathTooLong = 0x10,
 
         HasUnusedConverter = 0x20,
 
-        ErrorMask = TooManyResources | NodeInAnotherPath | NodeInInvalidSegment | NodeInEarlierSegment,
+        ErrorMask = TooManyResources | NodeInAnotherPath | NodeInInvalidSegment | NodeInEarlierSegment | PathTooLong,
     }
 
     static public partial class SupplyRouteUtility {
+        static public int GetIndexOfNodeInRoute(in SupplyRouteData data, SupplyRouteNode node) {
+            for(int i = 0; i < data.NodeCount; i++) {
+                if (data.Nodes[i] == node) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        static public bool IsNodeInRoute(in SupplyRouteData data, SupplyRouteNode node) {
+            return data.NodeMask.IsSet(node.Index);
+        }
+        
         static public unsafe bool TryEvaluatePath(in SupplyRouteData route, in SupplyShipStats ship, int sourceRouteIndex, out SupplyRouteStats stats) {
             if (route.NodeCount < 2) {
                 stats = default;
@@ -162,6 +199,7 @@ namespace SpaceFab.Supply {
             stats.Time = (byte)time;
             stats.Cost = (byte)cost;
             stats.Flags = resultFlags;
+            stats.MaterialCount = (byte) materialCount;
 
             // TODO: Hazards
             stats.HazardMask = 0;

@@ -25,6 +25,7 @@ namespace SpaceFab.Supply
         // TODO: additional assets
         // [AssetName(typeof(StreamedPack))] public StringHash32 AdditionalAssets;
 
+        [AssetName(typeof(SupplyShipAsset))] public StringHash32[] ShipIds;
         public NodeData[] Positions;
         public NodeOverride[] Overrides;
     }

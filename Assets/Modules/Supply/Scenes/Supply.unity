@@ -3033,7 +3033,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a57e4b302e053dc4b8227bf389f85bda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Packs: []
+  m_Packs:
+  - {fileID: 11400000, guid: 23f710ccdef94954b9445ce5a73932c0, type: 2}
 --- !u!4 &804920511
 Transform:
   m_ObjectHideFlags: 0
@@ -8593,6 +8594,7 @@ GameObject:
   - component: {fileID: 1918839974}
   - component: {fileID: 1918839975}
   - component: {fileID: 1918839976}
+  - component: {fileID: 1918839977}
   m_Layer: 0
   m_Name: Supply States
   m_TagString: Untagged
@@ -8767,6 +8769,18 @@ MonoBehaviour:
     m_DefaultPoolRoot: {fileID: 1327991597}
     m_DefaultSpawnRoot: {fileID: 512969075}
     m_ResetTransformOnAlloc: 1
+--- !u!114 &1918839977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1918839964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5108ba415ceb7884b894a5b9c38ef94c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1920011338
 GameObject:
   m_ObjectHideFlags: 0
@@ -8970,6 +8984,7 @@ GameObject:
   - component: {fileID: 2015290985}
   - component: {fileID: 2015290987}
   - component: {fileID: 2015290986}
+  - component: {fileID: 2015290988}
   m_Layer: 0
   m_Name: Supply Systems
   m_TagString: Untagged
@@ -9074,6 +9089,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee31b5be199061149a49facc2ad8db3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2015290988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015290978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ca243779fb5a344d908ab55efabc84c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &2054010281

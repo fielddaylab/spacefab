@@ -16,7 +16,7 @@ namespace SpaceFab.Supply {
                 new SysPermissions()
                     .ReadWriteShared<SupplyHoverState>());
 
-            ecs.Register(&UpdateDetailsDisplay, new SysUpdate(GameLoopPhase.LateUpdate, 15, UpdateMasks.SupplyMask),
+            ecs.Register(&UpdateDetailsDisplay, new SysUpdate(GameLoopPhase.LateUpdate, -9, UpdateMasks.SupplyMask),
                 new SysPermissions()
                     .ReadWriteShared<SupplyHoverState>());
         }

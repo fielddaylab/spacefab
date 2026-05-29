@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: SupplyPack
+  m_EditorClassIdentifier: 
+  m_GlobalAssets:
+  - {fileID: 11400000, guid: 1d8cc0a32047c884ab8b127d05bc7b2b, type: 2}
+  m_NamedAssets:
+  - {fileID: 11400000, guid: b44bf7345978b514eb908fe1166e96e1, type: 2}
+  - {fileID: 11400000, guid: e3d745f56f0e915428308c11616a1871, type: 2}
+  - {fileID: 11400000, guid: f9726f76d85f5614da2d079c17179472, type: 2}
+  - {fileID: 11400000, guid: 773b96efe665e2c4baca08d684f754f0, type: 2}
+  m_LiteAssets: []
