@@ -8,7 +8,8 @@ namespace SpaceFab {
     {
         public TMP_Text Title;
         public TMP_Text Description;
-        public Transform DurationParent, ProfitParent;
+        public Transform DurationParent;
+        public Transform[] ProfitParent;
         public GameObject DurationElement, ProfitElement;
 
         public void ClearElements()
@@ -17,18 +18,33 @@ namespace SpaceFab {
             {
                 Destroy(DurationParent.GetChild(i).gameObject);
             }
-            for (int i = 0; i < ProfitParent.childCount; i++)
+            for (int i = 0; i < ProfitParent[0].childCount; i++)
             {
-                Destroy(ProfitParent.GetChild(i).gameObject);
+                Destroy(ProfitParent[0].GetChild(i).gameObject);
+            }
+            for (int i = 0; i < ProfitParent[1].childCount; i++)
+            {
+                Destroy(ProfitParent[1].GetChild(i).gameObject);
             }
         }
 
-        public void ShowElements(int elements, Transform parent, GameObject elementObject)
+        public void ShowDuration(int duration)
         {
-            for (int i = 0; i < elements; i++)
+            for (int i = 0; i < duration; i++)
             {
-                GameObject element = Instantiate(elementObject);
-                element.transform.SetParent(parent);
+                GameObject element = Instantiate(DurationElement);
+                element.transform.SetParent(DurationParent);
+                element.transform.localScale = Vector3.one;
+            }
+        }
+
+        public void ShowProfit(int profit)
+        {
+            ProfitParent[1].gameObject.SetActive(profit > 5);
+            for (int i = 0; i < profit; i++)
+            {
+                GameObject element = Instantiate(ProfitElement);
+                element.transform.SetParent(ProfitParent[(profit - 1) / 5]);
                 element.transform.localScale = Vector3.one;
             }
         }
@@ -48,8 +64,8 @@ namespace SpaceFab {
                 ui.Title.SetText(def.Title());
                 ui.Description.SetText(def.Description());
                 ui.ClearElements();
-                ui.ShowElements(def.ExpectedDuration(), ui.DurationParent, ui.DurationElement);
-                ui.ShowElements(def.ExpectedProfit(), ui.ProfitParent, ui.ProfitElement);
+                ui.ShowDuration(def.ExpectedDuration());
+                ui.ShowProfit(def.ExpectedProfit());
             }
         }
     }

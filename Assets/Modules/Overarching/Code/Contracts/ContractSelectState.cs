@@ -59,10 +59,5 @@ namespace SpaceFab.Overarching
 
             ScriptUtility.Trigger("OnContractSelectOpen");
         }
-
-        public static void LoadAvailableContractIntoOptionButton(ContractOptionButton optionBtn, ContractDef contract) 
-        {
-            optionBtn.ContractTitle.SetText(contract.Title());
-        }
     }
 }

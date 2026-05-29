@@ -665,7 +665,9 @@ MonoBehaviour:
   Title: {fileID: 5727734272844763831}
   Description: {fileID: 4063165060180105198}
   DurationParent: {fileID: 6242749850209345330}
-  ProfitParent: {fileID: 47738874273217250}
+  ProfitParent:
+  - {fileID: 5045820432239749001}
+  - {fileID: 8736716249664617260}
   DurationElement: {fileID: 8327933370500880120, guid: 988de3803fc8c034d9ad947d986caf62, type: 3}
   ProfitElement: {fileID: 7504701910164358021, guid: ce77a2269d9c6c44f97624a3856580c9, type: 3}
 --- !u!1 &2269621329301562837
