@@ -8,10 +8,23 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace SpaceFab.Supply {
     public sealed class SupplyRouteDrawingSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&HandleQueuedRouteChanges, new SysUpdate(GameLoopPhase.LateUpdate, -100, UpdateMasks.SupplyMask),
+                new SysPermissions()
+                    .ReadWriteShared<SupplyRouteCollection>()
+                    .ReadWriteShared<SupplyRouteDrawingState>()
+                    .ReadShared<SupplyShipIndex>());
+
+            ecs.Register(&HandleQueuedRouteChanges, new SysUpdate(GameLoopPhase.LateUpdate, 15, UpdateMasks.SupplyMask),
+                new SysPermissions()
+                    .ReadWriteShared<SupplyRouteCollection>()
+                    .ReadWriteShared<SupplyRouteDrawingState>()
+                    .ReadShared<SupplyShipIndex>());
+
             ecs.Register(&DetermineRequestedActionSystem, new SysUpdate(GameLoopPhase.LateUpdate, -8, UpdateMasks.SupplyMask),
                 new SysPermissions()
                     .ReadShared<SupplyRouteCollection>()
@@ -24,6 +37,31 @@ namespace SpaceFab.Supply {
                     .ReadShared<SupplyHoverState>()
                     .ReadWriteShared<SupplyRouteDrawingState>()
                     .ReadShared<SupplyShipIndex>());
+
+            ecs.Register(&ExecuteActionIfRequested, new SysUpdate(GameLoopPhase.LateUpdate, 0, UpdateMasks.SupplyMask),
+                new SysPermissions()
+                    .ReadWriteShared<SupplyRouteCollection>()
+                    .ReadShared<SupplyHoverState>()
+                    .ReadWriteShared<SupplyRouteDrawingState>()
+                    .ReadShared<SupplyShipIndex>());
+
+            ecs.Register(&UpdatePreviewRouteLines, new SysUpdate(GameLoopPhase.LateUpdate, 10, UpdateMasks.SupplyMask),
+                new SysPermissions()
+                    .ReadWriteShared<SupplyRouteDrawingState>()
+                    .ReadShared<SupplyHoverState>());
+        }
+
+        static private void HandleQueuedRouteChanges(float dt) {
+            Find.State(out SupplyRouteCollection routes, out SupplyHoverState hover, out SupplyRouteDrawingState draw, out SupplyShipIndex ships);
+
+            if (draw.QueuedRouteIndex != draw.RouteIndex) {
+                if (draw.QueuedRouteIndex < 0) {
+                    draw.QueuedRouteIndex = -1;
+                    SupplyRouteUtility.CloseRouteDrawing(draw, routes, ships);
+                } else {
+                    SupplyRouteUtility.OpenRouteDrawing(draw, routes, ships, draw.QueuedRouteIndex);
+                }
+            }
         }
 
         // Determines the requested action based on what the player is currently hovering over
@@ -32,7 +70,7 @@ namespace SpaceFab.Supply {
 
             draw.PreviewDirty = false;
 
-            if (draw.RouteIndex < 0 || draw.Phase == SupplyRouteDrawPhase.Unselected) {
+            if (draw.RouteIndex < 0) {
                 SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.None, 0);
                 return;
             }
@@ -43,7 +81,7 @@ namespace SpaceFab.Supply {
                 if (hover.Route != null) {
                     int segment = SupplyRouteUtility.TryGetClosestSegment(hover.Route, hover.MousePosition.Value);
                     Assert.True(segment >= 0);
-                    SupplyRouteUtility.SetDrawingHoverAction(draw, segment == 0 ? SupplyRouteDrawAction.DeleteRoute : SupplyRouteDrawAction.RemoveSegment, segment);
+                    SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.RemoveSegment, segment);
                 } else if (hover.Node != null) {
                     if (hover.Node.Type == SupplyRouteNodeType.Home) {
                         if (routeData.NodeCount < 2) {
@@ -51,7 +89,7 @@ namespace SpaceFab.Supply {
                         } else {
                             SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.CompleteRouteHome, 0);
                         }
-                    } else if (routeData.NodeCount > 1) {
+                    } else {
                         if (SupplyRouteUtility.IsNodeInRoute(routeData, hover.Node)) {
                             if (routeData.Nodes[routeData.NodeCount - 1] == hover.Node) {
                                 SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.RemoveLastNode, 0);
@@ -63,7 +101,7 @@ namespace SpaceFab.Supply {
                         }
                     }
                 } else if (hover.MousePosition.HasValue) {
-                    SupplyRouteUtility.SetDrawingHoverAction(draw, routeData.NodeCount > 2 ? SupplyRouteDrawAction.DeleteRoute : SupplyRouteDrawAction.CompleteRouteAuto, 0);
+                    SupplyRouteUtility.SetDrawingHoverAction(draw, routeData.NodeCount > 2 ? SupplyRouteDrawAction.DeleteRouteAuto : SupplyRouteDrawAction.CompleteRouteAuto, 0);
                 } else {
                     SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.None, 0);
                 }
@@ -86,7 +124,7 @@ namespace SpaceFab.Supply {
             routes.TempRouteFragmentConsume = -1;
             routes.TempRouteFragmentCreate = default;
 
-            if (draw.RouteIndex < 0 || draw.Phase == SupplyRouteDrawPhase.Unselected) {
+            if (draw.RouteIndex < 0) {
                 return;
             }
 
@@ -191,6 +229,128 @@ namespace SpaceFab.Supply {
                     previewStats = default;
                     break;
                 }
+            }
+        }
+    
+        // Executes the previewed action
+        static private unsafe void ExecuteActionIfRequested(float dt) {
+            Find.State(out SupplyRouteCollection routes, out SupplyHoverState hover, out SupplyRouteDrawingState draw, out SupplyShipIndex ships);
+
+            if (draw.HoverAction == SupplyRouteDrawAction.None || !draw.InputLayer.IsInputEnabled()) {
+                return;
+            }
+
+            if (!Game.Input.IsMouseDown(FieldDay.HID.MouseButton.Left)) {
+                return;
+            }
+
+            SupplyRouteData previewData = routes.TempRouteBuffer;
+            SupplyRouteStats previewStats = routes.TempRouteStats;
+
+            if ((previewStats.Flags & SupplyRouteResultFlags.ErrorMask) != 0) {
+                Log.Warn("Can't execute the action - warnings!");
+                // TODO: animation
+                return;
+            }
+
+            SupplyRouteData.Copy(previewData, ref routes.Routes[draw.RouteIndex]);
+            routes.RouteStats[draw.RouteIndex] = previewStats;
+
+            routes.UpdatedRouteMask.Set(draw.RouteIndex);
+
+            if (routes.TempRouteFragmentConsume >= 0) {
+                SupplyRouteUtility.RemoveFragmentAtIndex(routes.TempRouteFragmentConsume);
+                routes.TempRouteFragmentConsume = -1;
+            } else if (routes.TempRouteFragmentCreate.NodeCount > 0) {
+                SupplyRouteUtility.AddFragment(routes.TempRouteFragmentCreate);
+                routes.TempRouteFragmentCreate = default;
+            }
+
+            switch(draw.HoverAction) {
+                case SupplyRouteDrawAction.CompleteRouteAuto:
+                case SupplyRouteDrawAction.CompleteRouteHome:
+                case SupplyRouteDrawAction.DeleteRoute:
+                case SupplyRouteDrawAction.DeleteRouteAuto: {
+                    SupplyRouteUtility.QueueRouteDrawingClose();
+                    break;
+                }
+                case SupplyRouteDrawAction.AddNonTerminalNode: {
+                    SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.None, 0);
+                    SupplyRouteUtility.UpdateRouteCollider(draw.RouteCollider, previewData);
+                    break;
+                }
+                default: {
+                    SupplyRouteUtility.UpdateRouteCollider(draw.RouteCollider, previewData);
+                    break;
+                }
+            }
+        }
+    
+        // Updates the preview lines
+        static private unsafe void UpdatePreviewRouteLines(float dt) {
+            Find.State(out SupplyRouteCollection routes, out SupplyHoverState hover, out SupplyRouteDrawingState draw);
+
+            if (draw.RouteIndex < 0 || !hover.MousePosition.HasValue) {
+                draw.CursorLine.enabled = false;
+                draw.PreviewDeleteLine.enabled = false;
+                return;
+            }
+
+            SupplyRouteData routeData = routes.Routes[draw.RouteIndex];
+            SupplyRouteData previewData = routes.TempRouteBuffer;
+            SupplyRouteStats previewStats = routes.TempRouteStats;
+
+            SupplyRouteNode node = hover.Node;
+
+            Vector3* cursorLinePositions = stackalloc Vector3[SupplyRouteData.MaxNodes];
+            int cursorLinePositionCount = 0;
+
+            Vector3* deletePositions = stackalloc Vector3[SupplyRouteData.MaxNodes];
+            int deletePositionCount = 0;
+
+            switch (draw.HoverAction) {
+                case SupplyRouteDrawAction.AddNonTerminalNode:
+                case SupplyRouteDrawAction.CompleteRouteHome: {
+                    cursorLinePositionCount = 1 + previewData.NodeCount - routeData.NodeCount;
+                    for (int i = routeData.NodeCount - 1; i < previewData.NodeCount; i++) {
+                        cursorLinePositions[cursorLinePositionCount] = previewData.Nodes[i].Position;
+                    }
+                    break;
+                }
+                case SupplyRouteDrawAction.CompleteRouteAuto: {
+                    cursorLinePositionCount = 2;
+                    cursorLinePositions[0] = routeData.Nodes[routeData.NodeCount - 1].Position;
+                    cursorLinePositions[1] = hover.MousePosition.Value;
+                    break;
+                }
+                case SupplyRouteDrawAction.RemoveLastNode: {
+                    deletePositionCount = 2;
+                    deletePositions[0] = routeData.Nodes[routeData.NodeCount - 2].Position;
+                    deletePositions[1] = routeData.Nodes[routeData.NodeCount - 1].Position;
+                    break;
+                }
+                case SupplyRouteDrawAction.RemoveSegment: {
+                    deletePositionCount = 2;
+                    deletePositions[0] = routeData.Nodes[draw.HoverActionArg].Position;
+                    deletePositions[1] = routeData.Nodes[draw.HoverActionArg + 1].Position;
+                    break;
+                }
+            }
+
+            if (cursorLinePositionCount > 1) {
+                draw.CursorLine.enabled = true;
+                draw.CursorLine.positionCount = cursorLinePositionCount;
+                draw.CursorLine.SetPositions(Unsafe.NativeArray(cursorLinePositions, cursorLinePositionCount));
+            } else {
+                draw.CursorLine.enabled = false;
+            }
+
+            if (deletePositionCount > 1) {
+                draw.PreviewDeleteLine.enabled = true;
+                draw.PreviewDeleteLine.positionCount = deletePositionCount;
+                draw.PreviewDeleteLine.SetPositions(Unsafe.NativeArray(deletePositions, deletePositionCount));
+            } else {
+                draw.PreviewDeleteLine.enabled = false;
             }
         }
     }

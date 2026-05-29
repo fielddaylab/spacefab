@@ -18,12 +18,14 @@ using UnityEditor;
 
 namespace SpaceFab.Supply
 {
-    public class SupplyChainMap : SharedStateComponent, IBaked, IScenePreload, ISceneLateInitialize
+    public class SupplyChainMap : SharedStateComponent, IBaked, IScenePreload
     {
         public SupplyChainMapData[] Entries;
 
         public Transform NodeRoot;
         public SupplyRouteNode[] Nodes;
+
+        [NonSerialized] public SupplyRouteNode Home;
 
 #if UNITY_EDITOR
 
@@ -35,12 +37,6 @@ namespace SpaceFab.Supply
         }
 
 #endif // UNITY_EDITOR
-
-        void ISceneLateInitialize.LateInitialize() {
-            foreach (var node in Nodes) {
-                node.Position = node.transform.localPosition;
-            }
-        }
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
             for(int i = 0; i < Nodes.Length; i++) {
@@ -173,11 +169,22 @@ namespace SpaceFab.Supply
         }
     }
 
-    public static class SupplyChainMapLookupUtility
+    public static class SupplyChainUtility
     {
-        public static IEnumerator LoadChapterMap(SupplyChainMap lookup, SupplyMinigameState supplyState, SupplyTransitionState transitionState, int chapterIndex)
+        public static IEnumerator LoadChapterMap(SupplyChainMap map, SupplyMinigameState supplyState, SupplyTransitionState transitionState, int chapterIndex)
         {
-            var entry = lookup.Entries[chapterIndex];
+            var entry = map.Entries[chapterIndex];
+
+            Find.State(out SupplyShipIndex shipIndex);
+            shipIndex.ShipCount = entry.ShipIds.Length;
+            for(int i = 0; i < shipIndex.ShipCount; i++) {
+                SupplyShipAsset shipAsset = Find.NamedAsset<SupplyShipAsset>(entry.ShipIds[i]);
+                shipIndex.ShipAssets[i] = shipAsset;
+                shipIndex.ShipStats[i] = new SupplyShipStats() {
+                    Capacity = shipAsset.Capacity,
+                    Speed = shipAsset.Speed
+                };
+            }
 
             foreach(var data in entry.Positions) {
                 SupplyRouteNode node = SupplyRouteUtility.GetNodeForId(data.Name);
@@ -187,9 +194,22 @@ namespace SpaceFab.Supply
 
             // TODO: apply overrides
 
+            foreach (var node in map.Nodes) {
+                node.Position = node.transform.localPosition;
+                if (node.Type == SupplyRouteNodeType.Home && node.gameObject.activeSelf) {
+                    Assert.True(!map.Home, "Cannot have multiple home nodes");
+                    map.Home = node;
+                }
+            }
+
+            Assert.True(map.Home, "No home node available!");
+
             supplyState.CurrSupplyChainMap = entry;
             transitionState.Phase = SupplyTransitionPhase.Completed;
             yield return null;
+
+            // DEBUG
+            SupplyRouteUtility.QueueRouteDrawing(0);
         }
 
         public static IEnumerator UnloadChapterMap(SupplyChainMap lookup, int chapterIndex)

@@ -79,6 +79,10 @@ namespace SpaceFab
         public static readonly StringHash32 DesignGridModified = "design-grid:modified";
         // Wiki
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
+
+        // Supply: Route Drawing
+        public static readonly StringHash32 SupplyRouteDrawingOpen = "supply:route-drawing-open";
+        public static readonly StringHash32 SupplyRouteDrawingClose = "supply:route-drawing-close";
     }
 
     public static class ScriptTriggers

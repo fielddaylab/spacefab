@@ -17,6 +17,9 @@ namespace SpaceFab.Supply {
         [NonSerialized] public int TempRouteFragmentConsume = -1;
         [NonSerialized] public SupplyRouteFragmentData TempRouteFragmentCreate;
 
+        [NonSerialized] public BitSet32 UpdatedRouteMask;
+        [NonSerialized] public bool AreFragmentsDirty;
+
         void IRegistrationCallbacks.OnDeregister() {
         }
 
@@ -89,6 +92,7 @@ namespace SpaceFab.Supply {
 
             routes.Fragments.PushBack(fragmentData);
             routes.FragmentNodesMask = fragmentNodeMask;
+            routes.AreFragmentsDirty = true;
         }
 
         static public unsafe void RemoveFragmentAtIndex(int fragmentIndex) {
@@ -106,6 +110,7 @@ namespace SpaceFab.Supply {
             }
 
             routes.FragmentNodesMask = fragmentNodeMask;
+            routes.AreFragmentsDirty = true;
         }
 
         static public void ClearFragments() {
@@ -113,6 +118,7 @@ namespace SpaceFab.Supply {
 
             routes.Fragments.Clear();
             routes.FragmentNodesMask = default;
+            routes.AreFragmentsDirty = true;
         }
 
         static public bool IsNodeInOtherRoutes(SupplyRouteNode node, int excludeRouteIndex, out int overlapRouteIndex) {
