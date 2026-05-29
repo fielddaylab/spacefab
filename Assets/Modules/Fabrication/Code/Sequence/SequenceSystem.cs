@@ -110,7 +110,7 @@ namespace SpaceFab.Fabrication.Sequence
                 SerializedHash32 actual = new SerializedHash32(actualStation);
                 SerializedHash32 expected = new SerializedHash32(expectedStation);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInvalidActivateStation, EvtArgs.Box((actual.Source(), expected.Source())));
-                Debug.Log($"Activated station {actual} did not match expected station {expected} for step {step.Value.StepId}");
+                Log.Msg($"Activated station {actual} did not match expected station {expected} for step {step.Value.StepId}");
                 SequenceUtility.FlagMisalignment(sequenceState);
                 Log.Msg($"Misalignment! Expected: {expectedStation.ToDebugString()}, got {actualStation.ToDebugString()}");
                 return;
