@@ -1,5 +1,7 @@
 using BeauUtil;
+using FieldDay;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 
 namespace SpaceFab.Research
 {
@@ -48,6 +50,23 @@ namespace SpaceFab.Research
             // session. The contract-accept flow performs the equivalent pre-arming for the case
             // where existing player progress already covers the requirements.
             ResearchStateUtility.RefreshFoundValidSolutionFromActiveContract(researchState, progressState);
+            
+            // Unlock the corresponding material's wiki page on first
+            // confirmation. Material wiki pages are authored with the
+            // same asset name as the MaterialAsset, so the material
+            // id is the page id. UnlockPage short-circuits on
+            // duplicates (HashSet.Add returns false), so this is a
+            // no-op once the page is already unlocked. Wiki unlock
+            // is account-scoped and writes through to
+            // PlayerProgressState immediately, even though the
+            // sandbox property only commits at minigame exit — the
+            // wiki page being visible is part of "this material
+            // exists" knowledge, not the per-property record.
+            progressState = Find.State<PlayerProgressState>();
+            if (progressState != null)
+            {
+                WikiUtility.UnlockPage(progressState, materialId);
+            }
         }
     }
 }
