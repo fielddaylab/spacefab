@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Risk
-  m_Icon: {fileID: 21300000, guid: bb40a2864f691e1459311154698d5329, type: 3}
+  m_Icon: {fileID: 21300000, guid: 61eddd7b62a997940a6712ab55ccc507, type: 3}
   m_Illustration: {fileID: 21300000, guid: bb40a2864f691e1459311154698d5329, type: 3}
   m_Body: 'Risk Level affects the outcome of the route by increasing the time or
     cost of the route. '
