@@ -30,7 +30,8 @@ namespace SpaceFab.Fabrication {
             Find.State(
                 out ModeState modeState,
                 out LayoutState layoutState,
-                out CountdownState countdownState
+                out CountdownState countdownState,
+                out RobotState robotState
                 );
 
             if (modeState.CurrMode != LevelMode.AttemptLeadIn) { return; }
@@ -49,6 +50,9 @@ namespace SpaceFab.Fabrication {
 
                 // generate wafer
                 Log.Msg("[AttemptLeadInSystem] TODO: generating wafer");
+
+                // show visual
+                RobotUtility.UpdateStatus(robotState, RobotStatus.Holding);
 
                 // initiate countdown
                 Log.Msg("[AttemptLeadInSystem] running countdown");

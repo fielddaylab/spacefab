@@ -33,7 +33,7 @@ namespace SpaceFab.Fabrication.Microgames
             switch (state.Phase)
             {
                 case SputterMicrogamePhase.Entering:
-                    canvasState.ShowUI(FabricationConsts.SPUTTER_STATION_ID);
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.SPUTTER_STATION_ID);
                     ProcessBeamAnimation(state, deltaTime);
                     break;
                 case SputterMicrogamePhase.Active:

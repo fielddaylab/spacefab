@@ -33,7 +33,7 @@ namespace SpaceFab.Fabrication.Microgames
             switch (state.Phase)
             {
                 case PhotolithographyMicrogamePhase.Entering:
-                    canvasState.ShowUI(FabricationConsts.PHOTOLITHOGRAPHY_STATION_ID);
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.PHOTOLITHOGRAPHY_STATION_ID);
                     ProcessFalling(state, deltaTime);
                     break;
 
