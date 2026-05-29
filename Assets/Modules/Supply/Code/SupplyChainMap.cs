@@ -179,6 +179,14 @@ namespace SpaceFab.Supply
         {
             var entry = lookup.Entries[chapterIndex];
 
+            foreach(var data in entry.Positions) {
+                SupplyRouteNode node = SupplyRouteUtility.GetNodeForId(data.Name);
+                node.transform.localPosition = data.Position;
+                node.gameObject.SetActive(true);
+            }
+
+            // TODO: apply overrides
+
             supplyState.CurrSupplyChainMap = entry;
             transitionState.Phase = SupplyTransitionPhase.Completed;
             yield return null;

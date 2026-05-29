@@ -7,22 +7,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
-    public sealed class SupplyRouteDrawingState : SharedStateComponent, IRegistrationCallbacks {
+    public sealed class SupplyRouteDrawingState : SharedStateComponent {
         public LineRenderer CursorLine;
         public LineRenderer PreviewDeleteLine;
         public EdgeCollider2D RouteCollider;
 
         [NonSerialized] public SupplyRouteDrawPhase Phase;
         [NonSerialized] public int RouteIndex = -1;
-
-        [NonSerialized] public SupplyRouteData PreviewRouteData;
-
-        void IRegistrationCallbacks.OnDeregister() {
-        }
-
-        void IRegistrationCallbacks.OnRegister() {
-            PreviewRouteData.Create();
-        }
     }
 
     public enum SupplyRouteDrawPhase {
