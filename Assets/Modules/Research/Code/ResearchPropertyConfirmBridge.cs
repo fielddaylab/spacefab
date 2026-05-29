@@ -22,7 +22,7 @@ namespace SpaceFab.Research
         /// empty (the UI should not surface a dynamic property as confirmable
         /// until a context material is set).
         /// </summary>
-        public static void HandleConfirmedProperty(ResearchMinigameState researchState, StringHash32 materialId, MaterialPropertyLabel propertyLabel, StringHash32 contextMaterialId)
+        public static void HandleConfirmedProperty(ResearchMinigameState researchState, PlayerProgressState progressState, StringHash32 materialId, MaterialPropertyLabel propertyLabel, StringHash32 contextMaterialId)
         {
             if (researchState == null)
             {
@@ -34,7 +34,32 @@ namespace SpaceFab.Research
                 return;
             }
 
-            ResearchStateUtility.Confirm(researchState, materialId, propertyLabel, contextMaterialId);
+            bool newlyConfirmed = ResearchStateUtility.Confirm(researchState, materialId, propertyLabel, contextMaterialId);
+
+            // Record the most recent genuinely-new discovery (idempotent re-confirms don't
+            // count) so onboarding can open the wiki to the last sample that yielded new info.
+            if (newlyConfirmed)
+            {
+                researchState.LastDiscovery = new ResearchDiscovery
+                {
+                    MaterialId = materialId,
+                    Property = propertyLabel,
+                    ContextMaterialId = contextMaterialId
+                };
+            }
+
+            // Frame-flag for downstream view refreshes (e.g., the tray
+            // rig labels flipping from sample number to ShortName once
+            // the material becomes "known"). Idempotent confirms still
+            // raise it — the consumers are cheap and the cost is one
+            // pass over a small set per confirmation.
+            researchState.PropertyConfirmedThisFrame = true;
+
+            // Once the sandbox + player progress fully cover the active contract's required
+            // properties, flip FoundValidSolution. Monotonic: never flips back to false within a
+            // session. The contract-accept flow performs the equivalent pre-arming for the case
+            // where existing player progress already covers the requirements.
+            ResearchStateUtility.RefreshFoundValidSolutionFromActiveContract(researchState, progressState);
         }
     }
 }

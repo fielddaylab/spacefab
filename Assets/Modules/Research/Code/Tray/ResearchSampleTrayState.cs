@@ -79,6 +79,18 @@ namespace SpaceFab.Research {
                 ResearchMaterialSource source = sampleObj.GetComponent<ResearchMaterialSource>();
                 if (source != null) {
                     source.Material = material;
+
+                    // Stamp the onboarding ElementTag id so Leaf tutorial calls can address
+                    // this sample by its long material name ("research:sample-copper", ...).
+                    // DisplayName is lowercased to match the "module:kebab-case-name" id format
+                    // used elsewhere in the project.
+                    if (source.Tag != null) {
+                        StringHash32 tagId = string.IsNullOrEmpty(material.name)
+                            ? default
+                            : new StringHash32("research:sample-" + material.name.ToLowerInvariant());
+                        source.Tag.SetId(tagId);
+                    }
+
                     trayState.SpawnedSamples.Add(source);
                 } else {
                     Debug.LogWarningFormat(sampleObj, "[ResearchSampleTrayUtility] Spawned prefab is missing ResearchMaterialSource; tray gem will not be clickable.");
@@ -89,7 +101,7 @@ namespace SpaceFab.Research {
                 // click-to-lift, just invisible.
                 ResearchMaterialVisualRig rig = sampleObj.GetComponent<ResearchMaterialVisualRig>();
                 if (rig != null) {
-                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material);
+                    ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material, researchState);
                 }
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each

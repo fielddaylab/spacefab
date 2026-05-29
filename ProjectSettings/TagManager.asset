@@ -27,7 +27,7 @@ TagManager:
   - 
   - ResearchSlot
   - ResearchGem
-  - 
+  - TutorialFocus
   - 
   - InterruptUI
   - 
@@ -74,7 +74,7 @@ TagManager:
   - name: Research_Blank1
     uniqueID: 937666309
     locked: 0
-  - name: Research_Blank2
+  - name: Research_Chamber
     uniqueID: 2161029431
     locked: 0
   - name: Research_Blank3

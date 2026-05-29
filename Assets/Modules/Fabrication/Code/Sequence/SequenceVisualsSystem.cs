@@ -18,7 +18,7 @@ namespace SpaceFab.Fabrication.Sequence
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.LateUpdate, 0, UpdateMasks.AttemptMask),
+                new SysUpdate(GameLoopPhase.LateUpdate, 0, UpdateMasks.AttemptLeadInMask | UpdateMasks.AttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<SequenceVisualsState>()
                     .ReadShared<SequenceState>()

@@ -1,3 +1,4 @@
+using FieldDay;
 using FieldDay.Components;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
@@ -14,7 +15,7 @@ namespace SpaceFab.Research
     /// per-frame "voltage changed" flag set by VoltageUtility and consumed
     /// by BatteryChamberSystem.
     /// </summary>
-    public class BatteryChamberState : SharedStateComponent
+    public class BatteryChamberState : SharedStateComponent, IRegistrationCallbacks
     {
         // Which slot kind on ChamberInterfacerState this Battery reads.
         // Battery is single-slot; defaults to Primary.
@@ -22,6 +23,20 @@ namespace SpaceFab.Research
 
         public CircuitRenderer Circuit;
         public VoltageControl VoltageControl;
+
+        // Scene-wired empty Transform under which the meter-rig prefab
+        // (SmallBatteryMeter / BigBatteryMeter) is instantiated by
+        // ResearchTransitionSystem at minigame setup.
+        public Transform BatteryContainer;
+
+        public GameObject SampleHolder;
+
+        // Runtime ref to the instantiated meter rig's ChamberBattery.
+        // Assigned by ResearchTransitionSystem after Instantiate; null
+        // until then. VoltageUtility reads VoltageLevelSlots.Length off
+        // this to cap voltage magnitude, and writes per-slot sprites
+        // when refreshing visual state.
+        [NonSerialized] public ChamberBattery Battery;
 
         // Observation chips the player can add while this chamber is active.
         // Read by the chip-picker UI (Tier 4).
@@ -40,5 +55,38 @@ namespace SpaceFab.Research
         // Set by VoltageUtility on a button press; consumed and cleared by
         // BatteryChamberSystem.
         [NonSerialized] public bool VoltageChangedThisFrame;
+
+        public void OnRegister()
+        {
+            // Hide the sample holder until the player drops a material into
+            // the primary slot. BatteryChamberSystem.UpdateBattery toggles
+            // it on the slot-change frame.
+            if (SampleHolder != null)
+            {
+                SampleHolder.SetActive(false);
+            }
+        }
+
+        public void OnDeregister()
+        {
+        }
+    }
+
+    /// <summary>
+    /// Logic paired with BatteryChamberState.
+    /// </summary>
+    public static class BatteryChamberUtility
+    {
+        // Resets the Battery chamber to its default state. For the Battery this means snapping
+        // the voltage dial back to the configured initial voltage; slot contents and other
+        // chamber state are owned elsewhere and intentionally left untouched.
+        public static void ResetState(BatteryChamberState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+            VoltageUtility.Reset(state.VoltageControl, Find.GlobalAsset<ResearchVoltageConfig>());
+        }
     }
 }

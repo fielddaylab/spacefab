@@ -2,8 +2,10 @@ using BeauUtil;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Components;
+using FieldDay.UI;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Overarching
@@ -12,20 +14,49 @@ namespace SpaceFab.Overarching
     {
         public int ZoneIndex = -1;
         public PointerListener PointerListener;
+
+        // The hover CursorHint on the zone's interact collider (sibling of PointerListener).
+        // Disabled by the select system on locked zones so the cursor doesn't change over them.
+        public CursorHint Cursor;
+
         public SceneReference MinigameScene;
+
+        // Identifies which minigame this zone represents. Drives the per-zone alert mask lookup
+        // in OverarchingAlertState and the FoundValidSolution auto-rule.
+        public MinigameId Minigame;
 
         public bool ClickedThisFrame;
         public bool PointerEnterThisFrame;
         public bool PointerExitThisFrame;
 
         [Header("Visuals")]
+        // Overlay sprites are no longer authored here — they're looked up per-minigame from
+        // MinigameZoneOverlayDB by (Minigame, focus). This renderer is the surface they draw on.
         public SpriteRenderer HighlightRenderer;
+        public TMP_Text StationLabel;
+
+        // Sprite behind the station label. Tinted to the zone's color while focused, else the
+        // shared default (MinigameZoneOverlayDB.LabelBackgroundColor). Lives under LabelGroup.
+        public SpriteRenderer StationLabelBackground;
+        // Small dot attached to the label, always tinted to the zone's color. Lives under LabelGroup.
+        public SpriteRenderer StationLabelDot;
+
+        // Parent of the label text + background + dot. Toggled active/inactive to show or hide the
+        // whole label (RefreshZoneVisuals); the renderers within it stay enabled.
+        public GameObject LabelGroup;
+
+        // Worldspace child transform where OverarchingAlertSystem parents pooled AlertIconView
+        // instances. Icons are positioned at fixed horizontal offsets per stack index.
+        public Transform AlertIconContainer;
 
         public void OnRegister()
         {
             PointerListener.onClick.AddListener(HandleClick);
             PointerListener.onPointerEnter.AddListener(HandlePointerEnter);
             PointerListener.onPointerExit.AddListener(HandlePointerExit);
+
+            HighlightRenderer.enabled = false;
+            if (LabelGroup != null) { LabelGroup.SetActive(false); }
         }
 
         public void OnDeregister()

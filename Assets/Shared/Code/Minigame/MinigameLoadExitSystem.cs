@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design;
 using SpaceFab.Save;
@@ -44,9 +45,17 @@ namespace SpaceFab {
                     break;
                 case MinigameLoadExitPhase.Loaded:
                     Debug.Log("[MinigameLoadExitSystem] Imported!");
+                    // Entering a minigame counts as starting it — record it so the overarching
+                    // alert auto-rule shows Incomplete (not NotStarted) on the next visit. Persisted
+                    // by the save on exit below.
+                    MinigameSaveUtility.MarkStarted(saveStates, interfacer.Id);
                     // Suspend everything, then resume only the incoming minigame's own update mask
                     GameLoop.SuspendUpdates(Bits.All32);
                     GameLoop.ResumeUpdates(interfacer.MinigameState.DefaultUpdateMask);
+                    using (var table = TempVarTable.Alloc()) {
+                        table.Set("minigame", interfacer.Id.ToString().ToLower());
+                        ScriptUtility.Trigger(ScriptTriggers.OnMinigameLoad, table);
+                    }
                     loadExitState.Phase = MinigameLoadExitPhase.None;
                     break;
                 case MinigameLoadExitPhase.Exiting:

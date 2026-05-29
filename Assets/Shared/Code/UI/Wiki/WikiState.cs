@@ -2,6 +2,7 @@ using System.Collections;
 using BeauRoutine;
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using UnityEngine;
@@ -47,6 +48,15 @@ namespace SpaceFab.UI {
         // Expand/collapse routine handle. Owned here so WikiUtility can Replace() it without
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
+
+        [HideInInspector] public bool NeedsRebuild;
+
+        // Set for one frame whenever the active page (tab/page index)
+        // just changed, or the wiki just expanded onto a page. Drives
+        // one-shot view loads (WikiCharacteristicsLoadUtility) so they
+        // rebuild only when the page actually changes. Cleared by
+        // WikiRefreshSystem at end-of-frame.
+        [HideInInspector] public bool ActivePageChangedThisFrame;
 
         public void OnRegister() {
             Expanded = false;
@@ -103,6 +113,34 @@ namespace SpaceFab.UI {
 
         #endregion // External API
 
+        #region Material Page Lookup
+
+        // Finds the authored material page bound to materialId, returning the tab + page ids that
+        // OpenTo needs. Material pages can live under any tab, so every tab's page list is scanned.
+        // Returns false (and leaves the out params default) when no page references this material —
+        // callers should no-op rather than open an arbitrary page.
+        public static bool TryFindMaterialPage(WikiContent content, StringHash32 materialId, out StringHash32 tabId, out StringHash32 pageId) {
+            tabId = default;
+            pageId = default;
+            if (content == null || content.Tabs == null || materialId.IsEmpty) { return false; }
+
+            for (int t = 0; t < content.Tabs.Length; t++) {
+                WikiTabData tab = content.Tabs[t];
+                if (tab == null || tab.Pages == null) { continue; }
+                for (int p = 0; p < tab.Pages.Length; p++) {
+                    WikiPageData page = tab.Pages[p];
+                    if (page != null && page.IsMaterialPage && page.MaterialId == materialId) {
+                        tabId = tab.AssetId;
+                        pageId = page.AssetId;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        #endregion // Material Page Lookup
+
         #region Tab + Page Commands
 
         // Switch to a specific tab by index. Clamps to valid range. Resets ActivePageIndex to
@@ -117,6 +155,8 @@ namespace SpaceFab.UI {
             wikiState.ActiveTabIndex = tabIndex;
             wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
             wikiState.PageWindowStartIndex = 0;
+            wikiState.NeedsRebuild = true;
+            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // ID-based variant — resolves tabId → index via WikiContent.Tabs. Drops the request
@@ -150,6 +190,9 @@ namespace SpaceFab.UI {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
             }
+
+            wikiState.NeedsRebuild = true;
+            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // ID-based variant. Drops the request if the ID doesn't match a page in the active tab.
@@ -163,6 +206,7 @@ namespace SpaceFab.UI {
                     if (IsPageUnlocked(progressState, pageId)) {
                         wikiState.ActivePageIndex = i;
                         EnsureWindowContains(wikiState, content, tab, progressState);
+                        wikiState.ActivePageChangedThisFrame = true;
                     }
                     return;
                 }
@@ -190,6 +234,11 @@ namespace SpaceFab.UI {
             wikiState.Expanded = false;
             yield return null;
             wikiState.Transitioning = false;
+
+            // The panel has finished collapsing — let onboarding / scripts react to the wiki
+            // being dismissed. Firing after the transition completes means an interrupted
+            // collapse (reopened mid-transition) won't raise a spurious closed trigger.
+            ScriptUtility.Trigger(ScriptTriggers.OnWikiClosed);
         }
 
         #endregion // Transition Routines
@@ -198,8 +247,11 @@ namespace SpaceFab.UI {
 
         // True iff pageId appears in PlayerProgressState.UnlockedWikiPages.
         public static bool IsPageUnlocked(PlayerProgressState progressState, StringHash32 pageId) {
+            return true; // set by default for now
+
             if (progressState.UnlockedWikiPages == null) { return false; }
             return progressState.UnlockedWikiPages.Contains(pageId);
+
         }
 
         // True iff at least one page in the given tab is unlocked.
@@ -263,6 +315,7 @@ namespace SpaceFab.UI {
             if (resolved >= 0) {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
+                wikiState.ActivePageChangedThisFrame = true;
             }
         }
 
@@ -358,17 +411,16 @@ namespace SpaceFab.UI {
 
         // True iff the paginator window can still scroll one slot further left. Used by
         // WikiVisualsUpdateSystem to grey out the `<` arrow button at the leftmost state.
-        public static bool CanScrollPageWindowLeft(WikiState wikiState) {
-            return wikiState.PageWindowStartIndex > 0;
+        public static bool CanScrollPageWindowLeft(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
+            WikiTabData tab = ActiveTab(wikiState, content);
+            return tab != null && UnlockedCount(tab, progressState) > 1;
         }
 
         // True iff the paginator window can still scroll one slot further right. Used by
         // WikiVisualsUpdateSystem to grey out the `>` arrow button at the rightmost state.
         public static bool CanScrollPageWindowRight(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             WikiTabData tab = ActiveTab(wikiState, content);
-            if (tab == null) { return false; }
-            int unlockedCount = UnlockedCount(tab, progressState);
-            return wikiState.PageWindowStartIndex + content.PageWindowSize < unlockedCount;
+            return tab != null && UnlockedCount(tab, progressState) > 1;
         }
 
         // Translates a raw page index into its unlocked-list position (or -1 if the page is
@@ -430,12 +482,14 @@ namespace SpaceFab.UI {
 
         private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
             bool available = false;
+            //bool available = true;
             if (content != null && content.Tabs != null
                 && button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length) {
                 available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
             }
 
-            button.Available = available;
+            //button.Available = available;
+            button.Available = true;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
         }
@@ -464,6 +518,7 @@ namespace SpaceFab.UI {
                 }
             }
 
+            available = true; // set by default for now
             button.Available = available;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }

@@ -16,6 +16,7 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadWrite<WikiButton>()
+                    .ReadWriteShared<WikiState>()
             );
         }
 
@@ -25,6 +26,15 @@ namespace SpaceFab.UI {
                 buttons[i].ClickedThisFrame = false;
                 buttons[i].PointerEnterThisFrame = false;
                 buttons[i].PointerExitThisFrame = false;
+            }
+
+            // State-level one-frame flag. Consumed by
+            // WikiCharacteristicsRefreshSystem (PreUpdate 5) on the
+            // frame it's raised; cleared here at Update 0 so the
+            // signal is one-shot.
+            WikiState wikiState = Find.State<WikiState>();
+            if (wikiState != null) {
+                wikiState.ActivePageChangedThisFrame = false;
             }
         }
     }

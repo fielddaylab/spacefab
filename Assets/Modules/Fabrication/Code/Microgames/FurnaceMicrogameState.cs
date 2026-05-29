@@ -83,6 +83,7 @@ namespace SpaceFab.Fabrication.Microgames
             Vector3 targetRotation = new Vector3(0, 0, targetZRotation);
             state.TargetRangeAnchor.rotation = Quaternion.Euler(targetRotation);
             state.TargetArrowAnchor.rotation = Quaternion.Euler(targetRotation);
+            state.MeterArrowAnchor.rotation = Quaternion.identity;
 
             // reset value
             state.CurrentValue = 0;
@@ -101,17 +102,22 @@ namespace SpaceFab.Fabrication.Microgames
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
+        // Also hides the microgame UI here (rather than at ExitComplete) so the step-completion
+        // recap doesn't play over the still-visible furnace panel.
+        // On cancel, nothing is recorded and UI hide is deferred to ExitComplete (existing flow).
         public static void ExitBegin(bool completedNormally)
         {
-            Find.State(out FurnaceMicrogameState state);
-            
+            Find.State(out FurnaceMicrogameState state, out MicrogameCanvasState canvasState);
+
             // freeze heat simulation
             state.Phase = FurnaceMicrogamePhase.Exiting;
-            
+
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
+
+            state.FurnaceUI.SetActive(false);
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -134,8 +140,22 @@ namespace SpaceFab.Fabrication.Microgames
             state.FurnaceUI.SetActive(false);
             state.MeterArrowAnchor.rotation = Quaternion.identity;
             state.Phase = FurnaceMicrogamePhase.Idle;
-            canvasState.FaderGroup.alpha = 0f;
-            canvasState.FaderGroup.blocksRaycasts = false;
+
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means FinalHeat overshot the target
+        // (too hot), > 1 means it undershot (too cold). Mirrors ComputePrecision's error term.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out FurnaceMicrogameState state);
+            return 1f - ((state.FinalHeat - state.TargetRange) / state.MaxRange);
         }
 
         // Furnace-specific precision math: difference between final heat value and the target
@@ -144,7 +164,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out FurnaceMicrogameState state);
 
-            float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.TargetHalfWidth);
+            float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.MaxRange);
             precision = Mathf.Clamp(precision, 0f, 1f);   
 
             return precision;

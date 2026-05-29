@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.Systems;
+using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -48,24 +49,25 @@ namespace SpaceFab.UI {
             var buttons = Find.Components<WikiButton>();
 
             for (int i = 0; i < buttons.Count; i++) {
-                if (!buttons[i].Available) { continue; }
+                // if (!buttons[i].Available) { continue; }
                 if (buttons[i].PointerExitThisFrame) {
                     // TODO: hover-exit visual hint. Scaffold no-op.
                 }
             }
 
             for (int i = 0; i < buttons.Count; i++) {
-                if (!buttons[i].Available) { continue; }
+                // if (!buttons[i].Available) { continue; }
                 if (buttons[i].PointerEnterThisFrame) {
                     // TODO: hover-enter visual hint. Scaffold no-op.
                 }
             }
 
             for (int i = 0; i < buttons.Count; i++) {
-                if (!buttons[i].Available) { continue; }
+                // if (!buttons[i].Available) { continue; } // todo: Investigate why this is false
                 if (!buttons[i].ClickedThisFrame) { continue; }
 
                 DispatchClick(wikiState, content, progressState, buttons[i]);
+                wikiState.NeedsRebuild = true;
             }
         }
 
@@ -77,6 +79,10 @@ namespace SpaceFab.UI {
                 wikiState.OpenRequestedThisFrame = false;
                 if (!wikiState.Expanded && !wikiState.Transitioning) {
                     wikiState.TransitionRoutine.Replace(WikiUtility.ExpandRoutine(wikiState));
+                    // Treat opening as a page-change so one-shot view
+                    // loads (e.g., material-characteristics chip list)
+                    // rebuild against fresh state on open.
+                    wikiState.ActivePageChangedThisFrame = true;
                 }
             }
 

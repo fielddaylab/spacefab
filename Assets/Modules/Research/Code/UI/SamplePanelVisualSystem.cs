@@ -1,0 +1,167 @@
+using BeauUtil;
+using FieldDay;
+using FieldDay.Systems;
+using SpaceFab;
+using SpaceFab.Materials;
+
+namespace SpaceFab.Research {
+    /// <summary>
+    /// Renders every active ResearchSamplePanel against the current
+    /// hypothesis viewmodel + the slotted material. LateUpdate order 500,
+    /// paired with HypothesisPanelVisualSystem. The panel's slot chips
+    /// read from the hypothesis viewmodel (single source of truth — both
+    /// panels share the active page's leaves); the SAMPLE header is
+    /// derived live from the slotted material's ResearchMaterialView; the
+    /// picker pulls from BatteryChamberState.AvailableObservations.
+    /// </summary>
+    public class SamplePanelVisualSystem : SystemComponent {
+        public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
+            ecs.Register(&ProcessWork,
+                new SysUpdate(GameLoopPhase.LateUpdate, 500, UpdateMasks.ResearchMask),
+                new SysPermissions()
+                    .ReadShared<ChamberInterfacerState>()
+                    .ReadShared<ResearchHypothesisPagesState>()
+                    .ReadShared<HypothesisViewModelState>()
+                    .ReadShared<BatteryChamberState>()
+                    .ReadShared<ResearchMinigameState>()
+                    .ReadWrite<ResearchSamplePanel>()
+            );
+        }
+
+        private static void ProcessWork(float deltaTime) {
+            Find.State(
+                out ChamberInterfacerState interfacerState,
+                out ResearchHypothesisPagesState pagesState,
+                out HypothesisViewModelState hypoVm,
+                out BatteryChamberState battery
+            );
+            ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
+
+            foreach (var panel in Find.Components<ResearchSamplePanel>()) {
+                SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, battery, researchState);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Pushes derived sample state into a ResearchSamplePanel's visuals.
+    /// Reads the slotted material directly off ChamberInterfacerState +
+    /// the per-material ResearchMaterialView (for SampleNumber). No
+    /// intermediate viewmodel; the cheap lookup beats a one-frame-stale
+    /// copy. Battery scope: the picker pulls from BatteryChamberState —
+    /// extend via a switch on ChamberInterfacerState.ActiveChamber when
+    /// other chambers come online.
+    /// </summary>
+    public static class SamplePanelVisualUtility {
+        public static void Apply(
+            ResearchSamplePanel panel,
+            ChamberInterfacerState interfacerState,
+            ResearchHypothesisPagesState pagesState,
+            HypothesisViewModelState hypoVm,
+            BatteryChamberState battery,
+            ResearchMinigameState researchState
+        ) {
+            if (panel == null || interfacerState == null || pagesState == null || hypoVm == null) {
+                return;
+            }
+
+            ResearchSlot primarySlot = interfacerState.PrimarySlot;
+            MaterialAsset slottedMaterial = primarySlot != null ? primarySlot.CurrentMaterial : null;
+
+            // Submit button mirrors the hypothesis viewmodel's
+            // SubmitButtonVisible flag (true only when the slotted
+            // material satisfies every leaf on the active page).
+            // Driven explicitly here so it works in both the empty-state
+            // and filled-state paths regardless of where the button
+            // sits in the panel hierarchy.
+            if (panel.SubmitButton != null) {
+                panel.SubmitButton.gameObject.SetActive(hypoVm.SubmitButtonVisible);
+            }
+
+            // 1. Empty-state path: no material slotted.
+            if (slottedMaterial == null) {
+                if (panel.EmptyState != null) {
+                    panel.EmptyState.SetActive(true);
+                }
+                if (panel.MainContent != null) {
+                    panel.MainContent.SetActive(false);
+                }
+                // Explicitly hide the slot chips even if MainContent's
+                // hierarchy doesn't parent them — otherwise stale
+                // filled chips from the previously-slotted material
+                // remain visible after the sample is pulled.
+                if (panel.SlotChips != null) {
+                    for (int i = 0; i < panel.SlotChips.Length; i++) {
+                        if (panel.SlotChips[i] != null) {
+                            panel.SlotChips[i].gameObject.SetActive(false);
+                        }
+                    }
+                }
+                SamplePanelInputUtility.ClosePicker(panel);
+                return;
+            }
+
+            if (panel.EmptyState != null) {
+                panel.EmptyState.SetActive(false);
+            }
+            if (panel.MainContent != null) {
+                panel.MainContent.SetActive(true);
+            }
+
+            // 2. Sample header — derived from the slotted material's view.
+            if (panel.SampleHeader != null) {
+                // Known materials (any property confirmed in the sandbox)
+                // show their ShortName; unknown materials show their
+                // sample number prefixed with "SAMPLE ".
+                bool known = researchState != null
+                    && researchState.SandboxProperties.TryGetValue(slottedMaterial.AssetId, out var record)
+                    && !MaterialPropertyRecordUtility.IsEmpty(record);
+                if (known) {
+                    panel.SampleHeader.text = slottedMaterial.ShortName;
+                } else {
+                    ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(slottedMaterial.AssetId);
+                    int sampleNumber = view != null ? view.SampleNumber : 0;
+                    panel.SampleHeader.text = "SAMPLE " + sampleNumber.ToString();
+                }
+            }
+
+            // 3. Slot chips render the viewmodel's slot view (auto-
+            // locked entries first, then player picks in insertion
+            // order). Capacity = ActivePageObservationCount (= leaf
+            // count). Filled slots [0..SlotCount) show the picked
+            // label + that label's per-type sprite; remaining slots
+            // up to capacity render dashed-empty.
+            int slotCapacity = hypoVm.ActivePageObservationCount;
+            int slotCount = hypoVm.ActivePageSlotCount;
+
+            if (panel.SlotChips != null) {
+                for (int i = 0; i < panel.SlotChips.Length; i++) {
+                    if (i >= slotCapacity) {
+                        panel.SlotChips[i].gameObject.SetActive(false);
+                        continue;
+                    }
+                    panel.SlotChips[i].gameObject.SetActive(true);
+                    bool filled = i < slotCount;
+                    bool locked = filled && (hypoVm.ActivePageSlotLockedMask & (1u << i)) != 0;
+                    string label = null;
+                    ObservationType type = default;
+                    if (filled) {
+                        MaterialPropertyLabel slotLabel = hypoVm.ActivePageSlotLabels[i];
+                        label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
+                        type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
+                    }
+                    panel.SlotChips[i].SetState(label, filled, locked, type, useEmptyDashedSprite: true);
+                }
+            }
+
+            // 4. Picker overlay. Population + layout + resize happen
+            // once on chamber load (ObservationPickerLoadUtility);
+            // disabled-state refresh happens in
+            // ObservationPickerRefreshSystem when the viewmodel changes.
+            // Here we only mirror the transient PickerOpen flag.
+            if (panel.ChipPickerOverlay != null) {
+                panel.ChipPickerOverlay.SetActive(panel.PickerOpen);
+            }
+        }
+    }
+}

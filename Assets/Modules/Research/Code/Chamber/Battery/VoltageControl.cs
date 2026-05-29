@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Components;
+using FieldDay.Scripting;
 using System;
 using UnityEngine;
 
@@ -11,13 +12,17 @@ namespace SpaceFab.Research
     /// Holds the current index + voltage; mutation goes through VoltageUtility,
     /// and a button press flips OwningChamber.VoltageChangedThisFrame so the
     /// Battery system recomputes on the next tick.
+    ///
+    /// The visible meter is on OwningChamber.Battery (a ChamberBattery on
+    /// a small / big meter-rig prefab instantiated by ResearchTransitionSystem).
+    /// VoltageUtility.RefreshVisualState writes the per-slot filled / empty
+    /// sprites; the slot array length caps the dial's magnitude per polarity.
     /// </summary>
     public class VoltageControl : BatchedComponent, IRegistrationCallbacks
     {
         public ResearchSpriteButton IncreaseButton;
         public ResearchSpriteButton DecreaseButton;
         public ResearchSpriteButton FlipButton;
-        public SpriteRenderer VoltageIcon;
         public Transform BatteryFlip;
 
         public BatteryChamberState OwningChamber;
@@ -76,45 +81,73 @@ namespace SpaceFab.Research
 
     /// <summary>
     /// Mutates VoltageControl in response to player input. Each mutator
-    /// updates VoltageIndex + CurrentVoltage, refreshes the icon and flip
-    /// transform, and signals OwningChamber.VoltageChangedThisFrame so the
-    /// Battery system recomputes on its next ProcessWork.
+    /// updates VoltageIndex + CurrentVoltage, refreshes the meter rig and
+    /// flip transform, and signals OwningChamber.VoltageChangedThisFrame so
+    /// the Battery system recomputes on its next ProcessWork.
+    ///
+    /// Magnitude is bounded per polarity by the active meter rig
+    /// (OwningChamber.Battery.VoltageLevelSlots.Length), not by
+    /// config.Voltages.Length. config.Voltages must be authored long enough
+    /// to cover CenterIndex ± maxMagnitude for the largest battery prefab.
     /// </summary>
     public static class VoltageUtility
     {
-        // Bumps the voltage index up by one. No-op at the high end or when
-        // the control is locked.
+        // Reads the active meter rig's slot count off the owning chamber.
+        // Treats a missing rig as magnitude 0 so mutators no-op safely
+        // before ResearchTransitionSystem has wired the prefab.
+        private static int GetMaxMagnitude(VoltageControl control)
+        {
+            if (control == null || control.OwningChamber == null) return 0;
+            ChamberBattery battery = control.OwningChamber.Battery;
+            if (battery == null || battery.VoltageLevelSlots == null) return 0;
+            return battery.VoltageLevelSlots.Length;
+        }
+
+        // Bumps the voltage index up by one. No-op at the upper magnitude
+        // bound or when the control is locked.
         public static void Increase(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null || !control.CanAdjust) return;
-            if (control.VoltageIndex >= config.Voltages.Length - 1) return;
+            int maxIndex = config.CenterIndex + GetMaxMagnitude(control);
+            if (control.VoltageIndex >= maxIndex) return;
             control.VoltageIndex++;
             ApplyChange(control, config);
+
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnVoltageIncreased);
         }
 
-        // Bumps the voltage index down by one. No-op at the low end or when
-        // the control is locked.
+        // Bumps the voltage index down by one. No-op at the lower magnitude
+        // bound or when the control is locked.
         public static void Decrease(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null || !control.CanAdjust) return;
-            if (control.VoltageIndex <= 0) return;
+            int minIndex = config.CenterIndex;
+            if (control.VoltageIndex <= minIndex) return;
             control.VoltageIndex--;
             ApplyChange(control, config);
+
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnVoltageDecreased);
         }
 
         // Mirrors the index across CenterIndex so positive flips negative
-        // and vice versa. Center stays put.
+        // and vice versa. Center stays put. The mirror preserves magnitude,
+        // so if the current index was within bounds, the mirror is too;
+        // the explicit range check is defensive against bad authoring.
         public static void Flip(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null || !control.CanAdjust) return;
             int mirror = config.CenterIndex + (config.CenterIndex - control.VoltageIndex);
-            if (mirror < 0 || mirror >= config.Voltages.Length) return;
+            int maxMag = GetMaxMagnitude(control);
+            if (mirror < config.CenterIndex - maxMag || mirror > config.CenterIndex + maxMag) return;
             control.VoltageIndex = mirror;
             ApplyChange(control, config);
         }
 
         // Snaps back to the configured default index. Used when the control
-        // is locked while not at default.
+        // is locked while not at default. Authoring constraint: DefaultIndex
+        // should equal CenterIndex (magnitude 0) so it sits within every
+        // battery prefab's range — the small variant only supports
+        // magnitude 2 around CenterIndex.
         public static void Reset(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null) return;
@@ -152,13 +185,30 @@ namespace SpaceFab.Research
         public static void RefreshVisualState(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null) return;
-            if (control.VoltageIndex < 0 || control.VoltageIndex >= config.Voltages.Length) return;
 
-            control.CurrentVoltage = config.Voltages[control.VoltageIndex];
-
-            if (control.VoltageIcon != null && control.VoltageIndex < config.VoltageIcons.Length)
+            // CurrentVoltage is independent of the meter; guard the
+            // Voltages[] read on its own so an in-range index still
+            // updates CurrentVoltage even when no meter rig exists yet.
+            if (control.VoltageIndex >= 0 && config.Voltages != null && control.VoltageIndex < config.Voltages.Length)
             {
-                control.VoltageIcon.sprite = config.VoltageIcons[control.VoltageIndex];
+                control.CurrentVoltage = config.Voltages[control.VoltageIndex];
+            }
+
+            // Meter fill: filled for slots [0..magnitude-1], empty for the
+            // rest. Magnitude is the index's distance from CenterIndex —
+            // polarity is indicated by BatteryFlip's rotation below, not
+            // by which side of the meter lights up.
+            ChamberBattery battery = control.OwningChamber != null ? control.OwningChamber.Battery : null;
+            if (battery != null && battery.VoltageLevelSlots != null
+                && config.VoltageSlotFilled != null && config.VoltageSlotEmpty != null)
+            {
+                int magnitude = Mathf.Abs(control.VoltageIndex - config.CenterIndex);
+                for (int i = 0; i < battery.VoltageLevelSlots.Length; i++)
+                {
+                    SpriteRenderer slot = battery.VoltageLevelSlots[i];
+                    if (slot == null) continue;
+                    slot.sprite = i < magnitude ? config.VoltageSlotFilled : config.VoltageSlotEmpty;
+                }
             }
 
             if (control.BatteryFlip != null)
@@ -170,14 +220,15 @@ namespace SpaceFab.Research
             RefreshButtonVisibility(control, config);
         }
 
-        // Hides increase/decrease at the array bounds and hides everything
-        // when the control is locked.
+        // Hides increase/decrease at the magnitude bounds and hides
+        // everything when the control is locked.
         private static void RefreshButtonVisibility(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null) return;
 
-            bool atLow = control.VoltageIndex <= 0;
-            bool atHigh = control.VoltageIndex >= config.Voltages.Length - 1;
+            int maxMag = GetMaxMagnitude(control);
+            bool atLow = control.VoltageIndex <= config.CenterIndex;
+            bool atHigh = control.VoltageIndex >= config.CenterIndex + maxMag;
             bool show = control.CanAdjust;
 
             if (control.IncreaseButton != null)

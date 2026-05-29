@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +8,14 @@ using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
 {
+    public enum SputterMicrogamePhase
+    {
+        Entering,
+        Idle,
+        Active,
+        Exiting
+    }
+
     /// <summary>
     /// Holds in-flight data for the Sputter ("Spraypaint") microgame: the sputter head's position,
     /// the fill state of the etched target area, and lifecycle flags consumed by SputterMicrogameSystem.
@@ -16,9 +25,16 @@ namespace SpaceFab.Fabrication.Microgames
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // SputterMicrogameSystem reads this to gate its ProcessWork.
         [HideInInspector] public bool IsActive;
+        [HideInInspector] public bool InputAccepted;
+        public GameObject SputterUI;
+        public SputterMicrogamePhase Phase;
 
-        // TODO: head position, head velocity / input delta.
-        // TODO: fill grid (filledCells / targetCells) for precision math.
+        public LineRenderer IncidentBeam;
+        public LineRenderer[] ReflectedBeam;
+        public Transform SputterSprites;
+        public SpriteRenderer PatternRenderer;
+
+        public float MaxSputterDistance = 1.75f;
     }
 
     /// <summary>
@@ -36,20 +52,27 @@ namespace SpaceFab.Fabrication.Microgames
         public static void EnterBegin()
         {
             Find.State(out SputterMicrogameState state);
+
+            state.Phase = SputterMicrogamePhase.Entering;
             state.IsActive = true;
-            // TODO: play intro; spawn sputter head above wafer.
+            state.InputAccepted = false;
+            state.SputterUI.SetActive(true);
         }
 
         public static void EnterComplete()
         {
-            // TODO: start accepting directional + activate input; enable sputter painting.
+            Find.State(out SputterMicrogameState state);
+
+            state.Phase = SputterMicrogamePhase.Active;
+            state.InputAccepted = true;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
         // On cancel, nothing is recorded.
         public static void ExitBegin(bool completedNormally)
         {
-            // TODO: freeze head.
+            Find.State(out SputterMicrogameState state);
+            state.Phase = SputterMicrogamePhase.Exiting;
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
@@ -65,17 +88,36 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out SputterMicrogameState state);
+            Find.State(out SputterMicrogameState state, out MicrogameCanvasState canvasState);
+
             state.IsActive = false;
+            state.Phase = SputterMicrogamePhase.Idle;
+            state.SputterUI.SetActive(false);
+
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
             // TODO: tear down sputter UI; return to idle.
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Sputter error is unsigned (fill percent), so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
         }
 
         // Spraypaint-specific precision math: percent of the etched target area that got filled
         // by the sputter head. Scaffold returns 0.
         private static float ComputePrecision()
         {
-            // TODO: precision = filledCells / targetCells, clamped to [0,1].
-            return 0f;
+            Find.State(out SputterMicrogameState state);
+
+            float precision = 1 - (state.MaxSputterDistance - state.SputterSprites.localPosition.x) / state.MaxSputterDistance;
+            return Mathf.Clamp01(precision);
         }
     }
 }

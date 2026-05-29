@@ -1,5 +1,8 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.Layout;
+using SpaceFab.Fabrication.StationControl;
+using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,10 +27,56 @@ namespace SpaceFab.Fabrication.Microgames
         // Early-returns when the microgame is not active. Active body is TODO until mechanics are authored.
         static private void ProcessWork(float deltaTime)
         {
-            Find.State(out IonMicrogameState state);
+            Find.State(
+                out IonMicrogameState state, 
+                out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
+            );
             if (!state.IsActive) { return; }
 
-            // TODO: drive the Ion Implanter mechanics once defined.
+            Vector2 mousePosition = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
+            state.DropperAnchor.position = mousePosition;
+
+            switch (state.Phase)
+            {
+                case IonMicrogamePhase.Idle:
+                    break;
+                case IonMicrogamePhase.Entering:
+                    state.IonPattern.PerformRendering();
+                    break;
+                case IonMicrogamePhase.Filling:
+                    ProcessFilling(state);
+                    state.IonPattern.PerformRendering();
+                    break;
+                case IonMicrogamePhase.Exiting:
+                    break;
+                default:
+                    break;
+            }
+
+            if (state.Phase == IonMicrogamePhase.Filling) {
+                
+                // TODO: drive the Ion Implanter mechanics once defined.
+                if (state.InputAccepted) state.IonPattern.ProcessWork();
+                if (state.IonPattern.CompletelyFilled)
+                {
+                    Find.State(out StationControlState stationState);
+                    MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
+                }
+            }
+        }
+
+        private static void ProcessFilling(IonMicrogameState state)
+        {
+            Vector2 mousePosition = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
+                state.DropperAnchor.position = mousePosition;
+
+                // TODO: drive the Ion Implanter mechanics once defined.
+                if (state.InputAccepted) state.IonPattern.ProcessWork();
+                if (state.IonPattern.CompletelyFilled)
+                {
+                    Find.State(out StationControlState stationState);
+                    MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
+                }
         }
     }
 }

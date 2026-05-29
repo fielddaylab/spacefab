@@ -1,5 +1,8 @@
 using FieldDay;
 using FieldDay.Systems;
+using SpaceFab.Fabrication.Layout;
+using SpaceFab.Fabrication.StationControl;
+using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,10 +27,80 @@ namespace SpaceFab.Fabrication.Microgames
         // Early-returns when the microgame is not active. Active body is TODO until mechanics are authored.
         static private void ProcessWork(float deltaTime)
         {
-            Find.State(out EtchMicrogameState state);
+            Find.State(out EtchMicrogameState state, out MicrogameCanvasState canvasState);
             if (!state.IsActive) { return; }
 
-            // TODO: read directional input; advance beam over pattern; tally correct/incorrect cells; detect wafer-exit.
+            switch (state.Phase)
+            {
+                case EtchMicrogamePhase.Entering:
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.ETCH_STATION_ID);
+                    ProcessEntering(state, deltaTime);
+                    break;
+
+                case EtchMicrogamePhase.Active:
+                    ProcessActive(state, deltaTime);
+                    break;
+            }
+        }
+
+        static private void ProcessEntering(EtchMicrogameState state, float deltaTime)
+        {
+            if (state.PreviewPoints.Count == 0)
+                return;
+
+            float beamSpeed = 20f;
+            state.PreviewProgress += deltaTime * beamSpeed;
+
+            int visibleCount = Mathf.Clamp(Mathf.FloorToInt(state.PreviewProgress),
+                0, state.PreviewPoints.Count);
+            
+            if (visibleCount != state.PreviewVisibleCount)
+            {
+                state.PreviewVisibleCount = visibleCount;
+                state.PreviewBeam.positionCount = visibleCount;
+
+                for (int i = 0; i < visibleCount; i++)
+                {
+                    state.PreviewBeam.SetPosition(i, state.PreviewPoints[i]);
+                }
+            }
+
+            if (state.PreviewVisibleCount >= state.PreviewPoints.Count)
+            {
+                state.Phase = EtchMicrogamePhase.Active;
+            }
+        }
+
+        static private void ProcessActive(EtchMicrogameState state, float deltaTime)
+        {
+            if (!state.InputAccepted)
+                return;
+
+            if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1))
+                state.Direction = Vector2.up;
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1))
+                state.Direction = Vector2.down;
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Left0) || Game.Input.IsKeyPressed(FabricationConsts.Left1))
+                state.Direction = Vector2.left;
+            else if (Game.Input.IsKeyPressed(FabricationConsts.Right0) || Game.Input.IsKeyPressed(FabricationConsts.Right1))
+                state.Direction = Vector2.right;
+
+            float beamSpeed = 2f;
+            Vector2 current = state.PlayerPoints[state.PlayerPoints.Count - 1];
+            Vector2 next = current + (Vector2)(state.Direction * beamSpeed * deltaTime);
+
+            float waferRadius = 2.8f;
+
+            if (next.sqrMagnitude > waferRadius * waferRadius)
+            {
+                Find.State(out StationControlState stationState);
+                MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
+                return;
+            }
+
+            state.PlayerPoints.Add(next);
+            state.PlayerBeam.positionCount = state.PlayerPoints.Count;
+            state.PlayerBeam.SetPosition(state.PlayerPoints.Count - 1, next);
         }
     }
 }

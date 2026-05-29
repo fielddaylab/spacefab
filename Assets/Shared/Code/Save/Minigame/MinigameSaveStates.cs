@@ -4,6 +4,7 @@ using FieldDay.Data;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
 using SpaceFab;
+using SpaceFab.Overarching;
 using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,6 +33,10 @@ namespace SpaceFab.Save
 
         public void OnRegister()
         {
+            Design = new DesignSaveState();
+            Fabrication = new FabricationSaveState();
+            Research = new ResearchSaveState();
+            Supply = new SupplySaveState();
             MinigameSaveUtility.ClearMinigameState(this);
 
             SpacefabGame.SaveBuffer.RegisterHandler("DesignSaveState", Design);
@@ -47,17 +52,47 @@ namespace SpaceFab.Save
     {
         public static void ClearMinigameState(MinigameSaveStates saveStates)
         {
-            saveStates.Design = new DesignSaveState();
             saveStates.Design.SetDefaults();
-
-            saveStates.Fabrication = new FabricationSaveState();
             saveStates.Fabrication.SetDefaults();
-
-            saveStates.Research = new ResearchSaveState();
             saveStates.Research.SetDefaults();
-
-            saveStates.Supply = new SupplySaveState();
             saveStates.Supply.SetDefaults();
+        }
+
+        // Resolves a MinigameId to its save-state slot, or null for an id without one
+        // (e.g. MinigameId.COUNT). Canonical mapping — used by the overarching alert auto-rule too.
+        public static MinigameSaveStateBase GetState(MinigameSaveStates saveStates, MinigameId mg)
+        {
+            if (saveStates == null) { return null; }
+            switch (mg)
+            {
+                case MinigameId.Design:      return saveStates.Design;
+                case MinigameId.Research:    return saveStates.Research;
+                case MinigameId.Fabrication: return saveStates.Fabrication;
+                case MinigameId.Supply:      return saveStates.Supply;
+                default:                     return null;
+            }
+        }
+
+        // Marks the given minigame as started so the overarching alert auto-rule can tell a
+        // started-but-unsolved minigame (Incomplete) from one never begun (NotStarted). The flag
+        // is persisted on the next save.
+        public static void MarkStarted(MinigameSaveStates saveStates, MinigameId mg)
+        {
+            MinigameSaveStateBase save = GetState(saveStates, mg);
+            if (save != null) { save.Started = true; }
+        }
+
+        // True only when every minigame has FoundValidSolution. Used to gate the submit-chapter
+        // button. Returns false defensively if the save states aren't available yet.
+        public static bool AllSolved(MinigameSaveStates saveStates)
+        {
+            if (saveStates == null) { return false; }
+            for (int i = 0; i < (int)MinigameId.COUNT; i++)
+            {
+                MinigameSaveStateBase save = GetState(saveStates, (MinigameId)i);
+                if (save == null || !save.FoundValidSolution) { return false; }
+            }
+            return true;
         }
     }
 }

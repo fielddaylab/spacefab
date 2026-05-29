@@ -3,11 +3,28 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using SpaceFab.Save;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Research
 {
+    /// <summary>
+    /// A single research discovery: one property newly confirmed about a material during the
+    /// current session. Held by ResearchMinigameState.LastDiscovery to answer "which sample most
+    /// recently had new information found about it" (e.g. the wiki auto-open onboarding step).
+    /// </summary>
+    public struct ResearchDiscovery
+    {
+        public StringHash32 MaterialId;
+        public MaterialPropertyLabel Property;
+        // The X material for dynamic labels (PDopantFor / NDopantFor); empty for static labels.
+        public StringHash32 ContextMaterialId;
+
+        // True once a real discovery has been recorded — a material id is never empty.
+        public bool IsValid { get { return !MaterialId.IsEmpty; } }
+    }
+
     public class ResearchMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
     {
         #region Saved State
@@ -39,6 +56,20 @@ namespace SpaceFab.Research
         // the observation is being made about (the dynamic context material,
         // when relevant, lives inside each observation entry).
         [HideInInspector] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
+
+        // Set for one frame after ResearchPropertyConfirmBridge writes a
+        // newly-confirmed property into SandboxProperties. Drives the
+        // tray-rig label refresh so a material whose first property was
+        // just confirmed flips from sample-number to ShortName the same
+        // frame. Cleared by ResearchMinigameStateRefreshSystem at end
+        // of frame.
+        [NonSerialized] public bool PropertyConfirmedThisFrame;
+
+        // The most recent genuinely-new property confirmation this session — idempotent
+        // re-confirms don't update it. Invalid (default) until the first new confirmation;
+        // reset on minigame entry by ResearchStateUtility.LoadFromPlayerProgress. Read by
+        // ResearchScripting.Leaf_OpenWikiToLastDiscovery to open that material's wiki page.
+        [NonSerialized] public ResearchDiscovery LastDiscovery;
 
         #endregion // Runtime State
 
@@ -76,12 +107,14 @@ namespace SpaceFab.Research
         // supported feature today; this exists only to satisfy IMinigameState.
         public static void ImportState(ResearchSaveState saveState, ResearchMinigameState researchState)
         {
+            researchState.FoundValidSolution = saveState.FoundValidSolution;
         }
 
         // Mid-session save-chunk export hook. Mid-session resume is not a
         // supported feature today; this exists only to satisfy IMinigameState.
         public static void ExportState(ref ResearchSaveState saveState, ResearchMinigameState researchState)
         {
+            saveState.FoundValidSolution = researchState.FoundValidSolution;
         }
 
         #region Sandbox helpers
@@ -104,14 +137,18 @@ namespace SpaceFab.Research
         // PlayerProgressState. Idempotent (OR-mask semantics). Observation-only
         // labels are silently ignored. SandboxDirty is updated only when the
         // record actually changes, so the dirty set reflects genuine deltas.
-        public static void Confirm(ResearchMinigameState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
+        // Returns true iff this call added genuinely-new knowledge (false for an
+        // idempotent re-confirm or an ignored observation-only label).
+        public static bool Confirm(ResearchMinigameState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
         {
             state.SandboxProperties.TryGetValue(materialId, out var record);
             if (MaterialPropertyRecordUtility.TrySet(ref record, label, contextMaterialId))
             {
                 state.SandboxProperties[materialId] = record;
                 state.SandboxDirty.Add(materialId);
+                return true;
             }
+            return false;
         }
 
         // Empties the sandbox. Called after a successful CommitToPlayerProgress
@@ -140,6 +177,7 @@ namespace SpaceFab.Research
         {
             ClearSandbox(researchState);
             ResearchInventoryUtility.ClearAllObservations(researchState);
+            researchState.LastDiscovery = default;
 
             foreach (var materialId in researchState.AvailableMaterials)
             {
@@ -177,6 +215,29 @@ namespace SpaceFab.Research
             }
 
             ClearSandbox(researchState);
+        }
+
+        // Recomputes FoundValidSolution against the current sandbox + player progress + active
+        // contract. Idempotent and monotonic: once the flag is true, this is a no-op (knowledge
+        // can't disappear within a session, so the flag never flips back false). Called from
+        // ResearchPropertyConfirmBridge.HandleConfirmedProperty after each sandbox confirmation.
+        // The contract-accept flow performs the equivalent check directly on the save state via
+        // ContractProgressUtility.IsContractSatisfied(progress, contract).
+        public static void RefreshFoundValidSolutionFromActiveContract(ResearchMinigameState researchState, PlayerProgressState playerProgress)
+        {
+            if (researchState.FoundValidSolution)
+            {
+                return;
+            }
+            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+            if (wrapper == null || wrapper.ContractDef == null)
+            {
+                return;
+            }
+            if (ContractProgressUtility.IsContractSatisfied(playerProgress, researchState, wrapper.ContractDef))
+            {
+                researchState.MarkFoundValidSolution();
+            }
         }
 
         #endregion // PlayerProgress bridge

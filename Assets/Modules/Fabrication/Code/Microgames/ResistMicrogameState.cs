@@ -100,15 +100,20 @@ namespace SpaceFab.Fabrication.Microgames
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
-        // On cancel, nothing is recorded.
+        // Also hides the microgame UI here (rather than at ExitComplete) so the step-completion
+        // recap doesn't play over the still-visible resist (spin-coat) panel.
+        // On cancel, nothing is recorded and UI hide is deferred to ExitComplete (existing flow).
         public static void ExitBegin(bool completedNormally)
         {
-            Find.State(out ResistMicrogameState state);
+            Find.State(out ResistMicrogameState state, out MicrogameCanvasState canvasState);
             state.Phase = ResistMicrogamePhase.Exiting;
-            
+
             if (!completedNormally) { return; }
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
+
+            state.ResistUI.SetActive(false);
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -131,8 +136,22 @@ namespace SpaceFab.Fabrication.Microgames
             state.ResistUI.SetActive(false);
             state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
-            canvasState.FaderGroup.alpha = 0f;
-            canvasState.FaderGroup.blocksRaycasts = false;
+
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means the drop landed right of center,
+        // > 1 means left of center. Mirrors ComputePrecision's error term.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out ResistMicrogameState state);
+            return 1f - ((state.DropX - state.CenterX) / state.MaxOffset);
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.

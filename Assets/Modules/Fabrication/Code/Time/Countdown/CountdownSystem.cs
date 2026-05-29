@@ -25,6 +25,21 @@ namespace SpaceFab.Fabrication {
                 // begin countdown
                 CountdownUtility.BeginCountdown(countdownState);
             }
+
+            if (countdownState.IsCountingDown)
+            {
+                countdownState.AccruedTime += deltaTime;
+
+                int roundedTime = Mathf.FloorToInt(countdownState.AccruedTime);
+                if (roundedTime < 3)
+                {
+                    countdownState.CountDownText.text = (3 - roundedTime).ToString();
+                }
+                else
+                {
+                    countdownState.CountDownText.text = "GO!";
+                }
+            }
         }
     }
 }

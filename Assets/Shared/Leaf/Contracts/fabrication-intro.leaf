@@ -1,0 +1,41 @@
+# basePath FabricationIntro
+
+::FirstMovement
+{@PAL}  Press the Left Arrow on your keyboard (or click the button on screen) to move the wafer to the FURNACE station.
+
+
+::FirstWaferGeneration
+{@PAL}  Press Space on your keyboard (or click the button on screen) to generate a new wafer.
+
+
+::ActivateFurnace
+{@PAL}  Great. Now press the Space Bar to add the wafer to the FURANCE to apply an Oxide Layer.
+
+
+::StunFurnace
+{@PAL}  That's the wrong station. Find the FURNACE station.
+
+
+// TODO: stun handling for non-furnace steps
+::StunNonFurnace
+
+
+::GateFurnace
+@trigger    OnFabMicrogameCompleted
+@when       microgame == "station:furnace"
+$call       RequireMicrogamePrecision(0.9)
+
+
+::FirstStationCompleted
+{@PAL}  Your speed and accuracy are important!
+wait 4
+{@PAL}  Move to the next station. The panel shows the next station is SPIN COAT.
+
+
+::ArriveAtSpinCoat
+// TODO: ensure after completed first step
+{@PAL}  Press Space to apply the photo resist in the SPIN COAT station.
+
+
+::PoorAlignment
+// show Poor Alignment panel and reset microgame

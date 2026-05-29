@@ -45,6 +45,14 @@ namespace SpaceFab.Design.Visuals
         public Sprite FlowHiBelow;
         public Sprite FlowLoBelow;
         public Sprite FlowUnstableBelow;
+
+        [Header("Input Toggle Overlay")]
+        public Sprite InputToggleBackground;
+        public Sprite InputToggleArrow;
+        public Color InputToggleLoColor = Color.white;
+        public Color InputToggleLoTextColor = Color.white;
+        public Color InputToggleHiColor = Color.white;
+        public Color InputToggleHiTextColor = Color.white;
     }
 
     public static class GridSpriteDBUtility
@@ -81,6 +89,25 @@ namespace SpaceFab.Design.Visuals
                 default:
                     return null;
             }
+        }
+
+        // Tint colour applied to the input-toggle overlay's tinted renderers based on the
+        // current Lo/Hi state. Falls back to white for non-binary states so a misconfigured
+        // entry stays visible.
+        public static Color LookupInputToggleColor(GridSpriteDB spriteDB, FlowState state)
+        {
+            if (spriteDB == null) { return Color.white; }
+            if (state == FlowState.Hi) { return spriteDB.InputToggleHiColor; }
+            if (state == FlowState.Lo) { return spriteDB.InputToggleLoColor; }
+            return Color.white;
+        }
+
+        public static Color LookupInputToggleTextColor(GridSpriteDB spriteDB, FlowState state)
+        {
+            if (spriteDB == null) { return Color.white; }
+            if (state == FlowState.Hi) { return spriteDB.InputToggleHiTextColor; }
+            if (state == FlowState.Lo) { return spriteDB.InputToggleLoTextColor; }
+            return Color.white;
         }
     }
 }

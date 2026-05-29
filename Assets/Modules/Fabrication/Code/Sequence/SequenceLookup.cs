@@ -19,12 +19,13 @@ namespace SpaceFab.Fabrication.Sequence
 
     /// <summary>
     /// The full finite set of sequence steps. Each value maps 1:1 to a station (resolved via
-    /// SequenceLookup.GetStationForStep) and to a foreground card sprite/text.
+    /// SequenceLookup.GetStationForStep) and to a composed card visual (ConvertFrom / ConvertToA /
+    /// optional ConvertToB layered overlay, station icon, station + instruction labels).
     /// </summary>
     public enum SequenceStepID
     {
         AddStencil_Oxide,
-        AddStencil_Sputter,
+        AddStencil_Sputter, // DEPRECATED?
         ApplyResist,
         DrawPattern,
         EtchPattern,
@@ -34,8 +35,8 @@ namespace SpaceFab.Fabrication.Sequence
 
     /// <summary>
     /// Card-display data for a single sequence step. Looked up from SequenceLookup by step id at
-    /// runtime to render the step's foreground (station-specific) visuals and text, and to resolve
-    /// the step's target station id.
+    /// runtime. The card's wafer images compose from a separate WaferStepUILookup: one
+    /// ConvertFrom id, one required ConvertToA id, and an optional ConvertToB overlay id.
     /// </summary>
     [Serializable]
     public struct SequenceStepEntry
@@ -47,11 +48,27 @@ namespace SpaceFab.Fabrication.Sequence
         // be set from the inspector; matches MicrogameStationInterfacer.Id at runtime.
         public SerializedHash32 StationId;
 
-        // Foreground image shown on the step's hint card.
-        public Sprite StepSprite;
+        // "Convert from" wafer image — what the wafer looks like at the start of this step.
+        // Resolved against WaferStepUILookup at runtime; rendered on SequenceCard.WaferState1.
+        [WaferStepUIRef] public SerializedHash32 ConvertFrom;
 
-        // Foreground text shown on the step's hint card.
-        public string StepText;
+        // "Convert to" wafer image (base) — what the wafer looks like after this step. Required.
+        // Resolved against WaferStepUILookup; rendered on SequenceCard.WaferState2Base.
+        [WaferStepUIRef] public SerializedHash32 ConvertToA;
+
+        // Optional second "convert to" image layered on top of ConvertToA (e.g., an oxide layer
+        // on top of the base wafer). Resolved against WaferStepUILookup; left empty when no overlay
+        // is needed — in that case SequenceCard.WaferState2Overlay is disabled at populate time.
+        [WaferStepUIRef] public SerializedHash32 ConvertToB;
+
+        // Sprite shown on SequenceCard.StationIcon for this step.
+        public Sprite StationIconSprite;
+
+        // Label shown on SequenceCard.StationLabelText (e.g., the station's display name).
+        public string StationLabel;
+
+        // Short imperative shown on SequenceCard.InstructionLabelText (e.g., "Apply resist").
+        public string InstructionLabel;
     }
 
     /// <summary>
@@ -68,9 +85,9 @@ namespace SpaceFab.Fabrication.Sequence
 
     /// <summary>
     /// Global asset holding all card-display lookups for the Fabrication sequence feature:
-    /// per-step foreground (sprite + text + station mapping), per-chunk background (sprite + text),
-    /// and the shared glitch overlay applied when a step's card is glitched.
-    /// Accessed via Find.GlobalAsset&lt;SequenceLookup&gt;().
+    /// per-step foreground (composed wafer images, station icon + labels, station mapping),
+    /// per-chunk background (sprite + text), and the shared glitch overlay applied when a step's
+    /// card is glitched. Accessed via Find.GlobalAsset&lt;SequenceLookup&gt;().
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Fabrication/Sequence Lookup")]
     public class SequenceLookup : GlobalAsset
@@ -90,34 +107,44 @@ namespace SpaceFab.Fabrication.Sequence
         public Sprite GlitchOverlaySprite => m_GlitchOverlaySprite;
         public string GlitchOverlayText => m_GlitchOverlayText;
 
-        // Returns the step entry for the given step id, or the default entry if not found.
-        // TODO: real lookup path. Scaffold returns default.
+        // Returns the step entry for the given step id, or the default (zeroed) entry if missing.
         public SequenceStepEntry GetStep(SequenceStepID stepId)
         {
-            // TODO: EnsureCaches(); m_StepsByIdCache.TryGetValue(stepId, out var entry); return entry.
-            return default;
+            EnsureCaches();
+            m_StepsByIdCache.TryGetValue(stepId, out SequenceStepEntry entry);
+            return entry;
         }
 
         // Returns the station id for the given step. Convenience over GetStep(stepId).StationId.
-        // TODO: scaffold returns default.
         public SerializedHash32 GetStationForStep(SequenceStepID stepId)
         {
-            // TODO: return GetStep(stepId).StationId.
-            return default;
+            return GetStep(stepId).StationId;
         }
 
-        // Returns the chunk entry for the given chunk, or the default entry if not found.
-        // TODO: scaffold returns default.
+        // Returns the chunk entry for the given chunk, or the default entry if missing.
         public SequenceChunkEntry GetChunk(SequenceChunk chunk)
         {
-            // TODO: EnsureCaches(); m_ChunksByKeyCache.TryGetValue(chunk, out var entry); return entry.
-            return default;
+            EnsureCaches();
+            m_ChunksByKeyCache.TryGetValue(chunk, out SequenceChunkEntry entry);
+            return entry;
         }
 
-        // Builds the two caches on first use. Called at the top of each lookup method.
+        // Builds the per-step and per-chunk dictionaries on first lookup. Idempotent.
         private void EnsureCaches()
         {
-            // TODO: if caches exist, return. Otherwise populate from m_Steps / m_Chunks.
+            if (m_StepsByIdCache != null && m_ChunksByKeyCache != null) {
+                return;
+            }
+            int stepCount = m_Steps != null ? m_Steps.Length : 0;
+            m_StepsByIdCache = new Dictionary<SequenceStepID, SequenceStepEntry>(stepCount);
+            for (int i = 0; i < stepCount; i++) {
+                m_StepsByIdCache[m_Steps[i].StepId] = m_Steps[i];
+            }
+            int chunkCount = m_Chunks != null ? m_Chunks.Length : 0;
+            m_ChunksByKeyCache = new Dictionary<SequenceChunk, SequenceChunkEntry>(chunkCount);
+            for (int i = 0; i < chunkCount; i++) {
+                m_ChunksByKeyCache[m_Chunks[i].Chunk] = m_Chunks[i];
+            }
         }
     }
 }

@@ -39,8 +39,7 @@ namespace SpaceFab.Fabrication.Microgames
                 case FurnaceMicrogamePhase.Idle:
                     break;
                 case FurnaceMicrogamePhase.Entering:
-                    canvasState.FaderGroup.alpha = 1f;
-                    canvasState.FaderGroup.blocksRaycasts = true;
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.FURNACE_STATION_ID);
                     break;
                 case FurnaceMicrogamePhase.Burning:
                     ProcessingBurning(microgameState, deltaTime);
@@ -58,12 +57,10 @@ namespace SpaceFab.Fabrication.Microgames
         #region Helpers
 
         // increments current value for duration player holds activation key, then sets final heat to value on release
-        static bool keyDown = false;
         private static void ProcessingBurning(FurnaceMicrogameState state, float deltaTime)
         {
             if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate)) {
                 state.CurrentValue += state.Sensitivity * deltaTime;
-                keyDown = true;
             }
             if (state.InputAccepted && Game.Input.IsKeyUp(FabricationConsts.Activate))
             {
