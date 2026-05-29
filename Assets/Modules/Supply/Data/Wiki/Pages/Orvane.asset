@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Orvane
   m_EditorClassIdentifier: 
+  m_isPlanet: 1
   m_Title: Orvane
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: c3471649122738246beb2154f88e3232, type: 3}
   m_Illustration: {fileID: 0}
   m_Body: A rocky industrial planet near Korbus, shaped by quarry fields, freight
     yards, and heavy factories. It has been a reliable stop for materials used across

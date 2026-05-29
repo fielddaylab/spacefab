@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Material Characteristics_Tab
   m_EditorClassIdentifier: 
   m_Title: Material Characteristics
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: bd76aa634fc1f22418cd64dd6345e704, type: 3}
   m_Pages:
   - {fileID: 11400000, guid: 530ceeab3e4549f42a9d561631e723cb, type: 2}
   - {fileID: 11400000, guid: 46fdb465fe3ecdf44b2c9a5a5e34e010, type: 2}

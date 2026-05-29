@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Implanter
   m_EditorClassIdentifier: 
+  m_isPlanet: 0
   m_Title: Implanter
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_Illustration: {fileID: 21300000, guid: 761385517424d89409078ed3a54cb1b3, type: 3}
   m_Body: The Ion Implanter shoots tiny charged particles into the chip to change
     how selected areas behave.
   m_MaterialId:

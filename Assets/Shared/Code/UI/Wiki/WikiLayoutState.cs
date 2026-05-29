@@ -99,5 +99,6 @@ namespace SpaceFab.UI {
             group.blocksRaycasts = visible;
             group.interactable = visible;
         }
+
     }
 }

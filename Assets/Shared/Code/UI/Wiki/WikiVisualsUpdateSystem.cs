@@ -145,6 +145,7 @@ namespace SpaceFab.UI {
             {
                 var widgets = layoutState.PageContentWidgets;
                 bool materialPage = activePage.IsMaterialPage;
+                bool isPlanet = activePage.isPlanet;
 
                 // Title always renders.
                 if (widgets.TitleText != null) {
@@ -158,6 +159,7 @@ namespace SpaceFab.UI {
                 if (!materialPage && widgets.BodyText != null) {
                     widgets.BodyText.text = activePage.Body ?? " ";
                 }
+                widgets.PlanetDetailsContainer.SetActive(isPlanet);
 
                 // Characteristics group visible only on material pages.
                 // Chip allocation is owned by

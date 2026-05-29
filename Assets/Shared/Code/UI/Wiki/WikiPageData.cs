@@ -19,6 +19,7 @@ namespace SpaceFab.UI {
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Wiki/Page")]
     public class WikiPageData : NamedAsset {
+        [SerializeField] private bool m_isPlanet;
         [SerializeField] private string m_Title;
         // Small sprite rendered on the page's paginator thumbnail (one slot in the horizontal
         // scroll strip). Distinct from the large Illustration shown in the page body.
@@ -34,6 +35,7 @@ namespace SpaceFab.UI {
         [AssetName(typeof(MaterialAsset))]
         [SerializeField] private StringHash32 m_MaterialId;
 
+        public bool isPlanet { get { return m_isPlanet; } }
         public string Title { get { return m_Title; } }
         public Sprite Icon { get { return m_Icon; } }
         public Sprite Illustration { get { return m_Illustration; } }

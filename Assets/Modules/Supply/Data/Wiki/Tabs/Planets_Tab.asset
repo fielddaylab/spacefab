@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Planets_Tab
   m_EditorClassIdentifier: 
   m_Title: Planets
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: de92b1cbbee52f34dac4961e9253c9da, type: 3}
   m_Pages:
   - {fileID: 11400000, guid: e3d745f56f0e915428308c11616a1871, type: 2}
   - {fileID: 11400000, guid: 6951b42cc48232348a5b1dd1e6757b75, type: 2}

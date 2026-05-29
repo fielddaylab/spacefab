@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Korbus
   m_EditorClassIdentifier: 
+  m_isPlanet: 1
   m_Title: Korbus
-  m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: eb21ea1cf4bcd7a448b8fe5f1fd6d575, type: 3}
+  m_Illustration: {fileID: 21300000, guid: 3fde5c4160fb9584eac0b546d0ee13d1, type: 3}
   m_Body: Central hub of the trade alliance. (copper planet)
   m_MaterialId:
     m_HashValue: 0
