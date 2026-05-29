@@ -111,6 +111,7 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (!completedNormally) { return; }
 
+            state.SpreadingGraphic.transform.localScale = Vector3.zero;
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.ResistUI.SetActive(false);
@@ -135,7 +136,6 @@ namespace SpaceFab.Fabrication.Microgames
             
             // tear down dropper UI; return to idle.
             state.ResistUI.SetActive(false);
-            state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
 
             MicrogameCanvasUtility.HideStationInstructions(canvasState);
