@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab {
     public class ContractUI : MonoBehaviour
@@ -11,6 +12,8 @@ namespace SpaceFab {
         public Transform DurationParent;
         public Transform[] ProfitParent;
         public GameObject DurationElement, ProfitElement;
+        public GameObject ApprovedStamp;
+        public Image SignatureImage;
 
         public void ClearElements()
         {
@@ -44,7 +47,7 @@ namespace SpaceFab {
             for (int i = 0; i < profit; i++)
             {
                 GameObject element = Instantiate(ProfitElement);
-                element.transform.SetParent(ProfitParent[(profit - 1) / 5]);
+                element.transform.SetParent(ProfitParent[(i - 1) / 5]);
                 element.transform.localScale = Vector3.one;
             }
         }
