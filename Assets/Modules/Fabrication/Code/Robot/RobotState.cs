@@ -19,12 +19,12 @@ namespace SpaceFab.Fabrication.Robot
     public class RobotState : SharedStateComponent, IRegistrationCallbacks
     {
         [HideInInspector] public bool IsStunned = false;
-        public RobotStatus status = RobotStatus.Idle;
+        public RobotStatus Status = RobotStatus.Idle;
 
         public void OnRegister()
         {
             Find.State(out RobotVisualsState visualsState);
-            RobotVisualsUtility.UpdateVisuals(visualsState, status);
+            RobotVisualsUtility.UpdateVisuals(visualsState, Status);
         }
 
         public void OnDeregister()
@@ -48,7 +48,7 @@ namespace SpaceFab.Fabrication.Robot
                 // handle stacked stun if desired
                 return;
             }
-
+            robotState.Status = RobotStatus.Stunned;
             robotState.IsStunned = true;
             RobotVisualsUtility.ApplyStunVisuals(visualsState);
         }
@@ -62,6 +62,7 @@ namespace SpaceFab.Fabrication.Robot
                 return;
             }
 
+            robotState.Status = RobotStatus.Holding;
             robotState.IsStunned = false;
             RobotVisualsUtility.RemoveStunVisuals(visualsState);
         }
