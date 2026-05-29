@@ -10,11 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
-  m_Name: Thermal Chamber
+  m_Name: Build
   m_EditorClassIdentifier: 
-  m_Title: Thermal Chamber
+  m_Title: 
   m_Icon: {fileID: 0}
   m_Illustration: {fileID: 0}
-  m_Body: The Thermal Chamber is used to observe materials at different temperatures.
+  m_Body: "Build a Route: Select a ship, visit planets, then return to the station.
+    Ships can visit multiple planets until cargo capacity is full.\n Routes affect
+    risk, time and cost. Planets affect risk and cost. Ships affect time and cost."
   m_MaterialId:
     m_HashValue: 0

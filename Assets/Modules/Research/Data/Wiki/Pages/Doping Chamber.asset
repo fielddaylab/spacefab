@@ -15,4 +15,7 @@ MonoBehaviour:
   m_Title: Doping Chamber
   m_Icon: {fileID: 0}
   m_Illustration: {fileID: 0}
-  m_Body: 
+  m_Body: The Doping Chamber adds impurities to a Semiconductor, changing it into
+    N-Type or P-Type material.
+  m_MaterialId:
+    m_HashValue: 0

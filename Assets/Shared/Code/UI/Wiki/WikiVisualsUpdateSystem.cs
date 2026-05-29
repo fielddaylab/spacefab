@@ -132,6 +132,7 @@ namespace SpaceFab.UI {
             if (content.Tabs != null && wikiState.ActiveTabIndex >= 0 && wikiState.ActiveTabIndex < content.Tabs.Length)
             {
                 activeTab = content.Tabs[wikiState.ActiveTabIndex];
+                layoutState.Header.text = activeTab.Title;
             }
 
             WikiPageData activePage = null;

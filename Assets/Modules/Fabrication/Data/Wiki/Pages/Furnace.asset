@@ -15,4 +15,7 @@ MonoBehaviour:
   m_Title: Furnace
   m_Icon: {fileID: 0}
   m_Illustration: {fileID: 0}
-  m_Body: 
+  m_Body: The Furnace heats materials to very high temperatures, changing their properties
+    or preparing them for the next fabrication step.
+  m_MaterialId:
+    m_HashValue: 0
