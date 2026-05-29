@@ -26,5 +26,11 @@ $wait 1
 @trigger    OnContractSelectOpen
 @cutscene
 @once
-{@PAL}      Just select the job you want to do and CONFIRM it!
-{@Player}   Thanks, PAL.
+{@Player}      You only have one contract to choose from.
+$call   HighlightElement(overarching:costs-section)
+{@Player}      It looks like it will take this many days to complete.
+$call   ReleaseAllHighlights()
+$call   HighlightElement(overarching:profit-section)
+{@Player}      ...and you'll make this much money if you can deliver.
+$call   ReleaseAllHighlights()
+$call   HighlightElement(overarching:select-contract-btn)
