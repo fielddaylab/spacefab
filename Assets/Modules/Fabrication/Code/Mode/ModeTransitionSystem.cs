@@ -5,6 +5,7 @@ using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.Sequence;
+using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -41,19 +42,21 @@ namespace SpaceFab.Fabrication {
             Find.State(
                 out MinigameRequestExitState exitState,
                 out SequenceVisualsState visualsState,
-                out FabricationMinigameState fabState
+                out FabricationMinigameState fabState,
+                out OnboardingLayoutState onboardState
                 );
+            Find.State(out StationControlState stationState);
 
             switch (modeState.CurrMode)
             {
                 case LevelMode.PreAttempt:
-                    ProcessPreAttempt(modeState, sequenceState, visualsState, fabState);
+                    ProcessPreAttempt(modeState, onboardState, sequenceState, visualsState, fabState);
                     break;
                 case LevelMode.AttemptLeadIn:
                     ProcessAttemptLeadIn(modeState, countdownState);
                     break;
                 case LevelMode.Attempt:
-                    ProcessAttempt(modeState, sequenceState, interruptState, visualsState, fabState);
+                    ProcessAttempt(modeState, sequenceState, interruptState, visualsState, fabState, stationState);
                     break;
                 case LevelMode.PostAttempt:
                     ProcessPostAttempt(modeState, sequenceState, interruptState, exitState, visualsState, fabState);
@@ -65,11 +68,12 @@ namespace SpaceFab.Fabrication {
 
         #region Helpers
 
-        static private void ProcessPreAttempt(ModeState modeState, SequenceState sequenceState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
+        static private void ProcessPreAttempt(ModeState modeState, OnboardingLayoutState onboardState, SequenceState sequenceState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
         {
-            // TODO: poll for move into Attempt
-            if (Input.GetKeyDown(FabricationConsts.Activate))
+            // TODO: poll for move into Attempt (keyboard or button)
+            if (Input.GetKeyDown(FabricationConsts.Activate) || onboardState.IsGeneratePressed)
             {
+                OnboardingStateUtility.HideGenerateButton();
                 Log.Msg("[ModeTransitionSystem] received input for new wafer -- entering Attempt Mode");
                 TransitionToAttemptLeadIn(modeState, sequenceState, visualsState, fabState);
             }
@@ -83,16 +87,20 @@ namespace SpaceFab.Fabrication {
                 // start timer
                 Log.Msg("[ModeTransitionSystem] countdown completed. Moving to Attempt Mode");
 
+                // update robot visual
+                RobotVisualsUtility.UpdateLayer(Find.State<RobotVisualsState>());
+                MicrogameCanvasUtility.HideStationInstructions(Find.State<MicrogameCanvasState>());
+
                 ModeUtility.SetNewMode(modeState, LevelMode.Attempt);
                 GameLoop.SuspendUpdates(UpdateMasks.AttemptLeadInMask);
                 GameLoop.ResumeUpdates(UpdateMasks.AttemptMask);
             }
         }
 
-        static private void ProcessAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
+        static private void ProcessAttempt(ModeState modeState, SequenceState sequenceState, InterruptState interruptState, SequenceVisualsState visualsState, FabricationMinigameState fabState, StationControlState stationState)
         {
             // TODO: poll for move into post-attempt
-            if (sequenceState.Status == SequenceStatus.Completed)
+            if (sequenceState.Status == SequenceStatus.Completed && stationState.Phase == StationControlPhase.AtStation) // extra wait for final process step
             {
                 Log.Msg("[ModeTransitionSystem] Attempt completed. Moving to PostAttempt Mode");
                 ModeUtility.SetNewMode(modeState, LevelMode.PostAttempt);
@@ -155,6 +163,8 @@ namespace SpaceFab.Fabrication {
         {
             // Move into AttemptLeadIn Mode -- will generate wafer, countdown to start
             ModeUtility.SetNewMode(modeState, LevelMode.AttemptLeadIn);
+            GameLoop.SuspendUpdates(UpdateMasks.PostAttemptMask);
+            GameLoop.SuspendUpdates(UpdateMasks.AttemptMask);
             GameLoop.SuspendUpdates(UpdateMasks.PreAttemptMask);
             GameLoop.ResumeUpdates(UpdateMasks.AttemptLeadInMask);
 

@@ -46,6 +46,11 @@ namespace SpaceFab
         public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
         public static readonly StringHash32 FabMicrogameCompleted = "fab:microgame-completed";
         public static readonly StringHash32 FabMicrogameCancelled = "fab:microgame-cancelled";
+        // A completed microgame failed the Leaf precision gate; it is paused (no exit animation) awaiting
+        // a restart. UI listens for this to show the restart panel.
+        public static readonly StringHash32 FabMicrogameRetryRequired = "fab:microgame-retry-required";
+        // A paused microgame was reset to a fresh play state via RestartMicrogame.
+        public static readonly StringHash32 FabMicrogameRestarted = "fab:microgame-restarted";
         public static readonly StringHash32 FabStationExit = "fab:station-exit";
         public static readonly StringHash32 FabWrongStationAttempt = "fab:wrong-station-attempt";
         public static readonly StringHash32 FabStunBegin = "fab:stun-begin";
@@ -78,7 +83,8 @@ namespace SpaceFab
 
     public static class ScriptTriggers
     {
-        public static readonly StringHash32 OnMinigameLoad = "OnMinigameLoad";
+        public static readonly StringHash32 OnMinigameLoad =    "OnMinigameLoad";
+        public static readonly StringHash32 OnWikiClosed =      "OnWikiClosed";
     }
 
     public static class UpdateMasks

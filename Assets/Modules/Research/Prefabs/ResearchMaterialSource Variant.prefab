@@ -59,6 +59,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       insertIndex: 1
       addedObject: {fileID: 7766025607340791850}
+    - targetCorrespondingSourceObject: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 171097056233951362}
   m_SourcePrefab: {fileID: 100100000, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
 --- !u!1 &175849044249034680 stripped
 GameObject:
@@ -80,6 +83,25 @@ MonoBehaviour:
   Region: {fileID: 7614153891371466599}
   Rig: {fileID: 3137514490091474487}
   Material: {fileID: 0}
+  Tag: {fileID: 171097056233951362}
+--- !u!114 &171097056233951362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175849044249034680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: 
+    m_HashValue: 0
+  RectTransform: {fileID: 0}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 7614153891371466599}
 --- !u!114 &3137514490091474487 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1815365302596501488, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}

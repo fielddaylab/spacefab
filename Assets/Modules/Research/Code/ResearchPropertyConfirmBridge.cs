@@ -36,7 +36,19 @@ namespace SpaceFab.Research
                 return;
             }
 
-            ResearchStateUtility.Confirm(researchState, materialId, propertyLabel, contextMaterialId);
+            bool newlyConfirmed = ResearchStateUtility.Confirm(researchState, materialId, propertyLabel, contextMaterialId);
+
+            // Record the most recent genuinely-new discovery (idempotent re-confirms don't
+            // count) so onboarding can open the wiki to the last sample that yielded new info.
+            if (newlyConfirmed)
+            {
+                researchState.LastDiscovery = new ResearchDiscovery
+                {
+                    MaterialId = materialId,
+                    Property = propertyLabel,
+                    ContextMaterialId = contextMaterialId
+                };
+            }
 
             // Frame-flag for downstream view refreshes (e.g., the tray
             // rig labels flipping from sample number to ShortName once

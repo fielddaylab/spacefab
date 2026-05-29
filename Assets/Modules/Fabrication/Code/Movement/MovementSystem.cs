@@ -32,9 +32,12 @@ namespace SpaceFab.Fabrication.Movement {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out MovementState movementState,
-                out LayoutState layoutState,
+                out OnboardingLayoutState onboardState,
                 out RobotState robotState,
                 out StationControlState stationState
+                );
+            Find.State(
+                out LayoutState layoutState
                 );
 
             var cameraTransform = Game.Rendering.PrimaryCamera.transform;
@@ -50,19 +53,21 @@ namespace SpaceFab.Fabrication.Movement {
 
             if (!MovementUtility.CanMove(movementState, robotState, stationState)) { return; }
 
-            ProcessInputs(movementState, layoutState, robotState, stationState);
+            ProcessInputs(movementState, onboardState, layoutState, robotState, stationState);
         }
 
         // Reads left/right input and attempts a slot move in the chosen direction, clamped to the station-slot range.
-        static private void ProcessInputs(MovementState movementState, LayoutState layoutState, RobotState robotState, StationControlState stationState) {
+        static private void ProcessInputs(MovementState movementState, OnboardingLayoutState onboardState, LayoutState layoutState, RobotState robotState, StationControlState stationState) {
             int curr = movementState.CurrSlotPosition;
             int max = layoutState.StationSlots.Length - 1;
 
-            if (Input.GetKeyDown(FabricationConsts.Left0) || Input.GetKeyDown(FabricationConsts.Left1)) {
+            if (Input.GetKeyDown(FabricationConsts.Left0) || Input.GetKeyDown(FabricationConsts.Left1) || onboardState.IsLeftArrowPressed) {
+                onboardState.IsLeftArrowPressed = false;
                 if (curr > 0)
                     TryMove(movementState, layoutState, robotState, stationState, curr - 1);
             }
-            else if (Input.GetKeyDown(FabricationConsts.Right0) || Input.GetKeyDown(FabricationConsts.Right1)) {
+            else if (Input.GetKeyDown(FabricationConsts.Right0) || Input.GetKeyDown(FabricationConsts.Right1) || onboardState.IsRightArrowPressed) {
+                onboardState.IsRightArrowPressed = false;
                 if (curr < max)
                     TryMove(movementState, layoutState, robotState, stationState, curr + 1);
             }

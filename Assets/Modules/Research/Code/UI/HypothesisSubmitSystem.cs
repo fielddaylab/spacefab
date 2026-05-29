@@ -1,7 +1,9 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
+using SpaceFab.Design;
 using SpaceFab.Materials;
 
 namespace SpaceFab.Research {
@@ -78,16 +80,28 @@ namespace SpaceFab.Research {
             bool anyPruned = PruneIncorrectPicks(researchState, slotted, page, viewModelState);
             if (anyPruned) {
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
+
+                using (var table = TempVarTable.Alloc()) {
+                    table.Set("result", "failure");
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
+                }
                 return;
             }
 
-            if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, slotted.AssetId, page.Label, page.Context)) {
+            bool success = ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, slotted.AssetId, page.Label, page.Context);
+            if (success) {
                 // A new property bit flipped (or the property was already
                 // confirmed and the call was idempotent). Either way the
                 // viewmodel's IsFulfilled / SatisfiedMask depends on the
                 // record state — request a rebuild so the visual updates
                 // next LateUpdate.
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
+            }
+
+            using (var table = TempVarTable.Alloc()) {
+                var resultStr = success ? "success" : "failure";
+                table.Set("result", resultStr);
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
             }
         }
 

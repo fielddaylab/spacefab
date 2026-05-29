@@ -71,4 +71,22 @@ namespace SpaceFab.Research
         {
         }
     }
+
+    /// <summary>
+    /// Logic paired with BatteryChamberState.
+    /// </summary>
+    public static class BatteryChamberUtility
+    {
+        // Resets the Battery chamber to its default state. For the Battery this means snapping
+        // the voltage dial back to the configured initial voltage; slot contents and other
+        // chamber state are owned elsewhere and intentionally left untouched.
+        public static void ResetState(BatteryChamberState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+            VoltageUtility.Reset(state.VoltageControl, Find.GlobalAsset<ResearchVoltageConfig>());
+        }
+    }
 }

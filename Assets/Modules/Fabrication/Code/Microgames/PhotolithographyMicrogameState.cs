@@ -44,10 +44,11 @@ namespace SpaceFab.Fabrication.Microgames
     /// </summary>
     public static class PhotolithographyMicrogameUtility
     {
+        // determines if microgame can be started based on if this step is next
         public static bool CanActivate()
         {
-            // TODO: gate based on sequence / wafer state. Default true.
-            return true;
+            Find.State(out SequenceState state);
+            return SequenceUtility.CheckNextStep(state, FabricationConsts.PHOTOLITHOGRAPHY_STATION_ID);
         }
 
         public static void EnterBegin()
@@ -85,7 +86,7 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.PhotolithographyUI.SetActive(false);
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -104,8 +105,22 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = PhotolithographyMicrogamePhase.Idle;
             state.PhotolithographyUI.SetActive(false);
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
             // TODO: tear down photomask UI; return to idle.
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means the mask landed clockwise of the
+        // target angle, > 1 counter-clockwise. Mirrors ComputePrecision's signed angle delta.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out PhotolithographyMicrogameState state);
+            return 1f - (Mathf.DeltaAngle(state.PhotomaskAngle, 0f) / 180f);
         }
 
         // Mask-Drop-specific precision math: angle delta from target orientation at landing.

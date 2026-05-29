@@ -3,6 +3,8 @@ using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
+using SpaceFab.Fabrication.StationControl;
+using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +28,8 @@ namespace SpaceFab.Fabrication {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ModeState modeState,
-                out ResultDisplayState displayState
+                out ResultDisplayState displayState,
+                out StationControlState stationState
                 );
 
             if (modeState.CurrMode != LevelMode.PostAttempt) { return; }

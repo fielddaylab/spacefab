@@ -10,7 +10,7 @@ namespace SpaceFab.Fabrication {
     public class InterruptRefreshSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.LateUpdate, 100, UpdateMasks.AttemptLeadInMask | UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),
+                new SysUpdate(GameLoopPhase.Update, 10, UpdateMasks.AttemptLeadInMask | UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<InterruptState>()
             );

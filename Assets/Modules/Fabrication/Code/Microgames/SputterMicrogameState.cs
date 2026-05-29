@@ -5,6 +5,7 @@ using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace SpaceFab.Fabrication.Microgames
 {
@@ -20,7 +21,7 @@ namespace SpaceFab.Fabrication.Microgames
     /// Holds in-flight data for the Sputter ("Spraypaint") microgame: the sputter head's position,
     /// the fill state of the etched target area, and lifecycle flags consumed by SputterMicrogameSystem.
     /// </summary>
-    public class SputterMicrogameState : SharedStateComponent
+    public class SputterMicrogameState : SharedStateComponent, IRegistrationCallbacks
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // SputterMicrogameSystem reads this to gate its ProcessWork.
@@ -35,6 +36,16 @@ namespace SpaceFab.Fabrication.Microgames
         public SpriteRenderer PatternRenderer;
 
         public float MaxSputterDistance = 1.75f;
+
+        public void OnRegister()
+        {
+
+        }
+
+        public void OnDeregister()
+        {
+
+        }
     }
 
     /// <summary>
@@ -43,10 +54,11 @@ namespace SpaceFab.Fabrication.Microgames
     /// </summary>
     public static class SputterMicrogameUtility
     {
+        // determines if microgame can be started based on if this step is next
         public static bool CanActivate()
         {
-            // TODO: gate based on sequence / wafer state. Default true.
-            return true;
+            Find.State(out SequenceState state);
+            return SequenceUtility.CheckNextStep(state, FabricationConsts.SPUTTER_STATION_ID);
         }
 
         public static void EnterBegin()
@@ -92,10 +104,29 @@ namespace SpaceFab.Fabrication.Microgames
 
             state.IsActive = false;
             state.Phase = SputterMicrogamePhase.Idle;
+
+            // Reset graphics
+            state.SputterSprites.localPosition = Vector3.zero;
+            state.PatternRenderer.size = new Vector2(0, state.PatternRenderer.size.y);
+            state.PatternRenderer.transform.localPosition = new Vector3(-1.35f, 0, 0);
+
+
             state.SputterUI.SetActive(false);
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
             // TODO: tear down sputter UI; return to idle.
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Sputter error is unsigned (fill percent), so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
         }
 
         // Spraypaint-specific precision math: percent of the etched target area that got filled

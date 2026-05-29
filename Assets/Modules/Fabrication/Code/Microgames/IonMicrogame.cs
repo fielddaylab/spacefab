@@ -19,6 +19,8 @@ namespace SpaceFab.Fabrication.Microgames
         public void OnEnterBegin() => IonMicrogameUtility.EnterBegin();
         public void OnEnterComplete() => IonMicrogameUtility.EnterComplete();
         public void OnExitBegin(bool completedNormally) => IonMicrogameUtility.ExitBegin(completedNormally);
+        public float GetResultPrecision() => IonMicrogameUtility.GetResultPrecision();
+        public float GetRawResultPrecision() => IonMicrogameUtility.GetRawResultPrecision();
         public bool IsProcessAnimationComplete() => IonMicrogameUtility.IsProcessAnimationComplete();
         public void OnExitComplete() => IonMicrogameUtility.ExitComplete();
     }

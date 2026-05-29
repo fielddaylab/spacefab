@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Components;
+using FieldDay.Scripting;
 using System;
 using UnityEngine;
 
@@ -111,6 +112,8 @@ namespace SpaceFab.Research
             if (control.VoltageIndex >= maxIndex) return;
             control.VoltageIndex++;
             ApplyChange(control, config);
+
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnVoltageIncreased);
         }
 
         // Bumps the voltage index down by one. No-op at the lower magnitude
@@ -122,6 +125,8 @@ namespace SpaceFab.Research
             if (control.VoltageIndex <= minIndex) return;
             control.VoltageIndex--;
             ApplyChange(control, config);
+
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnVoltageDecreased);
         }
 
         // Mirrors the index across CenterIndex so positive flips negative
