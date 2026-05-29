@@ -8863,10 +8863,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1622035098022066008, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
-      propertyPath: m_Name
-      value: Profit Parent (1)
-      objectReference: {fileID: 0}
     - target: {fileID: 1800148438248293305, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -9033,7 +9029,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3096916237658495660, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3131624030749223474, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.x
@@ -9134,6 +9130,10 @@ PrefabInstance:
     - target: {fileID: 3722239822323339470, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3804170319873738857, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3946912848981758076, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9254,6 +9254,10 @@ PrefabInstance:
     - target: {fileID: 4465851791942372570, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4759587502692129641, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+      propertyPath: m_FillAmount
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4816109517798813332, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9683,10 +9687,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -13.800003
       objectReference: {fileID: 0}
-    - target: {fileID: 7886346000740549067, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
-      propertyPath: m_Name
-      value: Profit Parent (2)
-      objectReference: {fileID: 0}
     - target: {fileID: 7938676211597813508, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -9892,11 +9892,7 @@ PrefabInstance:
       value: -15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 9113209511728973803, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
-    - {fileID: 5442848356161529619, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
-    - {fileID: 2618197380177341126, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
-    - {fileID: 6017999567914103858, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}

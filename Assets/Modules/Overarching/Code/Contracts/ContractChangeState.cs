@@ -60,6 +60,9 @@ namespace SpaceFab.Overarching
 
             ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex]);
             layoutState.SelectionContractUI.gameObject.SetActive(true);
+            
+            layoutState.NextContractButton.gameObject.SetActive(false);
+            layoutState.PrevContractButton.gameObject.SetActive(false);
 
             yield return 0.5f;
 

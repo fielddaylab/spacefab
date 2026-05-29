@@ -65,6 +65,7 @@ namespace SpaceFab.Overarching {
             if (selectState.SelectedContractIndexChanged) {
                 layoutState.PrevContractButton.gameObject.SetActive(selectState.SelectedContractIndex > 0);
                 layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < chapterState.CurrAvailableContractsBundle.AvailableContracts.Length - 1);
+                layoutState.SelectionContractUI.SignatureImage.fillAmount = chapterState.LastSelectedContractIndex == selectState.SelectedContractIndex ? 1 : 0;
 
                 ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex]);
                 selectState.SelectedContractIndexChanged = false;
