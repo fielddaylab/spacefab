@@ -23,6 +23,7 @@ namespace SpaceFab.Supply {
         [Header("Components")]
         public Collider2D Collider;
         public CursorHint Cursor;
+        public SupplyRouteNodeRenderer Renderer;
         public SupplyRouteNodeInfoDisplay InfoPopup;
 
         [NonSerialized] public StringHash32 Id;
@@ -69,7 +70,7 @@ namespace SpaceFab.Supply {
             if ((node.Hover & flags) != flags) {
                 node.Hover |= flags;
                 if (!wasHovering) {
-                    // TODO: start hovering
+                    SetHovering(node.Renderer, true);
                 }
             }
         }
@@ -79,7 +80,7 @@ namespace SpaceFab.Supply {
             if ((node.Hover & flags) != 0) {
                 node.Hover &= ~flags;
                 if (wasHovering && node.Hover == 0) {
-                    // TODO: stop hovering
+                    SetHovering(node.Renderer, false);
                 }
             }
         }

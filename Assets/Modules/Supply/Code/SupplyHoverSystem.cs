@@ -56,7 +56,7 @@ namespace SpaceFab.Supply {
 
                 hoverState.Node = hoverNode;
 
-                if (hoverState.Node != hoverNode) {
+                if (hoverState.Node != null) {
                     SupplyRouteUtility.AddNodeHoverFlag(hoverState.Node, SupplyHoverFlags.Node);
                 }
 

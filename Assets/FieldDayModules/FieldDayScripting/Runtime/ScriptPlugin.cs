@@ -153,6 +153,7 @@ namespace FieldDay.Scripting {
         internal void DereferenceCutscene(LeafThreadHandle handle) {
             if (m_RuntimeState.Cutscene == handle) {
                 m_RuntimeState.Cutscene = default;
+                m_RuntimeState.OnCutsceneEnd.Invoke();
                 m_RuntimeState.SignalMap.Dispatch("CutsceneEnd");
             }
         }

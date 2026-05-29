@@ -108,7 +108,7 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.EtchUI.SetActive(false);
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -130,7 +130,19 @@ namespace SpaceFab.Fabrication.Microgames
             state.PlayerPoints.Clear();
             state.PlayerBeam.positionCount = 0;
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Etch error is unsigned (distance from the target path), so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
         }
 
         // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam

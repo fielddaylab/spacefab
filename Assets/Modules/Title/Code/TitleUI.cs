@@ -11,6 +11,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using FieldDay.Debugging;
+using SpaceFab.Comic;
 
 namespace SpaceFab.Title
 {
@@ -270,7 +271,12 @@ namespace SpaceFab.Title
 
             // TODO: set this in OGD
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
-            Game.Scenes.LoadMainScene(m_NextScene);
+
+            if (m_CurrGroupType == GroupType.NewGame) {
+                ComicScripting.LoadComic("Ch1ComicPack");
+            } else {
+                Game.Scenes.LoadMainScene(m_NextScene);
+            }
         }
 
         private void HandleClaimNewIdError(OGD.Core.Error err)

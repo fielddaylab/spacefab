@@ -70,6 +70,39 @@ namespace SpaceFab.Comic {
     static public partial class ComicsUtility {
         static public ComicSequenceManifest Manifest { get; set; }
 
+        static public ushort GetPanelIndexForName(StringHash32 name) {
+            Assert.NotNullOrDestroyed(Manifest);
+
+            var panels = Manifest.Panels;
+            for (int i = 0, len = panels.Length; i < len; i++) {
+                if (panels[i].Id == name) {
+                    return (ushort)i;
+                }
+            }
+
+            Assert.Fail("Panel '{0}' not found", name);
+            return ushort.MaxValue;
+        }
+
+        static public ushort GetPanelIndexForName(StringHash32 name, int pageIndex) {
+            if (pageIndex >= 0) {
+                Assert.NotNullOrDestroyed(Manifest);
+
+                OffsetLengthU16 pageRange = Manifest.Pages[pageIndex].Panels;
+                var panels = Manifest.Panels;
+                for (int i = pageRange.Offset, end = pageRange.End; i < end; i++) {
+                    if (panels[i].Id == name) {
+                        return (ushort)i;
+                    }
+                }
+
+                Assert.Fail("Panel '{0}' not contained in page {1}", name, pageIndex);
+                return ushort.MaxValue;
+            }
+
+            return GetPanelIndexForName(name);
+        }
+
         static public ushort GetPanelIndexForLayer(ushort layerIndex) {
             Assert.NotNullOrDestroyed(Manifest);
 

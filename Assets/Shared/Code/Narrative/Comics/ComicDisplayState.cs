@@ -1,7 +1,11 @@
 using BeauRoutine;
 using BeauUtil.Debugger;
+using BeauUtil.UI;
+using FieldDay;
 using FieldDay.Collections;
 using FieldDay.SharedState;
+using FieldDay.UI;
+using SpaceFab.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +18,9 @@ namespace SpaceFab.Comic
     {
         [NonSerialized] public int CurrentPageIndex = -1;
         [NonSerialized] public int CurrentPanelIndex = -1;
+
+        public GameObject NextButtonGroup;
+        public AutoSizedButton NextButton;
     }
 
     static public partial class ComicsUtility {
@@ -74,6 +81,15 @@ namespace SpaceFab.Comic
             if (layer.MeshIndex != ComicMesh.NullIndex) {
                 CancelMeshPreload(layer.MeshIndex, StreamedMeshType.Layer);
             }
+        }
+
+        static public IEnumerator DisplayAndWaitForNextButton() {
+            Find.State(out ComicDisplayState displayState);
+            GuiCommands.SetActive(displayState.NextButtonGroup, true);
+            while(!displayState.NextButton.ConsumeClick()) {
+                yield return null;
+            }
+            GuiCommands.SetActive(displayState.NextButtonGroup, false);
         }
     }
 }

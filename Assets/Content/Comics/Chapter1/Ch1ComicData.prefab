@@ -580,6 +580,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 924364471141488184}
+  - {fileID: 1445661764042985628}
   - {fileID: 3015351169779565273}
   - {fileID: 4444815095244195715}
   - {fileID: 1839562604972205844}
@@ -1246,7 +1247,7 @@ MonoBehaviour:
   ClipHeight: 25
   BackgroundColor:
     serializedVersion: 2
-    rgba: 4279900700
+    rgba: 4282335065
 --- !u!1 &1648711181031879612
 GameObject:
   m_ObjectHideFlags: 0
@@ -5741,6 +5742,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Image: {fileID: 21300000, guid: 17b8e050de1389a49a14d94b7dacfc9c, type: 3}
   Sibling: {fileID: 0}
+--- !u!1 &7345200826721967255
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1445661764042985628}
+  - component: {fileID: 1872885845966076877}
+  m_Layer: 0
+  m_Name: StartCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1445661764042985628
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7345200826721967255}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.85, y: 26.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5932321331619467401}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1872885845966076877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7345200826721967255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8207168ac625dd041b0fdb76cfa64280, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ClipHeight: 25
+  BackgroundColor:
+    serializedVersion: 2
+    rgba: 4279900700
 --- !u!1 &7356177942327934641
 GameObject:
   m_ObjectHideFlags: 0
@@ -6982,6 +7031,10 @@ PrefabInstance:
     - target: {fileID: 7187921100395212401, guid: d2982777c8102c148b7a490afc74929c, type: 3}
       propertyPath: SlicingSettings
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187921100395212401, guid: d2982777c8102c148b7a490afc74929c, type: 3}
+      propertyPath: SlicingTileSize
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7214192240165230087, guid: d2982777c8102c148b7a490afc74929c, type: 3}
       propertyPath: m_LocalPosition.x

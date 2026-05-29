@@ -37,6 +37,7 @@ namespace SpaceFab.Overarching
             AlertType.Incomplete,
             AlertType.Locked,
             AlertType.Complete,
+            AlertType.NotStarted,
         };
 
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
@@ -73,6 +74,9 @@ namespace SpaceFab.Overarching
             AlertIconDB iconDB = Find.GlobalAsset<AlertIconDB>();
             if (pools == null || iconDB == null) { return; }
 
+            // Optional — drives the per-minigame inner tint. Absent DB just leaves the tint white.
+            MinigameZoneOverlayDB overlayDB = Find.GlobalAsset<MinigameZoneOverlayDB>();
+
             FreeAllAlertIcons(pools);
 
             var zones = Find.Components<MinigameZone>();
@@ -81,7 +85,8 @@ namespace SpaceFab.Overarching
                 MinigameZone zone = zones[z];
                 if (zone == null || zone.AlertIconContainer == null) { continue; }
                 AlertType mask = OverarchingAlertUtility.GetMask(alertState, zone.Minigame);
-                SpawnIconsForMask(pools, iconDB, zone.AlertIconContainer, mask);
+                Color innerColor = MinigameZoneOverlayDBUtility.LookupZoneColor(overlayDB, zone.Minigame);
+                SpawnIconsForMask(pools, iconDB, zone.AlertIconContainer, mask, innerColor);
             }
 
             alertState.AlertVisualsDirty = false;
@@ -102,9 +107,10 @@ namespace SpaceFab.Overarching
         }
 
         // For a single zone's mask, allocs one icon per set bit (in DisplayOrder order),
-        // parents it under the zone's container, sets the matching sprite, and positions it at
-        // the next horizontal stack slot. Active icons are tracked on OverarchingPools.
-        static private void SpawnIconsForMask(OverarchingPools pools, AlertIconDB iconDB, Transform container, AlertType mask)
+        // parents it under the zone's container, sets the layered sprites (tinting the inner one
+        // with the zone's minigame color), and positions it at the next horizontal stack slot.
+        // Active icons are tracked on OverarchingPools.
+        static private void SpawnIconsForMask(OverarchingPools pools, AlertIconDB iconDB, Transform container, AlertType mask, Color innerColor)
         {
             if (mask == AlertType.None) { return; }
 
@@ -127,9 +133,15 @@ namespace SpaceFab.Overarching
                 icon.transform.localRotation = Quaternion.identity;
                 icon.transform.localScale = Vector3.one;
 
-                if (icon.IconRenderer != null)
+                if (AlertIconDBUtility.TryLookupIcon(iconDB, bit, out Sprite baseSprite, out Sprite innerSprite, out Sprite symbolSprite))
                 {
-                    icon.IconRenderer.sprite = AlertIconDBUtility.LookupIconSprite(iconDB, bit);
+                    if (icon.BaseRenderer != null) { icon.BaseRenderer.sprite = baseSprite; }
+                    if (icon.InnerRenderer != null)
+                    {
+                        icon.InnerRenderer.sprite = innerSprite;
+                        icon.InnerRenderer.color = innerColor;
+                    }
+                    if (icon.SymbolRenderer != null) { icon.SymbolRenderer.sprite = symbolSprite; }
                 }
 
                 pools.ActiveAlertIcons.Add(icon);

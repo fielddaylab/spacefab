@@ -37,6 +37,15 @@ namespace SpaceFab.Comic {
             }
             ActiveMeshes.Clear();
 
+            for(int i = 0; i < TextureMaterials.Length; i++) {
+                Material mat = TextureMaterials[i];
+                if (mat == null) {
+                    break;
+                }
+
+                DestroyImmediate(mat);
+            }
+
             ElementPool.Dispose();
             ParentPool.Dispose();
 
@@ -51,7 +60,6 @@ namespace SpaceFab.Comic {
 
         void IRegistrationCallbacks.OnRegister() {
             ElementPool.Initialize();
-            ElementPool.Config.RegisterOnFree((p, e) => ComicResourceUtility.OnRenderElementFreed(this, e));
             
             MeshVertexLayout = VertexUtility.GenerateLayout(typeof(ComicMeshVertex), 0);
 
@@ -73,13 +81,24 @@ namespace SpaceFab.Comic {
 
             ActiveMeshes = new Dictionary<ushort, Mesh>(32);
             TextureMaterials = new Material[32];
+
+            SharedPropertyBlock = new MaterialPropertyBlock();
         }
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
+            ComicLayoutState layout = Find.State<ComicLayoutState>();
+            ElementPool.Config.RegisterOnFree((p, e) => ComicResourceUtility.OnRenderElementFreed(this, layout, e));
+
             ElementPool.Prewarm();
             MeshPool.Prewarm();
             MaterialPool.Prewarm();
             ParentPool.Prewarm();
+
+            for(int i = 0; i < ComicsUtility.Manifest.Textures.Length; i++) {
+                Material texMaterial = MaterialPool.Alloc();
+                texMaterial.SetTexture(DefaultShaderProps.MainTex, ComicsUtility.Manifest.Textures[i]);
+                TextureMaterials[i] = texMaterial;
+            }
 
             // TODO: Fix incremental prewarm in BeauPools
             //int prewarmCounter = 1;
@@ -104,7 +123,7 @@ namespace SpaceFab.Comic {
     }
 
     static public partial class ComicResourceUtility {
-        static public void OnRenderElementFreed(ComicResourcePool resourcePool, ComicRenderElement element) {
+        static public void OnRenderElementFreed(ComicResourcePool resourcePool, ComicLayoutState layout, ComicRenderElement element) {
             element.CoroutineAnimation.Stop();
             Game.Animation.CancelAnimation(ref element.LiteAnimation);
             element.BaseMaterial = null;
@@ -125,6 +144,15 @@ namespace SpaceFab.Comic {
             if (element.TempMaterial != null) {
                 resourcePool.MaterialPool.Free(element.TempMaterial);
                 element.TempMaterial = null;
+            }
+
+            if (element.ElementIndex >= 0) {
+                if (element.Type == ComicRenderElementType.Mask) {
+                    layout.SpawnedMasksMask.Unset(element.ElementIndex);
+                } else {
+                    layout.SpawnedLayersMask.Unset(element.ElementIndex);
+                }
+                element.ElementIndex = -1;
             }
         }
     }

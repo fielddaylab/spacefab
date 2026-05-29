@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.Components;
+using FieldDay.Scripting;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -69,6 +70,11 @@ namespace SpaceFab.Research {
                     // prefab — pass null for researchState since the
                     // known/unknown distinction only affects the label.
                     ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material, null);
+
+                    using (var table = TempVarTable.Alloc()) {
+                        table.Set("slotType", kind.ToString().ToLowerInvariant());
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnSlotFilled, table);
+                    }
                 }
             }
 

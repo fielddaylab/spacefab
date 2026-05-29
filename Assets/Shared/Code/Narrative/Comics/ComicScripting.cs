@@ -1,14 +1,17 @@
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Animation;
 using FieldDay.Assets;
 using FieldDay.Scenes;
 using FieldDay.Scripting;
+using FieldDay.Threading;
 using Leaf.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace SpaceFab.Comic {
@@ -58,6 +61,18 @@ namespace SpaceFab.Comic {
             }
         }
 
+        [LeafMember("ComicSetPanelIndex")]
+        static public void Leaf_SetPanelByIndex(int panelIndex) {
+            Find.State(out ComicDisplayState displayState);
+            displayState.CurrentPanelIndex = ComicsUtility.Manifest.Pages[displayState.CurrentPageIndex].Panels.Offset + panelIndex;
+        }
+
+        [LeafMember("ComicSetPanelId")]
+        static public void Leaf_SetPanelByName(StringHash32 panelName) {
+            Find.State(out ComicDisplayState displayState);
+            displayState.CurrentPanelIndex = ComicsUtility.GetPanelIndexForName(panelName, displayState.CurrentPageIndex);
+        }
+
         [LeafMember("ComicSnapCamera")]
         static public void Leaf_SnapCamera(StringHash32 cameraId) {
             ComicsUtility.SnapCamera(cameraId);
@@ -82,6 +97,53 @@ namespace SpaceFab.Comic {
             while (Game.Animation.IsAnimationRunning(camState.CameraTransition)) {
                 yield return null;
             }
+        }
+
+        [LeafMember("ComicSpawnMask")]
+        static public IEnumerator Leaf_SpawnMask(LayoutSpawnAnimationType animation = default) {
+            Find.State(out ComicDisplayState displayState);
+            PanelData panel = ComicsUtility.Manifest.Panels[displayState.CurrentPanelIndex];
+            if (panel.MaskIndex != ushort.MaxValue) {
+                UniqueId16 request = ComicResourceUtility.QueueElementSpawn(panel.MaskIndex, true, animation);
+                return WaitTokens.WhileIdAllocated(request, Find.State<ComicLayoutState>().SpawnIdAllocator);
+            }
+            return null;
+        }
+
+        [LeafMember("ComicSpawnLayerIndex")]
+        static public IEnumerator Leaf_SpawnLayerByIndex(int index, LayoutSpawnAnimationType animation = default) {
+            Find.State(out ComicDisplayState displayState);
+            PanelData panel = ComicsUtility.Manifest.Panels[displayState.CurrentPanelIndex];
+            Assert.True(index >= 0 && index < panel.Layers.Length, "Index out of range");
+            UniqueId16 request = ComicResourceUtility.QueueElementSpawn((ushort) (panel.Layers.Offset + index), false, animation);
+            return WaitTokens.WhileIdAllocated(request, Find.State<ComicLayoutState>().SpawnIdAllocator);
+        }
+
+        [LeafMember("ComicSpawnLayerId")]
+        static public IEnumerator Leaf_SpawnLayerById(StringHash32 name, LayoutSpawnAnimationType animation = default) {
+            Find.State(out ComicDisplayState displayState);
+            PanelData panel = ComicsUtility.Manifest.Panels[displayState.CurrentPanelIndex];
+            for(int i = panel.Layers.Offset; i < panel.Layers.End; i++) {
+                if (ComicsUtility.Manifest.Layers[i].Id == name) {
+                    UniqueId16 request = ComicResourceUtility.QueueElementSpawn((ushort) i, false, animation);
+                    return WaitTokens.WhileIdAllocated(request, Find.State<ComicLayoutState>().SpawnIdAllocator);
+                }
+            }
+            Assert.Fail("No node in current panel with id '{0}'", name);
+            return null;
+        }
+
+        [LeafMember("ComicNextButton")]
+        static public IEnumerator Leaf_NextButton() {
+            return ComicsUtility.DisplayAndWaitForNextButton();
+        }
+
+        [LeafMember("ComicLoad")]
+        static public void LoadComic(StringHash32 comicId) {
+            Game.Scenes.LoadMainScene(SceneReference.FromName("ComicScene"), true);
+            Game.Scenes.QueueMainLoadContext(new SceneRequestContext() {
+                Task = comicId
+            });
         }
     }
 }

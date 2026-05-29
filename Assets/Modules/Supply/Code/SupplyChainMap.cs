@@ -30,13 +30,13 @@ namespace SpaceFab.Supply
             return true;
         }
 
+#endif // UNITY_EDITOR
+
         void ISceneLateInitialize.LateInitialize() {
-            foreach(var node in Nodes) {
+            foreach (var node in Nodes) {
                 node.Position = node.transform.localPosition;
             }
         }
-
-#endif // UNITY_EDITOR
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
             for(int i = 0; i < Nodes.Length; i++) {
@@ -49,6 +49,7 @@ namespace SpaceFab.Supply
                     node.InfoPopup.OutputMaterialIcon.sprite = matView.SingleAtomSprite;
                 }
 
+                SupplyRouteUtility.InitializeTooltipReferences(node);
                 node.gameObject.SetActive(false);
                 yield return null;
             }

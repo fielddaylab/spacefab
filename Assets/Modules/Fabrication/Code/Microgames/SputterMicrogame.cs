@@ -20,6 +20,8 @@ namespace SpaceFab.Fabrication.Microgames
         public void OnEnterBegin() => SputterMicrogameUtility.EnterBegin();
         public void OnEnterComplete() => SputterMicrogameUtility.EnterComplete();
         public void OnExitBegin(bool completedNormally) => SputterMicrogameUtility.ExitBegin(completedNormally);
+        public float GetResultPrecision() => SputterMicrogameUtility.GetResultPrecision();
+        public float GetRawResultPrecision() => SputterMicrogameUtility.GetRawResultPrecision();
         public bool IsProcessAnimationComplete() => SputterMicrogameUtility.IsProcessAnimationComplete();
         public void OnExitComplete() => SputterMicrogameUtility.ExitComplete();
     }

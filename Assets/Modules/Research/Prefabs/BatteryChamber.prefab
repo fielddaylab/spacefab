@@ -546,6 +546,7 @@ GameObject:
   - component: {fileID: 8246940488763020879}
   - component: {fileID: 8272728102455269569}
   - component: {fileID: 3747243227465591549}
+  - component: {fileID: 3723421176191206735}
   m_Layer: 0
   m_Name: Decrease Btn
   m_TagString: Untagged
@@ -701,6 +702,24 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: Decrease Voltage
   TooltipFooter: 
+--- !u!114 &3723421176191206735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5811788439527833839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:decrease-voltage-btn
+    m_HashValue: 948702352
+  RectTransform: {fileID: 0}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 8246940488763020879}
 --- !u!1 &6164802150296184965
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,6 +786,7 @@ GameObject:
   - component: {fileID: 8751771032385235221}
   - component: {fileID: 627788051139554067}
   - component: {fileID: 4886485511220252997}
+  - component: {fileID: 2556925037493209196}
   m_Layer: 0
   m_Name: Increase Btn
   m_TagString: Untagged
@@ -922,6 +942,24 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: Increase Voltage
   TooltipFooter: 
+--- !u!114 &2556925037493209196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6299981595805713164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:increase-voltage-btn
+    m_HashValue: 2392883992
+  RectTransform: {fileID: 0}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 8751771032385235221}
 --- !u!1 &6422038855521388965
 GameObject:
   m_ObjectHideFlags: 0
@@ -1211,7 +1249,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.86, y: 2.13}
+    oldSize: {x: 1.24, y: 1.42}
     newSize: {x: 1.86, y: 2.13}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

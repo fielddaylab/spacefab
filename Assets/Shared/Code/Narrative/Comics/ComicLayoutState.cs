@@ -41,13 +41,15 @@ namespace SpaceFab.Comic
                 SpawnIdAllocator = new UniqueIdAllocator16(32, false);
                 SpawnedLayersMask = new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(layerCount)));
                 SpawnedMasksMask = maskCount > 0 ? new UnsafeBitSet(resourcePool.Allocator.AllocSpan<uint>(UnsafeBitSet.Size(maskCount))) : default;
+                SpawnedMasksMask.Clear();
+                SpawnedLayersMask.Clear();
             }
         }
     }
 
     public struct LayoutSpawnRequest {
         public UniqueId16 RequestId;
-        public ushort LayerIndex;
+        public ushort ElementIndex;
         public LayoutSpawnAnimationType Animation;
         public bool IsMask;
     }
@@ -139,6 +141,80 @@ namespace SpaceFab.Comic
 
         #region Masks
 
+        static public UniqueId16 QueueElementSpawn(ushort elementIndex, bool isMask, LayoutSpawnAnimationType animation) {
+            Find.State(out ComicResourcePool resourcePool, out ComicLayoutState layout, out ComicStreamingState streamingState);
+            LayoutSpawnRequest request;
+            request.IsMask = isMask;
+            request.ElementIndex = elementIndex;
+            request.Animation = animation;
+            request.RequestId = default;
+
+            if (AreMeshesForRequestLoaded(resourcePool, streamingState, layout, request)) {
+                FulfillSpawnRequest(resourcePool, streamingState, layout, request);
+                return default;
+            } else {
+                request.RequestId = layout.SpawnIdAllocator.Alloc();
+                layout.SpawnBuffer.PushBack(request);
+                return request.RequestId;
+            }
+        }
+
+        static public void FulfillSpawnRequest(ComicResourcePool resourcePool, ComicStreamingState streamingState, ComicLayoutState layoutState, in LayoutSpawnRequest request) {
+            using (TempReferenceBuffer<ComicRenderElement> newElements = TempReferenceBuffer<ComicRenderElement>.Create(8)) {
+                if (request.IsMask) {
+                    ComicRenderElement element = SpawnMask(request.ElementIndex);
+                    if (element) {
+                        newElements.Add(element);
+                    }
+                } else {
+                    ushort layerIndex = request.ElementIndex;
+                    while (layerIndex != ushort.MaxValue) {
+                        ComicRenderElement element = SpawnLayer(layerIndex);
+                        if (element) {
+                            newElements.Add(element);
+                        }
+                        layerIndex = ComicsUtility.Manifest.Layers[layerIndex].SiblingLayerIndex;
+                    }
+                }
+            }
+        }
+
+        static public bool AreMeshesForRequestLoaded(ComicResourcePool resourcePool, ComicStreamingState streamingState, ComicLayoutState layoutState, in LayoutSpawnRequest spawnRequest) {
+            ushort pageIndex;
+
+            if (spawnRequest.IsMask) {
+                pageIndex = ComicsUtility.GetPageIndexForPanel(ComicsUtility.GetPanelIndexForMask(spawnRequest.ElementIndex));
+                if (!layoutState.AllocatedPageMask.IsSet(pageIndex)) {
+                    return false;
+                }
+
+                ushort meshId = ComicsUtility.PackMeshId(spawnRequest.ElementIndex, StreamedMeshType.Mask);
+                return ComicsUtility.IsMeshLoaded(streamingState, resourcePool, meshId);
+            }
+
+            var manifest = ComicsUtility.Manifest;
+            Assert.NotNullOrDestroyed(manifest);
+
+            pageIndex = ComicsUtility.GetPageIndexForPanel(ComicsUtility.GetPanelIndexForLayer(spawnRequest.ElementIndex));
+            if (!layoutState.AllocatedPageMask.IsSet(pageIndex)) {
+                return false;
+            }
+
+            ushort layerIndex = spawnRequest.ElementIndex;
+            while (layerIndex != ushort.MaxValue) {
+                LayerData data = manifest.Layers[layerIndex];
+                if (data.MeshIndex != ComicMesh.NullIndex) {
+                    ushort meshId = ComicsUtility.PackMeshId(data.MeshIndex, StreamedMeshType.Layer);
+                    if (!ComicsUtility.IsMeshLoaded(streamingState, resourcePool, meshId)) {
+                        return false;
+                    }
+                }
+                layerIndex = data.SiblingLayerIndex;
+            }
+
+            return true;
+        }
+
         static public ComicRenderElement SpawnMask(ushort maskIndex) {
             Find.State(out ComicResourcePool resourcePool, out ComicLayoutState layout);
             ComicSequenceManifest manifest = ComicsUtility.Manifest;
@@ -149,20 +225,23 @@ namespace SpaceFab.Comic
             Transform parent = GetPanelTransform(panelIndex);
 
             if (layout.SpawnedMasksMask.IsSet(maskIndex)) {
-                // TODO: return spawned mask
+                return null;
             }
+            layout.SpawnedMasksMask.Set(maskIndex);
 
             ushort meshId = ComicsUtility.PackMeshId(maskIndex, StreamedMeshType.Mask);
 
             MaskData maskData = manifest.Masks[maskIndex];
             ComicRenderElement renderElement = resourcePool.ElementPool.Alloc(default, default, parent, false);
             renderElement.Type = ComicRenderElementType.Mask;
+            renderElement.ElementIndex = maskIndex;
             renderElement.Id = MaskElementId;
             renderElement.BaseMaterial = resourcePool.TextureMaterials[0];
             renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
 
             resourcePool.SharedPropertyBlock.SetColor(DefaultShaderProps.Color, ComicsUtility.UnpackColor565(maskData.PackedColor));
             renderElement.MeshRenderer.SetPropertyBlock(resourcePool.SharedPropertyBlock);
+            renderElement.MeshRenderer.sharedMaterial = renderElement.BaseMaterial;
 
             return renderElement;
         }
@@ -174,23 +253,27 @@ namespace SpaceFab.Comic
             Assert.True(layerIndex != ushort.MaxValue && layerIndex < manifest.Layers.Length);
 
             ushort panelIndex = ComicsUtility.GetPanelIndexForLayer(layerIndex);
-            Transform parent = GetPanelTransform(layerIndex);
+            Transform parent = GetPanelTransform(panelIndex);
 
             if (layout.SpawnedLayersMask.IsSet(layerIndex)) {
-                // TODO: return spawned layer
+                return null;
             }
-
-            ushort meshId = ComicsUtility.PackMeshId(layerIndex, StreamedMeshType.Layer);
+            layout.SpawnedLayersMask.Set(layerIndex);
 
             LayerData layerData = manifest.Layers[layerIndex];
+
+            ushort meshId = ComicsUtility.PackMeshId(layerData.MeshIndex, StreamedMeshType.Layer);
+
             ComicRenderElement renderElement = resourcePool.ElementPool.Alloc(ComicsUtility.UnpackPointPrecise(layerData.Position), Quaternion.Euler(0, 0, ComicsUtility.UnpackDegrees(layerData.PackedRotation)), parent, false);
             renderElement.Type = ComicRenderElementType.Layer;
+            renderElement.ElementIndex = layerIndex;
             renderElement.Id = layerData.Id;
-            renderElement.BaseMaterial = resourcePool.TextureMaterials[0];
+            renderElement.BaseMaterial = resourcePool.TextureMaterials[layerData.TextureIndex];
             renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
 
-            resourcePool.SharedPropertyBlock.SetColor(DefaultShaderProps.Color, Color.white);
+            resourcePool.SharedPropertyBlock.Clear();
             renderElement.MeshRenderer.SetPropertyBlock(resourcePool.SharedPropertyBlock);
+            renderElement.MeshRenderer.sharedMaterial = renderElement.BaseMaterial;
 
             return renderElement;
         }

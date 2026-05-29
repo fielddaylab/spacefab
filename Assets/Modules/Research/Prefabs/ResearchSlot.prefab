@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4377614833524806163}
   - component: {fileID: 3986363150842357682}
   - component: {fileID: 8579117913987635}
+  - component: {fileID: 1301278793089183734}
   m_Layer: 20
   m_Name: ResearchSlot
   m_TagString: Untagged
@@ -149,6 +150,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5}
   m_EdgeRadius: 0
+--- !u!114 &1301278793089183734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2661240849518676373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: 
+    m_HashValue: 0
+  RectTransform: {fileID: 0}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 8579117913987635}
 --- !u!1001 &6595267697403963334
 PrefabInstance:
   m_ObjectHideFlags: 0

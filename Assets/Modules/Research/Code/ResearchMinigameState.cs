@@ -9,6 +9,22 @@ using UnityEngine;
 
 namespace SpaceFab.Research
 {
+    /// <summary>
+    /// A single research discovery: one property newly confirmed about a material during the
+    /// current session. Held by ResearchMinigameState.LastDiscovery to answer "which sample most
+    /// recently had new information found about it" (e.g. the wiki auto-open onboarding step).
+    /// </summary>
+    public struct ResearchDiscovery
+    {
+        public StringHash32 MaterialId;
+        public MaterialPropertyLabel Property;
+        // The X material for dynamic labels (PDopantFor / NDopantFor); empty for static labels.
+        public StringHash32 ContextMaterialId;
+
+        // True once a real discovery has been recorded — a material id is never empty.
+        public bool IsValid { get { return !MaterialId.IsEmpty; } }
+    }
+
     public class ResearchMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
     {
         #region Saved State
@@ -48,6 +64,12 @@ namespace SpaceFab.Research
         // frame. Cleared by ResearchMinigameStateRefreshSystem at end
         // of frame.
         [NonSerialized] public bool PropertyConfirmedThisFrame;
+
+        // The most recent genuinely-new property confirmation this session — idempotent
+        // re-confirms don't update it. Invalid (default) until the first new confirmation;
+        // reset on minigame entry by ResearchStateUtility.LoadFromPlayerProgress. Read by
+        // ResearchScripting.Leaf_OpenWikiToLastDiscovery to open that material's wiki page.
+        [NonSerialized] public ResearchDiscovery LastDiscovery;
 
         #endregion // Runtime State
 
@@ -115,14 +137,18 @@ namespace SpaceFab.Research
         // PlayerProgressState. Idempotent (OR-mask semantics). Observation-only
         // labels are silently ignored. SandboxDirty is updated only when the
         // record actually changes, so the dirty set reflects genuine deltas.
-        public static void Confirm(ResearchMinigameState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
+        // Returns true iff this call added genuinely-new knowledge (false for an
+        // idempotent re-confirm or an ignored observation-only label).
+        public static bool Confirm(ResearchMinigameState state, StringHash32 materialId, MaterialPropertyLabel label, StringHash32 contextMaterialId)
         {
             state.SandboxProperties.TryGetValue(materialId, out var record);
             if (MaterialPropertyRecordUtility.TrySet(ref record, label, contextMaterialId))
             {
                 state.SandboxProperties[materialId] = record;
                 state.SandboxDirty.Add(materialId);
+                return true;
             }
+            return false;
         }
 
         // Empties the sandbox. Called after a successful CommitToPlayerProgress
@@ -151,6 +177,7 @@ namespace SpaceFab.Research
         {
             ClearSandbox(researchState);
             ResearchInventoryUtility.ClearAllObservations(researchState);
+            researchState.LastDiscovery = default;
 
             foreach (var materialId in researchState.AvailableMaterials)
             {
