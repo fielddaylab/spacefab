@@ -92,17 +92,21 @@ namespace SpaceFab.Materials
             {
                 return ObservationType.Electrical;
             }
-            else if (label <= MaterialPropertyLabel.AtomicRadiusLessThan)
+            else if (label < MaterialPropertyLabel.AtomicRadiusLessThan)
             {
                 return ObservationType.Thermal;
             }
-            else if (label <= MaterialPropertyLabel.LightEmitting)
+            else if (label < MaterialPropertyLabel.LightEmitting)
             {
                 return ObservationType.Dopant;
             }
-            else
+            else if (label < MaterialPropertyLabel.ConductorNaive)
             {
                 return ObservationType.Special;
+            }
+            else
+            {
+                return ObservationType.ConfirmedProperty;
             }
         }
     }
