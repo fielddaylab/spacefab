@@ -23,6 +23,16 @@ namespace SpaceFab.Comic {
         [Range(8, 128)] public int SlicingTileSize = 16;
         [Range(0, 4)] public int TilePadding = 1;
 
+        [Header("-- DIAGNOSTICS --")]
+        [SerializeField] private ExportHashes m_ExportHashes;
+
+        [Serializable]
+        public struct ExportHashes {
+            public string[] LastExportSpriteGuids;
+            public Hash128[] LastExportSpriteTextureHashes;
+            public ulong LastWrittenSettingsHash;
+        }
+
 #if UNITY_EDITOR
 
         [CustomEditor(typeof(ComicSequenceNode))]
@@ -34,15 +44,15 @@ namespace SpaceFab.Comic {
 
                 if (GUILayout.Button("Compile")) {
                     foreach(ComicSequenceNode node in targets) {
-                        BuildManifest(node.transform, node.Manifest, node.SlicingTileSize, node.TilePadding);
+                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding);
                     }
                 }
             }
         }
 
-        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, int slicing, int padding) {
+        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, ref ExportHashes exportHashes, UnityEngine.Object source, int slicing, int padding) {
             if (!manifest) {
-                Log.Error("[ComicSequenceNode] No manifest provided to export {0}", root.gameObject.name);
+                Log.Error("[ComicSequenceNode] No node provided to export {0}", root.gameObject.name);
                 return false;
             }
 
@@ -78,8 +88,17 @@ namespace SpaceFab.Comic {
                 }
             }
 
-            using (Profiling.Time("Generating Meshes and Packing Textures")) {
-                ScanAndPackLayers(ref builder, slicing, padding);
+            TilePackingSettings packingSettings = GetPackingSettings(slicing, padding);
+            bool needToRebuildTextures = AreTexturesDirty(ref builder, ref exportHashes, packingSettings);
+            if (needToRebuildTextures) {
+                Baking.SetDirty(source);
+                using (Profiling.Time("Generating Meshes and Packing Textures")) {
+                    ScanAndPackLayers(ref builder, packingSettings);
+                }
+            } else {
+                Log.Msg("[ComicSequenceNode] No texture changes detected, skipping rebuild");
+                builder.OutputMeshes = manifest.CompressedMeshData;
+                builder.OutputTextures = manifest.Textures;
             }
 
             Assert.True(builder.Pages.Count <= ComicResourceUtility.MaxPages, "Cannot exceed " + ComicResourceUtility.MaxPages + " pages per comic");
@@ -312,6 +331,48 @@ namespace SpaceFab.Comic {
 
         #endregion // Nodes
 
+        static private bool AreTexturesDirty(ref SequenceBuilder builder, ref ExportHashes hashes, TilePackingSettings settings) {
+            bool isDifferent = false;
+
+            ulong hash = Unsafe.Hash64(settings);
+            if (hashes.LastWrittenSettingsHash != hash) {
+                hashes.LastWrittenSettingsHash = hash;
+                isDifferent = true;
+            }
+
+            using (TempReferenceBuffer<Sprite> tempSprites = TempReferenceBuffer<Sprite>.Create(builder.DiscoveredLayers.Count)) {
+                for (int i = 0; i < builder.DiscoveredLayers.Count; i++) {
+                    ComicLayerNode node = builder.DiscoveredLayers[i];
+                    if (node.Image) {
+                        tempSprites.Add(node.Image);
+                    }
+                }
+
+                string[] guids = new string[tempSprites.Count];
+                for (int i = 0; i < tempSprites.Count; i++) {
+                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(tempSprites[i], out guids[i], out long localId);
+                    guids[i] += localId.ToString();
+                }
+
+                if (!ArrayUtils.ContentEquals(guids, hashes.LastExportSpriteGuids)) {
+                    hashes.LastExportSpriteGuids = guids;
+                    isDifferent = true;
+                }
+
+                Hash128[] texHashes = new Hash128[tempSprites.Count];
+                for(int i = 0; i < tempSprites.Count; i++) {
+                    texHashes[i] = tempSprites[i].texture.imageContentsHash;
+                }
+
+                if (!ArrayUtils.ContentEquals(texHashes, hashes.LastExportSpriteTextureHashes)) {
+                    hashes.LastExportSpriteTextureHashes = texHashes;
+                    isDifferent = true;
+                }
+            }
+
+            return isDifferent;
+        }
+
         #region Packing
 
         private const int MaxTextureSize = 4096;
@@ -319,13 +380,16 @@ namespace SpaceFab.Comic {
 
         private const int MaxQuads = ushort.MaxValue / 6;
 
-        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, int slicing, int padding) {
-            // TODO: tile packing, setting flags
-
+        static private TilePackingSettings GetPackingSettings(int slicing, int padding) {
             TilePackingSettings packingSettings;
             packingSettings.Padding = padding;
             packingSettings.PaletteTileSize = 2;
             packingSettings.TileSize = slicing;
+            return packingSettings;
+        }
+
+        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, TilePackingSettings packingSettings) {
+            // TODO: tile packing, setting flags
 
             WorkList<Sprite> discoveredSprites = new WorkList<Sprite>(builder.DiscoveredLayers.Count);
             WorkList<CondensedMesh> condensedMeshes = new WorkList<CondensedMesh>(builder.DiscoveredLayers.Count);

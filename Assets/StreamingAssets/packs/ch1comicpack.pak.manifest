@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2745070618
+CRC: 3622260322
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 75f0caabf9e302ffca0ae161969d8eba
+    Hash: c0d2416f5d7fc6ea0b411c50aa5376f4
   TypeTreeHash:
     serializedVersion: 2
     Hash: 5c96aad99a185c07300ac1e0922e342d
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 75f0caabf9e302ffca0ae161969d8eba
+    Hash: c0d2416f5d7fc6ea0b411c50aa5376f4
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -25,8 +25,6 @@ ClassTypes:
 SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Comic.CameraData
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Comic.ComicMeshHeader
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Comic.LayerData
 - AssemblyName: Assembly-CSharp
