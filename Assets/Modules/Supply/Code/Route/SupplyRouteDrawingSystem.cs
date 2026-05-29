@@ -213,7 +213,6 @@ namespace SpaceFab.Supply {
 
                 case SupplyRouteDrawAction.CompleteRouteAuto: {
                     SupplyRouteData.Copy(currentRoute, ref previewRoute);
-                    previewRoute.Flags |= SupplyRouteFlags.AutoConnectEnd;
                     SupplyRouteUtility.TryEvaluatePath(previewRoute, shipStats, draw.RouteIndex, out previewStats);
                     break;
                 }

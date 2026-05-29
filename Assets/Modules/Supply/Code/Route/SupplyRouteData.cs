@@ -147,7 +147,7 @@ namespace SpaceFab.Supply {
             // also sets up converter pass
 
             for (int i = 1; i < maxNodesToRead; i++) {
-                SupplyRouteNode node = route.Nodes[i];
+                SupplyRouteNode node = route.Nodes[i % route.NodeCount];
                 if (node.Type == SupplyRouteNodeType.Producer) {
                     if (materialCount >= ship.Capacity) {
                         resultFlags |= SupplyRouteResultFlags.TooManyResources;

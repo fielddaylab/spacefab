@@ -46,7 +46,7 @@ namespace SpaceFab.Supply {
         // when i is the route being drawn, otherwise the finalized stats. `active` reports
         // whether that route has any nodes.
         private static SupplyRouteStats GetEffectiveStats(SupplyRouteCollection routes, SupplyRouteDrawingState drawing, int i, out bool active) {
-            bool tempInUse = drawing != null && drawing.Phase != SupplyRouteDrawPhase.Unselected && drawing.RouteIndex >= 0;
+            bool tempInUse = drawing != null && drawing.RouteIndex >= 0;
             if (tempInUse && drawing.RouteIndex == i) {
                 active = routes.TempRouteBuffer.NodeCount > 0;
                 return routes.TempRouteStats;
