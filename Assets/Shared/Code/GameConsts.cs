@@ -24,6 +24,7 @@ namespace SpaceFab
         static public readonly StringHash32 TitleProfileStarting = "title:profile-starting";
 
         static public readonly StringHash32 TitleNewGameClicked = "title:new-game-clicked";
+        static public readonly StringHash32 TitleContinueGameClicked = "title:continue-game-clicked";
 
 
         // Save
@@ -65,6 +66,7 @@ namespace SpaceFab
         public static readonly StringHash32 FabStunEnd = "fab:stun-end";
 
         // Fabrication: Sequence
+        public static readonly StringHash32 FabCountDownStart = "fab:countdown-start";
         public static readonly StringHash32 FabSequenceReset = "fab:sequence-reset";
         public static readonly StringHash32 FabSequenceStepCompleted = "fab:sequence-step-completed";
         public static readonly StringHash32 FabSequenceCompleted = "fab:sequence-completed";

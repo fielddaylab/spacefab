@@ -282,6 +282,7 @@ namespace SpaceFab.Logging
 
             // Fabrication
             SpacefabGame.Events
+                .Register(GameEvents.FabCountDownStart, LogTimerStart)
                 .Register(GameEvents.FabActivateStation, (string stationId) => LogActivateStation(stationId))
                 .Register<(string, string)>(GameEvents.FabInvalidActivateStation, LogInvalidActivation);
         }

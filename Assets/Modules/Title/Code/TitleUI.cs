@@ -156,13 +156,14 @@ namespace SpaceFab.Title
                     SaveUtility.SetDebugFlag(true);
                     SpacefabGame.SaveBuffer.Clear();
                     HandleStartAccepted();
-                    // Debug.Log("New Game");
+                    Debug.Log("New Game");
                     // SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
 
                     SaveUtility.Save(SaveSlot.Main);
                 }
                 else
                 {
+                    Debug.Log("not dev build");
                     SaveUtility.SetDebugFlag(false);
                     SpacefabGame.SaveBuffer.Clear();
                     OGD.Player.ClaimId(m_PlayerCodeInput.text, null, HandleStartAccepted, HandleClaimNewIdError);
@@ -170,6 +171,8 @@ namespace SpaceFab.Title
             }
             else
             {
+                Debug.Log("resume game");
+
                 Future f = SaveUtility.LoadFromServer(m_PlayerCodeInput.text);
                 f.OnComplete(HandleStartAccepted);
                 f.OnFail(HandleLoadError);
@@ -272,7 +275,7 @@ namespace SpaceFab.Title
             SaveUtility.Save(SaveSlot.Main);
 
             // TODO: set this in OGD
-            SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
+            //SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
             Game.Scenes.LoadMainScene(m_NextScene);
         }
