@@ -20,12 +20,10 @@
 ::StunNonFurnace
 
 
-::NotEnoughHeat
-// show Not Enough Heat panel and reset microgame
-
-
-::TooMuchHeat
-// show Too Much Heat panel and reset microgame
+::GateFurnace
+@trigger    OnFabMicrogameCompleted
+@when       microgame == "station:furnace"
+$call       RequireMicrogamePrecision(0.9)
 
 
 ::FirstStationCompleted
