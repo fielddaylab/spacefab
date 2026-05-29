@@ -165,6 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RecentlyCompletedChapter: 0
   BigBatteryUnlocked: 0
+  InitialUnlocksApplied: 0
   ElapsedCycles: 0
   Funds: 0
   CompletedContractBuffer: 0
@@ -488,6 +489,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e05e28840a1d672429f6d7e01d1337ae, type: 2}
   - {fileID: 11400000, guid: 538e73164294ef846a0c15a9422da501, type: 2}
   - {fileID: 11400000, guid: 252c3106e0175b043a476d226651f064, type: 2}
+  - {fileID: 11400000, guid: 2803c3bb261e7df4a93c23cb3caef4ab, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:
   m_ObjectHideFlags: 0
