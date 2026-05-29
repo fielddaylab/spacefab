@@ -84,16 +84,26 @@ namespace SpaceFab.Fabrication
             // the match check; they're outcome data, not postcondition data.
             return true;
         }
+        
+        // TODO, reset wafer and all necessary fields
+        public static void ResetWafer(WaferState state)
+        {
+
+        }
 
         // Records this step's precision. Called by a microgame from OnExitBegin(completedNormally: true).
         // Updates RecordedStepCount to the max of itself and (stepIndex + 1) so aggregation scopes
         // to the steps actually attempted.
         public static void SetStepPrecision(WaferState state, int stepIndex, float precision)
         {
-            // TODO:
-            //   bounds-check stepIndex against state.StepPrecisions.Length
-            //   state.StepPrecisions[stepIndex] = precision
-            //   if (stepIndex >= state.RecordedStepCount) state.RecordedStepCount = stepIndex + 1
+            if (stepIndex < state.StepPrecisions.Length) {
+                state.StepPrecisions[stepIndex] = precision;
+                state.RecordedStepCount++;
+                if (stepIndex >= state.RecordedStepCount)
+                {
+                    state.RecordedStepCount = stepIndex + 1;
+                }
+            }
         }
 
         // Returns the average of all precisions recorded so far (entries [0, RecordedStepCount)).
@@ -101,10 +111,16 @@ namespace SpaceFab.Fabrication
         // FabricationMinigameState.ExportState for save.
         public static float GetAggregatedPrecision(WaferState state)
         {
-            // TODO:
-            //   if (state.RecordedStepCount <= 0) return 0f
-            //   sum state.StepPrecisions[0 .. RecordedStepCount) and divide by RecordedStepCount
-            return 0f;
+            if (state.RecordedStepCount <= 0) return 0f;
+            else
+            {
+                float sum = 0f;
+                for (int i = 0; i < state.RecordedStepCount; i++)
+                {
+                    sum += state.StepPrecisions[i];
+                }
+                return sum / state.RecordedStepCount;
+            }
         }
     }
 }
