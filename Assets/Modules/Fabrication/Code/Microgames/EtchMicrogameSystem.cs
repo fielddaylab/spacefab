@@ -33,7 +33,7 @@ namespace SpaceFab.Fabrication.Microgames
             switch (state.Phase)
             {
                 case EtchMicrogamePhase.Entering:
-                    canvasState.ShowUI(FabricationConsts.ETCH_STATION_ID);
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.ETCH_STATION_ID);
                     ProcessEntering(state, deltaTime);
                     break;
 

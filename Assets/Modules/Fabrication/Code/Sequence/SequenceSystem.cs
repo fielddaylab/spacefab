@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
@@ -7,6 +8,7 @@ using SpaceFab.Fabrication.StationControl;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Sequence
@@ -61,15 +63,16 @@ namespace SpaceFab.Fabrication.Sequence
             HandleMicrogameCompleted(sequenceState, stationState, movementState, layoutState, waferState, timeState, visualsState, recapState);
         }
 
-        // On microgame completion:
+        // On a microgame completion that passed the precision gate (MicrogamePassedThisFrame):
         //   - If the completed station was the Defrag station, unglitch the current step (does NOT advance).
         //   - Otherwise verify the station matched the current step AND the wafer matches the expected
         //     snapshot. Advance on success, flag misalignment on failure.
-        // A microgame that is cancelled (rather than completed) does NOT trigger either path, because
-        // StationControlState.MicrogameCompletedThisFrame is only set on a normal completion.
+        // A cancelled microgame, and a completion that failed the precision gate (paused for retry), do
+        // NOT trigger either path: MicrogamePassedThisFrame is raised only when the station-control machine
+        // accepts a completion and commits to exiting.
         static private void HandleMicrogameCompleted(SequenceState sequenceState, StationControlState stationState, MovementState movementState, LayoutState layoutState, WaferState waferState, TimeState timeState, SequenceVisualsState visualsState, CompletionRecapState recapState)
         {
-            if (!stationState.MicrogameCompletedThisFrame) {
+            if (!stationState.MicrogamePassedThisFrame) {
                 return;
             }
             // The outer ProcessWork early-out allows Restoring through (so this code path runs while
@@ -109,6 +112,7 @@ namespace SpaceFab.Fabrication.Sequence
                 SpacefabGame.Events.Dispatch(GameEvents.FabInvalidActivateStation, EvtArgs.Box((actual.Source(), expected.Source())));
                 Debug.Log($"Activated station {actual} did not match expected station {expected} for step {step.Value.StepId}");
                 SequenceUtility.FlagMisalignment(sequenceState);
+                Log.Msg($"Misalignment! Expected: {expectedStation.ToDebugString()}, got {actualStation.ToDebugString()}");
                 return;
             }
 

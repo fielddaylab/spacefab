@@ -2,6 +2,7 @@ using System.Collections;
 using BeauRoutine;
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using UnityEngine;
@@ -112,6 +113,34 @@ namespace SpaceFab.UI {
 
         #endregion // External API
 
+        #region Material Page Lookup
+
+        // Finds the authored material page bound to materialId, returning the tab + page ids that
+        // OpenTo needs. Material pages can live under any tab, so every tab's page list is scanned.
+        // Returns false (and leaves the out params default) when no page references this material —
+        // callers should no-op rather than open an arbitrary page.
+        public static bool TryFindMaterialPage(WikiContent content, StringHash32 materialId, out StringHash32 tabId, out StringHash32 pageId) {
+            tabId = default;
+            pageId = default;
+            if (content == null || content.Tabs == null || materialId.IsEmpty) { return false; }
+
+            for (int t = 0; t < content.Tabs.Length; t++) {
+                WikiTabData tab = content.Tabs[t];
+                if (tab == null || tab.Pages == null) { continue; }
+                for (int p = 0; p < tab.Pages.Length; p++) {
+                    WikiPageData page = tab.Pages[p];
+                    if (page != null && page.IsMaterialPage && page.MaterialId == materialId) {
+                        tabId = tab.AssetId;
+                        pageId = page.AssetId;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        #endregion // Material Page Lookup
+
         #region Tab + Page Commands
 
         // Switch to a specific tab by index. Clamps to valid range. Resets ActivePageIndex to
@@ -205,6 +234,11 @@ namespace SpaceFab.UI {
             wikiState.Expanded = false;
             yield return null;
             wikiState.Transitioning = false;
+
+            // The panel has finished collapsing — let onboarding / scripts react to the wiki
+            // being dismissed. Firing after the transition completes means an interrupted
+            // collapse (reopened mid-transition) won't raise a spurious closed trigger.
+            ScriptUtility.Trigger(ScriptTriggers.OnWikiClosed);
         }
 
         #endregion // Transition Routines

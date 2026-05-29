@@ -20,7 +20,6 @@ namespace SpaceFab.Overarching
 				new SysPermissions()
 					.ReadWrite<MinigameZone>()
 					.ReadWriteShared<MinigameZonesState>()
-					.ReadShared<PaletteState>()
 					.ReadShared<OverarchingAlertState>()
 			);
         }
@@ -28,8 +27,8 @@ namespace SpaceFab.Overarching
         static private void ProcessWork(float deltaTime)
         {
             MinigameZonesState state = Find.State<MinigameZonesState>();
-            PaletteState palette = Find.State<PaletteState>();
             OverarchingAlertState alertState = Find.State<OverarchingAlertState>();
+            MinigameZoneOverlayDB overlayDB = Find.GlobalAsset<MinigameZoneOverlayDB>();
 
 			var components = Find.Components<MinigameZone>();
 
@@ -46,7 +45,7 @@ namespace SpaceFab.Overarching
 				if (IsZoneLocked(alertState, zone)) { continue; }
 				if (zone.PointerEnterThisFrame)
                 {
-                    MinigameZonesUtility.BeginHover(state, palette, zone.ZoneIndex);
+                    MinigameZonesUtility.BeginHover(state, zone.ZoneIndex);
                 }
             }
 
@@ -56,9 +55,14 @@ namespace SpaceFab.Overarching
 				if (zone.ClickedThisFrame)
                 {
                     SpacefabGame.Events.Dispatch(GameEvents.SelectMinigame, i);
-                    MinigameZonesUtility.ClickZone(state, palette, zone.ZoneIndex);
+                    MinigameZonesUtility.ClickZone(state, zone.ZoneIndex);
                 }
             }
+
+            // Apply each zone's resting + hover overlay every frame, so unlocked zones always show
+            // their non-focus overlay (and react to lock / needs-attention changes) regardless of
+            // whether a pointer event fired this frame.
+            MinigameZonesUtility.RefreshZoneVisuals(state, alertState, overlayDB);
         }
 
         // True when the zone's alert mask has the Locked bit set. Locked zones get no hover

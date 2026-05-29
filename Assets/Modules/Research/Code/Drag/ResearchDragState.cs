@@ -1,7 +1,9 @@
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab;
+using SpaceFab.Design;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -66,6 +68,12 @@ namespace SpaceFab.Research {
                 return false;
             }
             BeginDrag(dragState, instance, null, ChamberSlotKind.Primary);
+
+            using (var table = TempVarTable.Alloc())
+            {
+                table.Set("source", "tray");
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnSampleLifted, table);
+            }
             return true;
         }
 
@@ -89,6 +97,10 @@ namespace SpaceFab.Research {
 
             ResearchSlotUtility.FillInSlot(interfacerState, slot, kindOpt.Value, null);
             BeginDrag(dragState, instance, slot, kindOpt.Value);
+            using (var table = TempVarTable.Alloc()) {
+                table.Set("source", "slot");
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnSampleLifted, table);
+            }
             return true;
         }
 
@@ -128,23 +140,28 @@ namespace SpaceFab.Research {
                 return false;
             }
 
-            if (swap != null) {
+            if (swap != null)
+            {
                 // 3a. Swap: release the current instance, allocate a fresh one
                 // for the swapped-out material. LiftedFromSlot becomes this
                 // slot so a later cancel restores the swapped material here.
                 ResearchMaterialInstanceUtility.Release(pool, dragged);
                 ResearchMaterialDragInstance newInstance = ResearchMaterialInstanceUtility.Allocate(pool, swap, null);
-                if (newInstance == null) {
+                if (newInstance == null)
+                {
                     EndDrag(dragState);
                     return true;
                 }
                 dragState.CurrentInstance = newInstance;
                 dragState.LiftedFromSlot = slot;
                 dragState.LiftedFromKind = kind;
-                if (dragState.DragRoot != null) {
+                if (dragState.DragRoot != null)
+                {
                     newInstance.transform.SetParent(dragState.DragRoot, false);
                 }
-            } else {
+            }
+            else
+            {
                 // 3b. No swap: release the instance and end the drag.
                 ResearchMaterialInstanceUtility.Release(pool, dragged);
                 EndDrag(dragState);

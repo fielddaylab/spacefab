@@ -29,23 +29,25 @@ namespace SpaceFab.Fabrication.Microgames
         private static void ProcessWork(float deltaTime)
         {
             Find.State(
-                out ResistMicrogameState microgameState,
+                out ResistMicrogameState state,
                 out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
                 );
-            if (!microgameState.IsActive) { return; }
+            if (!state.IsActive) { return; }
 
-            switch (microgameState.Phase)
+            switch (state.Phase)
             {
                 case ResistMicrogamePhase.Idle:
                     break;
                 case ResistMicrogamePhase.Entering:
-                    canvasState.ShowUI(FabricationConsts.RESIST_STATION_ID);
+                    AnimateSweeping(state);
+                    MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.RESIST_STATION_ID);
                     break;
                 case ResistMicrogamePhase.Sweeping:
-                    ProcessSweeping(microgameState);
+                    AnimateSweeping(state);
+                    ProcessSweeping(state);
                     break;
                 case ResistMicrogamePhase.Spreading:
-                    ProcessSpreading(microgameState, deltaTime);
+                    ProcessSpreading(state, deltaTime);
                     break;
                 default:
                     break;
@@ -54,16 +56,18 @@ namespace SpaceFab.Fabrication.Microgames
 
         #region Helpers
 
-        // sweep dropper position; on Activate-press, record drop X and signal completion.
-        private static void ProcessSweeping(ResistMicrogameState state)
+        private static void AnimateSweeping(ResistMicrogameState state)
         {
-            // sweep dropper positional function
             state.SweeperX = state.MaxOffset * Mathf.Sin(Time.time * state.SweepSpeed) + state.CenterX;
 
             Vector3 SweeperPosition = state.SweeperAnchor.localPosition;
             SweeperPosition.x = state.SweeperX;
             state.SweeperAnchor.localPosition = SweeperPosition;
+        }
 
+        // sweep dropper position; on Activate-press, record drop X and signal completion.
+        private static void ProcessSweeping(ResistMicrogameState state)
+        {
             // on player input, capture drop position and begin spreading phase
             if (state.InputAccepted && Game.Input.IsKeyPressed(FabricationConsts.Activate))
             {

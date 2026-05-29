@@ -588,6 +588,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3528097559936212316, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.23399985
+      objectReference: {fileID: 0}
     - target: {fileID: 5810497370473437591, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Name
       value: Etch Interfacer Variant
@@ -646,7 +650,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7602396801385616420, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.248
+      value: 3.67
       objectReference: {fileID: 0}
     - target: {fileID: 8755272116839694844, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_text

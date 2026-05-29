@@ -108,6 +108,13 @@ namespace SpaceFab.Onboarding {
             m_WorldRoot.localRotation = Quaternion.identity;
             m_WorldRoot.localScale = Vector3.one;
 
+            // Collider2D.bounds reads the physics-engine AABB, which only refreshes on a
+            // physics sync. The project runs with Physics2D.autoSyncTransforms off, and a
+            // highlight can be bound the same frame its target was repositioned (e.g. tray
+            // samples are laid out in SpawnTray, then highlighted from OnSetupComplete before
+            // any FixedUpdate). Without this sync, bounds.center reflects the pre-move position
+            // and the highlight lands on whatever sibling occupied that spot.
+            Physics2D.SyncTransforms();
             Bounds worldBounds = target.bounds;
 
             // Center the highlight on the collider's world center, expressed in the parent's
@@ -127,16 +134,6 @@ namespace SpaceFab.Onboarding {
 
             m_WorldSprite.drawMode = SpriteDrawMode.Sliced;
             m_WorldSprite.size = localSize + new Vector2(margin * 2f, margin * 2f);
-
-            // Match the target's sort layer so the highlight participates in the same
-            // sort group, then nudge one order higher so it draws as an overlay. If the
-            // target has no SpriteRenderer (e.g. a bare collider on a parent transform),
-            // fall back to leaving the highlight's prefab sort settings in place.
-            SpriteRenderer targetRenderer = target.GetComponent<SpriteRenderer>();
-            if (targetRenderer != null) {
-                m_WorldSprite.sortingLayerID = targetRenderer.sortingLayerID;
-                m_WorldSprite.sortingOrder = targetRenderer.sortingOrder + 1;
-            }
 
             m_WorldRoot.gameObject.SetActive(true);
             SetWorldAlpha(m_PulseAlphaMax);
@@ -159,9 +156,6 @@ namespace SpaceFab.Onboarding {
             // visible footprint exactly when the highlight inherits the target's scale.
             Vector2 localSize = target.sprite != null ? (Vector2) target.sprite.bounds.size : Vector2.one;
             m_WorldSprite.size = localSize + new Vector2(margin * 2f, margin * 2f);
-
-            m_WorldSprite.sortingLayerID = target.sortingLayerID;
-            m_WorldSprite.sortingOrder = target.sortingOrder + 1;
 
             m_WorldRoot.gameObject.SetActive(true);
             SetWorldAlpha(m_PulseAlphaMax);

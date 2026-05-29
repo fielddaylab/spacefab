@@ -15,5 +15,8 @@ namespace SpaceFab.Overarching
         Incomplete = 1 << 1,
         Locked = 1 << 2,
         Complete = 1 << 3,
+        // Minigame the player has never started. Distinct from Incomplete, which is a minigame
+        // that was started but not yet completed.
+        NotStarted = 1 << 4,
     }
 }
