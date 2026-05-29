@@ -930,6 +930,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3469893b2ddd28542b654f3d715dec17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!120 &401288817 stripped
+LineRenderer:
+  m_CorrespondingSourceObject: {fileID: 5465117930079308804, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &425520832
 GameObject:
   m_ObjectHideFlags: 0
@@ -1121,11 +1126,6 @@ GameObject:
 --- !u!4 &685892763 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 579476528707914871, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
-  m_PrefabInstance: {fileID: 699037342}
-  m_PrefabAsset: {fileID: 0}
---- !u!120 &688921219 stripped
-LineRenderer:
-  m_CorrespondingSourceObject: {fileID: 8028105390790879474, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
   m_PrefabInstance: {fileID: 699037342}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &699037342
@@ -2033,6 +2033,7 @@ MonoBehaviour:
   CancelRequestedThisFrame: 0
   MicrogamePassedThisFrame: 0
   LastMicrogamePrecision: 0
+  LastRawMicrogamePrecision: 0
   CompletionVerdict: 0
   ProcessAnimationInProgress: 0
   PostStunPhase: 0
@@ -3308,7 +3309,7 @@ MonoBehaviour:
   InputAccepted: 0
   EtchUI: {fileID: 516946605}
   Phase: 0
-  PreviewBeam: {fileID: 688921219}
+  PreviewBeam: {fileID: 401288817}
   PlayerBeam: {fileID: 1938538705}
   CachedPreviewPoints: []
   Direction: {x: 1, y: 0}
