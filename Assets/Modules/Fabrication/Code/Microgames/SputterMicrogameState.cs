@@ -104,6 +104,12 @@ namespace SpaceFab.Fabrication.Microgames
             return ComputePrecision();
         }
 
+        // Sputter error is unsigned (fill percent), so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Spraypaint-specific precision math: percent of the etched target area that got filled
         // by the sputter head. Scaffold returns 0.
         private static float ComputePrecision()

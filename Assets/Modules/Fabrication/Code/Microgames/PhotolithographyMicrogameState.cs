@@ -114,6 +114,14 @@ namespace SpaceFab.Fabrication.Microgames
             return ComputePrecision();
         }
 
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means the mask landed clockwise of the
+        // target angle, > 1 counter-clockwise. Mirrors ComputePrecision's signed angle delta.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out PhotolithographyMicrogameState state);
+            return 1f - (Mathf.DeltaAngle(state.PhotomaskAngle, 0f) / 180f);
+        }
+
         // Mask-Drop-specific precision math: angle delta from target orientation at landing.
         // Scaffold returns 0.
         private static float ComputePrecision()

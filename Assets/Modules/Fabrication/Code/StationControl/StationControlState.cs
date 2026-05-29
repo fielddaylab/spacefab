@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using Leaf.Runtime;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.Stations;
@@ -71,6 +72,11 @@ namespace SpaceFab.Fabrication.StationControl {
         // (read from IMicrogame.GetResultPrecision before OnExitBegin). Read by the Leaf precision gate.
         [HideInInspector] public float LastMicrogamePrecision;
 
+        // Signed precision of the just-completed microgame (IMicrogame.GetRawResultPrecision): 1 = perfect,
+        // < 1 = overshoot (above target), > 1 = undershoot (below target). Used to pick a direction-specific
+        // retry-popup message.
+        [HideInInspector] public float LastRawMicrogamePrecision;
+
         // Verdict of the post-completion precision gate. Reset to Pending each completion, set by the Leaf
         // RequireMicrogamePrecision member (or the no-gate fallback), consumed when resolving the exit.
         [HideInInspector] public MicrogameExitVerdict CompletionVerdict;
@@ -108,6 +114,7 @@ namespace SpaceFab.Fabrication.StationControl {
             CancelRequestedThisFrame = false;
             MicrogamePassedThisFrame = false;
             LastMicrogamePrecision = 0f;
+            LastRawMicrogamePrecision = 1f;
             CompletionVerdict = MicrogameExitVerdict.Pending;
             CompletionScriptHandle = default;
             ProcessAnimationInProgress = false;
@@ -230,6 +237,12 @@ namespace SpaceFab.Fabrication.StationControl {
             }
             stationState.CompletionVerdict = verdict;
             Log.Msg("[StationControlUtility] completion verdict set to {0}", verdict);
+
+            // On a retry verdict, raise the interrupt request so TutorialInterruptSystem opens the retry
+            // popup and pauses the timer.
+            if (verdict == MicrogameExitVerdict.Retry && Game.SharedState.Has<TutorialInterruptState>()) {
+                Find.State<TutorialInterruptState>().TutorialInterruptRequested = true;
+            }
         }
 
         // Restarts a microgame paused in AwaitingRetry, resetting it to a fresh active play state (as if

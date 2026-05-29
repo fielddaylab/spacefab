@@ -146,6 +146,14 @@ namespace SpaceFab.Fabrication.Microgames
             return ComputePrecision();
         }
 
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means the drop landed right of center,
+        // > 1 means left of center. Mirrors ComputePrecision's error term.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out ResistMicrogameState state);
+            return 1f - ((state.DropX - state.CenterX) / state.MaxOffset);
+        }
+
         // Spin-Coat-specific precision math: distance between drop position and wafer center.
         private static float ComputePrecision()
         {

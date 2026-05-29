@@ -135,6 +135,12 @@ namespace SpaceFab.Fabrication.Microgames
             return ComputePrecision();
         }
 
+        // Ion error is unsigned, so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Scaffold returns 0 until precision math is defined.
         private static float ComputePrecision()
         {

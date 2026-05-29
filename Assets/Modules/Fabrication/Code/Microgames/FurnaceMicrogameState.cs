@@ -83,6 +83,7 @@ namespace SpaceFab.Fabrication.Microgames
             Vector3 targetRotation = new Vector3(0, 0, targetZRotation);
             state.TargetRangeAnchor.rotation = Quaternion.Euler(targetRotation);
             state.TargetArrowAnchor.rotation = Quaternion.Euler(targetRotation);
+            state.MeterArrowAnchor.rotation = Quaternion.identity;
 
             // reset value
             state.CurrentValue = 0;
@@ -147,6 +148,14 @@ namespace SpaceFab.Fabrication.Microgames
         public static float GetResultPrecision()
         {
             return ComputePrecision();
+        }
+
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means FinalHeat overshot the target
+        // (too hot), > 1 means it undershot (too cold). Mirrors ComputePrecision's error term.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out FurnaceMicrogameState state);
+            return 1f - ((state.FinalHeat - state.TargetRange) / state.MaxRange);
         }
 
         // Furnace-specific precision math: difference between final heat value and the target

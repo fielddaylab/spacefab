@@ -1,5 +1,6 @@
 using FieldDay;
 using Leaf.Runtime;
+using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.StationControl;
 
 namespace SpaceFab.Fabrication {

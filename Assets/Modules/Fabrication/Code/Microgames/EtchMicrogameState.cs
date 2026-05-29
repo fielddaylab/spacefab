@@ -139,6 +139,12 @@ namespace SpaceFab.Fabrication.Microgames
             return ComputePrecision();
         }
 
+        // Etch error is unsigned (distance from the target path), so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
         // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam
         // correctly traversed, minus cells incorrectly traversed. Scaffold returns 0.
         private static float ComputePrecision()

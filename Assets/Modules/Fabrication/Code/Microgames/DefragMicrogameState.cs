@@ -57,6 +57,12 @@ namespace SpaceFab.Fabrication.Microgames
             return 1f;
         }
 
+        // Defrag has no precision concept and therefore no direction; raw matches GetResultPrecision.
+        public static float GetRawResultPrecision()
+        {
+            return 1f;
+        }
+
         // TODO: track process animation state (parallel or sequential) and return true once the
         // animation has finished playing. Scaffold returns true so the exit gate doesn't stall
         // before per-microgame animations are authored.

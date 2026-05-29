@@ -131,16 +131,16 @@ namespace SpaceFab.Fabrication.StationControl {
         static private void ProcessInMicrogame(StationControlState stationState) {
             if (stationState.MicrogameCompletedThisFrame) {
                 GameLoop.SuspendUpdates(UpdateMasks.MicrogameMask);
-                stationState.LastMicrogamePrecision =
-                    (stationState.ActiveInterfacer != null && stationState.ActiveInterfacer.Microgame != null)
-                    ? stationState.ActiveInterfacer.Microgame.GetResultPrecision()
-                    : 1f;
+                bool hasMicrogame = stationState.ActiveInterfacer != null && stationState.ActiveInterfacer.Microgame != null;
+                stationState.LastMicrogamePrecision = hasMicrogame ? stationState.ActiveInterfacer.Microgame.GetResultPrecision() : 1f;
+                stationState.LastRawMicrogamePrecision = hasMicrogame ? stationState.ActiveInterfacer.Microgame.GetRawResultPrecision() : 1f;
                 stationState.CompletionVerdict = MicrogameExitVerdict.Pending;
                 using (var table = TempVarTable.Alloc()) {
                     if (stationState.ActiveInterfacer != null) {
                         table.Set("microgame", stationState.ActiveInterfacer.Id.Source().ToLower());
                     }
                     table.Set("precision", stationState.LastMicrogamePrecision);
+                    table.Set("rawPrecision", stationState.LastRawMicrogamePrecision);
                     stationState.CompletionScriptHandle = ScriptUtility.Trigger(FabricationScriptTriggers.OnMicrogameCompleted, table);
                 }
                 Log.Msg("[StationControlSystem] microgame completed (precision {0}); resolving precision gate", stationState.LastMicrogamePrecision);

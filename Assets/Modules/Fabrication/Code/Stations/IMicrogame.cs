@@ -27,6 +27,13 @@ namespace SpaceFab.Fabrication.Stations {
         // concept (Defrag) return 1.
         float GetResultPrecision();
 
+        // Side-effect-free signed precision: the same measurement as GetResultPrecision but WITHOUT the
+        // absolute value, so its sign encodes the error direction. Convention: 1 = perfect; < 1 means the
+        // player's value overshot the target (above), > 1 means it undershot (below). Stations whose error
+        // is inherently unsigned (coverage/fill) just return their GetResultPrecision. Lets the retry popup
+        // pick a direction-specific message without any station-specific logic in the generic systems.
+        float GetRawResultPrecision();
+
         // Polled each frame during ExitingMicrogame after a successful completion. Returns true
         // once the microgame's process animation has finished playing. The animation may have
         // been started either in parallel (during InMicrogame, via SignalProcessAnimationStarted)

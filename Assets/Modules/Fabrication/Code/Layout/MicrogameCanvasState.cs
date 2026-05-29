@@ -4,6 +4,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.UI.Animation;
 using SpaceFab.Fabrication.Stations;
+using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,15 @@ namespace SpaceFab.Fabrication.Layout
     public class MicrogameCanvasState : SharedStateComponent, IRegistrationCallbacks
     {
         public CanvasGroup FaderGroup;
+
+        [Space(5)]
+        [Header("Popup Group")]
         public CanvasGroup PopupGroup;
+        public TMP_Text PopupMainText;
+        public TMP_Text PopupSecondaryText;
+        public DynamicButton StationRestartButton;
+
+        [Space(5)]
         public CanvasGroup InstructionsGroup;
         public InstructionLookup InstructionsLookup;
         public GameObject SpaceImage, LRArrowImage, FullArrowImage, MouseImage, ADArrowImage;
