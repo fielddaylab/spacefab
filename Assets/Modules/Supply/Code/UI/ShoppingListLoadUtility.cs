@@ -51,10 +51,13 @@ namespace SpaceFab.Supply {
             //    finalized routes.
             GatherCollectedMaterials(s_CollectedScratch, routes);
 
-            // 4. One row per required property.
+            // 4. One row per required property, minus any the contract omits
+            //    from the Supply shopping list (matched by asset reference).
             MaterialPropertyCheck[] checks = contract.RequiredMaterialProperties();
+            MaterialPropertyCheck[] omitted = contract.OmitFromSupplyRequirements();
             if (checks != null) {
                 for (int i = 0; i < checks.Length; i++) {
+                    if (IsOmittedFromSupply(checks[i], omitted)) continue;
                     AddRow(layout, progressState, checks[i]);
                 }
             }
@@ -72,6 +75,16 @@ namespace SpaceFab.Supply {
             if (!Game.Assets.HasNamed<ContractAssetsWrapper>(progress.ContractAssetsWrapperId)) return null;
             ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(progress.ContractAssetsWrapperId);
             return wrapper != null ? wrapper.ContractDef : null;
+        }
+
+        // True if this requirement is in the contract's Supply omit list,
+        // matched by asset reference. Null/empty omit list => nothing omitted.
+        private static bool IsOmittedFromSupply(MaterialPropertyCheck check, MaterialPropertyCheck[] omitted) {
+            if (omitted == null) return false;
+            for (int i = 0; i < omitted.Length; i++) {
+                if (ReferenceEquals(omitted[i], check)) return true;
+            }
+            return false;
         }
 
         // Allocs one row for the given requirement, sets its property chip
