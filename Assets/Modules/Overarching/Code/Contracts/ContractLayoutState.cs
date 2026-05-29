@@ -23,13 +23,10 @@ namespace SpaceFab.Overarching
         [Header("Selection")]
         public CanvasGroup SelectionCanvasGroup;
         public RectTransform FocusedContractZone;
-        public RectTransform ContractOptionsZone;
-        public Vector3 ContractOptionsStartPos;
-        public Vector3 ContractOptionsEndPos;
         public ContractUI SelectionContractUI;
         public DynamicButton ConfirmContractButton;
-
-        public ContractOptionButton[] OptionButtons;
+        public DynamicButton NextContractButton;
+        public DynamicButton PrevContractButton;
 
         [Header("Change")]
         public DynamicButton ViewCurrContractButton;
@@ -65,20 +62,18 @@ namespace SpaceFab.Overarching
             ViewCurrContractButton.gameObject.SetActive(false);
             HideCurrContractButton.gameObject.SetActive(false);
 
-            // Initialize option buttons
-            for (int i = 0; i < OptionButtons.Length; i++)
-            {
-                int tempI = i;
-                OptionButtons[i].Button.onClick.AddListener(() =>
-                    {
-                        var selectState = Find.State<ContractSelectState>();
-                        if (selectState.SelectedContractIndex != tempI)
-                        {
-                            selectState.SelectedContractIndex = tempI;
-                            selectState.SelectedContractIndexChanged = true;
-                        }
-                    });
-            }
+            // Initialize next/prev buttons
+            NextContractButton.onClick.AddListener(() => {
+                Find.State(out ContractSelectState selectState);
+                selectState.SelectedContractIndex = selectState.SelectedContractIndex + 1;
+                selectState.SelectedContractIndexChanged = true;
+            });
+
+            PrevContractButton.onClick.AddListener(() => {
+                Find.State(out ContractSelectState selectState);
+                selectState.SelectedContractIndex = selectState.SelectedContractIndex - 1;
+                selectState.SelectedContractIndexChanged = true;
+            });
 
             // Initialize confirm contract button
             ConfirmContractButton.onClick.AddListener(() => {

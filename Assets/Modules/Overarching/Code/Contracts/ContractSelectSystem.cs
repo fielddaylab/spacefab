@@ -61,12 +61,11 @@ namespace SpaceFab.Overarching {
 
         // Reflects the player's ongoing selection in the UI, refreshes contract data on change, and completes on confirm.
         static private void ProcessSelectContract(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState) {
-            // Enable the Confirm button as soon as any valid contract is selected
-            if (selectState.SelectedContractIndex != -1 && layoutState.ConfirmContractButton.interactable == false) {
-                layoutState.ConfirmContractButton.interactable = true;
-            }
             // When the selected contract changes, refresh its detail UI
             if (selectState.SelectedContractIndexChanged) {
+                layoutState.PrevContractButton.gameObject.SetActive(selectState.SelectedContractIndex > 0);
+                layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < chapterState.CurrAvailableContractsBundle.AvailableContracts.Length - 1);
+
                 ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex]);
                 selectState.SelectedContractIndexChanged = false;
             }
