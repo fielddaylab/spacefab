@@ -132,6 +132,7 @@ namespace SpaceFab.UI {
             if (content.Tabs != null && wikiState.ActiveTabIndex >= 0 && wikiState.ActiveTabIndex < content.Tabs.Length)
             {
                 activeTab = content.Tabs[wikiState.ActiveTabIndex];
+                layoutState.Header.text = activeTab.Title;
             }
 
             WikiPageData activePage = null;
@@ -144,6 +145,7 @@ namespace SpaceFab.UI {
             {
                 var widgets = layoutState.PageContentWidgets;
                 bool materialPage = activePage.IsMaterialPage;
+                bool isPlanet = activePage.isPlanet;
 
                 // Title always renders.
                 if (widgets.TitleText != null) {
@@ -157,6 +159,7 @@ namespace SpaceFab.UI {
                 if (!materialPage && widgets.BodyText != null) {
                     widgets.BodyText.text = activePage.Body ?? " ";
                 }
+                widgets.PlanetDetailsContainer.SetActive(isPlanet);
 
                 // Characteristics group visible only on material pages.
                 // Chip allocation is owned by
@@ -198,17 +201,17 @@ namespace SpaceFab.UI {
 
                 int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
                 bool isLocked = unlockedIndex == -1;
-                // if (isLocked) {
-                //     thumb.gameObject.SetActive(false);
-                //     continue;
-                // }
+                if (isLocked) {
+                    thumb.gameObject.SetActive(false);
+                    continue;
+                }
 
                 int pageWindowSize = Mathf.Max(1, content.PageWindowSize);
                 bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
                 thumb.gameObject.SetActive(true);
                 if (thumb.DynamicButton == null) { continue; }
 
-                thumb.DynamicButton.interactable = true; // isLocked ? false : true;
+                thumb.DynamicButton.interactable = true;
                 // Material pages pull their thumbnail from the
                 // ResearchMaterialView (same single/multi-atom
                 // selection as the page illustration), not from

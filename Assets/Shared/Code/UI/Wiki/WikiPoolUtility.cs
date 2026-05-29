@@ -31,8 +31,8 @@ namespace SpaceFab.UI {
             for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
                 WikiButton tabButton = Acquire(pools.TabButtonPrefab, pools.TabActive, pools.TabFree, pools.TabButtonActiveParent);
                 if (tabButton == null) { continue; }
-                    tabButton.TabIndex = tabIndex;
-                    tabButton.PageIndex = -1;
+                tabButton.TabIndex = tabIndex;
+                tabButton.PageIndex = -1;
             }
 
             // Spawn one thumb per (tab, page) pair across every authored tab. Thumbs for the
@@ -79,7 +79,7 @@ namespace SpaceFab.UI {
         private static void ReleaseAll(List<WikiButton> activeList, List<WikiButton> freeList, RectTransform freeParent) {
             for (int i = 0; i < activeList.Count; i++) {
                 WikiButton instance = activeList[i];
-                if (instance == null) { continue; }
+                if (instance == null || !instance.Available) { continue; }
                 instance.transform.SetParent(freeParent, false);
                 instance.gameObject.SetActive(false);
                 freeList.Add(instance);
