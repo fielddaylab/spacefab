@@ -26,6 +26,16 @@ namespace SpaceFab.Fabrication.Sequence
             return sequenceState.Level.Steps[sequenceState.CurrentStepIndex];
         }
 
+        // returns wether the player is attempting to enter the next correct station in the sequence
+        public static bool CheckNextStep(SequenceState sequenceState, SerializedHash32 attemptedStationID)
+        {
+            FabricationStep expectedFabStep = (FabricationStep) GetCurrentStep(sequenceState);
+            SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
+            SerializedHash32 expectedID = lookup.GetStationForStep(expectedFabStep.StepId);
+
+            return expectedID.Equals(attemptedStationID);
+        }
+
         // True when the sequence is actively accepting step progression (Status == Active).
         public static bool IsActive(SequenceState sequenceState)
         {
