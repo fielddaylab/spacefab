@@ -36,7 +36,7 @@ namespace SpaceFab.Fabrication.Microgames
         public float FillRadius = 3;
         public IonPatternData IonPattern;
 
-        [HideInInspector] public IonMicrogamePhase Phase;
+        public IonMicrogamePhase Phase;
 
         public void OnDeregister()
         {
@@ -71,7 +71,7 @@ namespace SpaceFab.Fabrication.Microgames
             
             // setup UI
             state.IonUI.SetActive(true);
-            canvasState.ShowUI(FabricationConsts.ION_STATION_ID);
+            MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.ION_STATION_ID);
             HintedCursor.Visibility = HintedCursor.VisiblityMode.Invisible;
 
             // setup IonPoints
@@ -103,7 +103,7 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.IonUI.SetActive(false);
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -126,7 +126,19 @@ namespace SpaceFab.Fabrication.Microgames
             state.IonUI.SetActive(false);
             state.Phase = IonMicrogamePhase.Idle;
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Ion error is unsigned, so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
         }
 
         // Scaffold returns 0 until precision math is defined.

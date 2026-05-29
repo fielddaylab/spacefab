@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71b269f70b7616c4ea3d0d5783547937, type: 3}
+  m_Name: RetryPopupLookup
+  m_EditorClassIdentifier: 
+  FurnaceRetry:
+  - Direction: 1
+    MainText: NOT ENOUGH HEAT
+    SecondaryText: Try Again
+  - Direction: 2
+    MainText: TOO MUCH HEAT
+    SecondaryText: Try Again
+  ResistRetry:
+  - Direction: 0
+    MainText: Poor Alignment
+    SecondaryText: Try Again
+  PhotolithographyRetry:
+  - Direction: 0
+    MainText: 
+    SecondaryText: Try Again
+  EtchRetry:
+  - Direction: 0
+    MainText: 
+    SecondaryText: Try Again
+  IonRetry:
+  - Direction: 0
+    MainText: 
+    SecondaryText: Try Again
+  SputterRetry:
+  - Direction: 0
+    MainText: 
+    SecondaryText: Try Again

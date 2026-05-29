@@ -83,6 +83,14 @@ namespace SpaceFab.Fabrication.Stations {
             }
         }
 
+        // Resets the microgame to a fresh active play state without replaying the intro transition.
+        // Used by StationControlUtility.RestartMicrogame: runs the enter lifecycle hooks back-to-back so
+        // the microgame behaves as if just entered and immediately owns input again.
+        public static void Reenter(MicrogameStationInterfacer interfacer) {
+            BeginEnter(interfacer);
+            EnterComplete(interfacer);
+        }
+
         // Called by StationControlSystem on ExitingMicrogame -> AtStation.
         public static void ExitComplete(MicrogameStationInterfacer interfacer) {
             interfacer.Phase = MicrogameInterfacerPhase.Idle;

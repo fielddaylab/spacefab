@@ -1,6 +1,8 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
+using Leaf.Runtime;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
@@ -52,6 +54,13 @@ namespace SpaceFab.Fabrication.StationControl {
                     break;
                 case StationControlPhase.InMicrogame:
                     ProcessInMicrogame(stationState);
+                    break;
+                case StationControlPhase.ResolvingCompletion:
+                    ProcessResolvingCompletion(stationState);
+                    break;
+                case StationControlPhase.AwaitingRetry:
+                    // Frozen, waiting on StationControlUtility.RestartMicrogame (driven by the restart
+                    // panel / Leaf). Nothing to tick.
                     break;
                 case StationControlPhase.ExitingMicrogame:
                     ProcessExitingMicrogame(stationState, deltaTime);
@@ -111,21 +120,86 @@ namespace SpaceFab.Fabrication.StationControl {
             }
         }
 
-        // Watches for MicrogameCompletedThisFrame (normal finish) or CancelRequestedThisFrame (player cancel).
-        // Either path: suspends MicrogameMask, calls BeginExit with the correct completedNormally flag,
-        // dispatches FabMicrogameCompleted or FabMicrogameCancelled, transitions to ExitingMicrogame,
-        // resets PhaseTimer.
+        // Watches for MicrogameCompletedThisFrame (normal finish) or CancelRequestedThisFrame (player
+        // cancel). Completion takes priority if both fire the same frame.
+        //   - Completion: suspends MicrogameMask (freezes the microgame, no exit animation yet), caches
+        //     the result precision, and fires the OnFabMicrogameCompleted Leaf trigger so a precision gate
+        //     can decide. The verdict is resolved inline via ResolveCompletion — there is no added delay
+        //     when no gate node exists or the gate answers synchronously; only a still-running gate parks
+        //     the machine in ResolvingCompletion.
+        //   - Cancel: exits immediately with BeginExit(false) (no precision gate), as before.
         static private void ProcessInMicrogame(StationControlState stationState) {
-            if (!stationState.MicrogameCompletedThisFrame && !stationState.CancelRequestedThisFrame) {
+            if (stationState.MicrogameCompletedThisFrame) {
+                GameLoop.SuspendUpdates(UpdateMasks.MicrogameMask);
+                bool hasMicrogame = stationState.ActiveInterfacer != null && stationState.ActiveInterfacer.Microgame != null;
+                stationState.LastMicrogamePrecision = hasMicrogame ? stationState.ActiveInterfacer.Microgame.GetResultPrecision() : 1f;
+                stationState.LastRawMicrogamePrecision = hasMicrogame ? stationState.ActiveInterfacer.Microgame.GetRawResultPrecision() : 1f;
+                stationState.CompletionVerdict = MicrogameExitVerdict.Pending;
+                using (var table = TempVarTable.Alloc()) {
+                    if (stationState.ActiveInterfacer != null) {
+                        table.Set("microgame", stationState.ActiveInterfacer.Id.Source().ToLower());
+                    }
+                    table.Set("precision", stationState.LastMicrogamePrecision);
+                    table.Set("rawPrecision", stationState.LastRawMicrogamePrecision);
+                    stationState.CompletionScriptHandle = ScriptUtility.Trigger(FabricationScriptTriggers.OnMicrogameCompleted, table);
+                }
+                Log.Msg("[StationControlSystem] microgame completed (precision {0}); resolving precision gate", stationState.LastMicrogamePrecision);
+                ResolveCompletion(stationState);
                 return;
             }
-            // If both flags somehow set the same frame, treat as normal completion.
-            bool completedNormally = stationState.MicrogameCompletedThisFrame;
-            GameLoop.SuspendUpdates(UpdateMasks.MicrogameMask);
-            MicrogameStationInterfacerUtility.BeginExit(stationState.ActiveInterfacer, stationState, completedNormally);
-            Log.Msg("[StationControlSystem] microgame {0}; InMicrogame -> ExitingMicrogame; MicrogameMask suspended",
-                completedNormally ? "completed" : "cancelled");
-            Game.Events.Dispatch(completedNormally ? GameEvents.FabMicrogameCompleted : GameEvents.FabMicrogameCancelled);
+
+            if (stationState.CancelRequestedThisFrame) {
+                GameLoop.SuspendUpdates(UpdateMasks.MicrogameMask);
+                MicrogameStationInterfacerUtility.BeginExit(stationState.ActiveInterfacer, stationState, false);
+                Log.Msg("[StationControlSystem] microgame cancelled; InMicrogame -> ExitingMicrogame; MicrogameMask suspended");
+                Game.Events.Dispatch(GameEvents.FabMicrogameCancelled);
+                stationState.Phase = StationControlPhase.ExitingMicrogame;
+                stationState.PhaseTimer = 0f;
+            }
+        }
+
+        // Re-runs the precision gate each frame while a gate node is still running without a verdict.
+        static private void ProcessResolvingCompletion(StationControlState stationState) {
+            ResolveCompletion(stationState);
+        }
+
+        // Resolves the post-completion precision gate against the current verdict:
+        //   - Proceed (precision met) -> commit the normal exit.
+        //   - Retry (precision below threshold) -> pause in AwaitingRetry and dispatch FabMicrogameRetryRequired.
+        //   - Pending: if the gate thread is no longer running, no node gated this completion (or it
+        //     finished without a verdict) -> Proceed exactly as the pre-gate behavior; otherwise wait in
+        //     ResolvingCompletion for the still-running gate node. Safe to call repeatedly.
+        static private void ResolveCompletion(StationControlState stationState) {
+            switch (stationState.CompletionVerdict) {
+                case MicrogameExitVerdict.Proceed:
+                    ProceedToExit(stationState);
+                    break;
+                case MicrogameExitVerdict.Retry:
+                    stationState.Phase = StationControlPhase.AwaitingRetry;
+                    stationState.PhaseTimer = 0f;
+                    Log.Msg("[StationControlSystem] precision gate failed; pausing -> AwaitingRetry");
+                    Game.Events.Dispatch(GameEvents.FabMicrogameRetryRequired);
+                    break;
+                default: // Pending
+                    if (!stationState.CompletionScriptHandle.IsRunning()) {
+                        ProceedToExit(stationState);
+                    } else if (stationState.Phase != StationControlPhase.ResolvingCompletion) {
+                        stationState.Phase = StationControlPhase.ResolvingCompletion;
+                        stationState.PhaseTimer = 0f;
+                    }
+                    break;
+            }
+        }
+
+        // Commits a passed (or ungated) completion to the normal exit: BeginExit(true) commits the
+        // precision and starts the exit/process animation, MicrogamePassedThisFrame is raised so
+        // SequenceSystem advances, FabMicrogameCompleted is dispatched, and the machine moves to
+        // ExitingMicrogame. MicrogameMask is already suspended by the completion handler.
+        static private void ProceedToExit(StationControlState stationState) {
+            MicrogameStationInterfacerUtility.BeginExit(stationState.ActiveInterfacer, stationState, true);
+            stationState.MicrogamePassedThisFrame = true;
+            Log.Msg("[StationControlSystem] microgame accepted; -> ExitingMicrogame");
+            Game.Events.Dispatch(GameEvents.FabMicrogameCompleted);
             stationState.Phase = StationControlPhase.ExitingMicrogame;
             stationState.PhaseTimer = 0f;
         }

@@ -94,8 +94,20 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = SputterMicrogamePhase.Idle;
             state.SputterUI.SetActive(false);
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
             // TODO: tear down sputter UI; return to idle.
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Sputter error is unsigned (fill percent), so raw equals the gate precision.
+        public static float GetRawResultPrecision()
+        {
+            return ComputePrecision();
         }
 
         // Spraypaint-specific precision math: percent of the etched target area that got filled

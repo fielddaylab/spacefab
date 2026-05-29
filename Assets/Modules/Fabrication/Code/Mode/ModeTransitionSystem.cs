@@ -41,13 +41,14 @@ namespace SpaceFab.Fabrication {
             Find.State(
                 out MinigameRequestExitState exitState,
                 out SequenceVisualsState visualsState,
-                out FabricationMinigameState fabState
+                out FabricationMinigameState fabState,
+                out OnboardingLayoutState onboardState
                 );
 
             switch (modeState.CurrMode)
             {
                 case LevelMode.PreAttempt:
-                    ProcessPreAttempt(modeState, sequenceState, visualsState, fabState);
+                    ProcessPreAttempt(modeState, onboardState, sequenceState, visualsState, fabState);
                     break;
                 case LevelMode.AttemptLeadIn:
                     ProcessAttemptLeadIn(modeState, countdownState);
@@ -65,11 +66,12 @@ namespace SpaceFab.Fabrication {
 
         #region Helpers
 
-        static private void ProcessPreAttempt(ModeState modeState, SequenceState sequenceState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
+        static private void ProcessPreAttempt(ModeState modeState, OnboardingLayoutState onboardState, SequenceState sequenceState, SequenceVisualsState visualsState, FabricationMinigameState fabState)
         {
-            // TODO: poll for move into Attempt
-            if (Input.GetKeyDown(FabricationConsts.Activate))
+            // TODO: poll for move into Attempt (keyboard or button)
+            if (Input.GetKeyDown(FabricationConsts.Activate) || onboardState.IsGeneratePressed)
             {
+                OnboardingStateUtility.HideGenerateButton();
                 Log.Msg("[ModeTransitionSystem] received input for new wafer -- entering Attempt Mode");
                 TransitionToAttemptLeadIn(modeState, sequenceState, visualsState, fabState);
             }
@@ -82,6 +84,10 @@ namespace SpaceFab.Fabrication {
             {
                 // start timer
                 Log.Msg("[ModeTransitionSystem] countdown completed. Moving to Attempt Mode");
+
+                // update robot visual
+                RobotVisualsUtility.UpdateLayer(Find.State<RobotVisualsState>());
+                MicrogameCanvasUtility.HideStationInstructions(Find.State<MicrogameCanvasState>());
 
                 ModeUtility.SetNewMode(modeState, LevelMode.Attempt);
                 GameLoop.SuspendUpdates(UpdateMasks.AttemptLeadInMask);
