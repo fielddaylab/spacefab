@@ -5,6 +5,7 @@ using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace SpaceFab.Fabrication.Microgames
 {
@@ -20,7 +21,7 @@ namespace SpaceFab.Fabrication.Microgames
     /// Holds in-flight data for the Sputter ("Spraypaint") microgame: the sputter head's position,
     /// the fill state of the etched target area, and lifecycle flags consumed by SputterMicrogameSystem.
     /// </summary>
-    public class SputterMicrogameState : SharedStateComponent
+    public class SputterMicrogameState : SharedStateComponent, IRegistrationCallbacks
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // SputterMicrogameSystem reads this to gate its ProcessWork.
@@ -35,6 +36,16 @@ namespace SpaceFab.Fabrication.Microgames
         public SpriteRenderer PatternRenderer;
 
         public float MaxSputterDistance = 1.75f;
+
+        public void OnRegister()
+        {
+
+        }
+
+        public void OnDeregister()
+        {
+
+        }
     }
 
     /// <summary>
@@ -93,6 +104,13 @@ namespace SpaceFab.Fabrication.Microgames
 
             state.IsActive = false;
             state.Phase = SputterMicrogamePhase.Idle;
+
+            // Reset graphics
+            state.SputterSprites.localPosition = Vector3.zero;
+            state.PatternRenderer.size = new Vector2(0, state.PatternRenderer.size.y);
+            state.PatternRenderer.transform.localPosition = new Vector3(-1.35f, 0, 0);
+
+
             state.SputterUI.SetActive(false);
 
             MicrogameCanvasUtility.HideStationInstructions(canvasState);

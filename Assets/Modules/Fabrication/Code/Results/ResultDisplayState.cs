@@ -40,33 +40,23 @@ namespace SpaceFab.Fabrication
             FinalizeButton.onClick.AddListener(OnFinalizeClicked);
         }
 
-        public static void OnRetryClicked()
+        public void OnRetryClicked()
         {
+            Debug.Log("Retry clicked!");
+            
             Find.State<InterruptState>().ResetRequestedThisFrame = true;
+            ResultDisplayStateUtility.SetEnabledResultsGroup(this, false);
         }
 
-        public static void OnFinalizeClicked()
+        public void OnFinalizeClicked()
         {
+            Debug.Log("Finalize clicked!");
             Find.State<InterruptState>().FinalizeAttemptRequestedThisFrame = true;
-
-            Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.Confirmed;
         }
     }
 
     public static class ResultDisplayStateUtility
     {
-        public static void RequestRetry()
-        {
-            Debug.Log("Retry Requested!");
-            Find.State<InterruptState>().ResetRequestedThisFrame = true;
-        }
-
-        public static void FinalizeResults()
-        {
-            Debug.Log("Finalize Requested!");
-            Find.State<InterruptState>().FinalizeAttemptRequestedThisFrame = true;
-        }
-        
         public static void SetEnabledResultsGroup(ResultDisplayState displayState, bool isEnabled)
         {
             displayState.ResultsGroup.alpha = isEnabled ? 1 : 0;
