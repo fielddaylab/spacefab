@@ -50,6 +50,19 @@ namespace SpaceFab.Fabrication.Microgames
             // TODO: freeze meter.
         }
 
+        // Defrag has no precision concept (it's the universal escape hatch), so it always reports a
+        // perfect score and passes any precision gate the Leaf author may apply to it.
+        public static float GetResultPrecision()
+        {
+            return 1f;
+        }
+
+        // Defrag has no precision concept and therefore no direction; raw matches GetResultPrecision.
+        public static float GetRawResultPrecision()
+        {
+            return 1f;
+        }
+
         // TODO: track process animation state (parallel or sequential) and return true once the
         // animation has finished playing. Scaffold returns true so the exit gate doesn't stall
         // before per-microgame animations are authored.

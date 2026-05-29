@@ -113,7 +113,7 @@ namespace SpaceFab.Fabrication.Microgames
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.ResistUI.SetActive(false);
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // TODO: track process animation state (parallel or sequential) and return true once the
@@ -137,7 +137,21 @@ namespace SpaceFab.Fabrication.Microgames
             state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
 
-            canvasState.HideUI();
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
+        }
+
+        // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
+        public static float GetResultPrecision()
+        {
+            return ComputePrecision();
+        }
+
+        // Signed form of the precision formula (no Abs/Clamp): < 1 means the drop landed right of center,
+        // > 1 means left of center. Mirrors ComputePrecision's error term.
+        public static float GetRawResultPrecision()
+        {
+            Find.State(out ResistMicrogameState state);
+            return 1f - ((state.DropX - state.CenterX) / state.MaxOffset);
         }
 
         // Spin-Coat-specific precision math: distance between drop position and wafer center.
