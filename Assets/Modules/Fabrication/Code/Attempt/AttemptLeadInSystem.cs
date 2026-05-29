@@ -33,6 +33,10 @@ namespace SpaceFab.Fabrication {
                 out CountdownState countdownState,
                 out RobotState robotState
                 );
+            Find.State(
+                out SequenceState sequenceState,
+                out SequenceVisualsState SequenceVisualsState
+                );
 
             if (modeState.CurrMode != LevelMode.AttemptLeadIn) { return; }
 
@@ -50,6 +54,10 @@ namespace SpaceFab.Fabrication {
 
                 // generate wafer
                 Log.Msg("[AttemptLeadInSystem] TODO: generating wafer");
+
+                // reset sequence
+                Log.Msg("[AttemptLeadInSystem] Resetting sequence");
+                SequenceUtility.ResetSequence(sequenceState, sequenceState.Level, SequenceVisualsState);
 
                 // show visual
                 RobotUtility.UpdateStatus(robotState, RobotStatus.Holding);

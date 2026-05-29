@@ -10,14 +10,14 @@ namespace SpaceFab.Fabrication.Robot
 {
     public class RobotVisualsState : SharedStateComponent, IRegistrationCallbacks
     {
-        public GameObject RobotIdle, RobotHold;//, RobotStun; (awaiting stun graphic)
+        public GameObject RobotIdle, RobotHold, RobotStun;
         public string InitialSortingLayerName, GameSortingLayerName;
 
         // this is awkward, but the only way I can think to get it working without a separate canvas
         public void OnRegister() {
             RobotIdle.GetComponent<SpriteRenderer>().sortingLayerName = InitialSortingLayerName;
             RobotHold.GetComponent<SpriteRenderer>().sortingLayerName = InitialSortingLayerName;
-            //RobotStun.GetComponent<SpriteRenderer>().sortingLayerName = InitialSortingLayerName;
+            RobotStun.GetComponent<SpriteRenderer>().sortingLayerName = InitialSortingLayerName;
         }
 
         public void OnDeregister()
@@ -35,14 +35,14 @@ namespace SpaceFab.Fabrication.Robot
         {
             visuals.RobotIdle.GetComponent<SpriteRenderer>().sortingLayerName = visuals.GameSortingLayerName;
             visuals.RobotHold.GetComponent<SpriteRenderer>().sortingLayerName = visuals.GameSortingLayerName;
-            //visuals.RobotStun.GetComponent<SpriteRenderer>().sortingLayerName = visuals.GameSortingLayerName;
+            visuals.RobotStun.GetComponent<SpriteRenderer>().sortingLayerName = visuals.GameSortingLayerName;
         }
         
         public static void UpdateVisuals(RobotVisualsState visuals, RobotStatus status)
         {
             visuals.RobotIdle.SetActive(false);
             visuals.RobotHold.SetActive(false);
-            //visuals.RobotStun.SetActive(false);
+            visuals.RobotStun.SetActive(false);
 
             switch (status)
             {
@@ -53,7 +53,7 @@ namespace SpaceFab.Fabrication.Robot
                     visuals.RobotHold.SetActive(true);
                     break;
                 case RobotStatus.Stunned:
-                    //visuals.RobotStun.SetActive(true);
+                    visuals.RobotStun.SetActive(true);
                     break;
             }
         }
@@ -61,12 +61,12 @@ namespace SpaceFab.Fabrication.Robot
         
         public static void ApplyStunVisuals(RobotVisualsState visuals)
         {
-            // TODO
+            UpdateVisuals(visuals, RobotStatus.Stunned);
         }
 
         public static void RemoveStunVisuals(RobotVisualsState visuals)
         {
-            // TODO
+            UpdateVisuals(visuals, RobotStatus.Holding);
         }
     }
 }
