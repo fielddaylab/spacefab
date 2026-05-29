@@ -84,6 +84,12 @@ namespace SpaceFab.Fabrication
             // the match check; they're outcome data, not postcondition data.
             return true;
         }
+        
+        // TODO, reset wafer and all necessary fields
+        public static void ResetWafer(WaferState state)
+        {
+
+        }
 
         // Records this step's precision. Called by a microgame from OnExitBegin(completedNormally: true).
         // Updates RecordedStepCount to the max of itself and (stepIndex + 1) so aggregation scopes

@@ -14,6 +14,9 @@ namespace SpaceFab.Fabrication
                 out WaferState waferState,
                 out TimeState timeState
             );
+
+            TimeStateUtility.ResetTime(timeState);
+            WaferStateUtility.ResetWafer(waferState);
         }
     }
 }
