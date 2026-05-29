@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using SpaceFab.Research;
 
 namespace SpaceFab {
     public class ContractUI : MonoBehaviour
@@ -11,7 +12,10 @@ namespace SpaceFab {
         public TMP_Text Description;
         public Transform DurationParent;
         public Transform[] ProfitParent;
+        public Transform RequirementParent;
+
         public GameObject DurationElement, ProfitElement;
+        public ResearchObservationChip RequirementElement;
         public GameObject ApprovedStamp;
         public Image SignatureImage;
 
@@ -28,6 +32,10 @@ namespace SpaceFab {
             for (int i = 0; i < ProfitParent[1].childCount; i++)
             {
                 Destroy(ProfitParent[1].GetChild(i).gameObject);
+            }
+            for (int i = 0; i < RequirementParent.childCount; i++)
+            {
+                Destroy(RequirementParent.GetChild(i).gameObject);
             }
         }
 
@@ -47,7 +55,23 @@ namespace SpaceFab {
             for (int i = 0; i < profit; i++)
             {
                 GameObject element = Instantiate(ProfitElement);
-                element.transform.SetParent(ProfitParent[(i - 1) / 5]);
+                element.transform.SetParent(ProfitParent[i / 5]);
+                element.transform.localScale = Vector3.one;
+            }
+        }
+
+        public void ShowRequirement(Materials.MaterialPropertyCheck[] requiredProperties)
+        {
+            foreach (var property in requiredProperties)
+            {
+                RequirementElement.SetState(
+                    MaterialPropertyLabelDisplay.GetObservationName(property.Label),
+                    true,
+                    false,
+                    Materials.MaterialObservationChamberLookup.GetChamberType(property.Label)
+                );
+                GameObject element = Instantiate(RequirementElement.gameObject);
+                element.transform.SetParent(RequirementParent);
                 element.transform.localScale = Vector3.one;
             }
         }
@@ -69,6 +93,7 @@ namespace SpaceFab {
                 ui.ClearElements();
                 ui.ShowDuration(def.ExpectedDuration());
                 ui.ShowProfit(def.ExpectedProfit());
+                ui.ShowRequirement(def.RequiredMaterialProperties());
             }
         }
     }
