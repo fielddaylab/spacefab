@@ -262,22 +262,23 @@ namespace SpaceFab.Comic
 
             LayerData layerData = manifest.Layers[layerIndex];
 
-            ushort meshId = ComicsUtility.PackMeshId(layerData.MeshIndex, StreamedMeshType.Layer);
-
-            // DEBUG: log the data we're about to dereference so a WebGL IndexOutOfRange points at the bad field
-            Log.Msg("[SpawnLayer] layerIndex={0} panelIndex={1} TextureIndex={2} (TextureMaterials.Length={3}, manifest.Textures.Length={4}) MeshIndex={5} meshId={6} ActiveMeshes.Contains={7}",
-                layerIndex, panelIndex, layerData.TextureIndex,
-                resourcePool.TextureMaterials != null ? resourcePool.TextureMaterials.Length : -1,
-                manifest.Textures != null ? manifest.Textures.Length : -1,
-                layerData.MeshIndex, meshId,
-                resourcePool.ActiveMeshes != null && resourcePool.ActiveMeshes.ContainsKey(meshId));
-
             ComicRenderElement renderElement = resourcePool.ElementPool.Alloc(ComicsUtility.UnpackPointPrecise(layerData.Position), Quaternion.Euler(0, 0, ComicsUtility.UnpackDegrees(layerData.PackedRotation)), parent, false);
             renderElement.Type = ComicRenderElementType.Layer;
             renderElement.ElementIndex = layerIndex;
             renderElement.Id = layerData.Id;
-            renderElement.BaseMaterial = resourcePool.TextureMaterials[layerData.TextureIndex];
-            renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
+
+            // Textureless layers (e.g. animation-only siblings or grouping nodes) carry TextureIndex == ushort.MaxValue
+            renderElement.BaseMaterial = layerData.TextureIndex != ushort.MaxValue
+                ? resourcePool.TextureMaterials[layerData.TextureIndex]
+                : null;
+
+            // Meshless layers carry MeshIndex == ComicMesh.NullIndex; nothing to assign to the filter
+            if (layerData.MeshIndex != ComicMesh.NullIndex) {
+                ushort meshId = ComicsUtility.PackMeshId(layerData.MeshIndex, StreamedMeshType.Layer);
+                renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
+            } else {
+                renderElement.MeshFilter.sharedMesh = null;
+            }
 
             resourcePool.SharedPropertyBlock.Clear();
             renderElement.MeshRenderer.SetPropertyBlock(resourcePool.SharedPropertyBlock);
