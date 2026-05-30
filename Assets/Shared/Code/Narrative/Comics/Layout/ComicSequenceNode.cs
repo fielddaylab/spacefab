@@ -229,11 +229,9 @@ namespace SpaceFab.Comic {
 
                     if (child.TryGetComponent(out ComicLayerNode layer)) {
                         LayerData layerData = BuildLayerData(ref builder, layer, pageIndex);
-                        // CachedIndex must match the slot the layer lands in; assign after Add so
-                        // later passes (ScanAndPackLayers, sibling linkage) write to the right entry.
-                        builder.Layers.Add(layerData);
-                        layer.CachedIndex = (ushort) (builder.Layers.Count - 1);
+                        layer.CachedIndex = (ushort)builder.Layers.Count;
                         layer.CachedPageIndex = (ushort) pageIndex;
+                        builder.Layers.Add(layerData);
                         layerCount++;
 
                         builder.DiscoveredLayers.Add(layer);
