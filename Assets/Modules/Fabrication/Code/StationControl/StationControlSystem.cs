@@ -88,6 +88,16 @@ namespace SpaceFab.Fabrication.StationControl {
             stationState.Phase = StationControlPhase.AtStation;
             Log.Msg("[StationControlSystem] arrived at slot {0}; Traveling -> AtStation", movementState.CurrSlotPosition);
             Game.Events.Dispatch(GameEvents.FabStationArrived);
+
+            using (var table = TempVarTable.Alloc())
+            {
+                if (stationState.ActiveInterfacer != null)
+                {
+                    Debug.Log("ID: " + stationState.ActiveInterfacer.Id.Source().ToLower());
+                    table.Set("station", stationState.ActiveInterfacer.Id.Source().ToLower());
+                    stationState.CompletionScriptHandle = ScriptUtility.Trigger(FabricationScriptTriggers.OnArriveAtStation, table);
+                }
+            }
         }
 
         // Watches for slot departure (SlotChangedThisFrame && IsTraveling). On departure, clears
@@ -234,6 +244,10 @@ namespace SpaceFab.Fabrication.StationControl {
                 MicrogameStationInterfacerUtility.ExitComplete(stationState.ActiveInterfacer);
                 stationState.ActiveInterfacer = null;
                 Log.Msg("[StationControlSystem] exit timer elapsed; ExitingMicrogame -> AtStation");
+
+                // trigger leaf script here
+                ScriptUtility.Trigger(FabricationScriptTriggers.OnMicrogrameExited);
+
                 Game.Events.Dispatch(GameEvents.FabStationExit);
                 stationState.Phase = StationControlPhase.AtStation;
                 stationState.PhaseTimer = 0f;

@@ -1,6 +1,8 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
+using Leaf.Runtime;
 using SpaceFab.Fabrication.Layout;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace SpaceFab.Fabrication {
     /// Sets up data for a new fabrication attempt. Reshuffles stations when the layout requests it.
     /// Runs in PreUpdate at order 0 under SetupMask.
     /// </summary>
-    public class PreAttemptSetupSystem : SystemComponent {
+    public class PreAttemptSetupSystem : SystemComponent {        
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhaseMask.Update, -10, UpdateMasks.PreAttemptMask),
@@ -40,6 +42,9 @@ namespace SpaceFab.Fabrication {
                 LayoutUtility.ShuffleStations(layoutState);
                 layoutState.NeedsReshuffling = false;
             }
+
+            // trigger leaf dialogue on load
+            ScriptUtility.Trigger(FabricationScriptTriggers.OnPreAttempt);
         }
     }
 }

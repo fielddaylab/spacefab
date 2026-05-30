@@ -38,56 +38,26 @@ namespace SpaceFab.Overarching
 
             yield return 0.5f;
 
-            selectState.SelectedContractIndex = -1;
+            selectState.SelectedContractIndex = 0;
             selectState.SelectionConfirmed = false;
-            layoutState.ConfirmContractButton.interactable = false;
+            selectState.SelectedContractIndexChanged = true;
 
             layoutState.ConfirmContractButton.gameObject.SetActive(true);
             layoutState.ChangeContractButton.gameObject.SetActive(false);
 
-            layoutState.ContractOptionsZone.anchoredPosition = layoutState.ContractOptionsStartPos;
             layoutState.SelectionCanvasGroup.alpha = 0;
-
-            // filter active based on number of available contracts
-            for (int i = 0; i < layoutState.OptionButtons.Length; i++)
-            {
-                ;
-                if (i >= chapterState.CurrAvailableContractsBundle.AvailableContracts.Length)
-                {
-                    layoutState.OptionButtons[i].gameObject.SetActive(false);
-                }
-                else
-                {
-                    // filter out completed contracts
-                    if (PlayerProgressUtility.HasCompletedContract(playerProgress, chapterState.CurrAvailableContractsBundle.AvailableContracts[i].AssetId))
-                    {
-                        layoutState.OptionButtons[i].gameObject.SetActive(false);
-                    }
-                    else
-                    {
-                        layoutState.OptionButtons[i].gameObject.SetActive(true);
-                        LoadAvailableContractIntoOptionButton(layoutState.OptionButtons[i], chapterState.CurrAvailableContractsBundle.AvailableContracts[i]);
-                    }
-                }
-            }
 
             ContractUtility.LoadContractData(layoutState.SelectionContractUI, null);
             layoutState.SelectionContractUI.gameObject.SetActive(true);
             layoutState.SelectionCanvasGroup.blocksRaycasts = true;
 
             yield return Routine.Combine(
-                layoutState.SelectionCanvasGroup.FadeTo(1, 1f),
-                layoutState.ContractOptionsZone.MoveTo(layoutState.ContractOptionsEndPos, 1, Axis.X, Space.Self).Ease(Curve.CubeIn)
+                layoutState.SelectionCanvasGroup.FadeTo(1, 1f)
                 );
 
             yield return 0.5f;
 
             ScriptUtility.Trigger("OnContractSelectOpen");
-        }
-
-        public static void LoadAvailableContractIntoOptionButton(ContractOptionButton optionBtn, ContractDef contract) 
-        {
-            optionBtn.ContractTitle.SetText(contract.Title());
         }
     }
 }

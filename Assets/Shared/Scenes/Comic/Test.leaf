@@ -1,0 +1,36 @@
+# basePath Test
+
+:: BasicTest
+@trigger TestTrigger
+@cutscene
+$wait 5
+{@Player}   Hi! I'm Locke! The protagonist, I think.
+            And maybe something more?
+{@Dorian}   And <b>I'm</b> the Best Friend!
+            For now!
+{@Player}   A little ominous there, but sure!
+            Welcome to the Constance!
+            ...is what I would be saying if we were on a ship.
+            Currently we're just floating in a vacuum.
+{@Dorian}   But how are we breathing, Locke???
+{@Player}   You're safe, Dorian, you're just on a Zip call with me.
+            I... uh...{wait 1} hang on.
+            ...{close}
+$wait 1
+{@Dorian}   Oh damn, he might be suffocating.
+            ...
+            Sucks to be him, there's money I could be making.
+{@PAL}      {quip}I had {wait 0.1}no role in this disaster! 
+
+:: FirstContractOpen
+@trigger    OnContractSelectOpen
+@cutscene
+@once
+{@Player}      You only have one contract to choose from.
+$call   HighlightElement(overarching:costs-section)
+{@Player}      It looks like it will take this many days to complete.
+$call   ReleaseAllHighlights()
+$call   HighlightElement(overarching:profit-section)
+{@Player}      ...and you'll make this much money if you can deliver.
+$call   ReleaseAllHighlights()
+$call   HighlightElement(overarching:select-contract-btn)

@@ -1,6 +1,7 @@
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
+using Leaf.Runtime;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace SpaceFab.Fabrication.Layout
         public StationSlot[] StationSlots;
 
         [HideInInspector] public bool NeedsReshuffling;
+        [HideInInspector] public LeafThreadHandle PreAttemptScriptHandle = default;
+
     }
 
     public static class LayoutUtility

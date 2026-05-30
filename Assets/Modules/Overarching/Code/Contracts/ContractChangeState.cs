@@ -56,12 +56,13 @@ namespace SpaceFab.Overarching
             layoutState.FaderGroup.alpha = 1;
             layoutState.FaderGroup.blocksRaycasts = true;
 
-            layoutState.ContractOptionsZone.anchoredPosition = layoutState.ContractOptionsStartPos;
-            layoutState.ConfirmContractButton.gameObject.SetActive(false);
             layoutState.ChangeContractButton.gameObject.SetActive(true);
 
             ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex]);
             layoutState.SelectionContractUI.gameObject.SetActive(true);
+            
+            layoutState.NextContractButton.gameObject.SetActive(false);
+            layoutState.PrevContractButton.gameObject.SetActive(false);
 
             yield return 0.5f;
 
@@ -100,7 +101,7 @@ namespace SpaceFab.Overarching
         {
             changeState.Phase = ContractChangePhase.Starting;
             selectState.SelectedContractIndex = changeState.StashedSelectedContractIndex;
-            changeState.StashedSelectedContractIndex = -1;
+            changeState.StashedSelectedContractIndex = 0;
             layoutState.DoubleConfirmCanvasGroup.alpha = 0;
             layoutState.DoubleConfirmCanvasGroup.blocksRaycasts = false;
 

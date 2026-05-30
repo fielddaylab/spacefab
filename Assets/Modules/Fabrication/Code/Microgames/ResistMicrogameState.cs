@@ -70,10 +70,11 @@ namespace SpaceFab.Fabrication.Microgames
     /// </summary>
     public static class ResistMicrogameUtility
     {
+        // determines if microgame can be started based on if this step is next
         public static bool CanActivate()
         {
-            // TODO: gate based on sequence / wafer state. Default true.
-            return true;
+            Find.State(out SequenceState state);
+            return SequenceUtility.CheckNextStep(state, FabricationConsts.RESIST_STATION_ID);
         }
 
         public static void EnterBegin()
@@ -110,6 +111,7 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (!completedNormally) { return; }
 
+            state.SpreadingGraphic.transform.localScale = Vector3.zero;
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.ResistUI.SetActive(false);
@@ -134,7 +136,6 @@ namespace SpaceFab.Fabrication.Microgames
             
             // tear down dropper UI; return to idle.
             state.ResistUI.SetActive(false);
-            state.SpreadingGraphic.transform.localScale = Vector3.zero;
             state.Phase = ResistMicrogamePhase.Idle;
 
             MicrogameCanvasUtility.HideStationInstructions(canvasState);

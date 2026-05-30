@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Furnace
   m_EditorClassIdentifier: 
+  m_isPlanet: 0
   m_Title: Furnace
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
-  m_Body: 
+  m_Illustration: {fileID: 21300000, guid: 52e6c48f685d18c43928361769bb90d3, type: 3}
+  m_Body: The Furnace heats materials to very high temperatures, changing their properties
+    or preparing them for the next fabrication step.
+  m_MaterialId:
+    m_HashValue: 0

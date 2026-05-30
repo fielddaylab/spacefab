@@ -50,5 +50,10 @@ namespace SpaceFab.Fabrication
         {
             state.ElapsedTime = value;
         }
+
+        public static void ResetTime(TimeState state)
+        {
+            state.ElapsedTime = 0;
+        }
     }
 }

@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication.Sequence;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,10 +27,11 @@ namespace SpaceFab.Fabrication.Microgames
     /// </summary>
     public static class DefragMicrogameUtility
     {
+        // determines if microgame can be started based on if this step is next
         public static bool CanActivate()
         {
-            // TODO: Defrag is always activatable (it's the escape hatch for glitched steps).
-            return true;
+            Find.State(out SequenceState state);
+            return SequenceUtility.CheckNextStep(state, FabricationConsts.DEFRAG_STATION_ID);
         }
 
         public static void EnterBegin()

@@ -91,15 +91,15 @@ namespace SpaceFab.Fabrication.Microgames
         static float accruedSpread = 0;
         private static void ProcessSpreading(ResistMicrogameState state, float deltaTime)
         {
-            accruedSpread += deltaTime * state.SpreadingSpeed;
-
-            state.SpreadingGraphic.transform.localScale = Vector3.one * accruedSpread;
-
             // animation finished, exit out
             if (accruedSpread >= 1f)
             {
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
+            } else
+            {
+                accruedSpread += deltaTime * state.SpreadingSpeed;
+                state.SpreadingGraphic.transform.localScale = Vector3.one * accruedSpread;
             }
         }
 

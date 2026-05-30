@@ -56,6 +56,9 @@ namespace SpaceFab.Overarching {
                 out ProgressMeterState meterState
                 );
 
+            // Apply initial wiki unlocks if first time ever entering the scene
+            PlayerProgressUtility.TryApplyInitialWikiUnlocks(progressState);
+
             // Gate: run only if we haven't finished startup and the UI isn't mid-load
             if (!(startupState.Phase != OverarchingStartupSequencePhase.Completed && !uiState.IsLoading)) {
                 return;
