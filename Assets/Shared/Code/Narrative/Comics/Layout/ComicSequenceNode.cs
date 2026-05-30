@@ -28,6 +28,7 @@ namespace SpaceFab.Comic {
 
         [Serializable]
         public struct ExportHashes {
+            public int LastExportLayerCount;
             public string[] LastExportSpriteGuids;
             public Hash128[] LastExportSpriteTextureHashes;
             public ulong LastWrittenSettingsHash;
@@ -44,13 +45,18 @@ namespace SpaceFab.Comic {
 
                 if (GUILayout.Button("Compile")) {
                     foreach(ComicSequenceNode node in targets) {
-                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding);
+                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, false);
+                    }
+                }
+                if (GUILayout.Button("Compile (Force Rebuild Textures)")) {
+                    foreach (ComicSequenceNode node in targets) {
+                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, true);
                     }
                 }
             }
         }
 
-        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, ref ExportHashes exportHashes, UnityEngine.Object source, int slicing, int padding) {
+        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, ref ExportHashes exportHashes, UnityEngine.Object source, int slicing, int padding, bool forceRebuildTextures) {
             if (!manifest) {
                 Log.Error("[ComicSequenceNode] No node provided to export {0}", root.gameObject.name);
                 return false;
@@ -90,12 +96,18 @@ namespace SpaceFab.Comic {
 
             TilePackingSettings packingSettings = GetPackingSettings(slicing, padding);
             bool needToRebuildTextures = AreTexturesDirty(ref builder, ref exportHashes, packingSettings);
-            if (needToRebuildTextures) {
+            if (needToRebuildTextures || forceRebuildTextures) {
                 Baking.SetDirty(source);
                 using (Profiling.Time("Generating Meshes and Packing Textures")) {
                     ScanAndPackLayers(ref builder, packingSettings);
                 }
             } else {
+                // TODO: ensure all layers have the correct mesh indices again
+                for(int i = 0; i < builder.DiscoveredLayers.Count; i++) {
+                    ComicLayerNode layer = builder.DiscoveredLayers[i];
+                    builder.Layers[layer.CachedIndex].MeshIndex = manifest.Layers[layer.CachedIndex].MeshIndex;
+                    builder.Layers[layer.CachedIndex].TextureIndex = manifest.Layers[layer.CachedIndex].TextureIndex;
+                }
                 Log.Msg("[ComicSequenceNode] No texture changes detected, skipping rebuild");
                 builder.OutputMeshes = manifest.CompressedMeshData;
                 builder.OutputTextures = manifest.Textures;
@@ -340,6 +352,11 @@ namespace SpaceFab.Comic {
                 isDifferent = true;
             }
 
+            if (hashes.LastExportLayerCount != builder.Layers.Count) {
+                hashes.LastExportLayerCount = builder.Layers.Count;
+                isDifferent = true;
+            }
+
             using (TempReferenceBuffer<Sprite> tempSprites = TempReferenceBuffer<Sprite>.Create(builder.DiscoveredLayers.Count)) {
                 for (int i = 0; i < builder.DiscoveredLayers.Count; i++) {
                     ComicLayerNode node = builder.DiscoveredLayers[i];
@@ -383,7 +400,7 @@ namespace SpaceFab.Comic {
         static private TilePackingSettings GetPackingSettings(int slicing, int padding) {
             TilePackingSettings packingSettings;
             packingSettings.Padding = padding;
-            packingSettings.PaletteTileSize = 2;
+            packingSettings.PaletteTileSize = 4;
             packingSettings.TileSize = slicing;
             return packingSettings;
         }

@@ -39,6 +39,12 @@ namespace SpaceFab.Supply {
         DeleteRouteAuto,
     }
 
+    public struct SupplyRouteLockArgs {
+        public StringHash32 ShipId;
+        public int RouteId;
+        public SupplyRouteStats Stats;
+    }
+
     static public partial class SupplyRouteUtility {
         static public void UpdateRouteCollider(EdgeCollider2D collider, in SupplyRouteData routeData) {
             if (routeData.NodeCount < 2) {
@@ -134,6 +140,8 @@ namespace SpaceFab.Supply {
             draw.RouteCollider.enabled = false;
             draw.RouteIndex = -1;
             draw.ForceUpdatePreview = true;
+
+            //SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingClose, )
         }
 
         static public void OpenRouteDrawing(SupplyRouteDrawingState draw, SupplyRouteCollection routes, SupplyShipIndex ships, int routeIndex) {
