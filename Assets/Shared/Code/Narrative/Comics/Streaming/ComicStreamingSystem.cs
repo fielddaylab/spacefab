@@ -1,3 +1,4 @@
+using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
@@ -72,7 +73,7 @@ namespace SpaceFab.Comic
                 }
 
                 case MeshDecompressionPhase.Upload: {
-                    UploadMesh(decompState, resourcePool);
+                    UploadMesh(streaming, decompState, resourcePool);
                     decompState.Phase = MeshDecompressionPhase.Done;
                     decompState.MeshIndex = ComicMesh.NullIndex;
                     decompState.TargetMesh = null;
@@ -85,7 +86,7 @@ namespace SpaceFab.Comic
             }
         }
 
-        static private unsafe void UploadMesh(in MeshDecompressionState decompState, ComicResourcePool resourcePool) {
+        static private unsafe void UploadMesh(ComicStreamingState streaming, in MeshDecompressionState decompState, ComicResourcePool resourcePool) {
             Mesh mesh = decompState.TargetMesh;
 
             int vertexCount = decompState.Reader.VertexCount;
@@ -96,12 +97,14 @@ namespace SpaceFab.Comic
             Assert.True(indexCount == decompState.Reader.WrittenIndices, "Index counts do not match!");
             ushort* indexHead = decompState.Reader.IndexWriteHead - indexCount;
 
+            Assert.True(decompState.Reader.Stream == decompState.Reader.StreamEnd, "Stream read too many bytes!");
+
             mesh.SetVertexBufferParams(vertexCount, resourcePool.MeshVertexLayout.Descriptors);
             mesh.SetVertexBufferData(Unsafe.NativeArray(vertexHead, vertexCount), 0, 0, vertexCount, 0, MeshUpdate_IgnoreAll);
-            mesh.SetIndexBufferParams(decompState.Reader.IndexCount, IndexFormat.UInt16);
+            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt16);
             mesh.SetIndexBufferData(Unsafe.NativeArray(indexHead, indexCount), 0, 0, indexCount, MeshUpdate_IgnoreAll);
             mesh.subMeshCount = 1;
-            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indexCount, MeshTopology.Triangles), MeshUpdate_IgnoreAll);
+            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indexCount, MeshTopology.Triangles), MeshUpdate_IgnoreAll & ~MeshUpdateFlags.DontValidateIndices);
 
             mesh.bounds = new Bounds(decompState.Reader.PositionBase + decompState.Reader.PositionRange / 2, decompState.Reader.PositionRange);
             mesh.UploadMeshData(false);
@@ -143,6 +146,8 @@ namespace SpaceFab.Comic
             Mesh newMesh = resourcePool.MeshPool.Alloc();
             resourcePool.ActiveMeshes.Add(meshId, newMesh);
 
+            newMesh.name = "Layer Mesh " + meshIndex;
+
             ref MeshDecompressionState decompState = ref streaming.Decompressor;
             decompState.MeshIndex = meshIndex;
             decompState.Phase = MeshDecompressionPhase.Header;
@@ -160,12 +165,15 @@ namespace SpaceFab.Comic
 
             // lz decompress
             LZDecompressionResult lzResult = LZCompression.Decompress(manifest.MeshBuffer.Ptr + meshData.BinaryOffset, meshData.BinaryLength, streaming.MeshDecompressionPool.Ptr, (uint) streaming.MeshDecompressionPool.Length, out uint decompressedSize);
-            Assert.False(LZCompression.IsError(lzResult), "mesh decompression failed!");
+            Assert.False(LZCompression.IsError(lzResult), "mesh decompression failed: {0}!", lzResult);
+            reader.StreamEnd = reader.Stream + decompressedSize;
         }
     
         static private unsafe void GenerateMaskMesh(ComicStreamingState streaming, ComicResourcePool resourcePool, ushort meshId, ushort maskIndex) {
             Mesh newMesh = resourcePool.MeshPool.Alloc();
             resourcePool.ActiveMeshes.Add(meshId, newMesh);
+
+            newMesh.name = "Panel Mask " + maskIndex;
 
             MaskData maskData = ComicsUtility.Manifest.Masks[maskIndex];
             

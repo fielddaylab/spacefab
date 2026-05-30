@@ -39,16 +39,26 @@ namespace FieldDay.Rendering {
 
         #endregion // Types
 
+        private RenderTexture m_WarmupRenderTarget;
+        private RingBuffer<Material> m_WarmupMaterialQueue = new RingBuffer<Material>(64, RingBufferMode.Expand);
+        private RingBuffer<Shader> m_WarmupShaderQueue = new RingBuffer<Shader>(64, RingBufferMode.Expand);
+        private RingBuffer<Texture> m_WarmupTextureQueue = new RingBuffer<Texture>(64, RingBufferMode.Expand);
+
         #region Events
 
         internal void Initialize(Config config) {
             if (config.DefaultGraphicMaterial) {
                 MaterialUtility.SetDefaultUIGraphicMaterial(config.DefaultGraphicMaterial);
             }
+
+            m_WarmupRenderTarget = new RenderTexture(4, 4, 0, RenderTextureFormat.Default);
+
+            DefaultShaderProps.Initialize();
         }
 
         internal void Shutdown() {
-
+            m_WarmupRenderTarget.Release();
+            GameObject.DestroyImmediate(m_WarmupRenderTarget);
         }
 
         #endregion // Events

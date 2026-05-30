@@ -181,6 +181,22 @@ namespace FieldDay.Memory {
         }
 
         /// <summary>
+        /// Creates a new memory debugging arena.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unsafe.ArenaHandle CreateDebugArena(int length, StringHash32 name, Unsafe.AllocatorFlags flags) {
+#if DEVELOPMENT
+            Unsafe.ArenaHandle handle = Unsafe.CreateArena(length, name, flags);
+#if MEMORY_LEAK_DETECTION
+            m_ArenaTracker.PushBack(handle);
+#endif // MEMORY_LEAK_DETECTION
+            return handle;
+#else
+            return default;
+#endif // DEVELOPMENT
+        }
+
+        /// <summary>
         /// Destroys a memory arena.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -206,7 +222,7 @@ namespace FieldDay.Memory {
             Unsafe.TryDestroyArena(ref arena);
         }
 
-        #endregion // Arenas
+#endregion // Arenas
 
         #region Budget
 

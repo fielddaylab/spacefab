@@ -16,7 +16,7 @@ namespace SpaceFab.Supply {
                 new SysPermissions()
                     .ReadWriteShared<SupplyTransitionState>()
                     .ReadShared<ChapterState>()
-                    .ReadWriteShared<SupplyChainMapLookup>()
+                    .ReadWriteShared<SupplyChainMap>()
                     .ReadWriteShared<SupplyMinigameState>()
             );
         }
@@ -25,7 +25,7 @@ namespace SpaceFab.Supply {
             Find.State(
                 out SupplyTransitionState transitionState,
                 out ChapterState chapterState,
-                out SupplyChainMapLookup lookup,
+                out SupplyChainMap lookup,
                 out SupplyMinigameState supplyState
             );
 
@@ -33,7 +33,7 @@ namespace SpaceFab.Supply {
                 case SupplyTransitionPhase.LoadingChapterMap:
                     if (!transitionState.LoadRoutine.Exists()) {
                         transitionState.LoadRoutine.Replace(
-                            SupplyChainMapLookupUtility.LoadChapterMap(lookup, supplyState, transitionState, chapterState.CurrChapterIndex)
+                            SupplyChainUtility.LoadChapterMap(lookup, supplyState, transitionState, chapterState.CurrChapterIndex)
                         );
                     }
                     break;

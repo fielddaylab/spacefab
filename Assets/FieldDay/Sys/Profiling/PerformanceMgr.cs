@@ -4,7 +4,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using BeauPools;
 using BeauUtil;
@@ -20,7 +19,7 @@ namespace FieldDay.Perf {
 #if DEVELOPMENT
             60;
 #else
-            5;
+            1;
 #endif // UNITY_EDITOR
 
         private const int MetricBufferSize =
@@ -29,6 +28,29 @@ namespace FieldDay.Perf {
 #else
             8;
 #endif // UNITY_EDITOR
+
+        private const int MeterBufferSize =
+#if DEVELOPMENT
+            120;
+#else
+            1;
+#endif // UNITY_EDITOR
+
+        private struct ResourceUsageMeter {
+            public long HighWatermark;
+            public RingBuffer<long> Buffer;
+
+            public void Create() {
+                Buffer = new RingBuffer<long>(MeterBufferSize, RingBufferMode.Overwrite);
+            }
+
+            public void Tick(long value) {
+                Buffer.PushBack(value);
+                if (value > HighWatermark) {
+                    HighWatermark = value;
+                }
+            }
+        }
 
         private struct ActiveMetric {
             public PerfMetric Metric;
@@ -40,6 +62,10 @@ namespace FieldDay.Perf {
         private readonly RingBuffer<ActiveMetric> m_TemporaryMetrics;
         private readonly RingBuffer<ActiveMetric> m_ResidentMetrics;
 
+        private ResourceUsageMeter m_MemoryMeter;
+        private ResourceUsageMeter m_FrameTimeMeter;
+        private long m_LastFrameTS;
+
         internal PerformanceMgr() {
             PerfMetric.Initialize();
 
@@ -48,7 +74,10 @@ namespace FieldDay.Perf {
             m_ResidentMetrics = new RingBuffer<ActiveMetric>(MetricBufferSize, RingBufferMode.Expand);
 
 #if DEVELOPMENT
+            m_MemoryMeter.Create();
+            m_FrameTimeMeter.Create();
             GameLoop.OnDebugUpdate.Register(OnDebugUpdate);
+            GameLoop.OnFrameAdvance.Register(OnFrameAdvance);
 #endif // DEVELOPMENT
 
             if (PerfUtility.IsSecureContext()) {
@@ -56,6 +85,8 @@ namespace FieldDay.Perf {
             } else {
                 UnityEngine.Debug.LogWarning("[PerformanceMgr] Not running in a secure context");
             }
+
+            m_LastFrameTS = Stopwatch.GetTimestamp();
         }
 
         internal void Shutdown() {
@@ -74,8 +105,20 @@ namespace FieldDay.Perf {
             PerfMetric.Shutdown();
         }
 
-        private unsafe void OnDebugUpdate() {
 #if DEVELOPMENT
+        internal void OnFrameAdvance() {
+            long nowTS = Stopwatch.GetTimestamp();
+            long ticksPassed = nowTS - m_LastFrameTS;
+            m_LastFrameTS = nowTS;
+            m_FrameTimeMeter.Tick(ticksPassed);
+
+            long allocated = PerfUtility.GetTotalAllocatedMemory();
+            m_MemoryMeter.Tick(allocated);
+        }
+#endif // DEVELOPMENT
+
+#if DEVELOPMENT
+        private unsafe void OnDebugUpdate() {
 
             if (DebugFlags.IsFlagSet(DebuggingFlags.DisplayLastFrameStats) && m_TimingBuffer.Count > 0) {
                 int frameIndex = Math.Max(0, m_TimingBuffer.Count - s_FrameSeek);
@@ -123,8 +166,8 @@ namespace FieldDay.Perf {
                     DebugDraw.AddLogText("Frame INVALID", Color.red);
                 }
             }
-#endif // DEVELOPMENT
         }
+#endif // DEVELOPMENT
 
         #region Timing
 
@@ -144,6 +187,8 @@ namespace FieldDay.Perf {
 
         public enum DebuggingFlags {
             DisplayLastFrameStats,
+            DisplayMemoryGraph,
+            DisplayFrameGraph
         }
 
 #if DEVELOPMENT
@@ -206,7 +251,10 @@ namespace FieldDay.Perf {
 
             info.AddDivider();
 
-            DebugFlags.Menu.AddFlagToggle(info, "Display Frame Profiling Time", DebuggingFlags.DisplayLastFrameStats);
+            DebugFlags.Menu.AddFlagToggle(info, "Display Memory Usage Graph", DebuggingFlags.DisplayMemoryGraph);
+            DebugFlags.Menu.AddFlagToggle(info, "Display Frame Time Graph", DebuggingFlags.DisplayFrameGraph);
+
+            DebugFlags.Menu.AddFlagToggle(info, "Display Frame Profiling Details", DebuggingFlags.DisplayLastFrameStats);
             info.AddSlider("Frame Selection",
                 () => s_FrameSeek,
                 (f) => s_FrameSeek = (int) f, 1, TimingBufferSize, 1, "{0}", () => DebugFlags.IsFlagSet(DebuggingFlags.DisplayLastFrameStats), 1);

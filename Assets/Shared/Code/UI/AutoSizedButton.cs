@@ -18,6 +18,10 @@ namespace SpaceFab.UI {
             Button.onClick.AddListener(() => m_Clicked = true);
         }
 
+        private void OnDisable() {
+            m_Clicked = false;
+        }
+
         public bool ConsumeClick() {
             bool wasClicked;
             if ((wasClicked = m_Clicked)) {

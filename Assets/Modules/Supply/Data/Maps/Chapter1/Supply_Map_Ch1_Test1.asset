@@ -12,3 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b1824e4a94bb4848a25eda22c4ac45f, type: 3}
   m_Name: Supply_Map_Ch1_Test1
   m_EditorClassIdentifier: 
+  ShipIds:
+  - m_HashValue: 4036650106
+  Positions:
+  - Name:
+      m_HashValue: 1391791790
+    Position: {x: -2.68, y: 0.34}
+  - Name:
+      m_HashValue: 2050365977
+    Position: {x: 4.38, y: 2.77}
+  - Name:
+      m_HashValue: 2033588358
+    Position: {x: 2.76, y: -2.91}
+  Overrides: []

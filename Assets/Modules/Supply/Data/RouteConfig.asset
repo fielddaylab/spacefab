@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78471e929516db14f9d3787a92433a3c, type: 3}
+  m_Name: RouteConfig
+  m_EditorClassIdentifier: 
+  FragmentLine:
+    Width: 0.25
+    Material: {fileID: 2100000, guid: 0a136bc8554070942bf7b4377c0e4c21, type: 2}
+  PendingFragmentLine:
+    Width: 0.25
+    Material: {fileID: 2100000, guid: 9de488fd69832d14b827a83c8a408e8b, type: 2}
+  EmptyCursorLine:
+    Width: 0.12
+    Material: {fileID: 2100000, guid: 3fffb478fdbb78044bd996e38e0c0d4f, type: 2}
+  PendingCursorLine:
+    Width: 0.15
+    Material: {fileID: 2100000, guid: e44d9fe2862773046b709f5f948bef8d, type: 2}
+  InvalidCursorLine:
+    Width: 0.15
+    Material: {fileID: 2100000, guid: f283dde3b5e4cec4dbccb338a8b37ba1, type: 2}
+  ReturnLine:
+    Width: 0.15
+    Material: {fileID: 2100000, guid: 35113df6af2db5e469af5830106222a5, type: 2}
+  SolidLine:
+    Width: 0.15
+    Material: {fileID: 2100000, guid: d167a642173c83045be58a214aa55c6f, type: 2}
+  ShipSpeeds:
+  - 1
+  - 2
+  - 3

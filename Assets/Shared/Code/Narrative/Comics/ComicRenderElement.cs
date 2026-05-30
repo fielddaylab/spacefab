@@ -16,6 +16,8 @@ namespace SpaceFab.Comic {
 
         [NonSerialized] public StringHash32 Id;
         [NonSerialized] public ComicRenderElementType Type;
+        [NonSerialized] public int ElementIndex;
+
         [NonSerialized] public ComicRenderElement Sibling;
         [NonSerialized] public float Visibility;
         [NonSerialized] public Routine CoroutineAnimation;

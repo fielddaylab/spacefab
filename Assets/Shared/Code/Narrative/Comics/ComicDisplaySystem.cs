@@ -9,7 +9,7 @@ namespace SpaceFab.Comic
     public class ComicDisplaySystem : SystemComponent
     {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            //ecs.Register()
+            
         }
 
         //static private void 

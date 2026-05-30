@@ -23,6 +23,7 @@ namespace SpaceFab.Comic {
 
     public unsafe struct MeshReader {
         public byte* Stream;
+        public byte* StreamEnd;
 
         public int VertexCount;
         public int IndexCount;
@@ -45,9 +46,10 @@ namespace SpaceFab.Comic {
 
     static public unsafe class ComicMesh {
         public const float UVMultiplier = (1 << 15);
-        public const float UVScale = 1.0f / UVMultiplier;
+        private const float UVScale = 1.0f / UVMultiplier;
+
         public const float PositionMultiplier = (1 << 15);
-        public const float PositionScale = 1.0f / PositionMultiplier;
+        private const float PositionScale = 1.0f / PositionMultiplier;
 
         public const ushort NullIndex = ushort.MaxValue;
 
@@ -77,7 +79,7 @@ namespace SpaceFab.Comic {
                 CompressedMeshVertex vert;
                 vert = *vertStream++;
                 *reader.VertexWriteHead++ = new ComicMeshVertex() {
-                    Position = new Vector2(posBaseX + vert.X * posScaleX, posBaseY * vert.Y * posScaleY),
+                    Position = new Vector2(posBaseX + vert.X * posScaleX, posBaseY + vert.Y * posScaleY),
                     PackedUVs = new Vector4(vert.U * UVScale, vert.V * UVScale,
                         vert.X * PositionScale, vert.Y * PositionScale)
                 };
@@ -102,7 +104,7 @@ namespace SpaceFab.Comic {
                 toRead--;
                 reader.WrittenIndices++;
             } else {
-                baseIndex = *reader.IndexWriteHead;
+                baseIndex = *(reader.IndexWriteHead - 1);
             }
 
             reader.WrittenIndices += toRead;

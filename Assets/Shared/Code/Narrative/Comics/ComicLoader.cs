@@ -50,7 +50,7 @@ namespace SpaceFab.Comic {
                 }
             }
 
-            ScriptUtility.OnCutsceneEnd.Register(Finish);
+            ScriptUtility.OnCutsceneEnd.Register(QueueFinish);
         }
 
         protected override void OnSceneReady() {
@@ -61,10 +61,14 @@ namespace SpaceFab.Comic {
                     table.Set("comicId", ComicId);
                     ThreadHandle = ScriptUtility.Trigger("ComicExecute", table);
                     if (!ThreadHandle.IsRunning()) {
-                        //GameLoop.QueuePreUpdate(Finish);
+                        QueueFinish();
                     }
                 }
             }
+        }
+
+        private void QueueFinish() {
+            GameLoop.QueuePreUpdate(Finish);
         }
 
         private void Finish() {
