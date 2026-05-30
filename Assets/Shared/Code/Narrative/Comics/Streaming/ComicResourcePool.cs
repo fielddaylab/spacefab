@@ -94,6 +94,11 @@ namespace SpaceFab.Comic {
             MaterialPool.Prewarm();
             ParentPool.Prewarm();
 
+            // DEBUG: log texture count vs fixed material slot capacity to catch a manifest that overflows TextureMaterials
+            Log.Msg("[ComicResourcePool.Preload] manifest.Textures.Length={0}, TextureMaterials slot capacity={1}",
+                ComicsUtility.Manifest.Textures != null ? ComicsUtility.Manifest.Textures.Length : -1,
+                TextureMaterials != null ? TextureMaterials.Length : -1);
+
             for(int i = 0; i < ComicsUtility.Manifest.Textures.Length; i++) {
                 Material texMaterial = MaterialPool.Alloc();
                 texMaterial.SetTexture(DefaultShaderProps.MainTex, ComicsUtility.Manifest.Textures[i]);

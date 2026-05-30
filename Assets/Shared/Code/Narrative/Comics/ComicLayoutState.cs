@@ -264,6 +264,14 @@ namespace SpaceFab.Comic
 
             ushort meshId = ComicsUtility.PackMeshId(layerData.MeshIndex, StreamedMeshType.Layer);
 
+            // DEBUG: log the data we're about to dereference so a WebGL IndexOutOfRange points at the bad field
+            Log.Msg("[SpawnLayer] layerIndex={0} panelIndex={1} TextureIndex={2} (TextureMaterials.Length={3}, manifest.Textures.Length={4}) MeshIndex={5} meshId={6} ActiveMeshes.Contains={7}",
+                layerIndex, panelIndex, layerData.TextureIndex,
+                resourcePool.TextureMaterials != null ? resourcePool.TextureMaterials.Length : -1,
+                manifest.Textures != null ? manifest.Textures.Length : -1,
+                layerData.MeshIndex, meshId,
+                resourcePool.ActiveMeshes != null && resourcePool.ActiveMeshes.ContainsKey(meshId));
+
             ComicRenderElement renderElement = resourcePool.ElementPool.Alloc(ComicsUtility.UnpackPointPrecise(layerData.Position), Quaternion.Euler(0, 0, ComicsUtility.UnpackDegrees(layerData.PackedRotation)), parent, false);
             renderElement.Type = ComicRenderElementType.Layer;
             renderElement.ElementIndex = layerIndex;
