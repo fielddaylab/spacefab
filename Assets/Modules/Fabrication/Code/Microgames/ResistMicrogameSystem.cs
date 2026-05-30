@@ -98,6 +98,9 @@ namespace SpaceFab.Fabrication.Microgames
             // animation finished, exit out
             if (accruedSpread >= 1f)
             {
+
+                state.SpreadingGraphic.transform.localScale = Vector3.zero;
+
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
             }
