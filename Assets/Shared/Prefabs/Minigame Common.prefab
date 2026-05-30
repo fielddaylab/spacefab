@@ -64,6 +64,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4194491049191091273}
   - component: {fileID: 1585309193046212053}
+  - component: {fileID: 53362905395954562}
   m_Layer: 0
   m_Name: Common Assets
   m_TagString: Untagged
@@ -99,6 +100,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Packs: []
+--- !u!114 &53362905395954562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081540577530493474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45ac36882af4c9b418f0c5cb92dc03cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ThisMinigame: 0
 --- !u!1 &7680620308455763636
 GameObject:
   m_ObjectHideFlags: 0
