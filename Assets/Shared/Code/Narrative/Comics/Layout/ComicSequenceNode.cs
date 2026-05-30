@@ -109,6 +109,9 @@ namespace SpaceFab.Comic {
                     builder.Layers[layer.CachedIndex].TextureIndex = manifest.Layers[layer.CachedIndex].TextureIndex;
                 }
                 Log.Msg("[ComicSequenceNode] No texture changes detected, skipping rebuild");
+                for(int i = 0; i < manifest.Meshes.Length; i++) {
+                    builder.Meshes.Add(manifest.Meshes[i]);
+                }
                 builder.OutputMeshes = manifest.CompressedMeshData;
                 builder.OutputTextures = manifest.Textures;
             }
