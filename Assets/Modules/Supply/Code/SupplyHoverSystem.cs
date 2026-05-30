@@ -47,6 +47,10 @@ namespace SpaceFab.Supply {
                 }
             }
 
+            if (hoverState.MousePosition.HasValue != mousePos.HasValue) {
+                hoverState.HoverDirty = true;
+            }
+
             hoverState.MousePosition = mousePos;
 
             if (hoverState.Node != hoverNode) {

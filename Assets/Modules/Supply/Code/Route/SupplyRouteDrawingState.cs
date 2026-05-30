@@ -19,6 +19,7 @@ namespace SpaceFab.Supply {
 
         [NonSerialized] public int RouteIndex = -1;
         [NonSerialized] public int QueuedRouteIndex = -1;
+        [NonSerialized] public bool ForceUpdatePreview = false;
 
         [NonSerialized] public SupplyRouteDrawAction HoverAction;
         [NonSerialized] public int HoverActionArg;
@@ -64,7 +65,7 @@ namespace SpaceFab.Supply {
                 for(int i = 0; i < segmentCount; i++) {
                     float lenSq = LineMath.DistanceFromPointToLineSegmentSquared(position, points[i], points[i + 1]);
                     if (lenSq < closestDist) {
-                        lenSq = closestDist;
+                        closestDist = lenSq;
                         closestSeg = i;
                     }
                 }
@@ -132,6 +133,7 @@ namespace SpaceFab.Supply {
 
             draw.RouteCollider.enabled = false;
             draw.RouteIndex = -1;
+            draw.ForceUpdatePreview = true;
         }
 
         static public void OpenRouteDrawing(SupplyRouteDrawingState draw, SupplyRouteCollection routes, SupplyShipIndex ships, int routeIndex) {
@@ -148,16 +150,18 @@ namespace SpaceFab.Supply {
 
             Find.State(out SupplyChainMap map);
 
+            routeData.Flags &= ~SupplyRouteFlags.AutoConnectEnd;
+
             if (routeData.NodeCount == 0) {
                 routeData.Nodes[routeData.NodeCount++] = map.Home;
+                routeData.NodeMask.Set(map.Home.Index);
                 TryEvaluatePath(routeData, ships.ShipStats[routeIndex], routeIndex, out stats);
                 routes.UpdatedRouteMask.Set(draw.RouteIndex);
             }
 
             UpdateRouteCollider(draw.RouteCollider, routeData);
 
-            Find.State<SupplyHoverState>().HoverDirty = true;
-            draw.PreviewDirty = true;
+            draw.ForceUpdatePreview = true;
         }
     }
 }

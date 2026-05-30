@@ -77,7 +77,13 @@ namespace SpaceFab.Supply {
 
             ref SupplyRouteData routeData = ref routes.Routes[draw.RouteIndex];
 
-            if (hover.HoverDirty || hover.Route != null) {
+            if (hover.HoverDirty || hover.Route != null || draw.ForceUpdatePreview) {
+                if (draw.ForceUpdatePreview) {
+                    draw.PreviewDirty = true;
+                }
+
+                draw.ForceUpdatePreview = false;
+
                 if (hover.Route != null) {
                     int segment = SupplyRouteUtility.TryGetClosestSegment(hover.Route, hover.MousePosition.Value);
                     Assert.True(segment >= 0);
@@ -101,7 +107,7 @@ namespace SpaceFab.Supply {
                         }
                     }
                 } else if (hover.MousePosition.HasValue) {
-                    SupplyRouteUtility.SetDrawingHoverAction(draw, routeData.NodeCount > 2 ? SupplyRouteDrawAction.DeleteRouteAuto : SupplyRouteDrawAction.CompleteRouteAuto, 0);
+                    SupplyRouteUtility.SetDrawingHoverAction(draw, routeData.NodeCount < 2 ? SupplyRouteDrawAction.DeleteRouteAuto : SupplyRouteDrawAction.CompleteRouteAuto, 0);
                 } else {
                     SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.None, 0);
                 }
@@ -163,13 +169,15 @@ namespace SpaceFab.Supply {
                                 routes.TempRouteFragmentConsume = fragmentIndex;
                                 if (fragmentFind == FragmentFindResult.Last) {
                                     for (int i = fragmentData.NodeCount; i-- > 0;) {
-                                        int nodeIndex = fragmentData.Nodes[i];
-                                        previewRoute.Nodes[previewRoute.NodeCount++] = SupplyRouteUtility.GetNodeForIndex(nodeIndex);
+                                        SupplyRouteNode node = SupplyRouteUtility.GetNodeForIndex(fragmentData.Nodes[i]);
+                                        previewRoute.Nodes[previewRoute.NodeCount++] = node;
+                                        previewRoute.NodeMask.Set(node.Index);
                                     }
                                 } else {
                                     for (int i = 0; i < fragmentData.NodeCount; i++) {
-                                        int nodeIndex = fragmentData.Nodes[i];
-                                        previewRoute.Nodes[previewRoute.NodeCount++] = SupplyRouteUtility.GetNodeForIndex(nodeIndex);
+                                        SupplyRouteNode node = SupplyRouteUtility.GetNodeForIndex(fragmentData.Nodes[i]);
+                                        previewRoute.Nodes[previewRoute.NodeCount++] = node;
+                                        previewRoute.NodeMask.Set(node.Index);
                                     }
                                 }
                                 SupplyRouteUtility.TryEvaluatePath(previewRoute, shipStats, draw.RouteIndex, out previewStats);
@@ -177,6 +185,7 @@ namespace SpaceFab.Supply {
                         }
                     } else {
                         previewRoute.Nodes[previewRoute.NodeCount++] = hoverNode;
+                        previewRoute.NodeMask.Set(hoverNode.Index);
                         SupplyRouteUtility.TryEvaluatePath(previewRoute, shipStats, draw.RouteIndex, out previewStats);
                     }
                     break;
@@ -206,7 +215,9 @@ namespace SpaceFab.Supply {
 
                 case SupplyRouteDrawAction.RemoveLastNode: {
                     SupplyRouteData.Copy(currentRoute, ref previewRoute);
-                    previewRoute.Nodes[--previewRoute.NodeCount] = null;
+                    SupplyRouteNode node = previewRoute.Nodes[--previewRoute.NodeCount];
+                    previewRoute.Nodes[previewRoute.NodeCount] = null;
+                    previewRoute.NodeMask.Unset(node.Index);
                     SupplyRouteUtility.TryEvaluatePath(previewRoute, shipStats, draw.RouteIndex, out previewStats);
                     break;
                 }
@@ -239,7 +250,7 @@ namespace SpaceFab.Supply {
                 return;
             }
 
-            if (!Game.Input.IsMouseDown(FieldDay.HID.MouseButton.Left)) {
+            if (!Game.Input.IsMousePressed(FieldDay.HID.MouseButton.Left)) {
                 return;
             }
 
@@ -273,16 +284,13 @@ namespace SpaceFab.Supply {
                     SupplyRouteUtility.QueueRouteDrawingClose();
                     break;
                 }
-                case SupplyRouteDrawAction.AddNonTerminalNode: {
-                    SupplyRouteUtility.SetDrawingHoverAction(draw, SupplyRouteDrawAction.None, 0);
-                    SupplyRouteUtility.UpdateRouteCollider(draw.RouteCollider, previewData);
-                    break;
-                }
                 default: {
                     SupplyRouteUtility.UpdateRouteCollider(draw.RouteCollider, previewData);
                     break;
                 }
             }
+
+            draw.ForceUpdatePreview = true;
         }
     
         // Updates the preview lines
@@ -292,6 +300,10 @@ namespace SpaceFab.Supply {
             if (draw.RouteIndex < 0 || !hover.MousePosition.HasValue) {
                 draw.CursorLine.enabled = false;
                 draw.PreviewDeleteLine.enabled = false;
+                return;
+            }
+
+            if (draw.ForceUpdatePreview) {
                 return;
             }
 
@@ -311,12 +323,14 @@ namespace SpaceFab.Supply {
                 case SupplyRouteDrawAction.AddNonTerminalNode:
                 case SupplyRouteDrawAction.CompleteRouteHome: {
                     cursorLinePositionCount = 1 + previewData.NodeCount - routeData.NodeCount;
+                    int writeHead = 0;
                     for (int i = routeData.NodeCount - 1; i < previewData.NodeCount; i++) {
-                        cursorLinePositions[cursorLinePositionCount] = previewData.Nodes[i].Position;
+                        cursorLinePositions[writeHead++] = previewData.Nodes[i].Position;
                     }
                     break;
                 }
-                case SupplyRouteDrawAction.CompleteRouteAuto: {
+                case SupplyRouteDrawAction.CompleteRouteAuto:
+                case SupplyRouteDrawAction.DeleteRouteAuto: {
                     cursorLinePositionCount = 2;
                     cursorLinePositions[0] = routeData.Nodes[routeData.NodeCount - 1].Position;
                     cursorLinePositions[1] = hover.MousePosition.Value;
