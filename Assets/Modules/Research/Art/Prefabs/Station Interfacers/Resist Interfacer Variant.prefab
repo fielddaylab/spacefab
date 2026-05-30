@@ -1248,7 +1248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8755272116839694844, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_text
-      value: RESIST
+      value: SPIN COAT
       objectReference: {fileID: 0}
     - target: {fileID: 8779092490790572546, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Sprite

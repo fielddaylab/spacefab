@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
@@ -90,6 +91,9 @@ namespace SpaceFab.Fabrication {
                 // update robot visual
                 RobotVisualsUtility.UpdateLayer(Find.State<RobotVisualsState>());
                 MicrogameCanvasUtility.HideStationInstructions(Find.State<MicrogameCanvasState>());
+
+                //trigger leaf script
+                ScriptUtility.Trigger(FabricationScriptTriggers.OnAttempt);
 
                 ModeUtility.SetNewMode(modeState, LevelMode.Attempt);
                 GameLoop.SuspendUpdates(UpdateMasks.AttemptLeadInMask);

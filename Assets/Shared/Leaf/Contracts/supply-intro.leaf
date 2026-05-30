@@ -1,2 +1,41 @@
 # basePath SupplyIntro
 
+:: Node1
+{@PAL}  Build a route to complete the contract. \n\nStart by selecting a ship.
+
+
+:: Node2
+{@PAL}  Hover over the planet with your mouse to see the time, cost, and risk level.
+
+
+:: Node3
+{PAL}   Click on the planet to select this route segment.
+
+
+:: Node4
+{@PAL}  Great. Now click the Fab (your main ship).
+
+
+::Node5
+{@PAL}  Uh-oh, this material wasn't a conductor. \n\nCheck the wiki to identify the materials on the planets.
+
+
+::Node6
+{@PAL}  Select the ship again to correct the route.
+
+
+::Node7
+{@PAL}  Select the the path or the planet to delete the current route.
+
+
+::Node8
+{@PAL}  Draw your new path to the planet with the conductor.
+
+
+::Node9
+{@PAL}  Click on empty space or the Fab to finalize this route.
+
+
+::Node10
+{@PAL}  click CONFIRM to commit your entire supply chain.
+
