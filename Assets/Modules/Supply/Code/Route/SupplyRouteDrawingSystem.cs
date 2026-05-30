@@ -5,10 +5,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using System;
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace SpaceFab.Supply {
     public sealed class SupplyRouteDrawingSystem : SystemComponent {
