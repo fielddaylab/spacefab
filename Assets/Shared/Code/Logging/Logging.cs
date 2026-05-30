@@ -263,7 +263,7 @@ namespace SpaceFab.Logging
             SpacefabGame.Events
                 .Register<bool>(GameEvents.TitleStartGameClicked, LogGameStart)
                 .Register(GameEvents.TitleNewGameClicked, LogClickNewGame)
-                .Register(GameEvents.TitleBackFromInputClicked, LogClickResumeGame)
+                .Register(GameEvents.TitleContinueGameClicked, LogClickResumeGame)
                 .Register(GameEvents.ShipMenuDisplayed, LogShipMenuDisplayed)
                 .Register(GameEvents.OpenContractView, LogOpenContractView)
                 .Register<string>(GameEvents.AcceptContract, LogAcceptContract)
@@ -282,8 +282,9 @@ namespace SpaceFab.Logging
 
             // Fabrication
             SpacefabGame.Events
-                .Register(GameEvents.FabCountDownStart, LogTimerStart)
-                .Register(GameEvents.FabActivateStation, (string stationId) => LogActivateStation(stationId))
+                .Register(GameEvents.FabGenerateWafer, LogGenerateWafer)
+                .Register(GameEvents.FabTimeStart, LogTimerStart)
+                .Register(GameEvents.FabStationEnterBegin, (string stationId) => LogActivateStation(stationId))
                 .Register<(string, string)>(GameEvents.FabInvalidActivateStation, LogInvalidActivation);
         }
         #endregion

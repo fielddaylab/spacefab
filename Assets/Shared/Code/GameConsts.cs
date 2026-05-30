@@ -66,7 +66,8 @@ namespace SpaceFab
         public static readonly StringHash32 FabStunEnd = "fab:stun-end";
 
         // Fabrication: Sequence
-        public static readonly StringHash32 FabCountDownStart = "fab:countdown-start";
+        public static readonly StringHash32 FabGenerateWafer = "fab:generate-wafer";
+        public static readonly StringHash32 FabTimeStart = "fab:time-start";
         public static readonly StringHash32 FabSequenceReset = "fab:sequence-reset";
         public static readonly StringHash32 FabSequenceStepCompleted = "fab:sequence-step-completed";
         public static readonly StringHash32 FabSequenceCompleted = "fab:sequence-completed";
