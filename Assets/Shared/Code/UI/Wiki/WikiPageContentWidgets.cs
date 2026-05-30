@@ -37,5 +37,6 @@ namespace SpaceFab.UI {
         // RectTransform to fit them.
         public GameObject MaterialCharacteristicsGroup;
         public RectTransform CharacteristicsContainer;
+        public GameObject PlanetDetailsContainer;
     }
 }

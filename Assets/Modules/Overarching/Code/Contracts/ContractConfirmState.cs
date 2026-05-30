@@ -41,6 +41,14 @@ namespace SpaceFab.Overarching
             // Apply the selected contract's data (active contract id, loaded assets, seeded minigame save).
             yield return ApplyContractByIndex(chapterState, playerProgress, lookup, selectState.SelectedContractIndex);
 
+            float fillAmount = 0;
+            while (fillAmount < 1)
+            {
+                fillAmount += Time.deltaTime;
+                layoutState.SelectionContractUI.SignatureImage.fillAmount = fillAmount;
+                yield return null;
+            }
+
             yield return 0.5f;
 
             yield return Routine.Combine(

@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using Leaf.Runtime;
@@ -270,6 +271,9 @@ namespace SpaceFab.Fabrication.StationControl {
             stationState.Phase = StationControlPhase.Stunned;
             RobotUtility.ApplyStun(robotState, visualsState);
             Log.Msg("[StationControlUtility] TriggerStun; -> Stunned, PostStunPhase = {0}", returnPhase);
+
+            ScriptUtility.Trigger(FabricationScriptTriggers.OnStunned);
+
             Game.Events.Dispatch(GameEvents.FabStunBegin);
         }
     }

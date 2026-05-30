@@ -111,6 +111,7 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (!completedNormally) { return; }
 
+            state.SpreadingGraphic.transform.localScale = Vector3.zero;
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
             state.ResistUI.SetActive(false);

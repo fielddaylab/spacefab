@@ -247,11 +247,8 @@ namespace SpaceFab.UI {
 
         // True iff pageId appears in PlayerProgressState.UnlockedWikiPages.
         public static bool IsPageUnlocked(PlayerProgressState progressState, StringHash32 pageId) {
-            return true; // set by default for now
-
-            if (progressState.UnlockedWikiPages == null) { return false; }
+            if (progressState == null || progressState.UnlockedWikiPages == null) { return false; }
             return progressState.UnlockedWikiPages.Contains(pageId);
-
         }
 
         // True iff at least one page in the given tab is unlocked.
@@ -268,13 +265,18 @@ namespace SpaceFab.UI {
         // Adds pageId to the unlocked set and dispatches GameEvents.WikiPageUnlocked so UI and
         // audio can react. Idempotent — duplicate unlocks don't re-dispatch.
         //
-        // Caller (TODO): per-feature gameplay code calls this when the player first encounters
-        // the concept (e.g., DesignTransitionSystem on the first level that introduces gates).
-        // Caller is also responsible for invoking WikiAvailabilityUtility.ApplyUnlocks after so
-        // the strip rebuilds to reveal the new tab / thumbnail.
+        // Also raises WikiState.NeedsRebuild so WikiSetupSystem picks the change up on its
+        // next LateUpdate tick and reruns WikiPoolUtility.RebuildStrips + ApplyUnlocks. This
+        // lets a mid-session unlock (e.g., the Research minigame confirming a property while
+        // the wiki is open) reveal the new tab / thumbnail without the player having to
+        // close and reopen the wiki.
         public static void UnlockPage(PlayerProgressState progressState, StringHash32 pageId) {
-            progressState.UnlockedWikiPages ??= new System.Collections.Generic.HashSet<StringHash32>();
             if (!progressState.UnlockedWikiPages.Add(pageId)) { return; }
+
+            WikiState wikiState = Find.State<WikiState>();
+            if (wikiState != null) {
+                wikiState.NeedsRebuild = true;
+            }
 
             SpacefabGame.Events.Dispatch(GameEvents.WikiPageUnlocked, pageId);
         }
@@ -482,14 +484,12 @@ namespace SpaceFab.UI {
 
         private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
             bool available = false;
-            //bool available = true;
             if (content != null && content.Tabs != null
                 && button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length) {
                 available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
             }
 
-            //button.Available = available;
-            button.Available = true;
+            button.Available = available;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
         }
@@ -518,7 +518,6 @@ namespace SpaceFab.UI {
                 }
             }
 
-            available = true; // set by default for now
             button.Available = available;
             button.gameObject.SetActive(available);
             if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
