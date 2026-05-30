@@ -67,6 +67,14 @@ namespace SpaceFab.Comic {
             }
         }
 
+        // Aborts the running comic cutscene immediately and advances to NextScene as if it had ended normally.
+        // Safe to call mid-cutscene: kills live Leaf threads first so queued comic ops don't keep firing into
+        // the tearing-down scene.
+        public void Skip() {
+            ScriptUtility.KillAllThreads();
+            QueueFinish();
+        }
+
         private void QueueFinish() {
             GameLoop.QueuePreUpdate(Finish);
         }
