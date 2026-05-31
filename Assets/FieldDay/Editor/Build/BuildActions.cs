@@ -1,6 +1,5 @@
-using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditorInternal;
@@ -22,21 +21,21 @@ namespace FieldDay.Editor {
             }
         }
 
-        static public void AutomatedBuild() {
-            IsAutomated = true;
-            ManualStepControl = true;
-            try {
-                AdjustSettingsBuildProcessor.Execute();
-                BakeAssetsBuildPreprocessor.Execute();
-                StripEditorDataBuildPreprocessor.Execute();
-                StreamedPacks.ExecuteFullRebuild();
-                BuildReport report = GeneratePlayerBuild();
-                // TODO: report out
-            } finally {
-                IsAutomated = false;
-                ManualStepControl = false;
-            }
-        }
+        //static public void AutomatedBuild() {
+        //    IsAutomated = true;
+        //    ManualStepControl = true;
+        //    try {
+        //        AdjustSettingsBuildProcessor.Execute();
+        //        BakeAssetsBuildPreprocessor.Execute();
+        //        StripEditorDataBuildPreprocessor.Execute();
+        //        StreamedPacks.ExecuteFullRebuild();
+        //        BuildReport report = GeneratePlayerBuild();
+        //        // TODO: report out
+        //    } finally {
+        //        IsAutomated = false;
+        //        ManualStepControl = false;
+        //    }
+        //}
 
         static public BuildPlayerOptions GetPlayerBuildOptions() {
             BuildPlayerOptions options = new BuildPlayerOptions();
@@ -49,7 +48,6 @@ namespace FieldDay.Editor {
                     scenes.Add(scene.path);
                 }
             }
-            //options.target = 
             options.scenes = scenes.ToArray();
 
             return options;
@@ -58,6 +56,25 @@ namespace FieldDay.Editor {
         static public BuildReport GeneratePlayerBuild() {
             BuildPlayerOptions buildOptions = GetPlayerBuildOptions();
             return BuildPipeline.BuildPlayer(buildOptions);
+        }
+
+        private class RebuildPacksAfterAssetImport : AssetPostprocessor {
+            static private void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromAssets, bool domainReload) {
+                if (!BuildActions.IsBatchMode) {
+                    return;
+                }
+
+                if (SessionState.GetBool("FD-Batch-StreamedPacksExported", false)) {
+                    return;
+                }
+
+                SessionState.SetBool("FD-Batch-StreamedPacksExported", true);
+
+                AdjustSettingsBuildProcessor.Execute();
+                BakeAssetsBuildPreprocessor.Execute();
+                StripEditorDataBuildPreprocessor.Execute();
+                StreamedPacks.ExecuteCleanRebuild();
+            }
         }
     }
 }

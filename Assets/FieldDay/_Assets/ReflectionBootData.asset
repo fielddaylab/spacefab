@@ -97,13 +97,25 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 1
+      TypeCount: 4
     - AssemblyName: FieldDay.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
+    - TypeName: SpaceFab.MinigameDebugMenu
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
     - TypeName: SpaceFab.Save.SaveUtility
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
+    - TypeName: SpaceFab.Comic.ComicDebugMenu
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
+    - TypeName: SpaceFab.Overarching.OverarchingDebugMenu
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -116,7 +128,13 @@ MonoBehaviour:
       MemberCount: 1
       OverloadCount: 0
     Members:
+    - MemberName: CreateMinigameDebugMenu
+      Type: 8
     - MemberName: SaveDebugMenu
+      Type: 8
+    - MemberName: CreateComicDebugMenu
+      Type: 8
+    - MemberName: CreateJumpsDebugMenu
       Type: 8
     - MemberName: DebugMenuFactory
       Type: 8
@@ -130,7 +148,7 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: FieldDay.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 10
+      TypeCount: 11
     Types:
     - TypeName: FieldDay.Scenes.SceneMgr
       Self: 0
@@ -164,6 +182,10 @@ MonoBehaviour:
       Self: 0
       MemberCount: 1
       OverloadCount: 0
+    - TypeName: FieldDay.Debugging.SmokeTestMgr
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
     - TypeName: FieldDay.Audio.AudioMgr
       Self: 0
       MemberCount: 1
@@ -186,6 +208,8 @@ MonoBehaviour:
     - MemberName: CreateDebugMenu
       Type: 8
     - MemberName: CreateSystemsDebugMenu
+      Type: 8
+    - MemberName: CreateDebugMenu
       Type: 8
     - MemberName: CreateDebugMenu
       Type: 8

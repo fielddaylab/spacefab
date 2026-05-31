@@ -1,3 +1,4 @@
+
 using System;
 using System.IO;
 using BeauUtil;
@@ -48,11 +49,25 @@ namespace FieldDay.Editor {
             Array.Sort(configs, (a, b) => a.Order - b.Order);
             //Debug.LogFormat("Found {0} build configurations when lookup under branch '{1}'", configs.Length, branchName);
 
+            BuildConfig fallback = null;
+
             for (int buildIdx = 0; buildIdx < configs.Length; buildIdx++) {
                 BuildConfig config = configs[buildIdx];
                 if (WildcardMatch.Match(branchName, config.BranchNamePatterns, '*', true)) {
                     return config;
                 }
+                if (config.IsFallback) {
+                    if (fallback != null) {
+                        Debug.LogWarningFormat("[BuildConfigurations] Multiple default fallback configs found");
+                    } else {
+                        fallback = config;
+                    }
+                }
+            }
+
+            if (fallback != null) {
+                Debug.LogWarningFormat("[BulidConfigurations] No configs found matching branch '{0}', using fallback '{1}'", branchName, fallback.name);
+                return fallback;
             }
 
             Debug.LogWarningFormat("[BuildConfigurations] No configs found matching branch '{0}' out of {1} configs!", branchName, configs.Length);
@@ -104,7 +119,7 @@ namespace FieldDay.Editor {
                 Debug.LogException(e);
             }
 
-            if (logging && !isBatch {
+            if (logging && !isBatch) {
                 EditorApplication.delayCall += () => BuildUtils.ForceRecompile();
             }
         }
@@ -221,13 +236,10 @@ namespace FieldDay.Editor {
             }
         }
 
-        [InitializeOnLoadMethod]
-        static private void Init_RefreshConfig() {
-            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) {
-                return;
+        private class RefreshCOnfigAfterAssetImport : AssetPostprocessor {
+            static private void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromAssets, bool domainReload) {
+                RetrieveAndApplyConfig(false);
             }
-
-            RetrieveAndApplyConfig(false); 
         }
 
         [MenuItem("Assets/Refresh Build Configuration", priority = 2000)]
