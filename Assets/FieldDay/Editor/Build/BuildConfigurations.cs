@@ -66,7 +66,7 @@ namespace FieldDay.Editor {
         /// </summary>
         static public void ApplyBuildConfig(string branchName, string configName, ConfigOptions options, bool forceLogs = false) {
             bool logging = forceLogs;
-            bool isBatch = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
+            bool isBatch = BuildActions.IsBatchMode;
             if (!logging) {
                 if ((isBatch)) {
                     logging = true;
@@ -104,7 +104,7 @@ namespace FieldDay.Editor {
                 Debug.LogException(e);
             }
 
-            if (logging && !InternalEditorUtility.inBatchMode) {
+            if (logging && !isBatch {
                 EditorApplication.delayCall += () => BuildUtils.ForceRecompile();
             }
         }

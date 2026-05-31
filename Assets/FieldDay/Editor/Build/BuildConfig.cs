@@ -9,6 +9,7 @@ namespace FieldDay.Editor {
     public class BuildConfig : ScriptableObject {
         public string[] BranchNamePatterns;
         public int Order;
+        public bool IsFallback;
 
         [Header("Settings")]
         public bool DevelopmentBuild;

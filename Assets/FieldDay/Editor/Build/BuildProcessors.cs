@@ -18,8 +18,14 @@ namespace FieldDay.Editor {
         public override int callbackOrder { get { return -100; } }
 
         public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
+            if (!BuildActions.ManualStepControl) {
+                Execute();
+            }
+        }
+
+        static public void Execute() {
             string branch = BuildUtils.GetSourceControlBranchName();
-            bool isBatchMode = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
+            bool isBatchMode = BuildActions.IsBatchMode;
             if (isBatchMode) {
                 PlayerSettings.SplashScreen.show = false;
                 PlayerSettings.SplashScreen.showUnityLogo = false;
@@ -49,16 +55,22 @@ namespace FieldDay.Editor {
         public override int callbackOrder { get { return 10; } }
 
         public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
-            bool batch = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
+            if (!BuildActions.ManualStepControl) {
+                Execute();
+            }
+        }
+
+        static public void Execute() {
+            bool batch = BuildActions.IsBatchMode;
 
             try {
-                using(Profiling.Time("bake assets")) {
+                using (Profiling.Time("bake assets")) {
                     using (Log.DisableMsgStackTrace()) {
                         Baking.BakeAssets(batch ? 0 : BakeFlags.Verbose);
                     }
                 }
                 AssetDatabase.SaveAssets();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new BuildFailedException(e);
             }
         }
@@ -67,11 +79,22 @@ namespace FieldDay.Editor {
     /// <summary>
     /// Strips all assets with editor-only data.
     /// </summary>
-    public class StripEditorDataBuildPreprocesor : BuildPlayerProcessor {
+    public class StripEditorDataBuildPreprocessor : BuildPlayerProcessor {
         public override int callbackOrder { get { return 10000; } }
 
         public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
-            bool batch = InternalEditorUtility.inBatchMode || !InternalEditorUtility.isHumanControllingUs;
+            if (!BuildActions.ManualStepControl) {
+                Execute();
+            }
+        }
+        
+        static public void Execute() {
+            bool batch = BuildActions.IsBatchMode;
+
+            if (!batch) {
+                Debug.LogFormat("[StripEditorDataBuildPreprocessor] Skipping editor-only data stripping, human is controlling us");
+                return;
+            }
 
             List<IEditorOnlyData> toStrip = new List<IEditorOnlyData>(256);
             ScriptableObject[] assets = AssetDBUtils.FindAssets<ScriptableObject>();
@@ -83,12 +106,12 @@ namespace FieldDay.Editor {
             }
 
             if (toStrip.Count > 0) {
-                Debug.LogFormat("[StripEditorDataBuildPreprocesor] Found {0} assets with editor-only data...", toStrip.Count);
+                Debug.LogFormat("[StripEditorDataBuildPreprocessor] Found {0} assets with editor-only data...", toStrip.Count);
                 try {
                     using (Profiling.Time("stripping editor-only data from assets")) {
                         ScriptableObject src;
                         foreach (var obj in toStrip) {
-                            src = (ScriptableObject) obj;
+                            src = (ScriptableObject)obj;
                             obj.ClearEditorData(EditorUserBuildSettings.development);
                             EditorUtility.SetDirty(src);
                         }

@@ -25,7 +25,7 @@ namespace FieldDay.Editor {
             options |= BuildAssetBundleOptions.StripUnatlasedSpriteCopies;
             options |= BuildAssetBundleOptions.DisableLoadAssetByFileNameWithExtension | BuildAssetBundleOptions.DisableLoadAssetByFileName;
 
-            if (!InternalEditorUtility.isHumanControllingUs || InternalEditorUtility.inBatchMode) {
+            if (BuildActions.IsBatchMode) {
                 options |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
             }
 
@@ -39,10 +39,14 @@ namespace FieldDay.Editor {
             return parameters;
         }
 
-        static public BuildAssetBundlesParameters GenerateFullBuildParameters() {
+        static public BuildAssetBundlesParameters GenerateFullBuildParameters(BuildTarget target, bool clean) {
             BuildAssetBundlesParameters parameters = new BuildAssetBundlesParameters();
             parameters.outputPath = GetBuildPath();
             parameters.options = GetBuildOptions();
+            parameters.targetPlatform = target;
+            if (clean) {
+                parameters.options |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
+            }
 
             StreamedPack[] allPacks = AssetDBUtils.FindAssets<StreamedPack>();
             AssetBundleBuild[] bundleBuilds = new AssetBundleBuild[allPacks.Length];
@@ -77,7 +81,7 @@ namespace FieldDay.Editor {
 
         [MenuItem("Field Day/Rebuild All Streamed Packs", priority = 500)]
         static public void ExecuteFullRebuild() {
-            var build = GenerateFullBuildParameters();
+            var build = GenerateFullBuildParameters(0, false);
             var result = ExecuteBuild(build);
         }
 
@@ -88,14 +92,18 @@ namespace FieldDay.Editor {
 
         [MenuItem("Field Day/Rebuild All Streamed Packs (Clean)", priority = 501)]
         static public void ExecuteCleanRebuild() {
-            var build = GenerateFullBuildParameters();
-            build.options |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
+            var build = GenerateFullBuildParameters(0, true);
             var result = ExecuteBuild(build);
         }
 
         [MenuItem("Field Day/Rebuild All Streamed Packs (Clean)", priority = 501, validate = true)]
         static private bool ExecuteCleanRebuild_Validate() {
             return !EditorApplication.isPlayingOrWillChangePlaymode;
+        }
+
+        static public void ExecuteCleanRebuildForPlatform(BuildTarget target) {
+            var build = GenerateFullBuildParameters(target, true);
+            var result = ExecuteBuild(build);
         }
 
         static public void RebuildBinaryManifest() {
@@ -133,15 +141,6 @@ namespace FieldDay.Editor {
             }
 
             File.WriteAllBytes(Path.Combine(Application.streamingAssetsPath, AssetMgr.StreamedManifestPath), writer.GetDataCopy());
-        }
-
-        [InitializeOnLoadMethod]
-        static private void Init_RefreshConfig() {
-            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || InternalEditorUtility.isHumanControllingUs) {
-                return;
-            }
-
-            ExecuteFullRebuild();
         }
     }
 }
