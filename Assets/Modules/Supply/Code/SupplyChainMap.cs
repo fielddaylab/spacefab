@@ -169,7 +169,7 @@ namespace SpaceFab.Supply
         }
     }
 
-    public static class SupplyChainUtility
+    public static partial class SupplyChainUtility
     {
         public static IEnumerator LoadChapterMap(SupplyChainMap map, SupplyMinigameState supplyState, SupplyTransitionState transitionState, int chapterIndex)
         {
@@ -185,6 +185,12 @@ namespace SpaceFab.Supply
                     Speed = shipAsset.Speed
                 };
             }
+
+            yield return null;
+
+            PopulateShipList(Find.Panel<ShipListPanel>(), shipIndex, Find.GlobalAsset<SupplyRouteConfig>());
+
+            yield return null;
 
             foreach(var data in entry.Positions) {
                 SupplyRouteNode node = SupplyRouteUtility.GetNodeForId(data.Name);
@@ -207,9 +213,6 @@ namespace SpaceFab.Supply
             supplyState.CurrSupplyChainMap = entry;
             transitionState.Phase = SupplyTransitionPhase.Completed;
             yield return null;
-
-            // DEBUG
-            SupplyRouteUtility.QueueRouteDrawing(0);
         }
 
         public static IEnumerator UnloadChapterMap(SupplyChainMap lookup, int chapterIndex)

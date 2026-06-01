@@ -69,15 +69,37 @@ namespace SpaceFab.Supply {
                     break;
             }
 
-            if (routeData.NodeCount > 1) {
-                line.StaticLine.positionCount = routeData.NodeCount;
+            bool autoConnected = (routeData.Flags & SupplyRouteFlags.AutoConnectEnd) != 0;
+            bool isClosed = autoConnected || (routeData.NodeCount > 1 && routeData.Nodes[0] == routeData.Nodes[routeData.NodeCount - 1]);
+            int segmentCount = autoConnected ? routeData.NodeCount : routeData.NodeCount - 1;
+            bool overlappingSegments = isClosed && segmentCount == 2;
 
-                Vector3* positions = stackalloc Vector3[routeData.NodeCount];
+            Vector2 overlapOffset = default;
+
+            if (routeData.NodeCount > 1) {
+                Vector3* positions = stackalloc Vector3[routeData.NodeCount + 1];
+                int positionCount = routeData.NodeCount;
                 for (int i = 0; i < routeData.NodeCount; i++) {
                     positions[i] = (Vector2) routeData.Nodes[i].transform.localPosition;
                 }
 
-                line.StaticLine.SetPositions(Unsafe.NativeArray(positions, routeData.NodeCount));
+                if (overlappingSegments) {
+                    Vector2 ba = (positions[1] - positions[0]).normalized * 0.2f;
+                    overlapOffset = new Vector2(ba.y, -ba.x);
+
+                    if (!autoConnected) {
+                        positionCount++;
+                        for(int i = positionCount; i > 1; i--) {
+                            positions[i] = positions[i - 1] - (Vector3) overlapOffset;
+                        }
+                    }
+
+                    positions[0] += (Vector3) overlapOffset;
+                    positions[1] += (Vector3) overlapOffset;
+                }
+
+                line.StaticLine.positionCount = positionCount;
+                line.StaticLine.SetPositions(Unsafe.NativeArray(positions, positionCount));
                 line.StaticLine.enabled = true;
 
             } else {
@@ -85,9 +107,12 @@ namespace SpaceFab.Supply {
             }
 
             if ((routeData.Flags & SupplyRouteFlags.AutoConnectEnd) != 0) {
+                Vector2 a = (Vector2) routeData.Nodes[routeData.NodeCount - 1].transform.localPosition;
+                Vector2 b = (Vector2) routeData.Nodes[0].transform.localPosition;
+
                 line.ReturnLine.positionCount = 2;
-                line.ReturnLine.SetPosition(0, (Vector2) routeData.Nodes[routeData.NodeCount - 1].transform.localPosition);
-                line.ReturnLine.SetPosition(1, (Vector2) routeData.Nodes[0].transform.localPosition);
+                line.ReturnLine.SetPosition(0, a - overlapOffset);
+                line.ReturnLine.SetPosition(1, b - overlapOffset);
                 line.ReturnLine.enabled = true;
             } else {
                 line.ReturnLine.enabled = false;

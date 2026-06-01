@@ -12,7 +12,7 @@ using UnityEngine;
 namespace SpaceFab.Supply {
     public sealed class SupplyHoverSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            ecs.Register(&UpdateHover, new SysUpdate(GameLoopPhase.LateUpdate, -10, UpdateMasks.SupplyMask),
+            ecs.Register(&UpdateHover, new SysUpdate(GameLoopPhase.LateUpdate, -100, UpdateMasks.SupplyMask),
                 new SysPermissions()
                     .ReadWriteShared<SupplyHoverState>());
 

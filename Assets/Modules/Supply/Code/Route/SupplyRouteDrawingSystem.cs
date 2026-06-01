@@ -155,6 +155,7 @@ namespace SpaceFab.Supply {
                 }
 
                 case SupplyRouteDrawAction.AddNonTerminalNode: {
+                    Assert.NotNullOrDestroyed(hoverNode, "Hover node should not be null here");
                     FragmentFindResult fragmentFind;
                     SupplyRouteData.Copy(currentRoute, ref previewRoute);
                     if (currentRoute.NodeCount >= SupplyRouteData.MaxNonTerminalNodes) {
