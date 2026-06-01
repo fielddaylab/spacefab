@@ -21,8 +21,9 @@ MonoBehaviour:
   m_designLevels:
   - m_HashValue: 1727982144
   - m_HashValue: 2504724854
-  m_title: Intro Contract
-  m_description: This is where the contract is described
+  m_title: Frontier Pilot Contract
+  m_description: 'Frontier Robotics authorizes payment for this onboarding fabrication.
+    Materials: conductor and insulator only.'
   m_client: '[Client Name]'
   m_payout: 6
   m_expectedDuration: 4

@@ -59,10 +59,10 @@ namespace SpaceFab.Fabrication.Microgames
         // increments current value for duration player holds activation key, then sets final heat to value on release
         private static void ProcessingBurning(FurnaceMicrogameState state, float deltaTime)
         {
-            if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate)) {
+            if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate))
+            {
                 state.CurrentValue += state.Sensitivity * deltaTime;
-            }
-            if (state.InputAccepted && Game.Input.IsKeyUp(FabricationConsts.Activate))
+            } else if (state.InputAccepted && state.CurrentValue > 0)
             {
                 state.Phase = FurnaceMicrogamePhase.Fueling;
                 state.FinalHeat = state.CurrentValue;
@@ -74,6 +74,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             float targetPercentage = state.FinalHeat / state.MaxRange;
             float targetZRotation = -targetPercentage * 180;
+            targetZRotation = Mathf.Clamp(targetZRotation, -179.99f, 0); // clamp it, and keep it slightly closer to start rot so animate correctly
             Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, targetZRotation));
 
             // frame independent smoothing, probably make less expensive later

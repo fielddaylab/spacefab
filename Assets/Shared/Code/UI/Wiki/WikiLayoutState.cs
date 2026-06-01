@@ -37,6 +37,10 @@ namespace SpaceFab.UI {
         // PageThumbStride so off-window icons clip against the strip's UI Mask.
         public RectTransform PaginatorContent;
 
+        // Single highlight overlay reparented + sized onto the selected page thumbnail each
+        // frame (see WikiLayoutUtility.PositionPageHighlight). Hidden when no page is selected.
+        public RectTransform PageHighlight;
+
         public Button PrevPage;
         public Button NextPage;
 
@@ -72,6 +76,8 @@ namespace SpaceFab.UI {
     /// scroll math.
     /// </summary>
     public static class WikiLayoutUtility {
+        private static Vector2 THUMB_HIGHLIGHT_MARGIN = new Vector2(-8, -8);
+
         // Snap the two roots to the steady-state alpha that matches `expanded`. Called by the
         // visuals system while WikiState.Transitioning is false; the transition routines own
         // the in-between alpha values.
@@ -88,6 +94,41 @@ namespace SpaceFab.UI {
             Vector2 anchoredPos = layoutState.PaginatorContent.anchoredPosition;
             anchoredPos.x = -startIndex * layoutState.PageThumbStride;
             layoutState.PaginatorContent.anchoredPosition = anchoredPos;
+        }
+
+        // Reparent the single highlight overlay onto the selected thumbnail and stretch it to
+        // fill that thumb's rect. Parenting (rather than copying coordinates) means the
+        // highlight tracks the thumb automatically as the paginator strip slides and clips it
+        // against the same UI Mask. The overlay is pushed behind the thumb's own content
+        // (SetAsFirstSibling) so the icon still renders on top of it.
+        public static void PositionPageHighlight(WikiLayoutState layoutState, RectTransform targetThumb) {
+            if (layoutState.PageHighlight == null) { return; }
+
+            if (targetThumb == null) {
+                HidePageHighlight(layoutState);
+                return;
+            }
+
+            RectTransform highlight = layoutState.PageHighlight;
+            if (highlight.parent != targetThumb) {
+                highlight.SetParent(targetThumb, false);
+                highlight.SetAsFirstSibling();
+            }
+
+            // Stretch to fill the thumb's rect exactly.
+            highlight.anchorMin = Vector2.zero;
+            highlight.anchorMax = Vector2.one;
+            highlight.offsetMin = THUMB_HIGHLIGHT_MARGIN;
+            highlight.offsetMax = -THUMB_HIGHLIGHT_MARGIN;
+
+            highlight.gameObject.SetActive(true);
+        }
+
+        // Hide the highlight overlay. Called when no page thumbnail is currently selected /
+        // visible in the active tab.
+        public static void HidePageHighlight(WikiLayoutState layoutState) {
+            if (layoutState.PageHighlight == null) { return; }
+            layoutState.PageHighlight.gameObject.SetActive(false);
         }
 
         // Drive a CanvasGroup to a fully-visible or fully-hidden steady state. Used by
