@@ -74,6 +74,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             float targetPercentage = state.FinalHeat / state.MaxRange;
             float targetZRotation = -targetPercentage * 180;
+            targetZRotation = Mathf.Clamp(targetZRotation, -179.99f, 0); // clamp it, and keep it slightly closer to start rot so animate correctly
             Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, targetZRotation));
 
             // frame independent smoothing, probably make less expensive later
