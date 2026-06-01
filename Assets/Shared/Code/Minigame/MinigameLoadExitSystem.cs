@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design;
 using SpaceFab.Save;
+using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,6 +61,19 @@ namespace SpaceFab {
                     break;
                 case MinigameLoadExitPhase.Exiting:
                     Debug.Log("[MinigameLoadExitSystem] Exporting state...");
+                    WikiState wikiState = Find.State<WikiState>();
+                    if (wikiState != null) {
+                        wikiState.Expanded = false;
+                        wikiState.Transitioning = false;
+                        wikiState.TransitionRoutine.Stop();
+                        wikiState.OpenRequestedThisFrame = false;
+                        wikiState.OpenToRequestedThisFrame = false;
+                        wikiState.CloseRequestedThisFrame = false;
+                        WikiLayoutUtility.ApplyExpandedSteadyState(
+                            Find.State<WikiLayoutState>(), false
+                        );
+                    }
+
                     interfacer.MinigameState.ExportState(ref saveStates);
                     SaveUtility.Save(SaveSlot.Main);
                     loadExitState.Phase = MinigameLoadExitPhase.SavingOnExit;
