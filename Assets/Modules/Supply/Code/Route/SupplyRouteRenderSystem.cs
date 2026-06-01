@@ -1,3 +1,4 @@
+using BeauPools;
 using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
@@ -120,8 +121,56 @@ namespace SpaceFab.Supply {
         }
 
         static private void UpdateFragmentPreviews(float dt) {
-            Find.State(out SupplyRouteCollection routes, out SupplyRouteRenderCollection renders, out SupplyRoutePools pools);
+            Find.State(out SupplyRouteCollection routes, out SupplyRouteRenderCollection renders, out SupplyRouteDrawingState draw, out SupplyRoutePools pools);
             Find.GlobalAsset(out SupplyRouteConfig config);
+            Find.State(out SupplyChainMap map);
+
+            if (routes.AreFragmentsDirty) {
+                if (renders.TempFragmentDisable != null) {
+                    renders.TempFragmentDisable.StaticLine.enabled = true;
+                    renders.TempFragmentDisable = null;
+                }
+
+                while(renders.Fragments.TryPopFront(out SupplyRouteFragmentRenderer fragment)) {
+                    Pool.TryFree(fragment);
+                }
+
+                foreach(var fragmentData in routes.Fragments) {
+                    SupplyRouteFragmentRenderer fragment = pools.FragmentPool.Alloc();
+                    SupplyRouteUtility.UpdateFragmentRendererPoints(fragment, map, fragmentData);
+                    renders.Fragments.PushBack(fragment);
+                }
+
+                if (routes.TempRouteFragmentConsume >= 0) {
+                    renders.TempFragmentDisable = renders.Fragments[routes.TempRouteFragmentConsume];
+                    renders.TempFragmentDisable.StaticLine.enabled = false;
+                }
+            }
+
+            if (draw.PreviewDirty) {
+                if (renders.TempFragmentCreate) {
+                    if (routes.TempRouteFragmentCreate.NodeCount == 0) {
+                        Pool.TryFree(renders.TempFragmentCreate);
+                        renders.TempFragmentCreate = null;
+                    } else if (routes.TempRouteFragmentCreate.Key != renders.TempFragmentCreate.Key) {
+                        SupplyRouteUtility.UpdateFragmentRendererPoints(renders.TempFragmentCreate, map, routes.TempRouteFragmentCreate);
+                    }
+                } else if (routes.TempRouteFragmentCreate.Key != 0) {
+                    renders.TempFragmentCreate = pools.FragmentPool.Alloc();
+                    SupplyRouteUtility.UpdateFragmentRendererPoints(renders.TempFragmentCreate, map, routes.TempRouteFragmentCreate);
+                }
+
+                SupplyRouteFragmentRenderer fragmentToHide = routes.TempRouteFragmentConsume >= 0 ? renders.Fragments[routes.TempRouteFragmentConsume] : null;
+                if (renders.TempFragmentDisable != fragmentToHide) {
+                    if (renders.TempFragmentDisable != null) {
+                        renders.TempFragmentDisable.StaticLine.enabled = true;
+                    }
+                    renders.TempFragmentDisable = fragmentToHide;
+                    if (renders.TempFragmentDisable != null) {
+                        renders.TempFragmentDisable.StaticLine.enabled = false;
+                    }
+                }
+            }
         }
     }
 }

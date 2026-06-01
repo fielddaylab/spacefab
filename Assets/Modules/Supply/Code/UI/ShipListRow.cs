@@ -22,8 +22,12 @@ namespace SpaceFab.Supply {
             float speedScale = config.ShipSpeedIconScales[shipAsset.Speed];
             row.SpeedIcon.rectTransform.localScale = new Vector3(speedScale, speedScale, speedScale);
 
-            for(int i = 0; i < row.Slots.Length; i++) {
+            for (int i = 0; i < row.Slots.Length; i++) {
                 row.Slots[i].gameObject.SetActive(i < shipAsset.Capacity);
+            }
+
+            for (int i = 0; i < row.SlotMaterials.Length; i++) {
+                row.SlotMaterials[i].enabled = false;
             }
         }
     }
