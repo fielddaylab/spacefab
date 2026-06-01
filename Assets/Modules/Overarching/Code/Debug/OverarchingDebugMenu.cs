@@ -9,10 +9,11 @@ using FieldDay.Scripting;
 namespace SpaceFab.Overarching
 {
     /// <summary>
-    /// Development-only debug menu for jumping to game states: setting the active contract and force-entering
-    /// a minigame. Registered via [DebugMenuFactory] (auto-discovered at boot; compiled out of release builds
-    /// since the attribute is Conditional). Both tools depend on Overarching state and no-op gracefully when
-    /// it isn't present.
+    /// Development-only debug menu for jumping to game states: contributes Contracts -> Set Contract and
+    /// Minigames -> JumpTo. Registered via [DebugMenuFactory] (auto-discovered at boot; compiled out of
+    /// release builds since the attribute is Conditional). The Contracts / Minigames roots merge with the
+    /// same-named menus contributed by other factories. Both tools depend on Overarching state and no-op
+    /// gracefully when it isn't present.
     ///
     /// NOTE: DMMenuUI builds its element views (PopulateMenu) BEFORE firing a menu's OnEnter, so mutating a
     /// DMInfo's Elements at runtime desyncs the views and crashes UpdateElements. All elements here are
@@ -29,12 +30,23 @@ namespace SpaceFab.Overarching
         // a minigame jump can't fire before the contract (and the minigame save it seeds) is fully applied.
         private static Routine s_ContractApplyRoutine;
 
+        // Contributes Contracts -> Set Contract. The Contracts root merges with any other factory's
+        // Contracts menu.
         [DebugMenuFactory]
-        private static DMInfo CreateJumpsDebugMenu()
+        private static DMInfo CreateContractsDebugMenu()
         {
-            DMInfo menu = new DMInfo("Jumps", 2);
+            DMInfo menu = new DMInfo("Contracts", 1);
             menu.AddSubmenu(BuildSetContractMenu());
-            menu.AddSubmenu(BuildEnterMinigameMenu());
+            return menu;
+        }
+
+        // Contributes Minigames -> JumpTo. The Minigames root merges with the SetSolved button and
+        // the Design submenu contributed by other factories.
+        [DebugMenuFactory]
+        private static DMInfo CreateMinigamesJumpDebugMenu()
+        {
+            DMInfo menu = new DMInfo("Minigames", 1);
+            menu.AddSubmenu(BuildJumpToMenu());
             return menu;
         }
 
@@ -180,11 +192,11 @@ namespace SpaceFab.Overarching
             Log.Msg("[OverarchingDebugMenu] Set contract to index {0} ('{1}')", index, bundle.AvailableContracts[index].Title());
         }
 
-        // ---- Enter Minigame ----
+        // ---- JumpTo ----
 
-        private static DMInfo BuildEnterMinigameMenu()
+        private static DMInfo BuildJumpToMenu()
         {
-            DMInfo menu = new DMInfo("Enter Minigame", (int) MinigameId.COUNT);
+            DMInfo menu = new DMInfo("JumpTo", (int) MinigameId.COUNT);
             for (int i = 0; i < (int) MinigameId.COUNT; i++)
             {
                 MinigameId id = (MinigameId) i; // capture per-iteration for the closure

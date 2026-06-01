@@ -8,5 +8,6 @@ $if IsLevelSolved(1) == true
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
 $else
     $set temp:designTutorialStep = 0
-    {@PAL} Select the Metal Tool.
+    $call   HighlightElement(design:metal-tool-btn)
+    {@PAL} Now there are 2 inputs and 2 outputs.\n\nDraw the connection from B to Y
 $endif

@@ -8,6 +8,7 @@ $if IsLevelSolved(0) == true
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
 $else
     $set temp:designTutorialStep = 0
+    $call   HighlightElement(design:metal-tool-btn)
     {@PAL} Select the Metal Tool.
 $endif
 
@@ -16,6 +17,7 @@ $endif
 @when       tool == "DrawMetal", CurrLevelIndex() == 0
 $if temp:designTutorialStep == 0
     $set temp:designTutorialStep = 1
+    $call   ReleaseAllHighlights()
     {@PAL} Now click and drag to draw a connection between Input A and Output X.
 $endif
 
