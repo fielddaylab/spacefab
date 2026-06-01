@@ -59,6 +59,8 @@ namespace SpaceFab.Fabrication.Microgames
             state.PhotomaskY = 4f;
             state.FallSpeed = 1f;
 
+            state.Photomask.transform.rotation = Quaternion.Euler(0f, 0f, state.PhotomaskAngle);
+
             state.Phase = PhotolithographyMicrogamePhase.Entering;
             state.IsActive = true;
             state.InputAccepted = false;

@@ -1,3 +1,4 @@
+using BeauUtil;
 using FieldDay;
 using SpaceFab.Save;
 
@@ -51,6 +52,41 @@ namespace SpaceFab.Design
 
             saveState.FoundValidSolutionForLevel[idx] = false;
             designState.FoundValidSolution = DesignSaveUtility.AllLevelsSolved(saveState);
+        }
+
+        // Advances out of the active level: when more levels remain, reloads the Design scene
+        // (re-import lands on the next first-unsolved level); on the last level, confirms the normal
+        // exit back to overarching. Shared by the results-panel "Continue" flow and the debug skip
+        // button so both route through one implementation. Callers are expected to have already
+        // marked the active level solved when that's the intent.
+        public static void AdvanceFromActiveLevel(DesignSaveState saveState, DesignMinigameState designState, MinigameLoadExitState loadExitState, MinigameRequestExitState requestExitState, MinigameStateInterfacer interfacer)
+        {
+            int activeIdx = designState.ActiveLevelIndex;
+            int levelCount = saveState.LevelCount;
+
+            // Last level (or a degenerate single/zero-level contract): return to overarching, where
+            // the now-true aggregate FoundValidSolution lets the contract complete.
+            if (activeIdx >= levelCount - 1)
+            {
+                requestExitState.ExitRequestState = RequestState.Confirmed;
+                return;
+            }
+
+            // More levels remain: reload the Design scene for the next level. Resolve the scene from
+            // the global lookup by the active minigame's id, point the exit pipeline at it, and kick
+            // the pipeline. The Exiting phase exports + saves before the reload.
+            MinigameSceneLookup sceneLookup = Find.GlobalAsset<MinigameSceneLookup>();
+            if (sceneLookup != null && sceneLookup.TryGetScene(interfacer.Id, out SceneReference designScene))
+            {
+                loadExitState.HasReloadTarget = true;
+                loadExitState.ReloadTarget = designScene;
+            }
+
+            // Reuse the exit pipeline: flip to Exiting and swap to the transition mask, exactly as
+            // MinigameRequestExitSystem does on a confirmed exit.
+            loadExitState.Phase = MinigameLoadExitPhase.Exiting;
+            GameLoop.SuspendUpdates(Bits.All32);
+            GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
         }
     }
 }

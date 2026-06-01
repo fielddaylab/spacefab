@@ -1,4 +1,3 @@
-using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Save;
@@ -45,34 +44,8 @@ namespace SpaceFab.Design
             if (!resultState.ContinueRequested) { return; }
             resultState.ContinueRequested = false;
 
-            int activeIdx = designState.ActiveLevelIndex;
-            int levelCount = saveStates.Design.LevelCount;
-
-            // Last level (or a degenerate single/zero-level contract): return to overarching, where
-            // the now-true aggregate FoundValidSolution lets the contract complete. Same path the
-            // results panel used before multi-level contracts existed.
-            if (activeIdx >= levelCount - 1)
-            {
-                requestExitState.ExitRequestState = RequestState.Confirmed;
-                return;
-            }
-
-            // More levels remain: reload the Design scene for the next level. Resolve the scene from
-            // the global lookup by the active minigame's id, point the exit pipeline at it, and kick
-            // the pipeline. The Exiting phase exports + saves (persisting this level's solved flag)
-            // before the reload, and the fresh load re-imports onto the next first-unsolved level.
-            MinigameSceneLookup sceneLookup = Find.GlobalAsset<MinigameSceneLookup>();
-            if (sceneLookup != null && sceneLookup.TryGetScene(interfacer.Id, out SceneReference designScene))
-            {
-                loadExitState.HasReloadTarget = true;
-                loadExitState.ReloadTarget = designScene;
-            }
-
-            // Reuse the exit pipeline: flip to Exiting and swap to the transition mask, exactly as
-            // MinigameRequestExitSystem does on a confirmed exit.
-            loadExitState.Phase = MinigameLoadExitPhase.Exiting;
-            GameLoop.SuspendUpdates(Bits.All32);
-            GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
+            // The active level was already marked solved when the suite passed; advance out of it.
+            DesignLevelUtility.AdvanceFromActiveLevel(saveStates.Design, designState, loadExitState, requestExitState, interfacer);
         }
     }
 }
