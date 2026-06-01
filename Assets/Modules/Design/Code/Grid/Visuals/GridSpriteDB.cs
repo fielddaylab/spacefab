@@ -53,6 +53,17 @@ namespace SpaceFab.Design.Visuals
         public Color InputToggleLoTextColor = Color.white;
         public Color InputToggleHiColor = Color.white;
         public Color InputToggleHiTextColor = Color.white;
+
+        [Header("Output Tag Overlay")]
+        public Sprite OutputToggleBackground;
+        // Output overlays reuse the input-toggle arrow sprites but are driven by the cell's
+        // simulated flow. Hi/Lo reuse the input-toggle colors; these two buckets cover the flow
+        // states the input toggle never sees. Each bucket has a fill color (background) and a text
+        // color (arrow + subtype label), mirroring the input-toggle color/text-color split.
+        public Color OutputEmptyColor = Color.white;
+        public Color OutputEmptyTextColor = Color.white;
+        public Color OutputUnstableColor = Color.white;
+        public Color OutputUnstableTextColor = Color.white;
     }
 
     public static class GridSpriteDBUtility
@@ -108,6 +119,35 @@ namespace SpaceFab.Design.Visuals
             if (state == FlowState.Hi) { return spriteDB.InputToggleHiTextColor; }
             if (state == FlowState.Lo) { return spriteDB.InputToggleLoTextColor; }
             return Color.white;
+        }
+
+        // Fill color (background) for an output overlay at the given simulated flow state. Hi/Lo
+        // reuse the input-toggle palette; Empty / Unstable use the output-specific colors. Falls
+        // back to white when the DB is missing so a misconfigured overlay stays visible.
+        public static Color LookupOutputFlowColor(GridSpriteDB spriteDB, FlowState state)
+        {
+            if (spriteDB == null) { return Color.white; }
+            switch (state)
+            {
+                case FlowState.Hi: return spriteDB.InputToggleHiColor;
+                case FlowState.Lo: return spriteDB.InputToggleLoColor;
+                case FlowState.Unstable: return spriteDB.OutputUnstableColor;
+                default: return spriteDB.OutputEmptyColor;
+            }
+        }
+
+        // Text color (arrow + subtype label) for an output overlay at the given flow state. Parallel
+        // to LookupOutputFlowColor but using the text-color variant of each bucket.
+        public static Color LookupOutputFlowTextColor(GridSpriteDB spriteDB, FlowState state)
+        {
+            if (spriteDB == null) { return Color.white; }
+            switch (state)
+            {
+                case FlowState.Hi: return spriteDB.InputToggleHiTextColor;
+                case FlowState.Lo: return spriteDB.InputToggleLoTextColor;
+                case FlowState.Unstable: return spriteDB.OutputUnstableTextColor;
+                default: return spriteDB.OutputEmptyTextColor;
+            }
         }
     }
 }

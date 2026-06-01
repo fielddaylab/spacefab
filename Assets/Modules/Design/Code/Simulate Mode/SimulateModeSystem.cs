@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
+using SpaceFab.Save;
 
 namespace SpaceFab.Design
 {
@@ -26,6 +27,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<VisualGridStackState>()
                     .ReadWriteShared<PlayerProgressState>()
                     .ReadWriteShared<DesignMinigameState>()
+                    .ReadWriteShared<MinigameSaveStates>()
             );
         }
 
@@ -159,8 +161,8 @@ namespace SpaceFab.Design
             // Prime InputFlowByNode for this row. Walk Input crucial nodes and materialize their
             // test-row value once; DepthStepSystem reads from the array per edge, avoiding a
             // per-edge TestData scan.
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            TestSuiteData suite = levelData.GetTestSuite();
             TestData currTest = suite.Tests[runState.CurrentRow];
             for (int i = 0; i < graphState.NodeCount; i++)
             {
@@ -310,9 +312,11 @@ namespace SpaceFab.Design
         //   FullSuite, last row resolved           → SuiteComplete with aggregate-correct flag.
         static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, PlayerProgressState progressState, GridStackState gridStackState, DesignMinigameState designState)
         {
-            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            TestSuiteData suite = contractAssets.DesignLevelData.GetTestSuite();
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            TestSuiteData suite = levelData.GetTestSuite();
             TestData currTest = suite.Tests[runState.CurrentRow];
+
+            MinigameSaveStates saveStates = Find.State<MinigameSaveStates>();
 
             // Score every Output crucial node against its expected value. OutputFlowBuffer is
             // sized by SimulateRunScratchUtility.SizeOutputBuffer at Simulate-mode entry, in the
@@ -374,7 +378,7 @@ namespace SpaceFab.Design
                     SimulateUIUtility.ShowResultsPanel(uiState, true);
                     ScriptUtility.Trigger(DesignScriptTriggers.OnAllTestsComplete);
 
-                    designState.MarkFoundValidSolution();
+                    DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
                 SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
@@ -405,7 +409,7 @@ namespace SpaceFab.Design
                 // produced it.
                 if (suiteAllCorrect)
                 {
-                    designState.MarkFoundValidSolution();
+                    DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
             }

@@ -15,8 +15,9 @@ MonoBehaviour:
   m_value: 6
   m_requiredMaterialProperties:
   - {fileID: 11400000, guid: 80908861703739945a1a052c2bbc110b, type: 2}
-  m_designLevel:
-    m_HashValue: 3136544910
+  m_omitFromSupplyRequirements: []
+  m_designLevels:
+  - m_HashValue: 1727982144
   m_title: Test Contract 2
   m_description: This is where the contract is described
   m_client: '[Client Name]'
@@ -26,4 +27,3 @@ MonoBehaviour:
   m_contractAssets: {fileID: 11400000, guid: ebe6ce2c5d56bb54c8664259e2e3dc20, type: 2}
   ContractAssetsWrapperId:
     m_HashValue: 995270672
-  m_requiredResearchMaterials: []
