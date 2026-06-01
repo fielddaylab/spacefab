@@ -8323,6 +8323,7 @@ MonoBehaviour:
   SelectedContractIndex: 0
   SelectedContractIndexChanged: 0
   SelectionConfirmed: 0
+  ContractTitleText: {fileID: 2892304983068427008}
 --- !u!114 &2025114825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9631,6 +9632,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -15
       objectReference: {fileID: 0}
+    - target: {fileID: 6985692815280702080, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4283007386
+      objectReference: {fileID: 0}
     - target: {fileID: 7024224007441334617, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -9896,6 +9901,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+--- !u!114 &2892304983068427008 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3225300881913251723, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
+  m_PrefabInstance: {fileID: 2892304983068427007}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &2892304983068427013 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7044392259273933267, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}

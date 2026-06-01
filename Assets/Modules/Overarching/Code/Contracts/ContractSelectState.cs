@@ -8,6 +8,7 @@ using SpaceFab.Design;
 using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Overarching
@@ -27,6 +28,7 @@ namespace SpaceFab.Overarching
         public int SelectedContractIndex;
         public bool SelectedContractIndexChanged;
         public bool SelectionConfirmed;
+        public TMP_Text ContractTitleText;
     }
 
     public static class ContractSelectUtility

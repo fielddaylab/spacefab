@@ -73,6 +73,7 @@ namespace SpaceFab.Overarching {
             // Confirmed — advance the phase
             if (selectState.SelectionConfirmed) {
                 selectState.Phase = ContractSelectPhase.Completed;
+                selectState.ContractTitleText.text = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].Title();
             }
         }
     }
