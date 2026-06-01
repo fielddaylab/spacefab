@@ -44,7 +44,6 @@ namespace SpaceFab.Overarching
             selectState.SelectionConfirmed = false;
             selectState.SelectedContractIndexChanged = true;
 
-            layoutState.ConfirmContractButton.gameObject.SetActive(true);
             layoutState.ChangeContractButton.gameObject.SetActive(false);
 
             layoutState.SelectionCanvasGroup.alpha = 0;
