@@ -8,14 +8,29 @@ using UnityEngine;
 
 namespace SpaceFab.Save
 {
+    /// <summary>
+    /// Save state for the Design minigame. Holds per-level grids, input toggles, and solved flags
+    /// for the ordered list of Design levels under the active contract. The active level the player
+    /// works on is derived (first unsolved); see DesignSaveUtility.FirstUnsolvedIndex. The
+    /// inherited FoundValidSolution flag is the aggregate "all levels solved" signal, recomputed
+    /// on export from FoundValidSolutionForLevel.
+    /// </summary>
     public class DesignSaveState : MinigameSaveStateBase, ISaveStateChunkObject
     {
-        public GridStack GridStack;
+        // Number of Design levels under the active contract. All three arrays below are sized to
+        // this count after a contract is applied (see ContractConfirmUtility.ApplyContractByIndex).
+        public int LevelCount;
 
-        // Per-input Lo/Hi toggle states for the new toggle-input flow. Written as a separate
-        // count-prefixed chunk after the grid so old save files that lack this section read as
-        // empty (count = 0) when reader.Remaining drops to 0 inside ReadInputToggles.
-        public InputToggleSaveData InputToggles;
+        // Per-level grid topology. GridStacks[i] is level i's grid.
+        public GridStack[] GridStacks;
+
+        // Per-level Lo/Hi input toggle states for the toggle-input flow. InputToggles[i] pairs with
+        // GridStacks[i]. Written as count-prefixed chunks per level so old/empty saves read clean.
+        public InputToggleSaveData[] InputToggles;
+
+        // Per-level solved flag. The contract is complete only when every entry is true; that
+        // aggregate is mirrored into the inherited FoundValidSolution on export.
+        public bool[] FoundValidSolutionForLevel;
 
         #region Interfaces
 
@@ -25,21 +40,14 @@ namespace SpaceFab.Save
         {
             base.Read(self, ref reader, consts);
 
-            DesignSaveUtility.ReadGridStack(ref reader, consts, this, ref GridStack);
-            DesignSaveUtility.ReadInputToggles(ref reader, consts, this, ref InputToggles);
+            DesignSaveUtility.ReadLevels(ref reader, consts, this);
         }
 
         public override void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
             base.Write(self, ref writer, consts);
 
-            if (GridStack == null)
-            {
-                GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
-            }
-
-            DesignSaveUtility.WriteGridStack(ref writer, consts, this, ref GridStack);
-            DesignSaveUtility.WriteInputToggles(ref writer, consts, this, ref InputToggles);
+            DesignSaveUtility.WriteLevels(ref writer, consts, this);
         }
 
         // IMinigameSaveState
@@ -48,8 +56,12 @@ namespace SpaceFab.Save
         {
             base.SetDefaults();
 
-            GridStackUtility.InitEmptyGridStack(ref GridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
-            InputToggles = default;
+            // No contract applied yet — zero levels. Arrays are (re)allocated when a contract is
+            // confirmed; nothing reads a level slot before then.
+            LevelCount = 0;
+            GridStacks = null;
+            InputToggles = null;
+            FoundValidSolutionForLevel = null;
         }
 
         #endregion // Interfaces
@@ -57,7 +69,69 @@ namespace SpaceFab.Save
 
     public static class DesignSaveUtility
     {
+        #region Level Indexing
+
+        // Index of the first level whose solved flag is false — i.e. the level the player should
+        // resume on. Clamped to the last level when every level is already solved so callers always
+        // get a valid index. Returns 0 for an unseeded (zero-level) save.
+        public static int FirstUnsolvedIndex(DesignSaveState saveState)
+        {
+            if (saveState.LevelCount <= 0) { return 0; }
+            for (int i = 0; i < saveState.LevelCount; i++)
+            {
+                if (!saveState.FoundValidSolutionForLevel[i]) { return i; }
+            }
+            return saveState.LevelCount - 1;
+        }
+
+        // True only when every level under the contract is solved. Mirrored into the inherited
+        // FoundValidSolution so overarching's contract-completion check stays correct.
+        public static bool AllLevelsSolved(DesignSaveState saveState)
+        {
+            if (saveState.LevelCount <= 0) { return false; }
+            for (int i = 0; i < saveState.LevelCount; i++)
+            {
+                if (!saveState.FoundValidSolutionForLevel[i]) { return false; }
+            }
+            return true;
+        }
+
+        // Allocates (or resizes) the per-level arrays to hold `count` levels and clears their
+        // solved flags. Grid/toggle contents are seeded separately by the contract-apply loop.
+        public static void AllocLevels(DesignSaveState saveState, int count)
+        {
+            saveState.LevelCount = count;
+            saveState.GridStacks = new GridStack[count];
+            saveState.InputToggles = new InputToggleSaveData[count];
+            saveState.FoundValidSolutionForLevel = new bool[count];
+        }
+
+        #endregion // Level Indexing
+
         #region Write
+
+        // Count-prefixed list of levels. Per level: solved flag, grid, then input toggles. The grid
+        // and toggle writers are unchanged from the single-level format — only the surrounding loop
+        // is new — so a 1-level contract serializes the same bytes it did before (after the count).
+        public static void WriteLevels(ref ByteWriter writer, SaveStateChunkConsts consts, DesignSaveState saveState)
+        {
+            int count = saveState.LevelCount;
+            writer.Write(count);
+            for (int i = 0; i < count; i++)
+            {
+                writer.Write(saveState.FoundValidSolutionForLevel[i]);
+
+                GridStack gridStack = saveState.GridStacks[i];
+                if (gridStack == null)
+                {
+                    GridStackUtility.InitEmptyGridStack(ref gridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
+                    saveState.GridStacks[i] = gridStack;
+                }
+                WriteGridStack(ref writer, consts, saveState, ref gridStack);
+
+                WriteInputToggles(ref writer, consts, saveState, ref saveState.InputToggles[i]);
+            }
+        }
 
         public static void WriteGridStack(ref ByteWriter writer, SaveStateChunkConsts consts, DesignSaveState saveState, ref GridStack gridStack)
         {
@@ -121,25 +195,46 @@ namespace SpaceFab.Save
 
         #region Read
 
+        // Symmetric reader for WriteLevels. Reads the level count, allocates the per-level arrays,
+        // then reads each level's solved flag, grid, and toggles. Tolerates a missing/truncated
+        // chunk (legacy save written before this section existed) by reading zero levels.
+        public static void ReadLevels(ref ByteReader reader, SaveStateChunkConsts consts, DesignSaveState saveState)
+        {
+            if (reader.Remaining < sizeof(int))
+            {
+                AllocLevels(saveState, 0);
+                return;
+            }
+
+            int count = reader.Read<int>();
+            AllocLevels(saveState, count);
+            for (int i = 0; i < count; i++)
+            {
+                saveState.FoundValidSolutionForLevel[i] = reader.Read<bool>();
+                ReadGridStack(ref reader, consts, saveState, ref saveState.GridStacks[i]);
+                ReadInputToggles(ref reader, consts, saveState, ref saveState.InputToggles[i]);
+            }
+        }
+
         public static void ReadGridStack(ref ByteReader reader, SaveStateChunkConsts consts, DesignSaveState saveState, ref GridStack gridStack)
         {
             GridStackUtility.InitEmptyGridStack(ref gridStack, DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS);
 
             // read both layers
-            ReadGridLayer(ref reader, consts, saveState, 0);
-            ReadGridLayer(ref reader, consts, saveState, 1);
+            ReadGridLayer(ref reader, consts, saveState, ref gridStack.GridLayers[0]);
+            ReadGridLayer(ref reader, consts, saveState, ref gridStack.GridLayers[1]);
         }
 
-        public static void ReadGridLayer(ref ByteReader reader, SaveStateChunkConsts consts, DesignSaveState saveState, int layerIndex)
+        public static void ReadGridLayer(ref ByteReader reader, SaveStateChunkConsts consts, DesignSaveState saveState, ref GridLayer gridLayer)
         {
             GridCell currCell = null;
             for (int row = 0; row < DesignConsts.NUM_GRID_ROWS; row++)
             {
                 for (int col = 0; col < DesignConsts.NUM_GRID_COLS; col++)
                 {
-                    currCell = GridLayerUtility.GetCell(saveState.GridStack.GridLayers[layerIndex], col, row);
+                    currCell = GridLayerUtility.GetCell(gridLayer, col, row);
                     ReadGridCell(ref reader, consts, saveState, ref currCell);
-                    GridLayerUtility.SetCell(saveState.GridStack.GridLayers[layerIndex], col, row, currCell);
+                    GridLayerUtility.SetCell(gridLayer, col, row, currCell);
                 }
             }
         }
