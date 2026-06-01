@@ -2,17 +2,18 @@
 
 ::IntroSelectTrace
 @trigger    OnMinigameLoad
-$if MinigameHasValidSolution() == true
+@when       CurrLevelIndex() == 0
+$if IsLevelSolved(0) == true
     $set temp:designTutorialStep = 4
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
 $else
     $set temp:designTutorialStep = 0
-    {@PAL} Select the Trace Tool.
+    {@PAL} Select the Metal Tool.
 $endif
 
 ::DrawConnection
 @trigger    OnToolSelected
-@when       tool == "DrawMetal"
+@when       tool == "DrawMetal", CurrLevelIndex() == 0
 $if temp:designTutorialStep == 0
     $set temp:designTutorialStep = 1
     {@PAL} Now click and drag to draw a connection between Input A and Output X.
@@ -21,6 +22,7 @@ $endif
 
 ::TestConnectionDrag
 @trigger    OnDragReleased
+@when       CurrLevelIndex() == 0
 $call   HighlightElement(design:test-btn)
 $if temp:designTutorialStep == 1
     $set temp:designTutorialStep = 2
@@ -39,6 +41,7 @@ $endif
 
 ::TestConnectionClick
 @trigger    OnClickReleased
+@when       CurrLevelIndex() == 0
 $if temp:designTutorialStep == 1
     {@PAL}  You'll need to click and DRAG to form a solid path.
 $endif
@@ -46,7 +49,7 @@ $endif
 
 ::TestIncorrect
 @trigger    OnSingleTestComplete
-@when       result == "failure"
+@when       result == "failure", CurrLevelIndex() == 0
 $if temp:designTutorialStep != 0
     // only show this after the player knows how to select the trace tool
     $call   ReleaseHighlight(design:test-btn)
@@ -55,7 +58,7 @@ $endif
 
 ::TestCorrect
 @trigger    OnSingleTestComplete
-@when       result == "success"
+@when       result == "success", CurrLevelIndex() == 0
 $if temp:designTutorialStep < 4
     $call   HighlightElement(design:input-a, false, 25)
     {@PAL}  Correct! Tap the input to switch it from Low to High (or High to Low).
@@ -63,6 +66,7 @@ $endif
 
 ::InputSwitch
 @trigger    OnInputToggled
+@when       CurrLevelIndex() == 0
 $if temp:designTutorialStep >= 2, temp:designTutorialStep <= 3
     $call   ReleaseHighlight(design:input-a)
     $call   HighlightElement(design:test-btn)
@@ -73,6 +77,7 @@ $endif
 
 ::AllTestsPassed
 @trigger    OnAllTestsComplete
+@when       CurrLevelIndex() == 0
 $call   ReleaseHighlight(design:input-a)
 {@PAL}  It looks like all test cases passed!
 $set    temp:designTutorialStep = 4
