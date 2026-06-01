@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 6083113555690810545}
   - component: {fileID: 7394708982207102933}
   - component: {fileID: 7167914367281064839}
+  - component: {fileID: 4782906185321368681}
   m_Layer: 5
   m_Name: Minigame Dialogue Box
   m_TagString: Untagged
@@ -160,6 +161,29 @@ MonoBehaviour:
   m_VisiblityGroup: {fileID: 502184961169072467}
   m_FadeDuration: 0.2
   m_CloseButton: {fileID: 2285793304840137840}
+--- !u!114 &4782906185321368681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387483060091562675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1024, y: 768}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 1
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!1 &457935840923326542
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,7 +347,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -4}
+  m_AnchoredPosition: {x: 0, y: -4.0000153}
   m_SizeDelta: {x: 32, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2304912976719863756
@@ -442,12 +466,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
+  m_fontSize: 17
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 20
-  m_fontSizeMax: 28
+  m_fontSizeMin: 13
+  m_fontSizeMax: 17
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -1032,8 +1056,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -174, y: -10}
-  m_SizeDelta: {x: 450, y: 340}
+  m_AnchoredPosition: {x: -110, y: -10}
+  m_SizeDelta: {x: 310.2791, y: 234.4331}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &5267967757383255815
 MonoBehaviour:
