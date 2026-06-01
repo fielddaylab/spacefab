@@ -2,7 +2,6 @@
 
 ::IntroSelectTrace
 @trigger    OnMinigameLoad
-@when       minigame == "design"
 $if MinigameHasValidSolution() == true
     $set temp:designTutorialStep = 4
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.

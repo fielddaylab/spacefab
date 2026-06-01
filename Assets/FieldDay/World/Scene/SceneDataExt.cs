@@ -93,6 +93,11 @@ namespace FieldDay.Scenes {
         /// </summary>
         public SceneBinding SceneBinding { get; private set; }
 
+        /// <summary>
+        /// Reference to the local "Pool" root.
+        /// </summary>
+        [NonSerialized] public Transform SceneLocalPoolRoot;
+
         #endregion // Temp State
 
         /// <summary>

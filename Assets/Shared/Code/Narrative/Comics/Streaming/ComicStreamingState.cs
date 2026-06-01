@@ -29,10 +29,10 @@ namespace SpaceFab.Comic {
             Game.Scenes.DeregisterLoadDependency(this);
         }
 
-        void IRegistrationCallbacks.OnRegister() {
+        unsafe void IRegistrationCallbacks.OnRegister() {
             ComicResourcePool resources = Find.State<ComicResourcePool>();
-            MeshDecompressionPool = resources.Allocator.AllocSpan<byte>(Unsafe.KiB * 256);
-            MeshBufferArena = Unsafe.CreateArena(resources.Allocator, Unsafe.KiB * 256);
+            MeshDecompressionPool = new UnsafeSpan<byte>((byte*) resources.Allocator.AllocAligned(Unsafe.MiB, 8), Unsafe.MiB);
+            MeshBufferArena = Unsafe.CreateArena(resources.Allocator, Unsafe.MiB * 2);
 
             Decompressor = new MeshDecompressionState() {
                 Phase = MeshDecompressionPhase.Done,
@@ -69,8 +69,14 @@ namespace SpaceFab.Comic {
         private const ushort MeshTypeShift = 15;
         private const ushort MeshTypeBit = (1 << MeshTypeShift);
         
-        static public void PreloadMesh(ushort index, StreamedMeshType type) {
-            Find.State<ComicStreamingState>().MeshRequestQueue.PushBack(PackMeshId(index, type));
+        static public ushort PreloadMesh(ushort index, StreamedMeshType type) {
+            ushort meshId = PackMeshId(index, type);
+            Find.State<ComicStreamingState>().MeshRequestQueue.PushBack(meshId);
+            return meshId;
+        }
+
+        static public void PreloadMesh(ushort meshId) {
+            Find.State<ComicStreamingState>().MeshRequestQueue.PushBack(meshId);
         }
 
         static public void CancelMeshPreload(ushort meshId) {
@@ -105,6 +111,15 @@ namespace SpaceFab.Comic {
                     Log.Msg("[ComicsUtility] Cancelled in-progress mesh {0} (1) load", index, type);
                 }
             }
+        }
+
+        static public bool IsMeshLoaded(ushort meshId) {
+            Find.State(out ComicStreamingState streamState, out ComicResourcePool resourcePool);
+            return IsMeshLoaded(streamState, resourcePool, meshId);
+        }
+
+        static public bool IsMeshLoaded(ComicStreamingState streamState, ComicResourcePool resourcePool, ushort meshId) {
+            return resourcePool.ActiveMeshes.TryGetValue(meshId, out Mesh targetMesh) && !streamState.MeshRequestQueue.Contains(meshId) && !ReferenceEquals(streamState.Decompressor.TargetMesh, targetMesh);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

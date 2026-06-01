@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SpaceFab.Design
 {
-    public enum ToolType
+    public enum ToolType : uint
     {
         None,
 

@@ -416,6 +416,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Manifest: {fileID: 0}
+  SlicingTileSize: 10
+  TilePadding: 1
 --- !u!114 &6023858251418436729
 MonoBehaviour:
   m_ObjectHideFlags: 0

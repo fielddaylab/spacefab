@@ -4,6 +4,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static BeauRoutine.Future;
+using static SpaceFab.Logging.Logging;
 
 namespace SpaceFab.Design
 {
@@ -45,6 +47,8 @@ namespace SpaceFab.Design
             {
                 LoadCellConfig(ref gridStack, config.Cells[i]);
             }
+            Debug.Log("Initialize design level");
+            SpacefabGame.Events.Dispatch(GameEvents.DeisgnGridSetup, EvtArgs.Ref(config));
         }
 
         public static void LoadCellConfig(ref GridStack gridStack, GridCellConfig config)

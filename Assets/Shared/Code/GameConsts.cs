@@ -23,6 +23,10 @@ namespace SpaceFab
 
         static public readonly StringHash32 TitleProfileStarting = "title:profile-starting";
 
+        static public readonly StringHash32 TitleNewGameClicked = "title:new-game-clicked";
+        static public readonly StringHash32 TitleContinueGameClicked = "title:continue-game-clicked";
+
+
         // Save
         public static readonly StringHash32 ProfileSaveBegin = "save:profile-save-begin";
         public static readonly StringHash32 ProfileSaveError = "save:profile-save-error";
@@ -36,11 +40,16 @@ namespace SpaceFab
         public static readonly StringHash32 OnGameResumed = "shared:on-game-resumed";
 
         // Minigame Navigation
+        public static readonly StringHash32 ShipMenuDisplayed = "shared:ship-menu-displayed";
+        public static readonly StringHash32 SelectMinigame = "shared:select-minigame";
+        public static readonly StringHash32 StartMinigame = "shared:start-minigame";
         public static readonly StringHash32 OnMinigameLoad = "shared:on-minigame-load";
         public static readonly StringHash32 OnMinigameExit = "shared:on-minigame-exit";
 
         // Fabrication: Station Control
         public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
+        public static readonly StringHash32 FabActivateStation = "fab:Activate-station"; // Check conflicts with other consts
+        public static readonly StringHash32 FabInvalidActivateStation = "fab:invalid-activate-station";
         public static readonly StringHash32 FabStationLeft = "fab:station-left";
         public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
         public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
@@ -57,6 +66,8 @@ namespace SpaceFab
         public static readonly StringHash32 FabStunEnd = "fab:stun-end";
 
         // Fabrication: Sequence
+        public static readonly StringHash32 FabGenerateWafer = "fab:generate-wafer";
+        public static readonly StringHash32 FabTimeStart = "fab:time-start";
         public static readonly StringHash32 FabSequenceReset = "fab:sequence-reset";
         public static readonly StringHash32 FabSequenceStepCompleted = "fab:sequence-step-completed";
         public static readonly StringHash32 FabSequenceCompleted = "fab:sequence-completed";
@@ -76,9 +87,24 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
 
         // Design: Grid
+        public static readonly StringHash32 DeisgnGridSetup = "design-grid:setup";
         public static readonly StringHash32 DesignGridModified = "design-grid:modified";
+        public static readonly StringHash32 DesignToolSelected = "design-grid:tool-selected";
+        public static readonly StringHash32 DesignClearSelected = "design-grid:clear-selected";
+
         // Wiki
         public static readonly StringHash32 WikiPageUnlocked = "wiki:page-unlocked";
+
+        // Overarching
+        public static readonly StringHash32 OpenContractView = "overarching:open-contract-view";
+        public static readonly StringHash32 AcceptContract = "overarching:confirm-select-contract";
+        public static readonly StringHash32 StartSelectContract = "overarching:start-change-contract";
+        public static readonly StringHash32 ConfirmSelectContract = "overarching:confirm-change-contract";
+        public static readonly StringHash32 CancelSelectContract = "overarching:cancel-change-contract";
+
+        // Supply: Route Drawing
+        public static readonly StringHash32 SupplyRouteDrawingOpen = "supply:route-drawing-open";
+        public static readonly StringHash32 SupplyRouteDrawingClose = "supply:route-drawing-close";
     }
 
     public static class ScriptTriggers

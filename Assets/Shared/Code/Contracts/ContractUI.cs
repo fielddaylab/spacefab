@@ -92,7 +92,7 @@ namespace SpaceFab {
                 ui.Description.SetText(def.Description());
                 ui.ClearElements();
                 ui.ShowDuration(def.ExpectedDuration());
-                ui.ShowProfit(def.ExpectedProfit());
+                ui.ShowProfit(def.Payout());
                 ui.ShowRequirement(def.RequiredMaterialProperties());
             }
         }

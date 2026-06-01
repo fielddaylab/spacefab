@@ -14,6 +14,7 @@
 half _IntensityColorThreshold;
 half _IntensityColorMinThreshold;
 half _IntensityAlphaThreshold;
+half _IntensityAlphaMinThreshold;
 
 /// Helpers
 
@@ -27,7 +28,7 @@ inline void LayerIntensityTextureComponents(sampler2D intensityTexture, float2 u
 #endif // FD_INTENSITY_COLOR || FD_INTENSITY_COLOR_ALPHA
     
 #if FD_INTENSITY_ALPHA || FD_INTENSITY_COLOR_ALPHA
-    alphaComponent = saturate(intensity / _IntensityAlphaThreshold);
+    alphaComponent = saturate((intensity - _IntensityAlphaMinThreshold) / (_IntensityAlphaThreshold - _IntensityAlphaMinThreshold));
 #else
     alphaComponent = 1;
 #endif // FD_INTENSITY_ALPHA || FD_INTENSITY_COLOR_ALPHA

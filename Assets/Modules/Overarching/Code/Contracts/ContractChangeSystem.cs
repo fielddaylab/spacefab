@@ -42,6 +42,7 @@ namespace SpaceFab.Overarching {
             switch (changeState.Phase) {
                 case ContractChangePhase.Starting:
                     ProcessStarting(changeState, selectState, layoutState, chapterState);
+                    SpacefabGame.Events.Dispatch(GameEvents.OpenContractView);
                     break;
                 /*case ContractChangePhase.Viewing:
                     break;*/
@@ -50,9 +51,14 @@ namespace SpaceFab.Overarching {
                     break;
                 case ContractChangePhase.DoubleConfirmContract:
                     ProcessDoubleConfirmContract(changeState, confirmState);
+                    SpacefabGame.Events.Dispatch(GameEvents.ConfirmSelectContract, changeState.StashedSelectedContractIndex.ToString());
+                    SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, selectState.SelectedContractIndex.ToString());
+                    Debug.Log("[ContractChangeSystem] dispatch new contract: " + selectState.SelectedContractIndex);
                     break;
                 case ContractChangePhase.DoubleCancelContract:
                     ProcessDoubleCancelContract(changeState, selectState, layoutState);
+                    Debug.Log("[ContractChangeSystem] dispatch cancel change");
+                    SpacefabGame.Events.Dispatch(GameEvents.CancelSelectContract, changeState.StashedSelectedContractIndex.ToString());
                     break;
                 case ContractChangePhase.ContractConfirmSystem:
                     ProcessContractConfirmSystem(changeState, layoutState, confirmState);
@@ -82,6 +88,7 @@ namespace SpaceFab.Overarching {
                 confirmState.Phase = ContractConfirmPhase.Waiting;
                 layoutState.HideCurrContractButton.gameObject.SetActive(false);
                 Debug.Log("[ContractChangeSystem] Deferring to ContractSelectSystem");
+                SpacefabGame.Events.Dispatch(GameEvents.StartSelectContract, changeState.StashedSelectedContractIndex.ToString());
             }
             else if (selectState.Phase == ContractSelectPhase.Completed) {
                 if (selectState.SelectedContractIndex == chapterState.LastSelectedContractIndex) {
@@ -123,6 +130,7 @@ namespace SpaceFab.Overarching {
                 confirmState.Phase = ContractConfirmPhase.Confirming;
             }
             else if (confirmState.Phase == ContractConfirmPhase.Completed) {
+                SpacefabGame.Events.Dispatch(GameEvents.ConfirmSelectContract, changeState.StashedSelectedContractIndex.ToString());
                 Debug.Log("[ContractChangeSystem] ContractConfirmSystem completed");
                 changeState.Phase = ContractChangePhase.Docking;
             }

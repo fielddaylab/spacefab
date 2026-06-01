@@ -898,6 +898,11 @@ namespace FieldDay.Assets {
         public IHotReloadable RegisterHotReloadCallbacks<T>(T asset, HotReloadAssetDelegate<T> callback) where T : UnityEngine.Object {
 #if UNITY_EDITOR
             if (asset != null && asset.IsPersistent()) {
+                string assetPath = AssetDatabase.GetAssetPath(asset);
+                if (string.IsNullOrEmpty(assetPath)) {
+                    return null;
+                }
+
                 var reloadable = new HotReloadableAssetProxy<T>(asset, callback);
                 RegisterHotReloadable(reloadable);
                 return reloadable;

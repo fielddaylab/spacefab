@@ -347,6 +347,8 @@ namespace FieldDay {
 
                 CursorUtility.PlatformInit();
 
+                WaitTokens.Initialize();
+
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if (m_TargetFramerate == 60) {
                     Application.targetFrameRate = -1;
@@ -507,6 +509,7 @@ namespace FieldDay {
                 OnApplicationQuit();
             }
             Canvas.preWillRenderCanvases -= OnPreCanvasRender;
+            WaitTokens.Shutdown();
             EngineHints.Shutdown();
             Frame.DestroyAllocator();
             CounterHandle.DestroyAllocator();

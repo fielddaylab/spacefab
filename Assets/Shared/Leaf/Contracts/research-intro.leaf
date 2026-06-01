@@ -2,7 +2,6 @@
 
 ::IntroSelectTrace
 @trigger    OnSetupComplete
-@when       minigame == "research"
 $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else

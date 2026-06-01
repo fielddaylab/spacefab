@@ -54,6 +54,7 @@ namespace SpaceFab.Overarching
 				if (IsZoneLocked(alertState, zone)) { continue; }
 				if (zone.ClickedThisFrame)
                 {
+                    SpacefabGame.Events.Dispatch(GameEvents.SelectMinigame, i);
                     MinigameZonesUtility.ClickZone(state, zone.ZoneIndex);
                 }
             }

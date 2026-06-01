@@ -12,7 +12,11 @@ namespace SpaceFab
     {
         [SerializeField] private int m_value;
         [SerializeField] private MaterialPropertyCheck[] m_requiredMaterialProperties;
-        [AssetName(typeof(LevelData))][SerializeField] private StringHash32 m_designLevel;
+        // Subset of m_requiredMaterialProperties (same asset references) that the Supply Chain
+        // shopping list should ignore. Research still uses the full required set; only Supply
+        // subtracts these. Match is by asset reference.
+        [SerializeField] private MaterialPropertyCheck[] m_omitFromSupplyRequirements;
+        [AssetName(typeof(LevelData))][SerializeField] private StringHash32[] m_designLevels;
         [SerializeField] private string m_title;
         [SerializeField] private string m_description;
         [SerializeField] private string m_client;
@@ -26,8 +30,9 @@ namespace SpaceFab
 
         public int Value() { return m_value; }
         public MaterialPropertyCheck[] RequiredMaterialProperties() { return m_requiredMaterialProperties; }
+        public MaterialPropertyCheck[] OmitFromSupplyRequirements() { return m_omitFromSupplyRequirements; }
         // public StringHash32[] RequiredResearchMaterials() { return m_requiredResearchMaterials; }
-        public StringHash32 DesignLevel() { return m_designLevel; }
+        public StringHash32[] DesignLevels() { return m_designLevels; }
         public string Title() { return m_title; }
         public string Description() { return m_description; }
         public string Client() { return m_client; }

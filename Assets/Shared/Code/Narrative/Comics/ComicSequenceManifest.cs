@@ -16,7 +16,7 @@ namespace SpaceFab.Comic {
         public CameraData[] Cameras;
         public MaskData[] Masks;
         public ComicMeshHeader[] Meshes;
-        public byte[] CompressedMeshData;
+        [HideInInspector] public byte[] CompressedMeshData;
         public Texture2D[] Textures;
 
         [Header("Configuration")]
@@ -69,5 +69,118 @@ namespace SpaceFab.Comic {
 
     static public partial class ComicsUtility {
         static public ComicSequenceManifest Manifest { get; set; }
+
+        static public ushort GetPanelIndexForName(StringHash32 name) {
+            Assert.NotNullOrDestroyed(Manifest);
+
+            var panels = Manifest.Panels;
+            for (int i = 0, len = panels.Length; i < len; i++) {
+                if (panels[i].Id == name) {
+                    return (ushort)i;
+                }
+            }
+
+            Assert.Fail("Panel '{0}' not found", name);
+            return ushort.MaxValue;
+        }
+
+        static public ushort GetPanelIndexForName(StringHash32 name, int pageIndex) {
+            if (pageIndex >= 0) {
+                Assert.NotNullOrDestroyed(Manifest);
+
+                OffsetLengthU16 pageRange = Manifest.Pages[pageIndex].Panels;
+                var panels = Manifest.Panels;
+                for (int i = pageRange.Offset, end = pageRange.End; i < end; i++) {
+                    if (panels[i].Id == name) {
+                        return (ushort)i;
+                    }
+                }
+
+                Assert.Fail("Panel '{0}' not contained in page {1}", name, pageIndex);
+                return ushort.MaxValue;
+            }
+
+            return GetPanelIndexForName(name);
+        }
+
+        static public ushort GetPanelIndexForLayer(ushort layerIndex) {
+            Assert.NotNullOrDestroyed(Manifest);
+
+            var panels = Manifest.Panels;
+            for(int i = 0, len = panels.Length; i < len; i++) {
+                if (panels[i].Layers.Contains(layerIndex)) {
+                    return (ushort) i;
+                }
+            }
+
+            Assert.Fail("Layer Index {0} not contained in any panel", layerIndex);
+            return ushort.MaxValue;
+        }
+
+        static public ushort GetPanelIndexForLayer(ushort layerIndex, int pageIndex) {
+            if (pageIndex >= 0) {
+                Assert.NotNullOrDestroyed(Manifest);
+
+                OffsetLengthU16 pageRange = Manifest.Pages[pageIndex].Panels;
+                var panels = Manifest.Panels;
+                for (int i = pageRange.Offset, end = pageRange.End; i < end; i++) {
+                    if (panels[i].Layers.Contains(layerIndex)) {
+                        return (ushort) i;
+                    }
+                }
+
+                Assert.Fail("Layer Index {0} not contained in page {1}", layerIndex, pageIndex);
+                return ushort.MaxValue;
+            }
+
+            return GetPanelIndexForLayer(layerIndex);
+        }
+
+        static public ushort GetPanelIndexForMask(ushort maskIndex) {
+            Assert.NotNullOrDestroyed(Manifest);
+
+            var panels = Manifest.Panels;
+            for (int i = 0, len = panels.Length; i < len; i++) {
+                if (panels[i].MaskIndex == maskIndex) {
+                    return (ushort) i;
+                }
+            }
+
+            Assert.Fail("Layer Index {0} not contained in any panel", maskIndex);
+            return ushort.MaxValue;
+        }
+
+        static public ushort GetPanelIndexForMask(ushort maskIndex, int pageIndex) {
+            if (pageIndex >= 0) {
+                Assert.NotNullOrDestroyed(Manifest);
+
+                OffsetLengthU16 pageRange = Manifest.Pages[pageIndex].Panels;
+                var panels = Manifest.Panels;
+                for (int i = pageRange.Offset, end = pageRange.End; i < end; i++) {
+                    if (panels[i].MaskIndex == maskIndex) {
+                        return (ushort) i;
+                    }
+                }
+
+                Assert.Fail("Mask Index {0} not contained in page {1}", maskIndex, pageIndex);
+                return ushort.MaxValue;
+            }
+
+            return GetPanelIndexForMask(maskIndex);
+        }
+
+        static public ushort GetPageIndexForPanel(ushort panelIndex) {
+            Assert.NotNullOrDestroyed(Manifest);
+
+            var pages = Manifest.Pages;
+            for (int i = 0, len = pages.Length; i < len; i++) {
+                if (pages[i].Panels.Contains(panelIndex)) {
+                    return (ushort) i;
+                }
+            }
+
+            Assert.Fail("Panel Index {0} not contained in any page", panelIndex);
+            return ushort.MaxValue;
+        }
     }
 }

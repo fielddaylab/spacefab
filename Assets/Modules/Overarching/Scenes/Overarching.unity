@@ -7194,6 +7194,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4006053134420901605, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
+      propertyPath: m_Testing
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5804591859698315470, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -8143,52 +8147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efff27fba8e84fa498f7b445701c7fd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1630076470
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1630076472}
-  - component: {fileID: 1630076471}
-  m_Layer: 0
-  m_Name: Test
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1630076471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1630076470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d43d2e3ce72f4624f9b41d4c5e0041c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Scripts:
-  - {fileID: -1942890987711236906, guid: 7d9d9a2e68804094e8933c6afc9b8f43, type: 3}
---- !u!4 &1630076472
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1630076470}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10.000008}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!225 &1798265855 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 7386836286221549102, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
@@ -9189,7 +9147,6 @@ SceneRoots:
   - {fileID: 508177945}
   - {fileID: 1164620737}
   - {fileID: 963110157}
-  - {fileID: 1630076472}
   - {fileID: 962226674}
   - {fileID: 2930311350274268466}
   - {fileID: 422788435}

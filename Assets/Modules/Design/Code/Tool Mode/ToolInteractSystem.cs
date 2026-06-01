@@ -95,7 +95,6 @@ namespace SpaceFab.Design {
             // A click in-bounds with an active tool may have changed the grid; broadcast so
             // FoundValidSolution and similar derived flags can re-evaluate. Dispatched here
             // (delegating site) rather than per-handler to keep the count to one per input.
-            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified);
 
             // begin dragging
             toolModeState.StartingDragCoord = gridPos;
@@ -163,7 +162,6 @@ namespace SpaceFab.Design {
             // A drag step in-bounds with an active tool may have changed the grid; broadcast so
             // FoundValidSolution and similar derived flags can re-evaluate. Fires once per
             // crossed cell — handlers downstream are idempotent.
-            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified);
 
             // continue dragging
             if (gridPos != toolModeState.LastTerminatedDragCoord) {
@@ -184,20 +182,25 @@ namespace SpaceFab.Design {
         static private void ClickEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
 
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawMetal:
                     DrawUtility.DrawMetal(gridStackState, ref cell, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Metal")));
                     break;
                 case ToolType.DrawVia:
                     DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Via")));
                     break;
                 case ToolType.DrawGate:
                     DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Gate")));
                     break;
                 default:
                     break;
@@ -210,23 +213,29 @@ namespace SpaceFab.Design {
         static private void ClickEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
+            var gridCoord = new GridCoord((int) toolModeState.ActiveLayer, gridPos.x, gridPos.y);
 
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
                     cell.CellType = CellType.NTransistor;
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                     break;
                 case ToolType.DrawPNodes:
                     cell.CellType = CellType.PTransistor;
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                     break;
                 case ToolType.DrawVia:
                     DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Via")));
                     break;
                 case ToolType.DrawGate:
                     DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Gate")));
                     break;
                 default:
                     break;
@@ -239,11 +248,13 @@ namespace SpaceFab.Design {
         static private void ClickOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
 
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawMetal:
                     // Do nothing. Click only matters if node is empty.
@@ -252,12 +263,14 @@ namespace SpaceFab.Design {
                     // place a via if metal
                     if (cell.CellType == CellType.Metal) {
                         DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Via")));
                     }
                     break;
                 case ToolType.DrawGate:
                     // place a gate if metal
                     if (cell.CellType == CellType.Metal) {
                         DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Gate")));
                     }
                     break;
                 default:
@@ -271,11 +284,13 @@ namespace SpaceFab.Design {
         static private void ClickOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
 
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
                     // only relevant if the occupied cell is a transistor
@@ -295,12 +310,14 @@ namespace SpaceFab.Design {
                     // place a via if transistor
                     if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
                         DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Via")));
                     }
                     break;
                 case ToolType.DrawGate:
                     // place a gate if transistor
                     if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
                         DrawUtility.DrawGate(toolModeState, gridStackState, ref cell, gridPos);
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Gate")));
                     }
                     break;
                 default:
@@ -317,12 +334,16 @@ namespace SpaceFab.Design {
         // Drag onto an empty Metal-layer cell: only Erase and DrawMetal do anything.
         static private void DragEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             // check tool
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
+
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawMetal:
                     DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.Metal, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Metal")));
                     break;
                 default:
                     break;
@@ -332,15 +353,20 @@ namespace SpaceFab.Design {
         // Drag onto an empty Transistor-layer cell: erase or draw N/P transistor.
         static private void DragEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             // check tool
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
+
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
                     DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                     break;
                 case ToolType.DrawPNodes:
                     DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                     break;
                 default:
                     break;
@@ -350,12 +376,16 @@ namespace SpaceFab.Design {
         // Drag onto an occupied Metal-layer cell: erase or extend metal.
         static private void DragOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             // check tool
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
+
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawMetal:
                     DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.Metal, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Metal")));
                     break;
                 default:
                     break;
@@ -366,11 +396,13 @@ namespace SpaceFab.Design {
         static private void DragOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
+            var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
 
             // check tool
             switch (toolModeState.ActiveTool) {
                 case ToolType.Erase:
                     EraseUtility.EraseCellBothLayers(toolModeState, gridStackState, gridPos);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
                     // do not allow dragging onto inputs/outputs
@@ -382,10 +414,12 @@ namespace SpaceFab.Design {
                         if (cell.CellType == CellType.PTransistor) {
                             // draw connection, preserve type
                             DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
+                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                         }
                         else {
                             // override
                             DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
+                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                         }
                     }
                     break;
@@ -399,10 +433,12 @@ namespace SpaceFab.Design {
                         if (cell.CellType == CellType.NTransistor) {
                             // draw connection, preserve type
                             DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
+                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                         }
                         else {
                             // override
                             DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
+                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                         }
                     }
                     break;

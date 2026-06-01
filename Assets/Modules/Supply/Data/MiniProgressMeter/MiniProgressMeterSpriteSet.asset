@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d448ac0b13be00c4289b5f81a7c34a9a, type: 3}
+  m_Name: MiniProgressMeterSpriteSet
+  m_EditorClassIdentifier: 
+  RiskBase: {fileID: 0}
+  RiskFilled: {fileID: 21300000, guid: b115d6cda0e607c409fe1f14641ee9ee, type: 3}
+  RiskColor: {r: 1, g: 1, b: 1, a: 1}
+  CostBase: {fileID: 21300000, guid: 7b61be0b40d26b541ab64415a66d4489, type: 3}
+  CostBar: {fileID: 21300000, guid: 033bdd52eac61014d93c4f6e13c35e7c, type: 3}
+  CostRemainingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  CostSpentColor: {r: 1, g: 0, b: 0, a: 1}
+  TimeBase: {fileID: 21300000, guid: 6f3229ab247e0b047908f6cbde7f1cd0, type: 3}
+  TimeFilled: {fileID: 21300000, guid: 9d2166d6aaaae144fbe2c3d0bbd3ea70, type: 3}
+  TimeColor: {r: 1, g: 1, b: 1, a: 1}

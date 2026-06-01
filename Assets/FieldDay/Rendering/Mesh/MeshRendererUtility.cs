@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using BeauUtil;
+using TinyIL;
 using UnityEngine;
 
 namespace FieldDay.Rendering {
     static public class MeshRendererUtility {
         static private readonly List<Material> s_MaterialWorkList = new List<Material>(4);
+        static private MaterialPropertyBlock s_EmptyPropertyBlock;
 
         /// <summary>
         /// Sets the shared material at the given index.
@@ -40,6 +43,30 @@ namespace FieldDay.Rendering {
             }
 #endif // UNITY_2022_2_OR_NEWER
             s_MaterialWorkList.Clear();
+        }
+
+        /// <summary>
+        /// Returns the number of materials set on this renderer.
+        /// </summary>
+        [IntrinsicIL("ldarg.0; call [arg renderer]::GetMaterialCount(); ret")]
+        static public int GetMaterialCount(this Renderer renderer) {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Clears the property block.
+        /// </summary>
+        static public void ClearPropertyBlock(this Renderer renderer) {
+            MaterialPropertyBlock block = s_EmptyPropertyBlock ?? (s_EmptyPropertyBlock = new MaterialPropertyBlock());
+            renderer.SetPropertyBlock(block);
+        }
+
+        /// <summary>
+        /// Clears the property block for the given material index.
+        /// </summary>
+        static public void ClearPropertyBlock(this Renderer renderer, int materialIndex) {
+            MaterialPropertyBlock block = s_EmptyPropertyBlock ?? (s_EmptyPropertyBlock = new MaterialPropertyBlock());
+            renderer.SetPropertyBlock(block, materialIndex);
         }
     }
 }
