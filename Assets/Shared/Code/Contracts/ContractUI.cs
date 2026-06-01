@@ -64,8 +64,11 @@ namespace SpaceFab {
         {
             foreach (var property in requiredProperties)
             {
+                string materialName = MaterialPropertyLabelDisplay.GetPropertyName(property.Label);
+                materialName = char.ToUpper(materialName[0]) + materialName[1..].ToLower();
+                
                 RequirementElement.SetState(
-                    MaterialPropertyLabelDisplay.GetObservationName(property.Label),
+                    materialName,
                     true,
                     false,
                     Materials.MaterialObservationChamberLookup.GetChamberType(property.Label)
@@ -92,7 +95,7 @@ namespace SpaceFab {
                 ui.Description.SetText(def.Description());
                 ui.ClearElements();
                 ui.ShowDuration(def.ExpectedDuration());
-                ui.ShowProfit(def.ExpectedProfit());
+                ui.ShowProfit(def.Payout());
                 ui.ShowRequirement(def.RequiredMaterialProperties());
             }
         }

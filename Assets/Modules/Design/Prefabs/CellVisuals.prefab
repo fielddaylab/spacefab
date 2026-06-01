@@ -874,6 +874,7 @@ MonoBehaviour:
   m_pageToDisplay: 1
   m_maxLineWidth: 0
   m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_roundUpCalculatedPreferredValues: 0
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0

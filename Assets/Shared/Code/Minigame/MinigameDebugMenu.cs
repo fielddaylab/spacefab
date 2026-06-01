@@ -12,11 +12,13 @@ namespace SpaceFab
     /// </summary>
     public static class MinigameDebugMenu
     {
+        // Contributes Minigames -> SetSolved. The Minigames root merges with the JumpTo and Design
+        // submenus contributed by other factories.
         [DebugMenuFactory]
         private static DMInfo CreateMinigameDebugMenu()
         {
-            DMInfo menu = new DMInfo("Minigame", 1);
-            menu.AddButton("Set HasValidSolution = true", DebugMarkValidSolution, HasActiveMinigameState);
+            DMInfo menu = new DMInfo("Minigames", 1);
+            menu.AddButton("SetSolved", DebugMarkValidSolution, HasActiveMinigameState);
             return menu;
         }
 
