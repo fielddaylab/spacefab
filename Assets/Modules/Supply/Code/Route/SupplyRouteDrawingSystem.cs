@@ -10,7 +10,11 @@ using UnityEngine;
 namespace SpaceFab.Supply {
     public sealed class SupplyRouteDrawingSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            ecs.Register(&HandleQueuedRouteChanges, new SysUpdate(GameLoopPhase.LateUpdate, -100, UpdateMasks.SupplyMask),
+            ecs.Register(&ClearCollectionDirtyFlags, new SysUpdate(GameLoopPhase.PreUpdate, -101, UpdateMasks.SupplyMask),
+                new SysPermissions()
+                    .WriteShared<SupplyRouteCollection>());
+            
+			ecs.Register(&HandleQueuedRouteChanges, new SysUpdate(GameLoopPhase.LateUpdate, -100, UpdateMasks.SupplyMask),
                 new SysPermissions()
                     .ReadWriteShared<SupplyRouteCollection>()
                     .ReadWriteShared<SupplyRouteDrawingState>()
@@ -46,6 +50,12 @@ namespace SpaceFab.Supply {
                 new SysPermissions()
                     .ReadWriteShared<SupplyRouteDrawingState>()
                     .ReadShared<SupplyHoverState>());
+        }
+
+        static private void ClearCollectionDirtyFlags(float dt) {
+            Find.State(out SupplyRouteCollection routes);
+            routes.AreFragmentsDirty = false;
+            routes.UpdatedRouteMask.Clear();
         }
 
         static private void HandleQueuedRouteChanges(float dt) {
@@ -293,6 +303,7 @@ namespace SpaceFab.Supply {
         // Updates the preview lines
         static private unsafe void UpdatePreviewRouteLines(float dt) {
             Find.State(out SupplyRouteCollection routes, out SupplyHoverState hover, out SupplyRouteDrawingState draw);
+            Find.GlobalAsset(out SupplyRouteConfig config);
 
             if (draw.RouteIndex < 0 || !hover.MousePosition.HasValue) {
                 draw.CursorLine.enabled = false;
@@ -316,6 +327,8 @@ namespace SpaceFab.Supply {
             Vector3* deletePositions = stackalloc Vector3[SupplyRouteData.MaxNodes];
             int deletePositionCount = 0;
 
+            SupplyRouteLineConfig cursorLineConfig = config.EmptyCursorLine;
+
             switch (draw.HoverAction) {
                 case SupplyRouteDrawAction.AddNonTerminalNode:
                 case SupplyRouteDrawAction.CompleteRouteHome: {
@@ -323,6 +336,11 @@ namespace SpaceFab.Supply {
                     int writeHead = 0;
                     for (int i = routeData.NodeCount - 1; i < previewData.NodeCount; i++) {
                         cursorLinePositions[writeHead++] = previewData.Nodes[i].Position;
+                    }
+                    if ((previewStats.Flags & SupplyRouteResultFlags.ErrorMask) != 0) {
+                        cursorLineConfig = config.InvalidCursorLine;
+                    } else {
+                        cursorLineConfig = config.PendingCursorLine;
                     }
                     break;
                 }
@@ -351,6 +369,7 @@ namespace SpaceFab.Supply {
                 draw.CursorLine.enabled = true;
                 draw.CursorLine.positionCount = cursorLinePositionCount;
                 draw.CursorLine.SetPositions(Unsafe.NativeArray(cursorLinePositions, cursorLinePositionCount));
+                SupplyRouteLineConfig.Apply(draw.CursorLine, cursorLineConfig);
             } else {
                 draw.CursorLine.enabled = false;
             }

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32a2262c22269de49bca1259173cd969, type: 3}
   m_Name: ShipA
   m_EditorClassIdentifier: 
-  Icon: {fileID: 21300000, guid: 749b6b6590cf41c49bf8d0fe6f08e3a2, type: 3}
+  DisplayName: Rock Bus
+  Icon: {fileID: -5611751015143644944, guid: 75fdb587a484bcf479b56c60f6a08ddc, type: 3}
   Colors:
     Content:
       serializedVersion: 2

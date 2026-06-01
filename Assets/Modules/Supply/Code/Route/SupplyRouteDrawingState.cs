@@ -39,7 +39,7 @@ namespace SpaceFab.Supply {
         DeleteRouteAuto,
     }
 
-    public struct SupplyRouteLockArgs {
+    public struct SupplyRouteEventArgs {
         public StringHash32 ShipId;
         public int RouteId;
         public SupplyRouteStats Stats;
@@ -137,11 +137,15 @@ namespace SpaceFab.Supply {
                 routes.UpdatedRouteMask.Set(draw.RouteIndex);
             }
 
+            SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingClose, EvtArgs.Create(new SupplyRouteEventArgs() {
+                RouteId = draw.RouteIndex,
+                ShipId = ships.ShipAssets[draw.RouteIndex].AssetId,
+                Stats = stats
+            }));
+
             draw.RouteCollider.enabled = false;
             draw.RouteIndex = -1;
             draw.ForceUpdatePreview = true;
-
-            //SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingClose, )
         }
 
         static public void OpenRouteDrawing(SupplyRouteDrawingState draw, SupplyRouteCollection routes, SupplyShipIndex ships, int routeIndex) {
@@ -158,7 +162,10 @@ namespace SpaceFab.Supply {
 
             Find.State(out SupplyChainMap map);
 
-            routeData.Flags &= ~SupplyRouteFlags.AutoConnectEnd;
+            if ((routeData.Flags & SupplyRouteFlags.AutoConnectEnd) != 0) {
+                routeData.Flags &= ~SupplyRouteFlags.AutoConnectEnd;
+                routes.UpdatedRouteMask.Set(draw.RouteIndex);
+            }
 
             if (routeData.NodeCount == 0) {
                 routeData.Nodes[routeData.NodeCount++] = map.Home;
@@ -170,6 +177,12 @@ namespace SpaceFab.Supply {
             UpdateRouteCollider(draw.RouteCollider, routeData);
 
             draw.ForceUpdatePreview = true;
+
+            SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingOpen, EvtArgs.Create(new SupplyRouteEventArgs() {
+                RouteId = draw.RouteIndex,
+                ShipId = ships.ShipAssets[draw.RouteIndex].AssetId,
+                Stats = stats
+            }));
         }
     }
 }

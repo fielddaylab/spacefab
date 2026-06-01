@@ -8,9 +8,11 @@ namespace SpaceFab.Supply {
         [Header("Line Appearance")]
         public SupplyRouteLineConfig FragmentLine;
         public SupplyRouteLineConfig PendingFragmentLine;
+
         public SupplyRouteLineConfig EmptyCursorLine;
         public SupplyRouteLineConfig PendingCursorLine;
         public SupplyRouteLineConfig InvalidCursorLine;
+        
         public SupplyRouteLineConfig ReturnLine;
         public SupplyRouteLineConfig SolidLine;
 
@@ -22,5 +24,10 @@ namespace SpaceFab.Supply {
     public struct SupplyRouteLineConfig {
         public float Width;
         public Material Material;
+
+        static public void Apply(LineRenderer line, SupplyRouteLineConfig config) {
+            line.widthMultiplier = config.Width;
+            line.sharedMaterial = config.Material;
+        }
     }
 }

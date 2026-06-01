@@ -17,15 +17,13 @@ namespace SpaceFab.Supply
 
         public void OnDeregister()
         {
+            SpacefabGame.Events.DeregisterAllForContext(this);
         }
 
         public void OnRegister()
         {
             Dirty = true;
-
-            // TODO: when the supply route-finalized event is authored (carrying the
-            // confirmed route index), register here so the list refreshes on commit:
-            // SpacefabGame.Events.Register(GameEvents.SupplyRouteFinalized, (int routeIndex) => Dirty = true, this);
+            SpacefabGame.Events.Register(GameEvents.SupplyRouteDrawingClose, () => Dirty = true, this);
         }
     }
 }

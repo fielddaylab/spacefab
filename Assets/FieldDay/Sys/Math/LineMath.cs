@@ -21,11 +21,7 @@ namespace FieldDay.Mathematics {
             Vector2 ab = lineB - lineA;
             Vector2 ap = point - lineA;
 
-            float abMagSq = ab.sqrMagnitude;
-            if (abMagSq < Mathf.Epsilon) {
-                return lineA;
-            }
-
+            float abMagSq = Math.Max(ab.sqrMagnitude, Mathf.Epsilon);
             float projected = Math.Clamp(Vector2.Dot(ap, ab) / abMagSq, 0, 1);
             return new Vector2(
                 lineA.x + ab.x * projected,
