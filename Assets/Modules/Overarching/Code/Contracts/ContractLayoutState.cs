@@ -53,8 +53,11 @@ namespace SpaceFab.Overarching
             FaderGroup.alpha = 0;
             FaderGroup.blocksRaycasts = false;
             CompletionCanvasGroup.alpha = 0;
+            CompletionCanvasGroup.blocksRaycasts = false;
             SelectionCanvasGroup.alpha = 0;
+            SelectionCanvasGroup.blocksRaycasts = false;
             ChangeCanvasGroup.alpha = 0;
+            ChangeCanvasGroup.blocksRaycasts = false;
             DoubleConfirmCanvasGroup.alpha = 0;
             DoubleConfirmCanvasGroup.blocksRaycasts = false;
 

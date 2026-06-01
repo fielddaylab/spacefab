@@ -44,6 +44,8 @@ namespace SpaceFab.Design {
                     // Alloc one input-toggle overlay per Input cell from the pool, positioned at
                     // its cell. Frees any leftover overlays from a prior level entry first.
                     InputToggleUtility.SpawnInputOverlays(gridStackState, visualState, pools);
+                    // Same for the per-Output onboarding-tag overlays.
+                    OutputTagUtility.SpawnOutputOverlays(gridStackState, visualState, pools);
                     transitionState.Phase = DesignTransitionPhase.ApplySave;
                     break;
                 case DesignTransitionPhase.ApplySave:

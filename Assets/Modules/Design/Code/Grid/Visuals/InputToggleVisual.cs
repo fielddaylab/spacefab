@@ -80,7 +80,7 @@ namespace SpaceFab.Design
             // Clear the onboarding tag id so the lookup doesn't retain a stale entry if this
             // overlay is destroyed outside the normal FreeAllInputOverlays path (e.g. scene
             // unload while overlays are still active).
-            if (Tag != null) { Tag.SetId(default); }
+            if (Tag != null) { Tag.SetId(default(StringHash32)); }
         }
 
         private void HandleClick()

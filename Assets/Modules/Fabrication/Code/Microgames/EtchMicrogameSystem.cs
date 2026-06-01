@@ -76,13 +76,13 @@ namespace SpaceFab.Fabrication.Microgames
             if (!state.InputAccepted)
                 return;
 
-            if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1))
+            if (Game.Input.IsKeyDown(FabricationConsts.Up0) || Game.Input.IsKeyDown(FabricationConsts.Up1))
                 state.Direction = Vector2.up;
-            else if (Game.Input.IsKeyPressed(FabricationConsts.Down0) || Game.Input.IsKeyPressed(FabricationConsts.Down1))
+            else if (Game.Input.IsKeyDown(FabricationConsts.Down0) || Game.Input.IsKeyDown(FabricationConsts.Down1))
                 state.Direction = Vector2.down;
-            else if (Game.Input.IsKeyPressed(FabricationConsts.Left0) || Game.Input.IsKeyPressed(FabricationConsts.Left1))
+            else if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
                 state.Direction = Vector2.left;
-            else if (Game.Input.IsKeyPressed(FabricationConsts.Right0) || Game.Input.IsKeyPressed(FabricationConsts.Right1))
+            else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
                 state.Direction = Vector2.right;
 
             float beamSpeed = 2f;

@@ -49,7 +49,7 @@ namespace SpaceFab.Design
             // Refresh the matched test-row index on demand.
             if (toggleState != null && toggleState.MatchDirty)
             {
-                TestSuiteData suite = ResolveSuite(progressState);
+                TestSuiteData suite = ResolveSuite(progressState, designState);
                 toggleState.LastMatchedRowIndex = InputToggleUtility.FindMatchingTestRow(toggleState, suite);
                 toggleState.MatchDirty = false;
             }
@@ -70,14 +70,14 @@ namespace SpaceFab.Design
             }
         }
 
-        // Pulls the TestSuiteData off the current contract; returns null on a missing chain so
+        // Pulls the TestSuiteData off the active Design level; returns null on a missing chain so
         // FindMatchingTestRow can short-circuit to -1.
-        static private TestSuiteData ResolveSuite(PlayerProgressState progressState)
+        static private TestSuiteData ResolveSuite(PlayerProgressState progressState, DesignMinigameState designState)
         {
-            if (progressState == null) { return null; }
-            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            if (contractAssets == null || contractAssets.DesignLevelData == null) { return null; }
-            return contractAssets.DesignLevelData.GetTestSuite();
+            if (progressState == null || designState == null) { return null; }
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            if (levelData == null) { return null; }
+            return levelData.GetTestSuite();
         }
     }
 }

@@ -65,6 +65,29 @@ namespace SpaceFab.Onboarding {
             RegisterCurrentId();
         }
 
+        /// <summary>
+        /// Reassigns this tag's id at runtime from a source string, preserving that string on the
+        /// SerializedHash32 so the id reads back as text (e.g. "design:input-a") in the inspector
+        /// rather than a bare hash. Same atomic lookup swap as SetId(StringHash32). Pass null/empty
+        /// to clear. Use this overload whenever the source string is known at the call site.
+        /// </summary>
+        public void SetId(string newIdSource) {
+            if (string.IsNullOrEmpty(newIdSource)) {
+                SetId(default(StringHash32));
+                return;
+            }
+
+            // Construct from the string so the SerializedHash32 retains its source for the
+            // inspector. The hash compare against the current id avoids a redundant
+            // deregister/register when the id is unchanged.
+            SerializedHash32 newId = new SerializedHash32(newIdSource);
+            if (Id.Hash() == newId.Hash()) { return; }
+
+            DeregisterCurrentId();
+            Id = newId;
+            RegisterCurrentId();
+        }
+
         private void RegisterCurrentId() {
             if (Id.IsEmpty) { return; }
             ElementTagLookup lookup = Find.State<ElementTagLookup>();

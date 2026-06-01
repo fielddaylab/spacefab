@@ -26,12 +26,6 @@ $if temp:fabTutorialStep == 2
     {@PAL}  Great. Now press the Space Bar to add the wafer to the FURANCE to apply an Oxide Layer.
 $endif
 
-::StunFurnace
-@trigger    OnFabStunned
-$if temp:fabTutorialStep == 2
-    {@PAL}  That's the wrong step. Find the FURNACE station.
-$endif
-
 ::GateFurnace
 @trigger    OnFabMicrogameCompleted
 @when       microgame == "station:furnace"
@@ -50,7 +44,9 @@ $endif
 
 ::GeneralStun
 @trigger    OnFabStunned
-$if temp:fabTutorialStep != 2
+$if temp:fabTutorialStep == 2
+    {@PAL}  That's the wrong step. Find the FURNACE station.
+$else temp:fabTutorialStep != 2
     {@PAL}  That's not the right step. 
 $endif 
 

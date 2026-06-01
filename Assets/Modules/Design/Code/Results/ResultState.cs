@@ -17,6 +17,12 @@ namespace SpaceFab.Design
         public DynamicButton DismissButton;
         public DynamicButton RetryButton;
 
+        // One-frame intent flag: the player clicked "Continue" on a passing results panel. Consumed
+        // by DesignContinueSystem, which decides whether to advance to the next level (reload the
+        // Design scene) or return to overarching (last level). Mirrors the PlayFullSuiteRequested
+        // hand-off OnRetryClicked uses, keeping scene-loading out of this UI click handler.
+        public bool ContinueRequested;
+
         public void OnRegister()
         {
 
@@ -53,15 +59,14 @@ namespace SpaceFab.Design
 
         private void OnDismissClicked()
         {
-            // Return to overarching scene
-            Find.State(
-                out SimulateRunState runState,
-                out MinigameRequestExitState requestExitState
-            );
+            // "Continue" on a passing panel: hand off to DesignContinueSystem, which advances to the
+            // next level (Design-scene reload) or returns to overarching on the last level. A failing
+            // panel just dismisses.
+            Find.State(out SimulateRunState runState);
             runState.PlayFullSuiteRequested = false; // in case we were on a single-test pass
             if (ResultStateUtility.IsAllCorrect(runState))
             {
-                requestExitState.ExitRequestState = RequestState.Confirmed;
+                ContinueRequested = true;
             }
             ResultStateUtility.SetEnabledResultsGroup(this, false);
         }
