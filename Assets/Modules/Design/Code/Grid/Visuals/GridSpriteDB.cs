@@ -55,7 +55,8 @@ namespace SpaceFab.Design.Visuals
         public Color InputToggleHiTextColor = Color.white;
 
         [Header("Output Tag Overlay")]
-        // Output overlays reuse the input-toggle frame/arrow sprites but are driven by the cell's
+        public Sprite OutputToggleBackground;
+        // Output overlays reuse the input-toggle arrow sprites but are driven by the cell's
         // simulated flow. Hi/Lo reuse the input-toggle colors; these two buckets cover the flow
         // states the input toggle never sees. Each bucket has a fill color (background) and a text
         // color (arrow + subtype label), mirroring the input-toggle color/text-color split.
