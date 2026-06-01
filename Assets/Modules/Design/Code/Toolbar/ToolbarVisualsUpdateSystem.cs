@@ -41,7 +41,20 @@ namespace SpaceFab.Design {
         //      toolModeState.ActiveTool and update the label.
         //
         // All three should be idempotent — it's fine to re-run them every frame.
-        static private void ProcessWork(float deltaTime) {
+        static private void ProcessWork(float deltaTime)
+        {
+            ToolbarState toolbarState = Find.State<ToolbarState>();
+            ToolModeState toolModeState = Find.State<ToolModeState>();
+
+            // 1. Row fade — full opacity on focused row, faded otherwise.
+            var rows = Find.Components<ToolbarRow>();
+            for (int i = 0; i < rows.Count; i++) {
+                ToolbarRow row = rows[i];
+                bool focused = row.Row == toolbarState.FocusedRow;
+                if (row.FadeGroup != null) {
+                    row.FadeGroup.alpha = focused ? 1f : 0.4f;
+                }
+            }
         }
     }
 }
