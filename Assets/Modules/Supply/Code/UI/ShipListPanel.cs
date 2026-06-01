@@ -4,6 +4,7 @@ using BeauUtil;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Scenes;
+using FieldDay.Scripting;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
 using UnityEngine;
@@ -64,6 +65,11 @@ namespace SpaceFab.Supply {
                 SupplyRouteUtility.QueueRouteDrawingClose();
             } else {
                 SupplyRouteUtility.QueueRouteDrawing(row.ShipIndex);
+
+                using (TempVarTable table = TempVarTable.Alloc()) {
+                    table.Set("ship", row.ShipIndex);
+                    ScriptUtility.Trigger(SupplyScriptTriggers.OnShipSelected, table);
+                }
             }
         }
     }
