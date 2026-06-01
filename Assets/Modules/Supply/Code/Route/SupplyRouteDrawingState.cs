@@ -3,6 +3,7 @@ using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Mathematics;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.UI;
 using System;
@@ -132,6 +133,11 @@ namespace SpaceFab.Supply {
                 routeData.Clear();
                 stats = default;
                 routes.UpdatedRouteMask.Set(draw.RouteIndex);
+                // The route was reduced to nothing — the authoritative "fully removed" moment.
+                // (This is where a delete actually empties the route; the DeleteRoute* hover
+                // actions just queue a close, which lands here.)
+                Log.Msg("[SupplyRouteUtility] firing OnRouteFullyRemoved for route {0}", draw.RouteIndex);
+                ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteFullyRemoved);
             } else if (routeData.Nodes[0] != routeData.Nodes[routeData.NodeCount - 1]) {
                 routeData.Flags |= SupplyRouteFlags.AutoConnectEnd;
                 TryEvaluatePath(routeData, ships.ShipStats[draw.RouteIndex], draw.RouteIndex, out stats);

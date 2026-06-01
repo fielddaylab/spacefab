@@ -285,22 +285,27 @@ namespace SpaceFab.Supply {
                 routes.TempRouteFragmentCreate = default;
             }
 
+            Log.Msg("[SupplyRouteDrawingSystem] executing action {0} on route {1}", draw.HoverAction, draw.RouteIndex);
+
             switch(draw.HoverAction) {
                 case SupplyRouteDrawAction.CompleteRouteAuto:
                 case SupplyRouteDrawAction.CompleteRouteHome: {
                     SupplyRouteUtility.QueueRouteDrawingClose();
+                    Log.Msg("[SupplyRouteDrawingSystem] firing OnRouteCompleted");
                     ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteCompleted);
                     break;
                 }
                 case SupplyRouteDrawAction.DeleteRoute:
                 case SupplyRouteDrawAction.DeleteRouteAuto: {
+                    // Just queue the close — the actual route kill + OnRouteFullyRemoved happen in
+                    // SupplyRouteUtility.CloseRouteDrawing, which all close paths funnel through.
                     SupplyRouteUtility.QueueRouteDrawingClose();
-                    ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteFullyRemoved);
                     break;
                 }
                 default: {
                     SupplyRouteUtility.UpdateRouteCollider(draw.RouteCollider, previewData);
                     if (draw.HoverAction == SupplyRouteDrawAction.RemoveSegment) {
+                        Log.Msg("[SupplyRouteDrawingSystem] firing OnRouteSegmentDeleted");
                         ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteSegmentDeleted);
                     }
                     break;

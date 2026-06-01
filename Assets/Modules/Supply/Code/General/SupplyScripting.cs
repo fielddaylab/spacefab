@@ -9,9 +9,10 @@ namespace SpaceFab.Supply {
     public static class SupplyScripting {
         // Whether the given material is currently being collected by any finalized route. Scans the
         // per-ship route stats' MaterialHashes (the same source ShoppingListLoadUtility reads to mark
-        // shopping-list rows collected). Returns false when no route collection is present.
+        // shopping-list rows collected). With includePending, also scans the in-progress preview
+        // route. Returns false when no route collection is present.
         [LeafMember("IsMaterialCollected")]
-        public static unsafe bool Leaf_IsMaterialCollected(StringHash32 materialId) {
+        public static unsafe bool Leaf_IsMaterialCollected(StringHash32 materialId, bool includePending = false) {
             if (materialId.IsEmpty) { return false; }
             if (!Game.SharedState.Has<SupplyRouteCollection>()) { return false; }
 
@@ -22,9 +23,23 @@ namespace SpaceFab.Supply {
             for (int shipIdx = 0; shipIdx < routes.RouteStats.Length; shipIdx++) {
                 SupplyRouteStats stats = routes.RouteStats[shipIdx];
                 for (int matIdx = 0; matIdx < SupplyRouteData.MaxCapacity; matIdx++) {
-                    if (stats.MaterialHashes[matIdx] == wanted) { return true; }
+                    if (stats.MaterialHashes[matIdx] == wanted) {
+                        return true;
+                    }
                 }
             }
+
+            if (includePending)
+            {
+                for (int matIdx = 0; matIdx < SupplyRouteData.MaxCapacity; matIdx++)
+                {
+                    if (routes.TempRouteStats.MaterialHashes[matIdx] == wanted)
+                    {
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
     }
