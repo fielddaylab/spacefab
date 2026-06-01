@@ -61,6 +61,7 @@ namespace SpaceFab.Design {
                 }
                 else {
                     ToolbarUtility.SelectTool(toolModeState, toolbarState, buttons[i].Kind, buttons[i].Row);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignToolSelected, EvtArgs.Create(toolModeState.ActiveTool));
                     toolbarState.CurrentArrowAnchor = buttons[i].ArrowAnchor;
                 }
             }

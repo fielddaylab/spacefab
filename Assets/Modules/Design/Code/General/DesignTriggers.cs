@@ -1,4 +1,5 @@
 using FieldDay;
+using SpaceFab.Save;
 using UnityEngine.Scripting;
 
 namespace SpaceFab.Design
@@ -52,14 +53,16 @@ namespace SpaceFab.Design
             ClearFoundValidSolution();
         }
 
-        // Both reset paths funnel here. DesignMinigameState may not be registered yet during
-        // very early boot frames (or after minigame teardown); guard against that rather than
-        // tying handler registration to lifetime.
+        // Both reset paths funnel here. Clears the active level's solved flag (and refreshes the
+        // contract-wide aggregate). DesignMinigameState / MinigameSaveStates may not be registered
+        // yet during very early boot frames (or after minigame teardown); guard against that rather
+        // than tying handler registration to lifetime.
         static private void ClearFoundValidSolution()
         {
             DesignMinigameState designState = Find.State<DesignMinigameState>();
-            if (designState == null) { return; }
-            designState.ClearFoundValidSolution();
+            MinigameSaveStates saveStates = Find.State<MinigameSaveStates>();
+            if (designState == null || saveStates == null) { return; }
+            DesignLevelUtility.ClearActiveLevelSolved(saveStates.Design, designState);
         }
     }
 }

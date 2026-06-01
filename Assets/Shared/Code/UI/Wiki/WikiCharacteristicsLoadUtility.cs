@@ -64,10 +64,13 @@ namespace SpaceFab.UI {
                 && progress.MaterialProperties.TryGetValue(materialId, out var canonicalRecord)) {
                 merged = canonicalRecord;
             }
-            ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
-            if (researchState != null && researchState.SandboxProperties != null
-                && researchState.SandboxProperties.TryGetValue(materialId, out var sandboxRecord)) {
-                MaterialPropertyRecordUtility.Merge(ref merged, sandboxRecord);
+            if (Game.SharedState.Has<ResearchMinigameState>()) {
+                ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
+                if (researchState.SandboxProperties != null
+                    && researchState.SandboxProperties.TryGetValue(materialId, out var sandboxRecord))
+                {
+                    MaterialPropertyRecordUtility.Merge(ref merged, sandboxRecord);
+                }
             }
 
             // 3. Walk the material's ground-truth Properties[] for

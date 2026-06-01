@@ -17,6 +17,8 @@ using BeauPools;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using FieldDay.Rendering;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -100,6 +102,22 @@ namespace FieldDay.Debugging {
             public Vector2 TextureSize;
             public DebugString Text;
             public TextAnchor Alignment;
+            public DebugTextStyle Style;
+        }
+
+        private unsafe struct GraphRenderState {
+            public DrawParams Params;
+
+            public Vector4 Anchors;
+            public Vector2 AnchorPos;
+            public Vector2 SizeOffset;
+            public DebugString Title;
+            public DebugString HighWatermarkText;
+            public DebugString AvgText;
+            public long HighWatermarkValue;
+            public long PointCount;
+            public long PointCapacity;
+            public long* PointBuffer;
             public DebugTextStyle Style;
         }
 
@@ -249,9 +267,11 @@ namespace FieldDay.Debugging {
         static private RingBuffer<TextRenderState> s_ActiveTexts = new RingBuffer<TextRenderState>();
         static private RingBuffer<ImageRenderState> s_ActiveImages = new RingBuffer<ImageRenderState>();
         static private RingBuffer<GroupedTextRenderState> s_ActiveLogTexts = new RingBuffer<GroupedTextRenderState>();
+        static private RingBuffer<GraphRenderState> s_ActiveGraphs = new RingBuffer<GraphRenderState>();
 
         static private DebugStringBufferBuckets s_DebugStringPools = new DebugStringBufferBuckets(32, 16, 4);
         static private readonly StringBuilder s_GroupedTextBuilder = new StringBuilder(2048);
+        static private Unsafe.ArenaHandle s_TempAllocator;
 
         [NonSerialized] static private BitSet64 s_CategoryMask = new BitSet64();
         [NonSerialized] static private DebugDraw s_Instance;
@@ -272,6 +292,8 @@ namespace FieldDay.Debugging {
 
             s_Instance = this;
             useGUILayout = false;
+
+            s_TempAllocator = Unsafe.CreateArena(Unsafe.MiB, "DebugDraw");
 
             m_MainMesh = CreateVolatileMesh("DEBUG_DepthTest");
             m_OverlayMesh = CreateVolatileMesh("DEBUG_Overlay");
@@ -306,6 +328,7 @@ namespace FieldDay.Debugging {
 
             s_Instance = null;
 
+            Unsafe.TryDestroyArena(ref s_TempAllocator);
             UnityHelper.SafeDestroy(ref m_MainMesh);
             UnityHelper.SafeDestroy(ref m_OverlayMesh);
             m_TempMaterialPropertyBlock.Clear();
@@ -387,8 +410,10 @@ namespace FieldDay.Debugging {
                 RenderGroupedText(deltaTime, s_ActiveLogTexts, renderScale, m_LogGroup, !s_PauseAll);
                 RenderImages(deltaTime, s_ActiveImages, mainCam, renderScale, s_CategoryMask, !s_PauseAll);
             } else {
-                DecayText(deltaTime); 
+                DecayText(deltaTime);
             }
+
+            CleanUpSingleFrame();
         }
 
 #endif // !SKIP_ONGUI
@@ -885,6 +910,106 @@ namespace FieldDay.Debugging {
             }
         }
 
+        private void RenderGraphs(RingBuffer<GraphRenderState> buffer, Camera camera, float renderScale, BitSet64 mask, bool allowRendering) {
+            if (!allowRendering) {
+                return;
+            }
+
+            float screenW = Screen.width / renderScale, screenH = Screen.height / renderScale;
+            for (int i = buffer.Count - 1; i >= 0; i--) {
+                ref GraphRenderState state = ref buffer[i];
+
+                if (state.Params.Category < 0 || mask.IsSet(state.Params.Category)) {
+                    //Vector2 targetPoint;
+
+                    //targetPoint = new Vector2(state.Position.x * screenW, state.Position.y * screenH);
+
+                    //targetPoint.y = screenH - targetPoint.y;
+                    //targetPoint.x += state.Offset.x;
+                    //targetPoint.y -= state.Offset.y;
+
+                    //GUIStyle style;
+                    //switch (state.Style) {
+                    //    case DebugTextStyle.BackgroundDark: {
+                    //        style = m_ImageStyleBox;
+                    //        GUI.backgroundColor = Color.black.WithAlpha(0.7f);
+                    //        break;
+                    //    }
+                    //    case DebugTextStyle.BackgroundDarkOpaque: {
+                    //        style = m_ImageStyleBox;
+                    //        GUI.backgroundColor = Color.black;
+                    //        break;
+                    //    }
+                    //    case DebugTextStyle.BackgroundLight: {
+                    //        style = m_ImageStyleBox;
+                    //        GUI.backgroundColor = Color.white.WithAlpha(0.7f);
+                    //        break;
+                    //    }
+                    //    case DebugTextStyle.BackgroundLightOpaque: {
+                    //        style = m_ImageStyleBox;
+                    //        GUI.backgroundColor = Color.white;
+                    //        break;
+                    //    }
+                    //    default: {
+                    //        style = m_ImageStylePlain;
+                    //        break;
+                    //    }
+                    //}
+
+                    //style.alignment = state.Alignment;
+                    //style.fixedWidth = state.TextureSize.x;
+                    //style.fixedHeight = state.TextureSize.y;
+
+                    //m_ImageContent.image = state.Texture;
+                    //m_ImageContent.text = state.Text.String;
+
+                    //Vector2 size = style.CalcSize(m_ImageContent);
+
+                    //switch (state.Alignment) {
+                    //    case TextAnchor.UpperCenter:
+                    //    case TextAnchor.MiddleCenter:
+                    //    case TextAnchor.LowerCenter: {
+                    //        targetPoint.x -= size.x / 2;
+                    //        break;
+                    //    }
+
+                    //    case TextAnchor.UpperRight:
+                    //    case TextAnchor.MiddleRight:
+                    //    case TextAnchor.LowerRight: {
+                    //        targetPoint.x -= size.x;
+                    //        break;
+                    //    }
+                    //}
+
+                    //switch (state.Alignment) {
+                    //    case TextAnchor.MiddleLeft:
+                    //    case TextAnchor.MiddleCenter:
+                    //    case TextAnchor.MiddleRight: {
+                    //        targetPoint.y -= size.y / 2;
+                    //        break;
+                    //    }
+
+                    //    case TextAnchor.LowerLeft:
+                    //    case TextAnchor.LowerCenter:
+                    //    case TextAnchor.LowerRight: {
+                    //        targetPoint.y -= size.y;
+                    //        break;
+                    //    }
+                    //}
+
+                    //GUI.contentColor = state.Params.Color;
+                    //GUI.Label(new Rect((int)targetPoint.x, (int)targetPoint.y, (int)size.x, (int)size.y), m_ImageContent, style);
+                }
+
+                m_TextContent.text = null;
+
+                TryFreeDebugString(state.Title);
+                TryFreeDebugString(state.HighWatermarkText);
+                TryFreeDebugString(state.AvgText);
+                buffer.FastRemoveAt(i);
+            }
+        }
+
         static private void DecayText(float deltaTime) {
             if (deltaTime <= 0) {
                 return;
@@ -943,6 +1068,16 @@ namespace FieldDay.Debugging {
             if (updated && buffer.Count > 1) {
                 buffer.Sort();
             }
+        }
+
+        static private void CleanUpSingleFrame() {
+            while(s_ActiveGraphs.TryPopBack(out GraphRenderState state)) {
+                TryFreeDebugString(state.Title);
+                TryFreeDebugString(state.HighWatermarkText);
+                TryFreeDebugString(state.AvgText);
+            }
+
+            s_TempAllocator.Reset();
         }
 
         #endregion // Rendering

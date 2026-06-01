@@ -25,7 +25,7 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.PreUpdate, 10, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadShared<WikiState>()
-                    .ReadShared<WikiLayoutState>()
+                    .ReadWriteShared<WikiLayoutState>()
                     .Read<WikiContent>()
                     .Read<WikiPools>()
                     .ReadShared<PlayerProgressState>()
@@ -33,8 +33,6 @@ namespace SpaceFab.UI {
             );
         }
 
-        // TODO: implement visuals refresh.
-        //
         // Authoring note: the tab + page-thumb button instances are NOT spawned here. They are
         // pooled via WikiPools and rebuilt by WikiPoolUtility.RebuildStrips, which is invoked
         // by WikiAvailabilityUtility.ApplyUnlocks on level-load and after every
@@ -132,6 +130,7 @@ namespace SpaceFab.UI {
             if (content.Tabs != null && wikiState.ActiveTabIndex >= 0 && wikiState.ActiveTabIndex < content.Tabs.Length)
             {
                 activeTab = content.Tabs[wikiState.ActiveTabIndex];
+                layoutState.Header.text = activeTab.Title;
             }
 
             WikiPageData activePage = null;
@@ -144,6 +143,7 @@ namespace SpaceFab.UI {
             {
                 var widgets = layoutState.PageContentWidgets;
                 bool materialPage = activePage.IsMaterialPage;
+                bool isPlanet = activePage.isPlanet;
 
                 // Title always renders.
                 if (widgets.TitleText != null) {
@@ -157,6 +157,7 @@ namespace SpaceFab.UI {
                 if (!materialPage && widgets.BodyText != null) {
                     widgets.BodyText.text = activePage.Body ?? " ";
                 }
+                widgets.PlanetDetailsContainer.SetActive(isPlanet);
 
                 // Characteristics group visible only on material pages.
                 // Chip allocation is owned by
@@ -186,6 +187,10 @@ namespace SpaceFab.UI {
             }
 
             // 4.
+            // Tracks the RectTransform of the selected page's thumbnail so the single
+            // PageHighlight overlay can be positioned over it after the loop. Stays null when
+            // no thumb in the active tab is selected/visible (highlight then hides).
+            RectTransform selectedThumbRect = null;
             for (int i = 0; i < pools.PageThumbActive.Count; i++) {
                 WikiButton thumb = pools.PageThumbActive[i];
                 if (thumb.DynamicButton == null) { continue; }
@@ -198,17 +203,17 @@ namespace SpaceFab.UI {
 
                 int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
                 bool isLocked = unlockedIndex == -1;
-                // if (isLocked) {
-                //     thumb.gameObject.SetActive(false);
-                //     continue;
-                // }
+                if (isLocked) {
+                    thumb.gameObject.SetActive(false);
+                    continue;
+                }
 
                 int pageWindowSize = Mathf.Max(1, content.PageWindowSize);
                 bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
                 thumb.gameObject.SetActive(true);
                 if (thumb.DynamicButton == null) { continue; }
 
-                thumb.DynamicButton.interactable = true; // isLocked ? false : true;
+                thumb.DynamicButton.interactable = true;
                 // Material pages pull their thumbnail from the
                 // ResearchMaterialView (same single/multi-atom
                 // selection as the page illustration), not from
@@ -223,10 +228,17 @@ namespace SpaceFab.UI {
                     }
                 }
                 thumb.DynamicButton.image.sprite = thumbSprite;
-                thumb.DynamicButton.image.color = thumb.PageIndex == wikiState.ActivePageIndex ?
-                    Color.magenta : // highlight active page thumb in yellow for testing
-                    Color.cyan;
+
+                // Record the selected, in-window thumb so the PageHighlight overlay can be
+                // positioned over it once the loop completes.
+                if (thumb.PageIndex == wikiState.ActivePageIndex && inWindow) {
+                    selectedThumbRect = thumb.DynamicButton.image.rectTransform;
+                }
             }
+
+            // Position the single highlight over the selected thumbnail, or hide it when no
+            // page is selected / its thumb isn't currently visible.
+            WikiLayoutUtility.PositionPageHighlight(layoutState, selectedThumbRect);
 
             // 5.
             if (layoutState.PrevPage != null) {

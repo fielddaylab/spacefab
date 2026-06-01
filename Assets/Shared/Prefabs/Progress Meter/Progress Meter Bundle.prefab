@@ -51,7 +51,7 @@ MonoBehaviour:
   Always: 1
   DestroyInactiveChildren: 0
   Recursive: 0
-  DestroyGameObject: 0
+  DestroyGameObject: 1
   IgnoreAnimators: 1
 --- !u!1001 &1554901119937259409
 PrefabInstance:

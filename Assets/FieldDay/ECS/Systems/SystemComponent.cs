@@ -8,6 +8,18 @@ namespace FieldDay.Systems {
     /// System module component.
     /// </summary>
     public abstract class SystemComponent : MonoBehaviour, ISystemModuleComponent {
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        static private void CheckTypes() {
+            int baseFieldCount = typeof(SystemComponent).GetFields().Length;
+            foreach(var subclass in Reflect.FindAllDerivedTypes(typeof(SystemComponent))) {
+                if (subclass.GetFields().Length != baseFieldCount) {
+                    Log.Error("[SystemComponent] SystemComponent type '{0}' has additional fields, in violation of ECS best practices. Use alternate means to drive behavior.", subclass.FullName);
+                }
+            }
+        }
+#endif // UNITY_EDITOR
+
         public abstract unsafe void RegisterSystems(ref SystemRegistrationTable ecs);
     }
 }

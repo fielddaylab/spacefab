@@ -76,6 +76,8 @@ namespace SpaceFab.Overarching {
 
             // Confirmed — advance the phase
             if (selectState.SelectionConfirmed) {
+                Debug.Log("Confirm selection");
+                SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, selectState.SelectedContractIndex.ToString());
                 selectState.Phase = ContractSelectPhase.Completed;
                 selectState.ContractTitleText.text = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].Title();
             }

@@ -24,6 +24,7 @@ namespace SpaceFab.Fabrication {
             {
                 // begin countdown
                 CountdownUtility.BeginCountdown(countdownState);
+                SpacefabGame.Events.Dispatch(GameEvents.FabGenerateWafer);
             }
 
             if (countdownState.IsCountingDown)
@@ -38,6 +39,7 @@ namespace SpaceFab.Fabrication {
                 else
                 {
                     countdownState.CountDownText.text = "GO!";
+                    SpacefabGame.Events.Dispatch(GameEvents.FabTimeStart);
                 }
             }
         }

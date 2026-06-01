@@ -11,10 +11,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - SupplyChainPlanet
+  - SupplyChainHazard
+  - SupplyChainRoute
+  - SupplyChainOverlay
   - 
   - 
   - 
@@ -86,19 +86,19 @@ TagManager:
   - name: Research_Blank5
     uniqueID: 3640798731
     locked: 0
-  - name: Supply_Blank1
+  - name: Supply_BG
     uniqueID: 1988389837
     locked: 0
-  - name: Supply_Blank2
+  - name: Supply_Route
     uniqueID: 3050371961
     locked: 0
-  - name: Supply_Blank3
+  - name: Supply_Planet
     uniqueID: 2703306287
     locked: 0
-  - name: Supply_Blank4
+  - name: Supply_Hazard
     uniqueID: 395253121
     locked: 0
-  - name: Supply_Blank5
+  - name: Supply_Overlay
     uniqueID: 553282945
     locked: 0
   - name: Overarching_Blank1

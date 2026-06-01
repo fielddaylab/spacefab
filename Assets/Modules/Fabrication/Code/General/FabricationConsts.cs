@@ -61,5 +61,11 @@ namespace SpaceFab.Fabrication
         // responds and calls RequireMicrogamePrecision(threshold) to gate the exit on precision.
         // Table vars: "microgame" (station id string), "precision" (the result precision in [0,1]).
         public static readonly StringHash32 OnMicrogameCompleted = "OnFabMicrogameCompleted";
+        public static readonly StringHash32 OnMicrogrameExited = "OnFabMicrogameExited";
+        public static readonly StringHash32 OnArriveAtStation = "OnFabArriveAtStation";
+        public static readonly StringHash32 OnPreAttempt = "OnFabPreAttempt";
+        public static readonly StringHash32 OnAttempt = "OnFabAttempt";
+
+        public static readonly StringHash32 OnStunned = "OnFabStunned";
     }
 }

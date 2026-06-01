@@ -50,7 +50,7 @@ namespace SpaceFab.Comic {
                 }
             }
 
-            ScriptUtility.OnCutsceneEnd.Register(Finish);
+            ScriptUtility.OnCutsceneEnd.Register(QueueFinish);
         }
 
         protected override void OnSceneReady() {
@@ -61,10 +61,22 @@ namespace SpaceFab.Comic {
                     table.Set("comicId", ComicId);
                     ThreadHandle = ScriptUtility.Trigger("ComicExecute", table);
                     if (!ThreadHandle.IsRunning()) {
-                        //GameLoop.QueuePreUpdate(Finish);
+                        QueueFinish();
                     }
                 }
             }
+        }
+
+        // Aborts the running comic cutscene immediately and advances to NextScene as if it had ended normally.
+        // Safe to call mid-cutscene: kills live Leaf threads first so queued comic ops don't keep firing into
+        // the tearing-down scene.
+        public void Skip() {
+            ScriptUtility.KillAllThreads();
+            QueueFinish();
+        }
+
+        private void QueueFinish() {
+            GameLoop.QueuePreUpdate(Finish);
         }
 
         private void Finish() {

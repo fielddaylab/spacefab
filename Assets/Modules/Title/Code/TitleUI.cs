@@ -11,6 +11,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using FieldDay.Debugging;
+using SpaceFab.Comic;
 
 namespace SpaceFab.Title
 {
@@ -156,10 +157,13 @@ namespace SpaceFab.Title
                     SaveUtility.SetDebugFlag(true);
                     SpacefabGame.SaveBuffer.Clear();
                     HandleStartAccepted();
+                    Debug.Log("[TitleUI] new game clicked. Is dev build.");
                     SaveUtility.Save(SaveSlot.Main);
                 }
                 else
                 {
+                    Debug.Log("[TitleUI] not dev build new game");
+                    SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
                     SaveUtility.SetDebugFlag(false);
                     SpacefabGame.SaveBuffer.Clear();
                     OGD.Player.ClaimId(m_PlayerCodeInput.text, null, HandleStartAccepted, HandleClaimNewIdError);
@@ -167,6 +171,8 @@ namespace SpaceFab.Title
             }
             else
             {
+                Debug.Log("resume game");
+                SpacefabGame.Events.Dispatch(GameEvents.TitleContinueGameClicked);
                 Future f = SaveUtility.LoadFromServer(m_PlayerCodeInput.text);
                 f.OnComplete(HandleStartAccepted);
                 f.OnFail(HandleLoadError);
@@ -269,8 +275,14 @@ namespace SpaceFab.Title
             SaveUtility.Save(SaveSlot.Main);
 
             // TODO: set this in OGD
+            //SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
             SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, m_PlayerCodeInput.text);
-            Game.Scenes.LoadMainScene(m_NextScene);
+
+            if (m_CurrGroupType == GroupType.NewGame) {
+                ComicScripting.LoadComic("Ch1ComicPack");
+            } else {
+                Game.Scenes.LoadMainScene(m_NextScene);
+            }
         }
 
         private void HandleClaimNewIdError(OGD.Core.Error err)

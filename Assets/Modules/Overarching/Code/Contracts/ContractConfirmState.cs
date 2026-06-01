@@ -84,11 +84,20 @@ namespace SpaceFab.Overarching
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);
-            GridStackConfig gridConfig = contractAssets.DesignLevelData.GetGridConfig();
-            GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStack, gridConfig);
-            // Mirror the grid seed for toggle-input mode: walk the config's Input cells and copy
-            // each DefaultInputState into the save state. Runtime ImportState reads from here.
-            InputToggleUtility.SeedDefaultsFromConfig(ref minigameSaveState.Design.InputToggles, gridConfig);
+
+            // Seed every Design level under the contract. Each level gets its own grid + input
+            // toggle defaults, all marked unsolved. The player works through them in order; the
+            // active level is derived (first unsolved) at minigame entry.
+            LevelData[] designLevels = contractAssets.DesignLevels;
+            DesignSaveUtility.AllocLevels(minigameSaveState.Design, designLevels.Length);
+            for (int i = 0; i < designLevels.Length; i++)
+            {
+                GridStackConfig gridConfig = designLevels[i].GetGridConfig();
+                GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStacks[i], gridConfig);
+                // Mirror the grid seed for toggle-input mode: walk the config's Input cells and copy
+                // each DefaultInputState into the save state. Runtime ImportState reads from here.
+                InputToggleUtility.SeedDefaultsFromConfig(ref minigameSaveState.Design.InputToggles[i], gridConfig);
+            }
 
             // Pre-arm Research's FoundValidSolution when the player's existing knowledge already
             // covers every property requirement on the accepted contract. Unlike Design or

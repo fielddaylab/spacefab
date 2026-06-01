@@ -10,7 +10,7 @@ namespace FieldDay.UI.Widgets {
         public Sprite[] Values;
 
         public override void Populate(in int data, GuiWidgetUpdateFlags flags) {
-            Assert.True(data >= 0 && data < Values.Length);
+            Assert.True(data >= 0 && data < Values.Length, "Not enough frames set up for range");
             Sprite spr = Values[data];
             if (Sprite) {
                 Sprite.sprite = spr;

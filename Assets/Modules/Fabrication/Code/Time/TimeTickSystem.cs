@@ -27,16 +27,15 @@ namespace SpaceFab.Fabrication
         {
             Find.State(out TimeState state);
 
-            if (state.IsPaused || state.ElapsedTime >= 99.99f) return;
+            if (state.IsPaused || state.ElapsedTime >= 999.99f) return;
 
-            state.ElapsedTime += deltaTime;
-            if (state.ElapsedTime > 99.99f)
+            state.ElapsedTime += deltaTime; 
+            if (state.ElapsedTime > 999.99f)
             {
-                state.ElapsedTime = 99.99f;
+                state.ElapsedTime = 999.99f;
             }
-
-            // convert float time to readable format
-            string result = state.ElapsedTime.ToString("00.00");
+            
+            string result = state.ElapsedTime.ToString("000.00");
             state.TimerText.text = result;
         }
     }

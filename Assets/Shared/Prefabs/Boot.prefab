@@ -84,7 +84,6 @@ GameObject:
   - component: {fileID: 8902631178501730816}
   - component: {fileID: 7655658781834560961}
   - component: {fileID: 1807206960674959543}
-  - component: {fileID: 9068859788299082105}
   - component: {fileID: 5367927135572604056}
   m_Layer: 0
   m_Name: State
@@ -165,6 +164,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RecentlyCompletedChapter: 0
   BigBatteryUnlocked: 0
+  InitialUnlocksApplied: 0
   ElapsedCycles: 0
   Funds: 0
   CompletedContractBuffer: 0
@@ -224,18 +224,6 @@ MonoBehaviour:
   LastSelectedContractIndex: 0
   CurrAvailableContractsBundle: {fileID: 0}
   CurrChapterDef: {fileID: 0}
---- !u!114 &9068859788299082105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 702368520693917882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 706f2641905f6d64d924966dcaeba60f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5367927135572604056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,6 +395,7 @@ GameObject:
   - component: {fileID: 823238093238279537}
   - component: {fileID: 4072522671193519559}
   - component: {fileID: 8316876410859674016}
+  - component: {fileID: 4006053134420901605}
   m_Layer: 0
   m_Name: Boot
   m_TagString: Untagged
@@ -488,6 +477,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e05e28840a1d672429f6d7e01d1337ae, type: 2}
   - {fileID: 11400000, guid: 538e73164294ef846a0c15a9422da501, type: 2}
   - {fileID: 11400000, guid: 252c3106e0175b043a476d226651f064, type: 2}
+  - {fileID: 11400000, guid: 2803c3bb261e7df4a93c23cb3caef4ab, type: 2}
+  - {fileID: 11400000, guid: 2e43c6ec112bfc246988ae7c8fec2259, type: 2}
 --- !u!114 &5275908518141804594
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,6 +542,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4006053134420901605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306788214401512335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df42cfd66a6d3f46882e48eedf9ff1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AppId: SPACEFAB
+  m_AppVersion: 0.1
+  m_Firebase:
+    ApiKey: AIzaSyDALfC2i5zGEPvjKS5obUEFi-xXgPJqXk8
+    ProjectId: 'lockes-gambit '
+    StorageBucket: lockes-gambit.appspot.com
+    MessagingSenderId: 441174316468
+    AppId: 1:441174316468:web:5a6b1e02814e02c3c54ee1
+    MeasurementId: 
+  m_Testing: 0
 --- !u!1 &8315598592219549968
 GameObject:
   m_ObjectHideFlags: 0

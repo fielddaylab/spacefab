@@ -43,7 +43,7 @@ namespace FieldDay.Audio {
 
         private Pipe<AudioCommand> m_CommandPipe = new Pipe<AudioCommand>(128, true);
         private Pipe<PlayCommandData> m_PlayCommandPipe = new Pipe<PlayCommandData>(64, true);
-        private UniqueIdAllocator16 m_VoiceIdAllocator = new UniqueIdAllocator16(MaxVoices + MaxBuses);
+        private UniqueIdAllocator16 m_VoiceIdAllocator = new UniqueIdAllocator16(MaxVoices + MaxBuses, false);
 
         private BitSet128 m_VoicePlayingBitmap;
 
@@ -88,8 +88,8 @@ namespace FieldDay.Audio {
             m_TargetablePropertyBlocks.Create(m_Arena, (MaxVoices + MaxBuses) * 2);
             m_PreloadWorkerTimeSlice = config.PreloadWorkerTimeSlice;
 
-            m_PositionSyncTable = new LLTable<PositionSyncData>(MaxVoices);
-            m_FloatTweenTable = new LLTable<FloatParamTweenData>((MaxVoices + MaxBuses) * 2);
+            m_PositionSyncTable = new LLTable<PositionSyncData>(MaxVoices, false);
+            m_FloatTweenTable = new LLTable<FloatParamTweenData>((MaxVoices + MaxBuses) * 2, false);
             m_PositionSyncList = m_FloatTweenList = LLIndexList.Empty;
 
             m_VoiceDataPool = new FixedPool<VoiceData>(MaxVoices, Pool.DefaultConstructor<VoiceData>());
