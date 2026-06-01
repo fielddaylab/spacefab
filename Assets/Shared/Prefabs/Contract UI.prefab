@@ -1226,14 +1226,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.5283019, b: 0.45642403, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 2149d8cb5ed1c4b4b8542b0c2f1f3149, type: 3}
+  m_Texture: {fileID: 2800000, guid: 7d2f298cf999d4588952a8ee558f587f, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -2923,7 +2923,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6083300505430066483, guid: 2c9c38dba2f74c5488e524a9ae23c8af, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4278190080
+      value: 4283007386
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
