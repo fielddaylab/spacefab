@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
@@ -28,6 +29,11 @@ namespace SpaceFab.Research {
             );
         }
 
+        // Tracks the verify (submit) button's visibility across frames so we can fire
+        // OnVerifyButtonShown one frame after it appears — see the dispatch note below.
+        private static bool s_PrevSubmitVisible;
+        private static bool s_VerifyShownPending;
+
         private static void ProcessWork(float deltaTime) {
             Find.State(
                 out ChamberInterfacerState interfacerState,
@@ -40,6 +46,19 @@ namespace SpaceFab.Research {
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                 SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, battery, researchState);
             }
+
+            // Onboarding hook: fire OnVerifyButtonShown the frame AFTER the verify button becomes
+            // visible. Apply() above activates the button this frame; its ElementTag only registers
+            // with the lookup on the next registration pass, so a highlight fired now would miss it.
+            // The one-frame defer (arm this frame, dispatch next) guarantees the tag is resolvable.
+            if (s_VerifyShownPending) {
+                s_VerifyShownPending = false;
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnVerifyButtonShown);
+            }
+            if (hypoVm.SubmitButtonVisible && !s_PrevSubmitVisible) {
+                s_VerifyShownPending = true;
+            }
+            s_PrevSubmitVisible = hypoVm.SubmitButtonVisible;
         }
     }
 

@@ -60,8 +60,8 @@ $call   ReleaseAllHighlights()
 {@PAL}  Choose your observation.
 
 
-::OnObservationAdded
-@trigger    OnObservationAdded
+::OnVerifyButtonShown
+@trigger    OnVerifyButtonShown
 @when       !MinigameHasValidSolution()
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:verify-observation-btn)
