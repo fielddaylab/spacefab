@@ -901,7 +901,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &3152080066755867697
 GameObject:
@@ -1358,7 +1358,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &4408309608039630568
 GameObject:
@@ -1407,7 +1407,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &5018363425288942631
 GameObject:
@@ -2023,7 +2023,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1001 &462606646351317808
 PrefabInstance:
@@ -2706,6 +2706,10 @@ PrefabInstance:
     - target: {fileID: 254948977253697320, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535590579134050637, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4283007386
       objectReference: {fileID: 0}
     - target: {fileID: 624468102249896318, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
       propertyPath: m_AnchorMax.y
