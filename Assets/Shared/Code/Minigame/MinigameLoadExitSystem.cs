@@ -86,8 +86,25 @@ namespace SpaceFab {
                     break;
                 case MinigameLoadExitPhase.Exited:
                     Debug.Log("[MinigameLoadExitSystem] Exported!");
-                    Game.Events.Dispatch(GameEvents.OnMinigameExit);
-                    Game.Scenes.LoadMainScene(returnState.ReturnScene);
+                    // A reload target (set by an in-minigame "next level" flow) reloads the current
+                    // minigame instead of returning to overarching. Consume the flag so the next
+                    // real exit falls through to the return scene. The OnMinigameExit event is
+                    // overarching-facing, so suppress it on a same-minigame reload.
+                    if (loadExitState.HasReloadTarget)
+                    {
+                        SceneReference reloadTarget = loadExitState.ReloadTarget;
+                        loadExitState.HasReloadTarget = false;
+                        loadExitState.ReloadTarget = default;
+                        // forceReload: the reload target is the minigame's own (already-active) scene,
+                        // so the default no-reload-if-loaded path would be a no-op. Force a fresh load
+                        // so the re-import lands on the next first-unsolved level.
+                        Game.Scenes.LoadMainScene(reloadTarget, true);
+                    }
+                    else
+                    {
+                        Game.Events.Dispatch(GameEvents.OnMinigameExit);
+                        Game.Scenes.LoadMainScene(returnState.ReturnScene);
+                    }
                     loadExitState.Phase = MinigameLoadExitPhase.None;
                     break;
                 default:

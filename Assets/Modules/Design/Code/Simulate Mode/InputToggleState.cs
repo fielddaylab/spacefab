@@ -325,7 +325,7 @@ namespace SpaceFab.Design
                 {
                     // Clear the onboarding tag id before pooling so the lookup doesn't carry
                     // stale entries pointing at parked overlays across level reloads.
-                    if (overlay.Tag != null) { overlay.Tag.SetId(default); }
+                    if (overlay.Tag != null) { overlay.Tag.SetId(default(StringHash32)); }
                     Pool.TryFree(overlay);
                 }
             }
@@ -419,9 +419,11 @@ namespace SpaceFab.Design
             }
             if (overlay.Tag != null)
             {
-                StringHash32 tagId = string.IsNullOrEmpty(shortLabel)
-                    ? default
-                    : new StringHash32("design:input-" + shortLabel.ToLowerInvariant());
+                // Pass the full source string so the SerializedHash32 keeps it readable in the
+                // inspector ("design:input-a") rather than storing only the hash.
+                string tagId = string.IsNullOrEmpty(shortLabel)
+                    ? null
+                    : "design:input-" + shortLabel.ToLowerInvariant();
                 overlay.Tag.SetId(tagId);
             }
         }

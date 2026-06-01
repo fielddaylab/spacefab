@@ -18,10 +18,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
   m_omitFromSupplyRequirements:
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
-  m_designLevel:
-    m_HashValue: 1727982144
-  m_title: Intro Contract
-  m_description: This is where the contract is described
+  m_designLevels:
+  - m_HashValue: 1727982144
+  - m_HashValue: 2504724854
+  m_title: Frontier Pilot Contract
+  m_description: 'Frontier Robotics authorizes payment for this onboarding fabrication.
+    Materials: conductor and insulator only.'
   m_client: '[Client Name]'
   m_payout: 6
   m_expectedDuration: 4

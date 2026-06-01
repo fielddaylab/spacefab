@@ -211,6 +211,7 @@ namespace SpaceFab.Design
                     }
                 }
             }
+            SpacefabGame.Events.Dispatch(GameEvents.DesignGridCleared, EvtArgs.Box((Vector2Int.zero, "ClearAll")));
         }
     }
 }

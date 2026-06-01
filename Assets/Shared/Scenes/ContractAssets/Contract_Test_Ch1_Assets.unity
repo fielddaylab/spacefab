@@ -201,6 +201,8 @@ MonoBehaviour:
     AllowedIn: 01000000
   - Script: {fileID: -1942890987711236906, guid: e0e7692c26b32aa4ca941bd24d1fa43b, type: 3}
     AllowedIn: 00000000
+  - Script: {fileID: -1942890987711236906, guid: a96435dcc2b7bc141979c7f268b12aa8, type: 3}
+    AllowedIn: 00000000
   - Script: {fileID: -1942890987711236906, guid: 71ede36c7ffc5074ea317610059b8441, type: 3}
     AllowedIn: 03000000
   - Script: {fileID: -1942890987711236906, guid: 06d4e2e75f24e4e40babe51f7ebd168d, type: 3}

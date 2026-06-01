@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: ContractAssetsWrapper_Ch1_Test_3
   m_EditorClassIdentifier: 
   ContractDef: {fileID: 11400000, guid: da7eb23a687e3c245851af797084bf23, type: 2}
-  DesignLevelData: {fileID: 11400000, guid: d99e578fb541c154799e1789a503e866, type: 2}
+  DesignLevels:
+  - {fileID: 11400000, guid: d2ffbc6664d62924494acecbd99ec155, type: 2}
   FabricationLevel: {fileID: 11400000, guid: 5b812138e7801474c8de8ae37b655ff9, type: 2}

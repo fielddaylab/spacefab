@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
+using FieldDay.Scripting;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -61,6 +62,8 @@ namespace SpaceFab.Overarching {
 
         // Reflects the player's ongoing selection in the UI, refreshes contract data on change, and completes on confirm.
         static private void ProcessSelectContract(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState) {
+            layoutState.ConfirmContractButton.gameObject.SetActive(ScriptUtility.CurrentThreadCount == 0);
+
             // When the selected contract changes, refresh its detail UI
             if (selectState.SelectedContractIndexChanged) {
                 layoutState.PrevContractButton.gameObject.SetActive(selectState.SelectedContractIndex > 0);
@@ -70,11 +73,13 @@ namespace SpaceFab.Overarching {
                 ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex]);
                 selectState.SelectedContractIndexChanged = false;
             }
+
             // Confirmed — advance the phase
             if (selectState.SelectionConfirmed) {
                 Debug.Log("Confirm selection");
                 SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, selectState.SelectedContractIndex.ToString());
                 selectState.Phase = ContractSelectPhase.Completed;
+                selectState.ContractTitleText.text = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].Title();
             }
         }
     }

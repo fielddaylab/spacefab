@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 using SpaceFab.Save;
@@ -37,8 +38,8 @@ namespace SpaceFab.Design
                 );
             DesignMinigameState designState = Find.State<DesignMinigameState>();
 
-            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            TestSuiteData suiteData = contractAssets.DesignLevelData.GetTestSuite();
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            TestSuiteData suiteData = levelData.GetTestSuite();
             var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
 
             switch (transitionState.Phase)
@@ -48,7 +49,7 @@ namespace SpaceFab.Design
                     // Apply per-level toolbar availability before building the sim table so any
                     // downstream UI code sees the correct Available flags. Disallowed tools end up
                     // hidden + disabled — see ToolbarAvailabilityUtility.ApplyAllowedTools.
-                    ToolbarAvailabilityUtility.ApplyAllowedTools(contractAssets.DesignLevelData.GetAllowedTools());
+                    ToolbarAvailabilityUtility.ApplyAllowedTools(levelData.GetAllowedTools());
 
                     // build Sim table
                     SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, designState, suiteDB);
@@ -66,6 +67,10 @@ namespace SpaceFab.Design
                     break;
                 case DesignTransitionPhase.SetupComplete:
                     Debug.Log("[SimTableLoadSystem] Load Complete!");
+                    // Setup is finished (grid + input/output overlays spawned, ElementTag ids
+                    // registered). Fire the onboarding hook before suspending so tutorial scripts
+                    // can safely highlight design elements by id now that the lookup is populated.
+                    ScriptUtility.Trigger(DesignScriptTriggers.OnDesignSetupComplete);
                     // Setup is finished; stop running this system until the next minigame load
                     GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
                     break;
