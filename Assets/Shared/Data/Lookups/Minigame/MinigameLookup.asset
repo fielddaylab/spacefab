@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3021e707348e5f545aa4b5b808b8138b, type: 3}
-  m_Name: ContractOrder
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: MinigameLookup
   m_EditorClassIdentifier: 
-  m_ContractIds:
-  - m_HashValue: 1548892038
-  - m_HashValue: 237132029
-  - m_HashValue: 220354410
+  m_GlobalAssets:
+  - {fileID: 11400000, guid: 86dc187b885bdad4fb96a64eeaf23d12, type: 2}
+  m_NamedAssets: []
+  m_LiteAssets: []
