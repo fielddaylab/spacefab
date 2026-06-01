@@ -2,6 +2,7 @@ using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using System;
@@ -286,14 +287,22 @@ namespace SpaceFab.Supply {
 
             switch(draw.HoverAction) {
                 case SupplyRouteDrawAction.CompleteRouteAuto:
-                case SupplyRouteDrawAction.CompleteRouteHome:
+                case SupplyRouteDrawAction.CompleteRouteHome: {
+                    SupplyRouteUtility.QueueRouteDrawingClose();
+                    ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteCompleted);
+                    break;
+                }
                 case SupplyRouteDrawAction.DeleteRoute:
                 case SupplyRouteDrawAction.DeleteRouteAuto: {
                     SupplyRouteUtility.QueueRouteDrawingClose();
+                    ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteFullyRemoved);
                     break;
                 }
                 default: {
                     SupplyRouteUtility.UpdateRouteCollider(draw.RouteCollider, previewData);
+                    if (draw.HoverAction == SupplyRouteDrawAction.RemoveSegment) {
+                        ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteSegmentDeleted);
+                    }
                     break;
                 }
             }

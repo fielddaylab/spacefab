@@ -2,6 +2,7 @@ using BeauUtil;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.HID;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using FieldDay.UI;
@@ -62,6 +63,11 @@ namespace SpaceFab.Supply {
 
                 if (hoverState.Node != null) {
                     SupplyRouteUtility.AddNodeHoverFlag(hoverState.Node, SupplyHoverFlags.Node);
+
+                    using (TempVarTable table = TempVarTable.Alloc()) {
+                        table.Set("planet", hoverState.Node.Id);
+                        ScriptUtility.Trigger(SupplyScriptTriggers.OnPlanetHovered, table);
+                    }
                 }
 
                 hoverState.HoverDirty = true;

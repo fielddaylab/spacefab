@@ -1,14 +1,16 @@
 using BeauUtil;
+using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Components;
+using FieldDay.Scripting;
 using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
-    public sealed class SupplyRouteNode : BatchedComponent {
+    public sealed class SupplyRouteNode : BatchedComponent, IRegistrationCallbacks {
         public SupplyRouteNodeType Type;
 
         [Header("Stats")]
@@ -37,9 +39,21 @@ namespace SpaceFab.Supply {
         };
 
         static public CursorTooltipContentDelegate InfoPopupTooltip = (CursorHint c, ref CursorTooltipBuildState b) => {
-            
+
             return true;
         };
+
+        public void OnRegister() {
+            if (Cursor != null) {
+                Cursor.onClick.Register(SupplyRouteUtility.HandleNodeClicked);
+            }
+        }
+
+        public void OnDeregister() {
+            if (Cursor != null) {
+                Cursor.onClick.Deregister(SupplyRouteUtility.HandleNodeClicked);
+            }
+        }
     }
 
     public enum SupplyRouteNodeType : byte {
@@ -56,6 +70,17 @@ namespace SpaceFab.Supply {
     }
 
     static public partial class SupplyRouteUtility {
+        static public void HandleNodeClicked(PointerListener.EventData evtData) {
+            SupplyRouteNode node = evtData.Source.UserData as SupplyRouteNode;
+            if (node == null) { return; }
+            if (node.Type != SupplyRouteNodeType.Producer && node.Type != SupplyRouteNodeType.Converter) { return; }
+
+            using (TempVarTable table = TempVarTable.Alloc()) {
+                table.Set("node", node.Id);
+                ScriptUtility.Trigger(SupplyScriptTriggers.OnNodeClicked, table);
+            }
+        }
+
         static public void InitializeTooltipReferences(SupplyRouteNode node) {
             node.Cursor.UserData = node;
             node.Cursor.DynamicBuilder = SupplyRouteNode.PlanetTooltip;
