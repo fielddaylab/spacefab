@@ -1,7 +1,7 @@
 # basePath DesignIntro2
 
 ::IntroSelectTrace
-@trigger    OnMinigameLoad
+@trigger    OnDesignSetupComplete
 @when       CurrLevelIndex() == 1
 $if IsLevelSolved(1) == true
     $set temp:designTutorialStep = 4
@@ -9,5 +9,30 @@ $if IsLevelSolved(1) == true
 $else
     $set temp:designTutorialStep = 0
     $call   HighlightElement(design:metal-tool-btn)
-    {@PAL} Now there are 2 inputs and 2 outputs.\n\nDraw the connection from B to Y
+    $call   HighlightElement(design:input-b, false, 25)
+    $call   HighlightElement(design:output-y, false, 25)
+    {@PAL} Now there are 2 inputs and 2 outputs.\n\nDraw the connection from B to Y.
+$endif
+
+::ToolSelected
+@trigger    OnToolSelected
+@when       tool == "DrawMetal", CurrLevelIndex() == 1
+$if temp:designTutorialStep == 0
+    $set    temp:designTutorialStep = 1
+    $call   ReleaseHighlight(design:metal-tool-btn)
+$endif
+
+::CompleteConnection
+@trigger    OnDragReleased
+@when       CurrLevelIndex() == 1, IsInputConnectedToAnyOutput("B") == true
+$if temp:designTutorialStep == 1
+    $if IsInputConnectedToOutput("B", "Y") == true
+        // player made the correct connection
+        $set    temp:designTutorialStep = 2
+        $call   ReleaseAllHighlights()
+        {@PAL}  Run a test with A and B both set to LO.
+    $else
+        // player made incorrect connection
+        {@PAL}  This line is incorrect. Make sure Input B is fully connected with Output Y.
+    $endif
 $endif

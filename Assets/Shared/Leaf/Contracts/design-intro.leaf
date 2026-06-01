@@ -1,7 +1,7 @@
 # basePath DesignIntro
 
 ::IntroSelectTrace
-@trigger    OnMinigameLoad
+@trigger    OnDesignSetupComplete
 @when       CurrLevelIndex() == 0
 $if IsLevelSolved(0) == true
     $set temp:designTutorialStep = 4
@@ -18,6 +18,7 @@ $endif
 $if temp:designTutorialStep == 0
     $set temp:designTutorialStep = 1
     $call   ReleaseAllHighlights()
+    $call   HighlightElement(design:input-a, false, 25)
     {@PAL} Now click and drag to draw a connection between Input A and Output X.
 $endif
 
@@ -30,6 +31,7 @@ $if temp:designTutorialStep == 1
     $set temp:designTutorialStep = 2
     {@PAL}  Test your connection.
 $elseif temp:designTutorialStep == 2
+    $call   ReleaseHighlight(design:input-a)
     // player has dragged again on the grid, potentially after running a single test
     {@PAL}  Test your connection.
 $elseif temp:designTutorialStep == 3
@@ -63,7 +65,7 @@ $endif
 @when       result == "success", CurrLevelIndex() == 0
 $if temp:designTutorialStep < 4
     $call   HighlightElement(design:input-a, false, 25)
-    {@PAL}  Correct! Tap the input to switch it from Low to High (or High to Low).
+    {@PAL}  Correct! Tap the input to switch it from LO (Low) to HI (High), or from HI to LO.
 $endif
 
 ::InputSwitch
