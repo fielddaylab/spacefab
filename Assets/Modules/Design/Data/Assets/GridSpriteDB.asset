@@ -44,3 +44,7 @@ MonoBehaviour:
   InputToggleLoTextColor: {r: 0.3137255, g: 0.24313727, b: 0.7254902, a: 1}
   InputToggleHiColor: {r: 1, g: 0.62352943, b: 0.48627454, a: 1}
   InputToggleHiTextColor: {r: 0.78823537, g: 0.25882354, b: 0.06666667, a: 1}
+  OutputEmptyColor: {r: 1, g: 1, b: 1, a: 1}
+  OutputEmptyTextColor: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
+  OutputUnstableColor: {r: 1, g: 0.26630434, b: 0, a: 1}
+  OutputUnstableTextColor: {r: 0.4339623, g: 0.115566045, b: 0, a: 1}

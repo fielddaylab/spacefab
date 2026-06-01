@@ -48,6 +48,57 @@ namespace SpaceFab.Design {
             return GridConnectivityUtility.IsInputConnectedToOutput(Find.State<GridStackState>(), input, output);
         }
 
+        // Number of test rows whose verdict is currently Correct. Reflects the live per-row results
+        // accumulated across the current run (toggle-input mode resolves one row per Test click;
+        // full-suite resolves all). Returns 0 when no simulate run state is present.
+        [LeafMember("PassingRowCount")]
+        public static int Leaf_PassingRowCount() {
+            if (!Game.SharedState.Has<SimulateRunState>()) { return 0; }
+            TestRowVerdict[] verdicts = Find.State<SimulateRunState>().RowVerdicts;
+            if (verdicts == null) { return 0; }
+
+            int count = 0;
+            for (int i = 0; i < verdicts.Length; i++) {
+                if (verdicts[i] == TestRowVerdict.Correct) { count++; }
+            }
+            return count;
+        }
+
+        // Whether any input node labelled `inputLabel` (e.g. "A", "B", "IN") is currently toggled to
+        // `state` ("Hi"/"High" or "Lo"/"Low"). Returns false when no toggle state is present or
+        // either argument is unrecognized. Matches any cell carrying the label (mirrors the
+        // any-cell-with-label semantics of the connectivity hooks).
+        [LeafMember("IsInputInState")]
+        public static bool Leaf_IsInputInState(string inputLabel, string state) {
+            if (!Game.SharedState.Has<InputToggleState>()) { return false; }
+            if (!TryParseLabel(inputLabel, out InputOutputNodeTypeFlags label)) { return false; }
+            if (!TryParseFlowState(state, out FlowState wantState)) { return false; }
+
+            InputToggleState toggleState = Find.State<InputToggleState>();
+            if (toggleState.Inputs == null) { return false; }
+            for (int i = 0; i < toggleState.InputCount; i++) {
+                InputToggleEntry entry = toggleState.Inputs[i];
+                if ((entry.Subtype & label) != 0 && entry.State == wantState) { return true; }
+            }
+            return false;
+        }
+
+        // Maps a designer-facing toggle-state string to FlowState, case-insensitively. Accepts the
+        // short forms ("Hi"/"Lo") and the spelled-out forms ("High"/"Low"). Only the two binary
+        // toggle states are valid here — Empty / Unstable aren't player-selectable.
+        private static bool TryParseFlowState(string state, out FlowState result) {
+            result = default;
+            if (string.IsNullOrEmpty(state)) { return false; }
+
+            switch (state.Trim().ToUpperInvariant()) {
+                case "HI":
+                case "HIGH": result = FlowState.Hi; return true;
+                case "LO":
+                case "LOW": result = FlowState.Lo; return true;
+            }
+            return false;
+        }
+
         // Maps a designer-facing node label to its InputOutputNodeTypeFlags value, case-insensitively.
         // Accepts the short output forms ("X"/"Y"/"Z") as well as the enum names ("OUTX"/"OUTY"/"OUTZ").
         // Input labels ("A"/"B"/"C"/"IN") and rails ("VPLUS"/"VMINUS") parse by their enum name.
