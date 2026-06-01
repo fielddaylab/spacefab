@@ -1,41 +1,71 @@
 # basePath SupplyIntro
 
-:: Node1
+:: StartBuilding
+@trigger    OnSupplySetupCompleted
+$set    temp:researchTutorialStep = 0
 {@PAL}  Build a route to complete the contract. \n\nStart by selecting a ship.
 
 
-:: Node2
+:: FirstShipSelected
+@trigger    OnShipSelected
+@when       temp:researchTutorialStep == 0
+$set    temp:researchTutorialStep = 1
 {@PAL}  Hover over the planet with your mouse to see the time, cost, and risk level.
 
 
-:: Node3
-{PAL}   Click on the planet to select this route segment.
+:: FirstPlanetHovered
+@trigger    OnPlanetHovered
+@when       temp:researchTutorialStep == 1
+$if        planet == "Planet0"
+    $set   temp:researchTutorialStep = 2
+    {@PAL}  Click on the planet to select this route segment.
+$else 
+    // hovering over other planet
+$endif
 
 
-:: Node4
+:: FirstNodeClicked
+@trigger    OnNodeClicked
+@when       node == "Planet0", temp:researchTutorialStep == 2
 {@PAL}  Great. Now click the Fab (your main ship).
 
 
-::Node5
+:: FirstRouteCompleted
+@trigger    OnRouteCompleted
+@when       temp:researchTutorialStep == 2
+$set    temp:researchTutorialStep = 3
 {@PAL}  Uh-oh, this material wasn't a conductor. \n\nCheck the wiki to identify the materials on the planets.
 
 
-::Node6
+:: WikiClosed
+@trigger    OnWikiClosed
+@when       temp:researchTutorialStep == 3
 {@PAL}  Select the ship again to correct the route.
 
 
-::Node7
-{@PAL}  Select the the path or the planet to delete the current route.
+:: OnSecondShipSelected
+@trigger    OnShipSelected
+@when       temp:researchTutorialStep == 3
+// TODO: either current implementation isn't complete or instructions need to change
+{@PAL}  Select the paths and the planet to delete the current route.
 
 
-::Node8
-{@PAL}  Draw your new path to the planet with the conductor.
+:: OnRouteFullyRemoved
+@trigger    OnRouteFullyRemoved
+@when       temp:researchTutorialStep == 3
+{@PAL}  Draw your new path to the planet with the Conductor.
 
 
-::Node9
+:: MaterialGathered
+@trigger    OnNodeClicked
+@when       IsMaterialCollected("copper"), node == "Home"
+$set    temp:researchTutorialStep = 4
 {@PAL}  Click on empty space or the Fab to finalize this route.
 
 
-::Node10
+:: LevelComplete
+@trigger    OnRouteCompleted
+@when       temp:researchTutorialStep == 4
+$set    temp:researchTutorialStep = 5
 {@PAL}  click CONFIRM to commit your entire supply chain.
 

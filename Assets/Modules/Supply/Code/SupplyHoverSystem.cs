@@ -64,9 +64,13 @@ namespace SpaceFab.Supply {
                 if (hoverState.Node != null) {
                     SupplyRouteUtility.AddNodeHoverFlag(hoverState.Node, SupplyHoverFlags.Node);
 
-                    using (TempVarTable table = TempVarTable.Alloc()) {
-                        table.Set("planet", hoverState.Node.Id);
-                        ScriptUtility.Trigger(SupplyScriptTriggers.OnPlanetHovered, table);
+                    if (hoverState.Node.Type == SupplyRouteNodeType.Producer || hoverState.Node.Type == SupplyRouteNodeType.Converter)
+                    {
+                        using (TempVarTable table = TempVarTable.Alloc())
+                        {
+                            table.Set("planet", hoverState.Node.Id);
+                            ScriptUtility.Trigger(SupplyScriptTriggers.OnPlanetHovered, table);
+                        }
                     }
                 }
 
