@@ -78,6 +78,7 @@ GameObject:
   - component: {fileID: 6584886774346029627}
   - component: {fileID: 7579201228086822689}
   - component: {fileID: 5427402733400171459}
+  - component: {fileID: 6860533166844402543}
   m_Layer: 5
   m_Name: Exit Button
   m_TagString: Untagged
@@ -215,6 +216,24 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6860533166844402543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443222199763488560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: wiki:close-btn
+    m_HashValue: 1361438098
+  RectTransform: {fileID: 3017637584994064126}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &776024991008252639
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,6 +519,7 @@ GameObject:
   - component: {fileID: 7040388246335981282}
   - component: {fileID: 6981361877433102566}
   - component: {fileID: 9001951580397916410}
+  - component: {fileID: 8392556403406494367}
   m_Layer: 5
   m_Name: Wiki Open Button
   m_TagString: Untagged
@@ -637,6 +657,24 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8392556403406494367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3383779560423783897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: wiki:open-btn
+    m_HashValue: 416426696
+  RectTransform: {fileID: 2048290763502482426}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &3910126351195579852
 GameObject:
   m_ObjectHideFlags: 0

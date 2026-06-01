@@ -20,6 +20,18 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 2.4
       objectReference: {fileID: 0}
+    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: Collider
+      value: 
+      objectReference: {fileID: 3797574189246890860}
+    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:planet1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 3674826365
+      objectReference: {fileID: 0}
     - target: {fileID: 6285069881206567461, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.43
@@ -85,3 +97,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+--- !u!58 &3797574189246890860 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 1921850755403689519, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+  m_PrefabInstance: {fileID: 3321537279375699267}
+  m_PrefabAsset: {fileID: 0}

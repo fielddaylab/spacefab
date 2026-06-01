@@ -222,6 +222,8 @@ namespace SpaceFab.UI {
         // observe Transitioning == true. A later visuals pass will layer in a CanvasGroup
         // alpha + scale tween via BeauRoutine.Tween, with this method's yield driving duration.
         public static IEnumerator ExpandRoutine(WikiState wikiState) {
+            ScriptUtility.Trigger(ScriptTriggers.OnWikiOpened);
+
             wikiState.Transitioning = true;
             wikiState.Expanded = true;
             yield return null;

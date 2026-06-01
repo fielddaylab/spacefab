@@ -10,7 +10,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3687948971506205187, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_Name
-      value: Planet0 Variant
+      value: Planet0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: Collider
+      value: 
+      objectReference: {fileID: 3984501148172515094}
+    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:planet0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 3658048746
       objectReference: {fileID: 0}
     - target: {fileID: 6285069881206567461, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -57,3 +69,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+--- !u!58 &3984501148172515094 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 1921850755403689519, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+  m_PrefabInstance: {fileID: 3305646226385557817}
+  m_PrefabAsset: {fileID: 0}

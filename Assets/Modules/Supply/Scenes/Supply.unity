@@ -132,12 +132,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: Tabs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: Tabs.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: f9726f76d85f5614da2d079c17179472, type: 2}
+    - target: {fileID: 865256118932430583, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+      propertyPath: Tabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 64bb228a83f3b184eb45a5510fef6e09, type: 2}
     - target: {fileID: 1764511120928441038, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: m_Camera
       value: 
@@ -7108,6 +7112,46 @@ PrefabInstance:
     - target: {fileID: 1816488508429446117, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
       propertyPath: m_Name
       value: Ship List Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 5869608757326139121, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:ship3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5869608757326139121, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 1739968719
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718004465510882845, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:ship4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718004465510882845, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 1689635862
+      objectReference: {fileID: 0}
+    - target: {fileID: 6801995260131996735, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:ship1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6801995260131996735, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 1773523957
+      objectReference: {fileID: 0}
+    - target: {fileID: 8153955845796016384, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:ship2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8153955845796016384, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 1723191100
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603381252969895431, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_Source
+      value: supply:ship0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603381252969895431, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
+      propertyPath: Id.m_HashValue
+      value: 1756746338
       objectReference: {fileID: 0}
     - target: {fileID: 8957900861461266469, guid: 23d36b412118ac44a99d66e9d1677d9a, type: 3}
       propertyPath: m_Camera
