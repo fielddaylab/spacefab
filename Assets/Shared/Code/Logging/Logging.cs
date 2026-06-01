@@ -158,9 +158,18 @@ namespace SpaceFab.Logging
 
                 m_DesignGrid = new DesignGrid() { Grid = grid };
             }
-
+            
             switch (tool)
             {
+                case "ClearAll":
+                    for (int i = 0; i < DesignConsts.NUM_GRID_ROWS; i++)
+                    {
+                        for (int j = 0; j < DesignConsts.NUM_GRID_COLS; j++)
+                        {
+                            m_DesignGrid.Value.Grid[i][j].Clear();
+                        }
+                    } 
+                    break;
                 case "Erase":
                     m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Clear();
                     break;
@@ -278,7 +287,8 @@ namespace SpaceFab.Logging
             SpacefabGame.Events
                 .Register<GridStackConfig>(GameEvents.DeisgnGridSetup, LogDesignLevelBegin)
                 .Register<ToolType>(GameEvents.DesignToolSelected, LogSelectTool)
-                .Register<(GridCoord, string)>(GameEvents.DesignGridModified, (data) => LogFillGrid(data.Item1, data.Item2));
+                .Register<(GridCoord, string)>(GameEvents.DesignGridModified, (data) => LogFillGrid(data.Item1, data.Item2))
+                .Register<(Vector2Int, string)>(GameEvents.DesignGridCleared, (data) => UpdateDesignGridState(data.Item1, data.Item2));
 
             // Fabrication
             SpacefabGame.Events

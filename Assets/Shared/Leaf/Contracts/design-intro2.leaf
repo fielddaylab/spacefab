@@ -69,6 +69,6 @@ $call   ReleaseAllHighlights()
 ::AllTestsCorrect
 @trigger    OnAllTestsComplete
 @when       CurrLevelIndex() == 1, temp:designTutorialStep == 5
-$call   ReleaseHighlight(design:input-a)
+$call   ReleaseAllHighlights()
 {@PAL}  It looks like all test cases passed!
 $set    temp:designTutorialStep = 5

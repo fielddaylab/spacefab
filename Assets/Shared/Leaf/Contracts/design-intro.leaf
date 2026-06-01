@@ -28,6 +28,7 @@ $call   HighlightElement(design:input-a, false, 25)
 $call   HighlightElement(design:test-btn)
 $if temp:designTutorialStep == 1
     $set temp:designTutorialStep = 2
+    $call   ReleaseHighlight(design:input-a)
     {@PAL}  Test your connection.
 $elseif temp:designTutorialStep == 2
     $call   ReleaseHighlight(design:input-a)
@@ -82,6 +83,6 @@ $set temp:designTutorialStep = 3
 ::AllTestsPassed
 @trigger    OnAllTestsComplete
 @when       CurrLevelIndex() == 0
-$call   ReleaseHighlight(design:input-a)
+$call   ReleaseAllHighlights()
 {@PAL}  It looks like all test cases passed!
 $set    temp:designTutorialStep = 4
