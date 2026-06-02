@@ -15,8 +15,9 @@ namespace SpaceFab.Onboarding {
     public static class OnboardingHighlightUtility {
         // Show a highlight on the tag with id `id`. lockFocus=true also gates input so only
         // focus-locked elements receive clicks. margin < 0 means "use state.DefaultMargin".
-        // Idempotent on id — a second Show on an already-active id is a no-op.
-        public static void Show(OnboardingHighlightState highlightState, StringHash32 id, bool lockFocus, float margin) {
+        // attachToCanvas=true groups the highlight under HighlightCanvas instead of beside its
+        // target. Idempotent on id — a second Show on an already-active id is a no-op.
+        public static void Show(OnboardingHighlightState highlightState, StringHash32 id, bool lockFocus, float margin, bool attachToCanvas) {
             if (highlightState == null || highlightState.ActiveById == null) { return; }
 
             if (highlightState.ActiveById.ContainsKey(id)) {
@@ -30,8 +31,21 @@ namespace SpaceFab.Onboarding {
             }
 
             float resolvedMargin = margin >= 0f ? margin : highlightState.DefaultMargin;
+
+            // attachToCanvas groups the highlight under HighlightCanvas (drawing above its target's
+            // siblings) instead of parenting it beside the target. A null canvasRect selects the
+            // legacy sibling-parent path; warn if the flag was set but no canvas is assigned.
+            RectTransform canvasRect = null;
+            if (attachToCanvas) {
+                if (highlightState.HighlightCanvas != null) {
+                    canvasRect = (RectTransform) highlightState.HighlightCanvas.transform;
+                } else {
+                    Debug.LogWarning(string.Format("[Onboarding] HighlightElement: attachToCanvas requested for id '{0}' but HighlightCanvas is unassigned; falling back to sibling parenting.", id.ToDebugString()));
+                }
+            }
+
             Highlight highlight = highlightState.Pool.Alloc();
-            highlight.Bind(tag, resolvedMargin);
+            highlight.Bind(tag, resolvedMargin, canvasRect);
             highlightState.ActiveById[id] = highlight;
 
             if (lockFocus) {
