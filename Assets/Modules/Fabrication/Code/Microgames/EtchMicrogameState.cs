@@ -139,7 +139,15 @@ namespace SpaceFab.Fabrication.Microgames
         // Etch error is unsigned (distance from the target path), so raw equals the gate precision.
         public static float GetRawResultPrecision()
         {
-            return ComputePrecision();
+            Find.State(out EtchMicrogameState state);
+
+            if (state.PlayerPoints.Count == 0) { return 0f; }
+
+            float playerToPreview = AverageDistance(state.PlayerPoints, state.PreviewBeam);
+            float previewToPlayer = AverageDistance(state.PreviewPoints, state.PlayerBeam);
+            float previewToPlayerWeight = 0.7f; // weight on missing target points is higher than extra points off-target
+
+            return playerToPreview * (1 - previewToPlayerWeight) + previewToPlayer * previewToPlayerWeight;
         }
 
         // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam
@@ -158,7 +166,7 @@ namespace SpaceFab.Fabrication.Microgames
             float precision = 1f - totalError;
 
             return Mathf.Clamp01(precision);
-            }
+        }
 
         private static float AverageDistance(List<Vector2> points, LineRenderer targetLine)
         {
