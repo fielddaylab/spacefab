@@ -70,11 +70,16 @@ $call   HighlightElement(research:verify-observation-btn)
 
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when       result == "success"
+@when       result == "success", !MinigameHasValidSolution()
 {@PAL}  Correct.
 $wait 2
 $call   OpenWikiToLastDiscovery()
 
+::OnLastHypothesisCorrect
+@trigger    OnHypothesisSubmitted
+@when       result == "success", MinigameHasValidSolution()
+$call   HighlightElement(return-button)
+{@PAL}  You've completed all research tasks. Press the back button to work on your next game.
 
 ::OnHypothesisIncorrect
 @trigger    OnHypothesisSubmitted
