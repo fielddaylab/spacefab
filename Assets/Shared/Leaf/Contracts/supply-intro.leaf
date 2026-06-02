@@ -56,7 +56,7 @@ $endif
 @when       temp:researchTutorialStep == 3
 $call   ReleaseAllHighlights()
 $call   HighlightElement(wiki:close-btn)
-$call   OpenWikiTo("Materials","Copper")
+$call   OpenWikiTo("Planets_Tabs","Korbus")
 
 
 :: WikiClosed

@@ -17,9 +17,10 @@ namespace SpaceFab.UI {
             WikiUtility.Close();
         }
 
-        // Open (expanding if collapsed) the wiki to a specific tab + page by id. Ids are the wiki
-        // tab/page asset names (e.g. "Signals", "Diode"), case-sensitive. Unknown ids are dropped
-        // by the resolver. No-op when no wiki is present.
+        // Open (expanding if collapsed) the wiki to a specific tab + page by id. Each id may be the
+        // asset name (e.g. "Materials_Tabs", "Diode") or the authored display title (e.g.
+        // "Materials") — the resolver tries asset name first, then title. Case-sensitive. Unknown
+        // ids are dropped by the resolver. No-op when no wiki is present.
         [LeafMember("OpenWikiTo")]
         public static void Leaf_OpenWikiTo(string tabId, string pageId) {
             if (!Game.SharedState.Has<WikiState>()) { return; }

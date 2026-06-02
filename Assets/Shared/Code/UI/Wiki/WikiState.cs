@@ -159,8 +159,9 @@ namespace SpaceFab.UI {
             wikiState.ActivePageChangedThisFrame = true;
         }
 
-        // ID-based variant — resolves tabId → index via WikiContent.Tabs. Drops the request
-        // silently if the ID doesn't match any authored tab.
+        // ID-based variant — resolves tabId → index via WikiContent.Tabs. Matches against the tab
+        // asset name first, then falls back to the authored display title, so callers may pass
+        // either. Drops the request silently if neither matches.
         public static void SelectTabById(WikiState wikiState, WikiContent content, PlayerProgressState progressState, StringHash32 tabId) {
             int index = FindTabIndex(content, tabId);
             if (index < 0) { return; }
@@ -195,22 +196,45 @@ namespace SpaceFab.UI {
             wikiState.ActivePageChangedThisFrame = true;
         }
 
-        // ID-based variant. Drops the request if the ID doesn't match a page in the active tab.
+        // ID-based variant. Resolves pageId within the active tab by asset name first, then by
+        // display title (so callers may pass either). Drops the request if neither matches a page
+        // in the active tab, or if the matched page is locked.
         public static void SelectPageById(WikiState wikiState, WikiContent content, PlayerProgressState progressState, StringHash32 pageId) {
             WikiTabData tab = ActiveTab(wikiState, content);
             if (tab == null || tab.Pages == null) { return; }
 
+            int index = FindPageIndexInTab(tab, pageId);
+            if (index < 0) { return; }
+
+            // Unlock is tracked by asset name, so check against the resolved page's AssetId rather
+            // than the passed id (which may have been a display title). Locked pages stay hidden.
+            WikiPageData page = tab.Pages[index];
+            if (!IsPageUnlocked(progressState, page.AssetId)) { return; }
+
+            wikiState.ActivePageIndex = index;
+            EnsureWindowContains(wikiState, content, tab, progressState);
+            wikiState.ActivePageChangedThisFrame = true;
+        }
+
+        // Returns the index of the page in tab whose id matches pageId, or -1 if not found. Two
+        // passes mirroring FindTabIndex: asset name first, then the authored display title.
+        private static int FindPageIndexInTab(WikiTabData tab, StringHash32 pageId) {
+            // 1. Primary match: asset name.
             for (int i = 0; i < tab.Pages.Length; i++) {
                 if (tab.Pages[i] != null && tab.Pages[i].AssetId == pageId) {
-                    // Only snap to it if it's unlocked — keeps locked pages genuinely hidden.
-                    if (IsPageUnlocked(progressState, pageId)) {
-                        wikiState.ActivePageIndex = i;
-                        EnsureWindowContains(wikiState, content, tab, progressState);
-                        wikiState.ActivePageChangedThisFrame = true;
-                    }
-                    return;
+                    return i;
                 }
             }
+
+            // 2. Fallback match: display title.
+            for (int i = 0; i < tab.Pages.Length; i++) {
+                WikiPageData page = tab.Pages[i];
+                if (page != null && !string.IsNullOrEmpty(page.Title) && new StringHash32(page.Title) == pageId) {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         #endregion // Tab + Page Commands
@@ -295,14 +319,28 @@ namespace SpaceFab.UI {
             return content.Tabs[wikiState.ActiveTabIndex];
         }
 
-        // Returns the index in content.Tabs whose asset name matches tabId, or -1 if not found.
+        // Returns the index in content.Tabs whose id matches tabId, or -1 if not found. Two passes:
+        // asset name (AssetId) first, then the authored display title, so an OpenTo caller can pass
+        // either the file name ("Materials_Tabs") or the title shown in the UI ("Materials").
         private static int FindTabIndex(WikiContent content, StringHash32 tabId) {
             if (content.Tabs == null) { return -1; }
+
+            // 1. Primary match: asset name.
             for (int i = 0; i < content.Tabs.Length; i++) {
                 if (content.Tabs[i] != null && content.Tabs[i].AssetId == tabId) {
                     return i;
                 }
             }
+
+            // 2. Fallback match: display title. Lets designer-facing OpenTo calls use the
+            //    human-readable tab title rather than the underlying asset file name.
+            for (int i = 0; i < content.Tabs.Length; i++) {
+                WikiTabData tab = content.Tabs[i];
+                if (tab != null && !string.IsNullOrEmpty(tab.Title) && new StringHash32(tab.Title) == tabId) {
+                    return i;
+                }
+            }
+
             return -1;
         }
 
