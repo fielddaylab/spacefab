@@ -3,6 +3,7 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace SpaceFab.Supply {
     public sealed class SupplyRouteCollection : SharedStateComponent, IRegistrationCallbacks {
@@ -12,6 +13,7 @@ namespace SpaceFab.Supply {
         [NonSerialized] public RingBuffer<SupplyRouteFragmentData> Fragments;
         [NonSerialized] public BitSet32 FragmentNodesMask;
 
+        [NonSerialized] public int TempRouteIndex = -1;
         [NonSerialized] public SupplyRouteData TempRouteBuffer;
         [NonSerialized] public SupplyRouteStats TempRouteStats;
         [NonSerialized] public int TempRouteFragmentConsume = -1;
@@ -36,6 +38,14 @@ namespace SpaceFab.Supply {
         }
     }
 
+    public struct SupplyRoutesSummary {
+        public byte Risk;
+        public byte Cycles;
+        public byte Cost;
+        public byte MaterialCount;
+        public unsafe fixed uint MaterialHashes[SupplyRouteData.MaxCapacity * SupplyRouteData.MaxShips];
+    }
+
     public enum FragmentFindResult {
         None,
         First,
@@ -44,6 +54,10 @@ namespace SpaceFab.Supply {
     }
 
     static public partial class SupplyRouteUtility {
+        //static public void GatherRoutesSummary(out SupplyRoutesSummary summary) {
+
+        //}
+
         static public unsafe FragmentFindResult TryFindFragment(SupplyRouteNode node, out int fragmentIndex) {
             Find.State(out SupplyRouteCollection routes);
 

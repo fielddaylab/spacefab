@@ -273,10 +273,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FoundValidSolution: 0
-  Reliability: 0
-  TotalCycles: 0
-  Cost: 0
-  CurrSupplyChainMap: {fileID: 0}
 --- !u!4 &183004334
 Transform:
   m_ObjectHideFlags: 0
@@ -6261,6 +6257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RowsContainer: {fileID: 512969075}
   PanelRect: {fileID: 1570598610}
+  ConfirmButton: {fileID: 5846735789984306295}
   Pool:
     m_Prefab: {fileID: 8490351259616310437, guid: 98f98c42fc92af94b83e48ad5baed8e5, type: 3}
     m_Name: 
@@ -7263,6 +7260,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
+--- !u!114 &5846735789984306295 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8233400494170020863, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
+  m_PrefabInstance: {fileID: 5846735789984306294}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734464ad924464147bf833b21c34f733, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7015587884658692674
 PrefabInstance:
   m_ObjectHideFlags: 0

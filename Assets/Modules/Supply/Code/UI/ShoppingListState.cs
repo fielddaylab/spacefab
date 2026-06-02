@@ -24,6 +24,7 @@ namespace SpaceFab.Supply
         {
             Dirty = true;
             SpacefabGame.Events.Register(GameEvents.SupplyRouteDrawingClose, () => Dirty = true, this);
+            SpacefabGame.Events.Register(GameEvents.SupplyRouteDrawingOpen, () => Dirty = true, this);
         }
     }
 }

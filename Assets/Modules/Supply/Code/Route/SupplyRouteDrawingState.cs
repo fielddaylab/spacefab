@@ -151,6 +151,7 @@ namespace SpaceFab.Supply {
             }));
 
             draw.RouteCollider.enabled = false;
+            routes.TempRouteIndex = -1;
             draw.RouteIndex = -1;
             draw.ForceUpdatePreview = true;
         }
@@ -164,6 +165,8 @@ namespace SpaceFab.Supply {
             CloseRouteDrawing(draw, routes, ships);
 
             draw.RouteIndex = routeIndex;
+            routes.TempRouteIndex = routeIndex;
+
             ref SupplyRouteData routeData = ref routes.Routes[draw.RouteIndex];
             ref SupplyRouteStats stats = ref routes.RouteStats[draw.RouteIndex];
 

@@ -1,6 +1,7 @@
 using BeauRoutine.Extensions;
 using BeauUtil;
 using FieldDay.SharedState;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,10 +15,13 @@ namespace FieldDay.UI {
         [SerializeField, PanelGroupName] private StringHash32 m_PanelGroup;
         [SerializeField] protected LayoutOffset m_LayoutOffset;
 
+        [NonSerialized] private IInputLayer m_InputLayer;
+
         protected override void Awake() {
             base.Awake();
 
             Game.Gui.RegisterPanel(this);
+            m_InputLayer = IInputLayer.Find(this);
         }
 
         protected virtual void OnDestroy() {
@@ -34,6 +38,10 @@ namespace FieldDay.UI {
 
         public StringHash32 Group {
             get { return m_PanelGroup; }
+        }
+
+        public IInputLayer Input {
+            get { return m_InputLayer; }
         }
 
         public void Hide() {
