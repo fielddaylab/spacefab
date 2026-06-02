@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Audio;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
@@ -100,6 +101,7 @@ namespace SpaceFab.Research
             }
 
             float current = MaterialPhysicsUtility.GetCurrent(profile, voltage, battery.Temperature);
+            if (current == 0 && voltage != 0) Sfx.Play(Find.State<BatteryChamberState>().NoCurrentSFX);
             CircuitUtility.SetLightStrength(battery.Circuit, current);
             CircuitUtility.SetFlowSpeed(battery.Circuit, current);
         }

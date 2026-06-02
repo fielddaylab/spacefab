@@ -67,7 +67,6 @@ $call   ReleaseAllHighlights()
 $call   HighlightElement(research:verify-observation-btn)
 {@PAL}  Select "Verify" to check if observation matches the selected hypothesis.
 
-
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
 @when       result == "success"
@@ -104,4 +103,4 @@ $call HighlightElement(research:right-hypothesis)
 @when       MinigameHasValidSolution()
 $call       ReleaseAllHighlights()
 $call       HighlightElement(return-button)
-{@PAL}      You've completed all research tasks. Press the back button to work on your next game.
+{@PAL}      You've completed all research tasks. Press the back button to return to the ship.
