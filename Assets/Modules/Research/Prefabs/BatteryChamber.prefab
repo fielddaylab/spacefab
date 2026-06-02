@@ -773,6 +773,8 @@ MonoBehaviour:
   SampleHolder: {fileID: 3546955409230533120}
   AvailableObservations: 00010d0c
   Temperature: 0
+  NoCurrentSFX:
+    m_HashValue: 4292332219
 --- !u!1 &6299981595805713164
 GameObject:
   m_ObjectHideFlags: 0
