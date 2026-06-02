@@ -62,12 +62,7 @@ namespace FieldDay.ImageSlicer {
 
     static public unsafe partial class TileUtility {
         static public PixelRGBA32 RGB24ToRGBA32(PixelRGB24 pixel) {
-            return new PixelRGBA32() {
-                R = pixel.R,
-                G = pixel.G,
-                B = pixel.B,
-                A = 255,
-            };
+            return new PixelRGBA32(pixel.R, pixel.G, pixel.B, 255);
         }
 
         static public PixelRGBA32 RGBA32Identity(PixelRGBA32 pixel) {
@@ -75,12 +70,18 @@ namespace FieldDay.ImageSlicer {
         }
 
         static public PixelRGBA32 ARGB32ToRGBA32(PixelARGB32 pixel) {
-            return new PixelRGBA32() {
-                R = pixel.R,
-                G = pixel.G,
-                B = pixel.B,
-                A = pixel.A,
-            };
+            return new PixelRGBA32(pixel.R, pixel.G, pixel.B, pixel.A);
+        }
+
+        static public PixelRGBA32 BlendRGBA32(PixelRGBA32 a, PixelRGBA32 b) {
+            byte blend = b.A;
+            byte invBlend = (byte) (255 - blend);
+            return new PixelRGBA32(
+                (byte)((a.R * invBlend + b.R * blend) / 255),
+                (byte)((a.G * invBlend + b.G * blend) / 255),
+                (byte)((a.B * invBlend + b.B * blend) / 255),
+                Math.Max(a.A, b.A)
+            );
         }
     }
 }

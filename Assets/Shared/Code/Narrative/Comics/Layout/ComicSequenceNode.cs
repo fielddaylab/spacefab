@@ -45,18 +45,23 @@ namespace SpaceFab.Comic {
 
                 if (GUILayout.Button("Compile")) {
                     foreach(ComicSequenceNode node in targets) {
-                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, false);
+                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, false, false);
                     }
                 }
                 if (GUILayout.Button("Compile (Force Rebuild Textures)")) {
                     foreach (ComicSequenceNode node in targets) {
-                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, true);
+                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, true, false);
+                    }
+                }
+                if (GUILayout.Button("Compile (Debug Overlay)")) {
+                    foreach (ComicSequenceNode node in targets) {
+                        BuildManifest(node.transform, node.Manifest, ref node.m_ExportHashes, node, node.SlicingTileSize, node.TilePadding, true, true);
                     }
                 }
             }
         }
 
-        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, ref ExportHashes exportHashes, UnityEngine.Object source, int slicing, int padding, bool forceRebuildTextures) {
+        static public bool BuildManifest(Transform root, ComicSequenceManifest manifest, ref ExportHashes exportHashes, UnityEngine.Object source, int slicing, int padding, bool forceRebuildTextures, bool debugOverlay) {
             if (!manifest) {
                 Log.Error("[ComicSequenceNode] No node provided to export {0}", root.gameObject.name);
                 return false;
@@ -99,7 +104,7 @@ namespace SpaceFab.Comic {
             if (needToRebuildTextures || forceRebuildTextures) {
                 Baking.SetDirty(source);
                 using (Profiling.Time("Generating Meshes and Packing Textures")) {
-                    ScanAndPackLayers(ref builder, packingSettings);
+                    ScanAndPackLayers(ref builder, packingSettings, debugOverlay);
                 }
             } else {
                 // TODO: ensure all layers have the correct mesh indices again
@@ -408,7 +413,7 @@ namespace SpaceFab.Comic {
             return packingSettings;
         }
 
-        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, TilePackingSettings packingSettings) {
+        static private unsafe void ScanAndPackLayers(ref SequenceBuilder builder, TilePackingSettings packingSettings, bool debugOverlay) {
             // TODO: tile packing, setting flags
 
             WorkList<Sprite> discoveredSprites = new WorkList<Sprite>(builder.DiscoveredLayers.Count);
@@ -481,7 +486,12 @@ namespace SpaceFab.Comic {
                     }
 
                     exportedTexture = TileUtility.CreateExportTexture(tileExporter);
-                    bool wroteToTexture = TileUtility.WriteTilesToTexture(tileCondenser, tileExporter, exportedTexture);
+                    bool wroteToTexture;
+                    if (debugOverlay) {
+                        wroteToTexture = TileUtility.WriteTilesToTextureWithDebugOverlay(tileCondenser, tileExporter, exportedTexture);
+                    } else {
+                        wroteToTexture = TileUtility.WriteTilesToTexture(tileCondenser, tileExporter, exportedTexture);
+                    }
 
                     byte[] exportedPNG = exportedTexture.EncodeToPNG();
                     string pngPath = builder.ExportedSequencePath + "_tex.png";
