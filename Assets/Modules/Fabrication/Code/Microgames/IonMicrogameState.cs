@@ -117,17 +117,9 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(
-                out IonMicrogameState state,
-                out MicrogameCanvasState canvasState
-                );
+            Find.State(out IonMicrogameState state);
             state.IsActive = false;
-            // TODO: tear down dropper UI; return to idle.
-
-            state.IonUI.SetActive(false);
             state.Phase = IonMicrogamePhase.Idle;
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.

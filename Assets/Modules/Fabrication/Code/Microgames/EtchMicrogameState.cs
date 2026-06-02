@@ -122,16 +122,12 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out EtchMicrogameState state, out MicrogameCanvasState canvasState);
-
+            Find.State(out EtchMicrogameState state);
             state.IsActive = false;
             state.Phase = EtchMicrogamePhase.Idle;
-            state.EtchUI.SetActive(false);
 
             state.PlayerPoints.Clear();
             state.PlayerBeam.positionCount = 0;
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.

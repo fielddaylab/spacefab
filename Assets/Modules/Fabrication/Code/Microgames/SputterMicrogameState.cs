@@ -83,9 +83,15 @@ namespace SpaceFab.Fabrication.Microgames
         // On cancel, nothing is recorded.
         public static void ExitBegin(bool completedNormally)
         {
-            Find.State(out SputterMicrogameState state);
+            Find.State(
+                out SputterMicrogameState state,
+                out MicrogameCanvasState canvasState
+            );
             state.Phase = SputterMicrogamePhase.Exiting;
             if (!completedNormally) { return; }
+
+            state.SputterUI.SetActive(false);
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
         }
@@ -109,12 +115,6 @@ namespace SpaceFab.Fabrication.Microgames
             state.SputterSprites.localPosition = Vector3.zero;
             state.PatternRenderer.size = new Vector2(0, state.PatternRenderer.size.y);
             state.PatternRenderer.transform.localPosition = new Vector3(-1.35f, 0, 0);
-
-
-            state.SputterUI.SetActive(false);
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
-            // TODO: tear down sputter UI; return to idle.
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
