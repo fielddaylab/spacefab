@@ -183,7 +183,7 @@ MonoBehaviour:
   TitleText: {fileID: 1999505627486751817}
   SummaryText: {fileID: 6015913019999169041}
   DismissButton: {fileID: 1838192261780981985}
-  RetryButton: {fileID: 3676085165943287512}
+  RetryButton: {fileID: 0}
   ContinueRequested: 0
 --- !u!1 &2168925483820591178
 GameObject:
