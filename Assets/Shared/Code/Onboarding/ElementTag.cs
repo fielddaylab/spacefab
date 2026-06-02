@@ -7,12 +7,13 @@ namespace SpaceFab.Onboarding {
     /// <summary>
     /// Marks a GameObject as a tutorial-addressable element. The Id is what Leaf calls
     /// reference when summoning a highlight on this element. ElementTag self-registers
-    /// with ElementTagLookup so the highlight system can resolve id -> component in O(1).
-    /// One ElementTag may sit on a UI RectTransform host, a world Collider2D host,
-    /// or both — the cached references are looked up at registration time so the
-    /// highlight system doesn't GetComponent per call. World highlights size off the
-    /// Collider2D's bounds, so the designer controls the highlight footprint by
-    /// shaping the collider rather than by the sprite's rendered size.
+    /// with ElementTagLookup on Awake (not on enable) so the highlight system can resolve
+    /// id -> component in O(1) even while the element is disabled; it deregisters only on
+    /// destroy. One ElementTag may sit on a UI RectTransform host, a world Collider2D host,
+    /// or both — the cached references are looked up on Awake so the highlight system
+    /// doesn't GetComponent per call. World highlights size off the Collider2D's bounds,
+    /// so the designer controls the highlight footprint by shaping the collider rather
+    /// than by the sprite's rendered size.
     /// </summary>
     public class ElementTag : BatchedComponent, IRegistrationCallbacks {
         // SerializedHash32 because the id is authored in the inspector and the original
@@ -29,7 +30,13 @@ namespace SpaceFab.Onboarding {
         public SpriteRenderer SpriteRenderer;
         public Collider2D Collider;
 
-        public void OnRegister() {
+        // Lookup registration lives on Awake/OnDestroy rather than OnRegister/OnDeregister
+        // (which fire on every enable/disable) so a disabled element stays addressable —
+        // a highlight can still resolve and act on it while the GameObject is inactive.
+        private void Awake() {
+            // Cache target references once. Done here rather than in OnRegister because the
+            // highlight system reads them as soon as the tag is in the lookup, and lookup
+            // registration now happens in Awake, before the first OnEnable.
             if (RectTransform == null) {
                 RectTransform = GetComponent<RectTransform>();
             }
@@ -43,8 +50,19 @@ namespace SpaceFab.Onboarding {
             RegisterCurrentId();
         }
 
+        private void OnDestroy() {
+            // Only pull out of the lookup on a genuine destroy. During game shutdown the
+            // lookup is being torn down anyway, so skip the work and avoid touching a
+            // possibly-deregistered shared state.
+            if (!Game.IsShuttingDown) {
+                DeregisterCurrentId();
+            }
+        }
+
+        public void OnRegister() {
+        }
+
         public void OnDeregister() {
-            DeregisterCurrentId();
         }
 
         /// <summary>

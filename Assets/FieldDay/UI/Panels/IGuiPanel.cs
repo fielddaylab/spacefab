@@ -10,6 +10,7 @@ namespace FieldDay.UI {
     public interface IGuiPanel {
         Transform Root { get; }
         StringHash32 Group { get; }
+        IInputLayer Input { get; }
 
         void Show();
         void Hide();

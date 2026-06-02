@@ -101,14 +101,9 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out PhotolithographyMicrogameState state, out MicrogameCanvasState canvasState);
-
+            Find.State(out PhotolithographyMicrogameState state);
             state.IsActive = false;
             state.Phase = PhotolithographyMicrogamePhase.Idle;
-            state.PhotolithographyUI.SetActive(false);
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
-            // TODO: tear down photomask UI; return to idle.
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.

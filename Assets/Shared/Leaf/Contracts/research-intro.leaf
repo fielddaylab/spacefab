@@ -60,27 +60,39 @@ $call   ReleaseAllHighlights()
 {@PAL}  Choose your observation.
 
 
-::OnObservationAdded
-@trigger    OnObservationAdded
+::OnVerifyButtonShown
+@trigger    OnVerifyButtonShown
 @when       !MinigameHasValidSolution()
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:verify-observation-btn)
-{@PAL}  Now select "Verify" to check whether your observation is correct AND matches the selected Hypothesis.
+{@PAL}  Select "Verify" to check if observation matches the selected hypothesis.
 
 
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when       result == "success"
+@when       result == "success", !MinigameHasValidSolution()
 {@PAL}  Correct.
 $wait 2
 $call   OpenWikiToLastDiscovery()
 
-
-::OnHypothesisIncorrect
+::OnLastHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when       result == "failure", !MinigameHasValidSolution()
-{@PAL}  This is incorrect. Change your hypothesis, add a different observation, or choose a different sample.
+@when       result == "success", MinigameHasValidSolution()
+$call   HighlightElement(return-button)
+{@PAL}  You've completed all research tasks. Press the back button to work on your next game.
 
+::OnHypothesisIncorrectHypothesisMismatch
+@trigger    OnHypothesisSubmitted
+@when       result == "failure", reason == "hypothesis_mismatch", !MinigameHasValidSolution()
+$call ReleaseAllHighlights()
+$call HighlightElement(research:left-hypothesis)
+$call HighlightElement(research:right-hypothesis)
+{@PAL}  Your hypothesis doesn't match the observation. Try changing the hypothesis or select a different observation.
+
+::OnHypothesisIncorrectObservationError
+@trigger    OnHypothesisSubmitted
+@when       result == "failure", reason == "observation_incorrect", !MinigameHasValidSolution()
+{@PAL}  The observation is incorrect. Try a different observation or select another sample.
 
 ::OnWikiClosed
 @trigger    OnWikiClosed

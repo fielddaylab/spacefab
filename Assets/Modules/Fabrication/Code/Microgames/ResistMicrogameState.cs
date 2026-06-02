@@ -128,17 +128,9 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(
-                out ResistMicrogameState state,
-                out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
-                );
+            Find.State(out ResistMicrogameState state);
             state.IsActive = false;
-            
-            // tear down dropper UI; return to idle.
-            state.ResistUI.SetActive(false);
             state.Phase = ResistMicrogamePhase.Idle;
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.

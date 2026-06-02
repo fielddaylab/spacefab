@@ -3,6 +3,7 @@ using UnityEngine;
 namespace FieldDay.Rendering {
     static public class DefaultShaderProps {
         static public int MainTex { get; private set; }
+        static public int MainTexScaleOffset { get; private set; }
 
         static public int Color { get; private set; }
 
@@ -26,6 +27,7 @@ namespace FieldDay.Rendering {
 
         static internal void Initialize() {
             MainTex = Shader.PropertyToID("_MainTex");
+            MainTexScaleOffset = Shader.PropertyToID("_MainTex_ST");
             Color = Shader.PropertyToID("_Color");
             LerpColor = Shader.PropertyToID("_LerpColor");
             AdditiveColor = Shader.PropertyToID("_AdditiveColor");

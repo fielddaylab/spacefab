@@ -13,6 +13,6 @@ namespace SpaceFab.Supply {
         [NonSerialized] public EdgeCollider2D Route;
         [NonSerialized] public bool HoverDirty = false;
 
-        [NonSerialized] public Vector3? MousePosition;
+        [NonSerialized] public Vector2? MousePosition;
     }
 }

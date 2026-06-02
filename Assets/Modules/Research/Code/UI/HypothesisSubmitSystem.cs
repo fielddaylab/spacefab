@@ -77,12 +77,15 @@ namespace SpaceFab.Research {
             // Conductive from confirming "Conductor" just because the
             // observation evaluator's logic is satisfied — Conductive
             // simply isn't true for Silicon.
-            bool anyPruned = PruneIncorrectPicks(researchState, slotted, page, viewModelState);
+            
+            string failureReason = null;
+            bool anyPruned = PruneIncorrectPicks(researchState, slotted, page, viewModelState, out failureReason);
             if (anyPruned) {
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
 
                 using (var table = TempVarTable.Alloc()) {
                     table.Set("result", "failure");
+                    table.Set("reason", failureReason ?? "observation_incorrect");
                     ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
                 }
                 return;
@@ -101,6 +104,9 @@ namespace SpaceFab.Research {
             using (var table = TempVarTable.Alloc()) {
                 var resultStr = success ? "success" : "failure";
                 table.Set("result", resultStr);
+                if (!success) {
+                    table.Set("reason", failureReason ?? "hypothesis_mismatch");
+                }
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
             }
         }
@@ -114,12 +120,13 @@ namespace SpaceFab.Research {
         // Returns true if any removal happened. Locked slots are
         // ancestor-confirmed (not in researchState.Observations) and
         // can't be removed; they remain regardless.
-        private static bool PruneIncorrectPicks(ResearchMinigameState researchState, MaterialAsset material, HypothesisPage page, HypothesisViewModelState viewModelState) {
+        private static bool PruneIncorrectPicks(ResearchMinigameState researchState, MaterialAsset material, HypothesisPage page, HypothesisViewModelState viewModelState, out string failureReason) {
             int slotCount = viewModelState.ActivePageSlotCount;
             MaterialObservationEntry[] leaves = page.DecomposedObservations;
             int leafCount = leaves != null ? leaves.Length : 0;
             MaterialPropertyLabel[] trueProperties = material.Properties;
             bool anyRemoved = false;
+            string foundReason = null;
 
             for (int i = 0; i < slotCount; i++) {
                 bool locked = (viewModelState.ActivePageSlotLockedMask & (1u << i)) != 0;
@@ -132,10 +139,18 @@ namespace SpaceFab.Research {
                 bool materialHasIt = MaterialPropertyDefinitionUtility.IsObservationTrueForProperties(trueProperties, slotLabel, slotContext);
                 if (onLeaf && materialHasIt) continue;
 
+                // Determine if removal was hypothesis mismatch error or observation error
+                if (!onLeaf && materialHasIt) {
+                    if (foundReason == null) foundReason = "hypothesis_mismatch";
+                } else {
+                    if (foundReason == null) foundReason = "observation_incorrect";
+                }
+
                 if (ResearchInventoryUtility.RemoveObservation(researchState, material.AssetId, slotLabel, slotContext)) {
                     anyRemoved = true;
                 }
             }
+            failureReason = foundReason;
             return anyRemoved;
         }
 

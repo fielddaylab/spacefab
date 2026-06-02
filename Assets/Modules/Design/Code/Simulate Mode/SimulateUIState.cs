@@ -288,33 +288,35 @@ namespace SpaceFab.Design
         {
             if (suite.Tests.Length == 0) { return; }
 
-            var numCols = suite.Tests[0].Bundle.Length;
+            TestEntry[] bundle = suite.Tests[0].Bundle;
+            int numCols = bundle.Length;
             float tableWidth = 0;
-            bool inOutputPhase = false;
 
-            // headers
+            // headers. Two passes (inputs, arrow, outputs) so the header order matches the column
+            // order produced by CreateRowsAndCols, independent of the bundle's internal ordering.
             SuiteRow currRow = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
             currRow.RunButton.gameObject.SetActive(false);
+
+            // Pass 1: input headers.
             for (int i = 0; i < numCols; i++)
             {
-                if (suite.Tests[0].Bundle[i].Id >= InputOutputNodeTypeFlags.OUT)
-                {
-                    if (!inOutputPhase)
-                    {
-                        // instantiate arrow image at input-output threshold (but hide image)
-                        var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
-                        arrowCol.FlowImg.enabled = false;
-                        arrowCol.Label.enabled = false;
-                        inOutputPhase = true;
-                    }
-                }
+                if (bundle[i].Id >= InputOutputNodeTypeFlags.OUT) { continue; }
+                tableWidth += InstantiateHeader(currRow, suiteDB, bundle[i].Id);
+            }
 
-                SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
-                currHeader.Label.SetText(GetLocTextForId(suite.Tests[0].Bundle[i].Id));
-                var size = currHeader.Rect.sizeDelta;
-                size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;
-                currHeader.Rect.sizeDelta = size;
-                tableWidth += currHeader.Rect.sizeDelta.x + currRow.HorizontalLayout.spacing;
+            // Arrow divider (image hidden on the header row, matching the original behavior).
+            if (FirstOutputColumn(bundle) >= 0)
+            {
+                var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
+                arrowCol.FlowImg.enabled = false;
+                arrowCol.Label.enabled = false;
+            }
+
+            // Pass 2: output headers.
+            for (int i = 0; i < numCols; i++)
+            {
+                if (bundle[i].Id < InputOutputNodeTypeFlags.OUT) { continue; }
+                tableWidth += InstantiateHeader(currRow, suiteDB, bundle[i].Id);
             }
 
             // add width for arrow col
@@ -323,59 +325,64 @@ namespace SpaceFab.Design
             int numRows = suite.Tests.Length;
 
             float margin = 10;
-            Vector2 tableSize = uiState.TableRect.sizeDelta;
+            /*Vector2 tableSize = uiState.TableRect.sizeDelta;
             tableSize.x = tableWidth + margin * 2;
             tableSize.y = suiteDB.HeaderPrefab.GetComponent<RectTransform>().sizeDelta.y
                 + suiteDB.RowPrefab.GetComponent<RectTransform>().sizeDelta.y * numRows
                 + (uiState.VertLayout.spacing * numRows)
                 + margin * 2;
-            uiState.TableRect.sizeDelta = tableSize;
+            uiState.TableRect.sizeDelta = tableSize;*/
         }
 
         private static void CreateRowsAndCols(SimulateUIState uiState, TestSuiteData suite, SuiteVisualsDB suiteDB)
         {
             uiState.Rows = new SuiteRow[suite.Tests.Length];
-            bool inOutputPhase = false;
             for (int row = 0; row < suite.Tests.Length; row++)
             {
+                var bundle = suite.Tests[row].Bundle;
+
                 // instantiate row
                 uiState.Rows[row] = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
-                uiState.Rows[row].Cols = new SuiteCol[suite.Tests[row].Bundle.Length];
-                uiState.Rows[row].Verdicts = new VerdictVisualizer[suite.Tests[row].Bundle.Length];
+                uiState.Rows[row].Cols = new SuiteCol[bundle.Length];
+                uiState.Rows[row].Verdicts = new VerdictVisualizer[bundle.Length];
                 uiState.Rows[row].RunButton.RowIndex = row;
-                uiState.CellVerdicts[row] = new CellVerdict[suite.Tests[row].Bundle.Length];
-                inOutputPhase = false;
-                for (int col = 0; col < suite.Tests[row].Bundle.Length; col++)
+                uiState.CellVerdicts[row] = new CellVerdict[bundle.Length];
+
+                // Two passes so all inputs render left of the arrow and all outputs right of it,
+                // regardless of the order entries appear in the bundle. Cols/Verdicts stay indexed
+                // by the original bundle column (downstream verdict writes key off it), while the
+                // instantiation order — which drives the horizontal layout's left-to-right order —
+                // is inputs, then the arrow, then outputs.
+
+                // Pass 1: inputs.
+                for (int col = 0; col < bundle.Length; col++)
                 {
-                    var bundle = suite.Tests[row].Bundle;
-                    SuiteCol newCol;
-                    if (bundle[col].Id < InputOutputNodeTypeFlags.OUT)
-                    {
-                        // input
-                        newCol = GameObject.Instantiate(suiteDB.InputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    if (bundle[col].Id >= InputOutputNodeTypeFlags.OUT) { continue; }
 
-                        // configure with flow visual
-                        newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State);
-                    }
-                    else
-                    {
-                        if (!inOutputPhase)
-                        {
-                            // instantiate arrow image at input-output threshold
-                            var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
-                            arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isArrow: true);
-                            arrowCol.Label.enabled = false;
+                    SuiteCol newCol = GameObject.Instantiate(suiteDB.InputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State);
+                    newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
-                            inOutputPhase = true;
-                        }
+                    uiState.Rows[row].Cols[col] = newCol;
+                    uiState.Rows[row].Verdicts[col] = newCol.GetComponent<VerdictVisualizer>();
+                }
 
-                        // output
-                        newCol = GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                // Arrow divider between inputs and outputs (sprite taken from the first output entry).
+                int firstOutputCol = FirstOutputColumn(bundle);
+                if (firstOutputCol >= 0)
+                {
+                    var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[firstOutputCol].State, isArrow: true);
+                    arrowCol.Label.enabled = false;
+                }
 
-                        // configure table visual
-                        newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
-                    }
+                // Pass 2: outputs.
+                for (int col = 0; col < bundle.Length; col++)
+                {
+                    if (bundle[col].Id < InputOutputNodeTypeFlags.OUT) { continue; }
 
+                    SuiteCol newCol = GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
                     newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
                     uiState.Rows[row].Cols[col] = newCol;
@@ -385,6 +392,29 @@ namespace SpaceFab.Design
                     uiState.Rows[row].Verdicts[col] = newCol.GetComponent<VerdictVisualizer>();
                 }
             }
+        }
+
+        // Index of the first output entry in the bundle (Id >= OUT), or -1 if the bundle has no
+        // outputs. Used to place the input→output arrow divider and pick its sprite.
+        private static int FirstOutputColumn(TestEntry[] bundle)
+        {
+            for (int col = 0; col < bundle.Length; col++)
+            {
+                if (bundle[col].Id >= InputOutputNodeTypeFlags.OUT) { return col; }
+            }
+            return -1;
+        }
+
+        // Instantiates one header column for the given subtype id under the header row, sizes it to
+        // the input-column width, and returns the width it contributes (column width + spacing).
+        private static float InstantiateHeader(SuiteRow headerRow, SuiteVisualsDB suiteDB, InputOutputNodeTypeFlags id)
+        {
+            SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, headerRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
+            currHeader.Label.SetText(GetLocTextForId(id));
+            var size = currHeader.Rect.sizeDelta;
+            size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;
+            currHeader.Rect.sizeDelta = size;
+            return currHeader.Rect.sizeDelta.x + headerRow.HorizontalLayout.spacing;
         }
 
         // Wires every content row's run button to HandleRunButtonClick. RowIndex was stamped

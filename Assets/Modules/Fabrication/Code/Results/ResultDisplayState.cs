@@ -87,7 +87,7 @@ namespace SpaceFab.Fabrication
             yield return 0.5f;
 
             WaferState waferState = Find.State<WaferState>();
-            displayState.AccuracyText.text = $"{WaferStateUtility.GetAggregatedPrecision(waferState):F2}%";
+            displayState.AccuracyText.text = $"{WaferStateUtility.GetAggregatedPrecision(waferState) * 100:F2}%";
 
             yield return 0.5f;
 
