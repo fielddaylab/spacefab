@@ -65,7 +65,7 @@ $call   ReleaseAllHighlights()
 @when       !MinigameHasValidSolution()
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:verify-observation-btn)
-{@PAL}  Now select "Verify" to check whether your observation is correct AND matches the selected Hypothesis.
+{@PAL}  Select "Verify" to check if observation matches the selected hypothesis.
 
 
 ::OnHypothesisCorrect

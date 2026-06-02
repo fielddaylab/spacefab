@@ -78,7 +78,8 @@ namespace SpaceFab.Research {
                 bool known = researchState != null
                     && researchState.SandboxProperties.TryGetValue(material.AssetId, out var record)
                     && !MaterialPropertyRecordUtility.IsEmpty(record);
-                rig.Label.SetText(known ? material.ShortName : view.SampleNumber.ToString());
+                //rig.Label.SetText(known ? material.ShortName : view.SampleNumber.ToString());
+                rig.Label.SetText(known ? material.ShortName : view.SampleLabel.ToString());
             }
         }
 
