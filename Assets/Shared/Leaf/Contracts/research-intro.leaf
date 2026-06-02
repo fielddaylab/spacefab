@@ -72,8 +72,13 @@ $call   HighlightElement(research:verify-observation-btn)
 @trigger    OnHypothesisSubmitted
 @when       result == "success"
 $call ReleaseAllHighlights()
-{@PAL}  Correct.
-$wait 2
+$if MinigameHasValidSolution()
+    $call       HighlightElement(return-button)
+    {@PAL}  Correct. You've completed all research tasks!
+$else
+    {@PAL}  Correct.
+$endif
+$wait 1.5
 $call   OpenWikiToLastDiscovery()
 
 ::OnHypothesisIncorrectHypothesisMismatch
