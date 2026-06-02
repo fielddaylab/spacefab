@@ -81,11 +81,15 @@ $call   OpenWikiToLastDiscovery()
 $call   HighlightElement(return-button)
 {@PAL}  You've completed all research tasks. Press the back button to work on your next game.
 
-::OnHypothesisIncorrect
+::OnHypothesisIncorrectHypothesisMismatch
 @trigger    OnHypothesisSubmitted
-@when       result == "failure", !MinigameHasValidSolution()
-{@PAL}  This is incorrect. Change your hypothesis, add a different observation, or choose a different sample.
+@when       result == "failure", reason == "hypothesis_mismatch", !MinigameHasValidSolution()
+{@PAL}  Your hypothesis doesn't match the observation. Try changing the hypothesis or select a different observation.
 
+::OnHypothesisIncorrectObservationError
+@trigger    OnHypothesisSubmitted
+@when       result == "failure", reason == "observation_incorrect", !MinigameHasValidSolution()
+{@PAL}  The observation is incorrect. Try a different observation or select another sample.
 
 ::OnWikiClosed
 @trigger    OnWikiClosed
