@@ -140,32 +140,38 @@ namespace SpaceFab.Research {
                 return false;
             }
 
-            if (swap != null)
-            {
-                // 3a. Swap: release the current instance, allocate a fresh one
-                // for the swapped-out material. LiftedFromSlot becomes this
-                // slot so a later cancel restores the swapped material here.
-                ResearchMaterialInstanceUtility.Release(pool, dragged);
-                ResearchMaterialDragInstance newInstance = ResearchMaterialInstanceUtility.Allocate(pool, swap, null);
-                if (newInstance == null)
-                {
-                    EndDrag(dragState);
-                    return true;
-                }
-                dragState.CurrentInstance = newInstance;
-                dragState.LiftedFromSlot = slot;
-                dragState.LiftedFromKind = kind;
-                if (dragState.DragRoot != null)
-                {
-                    newInstance.transform.SetParent(dragState.DragRoot, false);
-                }
-            }
-            else
-            {
-                // 3b. No swap: release the instance and end the drag.
-                ResearchMaterialInstanceUtility.Release(pool, dragged);
-                EndDrag(dragState);
-            }
+            // Retaining logic in case change for future, but currently want items to 
+            // return back to the pool when swapped ou
+            // if (swap != null)
+            // {
+            //     // 3a. Swap: release the current instance, allocate a fresh one
+            //     // for the swapped-out material. LiftedFromSlot becomes this
+            //     // slot so a later cancel restores the swapped material here.
+            //     ResearchMaterialInstanceUtility.Release(pool, dragged);
+            //     ResearchMaterialDragInstance newInstance = ResearchMaterialInstanceUtility.Allocate(pool, swap, null);
+            //     if (newInstance == null)
+            //     {
+            //         EndDrag(dragState);
+            //         return true;
+            //     }
+            //     dragState.CurrentInstance = newInstance;
+            //     dragState.LiftedFromSlot = slot;
+            //     dragState.LiftedFromKind = kind;
+            //     if (dragState.DragRoot != null)
+            //     {
+            //         newInstance.transform.SetParent(dragState.DragRoot, false);
+            //     }
+            // }
+            // else
+            // {
+            //     // 3b. No swap: release the instance and end the drag.
+            //     ResearchMaterialInstanceUtility.Release(pool, dragged);
+            //     EndDrag(dragState);
+            // }
+
+            // 3. If was a swap, put back into pool instead of on cursor
+            ResearchMaterialInstanceUtility.Release(pool, dragged);
+            EndDrag(dragState);
             return true;
         }
 

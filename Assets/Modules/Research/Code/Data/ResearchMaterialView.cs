@@ -39,5 +39,8 @@ namespace SpaceFab.Research {
         // indexing so artists can place numbers freely.
         public int SampleNumber;
 
+        // Alternativel switch to strings for letter labels (A, B, C)
+        // retain sample number in case change later
+        public string SampleLabel;
     }
 }

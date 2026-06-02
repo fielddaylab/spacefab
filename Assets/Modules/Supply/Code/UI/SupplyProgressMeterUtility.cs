@@ -176,9 +176,14 @@ namespace SpaceFab.Supply {
             text.text = count.ToString();
         }
 
-        // Sets a cell's always-visible base sprite (the empty-cell look).
+        // Sets a cell's always-visible base sprite (the empty-cell look). A null base sprite
+        // means this section has no authored empty-cell look, so the base image is hidden.
         private static void ApplyBase(ProgressMeterCell cell, Sprite baseSprite) {
-            if (cell == null || cell.BaseImage == null || baseSprite == null) {
+            if (cell == null || cell.BaseImage == null) {
+                return;
+            }
+            if (baseSprite == null) {
+                cell.BaseImage.enabled = false;
                 return;
             }
             cell.BaseImage.sprite = baseSprite;

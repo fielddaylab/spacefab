@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Sputterer
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: 3dd73ff47aaac054697e55a84a150997, type: 3}
   m_Illustration: {fileID: 21300000, guid: 7e8edeff49e986948bb7025feb386810, type: 3}
   m_Body: The Sputterer coats the chip with a thin layer of material by knocking
     particles off a target and onto the surface.
