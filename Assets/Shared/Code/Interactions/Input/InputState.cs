@@ -52,9 +52,17 @@ namespace SpaceFab
             // Log.Msg("[InputState] called SetInputEnabled({0})", enabled);
             bool changed = Ref.Replace(ref state.InputEnabled, enabled);
 
+            // Always sync the raycaster to the desired state, even when InputEnabled didn't change.
+            // After a scene reload the new InputState defaults to InputEnabled=true while its
+            // camera's raycaster may still be off; a redundant SetInputEnabled(true) must still
+            // guarantee the raycaster is on rather than early-returning on the no-change path.
+            if (state.Raycaster != null)
+            {
+                state.Raycaster.enabled = state.InputEnabled;
+            }
+
+            // The clickable-mask reset only needs to run on an actual transition.
             if (!changed) return;
-            // disable main camera raycaster
-            state.Raycaster.enabled = state.InputEnabled;
 
             if (enabled)
             {
