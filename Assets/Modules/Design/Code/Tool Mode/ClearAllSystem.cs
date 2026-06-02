@@ -32,8 +32,6 @@ namespace SpaceFab.Design {
 
             VisualGridStackState visualGridStackState = Find.State<VisualGridStackState>();
             visualGridStackState.VisualsNeedRefreshing = true;
-
-            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified);
         }
     }
 }
