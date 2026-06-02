@@ -50,13 +50,25 @@ namespace SpaceFab.Onboarding {
         // Last target position the highlight aligned to (UI: target.localPosition; world:
         // target world position). Compared each frame to detect movement.
         [System.NonSerialized] private Vector2 m_LastTargetPos;
+        // Non-null only when a UI highlight was bound with attachToCanvas: the RectTransform of
+        // OnboardingHighlightState.HighlightCanvas the UI root is parented under. Drives the
+        // canvas-attached branch in BindUI / AlignUI; null selects the legacy sibling path.
+        [System.NonSerialized] private RectTransform m_HighlightCanvasRect;
+
+        // Scratch for RectTransform.GetWorldCorners in the canvas-attached UI path. Static
+        // because only one highlight aligns at a time on the main thread and GetWorldCorners
+        // overwrites all four entries each call — avoids a per-frame allocation in LateUpdate.
+        private static readonly Vector3[] s_WorldCorners = new Vector3[4];
 
         /// <summary>
         /// Positions / sizes / parents the highlight to wrap the given tag's target,
         /// activates the matching visual path, and starts the pulse animation. The target
-        /// references are retained so LateUpdate can re-align if the target moves.
+        /// references are retained so LateUpdate can re-align if the target moves. When
+        /// highlightCanvasRect is non-null and the target is UI, the highlight is grouped
+        /// under that canvas (drawing above the target's siblings) rather than beside the
+        /// target; null selects the legacy sibling-parent path. Ignored for world targets.
         /// </summary>
-        public void Bind(ElementTag tag, float margin) {
+        public void Bind(ElementTag tag, float margin, RectTransform highlightCanvasRect = null) {
             DisableBothPaths();
             ClearTarget();
 
@@ -64,6 +76,7 @@ namespace SpaceFab.Onboarding {
                 m_TargetKind = TargetKind.UI;
                 m_TargetRect = tag.RectTransform;
                 m_Margin = margin;
+                m_HighlightCanvasRect = highlightCanvasRect;
                 BindUI(tag.RectTransform, margin);
                 m_ActiveVisualRoot = m_UIRoot;
             } else if (tag.SpriteRenderer != null) {
@@ -166,17 +179,28 @@ namespace SpaceFab.Onboarding {
             m_TargetRect = null;
             m_TargetSprite = null;
             m_TargetCollider = null;
+            // Forget any canvas attachment so a reused pooled Highlight defaults back to the
+            // sibling-parent path on its next bind.
+            m_HighlightCanvasRect = null;
         }
 
         // Wraps a UI target. Parents the UI root next to the target (same parent +
-        // higher sibling index) so it shares the target's canvas, then forces centered
-        // anchors / pivot so the highlight's own rect math is independent of however
-        // the target is anchored. Position / size are applied by AlignUI, which also runs
-        // each frame the target moves (the UI root is parented to the target's PARENT, so
-        // it does not inherit the target's own movement within that parent).
+        // higher sibling index) so it shares the target's canvas — or, when canvas-attached,
+        // under HighlightCanvas so it draws above the target's siblings. Either way it then
+        // forces centered anchors / pivot so the highlight's own rect math is independent of
+        // however the target is anchored. Position / size are applied by AlignUI, which also
+        // runs each frame the target moves (the UI root never inherits the target's own
+        // movement within its parent, so re-alignment is required to track it).
         private void BindUI(RectTransform target, float margin) {
-            m_UIRoot.SetParent(target.parent, false);
-            m_UIRoot.SetSiblingIndex(target.GetSiblingIndex() + 1);
+            if (m_HighlightCanvasRect != null) {
+                // Canvas-attached: parent under HighlightCanvas and draw last so the highlight
+                // sits above everything in that canvas — not buried by the target's later siblings.
+                m_UIRoot.SetParent(m_HighlightCanvasRect, false);
+                m_UIRoot.SetAsLastSibling();
+            } else {
+                m_UIRoot.SetParent(target.parent, false);
+                m_UIRoot.SetSiblingIndex(target.GetSiblingIndex() + 1);
+            }
 
             // Force the highlight onto the standard centered layout regardless of how
             // the target is anchored — that way size and position are simple, predictable
@@ -196,6 +220,13 @@ namespace SpaceFab.Onboarding {
         // Position + size only — safe to call every frame without disturbing the pulse
         // (which owns localScale) or the parenting / anchor setup done in BindUI.
         private void AlignUI(RectTransform target, float margin) {
+            // Canvas-attached highlights live under a different canvas than their target, so
+            // the simple shared-parent math below doesn't apply — route to the cross-canvas path.
+            if (m_HighlightCanvasRect != null) {
+                AlignUICanvas(target, margin);
+                return;
+            }
+
             // target.rect.size is the target's rendered size; its center in the target's
             // own local space is at (0.5 - pivot) * size. Adding that to target.localPosition
             // (where the target's pivot sits in the shared parent space) gives the rect
@@ -205,6 +236,48 @@ namespace SpaceFab.Onboarding {
             Vector2 pivotToCenter = Vector2.Scale(centered - target.pivot, targetSize);
             m_UIRoot.localPosition = target.localPosition + (Vector3) pivotToCenter;
             m_UIRoot.sizeDelta = targetSize + new Vector2(margin * 2f, margin * 2f);
+        }
+
+        // Position + size for the canvas-attached UI path, where the highlight is parented under
+        // HighlightCanvas instead of beside the target — so the two may sit in different canvases
+        // with different render modes / scales. Bridges them through screen space: read the
+        // target's world rect, project it to the screen via the TARGET canvas's camera, then map
+        // it back into HighlightCanvas-local coordinates via the HIGHLIGHT canvas's camera. Pure
+        // from current state (no Bind-time setup) so it is safe to re-run each frame from Realign,
+        // and like AlignUI it never touches localScale, so it coexists with the pulse.
+        private void AlignUICanvas(RectTransform target, float margin) {
+            // 1. Target's four world-space corners (BL, TL, TR, BR). These already bake in the
+            //    target's anchors, pivot, scale, and full transform chain — including its own
+            //    canvas's scale — so no manual scale conversion is needed downstream.
+            target.GetWorldCorners(s_WorldCorners);
+
+            // 2. Project the BL / TR corners to screen space using the camera that renders the
+            //    TARGET's canvas (null for a Screen Space - Overlay canvas, which is what
+            //    WorldToScreenPoint expects there).
+            Canvas targetCanvas = target.GetComponentInParent<Canvas>();
+            Camera targetCam = (targetCanvas != null && targetCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                ? targetCanvas.worldCamera
+                : null;
+            Vector2 screenBL = RectTransformUtility.WorldToScreenPoint(targetCam, s_WorldCorners[0]);
+            Vector2 screenTR = RectTransformUtility.WorldToScreenPoint(targetCam, s_WorldCorners[2]);
+
+            // 3. Map those screen points into HighlightCanvas-local space — the cross-canvas hop.
+            //    Screen space is the neutral intermediate, so the two canvases can differ in
+            //    render mode / scale and the highlight still lands on the target on screen.
+            Canvas highlightCanvas = m_HighlightCanvasRect.GetComponentInParent<Canvas>();
+            Camera highlightCam = (highlightCanvas != null && highlightCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                ? highlightCanvas.worldCamera
+                : null;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(m_HighlightCanvasRect, screenBL, highlightCam, out Vector2 localBL);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(m_HighlightCanvasRect, screenTR, highlightCam, out Vector2 localTR);
+
+            // 4. Center + size in HighlightCanvas-local units. The UI root is anchored center, so
+            //    its localPosition is measured from the canvas center — matching this midpoint.
+            //    The margin is added in those same local units, consistent with the legacy path.
+            Vector2 center = (localBL + localTR) * 0.5f;
+            Vector2 size = new Vector2(Mathf.Abs(localTR.x - localBL.x), Mathf.Abs(localTR.y - localBL.y));
+            m_UIRoot.localPosition = new Vector3(center.x, center.y, 0f);
+            m_UIRoot.sizeDelta = size + new Vector2(margin * 2f, margin * 2f);
         }
 
         // Wraps a world target via its Collider2D bounds. Parents the world root to the
