@@ -76,11 +76,6 @@ namespace SpaceFab.Research
 
             if (material == null)
             {
-                if (!battery.NoCurrentWarningPlayed)
-                {
-                    battery.NoCurrentWarningPlayed = true;
-                    Sfx.Play(battery.NoCurrentSFX);
-                }
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
                 CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
                 return;
@@ -89,11 +84,6 @@ namespace SpaceFab.Research
             MaterialPhysicsProfile profile = Find.NamedAsset<MaterialPhysicsProfile>(material.AssetId);
             if (profile == null)
             {
-                if (!battery.NoCurrentWarningPlayed)
-                {
-                    battery.NoCurrentWarningPlayed = true;
-                    Sfx.Play(battery.NoCurrentSFX);
-                }
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
                 CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
                 return;
@@ -101,11 +91,6 @@ namespace SpaceFab.Research
 
             if (!MaterialPhysicsUtility.IsStableAtVoltage(profile, voltage))
             {
-                if (!battery.NoCurrentWarningPlayed)
-                {
-                    battery.NoCurrentWarningPlayed = true;
-                    Sfx.Play(battery.NoCurrentSFX);
-                }
                 ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, battery.SlotKind);
                 ResearchExplosionUtility.ExplodeSlot(
                     explosionState, vfxPool, interfacerState, slot, battery.SlotKind,
@@ -116,15 +101,7 @@ namespace SpaceFab.Research
             }
 
             float current = MaterialPhysicsUtility.GetCurrent(profile, voltage, battery.Temperature);
-            if (current > 0f)
-            {
-                battery.NoCurrentWarningPlayed = false;
-            }
-            if (current <= 0f && !battery.NoCurrentWarningPlayed)
-            {
-                battery.NoCurrentWarningPlayed = true;
-                Sfx.Play(battery.NoCurrentSFX);
-            }
+            if (current == 0 && voltage != 0) Sfx.Play(Find.State<BatteryChamberState>().NoCurrentSFX);
             CircuitUtility.SetLightStrength(battery.Circuit, current);
             CircuitUtility.SetFlowSpeed(battery.Circuit, current);
         }

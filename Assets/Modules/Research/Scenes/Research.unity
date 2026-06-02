@@ -861,6 +861,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 252c3106e0175b043a476d226651f064, type: 2}
   - {fileID: 11400000, guid: e6b6916973d8e8b42983eb83d21dc12c, type: 2}
   - {fileID: 11400000, guid: c04696d6e82e815489eed9ed544f23c7, type: 2}
+  - {fileID: 11400000, guid: 2770786280182f546a14d6db5fc05fc5, type: 2}
 --- !u!4 &436549460
 Transform:
   m_ObjectHideFlags: 0
@@ -1263,6 +1264,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Minigame Common
       objectReference: {fileID: 0}
+    - target: {fileID: 6840469943802103755, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 994501228}
     - target: {fileID: 7132706226959445814, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -33.25

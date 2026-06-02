@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc4a12e31f72d6040a99115010bf0fe7, type: 3}
-  m_Name: NoCurrent
+  m_Name: Research.NoCurrent
   m_EditorClassIdentifier: 
   Samples:
   - {fileID: 8300000, guid: 7b12ae654b6493a40884386a7a16e9d6, type: 3}
@@ -38,7 +38,7 @@ MonoBehaviour:
   RandomizeStartTime: 0
   RandomizePanSign: 0
   Bus:
-    m_HashValue: 0
+    m_HashValue: 850064028
   Priority: 128
   EmitterConfiguration:
     m_HashValue: 0
