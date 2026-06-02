@@ -3,6 +3,7 @@ using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Mathematics;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.UI;
 using System;
@@ -39,9 +40,9 @@ namespace SpaceFab.Supply {
         DeleteRouteAuto,
     }
 
-    public struct SupplyRouteLockArgs {
+    public struct SupplyRouteEventArgs {
         public StringHash32 ShipId;
-        public int RouteId;
+        public int RouteIndex;
         public SupplyRouteStats Stats;
     }
 
@@ -120,6 +121,7 @@ namespace SpaceFab.Supply {
             }
             if (routes.Fragments.Count > 0) {
                 routes.Fragments.Clear();
+                routes.FragmentNodesMask = default;
                 routes.AreFragmentsDirty = true;
             }
 
@@ -131,17 +133,27 @@ namespace SpaceFab.Supply {
                 routeData.Clear();
                 stats = default;
                 routes.UpdatedRouteMask.Set(draw.RouteIndex);
+                // The route was reduced to nothing — the authoritative "fully removed" moment.
+                // (This is where a delete actually empties the route; the DeleteRoute* hover
+                // actions just queue a close, which lands here.)
+                Log.Msg("[SupplyRouteUtility] firing OnRouteFullyRemoved for route {0}", draw.RouteIndex);
+                ScriptUtility.Trigger(SupplyScriptTriggers.OnRouteFullyRemoved);
             } else if (routeData.Nodes[0] != routeData.Nodes[routeData.NodeCount - 1]) {
                 routeData.Flags |= SupplyRouteFlags.AutoConnectEnd;
                 TryEvaluatePath(routeData, ships.ShipStats[draw.RouteIndex], draw.RouteIndex, out stats);
                 routes.UpdatedRouteMask.Set(draw.RouteIndex);
             }
 
+            SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingClose, EvtArgs.Create(new SupplyRouteEventArgs() {
+                RouteIndex = draw.RouteIndex,
+                ShipId = ships.ShipAssets[draw.RouteIndex].AssetId,
+                Stats = stats
+            }));
+
             draw.RouteCollider.enabled = false;
+            routes.TempRouteIndex = -1;
             draw.RouteIndex = -1;
             draw.ForceUpdatePreview = true;
-
-            //SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingClose, )
         }
 
         static public void OpenRouteDrawing(SupplyRouteDrawingState draw, SupplyRouteCollection routes, SupplyShipIndex ships, int routeIndex) {
@@ -153,23 +165,34 @@ namespace SpaceFab.Supply {
             CloseRouteDrawing(draw, routes, ships);
 
             draw.RouteIndex = routeIndex;
+            routes.TempRouteIndex = routeIndex;
+
             ref SupplyRouteData routeData = ref routes.Routes[draw.RouteIndex];
             ref SupplyRouteStats stats = ref routes.RouteStats[draw.RouteIndex];
 
             Find.State(out SupplyChainMap map);
 
-            routeData.Flags &= ~SupplyRouteFlags.AutoConnectEnd;
-
-            if (routeData.NodeCount == 0) {
+            if ((routeData.Flags & SupplyRouteFlags.AutoConnectEnd) != 0) {
+                routeData.Flags &= ~SupplyRouteFlags.AutoConnectEnd;
+            } else if (routeData.NodeCount >= 2) {
+                SupplyRouteNode node = routeData.Nodes[--routeData.NodeCount];
+                routeData.Nodes[routeData.NodeCount] = null;
+            } else if (routeData.NodeCount == 0) {
                 routeData.Nodes[routeData.NodeCount++] = map.Home;
-                routeData.NodeMask.Set(map.Home.Index);
-                TryEvaluatePath(routeData, ships.ShipStats[routeIndex], routeIndex, out stats);
-                routes.UpdatedRouteMask.Set(draw.RouteIndex);
             }
+
+            TryEvaluatePath(routeData, ships.ShipStats[routeIndex], routeIndex, out stats);
+            routes.UpdatedRouteMask.Set(draw.RouteIndex);
 
             UpdateRouteCollider(draw.RouteCollider, routeData);
 
             draw.ForceUpdatePreview = true;
+
+            SpacefabGame.Events.Queue(GameEvents.SupplyRouteDrawingOpen, EvtArgs.Create(new SupplyRouteEventArgs() {
+                RouteIndex = draw.RouteIndex,
+                ShipId = ships.ShipAssets[draw.RouteIndex].AssetId,
+                Stats = stats
+            }));
         }
     }
 }

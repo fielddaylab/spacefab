@@ -1,7 +1,10 @@
 using BeauPools;
 using BeauUtil;
+using BeauUtil.UI;
+using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
+using SpaceFab.UI;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +27,9 @@ namespace SpaceFab.Supply {
         // Panel rect resized vertically to fit the generated rows.
         public RectTransform PanelRect;
 
+        // confirm button
+        public AutoSizedButton ConfirmButton;
+
         public ShoppingListRowPool Pool;
 
         // Currently-allocated rows, grown/shrunk on rebuild. The load
@@ -37,6 +43,11 @@ namespace SpaceFab.Supply {
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
             Pool.Prewarm();
             ActiveRows = new List<ShoppingListRow>(4);
+
+            ConfirmButton.Button.onClick.AddListener(() => {
+                Find.Panel<SupplyResultPanel>().Show();
+            });
+            
             return null;
         }
     }

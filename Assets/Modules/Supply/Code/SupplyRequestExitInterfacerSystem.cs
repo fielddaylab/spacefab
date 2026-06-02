@@ -26,12 +26,9 @@ namespace SpaceFab.Supply {
                 out MinigameRequestExitState minigameExitState);
 
             if (minigameExitState.ExitRequestState == RequestState.Requested) {
-                /*
-                supplyRequestExitInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.ShowExitConfirmationModal(supplyRequestExitInterfacerState.ExitConfirmationModal));
+                supplyExitInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.ShowExitConfirmationModal(supplyExitInterfacerState.ExitConfirmationModal));
 
-                minigameRequestExitState.ExitRequestState = RequestState.Pending;
-                */
-                minigameExitState.ExitRequestState = RequestState.Confirmed;
+                minigameExitState.ExitRequestState = RequestState.Pending;
             }
             else if (minigameExitState.ExitRequestState == RequestState.Confirmed) {
                 supplyExitInterfacerState.ModalRoutine.Replace(RequestExitInterfacerUtility.HideExitConfirmationModal(supplyExitInterfacerState.ExitConfirmationModal));

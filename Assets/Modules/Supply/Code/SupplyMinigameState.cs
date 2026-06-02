@@ -12,9 +12,9 @@ namespace SpaceFab.Supply
     {
         #region Saved State
 
-        [HideInInspector] public int Reliability;
-        [HideInInspector] public int TotalCycles;
-        [HideInInspector] public int Cost;
+        [NonSerialized] public int Reliability;
+        [NonSerialized] public int TotalCycles;
+        [NonSerialized] public int Cost;
 
         // TODO: layout, paths
 
@@ -22,7 +22,7 @@ namespace SpaceFab.Supply
 
         #region Runtime State
 
-        [HideInInspector] public SupplyChainMapData CurrSupplyChainMap;
+        [NonSerialized] public SupplyChainMapData CurrSupplyChainMap;
 
         #endregion // Runtime State
 

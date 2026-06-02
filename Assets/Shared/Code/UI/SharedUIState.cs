@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    public class SharedUIState : SharedStateComponent, IRegistrationCallbacks
+    public sealed class SharedUIState : SharedStateComponent, IRegistrationCallbacks
     {
         public CanvasGroup FaderGroup;
         public LoadIcon LoadIcon;

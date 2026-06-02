@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using UnityEngine;
 
@@ -40,6 +41,8 @@ namespace SpaceFab.Supply {
                 case SupplyTransitionPhase.Completed:
                     GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
                     GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);
+
+                    ScriptUtility.Trigger(SupplyScriptTriggers.OnSupplySetupCompleted);
                     break;
             }
         }
