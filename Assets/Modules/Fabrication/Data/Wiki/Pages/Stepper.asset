@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Stepper
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: 04be6752c65ebe04c8a761f2c29bb1df, type: 3}
   m_Illustration: {fileID: 21300000, guid: 51a43e0a098f6db43a55ba1bd179a414, type: 3}
   m_Body: The Stepper lines up a pattern over the chip so only selected areas are
     changed in the next step.

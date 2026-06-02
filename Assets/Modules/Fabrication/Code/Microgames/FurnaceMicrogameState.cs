@@ -131,18 +131,10 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(
-               out FurnaceMicrogameState state,
-               out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
-               );
+            Find.State(out FurnaceMicrogameState state);
             state.IsActive = false;
-            
-            // tear down heat dial UI; return to idle.
-            state.FurnaceUI.SetActive(false);
             state.MeterArrowAnchor.rotation = Quaternion.identity;
             state.Phase = FurnaceMicrogamePhase.Idle;
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
