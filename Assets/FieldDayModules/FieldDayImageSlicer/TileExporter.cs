@@ -100,7 +100,7 @@ namespace FieldDay.ImageSlicer {
             paletteTilesPerPaddedTile *= paletteTilesPerPaddedTile;
 
             int paletteTiles = (condenser->PaletteEntryCount + paletteTilesPerPaddedTile - 1) / paletteTilesPerPaddedTile;
-            return condenser->TileCount * paletteTiles;
+            return condenser->TileCount + paletteTiles;
         }
 
         static public Texture2D CreateExportTexture(TileExporter* exporter) {
@@ -176,11 +176,94 @@ namespace FieldDay.ImageSlicer {
             return true;
         }
 
+        static private readonly PixelRGBA32 Debug_PaletteEntry = new PixelRGBA32(255, 0, 255, 180);
+        static private readonly PixelRGBA32 Debug_TransformedEntry = new PixelRGBA32(255, 255, 0, 240);
+        static private readonly PixelRGBA32 Debug_ReusedEntry = new PixelRGBA32(0, 255, 0, 240);
+
+        static public bool WriteTilesToTextureWithDebugOverlay(TileCondenserBuffer* condenser, TileExporter* exporter, Texture2D output) {
+            int totalTileSize = exporter->PaddedTileSize;
+            int tilesX = exporter->TilesPerRow;
+
+            NativeArray<PixelRGBA32> outputPixels = output.GetRawTextureData<PixelRGBA32>();
+            int pixelCount = outputPixels.Length;
+            using (outputPixels) {
+                PixelRGBA32* dstPixels = Unsafe.NativePointer(outputPixels);
+
+                // clear to transparency
+                Unsafe.Clear(dstPixels, pixelCount);
+
+                int texWidth = exporter->TextureWidth;
+                int texHeight = exporter->TextureHeight;
+
+                int tileSize = condenser->TileSize;
+                int paddedTileSize = exporter->PaddedTileSize;
+                int paletteSize = exporter->PaletteEntrySize;
+                int padding = exporter->Padding;
+
+                int tilesPerRow = exporter->TilesPerRow;
+
+                // single colors first, to top right
+                int paletteEntryCount = condenser->PaletteEntryCount;
+                for (int i = 0; i < paletteEntryCount; i++) {
+                    PixelRGBA32 paletteColor = condenser->PaletteEntries[i];
+                    int paddedTileIndex = i / exporter->PaletteEntriesPerPaddedTile;
+
+                    int tileX = paddedTileIndex % tilesPerRow;
+                    int tileY = paddedTileIndex / tilesPerRow;
+
+                    int subTileIndex = i % exporter->PaletteEntriesPerPaddedTile;
+                    int subTileX = subTileIndex % exporter->PaletteEntriesPerPaddedTileRow;
+                    int subTileY = subTileIndex / exporter->PaletteEntriesPerPaddedTileRow;
+
+                    int pixelX = texWidth - tileX * paddedTileSize - (subTileX + 1) * paletteSize;
+                    int pixelY = texHeight - tileY * paddedTileSize - (subTileY + 1) * paletteSize;
+
+                    ExportedPaletteEntryInfo entryInfo;
+                    entryInfo.U = (pixelX + paletteSize * 0.5f) / (float)texWidth;
+                    entryInfo.V = (pixelY + paletteSize * 0.5f) / (float)texHeight;
+                    exporter->ExportedColors[i] = entryInfo;
+
+                    FillPaletteRegionInTextureBlend(paletteColor, paletteSize, dstPixels, texWidth, pixelX, pixelY, Debug_PaletteEntry);
+                }
+
+                // content tiles next, bottom left
+                int contentTileCount = condenser->TileCount;
+                int contentTilePixelCount = condenser->TilePixelSize;
+                for (int i = 0; i < contentTileCount; i++) {
+                    PixelRGBA32* tileData = condenser->TileColorBuffer + i * contentTilePixelCount;
+
+                    int pixelX = (i % tilesPerRow) * paddedTileSize;
+                    int pixelY = (i / tilesPerRow) * paddedTileSize;
+
+                    ExportedTileInfo entryInfo;
+                    entryInfo.U0 = (pixelX + padding) / (float)texWidth;
+                    entryInfo.U1 = (pixelX + padding + tileSize) / (float)texWidth;
+                    entryInfo.V0 = (pixelY + padding) / (float)texHeight;
+                    entryInfo.V1 = (pixelY + padding + tileSize) / (float)texHeight;
+                    exporter->ExportedTiles[i] = entryInfo;
+
+                    TileReuseStats reuseStats = condenser->TileStatsBuffer[i];
+                    if (reuseStats.TransformedReuse > 0) {
+                        CopyTileToTextureBlend(tileData, contentTilePixelCount, tileSize, padding, dstPixels, texWidth, pixelX, pixelY, Debug_TransformedEntry);
+                    } else if (reuseStats.DirectReuse > 0) {
+                        CopyTileToTextureBlend(tileData, contentTilePixelCount, tileSize, padding, dstPixels, texWidth, pixelX, pixelY, Debug_ReusedEntry);
+                    } else {
+                        CopyTileToTexture(tileData, contentTilePixelCount, tileSize, padding, dstPixels, texWidth, pixelX, pixelY);
+                    }
+
+                }
+            }
+
+            return true;
+        }
+
         static public void CopyTileToTexture(PixelRGBA32* src, int srcCount, int srcWidth, int padding, PixelRGBA32* dst, int dstWidth, int dstX, int dstY) {
             CopyTileToTexture(src, srcCount, srcWidth, padding, dst + dstX + dstY * dstWidth, dstWidth);
         }
 
-        static private readonly PixelRGBA32 DebugPixel = new PixelRGBA32(255, 0, 243, 255);
+        static public void CopyTileToTextureBlend(PixelRGBA32* src, int srcCount, int srcWidth, int padding, PixelRGBA32* dst, int dstWidth, int dstX, int dstY, PixelRGBA32 blend) {
+            CopyTileToTextureBlend(src, srcCount, srcWidth, padding, dst + dstX + dstY * dstWidth, dstWidth, blend);
+        }
 
         static public void CopyTileToTexture(PixelRGBA32* src, int srcCount, int srcWidth, int padding, PixelRGBA32* dst, int dstWidth) {
             PixelRGBA32* row = dst + padding;
@@ -267,8 +350,97 @@ namespace FieldDay.ImageSlicer {
             }
         }
 
+        static public void CopyTileToTextureBlend(PixelRGBA32* src, int srcCount, int srcWidth, int padding, PixelRGBA32* dst, int dstWidth, PixelRGBA32 blend) {
+            PixelRGBA32* row = dst + padding;
+
+            int rowWidth = srcWidth;
+            int writeCount;
+
+            PixelRGBA32* writeHead;
+            PixelRGBA32* readHead = src;
+
+            // tile data copy
+
+            row = dst + padding + (padding * dstWidth);
+            int rows = srcWidth;
+            while (rows-- > 0) {
+                writeHead = row;
+                writeCount = rowWidth;
+                while (writeCount-- > 0) {
+                    *writeHead++ = BlendRGBA32(*readHead++, blend);
+                }
+                row += dstWidth;
+            }
+
+            // bottom padding
+
+            row = dst + padding;
+            rows = padding;
+            while (rows-- > 0) {
+                writeHead = row;
+                writeCount = rowWidth;
+                readHead = src;
+                while (writeCount-- > 0) {
+                    *writeHead++ = BlendRGBA32(*readHead++, blend);
+                }
+                row += dstWidth;
+            }
+
+            // top padding
+
+            row = dst + padding + (padding + srcWidth) * dstWidth;
+            rows = padding;
+            while (rows-- > 0) {
+                writeHead = row;
+                writeCount = rowWidth;
+                readHead = src + (srcWidth - 1) * srcWidth;
+                while (writeCount-- > 0) {
+                    *writeHead++ = BlendRGBA32(*readHead++, blend);
+                }
+                row += dstWidth;
+            }
+
+            // left padding
+
+            row = dst + (padding * dstWidth);
+            rows = srcWidth;
+            readHead = src;
+            while (rows-- > 0) {
+                PixelRGBA32 left = BlendRGBA32(*readHead, blend);
+                writeHead = row;
+                writeCount = padding;
+                while (writeCount-- > 0) {
+                    *writeHead++ = left;
+                }
+
+                readHead += srcWidth;
+                row += dstWidth;
+            }
+
+            // right padding
+
+            row = dst + (padding * dstWidth) + (padding + srcWidth);
+            rows = srcWidth;
+            readHead = src + srcWidth - 1;
+            while (rows-- > 0) {
+                PixelRGBA32 right = BlendRGBA32(*readHead, blend);
+                writeHead = row;
+                writeCount = padding;
+                while (writeCount-- > 0) {
+                    *writeHead++ = right;
+                }
+
+                readHead += srcWidth;
+                row += dstWidth;
+            }
+        }
+
         static public void FillPaletteRegionInTexture(PixelRGBA32 paletteColor, int paletteRegionSize, PixelRGBA32* dst, int dstWidth, int dstX, int dstY) {
             FillPaletteRegionInTexture(paletteColor, paletteRegionSize, dst + dstX + dstY * dstWidth, dstWidth);
+        }
+
+        static public void FillPaletteRegionInTextureBlend(PixelRGBA32 paletteColor, int paletteRegionSize, PixelRGBA32* dst, int dstWidth, int dstX, int dstY, PixelRGBA32 blendColor) {
+            FillPaletteRegionInTexture(BlendRGBA32(paletteColor, blendColor), paletteRegionSize, dst + dstX + dstY * dstWidth, dstWidth);
         }
 
         static public void FillPaletteRegionInTexture(PixelRGBA32 paletteColor, int paletteRegionSize, PixelRGBA32* dst, int dstWidth) {

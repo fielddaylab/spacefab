@@ -83,8 +83,10 @@ namespace SpaceFab.Comic
             }
         }
 
-        static public IEnumerator DisplayAndWaitForNextButton() {
+        static public IEnumerator DisplayAndWaitForNextButton(string text) {
             Find.State(out ComicDisplayState displayState);
+            displayState.NextButton.TextContent.SetText(text);
+            displayState.NextButton.Layout.Sync();
             GuiCommands.SetActive(displayState.NextButtonGroup, true);
             while(!displayState.NextButton.ConsumeClick()) {
                 yield return null;

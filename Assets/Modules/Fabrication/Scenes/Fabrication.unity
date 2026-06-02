@@ -223,6 +223,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1282443313955827872, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 2033650323809306908, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -291
@@ -230,10 +234,6 @@ PrefabInstance:
     - target: {fileID: 2766677894178579313, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_IsActive
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6117759259440055766, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7841174464335247826, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
       propertyPath: m_Camera
