@@ -452,6 +452,7 @@ GameObject:
   - component: {fileID: 8588201527487481567}
   - component: {fileID: 6629837100485152352}
   - component: {fileID: 7053429941616549620}
+  - component: {fileID: 9015897831352916478}
   m_Layer: 5
   m_Name: Left Arrow
   m_TagString: Untagged
@@ -536,6 +537,24 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: 
   TooltipFooter: 
+--- !u!114 &9015897831352916478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5649450048987568570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:left-hypothesis
+    m_HashValue: 1382840636
+  RectTransform: {fileID: 1767591508132225812}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &8081152651240187976
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,6 +567,7 @@ GameObject:
   - component: {fileID: 7207122644160975356}
   - component: {fileID: 1648249782548145611}
   - component: {fileID: 512619382288694770}
+  - component: {fileID: 5018407592477662310}
   m_Layer: 5
   m_Name: Right Arrow
   m_TagString: Untagged
@@ -632,6 +652,24 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: 
   TooltipFooter: 
+--- !u!114 &5018407592477662310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8081152651240187976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:right-hypothesis
+    m_HashValue: 3872432761
+  RectTransform: {fileID: 6245424978532951277}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &9121183776109260339
 GameObject:
   m_ObjectHideFlags: 0
