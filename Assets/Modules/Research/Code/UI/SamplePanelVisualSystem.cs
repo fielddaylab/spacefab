@@ -139,8 +139,9 @@ namespace SpaceFab.Research {
                     panel.SampleHeader.text = slottedMaterial.ShortName;
                 } else {
                     ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(slottedMaterial.AssetId);
-                    int sampleNumber = view != null ? view.SampleNumber : 0;
-                    panel.SampleHeader.text = "SAMPLE " + sampleNumber.ToString();
+                    //int sampleNumber = view != null ? view.SampleNumber : 0;
+                    string sampleLabel = view != null ? view.SampleLabel : "Z"; // z as fallback
+                    panel.SampleHeader.text = "SAMPLE " + sampleLabel;
                 }
             }
 

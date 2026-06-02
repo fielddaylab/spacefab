@@ -17,6 +17,13 @@ namespace SpaceFab.Supply {
         public SupplyProgressMeterView MeterView;
         public SupplyShipBreakdownRow[] ShipRows;
 
+        // Tracks whether this panel currently holds a pushed GUI input priority. Pushing is balanced
+        // against popping through OnDisable so the priority is always released when the panel goes
+        // away — including when the Commit button tears the minigame down without Hide() running.
+        // A leaked PushPriority survives on the persistent GuiMgr stack and disables every
+        // lower-priority layer in the next scene (overarching), which reads as "all input dead".
+        [NonSerialized] private bool m_PriorityPushed;
+
         protected override void Awake() {
             base.Awake();
 
@@ -31,10 +38,35 @@ namespace SpaceFab.Supply {
             Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.Confirmed;
         }
 
+        // Safety net for the pushed priority: OnDisable fires both on Hide() (SetActive(false)) and
+        // on scene-teardown deactivation, and runs before OnDestroy invalidates the input layer, so
+        // PopPriority's not-destroyed assert still holds. This is what catches the Commit-then-exit
+        // path where Hide() never runs.
+        private void OnDisable() {
+            ReleasePriority();
+        }
+
+        // Pushes GUI input priority for this panel, at most once.
+        private void AcquirePriority() {
+            if (m_PriorityPushed) { return; }
+            m_PriorityPushed = true;
+            Game.Gui.PushPriority(Input);
+        }
+
+        // Pops the priority pushed by AcquirePriority, if held. Skipped during shutdown (the GuiMgr
+        // stack is being torn down anyway and the layer may already be invalid).
+        private void ReleasePriority() {
+            if (!m_PriorityPushed) { return; }
+            m_PriorityPushed = false;
+            if (!Game.IsShuttingDown) {
+                Game.Gui.PopPriority(Input);
+            }
+        }
+
         public override void Show() {
             base.Show();
 
-            Game.Gui.PushPriority(Input);
+            AcquirePriority();
             Input.SetInputOverride(null);
 
             Find.State(out SupplyRouteCollection routes, out SupplyMinigameState minigameState, out SupplyShipIndex ships);
@@ -68,7 +100,9 @@ namespace SpaceFab.Supply {
         public override void Hide() {
             base.Hide();
 
-            Game.Gui.PopPriority(Input);
+            // base.Hide() deactivates the GameObject, which fires OnDisable -> ReleasePriority; this
+            // call is a guarded no-op in that case but keeps the Show/Hide pairing explicit.
+            ReleasePriority();
             Input.SetInputOverride(false);
         }
     }
