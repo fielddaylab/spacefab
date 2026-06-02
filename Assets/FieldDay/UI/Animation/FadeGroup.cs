@@ -42,6 +42,10 @@ namespace FieldDay.UI.Animation {
             get { return GroupName; }
         }
 
+        IInputLayer IGuiPanel.Input {
+            get { return null; }
+        }
+
         public void Show() {
             if (!CurrentState) {
                 CurrentState = true;

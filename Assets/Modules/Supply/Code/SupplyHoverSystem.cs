@@ -2,6 +2,7 @@ using BeauUtil;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.HID;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using FieldDay.UI;
@@ -12,7 +13,7 @@ using UnityEngine;
 namespace SpaceFab.Supply {
     public sealed class SupplyHoverSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            ecs.Register(&UpdateHover, new SysUpdate(GameLoopPhase.LateUpdate, -10, UpdateMasks.SupplyMask),
+            ecs.Register(&UpdateHover, new SysUpdate(GameLoopPhase.LateUpdate, -100, UpdateMasks.SupplyMask),
                 new SysPermissions()
                     .ReadWriteShared<SupplyHoverState>());
 
@@ -62,6 +63,15 @@ namespace SpaceFab.Supply {
 
                 if (hoverState.Node != null) {
                     SupplyRouteUtility.AddNodeHoverFlag(hoverState.Node, SupplyHoverFlags.Node);
+
+                    if (hoverState.Node.Type == SupplyRouteNodeType.Producer || hoverState.Node.Type == SupplyRouteNodeType.Converter)
+                    {
+                        using (TempVarTable table = TempVarTable.Alloc())
+                        {
+                            table.Set("planet", hoverState.Node.Id);
+                            ScriptUtility.Trigger(SupplyScriptTriggers.OnPlanetHovered, table);
+                        }
+                    }
                 }
 
                 hoverState.HoverDirty = true;

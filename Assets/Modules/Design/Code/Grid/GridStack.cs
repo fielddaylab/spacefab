@@ -13,7 +13,7 @@ namespace SpaceFab.Design
         Transistor = 1,
     }
 
-    public struct GridCoord
+    public struct GridCoord : IEquatable<GridCoord>
     {
         public int Layer;
         public int Col;
@@ -36,9 +36,18 @@ namespace SpaceFab.Design
             return !c1.Equals(c2);
         }
 
+        public override int GetHashCode() {
+            return Layer << 16 | (Col << 8) | Row;
+        }
+
+
         public override bool Equals(object obj)
         {
             var other = (GridCoord)obj;
+            return Equals(other);
+        }
+
+        public bool Equals(GridCoord other) {
             return (Layer == other.Layer) && (Col == other.Col) && (Row == other.Row);
         }
     }

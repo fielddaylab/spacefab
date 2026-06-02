@@ -61,7 +61,7 @@ namespace SpaceFab.Supply {
 
         // Rebuilds the aggregate panel cells and the per-ship breakdown rows from the current
         // (pending-aware) route state.
-        public static void Refresh(SupplyProgressMeterLayoutState layout, SupplyRouteCollection routes, SupplyRouteDrawingState drawing, PlayerProgressState progress) {
+        public static void Refresh(SupplyProgressMeterLayoutState layout, SupplyRouteCollection routes, SupplyRouteDrawingState drawing, SupplyShipIndex ships, PlayerProgressState progress) {
             if (layout == null) {
                 return;
             }
@@ -101,8 +101,8 @@ namespace SpaceFab.Supply {
                     SetCount(row.CostText, stats.Cost);
                     SetCount(row.TimeText, stats.Time);
 
-                    // TODO: resolve route-index -> SupplyShipAsset and set row.ShipIcon /
-                    // row.ShipName. Per-index ship identity is not wired yet.
+                    row.ShipIcon.sprite = ships.ShipAssets[i].Icon;
+                    row.ShipName.SetText(ships.ShipAssets[i].DisplayName);
                 }
             }
         }

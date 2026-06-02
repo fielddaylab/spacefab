@@ -171,12 +171,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: f436e8c517cef8048b6702e7680fe829, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9d2166d6aaaae144fbe2c3d0bbd3ea70, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 11.96, y: 10.27}
+  m_Size: {x: 0.31, y: 0.31}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -255,12 +255,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: f436e8c517cef8048b6702e7680fe829, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9d2166d6aaaae144fbe2c3d0bbd3ea70, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 11.96, y: 10.27}
+  m_Size: {x: 0.31, y: 0.31}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -507,12 +507,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: f436e8c517cef8048b6702e7680fe829, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9d2166d6aaaae144fbe2c3d0bbd3ea70, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 11.96, y: 10.27}
+  m_Size: {x: 0.31, y: 0.31}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1068,12 +1068,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: f436e8c517cef8048b6702e7680fe829, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9d2166d6aaaae144fbe2c3d0bbd3ea70, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 11.96, y: 10.27}
+  m_Size: {x: 0.31, y: 0.31}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1752,6 +1752,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38089412e9fd9de4dbaca7c8a1deb8c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RadiusPadding: 0.25
   Underlay: {fileID: 3150491262567959712}
   TimeCounter: {fileID: 3628386298418953267}
   TimePosition: 0

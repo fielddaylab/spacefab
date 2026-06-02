@@ -55,11 +55,15 @@ namespace SpaceFab.Supply {
             //    from the Supply shopping list (matched by asset reference).
             MaterialPropertyCheck[] checks = contract.RequiredMaterialProperties();
             MaterialPropertyCheck[] omitted = contract.OmitFromSupplyRequirements();
+
             if (checks != null) {
+                bool success = true;
                 for (int i = 0; i < checks.Length; i++) {
                     if (IsOmittedFromSupply(checks[i], omitted)) continue;
-                    AddRow(layout, progressState, checks[i]);
+                    success &= AddRow(layout, progressState, checks[i]);
                 }
+
+                layout.ConfirmButton.gameObject.SetActive(success && routes.TempRouteIndex < 0);
             }
 
             // 5. Lay out + resize.
@@ -90,9 +94,9 @@ namespace SpaceFab.Supply {
         // Allocs one row for the given requirement, sets its property chip
         // label/icon, and fills its slot with the first gathered material
         // that satisfies the check (by player-confirmed knowledge).
-        private static void AddRow(ShoppingListLayoutState layout, PlayerProgressState progress, MaterialPropertyCheck check) {
+        private static bool AddRow(ShoppingListLayoutState layout, PlayerProgressState progress, MaterialPropertyCheck check) {
             ShoppingListRow row = layout.Pool.Alloc();
-            if (row == null) return;
+            if (row == null) return false;
             row.transform.SetParent(layout.RowsContainer, false);
             layout.ActiveRows.Add(row);
 
@@ -113,6 +117,7 @@ namespace SpaceFab.Supply {
             s_FulfillScratch.Clear();
             ContractProgressUtility.FindFulfillingMaterials(progress, s_CollectedScratch, check, s_FulfillScratch);
             row.SetSlot(s_FulfillScratch.Count > 0 ? ResolveMaterialIcon(s_FulfillScratch[0]) : null);
+            return s_FulfillScratch.Count > 0;
         }
 
         // Resolves a material id to its shopping-list slot sprite via the
@@ -132,6 +137,10 @@ namespace SpaceFab.Supply {
             if (routes == null || routes.RouteStats == null) return;
 
             for (int shipIdx = 0; shipIdx < routes.RouteStats.Length; shipIdx++) {
+                if (shipIdx == routes.TempRouteIndex) {
+                    continue;
+                }
+
                 // Copy to a stack local so the fixed buffer can be read without
                 // pinning the heap array element.
                 SupplyRouteStats stats = routes.RouteStats[shipIdx];

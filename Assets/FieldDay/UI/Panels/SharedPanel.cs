@@ -37,6 +37,10 @@ namespace FieldDay.UI {
             get { return m_PanelGroup; }
         }
 
+        public IInputLayer Input {
+            get { return m_InputLayer; }
+        }
+
         public virtual void Hide() {
             gameObject.SetActive(false);
         }

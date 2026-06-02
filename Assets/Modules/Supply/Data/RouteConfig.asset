@@ -33,7 +33,11 @@ MonoBehaviour:
   SolidLine:
     Width: 0.15
     Material: {fileID: 2100000, guid: d167a642173c83045be58a214aa55c6f, type: 2}
-  ShipSpeeds:
+  ShipSpeedIconScales:
+  - 0.7
   - 1
+  - 1.8
+  ShipSpeeds:
   - 2
-  - 3
+  - 4.5
+  - 7.5

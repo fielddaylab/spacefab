@@ -43,10 +43,10 @@ namespace FieldDay.Systems {
             public int Order;
             public UniqueId16 Id;
 
-            static public unsafe readonly Unsafe.ComparisonPtr<OrderedSystemReference> Comparer = (a, b) => {
-                if (a->Order < b->Order) {
+            static public unsafe readonly Comparison<OrderedSystemReference> Comparer = (a, b) => {
+                if (a.Order < b.Order) {
                     return -1;
-                } else if (a->Order > b->Order) {
+                } else if (a.Order > b.Order) {
                     return 1;
                 }
                 return 0;

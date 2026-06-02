@@ -10,6 +10,9 @@ namespace SpaceFab.Supply {
         [NonSerialized] public SupplyRouteRenderer[] Routes;
         [NonSerialized] public RingBuffer<SupplyRouteFragmentRenderer> Fragments;
 
+        [NonSerialized] public SupplyRouteFragmentRenderer TempFragmentCreate;
+        [NonSerialized] public SupplyRouteFragmentRenderer TempFragmentDisable;
+
         void IRegistrationCallbacks.OnDeregister() {
         }
 
