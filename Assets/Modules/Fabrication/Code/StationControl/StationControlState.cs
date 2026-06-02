@@ -181,7 +181,7 @@ namespace SpaceFab.Fabrication.StationControl {
             stationState.PhaseTimer = 0f;
             stationState.Phase = StationControlPhase.EnteringMicrogame;
             Log.Msg("[StationControlUtility] RequestActivate accepted; AtStation -> EnteringMicrogame");
-            Game.Events.Dispatch(GameEvents.FabStationEnterBegin);
+            SpacefabGame.Events.Dispatch(GameEvents.FabStationEnterBegin, EvtArgs.Create(stationState.ActiveInterfacer.Id.ToString()));
         }
 
         // Called by WorldInteractSystem when the player presses Cancel. Sets the one-frame flag;
