@@ -1238,13 +1238,44 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9205154508823847828, guid: 455b5cf2b291ca54f96cb9bc437bcc30, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2404170282726855438}
   m_SourcePrefab: {fileID: 100100000, guid: 455b5cf2b291ca54f96cb9bc437bcc30, type: 3}
 --- !u!224 &3620743595698187 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6772066799013248024, guid: 455b5cf2b291ca54f96cb9bc437bcc30, type: 3}
   m_PrefabInstance: {fileID: 6771139858959078419}
   m_PrefabAsset: {fileID: 0}
+--- !u!224 &1193307038782644837 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 5582371984616093302, guid: 455b5cf2b291ca54f96cb9bc437bcc30, type: 3}
+  m_PrefabInstance: {fileID: 6771139858959078419}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2470414141240211335 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9205154508823847828, guid: 455b5cf2b291ca54f96cb9bc437bcc30, type: 3}
+  m_PrefabInstance: {fileID: 6771139858959078419}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2404170282726855438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2470414141240211335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: design:metal-tool-btn
+    m_HashValue: 1397550410
+  RectTransform: {fileID: 1193307038782644837}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1001 &8211549090891512362
 PrefabInstance:
   m_ObjectHideFlags: 0
