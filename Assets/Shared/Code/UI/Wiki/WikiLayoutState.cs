@@ -67,6 +67,12 @@ namespace SpaceFab.UI {
             WikiLayoutUtility.ApplyExpandedSteadyState(this, wikiState.Expanded);
             WikiLayoutUtility.ScrollPaginator(this, 0);
             wikiState.NeedsRebuild = true;
+
+            if (wikiState.ActiveTabIndex < 0) {
+                wikiState.ActiveTabIndex = 0;
+                wikiState.ActivePageIndex = 0;
+                
+            }
         }
     }
 

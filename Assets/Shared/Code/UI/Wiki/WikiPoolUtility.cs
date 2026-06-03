@@ -42,6 +42,9 @@ namespace SpaceFab.UI {
                 WikiTabData tab = content.Tabs[tabIndex];
                 if (tab == null || tab.Pages == null) { continue; }
                 for (int pageIndex = 0; pageIndex < tab.Pages.Length; pageIndex++) {
+                    WikiPageData page = tab.Pages[pageIndex];
+                    if (page == null) { continue; }
+
                     WikiButton thumb = Acquire(pools.PageThumbPrefab, pools.PageThumbActive, pools.PageThumbFree, pools.PageThumbActiveParent);
                     if (thumb == null) { continue; }
                         thumb.TabIndex = tabIndex;

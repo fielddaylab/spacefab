@@ -520,6 +520,26 @@ namespace SpaceFab.UI {
                         break;
                 }
             }
+
+            WikiState wikiState = Find.State<WikiState>();
+            if (wikiState != null && content.Tabs != null)
+            {
+                bool validTab = wikiState.ActiveTabIndex >= 0
+                    && wikiState.ActiveTabIndex < content.Tabs.Length
+                    && WikiUtility.IsTabUnlocked(progressState, content.Tabs[wikiState.ActiveTabIndex]);
+
+                if (!validTab)
+                {
+                    for (int i = 0; i < content.Tabs.Length; i++)
+                    {
+                        if (WikiUtility.IsTabUnlocked(progressState, content.Tabs[i]))
+                        {
+                            WikiUtility.SelectTab(wikiState, content, progressState, i);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {

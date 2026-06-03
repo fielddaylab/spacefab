@@ -165,6 +165,11 @@ namespace SpaceFab.UI {
                 // PreUpdate 5 (before this system at PreUpdate 10).
                 if (widgets.MaterialCharacteristicsGroup != null) {
                     widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
+
+                    WikiChipPools chipPools = Find.State<WikiChipPools>();
+                    if (materialPage) {
+                        WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, activePage.MaterialId);
+                    }
                 }
 
                 // Illustration source depends on page kind. Default
