@@ -49,7 +49,7 @@ namespace SpaceFab.Fabrication.Microgames
             offset.x -= Time.deltaTime;
             state.IncidentBeam.material.mainTextureOffset = offset;
 
-            float scale = 1.5f;
+            float scale = 1; // 1.5f;
             foreach (LineRenderer lr in state.ReflectedBeam)
             {
                 lr.material.mainTextureOffset = offset * scale;
@@ -74,9 +74,10 @@ namespace SpaceFab.Fabrication.Microgames
 
             state.SputterSprites.localPosition += delta;
 
-            float scale = 1.5f;
+            float scale = 1; // 1.5f;
             state.PatternRenderer.size = new Vector2(state.PatternRenderer.size.x + delta.x * scale, state.PatternRenderer.size.y);
-            state.PatternRenderer.transform.localPosition += new Vector3(delta.x * scale / 2, 0f, 0f);
+            state.PatternAccumulatedX += delta.x * scale / 2;
+            state.PatternRenderer.transform.localPosition = new Vector3(state.PatternStartX + state.PatternAccumulatedX, 0f, 0f);
 
             if (state.SputterSprites.localPosition.x > state.MaxSputterDistance)
             {

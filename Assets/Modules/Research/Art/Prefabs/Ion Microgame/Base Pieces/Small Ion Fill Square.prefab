@@ -99,9 +99,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BoxCollider: {fileID: 0}
-  m_Density: 10
   IonMesh: {fileID: -2124705421725058983, guid: 2248d1c0e7d25eb4bb03e77ce13167a2, type: 3}
   IonMaterial: {fileID: 2100000, guid: 98d18fb0f49e4cc4597c669ee187c55f, type: 2}
+  IsRendering: 0
 --- !u!61 &5077104107667823790
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -138,12 +138,12 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.57, y: 0.57}
+    oldSize: {x: 0.38, y: 0.38}
     newSize: {x: 1.23, y: 1.23}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.57, y: 0.57}
+  m_Size: {x: 0.4, y: 0.4}
   m_EdgeRadius: 0

@@ -61,7 +61,7 @@ $endif
 ::GateSpinCoat
 @trigger    OnFabMicrogameCompleted
 @when       microgame == "station:resist"
-$call       RequireMicrogamePrecision(0.9)
+$call       RequireMicrogamePrecision(0.8)
 
 ::SecondStationCompleted
 @trigger    OnFabMicrogameExited

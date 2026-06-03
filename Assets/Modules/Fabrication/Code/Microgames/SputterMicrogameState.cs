@@ -35,11 +35,14 @@ namespace SpaceFab.Fabrication.Microgames
         public Transform SputterSprites;
         public SpriteRenderer PatternRenderer;
 
+        public float PatternStartX;
+        public float PatternAccumulatedX;
+
         public float MaxSputterDistance = 1.75f;
 
         public void OnRegister()
         {
-
+            PatternStartX = PatternRenderer.transform.localPosition.x;
         }
 
         public void OnDeregister()
@@ -69,6 +72,9 @@ namespace SpaceFab.Fabrication.Microgames
             state.IsActive = true;
             state.InputAccepted = false;
             state.SputterUI.SetActive(true);
+
+            state.PatternAccumulatedX = 0;
+            state.PatternRenderer.transform.localPosition = new Vector3(state.PatternStartX, 0, 0);
         }
 
         public static void EnterComplete()
@@ -114,7 +120,8 @@ namespace SpaceFab.Fabrication.Microgames
             // Reset graphics
             state.SputterSprites.localPosition = Vector3.zero;
             state.PatternRenderer.size = new Vector2(0, state.PatternRenderer.size.y);
-            state.PatternRenderer.transform.localPosition = new Vector3(-1.35f, 0, 0);
+            state.PatternAccumulatedX = 0;
+            state.PatternRenderer.transform.localPosition = new Vector3(state.PatternStartX, 0, 0);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
