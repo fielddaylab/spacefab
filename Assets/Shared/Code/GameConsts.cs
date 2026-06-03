@@ -110,9 +110,10 @@ namespace SpaceFab
 
     public static class ScriptTriggers
     {
-        public static readonly StringHash32 OnMinigameLoad =    "OnMinigameLoad";
-        public static readonly StringHash32 OnWikiOpened =      "OnWikiOpened";
-        public static readonly StringHash32 OnWikiClosed =      "OnWikiClosed";
+        public static readonly StringHash32 OnMinigameLoad =        "OnMinigameLoad";
+        public static readonly StringHash32 OnWikiOpened =          "OnWikiOpened";
+        public static readonly StringHash32 OnWikiClosed =          "OnWikiClosed";
+        public static readonly StringHash32 OnOverarchingLoaded =   "OnOverarchingLoaded";
     }
 
     public static class UpdateMasks

@@ -12,3 +12,15 @@ $call   HighlightElement(overarching:profit-section, false, 25, true)
 {@PAL}      ...and you'll make this much money if you can deliver.
 $call   ReleaseAllHighlights()
 $call   HighlightElement(overarching:select-contract-btn)
+
+
+:: BeforeSupplyChain
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene
+@once
+{@Player}    P.A.L., why can’t I build the chip yet?
+{@PAL}       We are short on conductor materials.
+{@PAL}       Your station is too slow for supply runs, so you can hire faster ships.
+{@PAL}       The ship fee and materials cost come out of the contract payment.
+{@Player}    Wait, I don’t keep all the money? Better keep costs low.
