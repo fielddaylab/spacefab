@@ -75,6 +75,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2157368391974816162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1862774137757713481, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
+  m_PrefabInstance: {fileID: 299880982629436907}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d0a512c55eeae2408db1dc0aa878615, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConstructHandlers: []
+  AllocHandlers: []
 --- !u!1 &7018382412643133787
 GameObject:
   m_ObjectHideFlags: 0

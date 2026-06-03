@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 1334617118288269400}
   - component: {fileID: 134120258283188206}
   - component: {fileID: 6807388908792538520}
+  - component: {fileID: 8367552632065069019}
   m_Layer: 5
   m_Name: View Current Contract Button
   m_TagString: Untagged
@@ -305,6 +306,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8367552632065069019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5574087115931104365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &5577883135219271871
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,6 +477,7 @@ GameObject:
   - component: {fileID: 6296078458858858346}
   - component: {fileID: 74082714143799677}
   - component: {fileID: 1681138743114038954}
+  - component: {fileID: 5868137905502578671}
   m_Layer: 5
   m_Name: Hide Current Contract Button
   m_TagString: Untagged
@@ -574,6 +596,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5868137905502578671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6185616141719515041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &6326147291050360371
 GameObject:
   m_ObjectHideFlags: 0
