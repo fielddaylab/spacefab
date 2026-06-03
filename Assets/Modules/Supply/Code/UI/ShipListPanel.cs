@@ -30,9 +30,13 @@ namespace SpaceFab.Supply {
         private void OnRouteStarted(SupplyRouteEventArgs evtArgs) {
             SelectedRow = Rows[evtArgs.RouteIndex];
             SelectedRow.LayoutOffset.Offset0 = new Vector2(40, 0);
+            SelectedRow.Click.TooltipFooter = "<sprite name=\"MouseLeft\"> Cancel";
+            SelectedRow.Click.MarkDirty();
         }
 
         private void OnRouteEnded(SupplyRouteEventArgs evtArgs) {
+            SelectedRow.Click.TooltipFooter = "<sprite name=\"MouseLeft\"> Draw Route";
+            SelectedRow.Click.MarkDirty();
             SelectedRow.LayoutOffset.Offset0 = default;
             SelectedRow = null;
         }
