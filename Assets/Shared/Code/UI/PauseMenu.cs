@@ -150,6 +150,9 @@ namespace SpaceFab
 
         private static IEnumerator FadeGroupOut(PauseMenuState state)
         {
+            // Block input immediately so the fading-out panel can't be clicked
+            state.Fader.interactable = false;
+            state.Fader.blocksRaycasts = false;
             state.Fader.alpha = 1;
             yield return state.Fader.FadeTo(0, state.TransitionTime);
             state.Fader.gameObject.SetActive(false);
@@ -162,6 +165,11 @@ namespace SpaceFab
             state.Fader.gameObject.SetActive(true);
             yield return state.Fader.FadeTo(1, state.TransitionTime);
             state.Fader.alpha = 1;
+            // Enable input once the panel is fully visible; the prefab authors the
+            // CanvasGroup as non-interactive, so the settings controls stay dead
+            // until we flip these on.
+            state.Fader.interactable = true;
+            state.Fader.blocksRaycasts = true;
         }
     }
 }
