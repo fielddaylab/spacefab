@@ -635,9 +635,9 @@ MonoBehaviour:
   CursorType:
     m_HashValue: 0
   Flags: 0
-  TooltipHeader: 
-  Tooltip: 
-  TooltipFooter: 
+  TooltipHeader: Ship
+  Tooltip: Travels along routes to gather materials.
+  TooltipFooter: <sprite name="MouseLeft"> Draw Route
 --- !u!1 &5168473423845645904
 GameObject:
   m_ObjectHideFlags: 0

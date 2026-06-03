@@ -92,6 +92,10 @@ PrefabInstance:
       propertyPath: MaterialType.m_HashValue
       value: 3821421172
       objectReference: {fileID: 0}
+    - target: {fileID: 8792477959654819082, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: TooltipHeader
+      value: Korbus
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

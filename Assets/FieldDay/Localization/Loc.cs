@@ -332,5 +332,17 @@ namespace FieldDay.Localization {
         }
 
         #endregion // File Paths
+
+        #region Loading
+
+        static internal void MarkLoading() {
+            s_IsLoaded = false;
+        }
+
+        static internal void MarkLoaded() {
+            s_IsLoaded = true;
+        }
+
+        #endregion // Loading
     }
 }

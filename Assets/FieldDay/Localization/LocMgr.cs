@@ -1,3 +1,5 @@
+using BeauUtil.Debugger;
+
 namespace FieldDay.Localization {
     public sealed class LocMgr {
         #region State
@@ -11,6 +13,8 @@ namespace FieldDay.Localization {
 
         internal void Initialize(LanguageId defaultLanguage) {
             Loc.ConfigureDefaultLanguage(defaultLanguage);
+
+            Loc.MarkLoaded();
 
             m_MainDb = new LocDb(16);
             m_SubDb = new LocDb(16);
