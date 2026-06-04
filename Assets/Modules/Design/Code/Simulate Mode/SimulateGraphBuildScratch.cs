@@ -102,22 +102,30 @@ namespace SpaceFab.Design
         [HideInInspector] public bool[] EvaluatedForDependency;
         [HideInInspector] public bool[] DisallowAdditionalDep;
 
-        // Set to true when a crucial node is dequeued in Pass 2's BFS. Read by
-        // TryRecordReachedCrucial to drop any DFS-reach of an already-processed crucial
-        // (back-edges in the cell-adjacency graph). Without this, the BFS infinite-loops on
-        // any pair of mutually-cell-reachable crucials — see SimulateGraphUtility.Pass2.
+        // Set to true when a crucial node is dequeued in Pass 2's BFS. Read by TryEmitEdge to
+        // avoid RE-ENQUEUING an already-processed crucial (which would let the BFS loop forever
+        // on mutually-cell-reachable crucials). It no longer gates edge EMISSION — an edge into
+        // an already-processed crucial must still be recorded so a second driver's flow reaches
+        // that node during propagation; only the enqueue is suppressed. See SimulateGraphUtility.Pass2.
 
         [HideInInspector] public bool[] Processed;
 
-        // ---- NoReturn stamps (replaces per-origin List<GraphCoord> NoReturnList in prototype) ----
+        // ---- Cumulative no-return pairs (faithful port of the prototype's per-node NoReturnList) ----
         //
-        // For each DFS origin, we mark cellIndices that must not be revisited via crucial-to-
-        // crucial edges when *other* origins later DFS through here. Same stamp trick as
-        // VisitStamps: bump CurrentNoReturnStamp to invalidate all prior marks. Check is
-        // NoReturnStamps[cellIdx] == CurrentNoReturnStamp.
+        // Suppresses reciprocal crucial-to-crucial edges: once an edge O→C is recorded, the
+        // reverse edge C→O must never be recorded. The prototype stored this as a per-node
+        // List<GraphCoord> that is NEVER reset across the build (EvaluationMgr.CrucialGraphNode.
+        // NoReturnList). We store the same relation as a flat append-only buffer of (owner, member)
+        // crucial-index pairs meaning "owner's no-return list contains member": recording O→C
+        // appends (C, O); before recording O→C we skip if the pair (O, C) is already present.
+        //
+        // NodeCount is tens at most and each node accumulates few entries, so the linear scan in
+        // NoReturnContains is cheap. PairCount counts PAIRS; total ints used = 2 * PairCount.
+        // This must be cumulative (not stamp-reset-per-dequeue) — a per-dequeue reset is exactly
+        // the defect that forced the old, over-pruning Processed-drops-the-edge workaround.
 
-        [HideInInspector] public int[] NoReturnStamps;
-        [HideInInspector] public int CurrentNoReturnStamp;
+        [HideInInspector] public int[] NoReturnPairs;
+        [HideInInspector] public int NoReturnPairCount;
 
         // ---- Unsorted edge accumulator (populated in Pass 2, sorted into SimulateGraphState.OrderedEdges in Pass 3) ----
         //

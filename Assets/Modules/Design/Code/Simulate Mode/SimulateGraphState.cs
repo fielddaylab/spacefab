@@ -166,10 +166,10 @@ namespace SpaceFab.Design
         // grid has grown. Growth is loud (Debug.LogWarning) so undersized initial
         // heuristics become visible during playtesting.
         //
-        // Resets all counts + stamp-invalidates visited/no-return marks. The stamp-reset
-        // trick avoids clearing VisitStamps/NoReturnStamps with an O(cellCount) loop —
-        // we bump the stamp and any prior marks become stale. CellToCrucial must still be
-        // cleared to -1 because its sentinel value is relied on everywhere downstream.
+        // Resets all counts + stamp-invalidates visited marks. The stamp-reset trick avoids
+        // clearing VisitStamps with an O(cellCount) loop — we bump the stamp and any prior marks
+        // become stale. The no-return relation is a flat pair buffer, reset by zeroing its count.
+        // CellToCrucial must still be cleared to -1 because its sentinel is relied on downstream.
         // ====================================================================================
         private static void Pass0_EnsureCapacityAndReset(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int cellCount)
         {
@@ -183,7 +183,7 @@ namespace SpaceFab.Design
             EnsureCapacity(ref scratch.CellAdjDest, cellCount * 6, nameof(scratch.CellAdjDest));
             EnsureCapacity(ref scratch.WorkQueue, cellCount, nameof(scratch.WorkQueue));
             EnsureCapacity(ref scratch.VisitStamps, cellCount, nameof(scratch.VisitStamps));
-            EnsureCapacity(ref scratch.NoReturnStamps, cellCount, nameof(scratch.NoReturnStamps));
+            EnsureCapacity(ref scratch.NoReturnPairs, cellCount * InitialEdgesPerCell * 2, nameof(scratch.NoReturnPairs));
             EnsureCapacity(ref scratch.DfsPathBuffer, cellCount, nameof(scratch.DfsPathBuffer));
             EnsureCapacity(ref scratch.DfsReachedCrucial, cellCount, nameof(scratch.DfsReachedCrucial));
             EnsureCapacity(ref scratch.DfsReachedPathStart, cellCount, nameof(scratch.DfsReachedPathStart));
@@ -207,11 +207,11 @@ namespace SpaceFab.Design
             scratch.DfsReachedCrucialCount = 0;
             scratch.PostponedCount = 0;
             scratch.UnsortedEdgeCount = 0;
+            scratch.NoReturnPairCount = 0;
 
-            // Bump stamps: a single int increment invalidates every prior "visited" / "no return"
-            // mark in O(1). Much cheaper than walking cellCount entries to clear them to zero.
+            // Bump the visit stamp: a single int increment invalidates every prior "visited" mark
+            // in O(1). Much cheaper than walking cellCount entries to clear them to zero.
             scratch.CurrentVisitStamp++;
-            scratch.CurrentNoReturnStamp++;
 
             // Clear CellToCrucial so cells without crucial assignments show -1. This IS an O(cellCount)
             // pass, but -1 is the sentinel we rely on everywhere downstream — cannot use a stamp.
@@ -380,11 +380,17 @@ namespace SpaceFab.Design
         //   outer BFS loop:
         //     dequeue currCrucialIdx from WorkQueue
         //     if its EvalDepth differs from prior depth, bump CurrentVisitStamp (new layer)
-        //     bump CurrentNoReturnStamp (fresh no-return set for this origin)
         //     for each outgoing neighbor of currCellIdx:
         //        DFS through non-crucial cells to find reachable crucial nodes
         //        for each reached crucial: emit a CrucialEdge (with path slice copied into
-        //            PathPool) unless gate-dependency rules defer it
+        //            PathPool) unless the reciprocal edge already exists (NoReturn) or
+        //            gate-dependency rules defer it
+        //
+        // Reciprocal suppression (NoReturn): once an edge O→C is recorded we must never record
+        // C→O — the prototype's per-node NoReturnList rule, here a cumulative pair buffer (see
+        // SimulateGraphBuildScratch.NoReturnPairs). This is what bounds the BFS: each ordered
+        // crucial pair is emitted at most once, and Processed stops re-enqueuing nodes, so the
+        // work queue strictly drains.
         //
         // The key subtlety is the gate-dependency mechanic. A GateBelow (underside of a gate)
         // can only be correctly evaluated AFTER its matching GateAbove (metal connector) has
@@ -429,9 +435,9 @@ namespace SpaceFab.Design
                 int currCellIdx = graphState.CrucialNodes[currCrucialIdx].CellIndex;
                 int nodeDepth = graphState.CrucialNodes[currCrucialIdx].EvalDepth;
 
-                // Mark this crucial node as processed so future DFS reaches don't re-record
-                // it (which would re-enqueue it via TryEmitEdge and infinite-loop on any pair
-                // of mutually-cell-reachable crucials).
+                // Mark this crucial node processed. Future DFS reaches still RECORD an edge into
+                // it (so a second driver's flow reaches it during propagation) but EnqueueIfUnprocessed
+                // won't re-enqueue it — that's what bounds the BFS on mutually-cell-reachable crucials.
                 scratch.Processed[currCrucialIdx] = true;
 
                 // Depth boundary: bump the visit stamp so DFS state from the previous layer
@@ -442,10 +448,6 @@ namespace SpaceFab.Design
                     scratch.CurrentVisitStamp++;
                     currDepth = nodeDepth;
                 }
-
-                // Fresh no-return set for this origin: crucial nodes this DFS reaches shouldn't
-                // be allowed to DFS back into us when they later process. Same stamp trick.
-                scratch.CurrentNoReturnStamp++;
 
                 int adjStart = scratch.CellAdjStart[currCellIdx];
                 int adjEnd = adjStart + scratch.CellAdjCount[currCellIdx];
@@ -462,7 +464,7 @@ namespace SpaceFab.Design
                     scratch.DfsPathBuffer[scratch.DfsPathDepth++] = currCellIdx;
 
                     // Run the iterative DFS.
-                    DfsFromNeighbor(graphState, scratch, currCellIdx, neighborCellIdx, currDepth);
+                    DfsFromNeighbor(graphState, scratch, currCrucialIdx, currCellIdx, neighborCellIdx, currDepth);
 
                     // Emit one CrucialEdge per reached crucial node. Gate-dependency logic lives
                     // here because it affects whether the edge is emitted now or deferred. The
@@ -603,7 +605,7 @@ namespace SpaceFab.Design
         // The origin is already pushed before this is called (caller does
         // DfsPathBuffer[0] = originCellIdx). This function pushes the first neighbor and
         // proceeds from there.
-        private static unsafe void DfsFromNeighbor(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int originCellIdx, int firstNeighborCellIdx, int currDepth)
+        private static unsafe void DfsFromNeighbor(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int originCrucialIdx, int originCellIdx, int firstNeighborCellIdx, int currDepth)
         {
             // Per-frame neighbor cursor. Bounded by path depth (<= cellCount). 256 covers every
             // plausible grid size; grow dynamically if we ever exceed.
@@ -630,7 +632,7 @@ namespace SpaceFab.Design
             int firstCrucial = graphState.CellToCrucial[firstNeighborCellIdx];
             if (firstCrucial >= 0 && firstNeighborCellIdx != originCellIdx)
             {
-                TryRecordReachedCrucial(graphState, scratch, firstCrucial, originCellIdx, currDepth);
+                TryRecordReachedCrucial(graphState, scratch, originCrucialIdx, firstCrucial, currDepth);
                 scratch.DfsPathDepth--; // pop back to just the origin
                 return;
             }
@@ -650,11 +652,10 @@ namespace SpaceFab.Design
                     int dest = scratch.CellAdjDest[adjStart + nextNbCursor[frameDepth]];
                     nextNbCursor[frameDepth]++;
 
-                    // Already visited this DFS? Skip.
+                    // Already visited this depth layer? Skip. (Reciprocal suppression is applied
+                    // at record time in TryRecordReachedCrucial, mirroring the prototype, which
+                    // only blocks recording the crucial hop — never traversal of plain cells.)
                     if (scratch.VisitStamps[dest] == scratch.CurrentVisitStamp) { continue; }
-
-                    // Blocked by a previous origin's no-return set? Skip (prototype's NoReturnList).
-                    if (scratch.NoReturnStamps[dest] == scratch.CurrentNoReturnStamp) { continue; }
 
                     // Mark visited.
                     scratch.VisitStamps[dest] = scratch.CurrentVisitStamp;
@@ -669,7 +670,7 @@ namespace SpaceFab.Design
                         {
                             scratch.DfsPathBuffer[scratch.DfsPathDepth++] = dest;
                         }
-                        TryRecordReachedCrucial(graphState, scratch, destCrucial, originCellIdx, currDepth);
+                        TryRecordReachedCrucial(graphState, scratch, originCrucialIdx, destCrucial, currDepth);
                         scratch.DfsPathDepth--; // pop dest
                         continue;
                     }
@@ -700,26 +701,17 @@ namespace SpaceFab.Design
             }
         }
 
-        // If this crucial index isn't already in DfsReachedCrucial AND the origin hasn't marked
-        // its cell as no-return for this origin stamp, add it to the reached list and mark the
-        // origin as no-return on the reached cell.
-        private static void TryRecordReachedCrucial(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int reachedCrucialIdx, int originCellIdx, int currDepth)
+        // Records a reached crucial node (origin -> reached) for later edge emission, unless the
+        // reciprocal edge already exists or this reach is a duplicate. Does NOT drop reaches into
+        // already-processed crucials — that edge must be emitted so a second driver's flow reaches
+        // the node during propagation; re-enqueuing the processed node is what's suppressed, and
+        // that's handled in TryEmitEdge.
+        private static void TryRecordReachedCrucial(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int originCrucialIdx, int reachedCrucialIdx, int currDepth)
         {
-            // Skip already-processed crucials. Without this, the cell-graph's symmetric adjacency
-            // makes the BFS infinite-loop on any pair of mutually-reachable crucials (a metal
-            // endpoint can DFS back to its driving Input, which would re-enqueue the Input,
-            // which would re-DFS to the endpoint, etc.). Dropping the back-edge here means
-            // Pass 4's cycle detection won't see true logical cycles either — that's a known
-            // tradeoff and a separate concern from the queue-overflow bug.
-            if (scratch.Processed[reachedCrucialIdx])
-            {
-                return;
-            }
-
-            int reachedCellIdx = graphState.CrucialNodes[reachedCrucialIdx].CellIndex;
-
-            // Don't allow bouncing back to origin via any subsequent DFS.
-            if (scratch.NoReturnStamps[reachedCellIdx] == scratch.CurrentNoReturnStamp)
+            // Reciprocal suppression: if reached -> origin was already recorded earlier in the
+            // build, do not record origin -> reached now. Cumulative across the whole build,
+            // mirroring the prototype's per-node NoReturnList (EvaluationMgr lines 1291 + 1299).
+            if (NoReturnContains(scratch, originCrucialIdx, reachedCrucialIdx))
             {
                 return;
             }
@@ -746,8 +738,10 @@ namespace SpaceFab.Design
             scratch.DfsReachedPathLength[snapIdx] = pathLen;
             scratch.DfsReachedCrucialCount++;
 
-            // Tag origin cell as no-return for this reached crucial node's later DFS.
-            scratch.NoReturnStamps[originCellIdx] = scratch.CurrentNoReturnStamp;
+            // Record the reciprocal block: now that origin -> reached exists, forbid reached ->
+            // origin. Stored as "reached's no-return list gains origin" so a later reached-origin
+            // DFS that reaches origin is suppressed by the NoReturnContains check above.
+            NoReturnAdd(scratch, reachedCrucialIdx, originCrucialIdx);
 
             // Assign BFS depth if not yet assigned. The node's depth is determined the first time
             // it's reached — later reaches from the same or earlier BFS layer don't override it.
@@ -800,7 +794,7 @@ namespace SpaceFab.Design
                 if (aboveKnownEvaluated)
                 {
                     // Above-gate already evaluated — safe to emit and enqueue.
-                    scratch.WorkQueue[scratch.WorkTail++] = reachedCrucialIdx;
+                    EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
                     AppendEdge(scratch, edge);
                 }
                 else if (aboveCrucial >= 0)
@@ -821,7 +815,7 @@ namespace SpaceFab.Design
                 else
                 {
                     // No above-gate exists (orphan GateBelow) — treat as normal enqueue.
-                    scratch.WorkQueue[scratch.WorkTail++] = reachedCrucialIdx;
+                    EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
                     AppendEdge(scratch, edge);
                 }
             }
@@ -830,7 +824,7 @@ namespace SpaceFab.Design
                 // Mark above-gate evaluated, enqueue it, and resolve any postponements keyed
                 // on the matching GateBelow.
                 scratch.EvaluatedForDependency[reachedCrucialIdx] = true;
-                scratch.WorkQueue[scratch.WorkTail++] = reachedCrucialIdx;
+                EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
                 AppendEdge(scratch, edge);
 
                 // Look up matching below-gate (same col/row, transistor layer).
@@ -853,7 +847,7 @@ namespace SpaceFab.Design
             else
             {
                 // Normal crucial-to-crucial hop. No gate dependency.
-                scratch.WorkQueue[scratch.WorkTail++] = reachedCrucialIdx;
+                EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
                 AppendEdge(scratch, edge);
             }
         }
@@ -927,6 +921,48 @@ namespace SpaceFab.Design
                 }
             }
             scratch.PostponedCount = 0;
+        }
+
+        // Enqueue a crucial node for BFS processing unless it has already been processed.
+        // Re-enqueuing a processed node is what would let the BFS loop forever on mutually-
+        // cell-reachable crucials; the edge into it is still emitted by the caller — only the
+        // enqueue is suppressed. (Gate postponement deliberately re-enqueues processed nodes
+        // via its own paths; those do NOT go through here.)
+        private static void EnqueueIfUnprocessed(SimulateGraphBuildScratch scratch, int crucialIdx)
+        {
+            if (scratch.Processed[crucialIdx]) { return; }
+            scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+        }
+
+        // True if ownerCrucialIdx's no-return list already contains memberCrucialIdx. Linear scan
+        // over the flat (owner, member) pair buffer — NoReturnPairCount is small for real grids.
+        private static bool NoReturnContains(SimulateGraphBuildScratch scratch, int ownerCrucialIdx, int memberCrucialIdx)
+        {
+            for (int i = 0; i < scratch.NoReturnPairCount; i++)
+            {
+                if (scratch.NoReturnPairs[i * 2] == ownerCrucialIdx
+                    && scratch.NoReturnPairs[i * 2 + 1] == memberCrucialIdx)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Append (owner, member) to the no-return pair buffer, growing if needed. Caller guarantees
+        // the pair isn't already present (it's added exactly once, right after an edge is recorded).
+        private static void NoReturnAdd(SimulateGraphBuildScratch scratch, int ownerCrucialIdx, int memberCrucialIdx)
+        {
+            int neededInts = (scratch.NoReturnPairCount + 1) * 2;
+            if (neededInts > scratch.NoReturnPairs.Length)
+            {
+                int newSize = Mathf.Max(scratch.NoReturnPairs.Length * 2, neededInts);
+                Debug.LogWarning("[SimulateGraphUtility] NoReturnPairs grew from " + scratch.NoReturnPairs.Length + " to " + newSize + " — initial capacity heuristic undersized");
+                Array.Resize(ref scratch.NoReturnPairs, newSize);
+            }
+            scratch.NoReturnPairs[scratch.NoReturnPairCount * 2] = ownerCrucialIdx;
+            scratch.NoReturnPairs[scratch.NoReturnPairCount * 2 + 1] = memberCrucialIdx;
+            scratch.NoReturnPairCount++;
         }
 
         // Append an edge to the UnsortedEdges scratch buffer, resizing if needed.
