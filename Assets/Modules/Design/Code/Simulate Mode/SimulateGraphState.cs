@@ -83,6 +83,20 @@ namespace SpaceFab.Design
         // node." Sized to cellCount and reset per build.
         [HideInInspector] public int[] CellToCrucial;
 
+        // cellIndex → cellIndex of the crucial node whose resolved per-cell flow this cell mirrors,
+        // or -1 for crucial / empty / unreachable cells. Lets DepthStepSystem paint connected
+        // non-crucial cells that lie on no crucial-to-crucial path (dead-end "stub" branches the
+        // DFS walked into and popped) by copying their segment's resolved flow. Built once per
+        // Build by Pass 6; the association never crosses a P-N transistor boundary, so a stub
+        // inherits its own segment's value and not the far side of a diode.
+        [HideInInspector] public int[] CellFlowRepresentative;
+
+        // Compact list of the non-crucial cellIndices that have a representative (i.e.
+        // CellFlowRepresentative[cell] >= 0), so DepthStepSystem's per-row paint pass walks only
+        // these cells instead of the whole grid. Count-prefixed; entries 0..RepresentedCellCount.
+        [HideInInspector] public int[] RepresentedCells;
+        [HideInInspector] public int RepresentedCellCount;
+
         // Per-depth edge range table. DepthEdgeStart[d] is the first index in OrderedEdges whose
         // EvalDepth == d; DepthEdgeStart[MaxDepth + 1] == EdgeCount (sentinel). Lets
         // DepthStepSystem iterate exactly the edges at CurrentDepth without scanning the full
@@ -126,6 +140,7 @@ namespace SpaceFab.Design
             graphState.EdgeCount = 0;
             graphState.MaxDepth = 0;
             graphState.PathPoolUsed = 0;
+            graphState.RepresentedCellCount = 0;
         }
 
         /// <summary>
@@ -138,6 +153,7 @@ namespace SpaceFab.Design
         ///         cells to record the path. Handle gate-dependency postponement mid-BFS.
         /// Pass 3: bucket-sort discovered edges by EvalDepth into graphState.OrderedEdges.
         /// Pass 4: detect cycles via index-based coloring DFS; mark back-edges as CycleDetected.
+        /// Pass 6: assign each non-crucial cell a flow representative for stub-cell painting.
         /// Pass 5: finalize IsBuilt + MaxDepth.
         /// </summary>
         public static void Build(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState)
@@ -154,6 +170,7 @@ namespace SpaceFab.Design
             Pass2_BfsAndPathDiscovery(graphState, scratch, gridStackState, numCols, cellsPerLayer);
             int maxDepth = Pass3_BucketSortEdgesByDepth(graphState, scratch);
             Pass4_DetectCycles(graphState, scratch);
+            Pass6_AssignFlowRepresentatives(graphState, scratch, gridStackState, numCols, cellsPerLayer, cellCount);
             Pass5_Finalize(graphState, maxDepth);
         }
 
@@ -174,6 +191,8 @@ namespace SpaceFab.Design
         private static void Pass0_EnsureCapacityAndReset(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int cellCount)
         {
             EnsureCapacity(ref graphState.CellToCrucial, cellCount, nameof(graphState.CellToCrucial));
+            EnsureCapacity(ref graphState.CellFlowRepresentative, cellCount, nameof(graphState.CellFlowRepresentative));
+            EnsureCapacity(ref graphState.RepresentedCells, cellCount, nameof(graphState.RepresentedCells));
             EnsureCapacity(ref graphState.CrucialNodes, cellCount, nameof(graphState.CrucialNodes));
             EnsureCapacity(ref graphState.OrderedEdges, cellCount * InitialEdgesPerCell, nameof(graphState.OrderedEdges));
             EnsureCapacity(ref graphState.PathPool, cellCount * InitialPathEntriesPerCell, nameof(graphState.PathPool));
@@ -199,6 +218,7 @@ namespace SpaceFab.Design
             graphState.EdgeCount = 0;
             graphState.MaxDepth = 0;
             graphState.PathPoolUsed = 0;
+            graphState.RepresentedCellCount = 0;
 
             scratch.CellAdjDestUsed = 0;
             scratch.WorkHead = 0;
@@ -215,8 +235,10 @@ namespace SpaceFab.Design
 
             // Clear CellToCrucial so cells without crucial assignments show -1. This IS an O(cellCount)
             // pass, but -1 is the sentinel we rely on everywhere downstream — cannot use a stamp.
+            // CellFlowRepresentative shares the sentinel and the loop (Pass 6 fills it in).
             for (int i = 0; i < cellCount; i++)
             {
+                graphState.CellFlowRepresentative[i] = -1;
                 graphState.CellToCrucial[i] = -1;
             }
 
@@ -551,6 +573,110 @@ namespace SpaceFab.Design
 
         #endregion // Pass 5
 
+        #region Pass 6
+
+        // ====================================================================================
+        // PASS 6 — Assign a flow representative to every non-crucial cell
+        // ------------------------------------------------------------------------------------
+        // Visual coverage only — does NOT affect flow values. DepthStepSystem paints cells along
+        // crucial-to-crucial edge paths; a connected cell that lies on no such path (a dead-end
+        // "stub" branch the DFS walked into and popped) is never painted. To match the prototype
+        // (which painted the whole connected region), we give each non-crucial cell a single
+        // "representative" crucial cell whose resolved per-cell flow it should mirror, then
+        // DepthStepSystem copies that flow each row.
+        //
+        // The representative is found by a multi-source BFS seeded from every crucial cell, run
+        // over the same cell-adjacency Pass 1 built (CellAdjStart/Count/Dest, which covers EVERY
+        // non-empty cell). The BFS does NOT cross a P-N transistor boundary — a diode separates
+        // two electrical segments that can hold different values, so a stub must mirror its own
+        // segment's crucial, never the far side. (Physical polarity is the right boundary even
+        // though gate inversion can flip effective polarity at run time: inversion changes whether
+        // flow passes, not where the diode physically sits, and the value copied at run time is
+        // the already-resolved per-cell flow.)
+        //
+        // CellFlowRepresentative doubles as the BFS working map (it is sized to cellCount and
+        // pre-cleared to -1 in Pass 0), so no extra scratch is needed: a crucial cell is seeded
+        // pointing at itself, the BFS propagates that cellIndex outward, and the final sweep
+        // resets crucial entries back to -1 (a crucial mirrors nothing — it is painted by its own
+        // edge) and records the represented non-crucial cells into the compact RepresentedCells list.
+        // ====================================================================================
+        private static void Pass6_AssignFlowRepresentatives(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int numCols, int cellsPerLayer, int cellCount)
+        {
+            // Fresh visit stamp for this BFS (O(1) invalidation of prior marks).
+            scratch.CurrentVisitStamp++;
+            scratch.WorkHead = 0;
+            scratch.WorkTail = 0;
+
+            // Seed: every crucial cell is its own representative and a BFS source.
+            for (int c = 0; c < graphState.NodeCount; c++)
+            {
+                int crucialCellIdx = graphState.CrucialNodes[c].CellIndex;
+                graphState.CellFlowRepresentative[crucialCellIdx] = crucialCellIdx;
+                scratch.VisitStamps[crucialCellIdx] = scratch.CurrentVisitStamp;
+                scratch.WorkQueue[scratch.WorkTail++] = crucialCellIdx;
+            }
+
+            // BFS outward through non-crucial cells, never crossing a P-N boundary.
+            while (scratch.WorkHead < scratch.WorkTail)
+            {
+                int cellIdx = scratch.WorkQueue[scratch.WorkHead++];
+                int rep = graphState.CellFlowRepresentative[cellIdx];
+
+                // Decompose cellIdx → (layer, col, row) to read its cell for the boundary check.
+                int layer = cellIdx / cellsPerLayer;
+                int rem = cellIdx - layer * cellsPerLayer;
+                int row = rem / numCols;
+                int col = rem - row * numCols;
+                GridCell cell = GridStackUtility.GetCellDirect(gridStackState, layer, col, row);
+
+                int adjStart = scratch.CellAdjStart[cellIdx];
+                int adjEnd = adjStart + scratch.CellAdjCount[cellIdx];
+                for (int a = adjStart; a < adjEnd; a++)
+                {
+                    int nbrIdx = scratch.CellAdjDest[a];
+                    if (scratch.VisitStamps[nbrIdx] == scratch.CurrentVisitStamp) { continue; }
+
+                    int nbrLayer = nbrIdx / cellsPerLayer;
+                    int nbrRem = nbrIdx - nbrLayer * cellsPerLayer;
+                    int nbrRow = nbrRem / numCols;
+                    int nbrCol = nbrRem - nbrRow * numCols;
+                    GridCell nbrCell = GridStackUtility.GetCellDirect(gridStackState, nbrLayer, nbrCol, nbrRow);
+
+                    // Don't let a representative bleed across a diode (opposite-polarity P-N pair).
+                    if (IsDiodeBoundaryHop(cell, nbrCell)) { continue; }
+
+                    scratch.VisitStamps[nbrIdx] = scratch.CurrentVisitStamp;
+
+                    // A crucial neighbor is already its own representative — don't overwrite or
+                    // re-enqueue (it was seeded). Non-crucial neighbors inherit this cell's rep.
+                    if (graphState.CellToCrucial[nbrIdx] >= 0) { continue; }
+
+                    graphState.CellFlowRepresentative[nbrIdx] = rep;
+                    scratch.WorkQueue[scratch.WorkTail++] = nbrIdx;
+                }
+            }
+
+            // Final sweep: crucial cells mirror nothing (reset to -1); collect represented
+            // non-crucial cells into the compact list DepthStepSystem walks each row. Bound by the
+            // real cellCount, not the array capacity — pooled arrays may hold stale entries past
+            // cellCount from a previous larger build (Pass 0 only clears 0..cellCount).
+            graphState.RepresentedCellCount = 0;
+            for (int i = 0; i < cellCount; i++)
+            {
+                if (graphState.CellToCrucial[i] >= 0)
+                {
+                    graphState.CellFlowRepresentative[i] = -1;
+                    continue;
+                }
+                if (graphState.CellFlowRepresentative[i] >= 0)
+                {
+                    graphState.RepresentedCells[graphState.RepresentedCellCount++] = i;
+                }
+            }
+        }
+
+        #endregion // Pass 6
+
         // ====================================================================================
         // Shared helpers used across passes follow below. They're grouped by which pass invokes
         // them; each pass method above delegates to the helpers in the matching region.
@@ -586,6 +712,17 @@ namespace SpaceFab.Design
                 if (cell.CellType == CellType.PTransistor && adjCell.CellType == CellType.NTransistor) { return true; }
             }
 
+            return false;
+        }
+
+        // True if a hop between two adjacent cells crosses a P-N transistor boundary (a diode):
+        // both cells are transistors of opposite physical polarity. Pass 6 uses this to stop a
+        // flow representative from spreading across a diode, since the two sides are separate
+        // electrical segments that can carry different values.
+        private static bool IsDiodeBoundaryHop(GridCell a, GridCell b)
+        {
+            if (a.CellType == CellType.PTransistor && b.CellType == CellType.NTransistor) { return true; }
+            if (a.CellType == CellType.NTransistor && b.CellType == CellType.PTransistor) { return true; }
             return false;
         }
 
