@@ -26,8 +26,8 @@ namespace FieldDay.Vox {
 
         #region ISceneLoadDependency
 
-        bool ISceneLoadDependency.IsLoaded(SceneLoadPhase loadPhase) {
-            if (loadPhase == SceneLoadPhase.BeforeReady) {
+        bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
+            if (loadPhase == SceneLoadFence.BeforeReady) {
                 return !FileLoader.IsRunning();
             } else {
                 return true;

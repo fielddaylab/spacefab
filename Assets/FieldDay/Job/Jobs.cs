@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using Unity.Jobs;
 
-namespace FieldDay.Jobs {
+namespace FieldDay.Job {
     static public class Jobs {
         static public AsyncHandle Push(IEnumerator asyncJob, AsyncFlags flags) {
             return Async.Schedule(asyncJob, flags);

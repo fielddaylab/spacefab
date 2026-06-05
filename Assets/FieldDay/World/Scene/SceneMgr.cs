@@ -672,7 +672,7 @@ namespace FieldDay.Scenes {
         }
 
         /// <summary>
-        /// Queues a callback for when the main scene is loaded.
+        /// Queues a callback for when the main scene is loaded and ready.
         /// </summary>
         public void QueueOnLoad(Action action) {
             SceneDataExt data = m_MainScene;
@@ -688,7 +688,7 @@ namespace FieldDay.Scenes {
         }
 
         /// <summary>
-        /// Queues a callback for when the given scene is loaded.
+        /// Queues a callback for when the given scene is loaded and ready.
         /// </summary>
         public void QueueOnLoad(Scene scene, Action action) {
             SceneDataExt data = SceneDataExt.Get(scene);
@@ -704,7 +704,7 @@ namespace FieldDay.Scenes {
         }
 
         /// <summary>
-        /// Queues a callback for when the scene for the given object is loaded.
+        /// Queues a callback for when the scene for the given object is loaded and ready.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void QueueOnLoad(GameObject gameObject, Action action) {
@@ -712,7 +712,7 @@ namespace FieldDay.Scenes {
         }
 
         /// <summary>
-        /// Queues a callback for when the scene for the given object is loaded.
+        /// Queues a callback for when the scene for the given object is loaded and ready.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void QueueOnLoad(Component component, Action action) {
@@ -968,14 +968,12 @@ namespace FieldDay.Scenes {
                 return WorkSlicer.Result.Processed;
             }
 
-            if (!Game.Assets.IsLoadingStreamedPackages()) {
-                if (ProcessPreloadQueue()) {
-                    return WorkSlicer.Result.Processed;
-                }
+            if (ProcessPreloadQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
 
-                if (ProcessLateEnableQueue()) {
-                    return WorkSlicer.Result.Processed;
-                }
+            if (ProcessLateEnableQueue()) {
+                return WorkSlicer.Result.Processed;
             }
 
             return WorkSlicer.Result.OutOfData;
@@ -1689,7 +1687,7 @@ namespace FieldDay.Scenes {
 
                 Log.Trace("[SceneMgr] Waiting for dependencies and streaming load...");
 
-                while (!AreDependenciesAndStreamingLoaded(SceneLoadPhase.BeforeLateEnable)) {
+                while (!AreDependenciesAndStreamingLoaded(SceneLoadFence.BeforeLateEnable)) {
                     yield return null;
                 }
 
@@ -1763,7 +1761,7 @@ namespace FieldDay.Scenes {
 
                 Log.Trace("[SceneMgr] Waiting for remaining dependencies...");
 
-                while (!AreDependenciesAndStreamingLoaded(SceneLoadPhase.BeforeReady)) {
+                while (!AreDependenciesAndStreamingLoaded(SceneLoadFence.BeforeReady)) {
                     yield return null;
                 }
 
@@ -1777,6 +1775,7 @@ namespace FieldDay.Scenes {
                         Scene = data.Scene,
                         LoadType = data.SceneType
                     });
+                    SceneHelper.OnLoaded(data.Scene);
                     foreach (ISceneCustomData custom in data.CustomData) {
                         custom.OnReady();
                     }
@@ -1813,7 +1812,7 @@ namespace FieldDay.Scenes {
             return true;
         }
 
-        private bool AreDependenciesAndStreamingLoaded(SceneLoadPhase phase) {
+        private bool AreDependenciesAndStreamingLoaded(SceneLoadFence phase) {
             for (int i = 0; i < m_Dependencies.Count; i++) {
                 if (!m_Dependencies[i].IsLoaded(phase)) {
                     return false;
@@ -1832,6 +1831,10 @@ namespace FieldDay.Scenes {
             }
 
             if (Game.Files.AnyHighPriorityRequestsLoading()) {
+                return false;
+            }
+
+            if (Game.Assets.IsLoadingStreamedPackages()) {
                 return false;
             }
 
@@ -1841,33 +1844,12 @@ namespace FieldDay.Scenes {
         /// <summary>
         /// Returns if all load dependencies loaded.
         /// </summary>
-        public bool AreLoadDependenciesLoaded(SceneLoadPhase phase = SceneLoadPhase.Any) {
-            if (BuildInfo.IsLoading()) {
+        public bool AreLoadDependenciesLoaded(SceneLoadFence fence = SceneLoadFence.Any) {
+            if (!IsSystemInitializationComplete()) {
                 return false;
             }
 
-            for (int i = 0; i < m_Dependencies.Count; i++) {
-                if (!m_Dependencies[i].IsLoaded(phase)) {
-                    return false;
-                }
-            }
-
-            while (m_DependencyHandles.TryPeekFront(out AsyncHandle handle)) {
-                if (handle.IsRunning()) {
-                    return false;
-                }
-                m_DependencyHandles.PopFront();
-            }
-
-            if (Streaming.IsLoading()) {
-                return false;
-            }
-
-            if (Game.Files.AnyHighPriorityRequestsLoading()) {
-                return false;
-            }
-
-            return true;
+            return AreDependenciesAndStreamingLoaded(fence);
         }
 
         /// <summary>
@@ -2099,14 +2081,14 @@ namespace FieldDay.Scenes {
     /// Scene loading dependency.
     /// </summary>
     public interface ISceneLoadDependency {
-        bool IsLoaded(SceneLoadPhase loadPhase);
+        bool IsLoaded(SceneLoadFence fence);
     }
 
     /// <summary>
-    /// Scene load phase.
+    /// Scene load fence.
     /// </summary>
     [Flags]
-    public enum SceneLoadPhase {
+    public enum SceneLoadFence {
         Any = 0,
         BeforeLateEnable = 0x1,
         BeforeReady = 0x2,
