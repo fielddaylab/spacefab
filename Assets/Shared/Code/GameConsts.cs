@@ -49,7 +49,7 @@ namespace SpaceFab
         // Fabrication: Station Control
         public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
         public static readonly StringHash32 FabActivateStation = "fab:Activate-station"; // Check conflicts with other consts
-        public static readonly StringHash32 FabInvalidActivateStation = "fab:invalid-activate-station";
+        //public static readonly StringHash32 FabInvalidActivateStation = "fab:invalid-activate-station";
         public static readonly StringHash32 FabStationLeft = "fab:station-left";
         public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
         public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
@@ -84,6 +84,7 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimResumed = "design-sim:resumed";
         public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
+        public static readonly StringHash32 DesignSimSuiteSucceeded = "design-sim:suite-succeeded";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
 
         // Design: Grid

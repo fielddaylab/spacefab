@@ -66,6 +66,7 @@ namespace SpaceFab.Design
                     || runState.PendingPlayRowIndex >= 0;
                 if (playRequested)
                 {
+
                     EnterSimulateMode(modeState, runState, graphState, graphBuildScratch, runScratch, gridStackState, progressState, designState);
                 }
             }

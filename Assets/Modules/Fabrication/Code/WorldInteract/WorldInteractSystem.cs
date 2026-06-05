@@ -8,6 +8,7 @@ using SpaceFab.Fabrication.StationControl;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SpaceFab.Fabrication.Sequence;
 
 namespace SpaceFab.Fabrication.Movement {
     /// <summary>
@@ -30,6 +31,7 @@ namespace SpaceFab.Fabrication.Movement {
                     .ReadWriteShared<StationControlState>()
                     .ReadWriteShared<RobotState>()
                     .ReadWriteShared<RobotVisualsState>()
+                    .ReadWriteShared<SequenceState>()
             );
         }
 
@@ -43,19 +45,20 @@ namespace SpaceFab.Fabrication.Movement {
                 );
             Find.State(
                 out RobotState robotState,
-                out RobotVisualsState visualsState
+                out RobotVisualsState visualsState,
+                out SequenceState sequenceState
                 );
 
             if (!interactState.WorldInteractEnabled) { return; }
 
-            ProcessInputs(interactState, movementState, layoutState, stationState, robotState, visualsState);
+            ProcessInputs(sequenceState, interactState, movementState, layoutState, stationState, robotState, visualsState);
         }
 
         // Dispatches Activate (Up / Space) and Cancel (Down) keypresses. Validity is checked via
         // WorldInteractUtility against the station-control state; the machine itself makes the final decision.
-        static private void ProcessInputs(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
+        static private void ProcessInputs(SequenceState sequenceState, WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
             if (Game.Input.IsKeyPressed(FabricationConsts.Up0) || Game.Input.IsKeyPressed(FabricationConsts.Up1) || Game.Input.IsKeyPressed(FabricationConsts.Activate)) {
-                HandleActivate(interactState, movementState, layoutState, stationState, robotState, visualsState);
+                HandleActivate(sequenceState, interactState, movementState, layoutState, stationState, robotState, visualsState);
             }
             // Skip and Down0 share the physical key S, so the Skip branch must come before Cancel.
             // The phase guard ensures Skip only fires during ExitingMicrogame while a process
@@ -72,15 +75,19 @@ namespace SpaceFab.Fabrication.Movement {
         // Looks up the interfacer at the current slot and asks the station-control machine to activate it.
         // No-op if the gate fails or the slot is invalid; a null interfacer is allowed through so the
         // machine can stun the robot for a wrong-station attempt.
-        static private void HandleActivate(WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
-            if (!WorldInteractUtility.CanActivate(interactState, stationState)) { return; }
+        static private void HandleActivate(SequenceState sequenceState, WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
+            if (!WorldInteractUtility.CanActivate(interactState, stationState)) 
+            {
+                Debug.Log($"Handle Activate: {sequenceState.Level}, {sequenceState.Level.Steps}, {sequenceState.CurrentStepIndex}");
+                return; 
+            }
 
             int slotIndex = movementState.CurrSlotPosition;
             if (slotIndex < 0 || slotIndex >= layoutState.StationSlots.Length) { return; }
 
             MicrogameStationInterfacer interfacer = layoutState.StationSlots[slotIndex].AssignedStationInterfacer;
             Log.Msg("[WorldInteractSystem] Activate pressed at slot {0}; forwarding to RequestActivate", slotIndex);
-            StationControlUtility.RequestActivate(stationState, robotState, visualsState, interfacer);
+            StationControlUtility.RequestActivate(sequenceState, stationState, robotState, visualsState, interfacer);
         }
 
         // Forwards a Cancel request to the station-control machine. Honored only during InMicrogame.
