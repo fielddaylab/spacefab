@@ -312,8 +312,13 @@ namespace SpaceFab.Logging
             SpacefabGame.Events
                 .Register(GameEvents.FabGenerateWafer, LogGenerateWafer)
                 .Register(GameEvents.FabTimeStart, LogTimerStart)
+                .Register<(string, bool)>(GameEvents.FabInstructionUpdated, (data) => LogInstructionUpdated(data.Item1, data.Item2))
                 .Register(GameEvents.FabStationEnterBegin, (string stationId) => LogActivateStation(stationId))
-                .Register<(string, string)>(GameEvents.FabWrongStationAttempt, LogInvalidActivation);
+                .Register<(string, string)>(GameEvents.FabWrongStationAttempt, LogInvalidActivation)
+                .Register<(string, float, bool)>(GameEvents.FabMicrogameCompleted, (data) => LogStationComplete(data.Item1, data.Item2, data.Item3))
+                .Register(GameEvents.FabCompleted, LogFabricationComplete)
+                .Register<(float, float, int)>(GameEvents.FabSucceeded, (data) => LogFabricationSuccess(data.Item1, data.Item2, data.Item3));
+
         }
         #endregion
 
@@ -767,7 +772,7 @@ namespace SpaceFab.Logging
 
         #endregion // Supply Chain
 
-        #region Fabrication
+ #region Fabrication
 
         private void LogSelectFabrication()
         {
@@ -809,12 +814,10 @@ namespace SpaceFab.Logging
         }
         */
         {
-            // TODO
-
             using (var e = m_Log.NewEvent("instruction_updated"))
             {
                 e.Param("next_station", nextStation);
-                e.Param("is_hidden", isHidden);
+                e.Param("is_hidden", false); // TODO: set default to false for now
             }
         }
 
@@ -856,7 +859,7 @@ namespace SpaceFab.Logging
             {
                 e.Param("station_id", stationId);
                 e.Param("accuracy", accuracy);
-                e.Param("is_automated", isAutomated);
+                e.Param("is_automated", isAutomated); // TODO: set default to false for now
             }
         }
 

@@ -173,7 +173,6 @@ namespace SpaceFab.Fabrication.StationControl {
             }
             // Bad-target branch: no interfacer, no microgame component, or the microgame refuses activation right now.
             if (interfacer == null || interfacer.Microgame == null || !interfacer.Microgame.CanActivateNow()) {
-                Debug.Log($"Invalid activation: {sequenceState.CurrentStepIndex}, {sequenceState.Level}, {sequenceState.Level.Steps[sequenceState.CurrentStepIndex].StepId}");
                 //Game.Events.Dispatch(GameEvents.FabWrongStationAttempt);
                 
                 SpacefabGame.Events.Dispatch(GameEvents.FabWrongStationAttempt, EvtArgs.Box((interfacer.Id.Source(), sequenceState.Level.Steps[sequenceState.CurrentStepIndex].StepId.ToString())));
@@ -186,7 +185,7 @@ namespace SpaceFab.Fabrication.StationControl {
             stationState.PhaseTimer = 0f;
             stationState.Phase = StationControlPhase.EnteringMicrogame;
             Log.Msg("[StationControlUtility] RequestActivate accepted; AtStation -> EnteringMicrogame");
-            SpacefabGame.Events.Dispatch(GameEvents.FabStationEnterBegin, EvtArgs.Create(stationState.ActiveInterfacer.Id.ToString()));
+            SpacefabGame.Events.Dispatch(GameEvents.FabStationEnterBegin, EvtArgs.Create(sequenceState.Level.Steps[sequenceState.CurrentStepIndex].StepId.ToString()));
         }
 
         // Called by WorldInteractSystem when the player presses Cancel. Sets the one-frame flag;

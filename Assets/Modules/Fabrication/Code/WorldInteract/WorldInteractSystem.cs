@@ -78,7 +78,6 @@ namespace SpaceFab.Fabrication.Movement {
         static private void HandleActivate(SequenceState sequenceState, WorldInteractState interactState, MovementState movementState, LayoutState layoutState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState) {
             if (!WorldInteractUtility.CanActivate(interactState, stationState)) 
             {
-                Debug.Log($"Handle Activate: {sequenceState.Level}, {sequenceState.Level.Steps}, {sequenceState.CurrentStepIndex}");
                 return; 
             }
 
