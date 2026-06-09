@@ -98,6 +98,7 @@ namespace SpaceFab.Fabrication.Sequence
             // 4. Populate and show the front card with the current step (if in range).
             if (currentIndex >= 0 && currentIndex < steps.Length) {
                 PopulateCard(visualsState.FrontCard, steps[currentIndex], GetRuntime(sequenceState, currentIndex), lookup, waferLookup);
+                SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
                 SetCardVisible(visualsState.FrontCard, true);
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
@@ -144,6 +145,7 @@ namespace SpaceFab.Fabrication.Sequence
                 WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
                 PopulateCard(newBack, steps[newBackIndex], GetRuntime(sequenceState, newBackIndex), lookup, waferLookup);
             }
+            SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[justCompletedIndex + 1].StepId.ToString(), false)));
             SetCardVisible(newBack, false);
         }
 

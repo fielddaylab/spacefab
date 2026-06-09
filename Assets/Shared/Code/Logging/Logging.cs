@@ -108,25 +108,33 @@ namespace SpaceFab.Logging
             }
             m_JsonBuilder.EndObject();
 
-            if (m_DesignGrid.HasValue)
+            if (m_CurrentMinigame == Minigame.DESIGN)
             {
-                m_JsonBuilder.BeginArray("design_grid");
-                m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell =>
+                if (m_DesignGrid.HasValue)
                 {
-                    m_JsonBuilder.BeginArray();
-                    foreach (var toolId in cell)
+                    m_JsonBuilder.BeginArray("design_grid");
+                    m_DesignGrid.Value.Grid.ForEach(row => row.ForEach(cell =>
                     {
-                        m_JsonBuilder.Item(toolId.ToString());
-                    }
+                        m_JsonBuilder.BeginArray();
+                        foreach (var toolId in cell)
+                        {
+                            m_JsonBuilder.Item(toolId.ToString());
+                        }
+                        m_JsonBuilder.EndArray();
+                    }));
                     m_JsonBuilder.EndArray();
-                }));
-                m_JsonBuilder.EndArray();
+                }
+                else
+                {
+                    m_JsonBuilder.Field("design_grid", (string)null);
+                }
+
             }
             else
             {
-                m_JsonBuilder.Field("design_grid", (string) null);
+                m_JsonBuilder.BeginArray("design_grid");
+                m_JsonBuilder.EndArray();
             }
-            
             m_Log.GameState(m_JsonBuilder.End());
         }
 
@@ -137,11 +145,11 @@ namespace SpaceFab.Logging
 
         private void UpdateDesignGridState(Vector2Int gridPos, string tool)
         {
-            if (m_CurrentMinigame != Minigame.DESIGN)
-            {
-                m_DesignGrid = null;
-                return;
-            }
+            //if (m_CurrentMinigame != Minigame.DESIGN)
+            //{
+            //    m_DesignGrid = null;
+            //    return;
+            //}
             // initialize design grid for horizontal slice
             if (!m_DesignGrid.HasValue)
             {
@@ -158,7 +166,7 @@ namespace SpaceFab.Logging
 
                 m_DesignGrid = new DesignGrid() { Grid = grid };
             }
-            
+
             switch (tool)
             {
                 case "ClearAll":
@@ -198,10 +206,17 @@ namespace SpaceFab.Logging
                     }
                     break;
                 case "Gate":
+                case "GateAbove":
+                case "GateBelow":
                     if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.GATE))
                     {
                         m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.GATE);
                     }
+                    break;
+                case "Implicit":
+                case "NONE":
+                case "Input":
+                case "Output":
                     break;
                 default:
                     throw new ArgumentException($"Unrecognized tool: {tool}");
@@ -288,14 +303,22 @@ namespace SpaceFab.Logging
                 .Register<GridStackConfig>(GameEvents.DeisgnGridSetup, LogDesignLevelBegin)
                 .Register<ToolType>(GameEvents.DesignToolSelected, LogSelectTool)
                 .Register<(GridCoord, string)>(GameEvents.DesignGridModified, (data) => LogFillGrid(data.Item1, data.Item2))
-                .Register<(Vector2Int, string)>(GameEvents.DesignGridCleared, (data) => UpdateDesignGridState(data.Item1, data.Item2));
+                .Register<(Vector2Int, string)>(GameEvents.DesignGridCleared, (data) => UpdateDesignGridState(data.Item1, data.Item2))
+                .Register<(List<GridCoord>, List<GridCoord>, int)>(GameEvents.DesignSimRowStarted, (data) => LogStartTest(data.Item1, data.Item2, data.Item3))
+                .Register<(string, int)>(GameEvents.DesignSimRowResolved, (data) => LogTestRowResolved(data.Item1, data.Item2))
+                .Register(GameEvents.DesignSimSuiteSucceeded, LogDesignComplete);
 
             // Fabrication
             SpacefabGame.Events
                 .Register(GameEvents.FabGenerateWafer, LogGenerateWafer)
                 .Register(GameEvents.FabTimeStart, LogTimerStart)
+                .Register<(string, bool)>(GameEvents.FabInstructionUpdated, (data) => LogInstructionUpdated(data.Item1, data.Item2))
                 .Register(GameEvents.FabStationEnterBegin, (string stationId) => LogActivateStation(stationId))
-                .Register<(string, string)>(GameEvents.FabInvalidActivateStation, LogInvalidActivation);
+                .Register<(string, string)>(GameEvents.FabWrongStationAttempt, LogInvalidActivation)
+                .Register<(string, float, bool)>(GameEvents.FabMicrogameCompleted, (data) => LogStationComplete(data.Item1, data.Item2, data.Item3))
+                .Register(GameEvents.FabCompleted, LogFabricationComplete)
+                .Register<(float, float, int)>(GameEvents.FabSucceeded, (data) => LogFabricationSuccess(data.Item1, data.Item2, data.Item3));
+
         }
         #endregion
 
@@ -344,8 +367,8 @@ namespace SpaceFab.Logging
         private void LogGameStart(bool fromResume)
         {
             using (var e = m_Log.NewEvent("game_start")) {
-            e.Param("from_resume", fromResume);
-    }
+                e.Param("from_resume", fromResume);
+            }
         }
 
         private void LogClickNewGame()
@@ -356,6 +379,7 @@ namespace SpaceFab.Logging
         private void LogClickResumeGame()
         {
             m_Log.NewEvent("click_resume_game");
+            SubmitGameState();
         }
 
         # region Overarching
@@ -420,7 +444,6 @@ namespace SpaceFab.Logging
                 e.Param("contract_id", contractId);
             }
         }
-
         private void LogConfirmSelectContract(string contractId)
         {
             m_CurrentContractId = contractId;
@@ -486,7 +509,6 @@ namespace SpaceFab.Logging
                     break;
             }
         }
-
         public void HandleMinigameExit()
         {
             switch(m_CurrentMinigame)
@@ -533,13 +555,10 @@ namespace SpaceFab.Logging
 
         private void LogStartDesign()
         {
-            Debug.Log($"LogStartDesign called. m_Log null? {m_Log == null}");
             m_CurrentMinigame = Minigame.DESIGN;
             SubmitGameState();
             using (m_Log.NewEvent("start_design")) { }
-            Debug.Log("start_design event scope disposed");
         }
-
 
         private void LogDesignLevelBegin(GridStackConfig config)
         /*
@@ -582,7 +601,8 @@ namespace SpaceFab.Logging
                 else if (cell.CellType != CellType.NONE || cell.TransferType != TransferType.NONE)
                 {
                     Vector2Int cellPos = new Vector2Int(cell.RowIndex, cell.ColumnIndex);
-                    UpdateDesignGridState(cellPos, ConvertToToolID(cell).ToString());
+                    UpdateDesignGridState(cellPos, cell.CellType.ToString());
+                    UpdateDesignGridState(cellPos, cell.TransferType.ToString());
                 }
             }
 
@@ -686,35 +706,48 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void LogSubmitDesign(List<GridCoord> inputs, List<GridCoord> outputs) // ? inputs outputs type
+        private void LogStartTest(List<GridCoord> inputs, List<GridCoord> outputs, int rowIndex)
         {
             // TODO
-            // need clarification: log every time the player submit each row or only log when the whole suite is submitted?
-
+            using (var e = m_Log.NewEvent("start_test"))
+            {
+                e.Param("inputs", string.Join(";", inputs.Select(coord => $"({coord.Row},{coord.Col})")));
+                e.Param("outputs", string.Join(";", outputs.Select(coord => $"({coord.Row},{coord.Col})")));
+                e.Param("row_index", rowIndex);
+            }
         }
 
-        private void LogSubmissionSucceeded(string message)
+        private void LogTestRowResolved(string resultStr, int rowIndex)
         {
-            // need clarification: log when a row succeeds or only log when the whole suite succeeds?
+            if (resultStr == "success") { LogTestSucceeded(rowIndex); }
+            else { LogTestFailed(rowIndex); }
+        }
+
+        private void LogTestSucceeded(int rowIndex)
+        {
             using (var e = m_Log.NewEvent("submission_succeeded"))
             {
-                e.Param("message", message);
+                e.Param("row_number", rowIndex);
             }
         }
 
-        private void LogSubmissionFailed(string message)
+        private void LogTestFailed(int rowIndex)
         {
-            // need clarification: log when a row fails or only log when the whole suite fails?
             using (var e = m_Log.NewEvent("submission_failed"))
             {
-                e.Param("message", message);
+                e.Param("row_number", rowIndex); // need to confirm: are the rows of test suite always in the same order?
             }
+        }
+
+        private void LogDesignComplete()
+        {
+            m_Log.NewEvent("design_complete");
         }
 
         private void LogExitDesign()
         {
             m_CurrentMinigame = null;
-            m_DesignGrid = null;
+            //m_DesignGrid = null;
             SubmitGameState();
 
             using (m_Log.NewEvent("exit_design")) { }
@@ -739,7 +772,7 @@ namespace SpaceFab.Logging
 
         #endregion // Supply Chain
 
-        #region Fabrication
+ #region Fabrication
 
         private void LogSelectFabrication()
         {
@@ -781,12 +814,10 @@ namespace SpaceFab.Logging
         }
         */
         {
-            // TODO
-
             using (var e = m_Log.NewEvent("instruction_updated"))
             {
                 e.Param("next_station", nextStation);
-                e.Param("is_hidden", isHidden);
+                e.Param("is_hidden", false); // TODO: set default to false for now
             }
         }
 
@@ -828,7 +859,7 @@ namespace SpaceFab.Logging
             {
                 e.Param("station_id", stationId);
                 e.Param("accuracy", accuracy);
-                e.Param("is_automated", isAutomated);
+                e.Param("is_automated", isAutomated); // TODO: set default to false for now
             }
         }
 

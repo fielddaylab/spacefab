@@ -3,6 +3,8 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 using SpaceFab.Save;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace SpaceFab.Design
 {
@@ -134,7 +136,6 @@ namespace SpaceFab.Design
                 runState.CurrentRow = runState.RequestedRowIndex;
                 SimulateControlUtility.WipeVerdictsForNewRun(runState, uiState, designState);
                 runState.Phase = SimulatePhase.PreparingTest;
-                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
                 return;
             }
         }
@@ -164,6 +165,9 @@ namespace SpaceFab.Design
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
             TestData currTest = suite.Tests[runState.CurrentRow];
+            List<GridCoord> inputs = new List<GridCoord>();
+            List<GridCoord> outputs = new List<GridCoord>();
+
             for (int i = 0; i < graphState.NodeCount; i++)
             {
                 CrucialNode node = graphState.CrucialNodes[i];
@@ -171,8 +175,17 @@ namespace SpaceFab.Design
                 if (cell.CellType == CellType.Input)
                 {
                     runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                    inputs.Add(node.Coord);
+                }
+                else if (cell.CellType == CellType.Output)
+                {
+                    outputs.Add(node.Coord);
                 }
             }
+
+            Debug.Log("${inputs} \n ${outputs}");
+
+            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, EvtArgs.Box((inputs, outputs, runState.CurrentRow)));
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
 
             // Wipe any leftover verdict marks from this row's previous run — the new propagation
@@ -198,7 +211,7 @@ namespace SpaceFab.Design
             // CurrentRow / Phase just changed; the active row's button needs to flip to Pause.
             SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
 
-            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
+            //SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
         }
 
         // Propagating: per-depth paint rhythm.
@@ -362,8 +375,8 @@ namespace SpaceFab.Design
                 if (verdict == TestRowVerdict.Correct) { resultStr = "success"; }
                 table.Set("result", resultStr);
                 ScriptUtility.Trigger(DesignScriptTriggers.OnSingleTestComplete, table);
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, EvtArgs.Box((resultStr, runState.CurrentRow)));
             }
-            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
 
             // Toggle-input mode: every Test click resolves a single row. Show the results panel
             // only when every row in the suite has been resolved Correct (the "level complete"
@@ -379,6 +392,7 @@ namespace SpaceFab.Design
                     ScriptUtility.Trigger(DesignScriptTriggers.OnAllTestsComplete);
 
                     DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteSucceeded);
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
                 SimulateUIUtility.MarkAllRunButtonsDirty(uiState);

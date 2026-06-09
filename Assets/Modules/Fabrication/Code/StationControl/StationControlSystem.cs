@@ -29,6 +29,7 @@ namespace SpaceFab.Fabrication.StationControl {
                     .ReadWriteShared<RobotState>()
                     .ReadShared<LayoutState>()
                     .ReadWriteShared<RobotVisualsState>()
+                    .ReadWriteShared<WaferState>()
             );
         }
 
@@ -209,7 +210,7 @@ namespace SpaceFab.Fabrication.StationControl {
             MicrogameStationInterfacerUtility.BeginExit(stationState.ActiveInterfacer, stationState, true);
             stationState.MicrogamePassedThisFrame = true;
             Log.Msg("[StationControlSystem] microgame accepted; -> ExitingMicrogame");
-            Game.Events.Dispatch(GameEvents.FabMicrogameCompleted);
+            //Game.Events.Dispatch(GameEvents.FabMicrogameCompleted);
             stationState.Phase = StationControlPhase.ExitingMicrogame;
             stationState.PhaseTimer = 0f;
         }
