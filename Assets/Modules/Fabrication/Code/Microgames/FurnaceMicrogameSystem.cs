@@ -41,58 +41,45 @@ namespace SpaceFab.Fabrication.Microgames
                 case FurnaceMicrogamePhase.Entering:
                     MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.FURNACE_STATION_ID);
                     break;
-                case FurnaceMicrogamePhase.Burning:
-                    ProcessingBurning(microgameState, deltaTime);
-                    break;
-                case FurnaceMicrogamePhase.Fueling:
-                    ProcessFueling(microgameState, deltaTime);
+                case FurnaceMicrogamePhase.Active:
+                    ProcessActive(microgameState, deltaTime);
                     break;
                 default:
                     break;
             }
         }
 
-            // TODO: read Activate-hold input; integrate heat value toward target; clamp to range.
-
-        #region Helpers
-
-        // increments current value for duration player holds activation key, then sets final heat to value on release
-        private static void ProcessingBurning(FurnaceMicrogameState state, float deltaTime)
+        private static void ProcessActive(FurnaceMicrogameState state, float deltaTime)
         {
             if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate))
             {
-                state.CurrentValue += state.Sensitivity * deltaTime;
-            } else if (state.InputAccepted && state.CurrentValue > 0)
-            {
-                state.Phase = FurnaceMicrogamePhase.Fueling;
-                state.FinalHeat = state.CurrentValue;
+                if (state.IncreasingHeat)
+                {
+                    state.CurrentValue += state.Sensitivity * deltaTime;
+                    if (state.CurrentValue >= state.MaxRange)
+                    {
+                        state.IncreasingHeat = false;
+                    }
+                }
+                else
+                {
+                    state.CurrentValue -= state.Sensitivity * deltaTime;
+                    if (state.CurrentValue <= 0)
+                    {
+                        state.IncreasingHeat = true;
+                    }
+                }
+
+                float percentage = state.CurrentValue / state.MaxRange;
+                state.MeterArrowAnchor.rotation = Quaternion.Euler(new Vector3(0, 0, -percentage * 180));
             }
-        }
-
-        // animates movement of the meter arrow to the final heat position, then triggers exit of microgame
-        private static void ProcessFueling(FurnaceMicrogameState state, float deltaTime)
-        {
-            float targetPercentage = state.FinalHeat / state.MaxRange;
-            float targetZRotation = -targetPercentage * 180;
-            targetZRotation = Mathf.Clamp(targetZRotation, -179.99f, 0); // clamp it, and keep it slightly closer to start rot so animate correctly
-            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, targetZRotation));
-
-            // frame independent smoothing, probably make less expensive later
-            float blend = 1f - Mathf.Pow(state.MeterSmoothing, deltaTime);
-
-            state.MeterArrowAnchor.rotation = Quaternion.Slerp(
-                state.MeterArrowAnchor.rotation, 
-                targetRotation, 
-                blend
-            );
-
-            if (Quaternion.Angle(state.MeterArrowAnchor.rotation, targetRotation) < 0.1f) 
+            else if (state.InputAccepted && Game.Input.IsKeyUp(FabricationConsts.Activate))
             {
+                state.FinalHeat = state.CurrentValue;
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
+                return;
             }
         }
-
-        #endregion // Helpers
     }
 }

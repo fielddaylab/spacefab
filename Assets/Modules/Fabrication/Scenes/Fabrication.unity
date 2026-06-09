@@ -3571,7 +3571,7 @@ MonoBehaviour:
   TargetRange: 5
   TargetHalfWidth: 1
   MaxRange: 10
-  Sensitivity: 3
+  Sensitivity: 6
   CurrentValue: 0
   FinalHeat: 0
   InputAccepted: 0
