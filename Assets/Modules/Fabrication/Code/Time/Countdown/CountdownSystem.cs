@@ -39,7 +39,6 @@ namespace SpaceFab.Fabrication {
                 else
                 {
                     countdownState.CountDownText.text = "GO!";
-                    SpacefabGame.Events.Dispatch(GameEvents.FabTimeStart);
                 }
             }
         }

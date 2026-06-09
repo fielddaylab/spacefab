@@ -87,6 +87,7 @@ namespace SpaceFab.Fabrication {
             {
                 // start timer
                 Log.Msg("[ModeTransitionSystem] countdown completed. Moving to Attempt Mode");
+                SpacefabGame.Events.Dispatch(GameEvents.FabTimeStart);
 
                 // update robot visual
                 RobotVisualsUtility.UpdateLayer(Find.State<RobotVisualsState>());
