@@ -11,8 +11,8 @@ namespace SpaceFab.Fabrication.Microgames
 {
     public enum SputterMicrogamePhase
     {
-        Entering,
         Idle,
+        Entering,
         Active,
         Exiting
     }
@@ -30,12 +30,14 @@ namespace SpaceFab.Fabrication.Microgames
         public GameObject SputterUI;
         public SputterMicrogamePhase Phase;
 
-        public LineRenderer IncidentBeam;
-        public LineRenderer[] ReflectedBeam;
         public Transform SputterSprites;
+        public Transform InitialPos;
+        public Transform ProjectileParent;
         public SpriteRenderer PatternRenderer;
 
         public float MaxSputterDistance = 1.75f;
+
+        public SputterMicrogameProjectile SputterProjectilePrefab;
 
         public void OnRegister()
         {

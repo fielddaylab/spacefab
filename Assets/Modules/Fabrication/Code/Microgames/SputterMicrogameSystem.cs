@@ -34,49 +34,45 @@ namespace SpaceFab.Fabrication.Microgames
             {
                 case SputterMicrogamePhase.Entering:
                     MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.SPUTTER_STATION_ID);
-                    ProcessBeamAnimation(state, deltaTime);
                     break;
                 case SputterMicrogamePhase.Active:
-                    ProcessBeamAnimation(state, deltaTime);
                     ProcessActive(state, deltaTime);
                     break;
             }
         }
 
-        static private void ProcessBeamAnimation(SputterMicrogameState state, float deltaTime)
-        {
-            Vector2 offset = state.IncidentBeam.material.mainTextureOffset;
-            offset.x -= Time.deltaTime;
-            state.IncidentBeam.material.mainTextureOffset = offset;
-
-            float scale = 1.5f;
-            foreach (LineRenderer lr in state.ReflectedBeam)
-            {
-                lr.material.mainTextureOffset = offset * scale;
-            }
-        }
-
+        private static float spawnTimer = 0.5f;
         static private void ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;
+            
+            float angle = state.SputterSprites.eulerAngles.z;
 
-            Vector3 delta = Vector2.zero;
             if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
             {
-                if (state.SputterSprites.localPosition.x > 0f)
-                    delta = Vector2.left * Time.deltaTime;
+                angle += deltaTime * 50f;
             }
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
             {
-                delta = Vector2.right * Time.deltaTime;
+                angle -= deltaTime * 50f;
+            }
+            state.SputterSprites.rotation = Quaternion.Euler(0, 0, angle);
+
+            spawnTimer -= deltaTime;
+            if (spawnTimer <= 0f)
+            {
+                spawnTimer = 0.5f;
+                SputterMicrogameProjectile projectile = Instantiate(state.SputterProjectilePrefab, state.ProjectileParent);
+                projectile.transform.position = state.InitialPos.position;
+                projectile.SetDirection(angle);
             }
 
-            state.SputterSprites.localPosition += delta;
+
 
             float scale = 1.5f;
-            state.PatternRenderer.size = new Vector2(state.PatternRenderer.size.x + delta.x * scale, state.PatternRenderer.size.y);
-            state.PatternRenderer.transform.localPosition += new Vector3(delta.x * scale / 2, 0f, 0f);
+            //state.PatternRenderer.size = new Vector2(state.PatternRenderer.size.x + delta.x * scale, state.PatternRenderer.size.y);
+            //state.PatternRenderer.transform.localPosition += new Vector3(delta.x * scale / 2, 0f, 0f);
 
             if (state.SputterSprites.localPosition.x > state.MaxSputterDistance)
             {
