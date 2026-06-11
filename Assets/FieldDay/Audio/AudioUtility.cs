@@ -19,9 +19,23 @@ namespace FieldDay.Audio {
 #endif // USE_JSLIB
         }
 
+        /// <summary>
+        /// Returns if the current audio player is active.
+        /// </summary>
+        static public bool IsActive() {
+#if USE_JSLIB
+            return NativeWebAudio_IsActive();
+#else
+            return Application.runInBackground || Application.isFocused;
+#endif // USE_JSLIB
+        }
+
 #if USE_JSLIB
         [DllImport("__Internal")]
         static private extern bool NativeWebAudio_WakeUp();
+
+        [DllImport("__Internal")]
+        static private extern bool NativeWebAudio_IsActive();
 #endif // USE_JSLIB
     }
 }

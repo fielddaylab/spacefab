@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Packs:
-  - {fileID: 11400000, guid: 23f710ccdef94954b9445ce5a73932c0, type: 2}
+  - {fileID: 11400000, guid: fd4601680fe9af746b988298e7309c51, type: 2}
 --- !u!4 &804920511
 Transform:
   m_ObjectHideFlags: 0

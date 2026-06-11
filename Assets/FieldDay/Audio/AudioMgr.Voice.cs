@@ -269,6 +269,8 @@ namespace FieldDay.Audio {
                 busValues[i] = m_WorkingBusProperties[i];
             }
 
+            bool hasAudioFocus = AudioUtility.IsActive();
+
             for(int i = m_ActiveVoices.Count - 1; i >= 0; i--) {
                 VoiceData voice = m_ActiveVoices[i];
                 UpdateVoicePropertyBlock(voice, busValues[voice.BusIndex]);
@@ -287,7 +289,7 @@ namespace FieldDay.Audio {
                             break;
                         }
 
-                        if (voice.PlaybackDelay > 0) {
+                        if (voice.PlaybackDelay > 0 && hasAudioFocus) {
                             voice.PlaybackDelay -= deltaTime;
                         }
 
@@ -336,7 +338,7 @@ namespace FieldDay.Audio {
                                     voice.Components.Source.timeSamples -= voice.SampleLoopLength;
                                 }
                             }
-                        } else {
+                        } else if (hasAudioFocus) {
                             if (voice.Components.Source.loop) {
                                 voice.State = VoiceState.PlayRequested;
                             } else if (voice.FrameEnded == Frame.InvalidIndex) {

@@ -266,8 +266,8 @@ MonoBehaviour:
   EvaluatedForDependency: 
   DisallowAdditionalDep: 
   Processed: 
-  NoReturnStamps: 
-  CurrentNoReturnStamp: 0
+  NoReturnPairs: 
+  NoReturnPairCount: 0
   UnsortedEdgeCount: 0
 --- !u!114 &33255856
 MonoBehaviour:
@@ -288,6 +288,9 @@ MonoBehaviour:
   PathPool: 
   PathPoolUsed: 0
   CellToCrucial: 
+  CellFlowRepresentative: 
+  RepresentedCells: 
+  RepresentedCellCount: 0
   DepthEdgeStart: 
 --- !u!114 &33255857
 MonoBehaviour:
@@ -1822,6 +1825,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Packs:
   - {fileID: 11400000, guid: 525a9ee8678f25e41bb748f2db0fc87a, type: 2}
+  - {fileID: 11400000, guid: 9ffeec381387ff148a87ff06d4fe3cb4, type: 2}
 --- !u!4 &1076508057
 Transform:
   m_ObjectHideFlags: 0

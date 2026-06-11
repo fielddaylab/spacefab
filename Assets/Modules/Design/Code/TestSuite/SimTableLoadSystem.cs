@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
@@ -73,6 +74,7 @@ namespace SpaceFab.Design
                     ScriptUtility.Trigger(DesignScriptTriggers.OnDesignSetupComplete);
                     // Setup is finished; stop running this system until the next minigame load
                     GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
+                    MusicPlayer.SetLoopingTrack("Design.Music");
                     break;
                 default:
                     break;

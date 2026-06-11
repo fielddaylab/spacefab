@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using FieldDay.UI;
@@ -134,6 +135,7 @@ namespace SpaceFab.Overarching {
             //Debug.Log("[OverarchingStartupSequenceSystem] ship menu displayed");
             //SpacefabGame.Events.Dispatch(GameEvents.ShipMenuDisplayed);
             chapterLoadState.Phase = ChapterLoadPhase.LoadingAvailableContracts;
+            MusicPlayer.SetLoopingTrack("Overarching.Music");
 
             // If no contract is selected yet, defer to selection; otherwise jump to loading the selected contract.
             if (chapterState.LastSelectedContractIndex == -1) {

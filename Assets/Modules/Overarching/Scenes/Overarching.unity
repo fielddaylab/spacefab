@@ -193,6 +193,7 @@ MonoBehaviour:
   m_Packs:
   - {fileID: 11400000, guid: 8a50f7de9daa38844bf0101c3bb9513e, type: 2}
   - {fileID: 11400000, guid: 5b4f1bd664a4fe441aad3be2d61f8386, type: 2}
+  - {fileID: 11400000, guid: db039b9c5c4d6434a959e45fdcb02588, type: 2}
 --- !u!4 &422788435
 Transform:
   m_ObjectHideFlags: 0

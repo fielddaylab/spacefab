@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
@@ -55,6 +56,8 @@ namespace SpaceFab.Fabrication {
             ModeUtility.SetNewMode(modeState, LevelMode.PreAttempt);
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.PreAttemptMask);
+
+            MusicPlayer.SetLoopingTrack("Fabrication.Music");
         }
     }
 }

@@ -853,6 +853,26 @@ namespace FieldDay.Scenes {
         }
 
         /// <summary>
+        /// Returns the queued main scene load context.
+        /// </summary>
+        public bool GetQueuedLoadContext(out SceneRequestContext context) {
+            for (int i = 0; i < m_QueuedContexts.Count; i++) {
+                if (m_QueuedContexts[i].PathHash.IsEmpty) {
+                    context = m_QueuedContexts[i].Data;
+                    return true;
+                }
+            }
+
+            if (m_MainScene) {
+                context = m_MainScene.Context;
+                return true;
+            }
+
+            context = default;
+            return false;
+        }
+
+        /// <summary>
         /// Returns the load context for the given scene.
         /// </summary>
         public bool GetLoadContext(Scene scene, out SceneRequestContext context) {

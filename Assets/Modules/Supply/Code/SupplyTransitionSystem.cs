@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using UnityEngine;
@@ -41,6 +42,7 @@ namespace SpaceFab.Supply {
                 case SupplyTransitionPhase.Completed:
                     GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
                     GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);
+                    MusicPlayer.SetLoopingTrack("SupplyChain.Music");
 
                     ScriptUtility.Trigger(SupplyScriptTriggers.OnSupplySetupCompleted);
                     break;

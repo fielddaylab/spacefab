@@ -1,4 +1,6 @@
 using BeauUtil;
+using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using Leaf.Runtime;
 
@@ -17,6 +19,31 @@ namespace SpaceFab.Narrative {
             if (printer is MinigameDialogueBox box) {
                 box.Dismiss();
             }
+        }
+
+        [LeafMember("MusicStop")]
+        public static void Leaf_StopMusic() {
+            MusicPlayer.Stop();
+        }
+
+        [LeafMember("MusicStopNow")]
+        public static void Leaf_StopMusicNow() {
+            MusicPlayer.Stop(0);
+        }
+
+        [LeafMember("MusicPlay")]
+        public static void Leaf_PlayMusic(StringHash32 music) {
+            MusicPlayer.SetLoopingTrack(music);
+        }
+
+        [LeafMember("MusicPreload")]
+        public static void Leaf_PreloadMusic(StringHash32 music) {
+            Game.Audio.QueuePreload(music);
+        }
+
+        [LeafMember("MusicUnload")]
+        public static void Leaf_UnloadMusic(StringHash32 music) {
+            Game.Audio.QueueUnload(music);
         }
     }
 }

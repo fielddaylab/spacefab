@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
@@ -131,6 +132,8 @@ namespace SpaceFab.Research {
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
+
+            MusicPlayer.SetLoopingTrack("Research.Music");
 
             using (var table = TempVarTable.Alloc()) {
                 table.Set("minigame", "research");
