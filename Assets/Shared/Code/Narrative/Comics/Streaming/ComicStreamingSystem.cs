@@ -3,6 +3,7 @@ using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Data;
+using FieldDay.Debugging;
 using FieldDay.Systems;
 using System;
 using System.Collections;
@@ -41,6 +42,18 @@ namespace SpaceFab.Comic
                 break;
             }
             while ((currentTs = Frame.Timestamp()) < endTS);
+
+            if (Game.IsDevBuild) {
+                if (DebugInput.IsDown(KeyCode.F)) {
+                    using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                        psb.Builder.Append("Meshes in Use: ").AppendNoAlloc(resourcePool.MeshPool.InUse)
+                            .Append("\nMaterials in Use: ").AppendNoAlloc(resourcePool.MaterialPool.InUse)
+                            .Append("\nTransforms in Use: ").AppendNoAlloc(resourcePool.ParentPool.InUse)
+                            .Append("\nElements in Use: ").AppendNoAlloc(resourcePool.ElementPool.InUse);
+                        DebugDraw.AddLogText(psb, Color.green);
+                    }
+                }
+            }
         }
 
         static private unsafe bool RunMeshDecompressionStep(ComicStreamingState streaming, ComicResourcePool resourcePool) {

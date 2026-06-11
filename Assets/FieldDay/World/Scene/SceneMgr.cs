@@ -1302,7 +1302,6 @@ namespace FieldDay.Scenes {
                 GameObject localPool = new GameObject("__ScenePool");
                 localPool.SetActive(false);
                 SceneManager.MoveGameObjectToScene(localPool, scene);
-                localPool.hideFlags = HideFlags.DontSave;
                 data.SceneLocalPoolRoot = localPool.transform;
                 data.SceneLocalPoolRoot.hierarchyCapacity = 1024;
             }

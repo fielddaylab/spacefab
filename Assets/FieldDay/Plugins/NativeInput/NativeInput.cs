@@ -65,7 +65,7 @@ namespace NativeUtils
             #else
             if (s_InstantiatedCallback == null) {
                 GameObject go = new GameObject("[NativeWebInputMock]");
-                go.hideFlags = HideFlags.DontSave;
+                go.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
                 GameObject.DontDestroyOnLoad(go);
                 s_InstantiatedCallback = go.AddComponent<NativeInputMockCallback>();
             }

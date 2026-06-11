@@ -15,7 +15,6 @@ namespace FieldDay.Scripting {
 
         #endregion // Inspector
 
-        private LeafThreadHandle m_Owner;
         private ScriptThread m_OwnerThread;
         private TagStringEventHandler m_OverrideHandler;
 

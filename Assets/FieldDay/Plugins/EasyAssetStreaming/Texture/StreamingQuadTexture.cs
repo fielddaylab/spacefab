@@ -488,7 +488,6 @@ namespace EasyAssetStreaming {
             }
 
             m_MeshInstance = MeshGeneration.CreateQuad(m_Size, m_Pivot, vertColor, m_ClippedUVs, m_Tessellation, m_MeshInstance, ref m_MeshInstanceHash);
-            m_MeshInstance.hideFlags = HideFlags.DontSave;
             m_MeshFilter.sharedMesh = m_MeshInstance;
         }
 

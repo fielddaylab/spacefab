@@ -339,7 +339,6 @@ namespace EasyAssetStreaming {
                 Texture2D texture;
                 texture = new Texture2D(2, 2, TextureFormat.RGB24, 1, false);
                 texture.name = name;
-                texture.hideFlags = HideFlags.DontSave;
                 ApplyPlaceholderData(texture, final);
                 return texture;
             }
@@ -688,7 +687,6 @@ namespace EasyAssetStreaming {
                     byte[] bytes = File.ReadAllBytes(correctedPath);
                     Texture2D texture = new Texture2D(4, 4, TextureFormat.RGB24, 1, false);
                     texture.name = address;
-                    texture.hideFlags = HideFlags.DontSaveInEditor;
                     var settings = ApplySettings(id, texture);
                     TextureCompression compression = ResolveCompression(settings.CompressionLevel);
                     texture.LoadImage(bytes, false);
