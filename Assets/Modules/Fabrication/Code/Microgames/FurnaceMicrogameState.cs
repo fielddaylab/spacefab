@@ -12,8 +12,7 @@ namespace SpaceFab.Fabrication.Microgames
     {
         Idle,       // awaiting start
         Entering,   // entering microgame
-        Fueling,   // waiting for player to hold button
-        Burning,  // animating meter moving into place
+        Active,     // accepting input, simulating heat
         Exiting     // cleanup
     }
     
@@ -36,14 +35,12 @@ namespace SpaceFab.Fabrication.Microgames
         [HideInInspector] public float FinalHeat;
 
         [HideInInspector] public bool InputAccepted;
+        [HideInInspector] public bool IncreasingHeat;
 
         // 2d sprites
         public GameObject FurnaceUI;
         // indicators for internal values, rotate to show along meter
         public Transform TargetRangeAnchor, TargetArrowAnchor, MeterArrowAnchor;
-
-        // Time to smooth meter moving to final heat value, lower is faster
-        public float MeterSmoothing = 0.1f;
 
         public FurnaceMicrogamePhase Phase;
 
@@ -88,6 +85,7 @@ namespace SpaceFab.Fabrication.Microgames
 
             // reset value
             state.CurrentValue = 0;
+            state.IncreasingHeat = true;
             
             state.FurnaceUI.SetActive(true);
             state.Phase = FurnaceMicrogamePhase.Entering;
@@ -99,7 +97,7 @@ namespace SpaceFab.Fabrication.Microgames
             
             // start accepting Activate-hold input; begin heat simulation.
             state.InputAccepted = true;
-            state.Phase = FurnaceMicrogamePhase.Burning;
+            state.Phase = FurnaceMicrogamePhase.Active;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
@@ -158,7 +156,7 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out FurnaceMicrogameState state);
 
             float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.MaxRange);
-            precision = Mathf.Clamp(precision, 0f, 1f);   
+            precision = Mathf.Clamp(precision, 0f, 1f);
 
             return precision;
         }

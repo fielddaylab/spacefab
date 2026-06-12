@@ -11,8 +11,8 @@ namespace SpaceFab.Fabrication.Microgames
 {
     public enum SputterMicrogamePhase
     {
-        Entering,
         Idle,
+        Entering,
         Active,
         Exiting
     }
@@ -30,19 +30,16 @@ namespace SpaceFab.Fabrication.Microgames
         public GameObject SputterUI;
         public SputterMicrogamePhase Phase;
 
-        public LineRenderer IncidentBeam;
-        public LineRenderer[] ReflectedBeam;
-        public Transform SputterSprites;
-        public SpriteRenderer PatternRenderer;
+        public Transform SputterHeadAnchor;
+        public Transform InitialPosition;
+        public Transform ProjectileParent;
 
-        public float PatternStartX;
-        public float PatternAccumulatedX;
-
-        public float MaxSputterDistance = 1.75f;
+        public SputterMicrogameProjectile SputterProjectilePrefab;
+        public SputterPatternData SputterPattern;
 
         public void OnRegister()
         {
-            PatternStartX = PatternRenderer.transform.localPosition.x;
+            
         }
 
         public void OnDeregister()
@@ -72,9 +69,6 @@ namespace SpaceFab.Fabrication.Microgames
             state.IsActive = true;
             state.InputAccepted = false;
             state.SputterUI.SetActive(true);
-
-            state.PatternAccumulatedX = 0;
-            state.PatternRenderer.transform.localPosition = new Vector3(state.PatternStartX, 0, 0);
         }
 
         public static void EnterComplete()
@@ -117,11 +111,7 @@ namespace SpaceFab.Fabrication.Microgames
             state.IsActive = false;
             state.Phase = SputterMicrogamePhase.Idle;
 
-            // Reset graphics
-            state.SputterSprites.localPosition = Vector3.zero;
-            state.PatternRenderer.size = new Vector2(0, state.PatternRenderer.size.y);
-            state.PatternAccumulatedX = 0;
-            state.PatternRenderer.transform.localPosition = new Vector3(state.PatternStartX, 0, 0);
+            // TODO: destroy projectile objects
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
@@ -142,7 +132,7 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out SputterMicrogameState state);
 
-            float precision = 1 - (state.MaxSputterDistance - state.SputterSprites.localPosition.x) / state.MaxSputterDistance;
+            float precision = state.SputterPattern.m_FilledSlots / state.SputterPattern.m_TotalSlots;
             return Mathf.Clamp01(precision);
         }
     }

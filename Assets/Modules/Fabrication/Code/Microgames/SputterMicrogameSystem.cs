@@ -34,56 +34,45 @@ namespace SpaceFab.Fabrication.Microgames
             {
                 case SputterMicrogamePhase.Entering:
                     MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.SPUTTER_STATION_ID);
-                    ProcessBeamAnimation(state, deltaTime);
                     break;
                 case SputterMicrogamePhase.Active:
-                    ProcessBeamAnimation(state, deltaTime);
                     ProcessActive(state, deltaTime);
                     break;
             }
         }
 
-        static private void ProcessBeamAnimation(SputterMicrogameState state, float deltaTime)
-        {
-            Vector2 offset = state.IncidentBeam.material.mainTextureOffset;
-            offset.x -= Time.deltaTime;
-            state.IncidentBeam.material.mainTextureOffset = offset;
-
-            float scale = 1; // 1.5f;
-            foreach (LineRenderer lr in state.ReflectedBeam)
-            {
-                lr.material.mainTextureOffset = offset * scale;
-            }
-        }
-
+        private static float spawnTimer = 0f;
         static private void ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;
+            
+            float angle = state.SputterHeadAnchor.eulerAngles.z;
+            float rotationSpeed = 30f;
 
-            Vector3 delta = Vector2.zero;
             if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
             {
-                if (state.SputterSprites.localPosition.x > 0f)
-                    delta = Vector2.left * Time.deltaTime;
+                angle += deltaTime * rotationSpeed;
             }
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
             {
-                delta = Vector2.right * Time.deltaTime;
+                angle -= deltaTime * rotationSpeed;
+            }
+            state.SputterHeadAnchor.rotation = Quaternion.Euler(0, 0, angle);
+
+            spawnTimer -= deltaTime;
+            if (spawnTimer <= 0f)
+            {
+                spawnTimer = 0.2f;
+                SputterMicrogameProjectile projectile = Instantiate(state.SputterProjectilePrefab, state.ProjectileParent);
+                projectile.transform.position = state.InitialPosition.position;
+                projectile.SetDirection(angle);
             }
 
-            state.SputterSprites.localPosition += delta;
-
-            float scale = 1; // 1.5f;
-            state.PatternRenderer.size = new Vector2(state.PatternRenderer.size.x + delta.x * scale, state.PatternRenderer.size.y);
-            state.PatternAccumulatedX += delta.x * scale / 2;
-            state.PatternRenderer.transform.localPosition = new Vector3(state.PatternStartX + state.PatternAccumulatedX, 0f, 0f);
-
-            if (state.SputterSprites.localPosition.x > state.MaxSputterDistance)
+            if (state.SputterPattern.CompletelyFilled)
             {
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
-                return;
             }
         }
     }
