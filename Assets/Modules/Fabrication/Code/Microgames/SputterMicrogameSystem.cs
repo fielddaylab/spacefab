@@ -41,44 +41,38 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
-        private static float spawnTimer = 0.5f;
+        private static float spawnTimer = 0f;
         static private void ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;
             
-            float angle = state.SputterSprites.eulerAngles.z;
+            float angle = state.SputterHeadAnchor.eulerAngles.z;
+            float rotationSpeed = 30f;
 
             if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
             {
-                angle += deltaTime * 50f;
+                angle += deltaTime * rotationSpeed;
             }
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
             {
-                angle -= deltaTime * 50f;
+                angle -= deltaTime * rotationSpeed;
             }
-            state.SputterSprites.rotation = Quaternion.Euler(0, 0, angle);
+            state.SputterHeadAnchor.rotation = Quaternion.Euler(0, 0, angle);
 
             spawnTimer -= deltaTime;
             if (spawnTimer <= 0f)
             {
-                spawnTimer = 0.5f;
+                spawnTimer = 0.2f;
                 SputterMicrogameProjectile projectile = Instantiate(state.SputterProjectilePrefab, state.ProjectileParent);
-                projectile.transform.position = state.InitialPos.position;
+                projectile.transform.position = state.InitialPosition.position;
                 projectile.SetDirection(angle);
             }
 
-
-
-            float scale = 1.5f;
-            //state.PatternRenderer.size = new Vector2(state.PatternRenderer.size.x + delta.x * scale, state.PatternRenderer.size.y);
-            //state.PatternRenderer.transform.localPosition += new Vector3(delta.x * scale / 2, 0f, 0f);
-
-            if (state.SputterSprites.localPosition.x > state.MaxSputterDistance)
+            if (state.SputterPattern.CompletelyFilled)
             {
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
-                return;
             }
         }
     }

@@ -1511,6 +1511,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8787797446459057594, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+    - {fileID: 2794427758398743047, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+    - {fileID: 3565239766148519039, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3573145727589724999, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -2972,11 +2974,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7796938538446797251, guid: e04ee8f47a2a216458b521f4d5cf34ea, type: 3}
   m_PrefabInstance: {fileID: 2054010281}
   m_PrefabAsset: {fileID: 0}
---- !u!212 &1431872144 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 3256681223515555818, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
-  m_PrefabInstance: {fileID: 699037342}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1487015765
 GameObject:
   m_ObjectHideFlags: 0
@@ -3379,6 +3376,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1815336501 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7076253446039975051, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d365c5d86801c414ca20394e85c5fc72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1815336502 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8130837378831392859, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1823492265
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3575,11 +3588,11 @@ MonoBehaviour:
   CurrentValue: 0
   FinalHeat: 0
   InputAccepted: 0
+  IncreasingHeat: 0
   FurnaceUI: {fileID: 683430573}
   TargetRangeAnchor: {fileID: 177737468}
   TargetArrowAnchor: {fileID: 535970272}
   MeterArrowAnchor: {fileID: 685892763}
-  MeterSmoothing: 0.1
   Phase: 0
 --- !u!114 &1858924072
 MonoBehaviour:
@@ -3617,12 +3630,11 @@ MonoBehaviour:
   InputAccepted: 0
   SputterUI: {fileID: 1562685134}
   Phase: 1
-  SputterSprites: {fileID: 1676710854}
-  InitialPos: {fileID: 704279720}
-  ProjectileParent: {fileID: 0}
-  PatternRenderer: {fileID: 1431872144}
-  MaxSputterDistance: 1.75
+  SputterHeadAnchor: {fileID: 1676710854}
+  InitialPosition: {fileID: 704279720}
+  ProjectileParent: {fileID: 1815336502}
   SputterProjectilePrefab: {fileID: 2698297420162295257, guid: c61174905d0f142a188512153c41f42a, type: 3}
+  SputterPattern: {fileID: 1815336501}
 --- !u!1 &1899582895
 GameObject:
   m_ObjectHideFlags: 0

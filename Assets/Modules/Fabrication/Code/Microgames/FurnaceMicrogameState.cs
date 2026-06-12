@@ -146,7 +146,6 @@ namespace SpaceFab.Fabrication.Microgames
         public static float GetRawResultPrecision()
         {
             Find.State(out FurnaceMicrogameState state);
-            Debug.Log($"Raw precision: {1f - ((state.FinalHeat - state.TargetRange) / state.MaxRange)}");
             return 1f - ((state.FinalHeat - state.TargetRange) / state.MaxRange);
         }
 
@@ -158,7 +157,6 @@ namespace SpaceFab.Fabrication.Microgames
 
             float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.MaxRange);
             precision = Mathf.Clamp(precision, 0f, 1f);
-            Debug.Log($"Computed precision: {precision}");
 
             return precision;
         }

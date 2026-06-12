@@ -2,30 +2,50 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SputterMicrogameProjectile : MonoBehaviour
+namespace SpaceFab.Fabrication.Microgames
 {
-    private Rigidbody2D Rigidbody;
-    private float Speed = 5f;
-    private float InitialAngle = 0;
-
-    public void SetDirection(float angle)
+    public class SputterMicrogameProjectile : MonoBehaviour
     {
-        Rigidbody = this.GetComponent<Rigidbody2D>();
-        InitialAngle = angle;
-        Vector2 direction = Quaternion.Euler(0, 0, InitialAngle) * Vector2.right;
-        Rigidbody.velocity = direction * Speed;
-    }
+        private Rigidbody2D Rigidbody;
+        private float Speed = 5f;
+        private float InitialAngle = 0;
+        private bool Reflected = false;
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.name == "Mirror")
+        public void SetDirection(float angle)
         {
-            Vector2 direction = Quaternion.Euler(0, 0, -InitialAngle) * Vector2.right;
-            Rigidbody.velocity = direction * Rigidbody.velocity;
+            Rigidbody = this.GetComponent<Rigidbody2D>();
+            InitialAngle = angle;
+            Vector2 direction = Quaternion.Euler(0, 0, InitialAngle) * Vector2.right;
+            Rigidbody.velocity = direction * Speed;
         }
-        else
+
+        private void OnTriggerEnter2D(Collider2D collision)
         {
-            Destroy(this.gameObject);
+            if (collision.gameObject.name == "Mirror")
+            {
+                Vector2 direction = Quaternion.Euler(0, 0, -InitialAngle) * Vector2.right;
+                Rigidbody.velocity = direction * Rigidbody.velocity;
+                Reflected = true;
+            }
+            else if (collision.gameObject.GetComponent<SputterBoxCollider>() == null)
+            {
+                Destroy(this.gameObject);
+            }
+        }
+
+        private void OnTriggerStay2D(Collider2D collision)
+        {
+            if (!Reflected) { return; }
+
+            SputterBoxCollider collider = collision.gameObject.GetComponent<SputterBoxCollider>();
+            if (collider != null)
+            {
+                if (collider.TryFillSlot(this.gameObject))
+                {
+                    Rigidbody.velocity = Vector2.zero;
+                    Rigidbody.simulated = false;
+                }
+            }
         }
     }
 }
