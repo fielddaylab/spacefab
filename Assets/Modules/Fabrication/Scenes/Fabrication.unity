@@ -122,6 +122,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &20395477 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5545156872542468911, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d365c5d86801c414ca20394e85c5fc72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &20408019 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2030719561877694802, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
@@ -1087,11 +1098,6 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 1316793691771253811, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
   m_PrefabInstance: {fileID: 699037342}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &594627000 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 1270491298815713278, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
-  m_PrefabInstance: {fileID: 5336318902443731965}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &659472203 stripped
 GameObject:
@@ -3351,17 +3357,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1815336501 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7076253446039975051, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
-  m_PrefabInstance: {fileID: 699037342}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d365c5d86801c414ca20394e85c5fc72, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1815336502 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8130837378831392859, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -3610,7 +3605,7 @@ MonoBehaviour:
   InitialPosition: {fileID: 704279720}
   ProjectileParent: {fileID: 1815336502}
   SputterProjectilePrefab: {fileID: 2698297420162295257, guid: c61174905d0f142a188512153c41f42a, type: 3}
-  SputterPattern: {fileID: 1815336501}
+  SputterPattern: {fileID: 20395477}
 --- !u!1 &1899582895
 GameObject:
   m_ObjectHideFlags: 0
@@ -5891,10 +5886,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 4618595970548608706, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 1270491298815713278, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1221665508}
+    m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4511311559296299947, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
       insertIndex: -1
