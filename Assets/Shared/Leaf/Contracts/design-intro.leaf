@@ -61,6 +61,7 @@ $call   ReleaseHighlight(design:test-btn)
 @trigger    OnSingleTestComplete
 @when       result == "success", CurrLevelIndex() == 0
 $if temp:designTutorialStep < 4
+    $call   ReleaseAllHighlights()
     $call   HighlightElement(design:input-a, false, 25)
     $if     IsInputInState("A", "LO")
         {@PAL}  Correct! Tap the input to switch it from LO (Low) to HI (High).

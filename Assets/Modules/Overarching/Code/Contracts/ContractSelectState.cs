@@ -37,6 +37,7 @@ namespace SpaceFab.Overarching
         {
             layoutState.FaderGroup.alpha = 1;
             layoutState.FaderGroup.blocksRaycasts = true;
+            layoutState.ConfirmContractButton.gameObject.SetActive(false);
 
             yield return 0.5f;
 

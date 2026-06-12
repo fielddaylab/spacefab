@@ -67,19 +67,18 @@ $call   ReleaseAllHighlights()
 $call   HighlightElement(research:verify-observation-btn)
 {@PAL}  Select "Verify" to check if observation matches the selected hypothesis.
 
-
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when       result == "success", !MinigameHasValidSolution()
-{@PAL}  Correct.
-$wait 2
+@when       result == "success"
+$call ReleaseAllHighlights()
+$if MinigameHasValidSolution()
+    $call       HighlightElement(return-button)
+    {@PAL}  Correct. You've completed all research tasks!
+$else
+    {@PAL}  Correct.
+$endif
+$wait 1.5
 $call   OpenWikiToLastDiscovery()
-
-::OnLastHypothesisCorrect
-@trigger    OnHypothesisSubmitted
-@when       result == "success", MinigameHasValidSolution()
-$call   HighlightElement(return-button)
-{@PAL}  You've completed all research tasks. Press the back button to work on your next game.
 
 ::OnHypothesisIncorrectHypothesisMismatch
 @trigger    OnHypothesisSubmitted
@@ -98,3 +97,10 @@ $call HighlightElement(research:right-hypothesis)
 @trigger    OnWikiClosed
 @when       !MinigameHasValidSolution()
 {@PAL}      Now see if you can find a sample that satisfies the other hypothesis.
+
+::OnLastWikiClosed
+@trigger    OnWikiClosed
+@when       MinigameHasValidSolution()
+$call       ReleaseAllHighlights()
+$call       HighlightElement(return-button)
+{@PAL}      You've completed all research tasks. Press the back button to return to the ship.

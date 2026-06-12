@@ -17,6 +17,8 @@ namespace SpaceFab.Onboarding {
     public class OnboardingHighlightState : SharedStateComponent, IRegistrationCallbacks, IScenePreload {
         [Serializable] public sealed class HighlightPool : SerializablePool<Highlight> { }
 
+        public Canvas HighlightCanvas;
+
         [Header("Pool")]
         public HighlightPool Pool;
 

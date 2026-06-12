@@ -45,16 +45,27 @@ namespace SpaceFab.Design {
 
         // Dispatches the current frame's left-mouse state to down/drag/up handlers.
         static private void ProcessInputs(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
-            if (EventSystem.current.IsPointerOverGameObject()) { return; }
-            // if (!InteractInputsEnabled) { return; }
+            // The pointer is over UI / an overlay collider (e.g. an output visual). New
+            // interactions must not begin here, but a mouse-up still has to close out a drag
+            // that is already in progress — otherwise releasing over an overlay would strand
+            // the drag and OnDragReleased would never fire. So when the pointer is over a
+            // GameObject we skip down/drag but still let an active drag terminate.
+            bool pointerOverUI = EventSystem.current.IsPointerOverGameObject();
+            // A drag is active once mouse-down seeds StartingDragCoord; TerminateDrag resets it
+            // to the empty sentinel.
+            bool dragActive = toolModeState.StartingDragCoord != DesignConsts.EMPTY_DRAG_COORD;
 
-            if (Input.GetMouseButtonDown(0)) {
-                HandleLeftMouseDown(toolModeState, gridStackState, visualState);
+            if (!pointerOverUI) {
+                if (Input.GetMouseButtonDown(0)) {
+                    HandleLeftMouseDown(toolModeState, gridStackState, visualState);
+                }
+                if (Input.GetMouseButton(0)) {
+                    HandleLeftMouseDrag(toolModeState, gridStackState, visualState);
+                }
             }
-            if (Input.GetMouseButton(0)) {
-                HandleLeftMouseDrag(toolModeState, gridStackState, visualState);
-            }
-            if (Input.GetMouseButtonUp(0)) {
+
+            // Always honor the release of an in-progress drag, even over UI / an overlay.
+            if (Input.GetMouseButtonUp(0) && (!pointerOverUI || dragActive)) {
                 HandleLeftMouseUp(toolModeState);
             }
         }

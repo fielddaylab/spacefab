@@ -1,9 +1,11 @@
 using FieldDay;
 using FieldDay.Components;
+using FieldDay.Audio;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
+using BeauUtil;
 
 namespace SpaceFab.Research
 {
@@ -56,6 +58,12 @@ namespace SpaceFab.Research
         // BatteryChamberSystem.
         [NonSerialized] public bool VoltageChangedThisFrame;
 
+        // Sound played when no current
+        [AudioEvent] public StringHash32 NoCurrentSFX;
+
+        // Track whether warning sound played
+        [NonSerialized] public bool NoCurrentWarningPlayed;
+
         public void OnRegister()
         {
             // Hide the sample holder until the player drops a material into
@@ -65,6 +73,7 @@ namespace SpaceFab.Research
             {
                 SampleHolder.SetActive(false);
             }
+            NoCurrentWarningPlayed = false;
         }
 
         public void OnDeregister()
