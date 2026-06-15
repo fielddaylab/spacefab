@@ -21,6 +21,7 @@ namespace SpaceFab.Fabrication
         public DynamicButton FinalizeButton;
 
         public TMP_Text AccuracyText, TimeText, ProductionTimeText;
+        public StationResultDisplay[] StationResults;
 
         public Routine ResultsTransitionRoutine;
 
@@ -79,6 +80,8 @@ namespace SpaceFab.Fabrication
             displayState.AccuracyText.text = "";
             displayState.TimeText.text = "";
             displayState.ProductionTimeText.text = "";
+            foreach(StationResultDisplay station in displayState.StationResults)
+                station.gameObject.SetActive(false);
 
             yield return 1f;
 
@@ -87,6 +90,14 @@ namespace SpaceFab.Fabrication
             yield return 0.5f;
 
             WaferState waferState = Find.State<WaferState>();
+            for (int i = 0; i < waferState.RecordedStepCount; i++)
+            {
+                displayState.StationResults[i].SetRating(waferState.StepPrecisions[i]);
+                displayState.StationResults[i].gameObject.SetActive(true);
+            }
+
+            yield return 0.5f;
+
             displayState.AccuracyText.text = $"{WaferStateUtility.GetAggregatedPrecision(waferState) * 100:F2}%";
 
             yield return 0.5f;
