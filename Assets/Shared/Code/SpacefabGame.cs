@@ -39,11 +39,22 @@ namespace SpaceFab
                 Overlap = 0.2f
             });
             MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
+
+            Game.Scenes.RegisterLoadDependency(new WaitForSetupMasksToBeSuspended());
         }
 
         [InvokeOnBoot]
         static private void OnBoot()
         {
+        }
+
+        private class WaitForSetupMasksToBeSuspended : ISceneLoadDependency
+        {
+            bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
+                if (loadPhase == SceneLoadFence.BeforeReady)
+                    return GameLoop.IsSuspended(UpdateMasks.SetupMask) || GameLoop.IsSuspended(UpdateMasks.OverarchingMask);
+                return true;
+            }
         }
     }
 }
