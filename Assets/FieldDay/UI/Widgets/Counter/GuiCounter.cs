@@ -1,11 +1,15 @@
 using BeauUtil;
+using BeauUtil.Variants;
 using FieldDay.Scenes;
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace FieldDay.UI.Widgets {
-    public sealed class GuiCounter : GuiWidget {
-        public abstract class Style : GuiWidgetStyle<int> {
+    public sealed class GuiCounter : GuiWidget, IGuiDataWidget<int> {
+        public abstract class Style : GuiWidgetStyle<int>, IGuiWidgetRangedDataStyle<int> {
+            public virtual void SetRange(in GuiDataWidgetRange<int> range, GuiWidgetUpdateFlags flags) { }
+            public override void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags) { }
         }
 
         [SerializeField] private int m_StartingValue;
@@ -23,6 +27,7 @@ namespace FieldDay.UI.Widgets {
         }
 
         private void Init() {
+            AssignBaseStyle(m_Style);
             if (m_CurrentValue < 0) {
                 SetValue(m_StartingValue, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
             }
@@ -34,7 +39,6 @@ namespace FieldDay.UI.Widgets {
 
         public int Value {
             get { return m_CurrentValue; }
-            set { SetValue(value, 0); }
         }
 
         public void SetValue(int value, GuiWidgetUpdateFlags flags = 0) {
@@ -55,10 +59,36 @@ namespace FieldDay.UI.Widgets {
             }
 
             m_Style.Populate(value, flags);
+
+            GuiWidgetStateFlags state = m_StateFlags;
+            if (value > 0) {
+                state = (state & ~GuiWidgetStateFlags.IsEmpty) | GuiWidgetStateFlags.CanDecrease;
+            } else {
+                state = (state | GuiWidgetStateFlags.IsEmpty) & ~GuiWidgetStateFlags.CanDecrease;
+            }
+
+            if (value < m_MaxValue) {
+                state = (state & ~GuiWidgetStateFlags.IsFull) | GuiWidgetStateFlags.CanIncrease;
+            } else {
+                state = (state | GuiWidgetStateFlags.IsFull) & ~GuiWidgetStateFlags.CanIncrease;
+            }
+
+            UpdateState(state, flags);
         }
 
-        public void ResetValue() {
-            SetValue(m_StartingValue, 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ResetValue(GuiWidgetUpdateFlags flags = 0) {
+            SetValue(m_StartingValue, flags);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Variant GetVariantValue() {
+            return m_CurrentValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetVariantValue(Variant value, GuiWidgetUpdateFlags flags = 0) {
+            SetValue(value.AsInt(), flags);
         }
     }
 }

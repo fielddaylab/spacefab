@@ -133,8 +133,6 @@ namespace SpaceFab.Research {
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);
 
-            MusicPlayer.SetLoopingTrack("Research.Music");
-
             using (var table = TempVarTable.Alloc()) {
                 table.Set("minigame", "research");
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnSetupComplete, table);

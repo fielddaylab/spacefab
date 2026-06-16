@@ -171,6 +171,7 @@ GameObject:
   m_Component:
   - component: {fileID: 422788435}
   - component: {fileID: 422788434}
+  - component: {fileID: 422788436}
   m_Layer: 0
   m_Name: Overarching Assets
   m_TagString: Untagged
@@ -209,6 +210,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &422788436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422788433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79013ef6b98af0b4d9b5228746b3aba9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EventId:
+    m_HashValue: 3632275072
+  PlaylistId:
+    m_HashValue: 0
 --- !u!4 &447271508 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6647263500822826055, guid: 108974047d4973543ab11ead6c271dc7, type: 3}

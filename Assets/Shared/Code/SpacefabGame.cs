@@ -9,6 +9,7 @@ using SpaceFab.Save;
 using SpaceFab;
 using UnityEngine;
 using FieldDay.Music;
+using FieldDay.Scenes;
 
 namespace SpaceFab
 {
@@ -37,20 +38,12 @@ namespace SpaceFab
                 FadeOut = 0.4f,
                 Overlap = 0.2f
             });
-
-            Game.Scenes.OnMainSceneUnloading.Register(OnMainSceneUnloading);
+            MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
         }
 
         [InvokeOnBoot]
         static private void OnBoot()
         {
-        }
-
-        static private void OnMainSceneUnloading() {
-            Game.Scenes.GetQueuedLoadContext(out var context);
-            if (context.Get("StopMusic", true).AsBool()) {
-                MusicPlayer.ClearQueue();
-            }
         }
     }
 }

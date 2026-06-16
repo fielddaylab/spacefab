@@ -74,7 +74,6 @@ namespace SpaceFab.Design
                     ScriptUtility.Trigger(DesignScriptTriggers.OnDesignSetupComplete);
                     // Setup is finished; stop running this system until the next minigame load
                     GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
-                    MusicPlayer.SetLoopingTrack("Design.Music");
                     break;
                 default:
                     break;

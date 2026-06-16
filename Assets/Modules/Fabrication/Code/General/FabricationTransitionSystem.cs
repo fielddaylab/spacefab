@@ -56,8 +56,6 @@ namespace SpaceFab.Fabrication {
             ModeUtility.SetNewMode(modeState, LevelMode.PreAttempt);
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.PreAttemptMask);
-
-            MusicPlayer.SetLoopingTrack("Fabrication.Music");
         }
     }
 }

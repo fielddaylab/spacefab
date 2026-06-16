@@ -15,6 +15,7 @@ namespace FieldDay.Music {
         internal RingBuffer<MusicTrack> TrackQueue;
         internal UniqueIdAllocator16 IdAllocator;
 
+        internal StringHash32 PlaylistId;
         internal AudioHandle CurrentlyPlaying;
         internal UniqueId16 CurrentlyPlayingTrackId;
         internal bool CurrentLoop;
@@ -24,6 +25,10 @@ namespace FieldDay.Music {
         internal MusicPlaybackState PlaybackState;
 
         internal MusicTransitionParams DefaultTransition;
+
+        internal bool RegisteredSceneUnloadHandler;
+        internal bool DefaultSceneUnloadStopBehavior;
+        internal StringHash32 SceneUnloadContextOverridePropertyId;
     }
 
     public enum MusicRepeatMode : byte {
@@ -38,8 +43,15 @@ namespace FieldDay.Music {
         Playing
     }
 
+    [Flags]
+    public enum MusicTrackFlags : byte {
+        Default = 0,
+        PlayOnce = 0x01
+    } 
+
     internal struct MusicTrack : IEquatable<MusicTrack> {
         internal UniqueId16 Id;
+        internal MusicTrackFlags Flags;
         internal StringHash32 EventId;
         internal MusicTransitionParams Transition;
 
@@ -55,7 +67,7 @@ namespace FieldDay.Music {
         public float Overlap;
     }
 
-    static public class MusicPlayer {
+    static public partial class MusicPlayer {
         /// <summary>
         /// Initializes the music player.
         /// </summary>
@@ -92,16 +104,16 @@ namespace FieldDay.Music {
                 music.CurrentlyPlaying = default;
                 music.CurrentlyPlayingTrackId = default;
 
-                Assert.True(playing == music.TrackQueue[0].Id);
-                if (music.RepeatMode == MusicRepeatMode.NoRepeat) {
-                    music.TrackQueue.PopFront();
+                MusicTrack track = music.TrackQueue.PopFront();
+                Assert.True(playing == track.Id);
+                if (music.RepeatMode == MusicRepeatMode.NoRepeat || (track.Flags & MusicTrackFlags.PlayOnce) != 0) {
                     music.IdAllocator.Free(playing);
                     if (music.TrackQueue.Count == 0) {
                         Log.Msg("[MusicPlayer] Out of tracks - stopping playback");
                         music.PlaybackState = MusicPlaybackState.Stopped;
                     }
                 } else {
-                    music.TrackQueue.MoveFrontToBack();
+                    music.TrackQueue.PushBack(track);
                 }
             }
 
@@ -131,6 +143,14 @@ namespace FieldDay.Music {
                 });
                 Sfx.SetVolume(music.CurrentlyPlaying, 1, track.Transition.FadeIn);
                 Sfx.SetLooping(music.CurrentlyPlaying, music.CurrentLoop);
+
+                if (!music.CurrentLoop) {
+                    Sfx.QueueForUnload(music.CurrentlyPlaying);
+                }
+
+                if (music.TrackQueue.Count > 1) {
+                    Game.Audio.QueuePreload(music.TrackQueue[1].EventId);
+                }
             } else {
                 bool shouldLoopCurrent = ShouldLoopTrack(music);
                 if (music.CurrentLoop != shouldLoopCurrent) {
@@ -138,7 +158,7 @@ namespace FieldDay.Music {
                     Sfx.SetLooping(music.CurrentlyPlaying, shouldLoopCurrent);
                 }
 
-                if (!shouldLoopCurrent) {
+                if (!shouldLoopCurrent && music.TrackQueue.Count > 1) {
                     MusicTrack nextTrack = music.TrackQueue[1];
                     AudioSource currentSource = Sfx.GetSource(music.CurrentlyPlaying);
                     float timeFromEnd = currentSource.clip.length - currentSource.time;
@@ -149,11 +169,11 @@ namespace FieldDay.Music {
                         music.CurrentlyPlayingTrackId = default;
                         music.OverlapCountdown = nextTrack.Transition.FadeOut - nextTrack.Transition.Overlap;
 
-                        if (music.RepeatMode == MusicRepeatMode.NoRepeat) {
-                            MusicTrack prevTrack = music.TrackQueue.PopFront();
+                        MusicTrack prevTrack = music.TrackQueue.PopFront();
+                        if (music.RepeatMode == MusicRepeatMode.NoRepeat || (prevTrack.Flags & MusicTrackFlags.PlayOnce) != 0) {
                             music.IdAllocator.Free(prevTrack.Id);
                         } else {
-                            music.TrackQueue.MoveFrontToBack();
+                            music.TrackQueue.PushBack(prevTrack);
                         }
                     }
                 }
@@ -161,7 +181,7 @@ namespace FieldDay.Music {
         }
 
         static private bool ShouldLoopTrack(MusicPlayerState music) {
-            return music.RepeatMode == MusicRepeatMode.RepeatSingle || music.TrackQueue.Count == 1;
+            return music.RepeatMode == MusicRepeatMode.RepeatSingle || (music.TrackQueue.Count == 1 && (music.TrackQueue[0].Flags & MusicTrackFlags.PlayOnce) == 0);
         }
 
         #region Defaults
@@ -187,7 +207,7 @@ namespace FieldDay.Music {
         /// <summary>
         /// Sets the music playback state. This will stop, pause, or resume playback.
         /// </summary>
-        static public void SetPlaybackState(MusicPlaybackState state) {
+        static public bool SetPlaybackState(MusicPlaybackState state) {
             Find.State(out MusicPlayerState music);
 
             if (music.PlaybackState != state) {
@@ -202,11 +222,11 @@ namespace FieldDay.Music {
                             Sfx.Stop(music.CurrentlyPlaying, music.DefaultTransition.FadeOut);
                             music.CurrentlyPlaying = default;
                             music.CurrentlyPlayingTrackId = default;
-                            if (music.RepeatMode == MusicRepeatMode.NoRepeat) {
-                                MusicTrack track = music.TrackQueue.PopFront();
+                            MusicTrack track = music.TrackQueue.PopFront();
+                            if (music.RepeatMode == MusicRepeatMode.NoRepeat || (track.Flags & MusicTrackFlags.PlayOnce) != 0) {
                                 music.IdAllocator.Free(track.Id);
                             } else {
-                                music.TrackQueue.MoveFrontToBack();
+                                music.TrackQueue.PushBack(track);
                             }
                         }
                         music.OverlapCountdown = 0;
@@ -225,27 +245,31 @@ namespace FieldDay.Music {
                         break;
                     }
                 }
+
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
         /// Starts playing the playlist.
         /// </summary>
-        static public void Play() {
-            SetPlaybackState(MusicPlaybackState.Playing);
+        static public bool Play() {
+            return SetPlaybackState(MusicPlaybackState.Playing);
         }
 
         /// <summary>
         /// Stops playing the current track.
         /// </summary>
-        static public void Stop() {
-            SetPlaybackState(MusicPlaybackState.Stopped);
+        static public bool Stop() {
+            return SetPlaybackState(MusicPlaybackState.Stopped);
         }
 
         /// <summary>
         /// Stops playing the current track.
         /// </summary>
-        static public void Stop(float fadeOut) {
+        static public bool Stop(float fadeOut) {
             Find.State(out MusicPlayerState music);
 
             if (music.PlaybackState != MusicPlaybackState.Stopped) {
@@ -257,10 +281,19 @@ namespace FieldDay.Music {
                     Log.Msg("[MusicPlayer] Fading out current track");
                     Sfx.Stop(music.CurrentlyPlaying, fadeOut);
                     music.CurrentlyPlaying = default;
-                    music.TrackQueue.MoveFrontToBack();
+                    music.CurrentlyPlayingTrackId = default;
+                    MusicTrack track = music.TrackQueue.PopFront();
+                    if (music.RepeatMode == MusicRepeatMode.NoRepeat || (track.Flags & MusicTrackFlags.PlayOnce) != 0) {
+                        music.IdAllocator.Free(track.Id);
+                    } else {
+                        music.TrackQueue.PushBack(track);
+                    }
                 }
                 music.OverlapCountdown = 0;
+                return true;
             }
+
+            return false;
         }
 
         #endregion // Playback State
@@ -288,10 +321,11 @@ namespace FieldDay.Music {
         /// <summary>
         /// Enqueues a track to be played.
         /// </summary>
-        static public UniqueId16 QueueTrack(StringHash32 eventId) {
+        static public UniqueId16 QueueTrack(StringHash32 eventId, MusicTrackFlags flags = default) {
             Find.State(out MusicPlayerState music);
             return QueueTrackInternal(music, new MusicTrack() {
                 EventId = eventId,
+                Flags = flags,
                 Transition = music.DefaultTransition
             });
         }
@@ -299,84 +333,21 @@ namespace FieldDay.Music {
         /// <summary>
         /// Enqueues a track to be played.
         /// </summary>
-        static public UniqueId16 QueueTrack(StringHash32 eventId, MusicTransitionParams transition) {
+        static public UniqueId16 QueueTrack(StringHash32 eventId, MusicTransitionParams transition, MusicTrackFlags flags = default) {
             Find.State(out MusicPlayerState music);
             return QueueTrackInternal(music, new MusicTrack() {
                 EventId = eventId,
+                Flags = flags,
                 Transition = transition
             });
         }
 
-        static internal UniqueId16 QueueTrackInternal(MusicPlayerState player, MusicTrack track) {
+        static private UniqueId16 QueueTrackInternal(MusicPlayerState player, MusicTrack track) {
             UniqueId16 id = player.IdAllocator.Alloc();
             track.Id = id;
             player.TrackQueue.PushBack(track);
             return id;
         }
-
-        /// <summary>
-        /// Sets the current looping track.
-        /// </summary>
-        static public void SetLoopingTrack(StringHash32 eventId, MusicTransitionParams transition) {
-            if (eventId.IsEmpty) {
-                Stop(transition.FadeOut);
-                return;
-            }
-
-            Find.State(out MusicPlayerState music);
-            SetLoopingTrackInternal(music, new MusicTrack() {
-                EventId = eventId,
-                Transition = transition
-            });
-        }
-
-        /// <summary>
-        /// Sets the current looping track.
-        /// </summary>
-        static public void SetLoopingTrack(StringHash32 eventId) {
-            if (eventId.IsEmpty) {
-                Stop();
-                return;
-            }
-
-            Find.State(out MusicPlayerState music);
-            SetLoopingTrackInternal(music, new MusicTrack() {
-                EventId = eventId,
-                Transition = music.DefaultTransition
-            });
-        }
-
-        static internal void SetLoopingTrackInternal(MusicPlayerState player, MusicTrack track) {
-            player.RepeatMode = MusicRepeatMode.RepeatSingle;
-            if (player.TrackQueue.Count > 0) {
-                while (player.TrackQueue.Count > 1) {
-                    MusicTrack undone = player.TrackQueue.PopBack();
-                    player.IdAllocator.Free(undone.Id);
-                }
-
-                MusicTrack current = player.TrackQueue[0];
-                if (current.EventId == track.EventId) {
-                    return;
-                }
-
-                player.IdAllocator.Free(current.Id);
-                player.TrackQueue.PopFront();
-            }
-
-            if (player.CurrentlyPlaying.IsValid) {
-                Log.Msg("[MusicPlayer] Fading out current track");
-                Sfx.Stop(player.CurrentlyPlaying, track.Transition.FadeOut);
-                player.CurrentlyPlaying = default;
-                player.CurrentlyPlayingTrackId = default;
-                player.OverlapCountdown = track.Transition.FadeOut - track.Transition.Overlap;
-            }
-
-            QueueTrackInternal(player, track);
-
-            if (player.PlaybackState == MusicPlaybackState.Stopped) {
-                player.PlaybackState = MusicPlaybackState.Playing;
-            }
-        } 
 
         /// <summary>
         /// Removes a track from playback.
@@ -413,8 +384,12 @@ namespace FieldDay.Music {
         /// <summary>
         /// Stops playing the current track and clears the queue.
         /// </summary>
-        static public void ClearQueue() {
-            SetPlaybackState(MusicPlaybackState.Stopped);
+        static public void ClearQueue(float fadeOut = -1) {
+            if (fadeOut >= 0) {
+                Stop(fadeOut);
+            } else {
+                SetPlaybackState(MusicPlaybackState.Stopped);
+            }
             
             Find.State(out MusicPlayerState music);
 
@@ -426,5 +401,144 @@ namespace FieldDay.Music {
         }
 
         #endregion // Queue
+
+        #region Looping Track
+
+        /// <summary>
+        /// Sets the current looping track.
+        /// </summary>
+        static public bool SetLoopingTrack(StringHash32 eventId, MusicTransitionParams transition) {
+            if (eventId.IsEmpty) {
+                return Stop(transition.FadeOut);
+            }
+
+            Find.State(out MusicPlayerState music);
+            return SetLoopingTrackInternal(music, new MusicTrack() {
+                EventId = eventId,
+                Transition = transition
+            });
+        }
+
+        /// <summary>
+        /// Sets the current looping track.
+        /// </summary>
+        static public bool SetLoopingTrack(StringHash32 eventId) {
+            if (eventId.IsEmpty) {
+                return Stop();
+            }
+
+            Find.State(out MusicPlayerState music);
+            return SetLoopingTrackInternal(music, new MusicTrack() {
+                EventId = eventId,
+                Transition = music.DefaultTransition
+            });
+        }
+
+        static private bool SetLoopingTrackInternal(MusicPlayerState player, MusicTrack track) {
+            player.RepeatMode = MusicRepeatMode.RepeatSingle;
+            if (player.TrackQueue.Count > 0) {
+                while (player.TrackQueue.Count > 1) {
+                    MusicTrack undone = player.TrackQueue.PopBack();
+                    player.IdAllocator.Free(undone.Id);
+                }
+
+                MusicTrack current = player.TrackQueue[0];
+                if (current.EventId == track.EventId) {
+                    return false;
+                }
+
+                player.IdAllocator.Free(current.Id);
+                player.TrackQueue.PopFront();
+            }
+
+            if (player.CurrentlyPlaying.IsValid) {
+                Log.Msg("[MusicPlayer] Fading out current track");
+                Sfx.Stop(player.CurrentlyPlaying, track.Transition.FadeOut);
+                player.CurrentlyPlaying = default;
+                player.CurrentlyPlayingTrackId = default;
+                player.OverlapCountdown = track.Transition.FadeOut - track.Transition.Overlap;
+            }
+
+            QueueTrackInternal(player, track);
+
+            if (player.PlaybackState == MusicPlaybackState.Stopped) {
+                player.PlaybackState = MusicPlaybackState.Playing;
+            }
+
+            return true;
+        }
+
+        #endregion // Looping Track
+
+        #region Playlist Id
+
+        /// <summary>
+        /// Returns the assigned playlist id.
+        /// </summary>
+        static public StringHash32 GetPlaylistId() {
+            return Find.State<MusicPlayerState>().PlaylistId;
+        }
+
+        /// <summary>
+        /// Sets the assigned playlist id.
+        /// Returns if the playlist was switched.
+        /// </summary>
+        static public bool SetPlaylistId(StringHash32 id) {
+            Find.State(out MusicPlayerState music);
+            if (music.PlaylistId != id) {
+                music.PlaylistId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Sets the assigned playlist id.
+        /// If this switches playlists, the currently queue will be cleared.
+        /// </summary>
+        static public bool SetPlaylistIdAndClear(StringHash32 id, float fadeOut = -1) {
+            if (SetPlaylistId(id)) {
+                ClearQueue(fadeOut);
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion // Playlist Id
+
+        #region Scene Unload Behavior
+
+        /// <summary>
+        /// Configures if the music queue should be cleared during a Main scene unload.
+        /// </summary>
+        static public void ConfigureSceneUnloadBehavior(bool clearQueue, StringHash32 overrideContextId) {
+            Find.State(out MusicPlayerState music);
+
+            if (!music.RegisteredSceneUnloadHandler) {
+                Game.Scenes.OnMainSceneUnloading.Register(HandleSceneUnload);
+                music.RegisteredSceneUnloadHandler = true;
+            }
+
+            music.DefaultSceneUnloadStopBehavior = clearQueue;
+            music.SceneUnloadContextOverridePropertyId = overrideContextId;
+        }
+
+        static private void HandleSceneUnload() {
+            Find.State(out MusicPlayerState music);
+            bool clearQueue = music.DefaultSceneUnloadStopBehavior;
+
+            if (!music.SceneUnloadContextOverridePropertyId.IsEmpty) {
+                Game.Scenes.GetQueuedLoadContext(out var context);
+                clearQueue = clearQueue ^ context.Get(music.SceneUnloadContextOverridePropertyId, false).AsBool();
+            }
+
+            if (clearQueue) {
+                ClearQueue();
+            }
+        }
+
+        #endregion // Scene Unload Behavior
     }
 }
