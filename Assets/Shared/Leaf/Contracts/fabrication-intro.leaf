@@ -69,3 +69,13 @@ $if temp:fabTutorialStep == 4
     $set temp:fabTutorialStep = 5
     {@PAL}  Now finish the rest of the tasks!
 $endif
+
+::GatePhotolithography
+@trigger    OnFabMicrogameCompleted
+@when       microgame == "station:photolithography"
+$call       RequireMicrogamePrecision(0.9)
+
+::GateEtch
+@trigger    OnFabMicrogameCompleted
+@when       microgame == "station:etch"
+$call       RequireMicrogamePrecision(0.9)

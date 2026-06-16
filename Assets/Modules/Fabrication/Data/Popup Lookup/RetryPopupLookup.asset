@@ -25,11 +25,11 @@ MonoBehaviour:
     SecondaryText: Try Again
   PhotolithographyRetry:
   - Direction: 0
-    MainText: 
+    MainText: Poor Alignment
     SecondaryText: Try Again
   EtchRetry:
   - Direction: 0
-    MainText: 
+    MainText: Poor Alignment
     SecondaryText: Try Again
   IonRetry:
   - Direction: 0
