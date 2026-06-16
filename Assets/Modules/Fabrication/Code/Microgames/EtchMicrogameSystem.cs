@@ -48,8 +48,8 @@ namespace SpaceFab.Fabrication.Microgames
             if (state.PreviewPoints.Count == 0)
                 return;
 
-            float beamSpeed = 20f;
-            state.PreviewProgress += deltaTime * beamSpeed;
+            float progressSpeed = 25f; // 20f;
+            state.PreviewProgress += deltaTime * progressSpeed;
 
             int visibleCount = Mathf.Clamp(Mathf.FloorToInt(state.PreviewProgress),
                 0, state.PreviewPoints.Count);
@@ -85,7 +85,7 @@ namespace SpaceFab.Fabrication.Microgames
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
                 state.Direction = Vector2.right;
 
-            float beamSpeed = 1.5f;
+            float beamSpeed = 1.875f; //1.5f;
             Vector2 current = state.PlayerPoints[state.PlayerPoints.Count - 1];
             Vector2 next = current + (Vector2)(state.Direction * beamSpeed * deltaTime);
 

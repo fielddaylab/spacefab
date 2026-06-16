@@ -94,7 +94,7 @@ namespace SpaceFab.Comic {
             }
         }
 
-        bool ISceneLoadDependency.IsLoaded(SceneLoadPhase loadPhase) {
+        bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
             return ScriptUtility.CountFunctionThreads() <= 0;
         }
     }

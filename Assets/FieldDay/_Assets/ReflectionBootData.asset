@@ -97,12 +97,16 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 4
+      TypeCount: 6
     - AssemblyName: FieldDay.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
+    - TypeName: SpaceFab.MaterialKnowledgeDebugMenu
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
     - TypeName: SpaceFab.MinigameDebugMenu
       Self: 0
       MemberCount: 1
@@ -117,6 +121,10 @@ MonoBehaviour:
       OverloadCount: 0
     - TypeName: SpaceFab.Overarching.OverarchingDebugMenu
       Self: 0
+      MemberCount: 2
+      OverloadCount: 0
+    - TypeName: SpaceFab.Design.DesignDebugMenu
+      Self: 0
       MemberCount: 1
       OverloadCount: 0
     - TypeName: FieldDay.Data.ConfigVar
@@ -128,13 +136,19 @@ MonoBehaviour:
       MemberCount: 1
       OverloadCount: 0
     Members:
+    - MemberName: CreateMaterialKnowledgeDebugMenu
+      Type: 8
     - MemberName: CreateMinigameDebugMenu
       Type: 8
     - MemberName: SaveDebugMenu
       Type: 8
     - MemberName: CreateComicDebugMenu
       Type: 8
-    - MemberName: CreateJumpsDebugMenu
+    - MemberName: CreateContractsDebugMenu
+      Type: 8
+    - MemberName: CreateMinigamesJumpDebugMenu
+      Type: 8
+    - MemberName: CreateDesignDebugMenu
       Type: 8
     - MemberName: DebugMenuFactory
       Type: 8

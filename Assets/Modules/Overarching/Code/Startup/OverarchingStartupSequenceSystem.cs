@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using FieldDay.UI;
@@ -208,6 +209,10 @@ namespace SpaceFab.Overarching {
             startupState.Phase = OverarchingStartupSequencePhase.Completed;
             SpacefabGame.Events.Dispatch(GameEvents.ShipMenuDisplayed);
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
+            // Fire the Leaf trigger now that the overarching scene is fully loaded and interactive,
+            // letting narrative scripts respond to entering the scene (e.g. gating a node on
+            // IsSolutionFoundFor for completed minigames).
+            ScriptUtility.Trigger(ScriptTriggers.OnOverarchingLoaded);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }
     }

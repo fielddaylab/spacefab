@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;

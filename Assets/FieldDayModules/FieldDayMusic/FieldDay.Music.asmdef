@@ -1,0 +1,32 @@
+{
+    "name": "FieldDay.Music",
+    "rootNamespace": "FieldDay.Music",
+    "references": [
+        "BeauRoutine",
+        "BeauUtil",
+        "Leaf",
+        "FieldDay.Core",
+        "BeauUtil.Parse",
+        "BeauPools",
+        "FieldDay.Vox",
+        "BeauData",
+        "Unity.Timeline",
+        "ScriptableBake",
+        "EasyAssetStreaming"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.timeline",
+            "expression": "1.7.6",
+            "define": "USING_TIMELINE"
+        }
+    ],
+    "noEngineReferences": false
+}

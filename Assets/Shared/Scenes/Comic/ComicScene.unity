@@ -185,8 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Packs:
-  - {fileID: 11400000, guid: 890c3eb974e7d1741aa7bd02db27c20e, type: 2}
-  - {fileID: 11400000, guid: 622f4f02102b7df4ea8aeed8cd518ae7, type: 2}
+  - {fileID: 11400000, guid: ae99d4dd5dc713a458818a43abd22804, type: 2}
 --- !u!1 &281863874
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,7 +689,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 1
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 264871581
+  m_SortingLayerID: 1461900991
   m_SortingOrder: -10000
   m_TargetDisplay: 0
 --- !u!1 &1445825221

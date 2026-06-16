@@ -174,8 +174,8 @@ namespace FieldDay.Scripting {
 
         #region ISceneLoadDependency
 
-        bool ISceneLoadDependency.IsLoaded(SceneLoadPhase loadPhase) {
-            return loadPhase != SceneLoadPhase.BeforeLateEnable || !m_BootRoutine;
+        bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
+            return loadPhase != SceneLoadFence.BeforeLateEnable || !m_BootRoutine;
         }
 
         #endregion // ISceneLoadDependency

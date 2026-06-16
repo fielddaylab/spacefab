@@ -66,7 +66,8 @@ namespace FieldDay.UI {
             return !string.IsNullOrEmpty(hint.Tooltip) || !string.IsNullOrEmpty(hint.TooltipHeader) || !string.IsNullOrEmpty(hint.TooltipFooter)
                 || (hint.DynamicHeader != null && hint.DynamicHeader.Length > 0)
                 || (hint.DynamicContent != null && hint.DynamicContent.Length > 0)
-                || (hint.DynamicFooter != null && hint.DynamicContent.Length > 0);
+                || (hint.DynamicFooter != null && hint.DynamicContent.Length > 0)
+                || (hint.DynamicBuilder != null);
         }
 
         /// <summary>

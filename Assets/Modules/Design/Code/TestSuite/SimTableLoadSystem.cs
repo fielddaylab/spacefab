@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;

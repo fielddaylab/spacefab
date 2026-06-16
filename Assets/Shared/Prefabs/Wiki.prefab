@@ -79,6 +79,7 @@ GameObject:
   - component: {fileID: 7579201228086822689}
   - component: {fileID: 5427402733400171459}
   - component: {fileID: 6860533166844402543}
+  - component: {fileID: 2450060670399046359}
   m_Layer: 5
   m_Name: Exit Button
   m_TagString: Untagged
@@ -234,6 +235,26 @@ MonoBehaviour:
   RectTransform: {fileID: 3017637584994064126}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 0}
+--- !u!114 &2450060670399046359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443222199763488560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: Close Wiki
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &776024991008252639
 GameObject:
   m_ObjectHideFlags: 0
@@ -520,6 +541,7 @@ GameObject:
   - component: {fileID: 9001951580397916410}
   - component: {fileID: 8392556403406494367}
   - component: {fileID: 8765921237255395608}
+  - component: {fileID: 1370699271327255158}
   m_Layer: 5
   m_Name: Wiki Open Button
   m_TagString: Untagged
@@ -675,6 +697,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1370699271327255158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3383779560423783897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: Wiki
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &3910126351195579852
 GameObject:
   m_ObjectHideFlags: 0

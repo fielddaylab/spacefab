@@ -39,7 +39,7 @@ namespace SpaceFab.Fabrication.Microgames
 
         public void OnRegister()
         {
-
+            
         }
 
         public void OnDeregister()
@@ -131,6 +131,8 @@ namespace SpaceFab.Fabrication.Microgames
         private static float ComputePrecision()
         {
             Find.State(out SputterMicrogameState state);
+
+            if (state.SputterPattern.m_TotalSlots == 0) { return 0f; }
 
             float precision = state.SputterPattern.m_FilledSlots / state.SputterPattern.m_TotalSlots;
             return Mathf.Clamp01(precision);

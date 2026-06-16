@@ -1178,6 +1178,7 @@ GameObject:
   - component: {fileID: 5167440940184397924}
   - component: {fileID: 4462120178271090454}
   - component: {fileID: 663453334303720286}
+  - component: {fileID: 4692700780687895225}
   m_Layer: 5
   m_Name: Select Contract Button
   m_TagString: Untagged
@@ -1293,6 +1294,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4692700780687895225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4744602156587529470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &4844807874416681011
 GameObject:
   m_ObjectHideFlags: 0

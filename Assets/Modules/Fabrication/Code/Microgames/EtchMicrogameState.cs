@@ -33,6 +33,8 @@ namespace SpaceFab.Fabrication.Microgames
         public LineRenderer PreviewBeam;
         public LineRenderer PlayerBeam;
 
+        public float BeamSpeed;
+
         [HideInInspector] public readonly List<Vector2> PreviewPoints = new();
         [HideInInspector] public readonly List<Vector2> PlayerPoints = new();
         [HideInInspector] public Vector2[] CachedPreviewPoints;

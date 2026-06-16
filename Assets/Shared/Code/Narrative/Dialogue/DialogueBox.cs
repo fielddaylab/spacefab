@@ -51,7 +51,7 @@ namespace SpaceFab.Narrative {
         // left with a stale PriorityRecord that disables every layer below it.
         protected override void OnDisable() {
             if (m_PriorityPushed && m_InputLayer != null) {
-                Game.Gui.PopPriority(m_InputLayer);
+                Game.Gui?.PopPriority(m_InputLayer);
                 m_PriorityPushed = false;
             }
             base.OnDisable();

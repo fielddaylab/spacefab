@@ -29,6 +29,8 @@ namespace SpaceFab.Supply {
             for (int i = 0; i < row.SlotMaterials.Length; i++) {
                 row.SlotMaterials[i].enabled = false;
             }
+
+            row.Click.TooltipHeader = shipAsset.DisplayName;
         }
     }
 }

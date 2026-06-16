@@ -52,11 +52,13 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
             {
-                angle += deltaTime * rotationSpeed;
+                if (angle <= 90)
+                    angle += deltaTime * rotationSpeed;
             }
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
             {
-                angle -= deltaTime * rotationSpeed;
+                if (angle >= 0)
+                    angle -= deltaTime * rotationSpeed;
             }
             state.SputterHeadAnchor.rotation = Quaternion.Euler(0, 0, angle);
 

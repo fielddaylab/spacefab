@@ -46,8 +46,8 @@ namespace SpaceFab.Design
             for (int i = 0; i < config.Cells.Length; i++)
             {
                 LoadCellConfig(ref gridStack, config.Cells[i]);
+                Debug.Log($"initial grid: {config.Cells[i].CellType}, {config.Cells[i].TransferType}, {config.Cells[i].ColumnIndex}, {config.Cells[i].RowIndex}");
             }
-            Debug.Log("Initialize design level");
             SpacefabGame.Events.Dispatch(GameEvents.DeisgnGridSetup, EvtArgs.Ref(config));
         }
 

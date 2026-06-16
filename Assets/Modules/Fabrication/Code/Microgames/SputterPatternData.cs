@@ -18,7 +18,6 @@ namespace SpaceFab.Fabrication.Microgames
             {
                 m_TotalSlots += collider.GenerateSlot(ProjectilePrefab.bounds.size.x);
             }
-            Debug.Log($"Total slots: {m_TotalSlots}");
         }
     }
 

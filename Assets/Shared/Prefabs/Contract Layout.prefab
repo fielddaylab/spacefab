@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8128497984446555839}
   - component: {fileID: 3582069047683363757}
   - component: {fileID: 9100750466700400269}
+  - component: {fileID: 9205758834260318073}
   m_Layer: 5
   m_Name: Cancel Contract Change Button
   m_TagString: Untagged
@@ -130,6 +131,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &9205758834260318073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179648429311835474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &331691278842978468
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,6 +163,7 @@ GameObject:
   - component: {fileID: 2819190962642784697}
   - component: {fileID: 1315707910603046385}
   - component: {fileID: 8562883363674186551}
+  - component: {fileID: 4108982781817850951}
   m_Layer: 5
   m_Name: NextButton
   m_TagString: Untagged
@@ -256,6 +278,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4108982781817850951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331691278842978468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &505013506651745165
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,6 +588,7 @@ GameObject:
   - component: {fileID: 8893178200938971699}
   - component: {fileID: 2806698271321844602}
   - component: {fileID: 2396506533622690175}
+  - component: {fileID: 3031810126161438459}
   m_Layer: 5
   m_Name: PrevButton
   m_TagString: Untagged
@@ -660,6 +703,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3031810126161438459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733505261847910108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &1827088135539153244
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,6 +978,7 @@ GameObject:
   - component: {fileID: 8918679543446344639}
   - component: {fileID: 4145222129557081385}
   - component: {fileID: 939614842768641369}
+  - component: {fileID: 8933979650927805671}
   m_Layer: 5
   m_Name: Double Confirm Contract Change Button
   m_TagString: Untagged
@@ -1033,6 +1097,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8933979650927805671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3152080066755867697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &3623552264220069554
 GameObject:
   m_ObjectHideFlags: 0
@@ -1817,6 +1901,7 @@ GameObject:
   - component: {fileID: 7322626351369256059}
   - component: {fileID: 7851224369011982223}
   - component: {fileID: 8521091016738579470}
+  - component: {fileID: 4654470239533691764}
   m_Layer: 5
   m_Name: Cancel Contract Change Button
   m_TagString: Untagged
@@ -1935,6 +2020,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4654470239533691764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6191872120507534410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &6449964895140867339
 GameObject:
   m_ObjectHideFlags: 0
@@ -1996,6 +2101,7 @@ GameObject:
   - component: {fileID: 8254037912808192865}
   - component: {fileID: 7318401113694159742}
   - component: {fileID: 3672405381777642378}
+  - component: {fileID: 5130682276165563323}
   m_Layer: 5
   m_Name: Contract Change Button
   m_TagString: Untagged
@@ -2114,6 +2220,26 @@ MonoBehaviour:
   onPointerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5130682276165563323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7247436999124724429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &7985661366992313442
 GameObject:
   m_ObjectHideFlags: 0

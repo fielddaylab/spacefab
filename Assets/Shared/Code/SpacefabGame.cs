@@ -8,6 +8,8 @@ using FieldDay.Systems;
 using SpaceFab.Save;
 using SpaceFab;
 using UnityEngine;
+using FieldDay.Music;
+using FieldDay.Scenes;
 
 namespace SpaceFab
 {
@@ -28,11 +30,31 @@ namespace SpaceFab
 
             Log.Msg("[SpacefabGame] Creating Save manager...");
             SaveBuffer = new SaveMgr();
+
+            Log.Msg("[SpacefabGame] Creating Music player...");
+            MusicPlayer.Initialize();
+            MusicPlayer.SetDefaultTransition(new MusicTransitionParams() {
+                FadeIn = 0.4f,
+                FadeOut = 0.4f,
+                Overlap = 0.2f
+            });
+            MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
+
+            Game.Scenes.RegisterLoadDependency(new WaitForSetupMasksToBeSuspended());
         }
 
         [InvokeOnBoot]
         static private void OnBoot()
         {
+        }
+
+        private class WaitForSetupMasksToBeSuspended : ISceneLoadDependency
+        {
+            bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
+                if (loadPhase == SceneLoadFence.BeforeReady)
+                    return GameLoop.IsSuspended(UpdateMasks.SetupMask) || GameLoop.IsSuspended(UpdateMasks.OverarchingMask);
+                return true;
+            }
         }
     }
 }

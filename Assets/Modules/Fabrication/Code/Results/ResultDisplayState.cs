@@ -68,6 +68,8 @@ namespace SpaceFab.Fabrication
         public static void ShowResults(ResultDisplayState displayState)
         {
             displayState.ResultsTransitionRoutine.Replace(ShowResultsRoutine(displayState));
+            Debug.Log("Show results");
+            
         }
 
         public static void HideResults(ResultDisplayState displayState)
@@ -109,6 +111,11 @@ namespace SpaceFab.Fabrication
 
             float secondssPerCycle = 30;
             displayState.ProductionTimeText.text = $"{Mathf.Ceil(TimeStateUtility.GetElapsed(timeState) / secondssPerCycle)} cycles";
+
+            float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
+            float time = TimeStateUtility.GetElapsed(timeState);
+            int cycles = (int) Mathf.Ceil(time / secondssPerCycle);
+            SpacefabGame.Events.Dispatch(GameEvents.FabSucceeded, EvtArgs.Create((accuracy, time, cycles)));
 
             yield break;
         }

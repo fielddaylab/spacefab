@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2809890985908838907, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: HoverMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: b7f9f2af37ad37544ac7d92215a6050e, type: 2}
+    - target: {fileID: 2809890985908838907, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: DefaultMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: b7f9f2af37ad37544ac7d92215a6050e, type: 2}
     - target: {fileID: 3687948971506205187, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_Name
       value: Planet1
@@ -20,6 +28,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 2.4
       objectReference: {fileID: 0}
+    - target: {fileID: 5334573656649963566, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: b7f9f2af37ad37544ac7d92215a6050e, type: 2}
     - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: Collider
       value: 
@@ -91,6 +103,10 @@ PrefabInstance:
     - target: {fileID: 7488334245896658445, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: MaterialType.m_HashValue
       value: 3821421172
+      objectReference: {fileID: 0}
+    - target: {fileID: 8792477959654819082, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: TooltipHeader
+      value: Korbus
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

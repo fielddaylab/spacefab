@@ -504,6 +504,7 @@ GameObject:
   m_Component:
   - component: {fileID: 804920511}
   - component: {fileID: 804920510}
+  - component: {fileID: 804920512}
   m_Layer: 0
   m_Name: Supply Assets
   m_TagString: Untagged
@@ -524,7 +525,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Packs:
-  - {fileID: 11400000, guid: 23f710ccdef94954b9445ce5a73932c0, type: 2}
+  - {fileID: 11400000, guid: fd4601680fe9af746b988298e7309c51, type: 2}
 --- !u!4 &804920511
 Transform:
   m_ObjectHideFlags: 0
@@ -540,6 +541,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &804920512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804920509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79013ef6b98af0b4d9b5228746b3aba9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EventId:
+    m_HashValue: 1528660114
+  PlaylistId:
+    m_HashValue: 0
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5841,6 +5858,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6840469943802103755, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 994501228}
     - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: Id
       value: 3

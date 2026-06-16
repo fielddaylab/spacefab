@@ -48,8 +48,8 @@ namespace SpaceFab
 
         // Fabrication: Station Control
         public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
-        public static readonly StringHash32 FabActivateStation = "fab:Activate-station"; // Check conflicts with other consts
-        public static readonly StringHash32 FabInvalidActivateStation = "fab:invalid-activate-station";
+        public static readonly StringHash32 FabActivateStation = "fab:activate-station"; // Check conflicts with other consts
+        public static readonly StringHash32 FabInstructionUpdated = "fab:instruction-updated";
         public static readonly StringHash32 FabStationLeft = "fab:station-left";
         public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
         public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
@@ -64,6 +64,9 @@ namespace SpaceFab
         public static readonly StringHash32 FabWrongStationAttempt = "fab:wrong-station-attempt";
         public static readonly StringHash32 FabStunBegin = "fab:stun-begin";
         public static readonly StringHash32 FabStunEnd = "fab:stun-end";
+
+        public static readonly StringHash32 FabCompleted = "fab:completed";
+        public static readonly StringHash32 FabSucceeded = "fab:succeeded";
 
         // Fabrication: Sequence
         public static readonly StringHash32 FabGenerateWafer = "fab:generate-wafer";
@@ -84,6 +87,7 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimResumed = "design-sim:resumed";
         public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
+        public static readonly StringHash32 DesignSimSuiteSucceeded = "design-sim:suite-succeeded";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
 
         // Design: Grid
@@ -110,9 +114,10 @@ namespace SpaceFab
 
     public static class ScriptTriggers
     {
-        public static readonly StringHash32 OnMinigameLoad =    "OnMinigameLoad";
-        public static readonly StringHash32 OnWikiOpened =      "OnWikiOpened";
-        public static readonly StringHash32 OnWikiClosed =      "OnWikiClosed";
+        public static readonly StringHash32 OnMinigameLoad =        "OnMinigameLoad";
+        public static readonly StringHash32 OnWikiOpened =          "OnWikiOpened";
+        public static readonly StringHash32 OnWikiClosed =          "OnWikiClosed";
+        public static readonly StringHash32 OnOverarchingLoaded =   "OnOverarchingLoaded";
     }
 
     public static class UpdateMasks

@@ -56,8 +56,8 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out PhotolithographyMicrogameState state);
 
             state.PhotomaskAngle = 120f;
-            state.PhotomaskY = 2f;
-            state.FallSpeed = 0.5f;
+            state.PhotomaskY = 2.75f;
+            state.FallSpeed = 0.75f;
 
             state.Photomask.transform.rotation = Quaternion.Euler(0f, 0f, state.PhotomaskAngle);
 
