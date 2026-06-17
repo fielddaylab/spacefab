@@ -48,27 +48,43 @@ namespace SpaceFab.Fabrication.Microgames
                 return;
             
             float angle = state.SputterHeadAnchor.eulerAngles.z;
-            float rotationSpeed = 30f;
+            float rotationSpeed = 15f;
 
             if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
             {
-                if (angle <= 90)
-                    angle += deltaTime * rotationSpeed;
+                angle = Mathf.Min(90f, angle + deltaTime * rotationSpeed);
             }
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
             {
-                if (angle >= 0)
-                    angle -= deltaTime * rotationSpeed;
+                angle = Mathf.Max(0f, angle - deltaTime * rotationSpeed);
             }
             state.SputterHeadAnchor.rotation = Quaternion.Euler(0, 0, angle);
 
+            // Spawn projectile
+            Vector2 startPosition = state.FirePoint.position;
             spawnTimer -= deltaTime;
             if (spawnTimer <= 0f)
             {
                 spawnTimer = 0.2f;
                 SputterMicrogameProjectile projectile = Instantiate(state.SputterProjectilePrefab, state.ProjectileParent);
-                projectile.transform.position = state.InitialPosition.position;
+                projectile.transform.position = startPosition;
+                // direction
                 projectile.SetDirection(angle);
+            }
+
+            // Update line renderer (trajectory preview)
+            Vector2 direction = Quaternion.Euler(0, 0, angle) * Vector2.right;
+            RaycastHit2D hit = Physics2D.Raycast(startPosition, direction, 100f, ~(1 << 2));
+            state.TrajectoryPreview.SetPosition(0, startPosition);
+
+            state.TrajectoryPreview.positionCount = 2;
+            state.TrajectoryPreview.SetPosition(1, hit.point);
+            if (hit.collider.name == "Mirror")
+            {
+                state.TrajectoryPreview.positionCount++;
+                direction = Quaternion.Euler(0, 0, -angle) * Vector2.right;
+                hit = Physics2D.Raycast(hit.point + direction * 0.01f, direction, 100f, ~(1 << 2));
+                state.TrajectoryPreview.SetPosition(2, hit.point);
             }
 
             if (state.SputterPattern.CompletelyFilled)

@@ -292,6 +292,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 392350201542566469, guid: b39efe635dbd89641b8ac377ead6cf3e, type: 3}
   m_PrefabInstance: {fileID: 80312476}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &153899512
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4547,6 +4553,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!120 &1623754861 stripped
+LineRenderer:
+  m_CorrespondingSourceObject: {fileID: 4545709528826050507, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
+  m_PrefabInstance: {fileID: 699037342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1676710854 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7128546628928943759, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -4811,10 +4822,11 @@ MonoBehaviour:
   IsActive: 0
   InputAccepted: 0
   SputterUI: {fileID: 1562685134}
-  Phase: 1
+  Phase: 0
   SputterHeadAnchor: {fileID: 1676710854}
-  InitialPosition: {fileID: 704279720}
+  FirePoint: {fileID: 704279720}
   ProjectileParent: {fileID: 1815336502}
+  TrajectoryPreview: {fileID: 1623754861}
   SputterProjectilePrefab: {fileID: 2698297420162295257, guid: c61174905d0f142a188512153c41f42a, type: 3}
   SputterPattern: {fileID: 20395477}
 --- !u!1 &1899582895
@@ -7441,6 +7453,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 472298257}
     m_Modifications:
+    - target: {fileID: 1762696218640121405, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1762696218640121405, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1762696218640121405, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1762696218640121405, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2326456839013981112, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
       propertyPath: m_Name
       value: Furnace
@@ -7523,6 +7551,38 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4398824371504651393, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5618289394961609226, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5618289394961609226, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5618289394961609226, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5618289394961609226, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5740888874517814165, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5740888874517814165, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5740888874517814165, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5740888874517814165, guid: 92505def57fc8474b9792b59e509a4a8, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
