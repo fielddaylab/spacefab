@@ -154,30 +154,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7107318840641526531}
     m_Modifications:
-    - target: {fileID: 349155167643278929, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 62
-      objectReference: {fileID: 0}
-    - target: {fileID: 349155167643278929, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 42
-      objectReference: {fileID: 0}
-    - target: {fileID: 3129442852636513304, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_UVRect.width
-      value: 15.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3129442852636513304, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_UVRect.height
-      value: 10.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3539750417565351040, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 42
-      objectReference: {fileID: 0}
-    - target: {fileID: 3539750417565351040, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 22
-      objectReference: {fileID: 0}
     - target: {fileID: 3837406893295165992, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
       propertyPath: m_Pivot.x
       value: 1
@@ -258,33 +234,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5161275308998455219, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 62
-      objectReference: {fileID: 0}
-    - target: {fileID: 5161275308998455219, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 42
-      objectReference: {fileID: 0}
-    - target: {fileID: 6787585165383491076, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_text
-      value: next
-      objectReference: {fileID: 0}
-    - target: {fileID: 7134583792589423055, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7134583792589423055, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7858774295019505386, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
       propertyPath: m_Name
       value: Next
-      objectReference: {fileID: 0}
-    - target: {fileID: 7858774295019505386, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -100,15 +100,29 @@ namespace FieldDay.UI.Widgets {
             return (m_StateFlags & state) != 0;
         }
 
-        protected virtual void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
-            if (m_StateFlags != state) {
-                m_StateFlags = state;
-                m_BaseStyle.UpdateState(state, flags);
+        static protected void TryUpdateState(GuiWidget widget, GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
+            if (widget.m_StateFlags != state) {
+                widget.m_StateFlags = state;
+                widget.m_BaseStyle?.UpdateState(state, flags);
+                widget.UpdateState(state, flags);
             }
         }
 
+        protected virtual void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
+        }
+
         #endregion // State
-    
+
+        #region Events
+
+        protected virtual void Awake() {
+            if (!m_Cursor) {
+                m_Cursor = GetComponentInChildren<CursorHint>(true);
+            }
+        }
+
+        #endregion // Events
+
         protected void AssignBaseStyle(IGuiWidgetStyle style) {
             Assert.NotNullOrDestroyed(style);
             m_BaseStyle = style;

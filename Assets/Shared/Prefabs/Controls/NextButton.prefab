@@ -349,6 +349,7 @@ MonoBehaviour:
   Button: {fileID: 7924645493375283107}
   Layout: {fileID: 9200833437130148042}
   TextContent: {fileID: 6787585165383491076}
+  ImageContent: {fileID: 0}
 --- !u!1 &7942867145077683270
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,7 +360,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5161275308998455219}
   - component: {fileID: 9188771157150077660}
-  - component: {fileID: 3129442852636513304}
+  - component: {fileID: 2356737789482036004}
   m_Layer: 5
   m_Name: Shadow
   m_TagString: Untagged
@@ -394,7 +395,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7942867145077683270}
   m_CullTransparentMesh: 1
---- !u!114 &3129442852636513304
+--- !u!114 &2356737789482036004
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -403,26 +404,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 7942867145077683270}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3c09f886aa56c04fad0d0b585980acd, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a3ee03a5fada3942b82c53c377b7113, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 4bf7827f87effae4c87139268974fec1, type: 2}
-  m_Color: {r: 0.53900003, g: 0.53900003, b: 0.53900003, a: 1}
+  m_Material: {fileID: 2100000, guid: b016d31db396157468cc834d48679187, type: 2}
+  m_Color: {r: 0.5372549, g: 0.5372549, b: 0.5372549, a: 0.5019608}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 20b7c9b1b5ef65c46964416987de1cf9, type: 3}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 15.5
-    height: 10.5
-  m_UnitsPerTile: {x: 4, y: 4}
-  m_Offset: {x: 0, y: 0}
+  m_Outline: 0
+  m_Thickness: 1
 --- !u!1 &9073025888302999401
 GameObject:
   m_ObjectHideFlags: 0

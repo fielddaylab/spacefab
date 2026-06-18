@@ -10,6 +10,11 @@ namespace FieldDay.UI {
     public sealed class FilteredGraphicRaycaster : GraphicRaycaster {
         [SerializeField] private LayerMask m_EventMask = Bits.All32;
 
+        /// <summary>
+        /// Global filter. Applies across all FilteredGraphicRaycasters.
+        /// </summary>
+        static public LayerMask GlobalMask = Bits.All32;
+
         public LayerMask eventMask {
             get { return m_EventMask; }
             set { m_EventMask = value; }
@@ -19,10 +24,12 @@ namespace FieldDay.UI {
             int prevSize = resultAppendList.Count;
             base.Raycast(eventData, resultAppendList);
 
-            if (m_EventMask != Bits.All32) {
+            int mask = m_EventMask & GlobalMask;
+
+            if (mask != Bits.All32) {
                 for (int i = resultAppendList.Count - 1; i >= prevSize; i--) {
                     RaycastResult result = resultAppendList[i];
-                    if ((m_EventMask & (1 << result.gameObject.layer)) == 0) {
+                    if ((mask & (1 << result.gameObject.layer)) == 0) {
                         resultAppendList.RemoveAt(i);
                     }
                 }

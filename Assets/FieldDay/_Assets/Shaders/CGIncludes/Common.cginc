@@ -127,4 +127,8 @@ inline float4 SamplePaletteArray(sampler2DArray palette, float normalizedIndex, 
 }
 */
 
+/// VPOS
+
+#define float_vpos UNITY_VPOS_TYPE
+
 #endif // FD_COMMON_INCLUDED

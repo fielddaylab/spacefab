@@ -1,12 +1,12 @@
-Shader "SpaceFab/Simple Dither"
+Shader "SpaceFab/Simple Color Dither"
 {
     Properties
     {
-		[Header(Textures)] [Space]
-        [PerRendererData] [NoScaleOffset] _MainTex ("Sprite Texture", 2D) = "white" {}
-
 		[Header(Colors)] [Space]
         _Color ("Tint", Color) = (1,1,1,1)
+
+        [Header(Dithering)] [Space]
+        _DitherScale ("Dither Scale", Range(1, 32)) = 1
 
         [HideInInspector] _StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector] _Stencil ("Stencil ID", Float) = 0
@@ -59,13 +59,30 @@ Shader "SpaceFab/Simple Dither"
         {
         CGPROGRAM
             #pragma vertex DefaultUIVert
-            #pragma fragment DefaultComicFrag
-            #pragma target 2.0
+            #pragma fragment DitherFrag
+            #pragma target 3.0
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
 
             #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/UI.cginc"
+            #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/Dithering.cginc"
+
+            half _DitherScale;
+
+            fixed4 DitherFrag(Varyings_UI f, float_vpos screenPos: VPOS) : SV_Target
+            {
+                f.color.a = Quantize8(f.color.a);
+                half4 color = f.color;
+    
+                UIRectClip(f.mask, color);
+                UIAlphaClip(color);
+
+                color.a = step(GetBayerThreshold8(screenPos.xy / _DitherScale), color.a);
+    
+                PremultiplyAlpha(color);
+                return color;
+            }
         ENDCG
         }
     }
