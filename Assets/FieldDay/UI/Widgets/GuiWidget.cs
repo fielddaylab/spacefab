@@ -1,5 +1,6 @@
 using BeauUtil;
 using BeauUtil.Debugger;
+using BeauUtil.UI;
 using BeauUtil.Variants;
 using FieldDay.Components;
 using System;
@@ -17,6 +18,7 @@ namespace FieldDay.UI.Widgets {
         [SerializeField] private SerializedHash32 m_Id;
         [SerializeField] private SerializedHash32 m_Class;
         [SerializeField] private SerializedHash32 m_Group;
+        [SerializeField] private CursorHint m_Cursor;
 
         [NonSerialized] protected GuiWidgetStateFlags m_StateFlags;
         [NonSerialized] protected IGuiWidgetStyle m_BaseStyle;
@@ -73,6 +75,13 @@ namespace FieldDay.UI.Widgets {
             get { return ReferenceEquals(m_LayoutOffset, null) ? (m_LayoutOffset = GetComponent<LayoutOffset>()) : m_LayoutOffset; }
         }
 
+        /// <summary>
+        /// Pointer events and tooltips.
+        /// </summary>
+        public CursorHint CursorHint {
+            get { return m_Cursor == null ? (m_Cursor = GetComponentInChildren<CursorHint>(true)) : m_Cursor; }
+        }
+
         #endregion // References
 
         #region State
@@ -91,7 +100,7 @@ namespace FieldDay.UI.Widgets {
             return (m_StateFlags & state) != 0;
         }
 
-        protected void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
+        protected virtual void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
             if (m_StateFlags != state) {
                 m_StateFlags = state;
                 m_BaseStyle.UpdateState(state, flags);

@@ -29,7 +29,6 @@ struct Attributes_UI
 
 struct Varyings_UI
 {
-    float4 vertex           : SV_POSITION;
     fixed4 color            : COLOR;
     float2 texcoord         : TEXCOORD0;
     float4 worldPosition    : TEXCOORD1;
@@ -111,7 +110,7 @@ inline float UIPerformRectClip(half4 mask)
 
 /// Programs
 
-Varyings_UI DefaultUIVert(Attributes_UI v)
+Varyings_UI DefaultUIVert(Attributes_UI v, out float4 vertex : SV_Position)
 {
     Varyings_UI output;
     InstancingInitialize(v);
@@ -119,7 +118,7 @@ Varyings_UI DefaultUIVert(Attributes_UI v)
     
     float4 vPosition = UnityObjectToClipPos(v.vertex);
     output.worldPosition = v.vertex;
-    output.vertex = vPosition;
+    vertex = vPosition;
     
     output.texcoord = v.texcoord.xy;
 #if UNITY_UI_CLIP_RECT

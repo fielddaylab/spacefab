@@ -15,7 +15,7 @@ namespace SpaceFab.Fabrication {
     public class FabricationTransitionSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.SetupMask),
+                new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.SetupMask).AllowDuringLoad(),
                 new SysPermissions()
                     .ReadWriteShared<FabricationTransitionState>()
                     .ReadShared<PlayerProgressState>()
