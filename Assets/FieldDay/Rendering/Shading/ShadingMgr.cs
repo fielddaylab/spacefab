@@ -40,6 +40,7 @@ namespace FieldDay.Rendering {
         #endregion // Types
 
         private RenderTexture m_WarmupRenderTarget;
+
         private Material m_TextureWarmupMaterial;
         private Material m_ShaderWarmupMaterial;
         private RingBuffer<Material> m_WarmupMaterialQueue = new RingBuffer<Material>(64, RingBufferMode.Expand);

@@ -37,6 +37,7 @@ namespace FieldDay.Localization {
 
         [Header("Additional Settings")]
         [SerializeField] private bool m_TintSprites;
+        [SerializeField] private bool m_IgnoreRTL;
 
         #endregion // Inspector
 
@@ -50,11 +51,7 @@ namespace FieldDay.Localization {
             base.OnEnable();
             // TODO: register to localization
             if (Loc.Language != m_LastKnownLanguage) {
-                if (m_LastKnownLanguage.IsEmpty) {
-                    m_Graphic.tintAllSprites = m_TintSprites;
-                }
-                m_LastKnownLanguage = Loc.Language;
-                // TODO: queue to be updated
+                InitializeForLanguage(Loc.Language);
             }
         }
 
@@ -79,10 +76,15 @@ namespace FieldDay.Localization {
 
         #region ILocalizedComponent
 
+        private void InitializeForLanguage(LanguageId language) {
+            m_Graphic.tintAllSprites = m_TintSprites;
+            m_Graphic.isRightToLeftText = !m_IgnoreRTL && Loc.LanguageHasFeatures(LanguageFeatures.IsRTL);
+            m_LastKnownLanguage = language;
+        }
+
         void ILocalizedComponent.OnLocalizationUpdated(LanguageId language) {
             if (language != m_LastKnownLanguage) {
-                m_LastKnownLanguage = language;
-                // queue for update
+                InitializeForLanguage(language);
             }
         }
 

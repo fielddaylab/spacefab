@@ -823,8 +823,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706f2641905f6d64d924966dcaeba60f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NextButtonGroup: {fileID: 2064792385}
-  NextButton: {fileID: 2064792387}
+  NextButtonGroup: {fileID: 1577419224}
+  NextButton: {fileID: 1577419227}
 --- !u!114 &1445825230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -860,6 +860,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46d300b7120491f4dba9d2a84243633d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1577419224 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3845989913646677834, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
+  m_PrefabInstance: {fileID: 8677257792499299120}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1577419227 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7319916556802917928, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
+  m_PrefabInstance: {fileID: 8677257792499299120}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1577419224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 906fb8621338e4a4aad55f85580e6292, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1730749039
@@ -979,22 +995,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7796938538446797251, guid: e04ee8f47a2a216458b521f4d5cf34ea, type: 3}
   m_PrefabInstance: {fileID: 2029871794}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2064792385 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1470098051872044312, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
-  m_PrefabInstance: {fileID: 8677257792499299120}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2064792387 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2403156774772243760, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
-  m_PrefabInstance: {fileID: 8677257792499299120}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2064792385}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 734464ad924464147bf833b21c34f733, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &8677257792499299120
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1003,10 +1003,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1470098051872044312, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5952665151088321635, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
       propertyPath: m_Camera
       value: 
@@ -1014,10 +1010,6 @@ PrefabInstance:
     - target: {fileID: 6749711288450967445, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
       propertyPath: m_Name
       value: ComicSequenceCanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 6749711288450967445, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7107318840641526531, guid: b903da8185ac76c4db0f2f205e3edabe, type: 3}
       propertyPath: m_Pivot.x

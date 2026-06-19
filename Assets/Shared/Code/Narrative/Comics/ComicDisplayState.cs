@@ -5,11 +5,13 @@ using FieldDay;
 using FieldDay.Collections;
 using FieldDay.SharedState;
 using FieldDay.UI;
+using FieldDay.UI.Widgets;
 using SpaceFab.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Comic
@@ -20,7 +22,7 @@ namespace SpaceFab.Comic
         [NonSerialized] public int CurrentPanelIndex = -1;
 
         public GameObject NextButtonGroup;
-        public AutoSizedButton NextButton;
+        public GuiButton NextButton;
     }
 
     static public partial class ComicsUtility {
@@ -85,9 +87,10 @@ namespace SpaceFab.Comic
 
         static public IEnumerator DisplayAndWaitForNextButton(string text) {
             Find.State(out ComicDisplayState displayState);
-            displayState.NextButton.TextContent.SetText(text);
-            displayState.NextButton.Layout.Sync();
+            displayState.NextButton.LayoutSizeGroup.Root.GetComponent<TMP_Text>().SetText(text);
+            displayState.NextButton.LayoutSizeGroup.Sync();
             GuiCommands.SetActive(displayState.NextButtonGroup, true);
+            displayState.NextButton.ConsumeClick();
             while(!displayState.NextButton.ConsumeClick()) {
                 yield return null;
             }

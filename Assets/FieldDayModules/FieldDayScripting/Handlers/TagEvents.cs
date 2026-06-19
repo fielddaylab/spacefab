@@ -1,6 +1,7 @@
 using BeauUtil;
 using BeauUtil.Tags;
 using Leaf;
+using Leaf.Runtime;
 
 namespace FieldDay.Scripting {
     static public class TagEvents {
@@ -14,6 +15,7 @@ namespace FieldDay.Scripting {
         static public readonly StringHash32 SetStyle = "set-style";
 
         static public readonly StringHash32 PlayQuip = "play-quip";
+        static public readonly StringHash32 LeafSignal = "leaf-signal";
 
         static public readonly StringHash32 AutoContinue = "auto-continue";
         static public readonly StringHash32 InterpretAsClose = "interpret-at-end";
@@ -37,6 +39,7 @@ namespace FieldDay.Scripting {
             parser.AddEvent("close", InterpretAsClose);
 
             parser.AddEvent("quip", PlayQuip).WithStringHashData();
+            parser.AddEvent("signal", LeafSignal).WithStringHashData();
         }
 
         static internal void ConfigureHandlers(TagStringEventHandler handler, ILeafPlugin plugin) {
@@ -48,6 +51,7 @@ namespace FieldDay.Scripting {
             handler.Register(LeafUtils.Events.Character, Event_SetCharacter);
             handler.Register(LeafUtils.Events.Pose, Event_SetPose);
             handler.Register(SetStyle, Event_SetStyle);
+            handler.Register(LeafSignal, Event_LeafSignal);
 
             handler.Register(SubtitleTimecodes, Event_NoOp);
             handler.Register(HasVox, Event_NoOp);
@@ -95,6 +99,11 @@ namespace FieldDay.Scripting {
             var thread = (ScriptThread)context;
             StringHash32 style = evt.Argument0.AsStringHash();
             thread.TakeOwnership(ScriptUtility.GetDialoguePrinter(style));
+        }
+
+        static private void Event_LeafSignal(TagEventData evt, object context) {
+            StringHash32 signal = evt.Argument0.AsStringHash();
+            ScriptUtility.DispatchSignal(signal);
         }
 
         static private void Event_DispatchEvent(TagEventData evt, object context) {

@@ -12,6 +12,7 @@ using FieldDay.UI.Animation;
 using FieldDay.Audio;
 using FieldDay.SharedState;
 using UnityEngine.Events;
+using FieldDay.UI.Widgets;
 
 namespace SpaceFab
 {
@@ -24,7 +25,7 @@ namespace SpaceFab
         public BaseRaycasterInputLayer InputLayer;
 
         [Header("Button")]
-        public Button Button;
+        public GuiButton Button;
         public Image ButtonImage;
         public Sprite PauseSprite;
         public Sprite ResumeSprite;
@@ -42,13 +43,13 @@ namespace SpaceFab
 
         public void OnRegister()
         {
-            Button.onClick.AddListener(HandleStartTogglePause);
+            Button.OnClick.AddListener(HandleStartTogglePause);
             PlayerCodeDisplay.SetTextAndActive(PlayerPrefs.GetString("LatestPlayerCode", null));
         }
 
         public void OnDeregister()
         {
-            Button.onClick.RemoveListener(HandleStartTogglePause);
+            Button.OnClick.RemoveListener(HandleStartTogglePause);
 
             FadeRoutine.Stop();
             ButtonRoutine.Stop();
@@ -65,7 +66,7 @@ namespace SpaceFab
         public static void SetPauseButtonActive(bool active, PauseMenuState state = null)
         {
             if (state == null) state = Find.State<PauseMenuState>();
-            state.Button.interactable = active;
+            state.Button.Interactable = active;
             state.Button.gameObject.SetActive(active);
         }
 
@@ -134,18 +135,18 @@ namespace SpaceFab
 
         private static IEnumerator SlideButtonIn(PauseMenuState state)
         {
-            state.Button.interactable = false;
+            state.Button.Interactable = false;
             yield return state.Button.transform.ScaleTo(1.5f, state.TransitionTime, Axis.XY).Ease(Curve.CubeIn);
             state.ButtonImage.sprite = state.ResumeSprite;
-            state.Button.interactable = true;
+            state.Button.Interactable = true;
         }
 
         private static IEnumerator SlideButtonOut(PauseMenuState state)
         {
-            state.Button.interactable = false;
+            state.Button.Interactable = false;
             yield return state.Button.transform.ScaleTo(1.0f, state.TransitionTime, Axis.XY).Ease(Curve.CubeIn);
             state.ButtonImage.sprite = state.PauseSprite;
-            state.Button.interactable = true;
+            state.Button.Interactable = true;
         }
 
         private static IEnumerator FadeGroupOut(PauseMenuState state)

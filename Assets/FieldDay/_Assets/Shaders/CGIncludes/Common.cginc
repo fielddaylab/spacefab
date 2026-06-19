@@ -48,7 +48,15 @@ inline half Quantize8(half value)
 
 /// Screen Space
 
-#define     VaryingsFragCoords(channel)  half2 pixelCoords : VPOS
+inline float2 ClipSpaceToViewportSpace(float4 clipSpace)
+{
+    return (clipSpace.xy + 1) * 0.5;
+}
+
+inline float2 ViewportSpaceToClipSpace(float2 clipSpace)
+{
+    return (2 * clipSpace) - 1;
+}
 
 /// Math
 

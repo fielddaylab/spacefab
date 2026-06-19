@@ -23,10 +23,11 @@ namespace FieldDay.UI {
         public override void Raycast(PointerEventData eventData, List<RaycastResult> resultAppendList) {
             int prevSize = resultAppendList.Count;
             base.Raycast(eventData, resultAppendList);
+            int newSize = resultAppendList.Count;
 
             int mask = m_EventMask & GlobalMask;
 
-            if (mask != Bits.All32) {
+            if (newSize > prevSize && mask != Bits.All32) {
                 for (int i = resultAppendList.Count - 1; i >= prevSize; i--) {
                     RaycastResult result = resultAppendList[i];
                     if ((mask & (1 << result.gameObject.layer)) == 0) {

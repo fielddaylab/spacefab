@@ -19,6 +19,7 @@ namespace FieldDay.UI {
 
         private unsafe void Start() {
             this.CacheComponent(ref m_CachedTransform);
+
             PointerListener listener = GetComponent<PointerListener>();
             Assert.NotNullOrDestroyed(listener, "No PointerListener present!");
 

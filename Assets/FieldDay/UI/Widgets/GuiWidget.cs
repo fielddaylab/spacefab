@@ -14,14 +14,18 @@ namespace FieldDay.UI.Widgets {
         [NonSerialized] private RectTransform m_RectTransform;
         [NonSerialized] private IGuiPanel m_Panel;
         [NonSerialized] private LayoutOffset m_LayoutOffset;
+        [NonSerialized] private LayoutSizeGroup m_LayoutGroup;
+        [NonSerialized] protected CanvasGroup m_CanvasGroup;
+
+        [NonSerialized] private GuiWidgetStateFlags m_StateFlags;
+        [NonSerialized] private IGuiWidgetStyle m_BaseStyle;
 
         [SerializeField] private SerializedHash32 m_Id;
         [SerializeField] private SerializedHash32 m_Class;
         [SerializeField] private SerializedHash32 m_Group;
-        [SerializeField] private CursorHint m_Cursor;
 
-        [NonSerialized] protected GuiWidgetStateFlags m_StateFlags;
-        [NonSerialized] protected IGuiWidgetStyle m_BaseStyle;
+        [Header("Components")]
+        [SerializeField] private CursorHint m_Cursor;
 
         #region Identifiers
 
@@ -72,7 +76,21 @@ namespace FieldDay.UI.Widgets {
         /// Layout position helper.
         /// </summary>
         public LayoutOffset LayoutOffset {
-            get { return ReferenceEquals(m_LayoutOffset, null) ? (m_LayoutOffset = GetComponent<LayoutOffset>()) : m_LayoutOffset; }
+            get { return this.CacheComponent(ref m_LayoutOffset); }
+        }
+
+        /// <summary>
+        /// Layout sizing helper.
+        /// </summary>
+        public LayoutSizeGroup LayoutSizeGroup {
+            get { return this.CacheComponent(ref m_LayoutGroup); }
+        }
+
+        /// <summary>
+        /// Canvas group.
+        /// </summary>
+        public CanvasGroup CanvasGroup {
+            get { return this.CacheComponent(ref m_CanvasGroup); }
         }
 
         /// <summary>
@@ -85,6 +103,13 @@ namespace FieldDay.UI.Widgets {
         #endregion // References
 
         #region State
+
+        /// <summary>
+        /// Returns the current state of the widget.
+        /// </summary>
+        public GuiWidgetStateFlags State {
+            get { return m_StateFlags; }
+        }
 
         /// <summary>
         /// Returns if the state of the widget contains all the given flags.
@@ -100,15 +125,37 @@ namespace FieldDay.UI.Widgets {
             return (m_StateFlags & state) != 0;
         }
 
-        static protected void TryUpdateState(GuiWidget widget, GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
-            if (widget.m_StateFlags != state) {
-                widget.m_StateFlags = state;
-                widget.m_BaseStyle?.UpdateState(state, flags);
-                widget.UpdateState(state, flags);
+        /// <summary>
+        /// Returns if the widget is interactable.
+        /// </summary>
+        public bool Interactable {
+            get { return (m_StateFlags & GuiWidgetStateFlags.PauseInteractions) == 0; }
+            set {
+                TryUpdateState(this, Bits.Set(m_StateFlags, GuiWidgetStateFlags.PauseInteractions, value));
             }
         }
 
-        protected virtual void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
+        static protected bool TryUpdateState(GuiWidget widget, GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags = 0) {
+            if (widget.m_StateFlags != state || (flags & GuiWidgetUpdateFlags.Force) != 0) {
+                GuiWidgetStateFlags change = widget.m_StateFlags ^ state;
+                widget.m_StateFlags = state;
+
+                if (!widget.isActiveAndEnabled) {
+                    flags |= GuiWidgetUpdateFlags.NoAnimation;
+                }
+
+                if (widget.CacheComponent(ref widget.m_CanvasGroup)) {
+                    widget.m_CanvasGroup.blocksRaycasts = (state & GuiWidgetStateFlags.PauseInteractions) != 0;
+                }
+                widget.m_BaseStyle?.UpdateState(state, change, widget, flags);
+                widget.UpdateState(state, change, flags);
+                return true;
+            }
+
+            return false;
+        }
+
+        protected virtual void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags change, GuiWidgetUpdateFlags flags = 0) {
         }
 
         #endregion // State
@@ -119,6 +166,9 @@ namespace FieldDay.UI.Widgets {
             if (!m_Cursor) {
                 m_Cursor = GetComponentInChildren<CursorHint>(true);
             }
+            if (m_Cursor) {
+                m_Cursor.Owner = this;
+            }
         }
 
         #endregion // Events
@@ -126,8 +176,52 @@ namespace FieldDay.UI.Widgets {
         protected void AssignBaseStyle(IGuiWidgetStyle style) {
             Assert.NotNullOrDestroyed(style);
             m_BaseStyle = style;
-            style.UpdateState(m_StateFlags, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
+            style.UpdateState(m_StateFlags, m_StateFlags, this, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
         }
+
+        #region Interactable
+
+    /// <summary>
+        /// Evaluates the current interactable state of a widget.
+        /// </summary>
+        static public GuiWidgetInteractableState EvaluateInteractableState(GuiWidget widget) {
+            if ((widget.m_StateFlags & GuiWidgetStateFlags.PauseInteractions) != 0) {
+                return GuiWidgetInteractableState.Disabled;
+            }
+
+            CursorHint cursor = widget.CursorHint;
+            if (cursor != null) {
+                if (cursor.IsPointerEntered()) {
+                    if (cursor.IsPointerDown()) {
+                        return GuiWidgetInteractableState.Down;
+                    }
+                    return GuiWidgetInteractableState.Hover;
+                }
+            }
+
+            return GuiWidgetInteractableState.Normal;
+        }
+
+        /// <summary>
+        /// Attempts to update the interactable state of a widget.
+        /// </summary>
+        static protected bool TryUpdateInteractableState(GuiWidget widget, ref GuiWidgetInteractableState currentState, IGuiWidgetInteractiveStyle style, GuiWidgetUpdateFlags flags = 0) {
+            GuiWidgetInteractableState targetState = EvaluateInteractableState(widget);
+            if (currentState != targetState || (flags & GuiWidgetUpdateFlags.Force) != 0) {
+                currentState = targetState;
+                if (!widget.isActiveAndEnabled) {
+                    flags |= GuiWidgetUpdateFlags.NoAnimation;
+                }
+                if (style != null) {
+                    style.UpdateInteractionState(targetState, widget, flags);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion // Interactable
     }
 
     /// <summary>
