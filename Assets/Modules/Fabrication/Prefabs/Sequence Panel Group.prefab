@@ -244,10 +244,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sequence Card (Bottom)
       objectReference: {fileID: 0}
-    - target: {fileID: 3089289506850927203, guid: b90568064a316014eb5245473399b5c4, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3475712235364406614, guid: b90568064a316014eb5245473399b5c4, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

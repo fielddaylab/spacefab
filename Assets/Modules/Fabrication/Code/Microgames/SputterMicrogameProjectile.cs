@@ -24,7 +24,7 @@ namespace SpaceFab.Fabrication.Microgames
             if (collision.gameObject.name == "Mirror")
             {
                 Vector2 direction = Quaternion.Euler(0, 0, -InitialAngle) * Vector2.right;
-                Rigidbody.velocity = direction * Rigidbody.velocity;
+                Rigidbody.velocity = direction * Speed;
                 Reflected = true;
             }
             else if (collision.gameObject.GetComponent<SputterBoxCollider>() == null)

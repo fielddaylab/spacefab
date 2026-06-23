@@ -31,8 +31,9 @@ namespace SpaceFab.Fabrication.Microgames
         public SputterMicrogamePhase Phase;
 
         public Transform SputterHeadAnchor;
-        public Transform InitialPosition;
+        public Transform FirePoint;
         public Transform ProjectileParent;
+        public LineRenderer TrajectoryPreview;
 
         public SputterMicrogameProjectile SputterProjectilePrefab;
         public SputterPatternData SputterPattern;

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1832077215063302387}
   - component: {fileID: 1489548585474486773}
   - component: {fileID: 1671737734937720433}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 500610245421765662}
   - component: {fileID: 8147111068776810882}
   - component: {fileID: 3168953672902907165}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -195,7 +195,7 @@ GameObject:
   - component: {fileID: 1862294579470712599}
   - component: {fileID: 2747938658014958895}
   - component: {fileID: 7191156947881269167}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 6211292188022100762}
   - component: {fileID: 6762665525045094208}
   - component: {fileID: 4786796668927617761}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -379,7 +379,7 @@ GameObject:
   - component: {fileID: 7602396178109353206}
   - component: {fileID: 6381458024169033857}
   - component: {fileID: 131169637601620033}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Pattern 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -494,7 +494,7 @@ GameObject:
   - component: {fileID: 7032855299142113030}
   - component: {fileID: 6801323885370408254}
   - component: {fileID: 1679560925757690211}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -586,7 +586,7 @@ GameObject:
   - component: {fileID: 383727413815193860}
   - component: {fileID: 1586821153378273611}
   - component: {fileID: 2219250180236398091}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -678,7 +678,7 @@ GameObject:
   - component: {fileID: 5622121237045947499}
   - component: {fileID: 8214383002646120019}
   - component: {fileID: 6448727360584666047}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
