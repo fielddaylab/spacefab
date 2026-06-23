@@ -38,21 +38,44 @@ namespace SpaceFab.Research
         // when speed is zero so a stopped circuit doesn't tick.
         private static void AdvanceFlow(CircuitRenderer circuit, float deltaTime)
         {
-            if (circuit.CircuitSpriteSpeed == 0f) return;
-            if (circuit.CircuitSpriteSequence == null || circuit.CircuitSpriteSequence.Length == 0) return;
-            if (circuit.CircuitFlow == null) return;
+            if (circuit.CircuitCurrent == 0f) return;
+            if (circuit.Electrons == null) return;
 
-            float advance = deltaTime * Mathf.Abs(circuit.CircuitSpriteSpeed) * circuit.AnimSpeedMultiplier;
-            circuit.CircuitSpriteTimer += advance;
+            circuit.CircuitSpriteTimer += deltaTime * circuit.AnimSpeedMultiplier;
 
-            int framesAdvanced = (int)circuit.CircuitSpriteTimer;
-            if (framesAdvanced > 0)
+            foreach (Electron electron in circuit.Electrons)
             {
-                circuit.CircuitSpriteTimer -= framesAdvanced;
-                int len = circuit.CircuitSpriteSequence.Length;
-                int direction = circuit.CircuitSpriteSpeed > 0f ? 1 : -1;
-                circuit.CircuitSpriteIndex = ((circuit.CircuitSpriteIndex + framesAdvanced * direction) % len + len) % len;
-                circuit.CircuitFlow.sprite = circuit.CircuitSpriteSequence[circuit.CircuitSpriteIndex];
+                Vector2[] points = circuit.FlowSegmentPoints[electron.FlowSegmentIndex].Points;
+
+                Vector2 currentPosition = electron.transform.position;
+                Vector2 targetPosition = points[electron.TargetPointIndex];
+                Vector2 nextPosition = currentPosition + electron.Direction * deltaTime;
+
+                bool overshoot = Vector2.Dot(targetPosition - currentPosition, targetPosition - nextPosition) < 0;
+                if (!overshoot)
+                    electron.transform.position = nextPosition;
+                else // update target position
+                {
+                    electron.TargetPointIndex++;
+
+                    if (electron.TargetPointIndex >= points.Length)
+                    {
+                        electron.TargetPointIndex = 1;
+                        electron.transform.position = points[0];
+                    }
+                    else
+                    {
+                        electron.transform.position = targetPosition;
+                    }
+
+                    currentPosition = electron.transform.position;
+                    if (points[electron.TargetPointIndex].x == currentPosition.x)
+                        electron.Direction = points[electron.TargetPointIndex].y > currentPosition.y ? Vector2.up : Vector2.down;
+                    else
+                        electron.Direction = points[electron.TargetPointIndex].x > currentPosition.x ? Vector2.right : Vector2.left;
+
+                    electron.transform.position += (Vector3)electron.Direction * Vector2.Distance(nextPosition, targetPosition);
+                }
             }
         }
 

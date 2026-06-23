@@ -13,8 +13,15 @@ namespace SpaceFab.Research
     /// </summary>
     public class CircuitRenderer : BatchedComponent
     {
-        public SpriteRenderer CircuitFlow;
-        public Sprite[] CircuitSpriteSequence;
+        [System.Serializable]
+        public class FlowSegment
+        {
+            public float Offset;
+            public Vector2[] Points;
+        }
+
+        public Electron[] Electrons;
+        public FlowSegment[] FlowSegmentPoints;
 
         public SpriteRenderer Bulb;
         public Sprite BulbOffSprite;
@@ -23,9 +30,8 @@ namespace SpaceFab.Research
         public SpriteRenderer[] BulbShines;
         public float AnimSpeedMultiplier = 4f;
 
-        // Sign controls flow direction; magnitude drives animation speed and
-        // flow sprite alpha. Set by CircuitUtility.SetFlowSpeed.
-        [NonSerialized] public float CircuitSpriteSpeed;
+        // Magnitude drives flow density. Set by CircuitUtility.SetFlowStrength.
+        [NonSerialized] public float CircuitCurrent;
 
         // Accumulator for the animation system; drives frame advance.
         [NonSerialized] public float CircuitSpriteTimer;
@@ -69,25 +75,21 @@ namespace SpaceFab.Research
             }
         }
 
-        // Sets the flow tube's alpha and the per-frame advance speed. The
-        // animation system reads CircuitSpriteSpeed each frame.
-        public static void SetFlowSpeed(CircuitRenderer circuit, float speed)
+        // Sets the flow tube's density. The animation system reads CircuitSpriteSpeed each frame.
+        public static void SetFlowStrength(CircuitRenderer circuit, float strength)
         {
             if (circuit == null) return;
 
-            float magnitude = Mathf.Abs(speed);
-            if (circuit.CircuitFlow != null)
+            for (int i = 0; i < circuit.Electrons.Length; i++)
             {
-                Color c = circuit.CircuitFlow.color;
-                c.a = magnitude;
-                circuit.CircuitFlow.color = c;
+                if (strength == 0)
+                    circuit.Electrons[i].gameObject.SetActive(false);
+                else if (strength < 0.3f)
+                    circuit.Electrons[i].gameObject.SetActive(i % 2 == 0);
+                else
+                    circuit.Electrons[i].gameObject.SetActive(true);
             }
-
-            circuit.CircuitSpriteSpeed = speed;
-            if (speed == 0f)
-            {
-                circuit.CircuitSpriteTimer = 0f;
-            }
+            circuit.CircuitCurrent = strength;
         }
     }
 }

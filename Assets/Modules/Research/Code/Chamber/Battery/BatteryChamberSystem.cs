@@ -77,7 +77,7 @@ namespace SpaceFab.Research
             if (material == null)
             {
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
-                CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(battery.Circuit, 0f);
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace SpaceFab.Research
             if (profile == null)
             {
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
-                CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(battery.Circuit, 0f);
                 return;
             }
 
@@ -96,14 +96,14 @@ namespace SpaceFab.Research
                     explosionState, vfxPool, interfacerState, slot, battery.SlotKind,
                     ExplosionStyle.VoltageBreakdown, delay: 1f);
                 CircuitUtility.SetLightStrength(battery.Circuit, 0f);
-                CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(battery.Circuit, 0f);
                 return;
             }
 
             float current = MaterialPhysicsUtility.GetCurrent(profile, voltage, battery.Temperature);
             if (current == 0 && voltage != 0) Sfx.Play(Find.State<BatteryChamberState>().NoCurrentSFX);
             CircuitUtility.SetLightStrength(battery.Circuit, current);
-            CircuitUtility.SetFlowSpeed(battery.Circuit, current);
+            CircuitUtility.SetFlowStrength(battery.Circuit, current);
         }
     }
 }
