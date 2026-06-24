@@ -11,7 +11,7 @@ namespace SpaceFab.Research
     /// angular velocities. Runs every frame the chamber mask is active; the
     /// chamber system itself only writes CircuitSpriteSpeed when state changes.
     /// </summary>
-    public class CircuitAnimationSystem : SystemComponent
+    public class CircuitAnimationSystem : SystemComponent, IRegistrationCallbacks
     {
         // Per-shine rotation rates (degrees per second), applied to the
         // BulbShines array on each renderer. Three shines per bulb is the
@@ -23,6 +23,14 @@ namespace SpaceFab.Research
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ResearchChamberMask),
                 new SysPermissions().ReadWrite<CircuitRenderer>());
+        }
+        public void OnRegister()
+        {
+            
+        }
+        public void OnDeregister()
+        {
+            
         }
 
         private static void ProcessWork(float deltaTime)
@@ -41,40 +49,29 @@ namespace SpaceFab.Research
             if (circuit.CircuitCurrent == 0f) return;
             if (circuit.Electrons == null) return;
 
-            circuit.CircuitSpriteTimer += deltaTime * circuit.AnimSpeedMultiplier;
-
             foreach (Electron electron in circuit.Electrons)
             {
-                Vector2[] points = circuit.FlowSegmentPoints[electron.FlowSegmentIndex].Points;
+                var segment = circuit.FlowSegments[electron.FlowSegmentIndex];
+                electron.TravelDistance += deltaTime * circuit.AnimSpeedMultiplier;
 
-                Vector2 currentPosition = electron.transform.position;
-                Vector2 targetPosition = points[electron.TargetPointIndex];
-                Vector2 nextPosition = currentPosition + electron.Direction * deltaTime;
-
-                bool overshoot = Vector2.Dot(targetPosition - currentPosition, targetPosition - nextPosition) < 0;
-                if (!overshoot)
-                    electron.transform.position = nextPosition;
-                else // update target position
+                // Switch to next flow segment
+                if (electron.TravelDistance >= segment.Length)
                 {
-                    electron.TargetPointIndex++;
+                    electron.FlowSegmentIndex++;
+                    electron.TravelDistance -= segment.Length;
+                    if (electron.FlowSegmentIndex >= circuit.FlowSegments.Length)
+                        electron.FlowSegmentIndex = 0;
+                    electron.FadeProgress = 0f;
+                }
+                
+                electron.transform.position = CircuitUtility.GetPositionOnSegment(circuit, electron);
 
-                    if (electron.TargetPointIndex >= points.Length)
-                    {
-                        electron.TargetPointIndex = 1;
-                        electron.transform.position = points[0];
-                    }
-                    else
-                    {
-                        electron.transform.position = targetPosition;
-                    }
-
-                    currentPosition = electron.transform.position;
-                    if (points[electron.TargetPointIndex].x == currentPosition.x)
-                        electron.Direction = points[electron.TargetPointIndex].y > currentPosition.y ? Vector2.up : Vector2.down;
-                    else
-                        electron.Direction = points[electron.TargetPointIndex].x > currentPosition.x ? Vector2.right : Vector2.left;
-
-                    electron.transform.position += (Vector3)electron.Direction * Vector2.Distance(nextPosition, targetPosition);
+                if (electron.FadeProgress > -1f)
+                {
+                    electron.FadeProgress += deltaTime * 3f;
+                    if (electron.FadeProgress >= 1f)
+                        electron.FadeProgress = 1f;
+                    electron.Sprite.color = new Color(1f, 1f, 1f, electron.FadeProgress);
                 }
             }
         }

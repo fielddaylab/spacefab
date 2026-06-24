@@ -7,9 +7,9 @@ namespace SpaceFab.Research
 {
     public class Electron : MonoBehaviour
     {
+        public SpriteRenderer Sprite;
+        public float TravelDistance;
         public int FlowSegmentIndex;
-        public int TargetPointIndex;
-        public Vector2 Direction;
-        public float Timer;
+        public float FadeProgress = -1f;
     }
 }

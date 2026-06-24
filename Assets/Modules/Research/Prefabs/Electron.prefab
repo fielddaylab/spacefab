@@ -97,6 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 724ec33a55a81436eb45ad5eb4a1f153, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Sprite: {fileID: 5681170190247854703}
+  TravelDistance: 0
   FlowSegmentIndex: 0
-  TargetPointIndex: 0
-  Direction: {x: 0, y: 0}
+  FadeProgress: -1

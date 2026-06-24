@@ -16,19 +16,20 @@ namespace SpaceFab.Research
         [System.Serializable]
         public class FlowSegment
         {
-            public float Offset;
+            public float Length;
             public Vector2[] Points;
         }
 
         public Electron[] Electrons;
-        public FlowSegment[] FlowSegmentPoints;
+        public FlowSegment[] FlowSegments;
+        public float TotalLength; // total length of circuit loop
 
         public SpriteRenderer Bulb;
         public Sprite BulbOffSprite;
         public Sprite BulbOnSprite;
 
         public SpriteRenderer[] BulbShines;
-        public float AnimSpeedMultiplier = 4f;
+        public float AnimSpeedMultiplier = 0.5f;
 
         // Magnitude drives flow density. Set by CircuitUtility.SetFlowStrength.
         [NonSerialized] public float CircuitCurrent;
@@ -38,6 +39,39 @@ namespace SpaceFab.Research
 
         // Current flow-sprite frame index. Driven by the animation system.
         [NonSerialized] public int CircuitSpriteIndex;
+
+        private void Awake() {
+            // if (!GameLoop.IsBooted()) {
+            //     GameLoop.QueueOnBoot(Init);
+            // } else {
+                Init();
+            //}
+        }
+
+        private void Init()
+        {
+            TotalLength = 0f;
+            foreach (FlowSegment segment in FlowSegments)
+            {
+                float segmentLength = 0f;
+                for (int i = 1; i < segment.Points.Length; i++)
+                {
+                    segmentLength += Vector2.Distance(segment.Points[i-1], segment.Points[i]);
+                }
+                segment.Length = segmentLength;
+                TotalLength += segmentLength;
+            }
+
+            for (int i = 0; i < Electrons.Length; i++)
+            {
+                Electrons[i].TravelDistance = i * TotalLength / Electrons.Length;
+                for (int j = 0; j < Electrons[i].FlowSegmentIndex; j++)
+                    Electrons[i].TravelDistance -= FlowSegments[j].Length;
+                Debug.Log($"{Electrons[i].name} starts at {Electrons[i].TravelDistance} on {Electrons[i].FlowSegmentIndex}");
+
+                Electrons[i].transform.position = CircuitUtility.GetPositionOnSegment(this, Electrons[i]);
+            }
+        }
     }
 
     /// <summary>
@@ -90,6 +124,23 @@ namespace SpaceFab.Research
                     circuit.Electrons[i].gameObject.SetActive(true);
             }
             circuit.CircuitCurrent = strength;
+        }
+
+        public static Vector2 GetPositionOnSegment(CircuitRenderer circuit, Electron electron)
+        {
+            var segment = circuit.FlowSegments[electron.FlowSegmentIndex];
+            float travelDistance = electron.TravelDistance;
+            for (int i = 1; i < segment.Points.Length; i++)
+            {
+                float length = Vector2.Distance(segment.Points[i-1], segment.Points[i]);
+
+                if (travelDistance <= length)
+                    return Vector2.Lerp(segment.Points[i-1], segment.Points[i], travelDistance / length);
+                
+                travelDistance -= length;
+            }
+            
+            return segment.Points[^1]; // safety fallback; unreachable in correct flow
         }
     }
 }
