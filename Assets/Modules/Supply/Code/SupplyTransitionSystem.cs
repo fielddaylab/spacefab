@@ -14,7 +14,7 @@ namespace SpaceFab.Supply {
     public class SupplyTransitionSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask).AllowDuringLoad(),
+                new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask),
                 new SysPermissions()
                     .ReadWriteShared<SupplyTransitionState>()
                     .ReadShared<ChapterState>()

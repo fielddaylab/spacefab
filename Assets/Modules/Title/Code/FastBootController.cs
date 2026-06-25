@@ -13,10 +13,11 @@ using UnityEngine.SceneManagement;
 
 namespace SpaceFab.Title
 {
-    public class FastBootController : MonoBehaviour
+    public class FastBootController : SceneController
     {
         private enum ReadyPhase
         {
+            Loading,
             AudioClick,
             Ready
         }
@@ -38,11 +39,6 @@ namespace SpaceFab.Title
             NativeInput.OnKeyDown += OnNativeKeyDown;
         }
 
-        private void Start()
-        {
-            m_PhaseRoutine.Replace(SwapToPrompt());
-        }
-
         private void OnDestroy()
         {
             NativeInput.OnMouseDown -= OnNativeMouseDown;
@@ -57,6 +53,29 @@ namespace SpaceFab.Title
                 PromptText.FadeTo(1, 0.2f)
             );
         }
+
+        private IEnumerator OnReady()
+        {
+            if (BootAudio != null) {
+                yield return Routine.Combine(
+                    BootAudio.WaitToComplete(),
+                    FadeGroup.FadeTo(0, 1)
+                    );
+            }
+            else {
+                yield return FadeGroup.FadeTo(0, 1);
+            }
+
+            LoadNextScene();
+        }
+
+        protected override void OnSceneReady()
+        {
+            m_ReadyPhase = ReadyPhase.AudioClick;
+            m_PhaseRoutine.Replace(this, SwapToPrompt());
+        }
+
+        #region Mouse Handler
 
         private void OnNativeMouseDown(float x, float y)
         {
@@ -79,22 +98,10 @@ namespace SpaceFab.Title
             }
 
             m_ReadyPhase = ReadyPhase.Ready;
-            m_PhaseRoutine.Replace(OnReady())
-                .OnComplete(LoadNextScene);
+            m_PhaseRoutine.Replace(this, OnReady());
         }
 
-        private IEnumerator OnReady()
-        {
-            if (BootAudio != null) {
-                yield return Routine.Combine(
-                    BootAudio.WaitToComplete(),
-                    FadeGroup.FadeTo(0, 1)
-                    );
-            }
-            else {
-                yield return FadeGroup.FadeTo(0, 1);
-            }
-        }
+        #endregion // Mouse Handler
 
         private void LoadNextScene()
         {
