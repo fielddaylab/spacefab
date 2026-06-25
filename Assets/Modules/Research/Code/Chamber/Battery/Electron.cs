@@ -7,9 +7,10 @@ namespace SpaceFab.Research
 {
     public class Electron : MonoBehaviour
     {
-        public SpriteRenderer Sprite;
+        // current travel distance of the electron relative to its active segment
         public float TravelDistance;
+        // index of the circuit segment the electron is currently traversing
         public int FlowSegmentIndex;
-        public float FadeProgress = -1f;
+        public SpriteRenderer Sprite;
     }
 }

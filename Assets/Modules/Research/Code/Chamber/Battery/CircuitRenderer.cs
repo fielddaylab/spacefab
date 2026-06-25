@@ -34,23 +34,20 @@ namespace SpaceFab.Research
         // Magnitude drives flow density. Set by CircuitUtility.SetFlowStrength.
         [NonSerialized] public float CircuitCurrent;
 
-        // Accumulator for the animation system; drives frame advance.
-        [NonSerialized] public float CircuitSpriteTimer;
-
-        // Current flow-sprite frame index. Driven by the animation system.
-        [NonSerialized] public int CircuitSpriteIndex;
-
         private void Awake() {
             // if (!GameLoop.IsBooted()) {
             //     GameLoop.QueueOnBoot(Init);
             // } else {
-                Init();
+                InitCircuitFlow();
             //}
         }
 
-        private void Init()
+        // Initializes the circuit flow by calculating path lengths and evenly
+        // distributing electrons.
+        private void InitCircuitFlow()
         {
             TotalLength = 0f;
+            // Calculate individual segment lengths and total path length
             foreach (FlowSegment segment in FlowSegments)
             {
                 float segmentLength = 0f;
@@ -62,12 +59,12 @@ namespace SpaceFab.Research
                 TotalLength += segmentLength;
             }
 
+            // Evenly distribute electrons along the calculated path
             for (int i = 0; i < Electrons.Length; i++)
             {
                 Electrons[i].TravelDistance = i * TotalLength / Electrons.Length;
                 for (int j = 0; j < Electrons[i].FlowSegmentIndex; j++)
                     Electrons[i].TravelDistance -= FlowSegments[j].Length;
-                Debug.Log($"{Electrons[i].name} starts at {Electrons[i].TravelDistance} on {Electrons[i].FlowSegmentIndex}");
 
                 Electrons[i].transform.position = CircuitUtility.GetPositionOnSegment(this, Electrons[i]);
             }
@@ -114,11 +111,12 @@ namespace SpaceFab.Research
         {
             if (circuit == null) return;
 
+            float threshold = 0.3f;
             for (int i = 0; i < circuit.Electrons.Length; i++)
             {
                 if (strength == 0)
                     circuit.Electrons[i].gameObject.SetActive(false);
-                else if (strength < 0.3f)
+                else if (strength < threshold)
                     circuit.Electrons[i].gameObject.SetActive(i % 2 == 0);
                 else
                     circuit.Electrons[i].gameObject.SetActive(true);

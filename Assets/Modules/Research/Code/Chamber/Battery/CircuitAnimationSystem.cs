@@ -1,3 +1,4 @@
+using System;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
@@ -42,8 +43,7 @@ namespace SpaceFab.Research
             }
         }
 
-        // Advances the flow-frame index based on CircuitSpriteSpeed. Idle
-        // when speed is zero so a stopped circuit doesn't tick.
+        // Advances the positions of electrons over time and updates visual effects.
         private static void AdvanceFlow(CircuitRenderer circuit, float deltaTime)
         {
             if (circuit.CircuitCurrent == 0f) return;
@@ -54,25 +54,26 @@ namespace SpaceFab.Research
                 var segment = circuit.FlowSegments[electron.FlowSegmentIndex];
                 electron.TravelDistance += deltaTime * circuit.AnimSpeedMultiplier;
 
-                // Switch to next flow segment
+                // Handle segment transition and wrapping
                 if (electron.TravelDistance >= segment.Length)
                 {
                     electron.FlowSegmentIndex++;
                     electron.TravelDistance -= segment.Length;
                     if (electron.FlowSegmentIndex >= circuit.FlowSegments.Length)
                         electron.FlowSegmentIndex = 0;
-                    electron.FadeProgress = 0f;
                 }
                 
                 electron.transform.position = CircuitUtility.GetPositionOnSegment(circuit, electron);
+                segment = circuit.FlowSegments[electron.FlowSegmentIndex];
 
-                if (electron.FadeProgress > -1f)
-                {
-                    electron.FadeProgress += deltaTime * 3f;
-                    if (electron.FadeProgress >= 1f)
-                        electron.FadeProgress = 1f;
-                    electron.Sprite.color = new Color(1f, 1f, 1f, electron.FadeProgress);
-                }
+                // Fade near endpoints
+                float threshold = 0.1f;
+                float multiplier = 1f / threshold;
+                float distanceToEndpoint = Math.Min(electron.TravelDistance, segment.Length - electron.TravelDistance);
+                if (distanceToEndpoint <= threshold)
+                    electron.Sprite.color = new Color(1f, 1f, 1f, distanceToEndpoint * multiplier);
+                else
+                    electron.Sprite.color = Color.white;
             }
         }
 
