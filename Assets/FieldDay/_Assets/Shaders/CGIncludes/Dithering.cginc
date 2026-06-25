@@ -1,6 +1,10 @@
 #ifndef FD_DITHERING_INCLUDED
 #define FD_DITHERING_INCLUDED
 
+#include "./Common.cginc"
+
+/// bayer
+
 cbuffer FDBayerMatrices
 {
     float4 fd_BayerMatrix8[16];
@@ -25,6 +29,13 @@ inline float GetBayerThreshold8(float2 pixelPos)
 {
     int index = GetSquareLookupIndex(pixelPos, 8);
     return fd_BayerMatrix8[index >> 2][index & 3];
+}
+
+/// halftone
+
+inline float2 ComputeHalftoneCellPosition(float2 normalizedCellCoords)
+{
+    return floor(normalizedCellCoords) + 0.5;
 }
 
 #endif // FD_DITHERING_INCLUDED

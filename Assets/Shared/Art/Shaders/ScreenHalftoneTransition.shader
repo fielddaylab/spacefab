@@ -6,24 +6,17 @@ Shader "SpaceFab/Screen Halftone Transition"
         _Color ("Tint", Color) = (1,1,1,1)
 
         [Header(Dithering)] [Space]
-        _GridSize ("Grid Size", Range(8, 32)) = 1
+        _Tiling ("Pixels Per Tile", Range(8, 512)) = 1
 
-        [HideInInspector] _StencilComp ("Stencil Comparison", Float) = 8
-        [HideInInspector] _Stencil ("Stencil ID", Float) = 0
-        [HideInInspector] _StencilOp ("Stencil Operation", Float) = 0
-        [HideInInspector] _StencilWriteMask ("Stencil Write Mask", Float) = 255
-        [HideInInspector] _StencilReadMask ("Stencil Read Mask", Float) = 255
-        [HideInInspector] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
-        [HideInInspector] _ColorMask ("Color Mask", Float) = 15
-
-		[Header(Blending)] [Space] 
-		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend Mode", Int) = 1
+        [Header(Blending)] [Space]
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend Mode", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DestBlend("Destination Blend Mode", Int) = 10
         [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Int) = 0
-		[Toggle(FD_PREMULTIPLY_ALPHA)] _PremultiplyAlpha("Premultiply Alpha", Float) = 1
 
-		[Header(Culling)] [Space]
-		[Enum(UnityEngine.Rendering.CullMode)] _CullMode ("Cull Mode", Int) = 0
+        [Header(Planes (Tile Space))] [Space]
+        _Plane0 ("Plane A", Vector) = (0, 0, 1, 1)
+        _Plane1 ("Plane B", Vector) = (0, 0, 1, 1)
+        _FadeBand ("Fade Band (Tiles)", Float) = 0.5
     }
 
     SubShader
@@ -37,50 +30,62 @@ Shader "SpaceFab/Screen Halftone Transition"
             "CanUseSpriteAtlas"="True"
         }
 
-        Stencil
-        {
-            Ref [_Stencil]
-            Comp [_StencilComp]
-            Pass [_StencilOp]
-            ReadMask [_StencilReadMask]
-            WriteMask [_StencilWriteMask]
-        }
-
-        Cull [_CullMode]
         Lighting Off
         ZWrite Off
 
-        ZTest [unity_GUIZTestMode]
+        ZTest Always
         Blend [_SrcBlend] [_DestBlend]
         BlendOp [_BlendOp]
-        ColorMask [_ColorMask]
 
         Pass
         {
         CGPROGRAM
-            #pragma vertex DefaultUIVert
-            #pragma fragment DitherFrag
-            #pragma target 3.0
-            #pragma multi_compile_instancing
-            #pragma multi_compile_fog
-			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
+            #pragma vertex OverlayVert
+            #pragma fragment OverlayFrag
+            #pragma target 2.0
 
-            #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/UI.cginc"
+            #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/PostProcess.cginc"
             #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/Dithering.cginc"
+            #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/SDF.cginc"
 
-            half _DitherScale;
+            half _Tiling;
 
-            fixed4 DitherFrag(Varyings_UI f, float_vpos screenPos: VPOS) : SV_Target
+            half4 _Plane0;
+            half4 _Plane1;
+            half _FadeBand;
+
+            Varyings_PP OverlayVert(Attributes_PP v, out float4 vertex : SV_Position)
             {
-                f.color.a = Quantize8(f.color.a);
-                half4 color = f.color;
+                Varyings_PP output;
+                StereoInitialize(output);
     
-                UIRectClip(f.mask, color);
-                UIAlphaClip(color);
+                vertex = ViewportSpaceToClipSpace(v.vertex);
+                output.texcoord = ComputePixelTiledTexCoords(v.vertex, float2(_Tiling, _Tiling), float2(0.5, 0.5));
+                output.viewport = v.vertex;
+    
+                return output;
+            }
 
-                color.a = step(GetBayerThreshold8(screenPos.xy / _DitherScale), color.a);
-    
-                PremultiplyAlpha(color);
+            float ComputeAlphaForCell(float2 center)
+            {
+                float distanceFromPlaneA = ComputeDistanceToPackedPlane(center, _Plane0);
+                float distanceFromPlaneB = ComputeDistanceToPackedPlane(center, _Plane1);
+
+                return SdfBlendFactor(min(distanceFromPlaneA, distanceFromPlaneB), _FadeBand);
+            }
+
+            fixed4 OverlayFrag(Varyings_PP f) : SV_Target
+            {
+                fixed4 color = _Color;
+                float2 center = ComputeHalftoneCellPosition(f.texcoord);
+
+                float centerAlpha = ComputeAlphaForCell(center);
+                centerAlpha *= color.a;
+
+                float dist = distance(center, f.texcoord);
+                float fillDistance = centerAlpha / SQRT_2;
+                color.a = step(dist, fillDistance);
+                color.rgb *= color.a;
                 return color;
             }
         ENDCG

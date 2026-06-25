@@ -78,7 +78,7 @@ Shader "SpaceFab/Simple Color Dither"
                 UIRectClip(f.mask, color);
                 UIAlphaClip(color);
 
-                color.a = step(GetBayerThreshold8(screenPos.xy / _DitherScale), color.a);
+                color.a = invstep(GetBayerThreshold8(screenPos.xy / _DitherScale), color.a);
     
                 PremultiplyAlpha(color);
                 return color;

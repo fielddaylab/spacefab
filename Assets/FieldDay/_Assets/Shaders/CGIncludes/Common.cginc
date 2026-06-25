@@ -3,6 +3,7 @@
 
 #include "UnityCG.cginc"
 #include "./DXCompat.cginc"
+#include "./Geometry.cginc"
 
 /// Keywords
 
@@ -53,9 +54,9 @@ inline float2 ClipSpaceToViewportSpace(float4 clipSpace)
     return (clipSpace.xy + 1) * 0.5;
 }
 
-inline float2 ViewportSpaceToClipSpace(float2 clipSpace)
+inline float4 ViewportSpaceToClipSpace(float2 viewportSpace)
 {
-    return (2 * clipSpace) - 1;
+    return float4((2 * viewportSpace) - 1, 0, 1);
 }
 
 /// Math
@@ -73,6 +74,8 @@ inline float2 Rotate2d(float2 base, float radians)
 {
     return mul(MatrixCreateRotation2d(radians), base);
 }
+
+#define invstep(y, x) float((y) < (x))
 
 /// Color Space
 

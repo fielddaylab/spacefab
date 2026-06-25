@@ -2,19 +2,21 @@
 #define FD_POSTPROCESS_INCLUDED
 
 #include "./Common.cginc"
+#include "./Tiling.cginc"
 
 /// Configuration Defines
 
 /// Types
 
-struct Attributes_UI
+struct Attributes_PP
 {
     half2 vertex   : POSITION;
 };
 
-struct Varyings_UI
+struct Varyings_PP
 {
     float2 texcoord         : TEXCOORD0;
+    float2 viewport         : TEXCOORD1;
     VaryingsStereo()
 };
 
@@ -27,20 +29,21 @@ fixed4 _Color;
 
 /// Programs
 
-Varyings_UI DefaultPostProcessVertex(Attributes_UI v, out float4 vertex : SV_Position)
+Varyings_PP DefaultPostProcessVertex(Attributes_PP v, out float4 vertex : SV_Position)
 {
-    Varyings_UI output;
+    Varyings_PP output;
     StereoInitialize(output);
     
-    vertex = float4(ViewportSpaceToClipSpace(v.vertex), 0, 1);
+    vertex = ViewportSpaceToClipSpace(v.vertex);
     output.texcoord = v.vertex;
+    output.viewport = v.vertex;
     
     return output;
 }
 
-fixed4 DefaultPostProcessProgram(Varyings_UI f) : SV_Target
+fixed4 DefaultPostProcessFrag(Varyings_PP f) : SV_Target
 {
-    return float4(f.texcoord.rg, 0, 1);
+    return float4(frac(f.texcoord.xy + 1), 0, 1);
 }
 
 #endif // FD_POSTPROCESS_INCLUDED

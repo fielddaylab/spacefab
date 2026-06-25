@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BeauPools;
 using BeauRoutine;
 using BeauUtil;
 using BeauUtil.Debugger;
@@ -156,6 +157,11 @@ namespace FieldDay.Scenes {
             public SceneRequestContext Data;
         }
 
+        private struct PreloadedSceneFile {
+            public string ScenePath;
+            public AsyncOperation SceneLoadOperation;
+        }
+
         #endregion // Types
 
         #region State
@@ -171,6 +177,7 @@ namespace FieldDay.Scenes {
         private readonly HashSet<int> m_TrackedScenes = new HashSet<int>(16, CompareUtils.DefaultEquals<int>());
         private readonly RingBuffer<QueuedRequestContext> m_QueuedContexts = new RingBuffer<QueuedRequestContext>(4, RingBufferMode.Expand);
         private readonly RingBuffer<TaggedRequestContext> m_TaggedContexts = new RingBuffer<TaggedRequestContext>(4, RingBufferMode.Fixed);
+        private readonly RingBuffer<PreloadedSceneFile> m_PreloadedSceneFiles = new RingBuffer<PreloadedSceneFile>(4, RingBufferMode.Fixed);
         private MainSceneTransitionParameters m_QueuedMainTransitionArgs;
 
         // queues
@@ -182,6 +189,7 @@ namespace FieldDay.Scenes {
         private readonly RingBuffer<PreloadArgs> m_PreloadQueue = new RingBuffer<PreloadArgs>(8, RingBufferMode.Expand);
         private readonly RingBuffer<UnloadSceneArgs> m_UnloadQueue = new RingBuffer<UnloadSceneArgs>(8, RingBufferMode.Expand);
         private readonly RingBuffer<LateEnableArgs> m_LateEnableQueue = new RingBuffer<LateEnableArgs>(8, RingBufferMode.Expand);
+        private readonly RingBuffer<string> m_PreloadSceneFileQueue = new RingBuffer<string>(4, RingBufferMode.Fixed);
 
         private readonly WorkSlicer.StepOperation CachedUpdateStep;
         private float m_UpdateStepTimeSlice = 2;
@@ -917,6 +925,32 @@ namespace FieldDay.Scenes {
 
         #endregion // Contexts
 
+        #region Scene File Preload
+
+        public void QueueSceneFilePreload(string scenePath) {
+            m_PreloadSceneFileQueue.PushBack(scenePath);
+        }
+
+        public void QueueSceneFilePreload(SceneReference sceneReference) {
+            m_PreloadSceneFileQueue.PushBack(sceneReference.Path);
+        }
+
+        public bool AreQueuedSceneFilesReady() {
+            if (m_PreloadSceneFileQueue.Count > 0) {
+                return false;
+            }
+
+            foreach(var sceneFile in m_PreloadedSceneFiles) {
+                if (sceneFile.SceneLoadOperation.progress < 0.9f) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        #endregion // Scene File Preload
+
         #endregion // Public API
 
         #region Events
@@ -938,6 +972,10 @@ namespace FieldDay.Scenes {
             CleanLists();
             ProcessLoadProcessQueue();
             WorkSlicer.TimeSliced(CachedUpdateStep, m_UpdateStepTimeSlice);
+
+#if DEVELOPMENT
+            DebugUpdate();
+#endif // DEVELOPMENT
         }
 
         private void CleanLists() {
@@ -974,6 +1012,11 @@ namespace FieldDay.Scenes {
             }
         }
 
+        private void PurgePreloadedSceneFiles() {
+            Assert.True(m_PreloadedSceneFiles.Count == 0, "{0} scene files were preloaded but not consumed!", m_PreloadedSceneFiles.Count);
+            m_PreloadedSceneFiles.Clear();
+        }
+
         private WorkSlicer.Result UpdateStep() {
 #if DEVELOPMENT
             if (s_DEBUGLoadSlowdown > 0 && RNG.Instance.NextFloat() < s_DEBUGLoadSlowdown) {
@@ -1006,6 +1049,10 @@ namespace FieldDay.Scenes {
             }
 
             if (ProcessLateEnableQueue()) {
+                return WorkSlicer.Result.Processed;
+            }
+
+            if (ProcessSceneFilePreloadQueue()) {
                 return WorkSlicer.Result.Processed;
             }
 
@@ -1045,7 +1092,7 @@ namespace FieldDay.Scenes {
 #endif // DEVELOPMENT
         }
 
-#endregion // Events
+        #endregion // Events
 
         #region Internal
 
@@ -1217,9 +1264,10 @@ namespace FieldDay.Scenes {
                 if (!IsLoadingOrLoaded(currentScene)) {
                     Log.Msg("[SceneMgr] Starting additive load of '{0}'", args.ScenePath);
                     // NOTE: EditorSceneManager.LoadSceneAsyncInPlayMode will mess up buildIndex, that's why we aren't using it
-                    m_CurrentLoadOperation.UnityOp = SceneManager.LoadSceneAsync(args.ScenePath, LoadSceneMode.Additive);
+                    m_CurrentLoadOperation.UnityOp = TryGetPreloadedSceneFileOrStartLoading(args.ScenePath);
                 } else if (currentScene.isLoaded) {
                     Log.Msg("[SceneMgr] Scene '{0}' already loaded", args.ScenePath);
+                    RemovePreloadedSceneFile(args.ScenePath);
                     TryTrackScene(currentScene);
                     EnqueueSceneProcessors(currentScene, args);
                     m_CurrentLoadOperation.Clear();
@@ -1228,6 +1276,30 @@ namespace FieldDay.Scenes {
             } else {
                 return false;
             }
+        }
+
+        private bool RemovePreloadedSceneFile(string scenePath) {
+            for (int i = 0; i < m_PreloadedSceneFiles.Count; i++) {
+                if (m_PreloadedSceneFiles[i].ScenePath == scenePath) {
+                    m_PreloadedSceneFiles.FastRemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private AsyncOperation TryGetPreloadedSceneFileOrStartLoading(string scenePath) {
+            for(int i = 0; i < m_PreloadedSceneFiles.Count; i++) {
+                if (m_PreloadedSceneFiles[i].ScenePath == scenePath) {
+                    Log.Msg("[SceneMgr] Found preloaded scene file for '{0}' - resuming that operation", scenePath);
+                    AsyncOperation operation = m_PreloadedSceneFiles[i].SceneLoadOperation;
+                    operation.allowSceneActivation = true;
+                    m_PreloadedSceneFiles.FastRemoveAt(i);
+                    return operation;
+                }
+            }
+            return SceneManager.LoadSceneAsync(scenePath, LoadSceneMode.Additive);
         }
 
         private void EnqueueSceneProcessors(Scene scene, in LoadSceneArgs args) {
@@ -1380,6 +1452,7 @@ namespace FieldDay.Scenes {
                         //UntrackScene(args.Data.Scene);
                         Log.Msg("[SceneMgr] Unloading '{0}'", args.Data.Scene.path);
                         m_CurrentUnloadOperation.UnityOp = SceneManager.UnloadSceneAsync(args.Data.Scene, args.Options);
+                        m_CurrentUnloadOperation.UnityOp.priority = 100;
                         return true;
                     }
                     // if the scene hasn't finished loading, then push this off until later
@@ -1554,7 +1627,34 @@ namespace FieldDay.Scenes {
             return false;
         }
 
-        private void FlushCallbacks(RingBuffer<Action> callbacks) {
+        private bool ProcessSceneFilePreloadQueue() {
+            if (m_PreloadSceneFileQueue.TryPopFront(out var filePath)) {
+                Scene currentScene = SafeGetSceneByPath(filePath);
+                if (IsLoadingOrLoaded(currentScene)) {
+                    return false;
+                }
+
+                foreach (var file in m_PreloadedSceneFiles) {
+                    if (file.ScenePath == filePath) {
+                        return false;
+                    }
+                }
+
+                Log.Msg("[SceneMgr] Preloading scene file '{0}'", filePath);
+
+                PreloadedSceneFile sceneFile;
+                sceneFile.ScenePath = filePath;
+                sceneFile.SceneLoadOperation = SceneManager.LoadSceneAsync(filePath, LoadSceneMode.Additive);
+                sceneFile.SceneLoadOperation.allowSceneActivation = false;
+                sceneFile.SceneLoadOperation.priority = -1;
+                m_PreloadedSceneFiles.PushBack(sceneFile);
+                return true;
+            }
+
+            return false;
+        }
+
+        static private void FlushCallbacks(RingBuffer<Action> callbacks) {
             while (callbacks.TryPopFront(out Action act)) {
                 act();
             }
@@ -1622,6 +1722,10 @@ namespace FieldDay.Scenes {
                                 yield return wait;
                             }
                         }
+                    }
+
+                    foreach(var preloadScene in m_PreloadedSceneFiles) {
+                        preloadScene.SceneLoadOperation.allowSceneActivation = true;
                     }
 
                     if (m_MainScene != null) {
@@ -1826,6 +1930,7 @@ namespace FieldDay.Scenes {
                 }
 
                 if (args.Type == SceneType.Main) {
+                    PurgePreloadedSceneFiles();
                     OnMainSceneReady.Invoke();
 
                     if (m_MainTransitionLoad != null) {
@@ -1940,6 +2045,11 @@ namespace FieldDay.Scenes {
 
         #region Debug
 
+        private enum DebuggingFlags {
+            ShowPreloadStats,
+            ShowQueueStats,
+        }
+
 #if DEVELOPMENT
 
         static private float s_DEBUGLoadSlowdown = 0;
@@ -1947,6 +2057,9 @@ namespace FieldDay.Scenes {
         [EngineMenuFactory]
         static private DMInfo CreateDebugMenu() {
             DMInfo menu = new DMInfo("Scenes", 16);
+
+            DebugFlags.Menu.AddFlagToggle(menu, "Display Queue Stats", DebuggingFlags.ShowQueueStats);
+            DebugFlags.Menu.AddFlagToggle(menu, "Display File Progress", DebuggingFlags.ShowPreloadStats);
             DMPredicate loadPredicate = () => !Game.Scenes.IsMainLoading();
             menu.AddButton("Reload Current Scene", () => { Game.Scenes.ReloadMainScene(); InvokeDebugSceneLoad(); }, loadPredicate);
             menu.AddDivider();
@@ -1956,15 +2069,46 @@ namespace FieldDay.Scenes {
                 menu.AddButton(scene.Name, () => { Game.Scenes.LoadMainScene(cachedRef); InvokeDebugSceneLoad(); }, loadPredicate);
             }
 
-            menu.AddDivider();
-            menu.AddSlider("Simulate Load Slowdown", () => s_DEBUGLoadSlowdown,
-                (f) => s_DEBUGLoadSlowdown = f, 0, 1, 0.05f);
-
             return menu;
         }
 
         static private void InvokeDebugSceneLoad() {
             Game.Scenes.m_OnDebugSceneLoad.Invoke();
+        }
+
+        private void DebugUpdate() {
+            if (DebugFlags.IsFlagSet(DebuggingFlags.ShowQueueStats)) {
+                using(PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                    psb.Builder.Append("Load Scene: ").AppendNoAlloc(m_LoadQueue.Count).Append(" scenes")
+                        .Append("\nTransform Roots: ").AppendNoAlloc(m_TransformRootsQueue.Count).Append(" scenes")
+                        .Append("\nAnalyze Subscenes: ").AppendNoAlloc(m_SubSceneQueue.Count).Append(" scenes")
+                        .Append("\nImport Lighting: ").AppendNoAlloc(m_LightingCopyQueue.Count).Append(" scenes")
+                        .Append("\nExecute Preloaders: ").AppendNoAlloc(m_PreloadQueue.Count).Append(" scenes")
+                        .Append("\nExecute Late Enable: ").AppendNoAlloc(m_LateEnableQueue.Count).Append(" scenes")
+                        .Append("\nUnload Scene: ").AppendNoAlloc(m_UnloadQueue.Count).Append(" scenes")
+                        .Append("\nBegin Scene File Preload: ").AppendNoAlloc(m_PreloadSceneFileQueue.Count).Append(" scenes");
+                    DebugDraw.AddLogText(psb, Color.white);
+                }
+            }
+
+            if (DebugFlags.IsFlagSet(DebuggingFlags.ShowPreloadStats)) {
+                using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                    psb.Builder.Append("Preloading Scene Files: ").AppendNoAlloc(m_PreloadedSceneFiles.Count);
+                    foreach(var sceneFile in m_PreloadedSceneFiles) {
+                        psb.Builder.Append("\n - ").AppendNoAlloc((int)(sceneFile.SceneLoadOperation.progress * 100), 2).Append("% ")
+                            .Append(sceneFile.ScenePath);
+                    }
+                    if (m_CurrentLoadOperation.UnityOp != null) {
+                        psb.Builder.Append("\nScene File Load")
+                            .Append("\n - ").AppendNoAlloc((int)(m_CurrentLoadOperation.UnityOp.progress * 100), 2).Append("% ").Append(m_CurrentLoadOperation.Args.ScenePath);
+                    }
+                    if (m_CurrentUnloadOperation.UnityOp != null) {
+                        psb.Builder.Append("\nScene File Unload")
+                            .Append("\n - ").AppendNoAlloc((int)(m_CurrentUnloadOperation.UnityOp.progress * 100), 2).Append("%");
+                    }
+                    DebugDraw.AddLogText(psb, Color.white);
+                }
+            }
         }
 
 #endif // DEVELOPMENT

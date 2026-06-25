@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ScreenPaper
-  m_Shader: {fileID: 4800000, guid: a8d73b42d727c164ea4c52628d4a5750, type: 3}
+  m_Name: ScreenPaper_UI
+  m_Shader: {fileID: 4800000, guid: 0cf2bb7b4cab5ae42bd0f0af807c120b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -26,22 +26,31 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 6744bca838400774dbcdd2dd26c279c9, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - FD_INTENSITY: 1
     - FD_SAMPLE: 0
+    - _ApplyAdditiveColor: 0
+    - _ApplyLerpColor: 0
     - _BlendOp: 0
+    - _ColorMask: 15
+    - _CullMode: 0
     - _DestBlend: 10
     - _IntensityAlphaMinThreshold: 0
-    - _IntensityAlphaThreshold: 0.683
+    - _IntensityAlphaThreshold: 1
     - _IntensityColorMinThreshold: 1
     - _IntensityColorThreshold: 1
+    - _PremultiplyAlpha: 0
     - _SrcBlend: 0
-    - _Tiling: 503
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 0.33333334}
-    - _Pivot: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 0.39607844}
   m_BuildTextureStacks: []

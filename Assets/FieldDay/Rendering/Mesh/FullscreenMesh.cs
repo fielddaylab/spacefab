@@ -3,6 +3,8 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
+using BeauUtil.Debugger;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -28,7 +30,9 @@ namespace FieldDay.Rendering {
                 new Vertex() { Position = new Vector2(0, 2) },
                 new Vertex() { Position = new Vector2(2, 0) });
             Mesh mesh = new Mesh();
-            meshData.Upload(mesh, MeshDataUploadFlags.MarkNoLongerReadable);
+            meshData.Upload(mesh, MeshDataUploadFlags.MarkNoLongerReadable | MeshDataUploadFlags.DontRecalculateBounds);
+            mesh.bounds = new Bounds(default, new Vector3(36565, 36565, 36565));
+            mesh.name = "Fullscreen-Viewport";
             meshData.Release();
             s_CachedMesh = mesh;
 
