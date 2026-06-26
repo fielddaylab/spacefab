@@ -511,12 +511,12 @@ MonoBehaviour:
   SubtractTransitionMaterial: {fileID: 2100000, guid: 9c01a871e974e1e47bd72dfa736ee959, type: 2}
   DitherTransitionMaterial: {fileID: 2100000, guid: 5b22b8e9f66c1054a9614e5ce9de77db, type: 2}
   DefaultMode: 2
-  DefaultTransitionTime: 0.3
+  DefaultTransitionTime: 0.35
   DefaultColor:
     serializedVersion: 2
     rgba: 4278848010
   HalftoneDirection: 0
-  MaxHalftoneTilt: 1
+  MaxHalftoneTilt: 0.6
   HalftoneMoveDistance: 0.5
   ActiveState: 0
   CurrentMode: 0

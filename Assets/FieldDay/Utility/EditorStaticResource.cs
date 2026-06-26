@@ -33,7 +33,7 @@ namespace FieldDay {
 
             EditorApplication.quitting += destroy;
             AppDomain.CurrentDomain.DomainUnload += (_, __) => {
-                if (quitMode == QuitMode.SkipDuringQuit && !s_Quitting) {
+                if (!s_Quitting || quitMode == QuitMode.ExecuteDuringQuit) {
                     destroy();
                 }
             };
