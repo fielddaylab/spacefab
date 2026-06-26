@@ -10,7 +10,7 @@
 inline float2 ComputePixelTiledTexCoords(float2 texCoord, float2 tileSize, float2 pivot)
 {
     float2 tiles = (_ScreenParams.xy / tileSize);
-    return (texCoord * tiles) - (pivot * frac(tiles));
+    return (texCoord * tiles) - frac((pivot * frac(tiles)));
 }
 
 inline float2 GetTileCenter(float2 texcoord)

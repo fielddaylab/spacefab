@@ -8,8 +8,8 @@ namespace FieldDay.Rendering {
             tiles.y = screenSize.y / tileSizePixels.y;
             
             Vector2 result;
-            result.x = (texCoord.x * tiles.x) - (pivot.x * (int)tiles.x);
-            result.y = (texCoord.y * tiles.y) - (pivot.y * (int)tiles.y);
+            result.x = (texCoord.x * tiles.x) - ((pivot.x * (int)tiles.x) % 1);
+            result.y = (texCoord.y * tiles.y) - ((pivot.y * (int)tiles.y) % 1);
             return result;
         }
     }

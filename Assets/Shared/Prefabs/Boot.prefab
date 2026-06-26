@@ -394,6 +394,7 @@ GameObject:
   - component: {fileID: 287980489653284801}
   - component: {fileID: 7961003409894644132}
   - component: {fileID: 3548347457692627550}
+  - component: {fileID: 4527633977581050713}
   m_Layer: 5
   m_Name: ScreenFader
   m_TagString: Untagged
@@ -411,7 +412,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
-  m_LocalScale: {x: 0.0130199995, y: 0.0130199995, z: 0.0130199995}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5807699253464130270}
@@ -423,7 +424,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8026111203428445858}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -492,6 +493,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c09f1e91519dd948891aa9871371f93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4527633977581050713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8026111203428445858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2149e8df389d4a4e9f9bb96045cc3c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Renderer: {fileID: 4594431002919066691}
+  HalftoneTransitionMaterial: {fileID: 2100000, guid: ff7ab095257c4464589e9f168a2f4a3b, type: 2}
+  ColorTransitionMaterial: {fileID: 2100000, guid: 92854f60a7e6eb848a2c16858959b3fb, type: 2}
+  SubtractTransitionMaterial: {fileID: 2100000, guid: 9c01a871e974e1e47bd72dfa736ee959, type: 2}
+  DitherTransitionMaterial: {fileID: 2100000, guid: 5b22b8e9f66c1054a9614e5ce9de77db, type: 2}
+  DefaultMode: 2
+  DefaultTransitionTime: 0.3
+  DefaultColor:
+    serializedVersion: 2
+    rgba: 4278848010
+  HalftoneDirection: 0
+  MaxHalftoneTilt: 1
+  HalftoneMoveDistance: 0.5
+  ActiveState: 0
+  CurrentMode: 0
+  CurrentTransitionFactor: 0
 --- !u!1 &8306788214401512335
 GameObject:
   m_ObjectHideFlags: 0

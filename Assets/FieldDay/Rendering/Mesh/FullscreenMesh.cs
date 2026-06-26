@@ -20,7 +20,7 @@ namespace FieldDay.Rendering {
         static private Mesh s_CachedMesh;
 
         static public Mesh CreateMesh() {
-            if (!ReferenceEquals(s_CachedMesh, null)) {
+            if (s_CachedMesh) {
                 return s_CachedMesh;
             }
 
@@ -31,7 +31,7 @@ namespace FieldDay.Rendering {
                 new Vertex() { Position = new Vector2(2, 0) });
             Mesh mesh = new Mesh();
             meshData.Upload(mesh, MeshDataUploadFlags.MarkNoLongerReadable | MeshDataUploadFlags.DontRecalculateBounds);
-            mesh.bounds = new Bounds(default, new Vector3(36565, 36565, 36565));
+            mesh.bounds = new Bounds(default, new Vector3(ushort.MaxValue, ushort.MaxValue, ushort.MaxValue));
             mesh.name = "Fullscreen-Viewport";
             meshData.Release();
             s_CachedMesh = mesh;
@@ -53,6 +53,7 @@ namespace FieldDay.Rendering {
         static public void DestroyMesh() {
             if (s_CachedMesh) {
                 GameObject.DestroyImmediate(s_CachedMesh);
+                s_CachedMesh = null;
             }
         }
     }

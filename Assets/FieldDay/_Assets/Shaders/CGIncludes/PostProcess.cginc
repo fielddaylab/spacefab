@@ -43,7 +43,16 @@ Varyings_PP DefaultPostProcessVertex(Attributes_PP v, out float4 vertex : SV_Pos
 
 fixed4 DefaultPostProcessFrag(Varyings_PP f) : SV_Target
 {
-    return float4(frac(f.texcoord.xy + 1), 0, 1);
+    fixed4 color = _Color;
+    PremultiplyAlpha(color);
+    return color;
+}
+
+fixed4 DebugPostProcessFrag(Varyings_PP f) : SV_Target
+{
+    fixed4 color = fixed4(frac(f.texcoord.xy + 1), 0, _Color.a);
+    PremultiplyAlpha(color);
+    return color;
 }
 
 #endif // FD_POSTPROCESS_INCLUDED

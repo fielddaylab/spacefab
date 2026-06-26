@@ -10,7 +10,6 @@ namespace SpaceFab
 {
     public sealed class SharedUIState : SharedStateComponent, IRegistrationCallbacks
     {
-        public CanvasGroup FaderGroup;
         public LoadIcon LoadIcon;
         public SaveIcon SaveIcon;
         public CursorHint LoadingCursor;
@@ -41,8 +40,6 @@ namespace SpaceFab
 
         public static void Init(SharedUIState ui)
         {
-            ui.FaderGroup.blocksRaycasts = false;
-            ui.FaderGroup.alpha = 0;
             SetLoadIconVisible(ui.LoadIcon, false);
             SetSaveIconVisible(ui.SaveIcon, false);
         }
@@ -50,18 +47,6 @@ namespace SpaceFab
         #endregion // Init
 
         #region General
-
-        public static IEnumerator FadeIn(SharedUIState ui, float inTime)
-        {
-            ui.FaderGroup.blocksRaycasts = true;
-            yield return ui.FaderGroup.FadeTo(1, inTime);
-        }
-
-        public static IEnumerator FadeOut(SharedUIState ui, float inTime)
-        {
-            yield return ui.FaderGroup.FadeTo(0, inTime);
-            ui.FaderGroup.blocksRaycasts = false;
-        }
 
         private static void SetLoadIconVisible(LoadIcon icon, bool isVisible)
         {
@@ -144,29 +129,21 @@ namespace SpaceFab
                 InputUtility.SetInputEnabled(Find.State<InputState>(), false);
             }
 
-            uiState.FaderGroup.blocksRaycasts = true;
-            uiState.FaderGroup.alpha = 1;
-
             // TODO: begin loading animation
             uiState.LoadIcon.LoadingText.SetText("Loading");
-            yield return FadeInLoadIcon(uiState, 0.25f);
+            yield return FadeInLoadIcon(uiState, 0.1f);
         }
 
         public static IEnumerator OnLoadingComplete(SharedUIState uiState)
         {
-            // TODO: switch to loading complete animation
-            yield return 0.5f;
             uiState.LoadIcon.LoadingText.SetText("Loaded!");
-            yield return FadeOutLoadIcon(uiState, 0.5f);
+            yield return FadeOutLoadIcon(uiState, 0.1f);
 
             // wait for save to complete
             while (uiState.isSaving)
             {
                 yield return null;
             }
-
-            // disperse fader
-            yield return FadeOut(uiState, 0.5f);
 
             uiState.IsLoading = false;
             // Re-enable input on the (post-reload) InputState. Always-sync in SetInputEnabled

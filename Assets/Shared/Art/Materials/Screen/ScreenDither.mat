@@ -30,5 +30,5 @@ Material:
     - _DitherScale: 2
     - _SrcBlend: 1
     m_Colors:
-    - _Color: {r: 0, g: 0, b: 0, a: 0.019607844}
+    - _Color: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

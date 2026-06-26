@@ -958,6 +958,7 @@ namespace FieldDay.Scenes {
         internal void Prepare() {
             if (m_MainScene == null && !m_MainSceneLoadProcess && !IsLoadQueued(SceneType.Main)) {
                 m_InitialSceneWasRedirected = false;
+                m_QueuedMainTransitionArgs.Flags |= SceneTransitionFlags.IsInitialLoad;
                 QueueMainLoadInternal(SceneManager.GetActiveScene().path, false, true, true);
             }
 
@@ -2288,6 +2289,9 @@ namespace FieldDay.Scenes {
     public enum SceneTransitionFlags : ushort {
         HintSkipTransition = 0x01,
         HintFastTransition = 0x02,
+        OverrideColor = 0x04,
+
+        IsInitialLoad = 0x08,
     }
 
     /// <summary>
@@ -2365,6 +2369,7 @@ namespace FieldDay.Scenes {
         public StringHash32 TransitionType;
         public StringHash32 SecondaryTransitionType;
         public SceneTransitionFlags Flags;
+        public Color32 TransitionColorOverride;
 
         public readonly bool ShouldSkip {
             get { return (Flags & SceneTransitionFlags.HintSkipTransition) != 0; }
@@ -2372,6 +2377,10 @@ namespace FieldDay.Scenes {
 
         public readonly bool ShouldSpeedUp {
             get { return (Flags & SceneTransitionFlags.HintFastTransition) != 0; }
+        }
+
+        public readonly bool IsInitialLoad {
+            get { return (Flags & SceneTransitionFlags.IsInitialLoad) != 0; }
         }
     }
 }

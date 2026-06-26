@@ -190,7 +190,7 @@ PrefabInstance:
     - target: {fileID: 287980489653284801, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 786785116}
+      objectReference: {fileID: 1219615977}
     - target: {fileID: 2113022878675108116, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -299,10 +299,6 @@ PrefabInstance:
       propertyPath: m_Testing
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 4594431002919066691, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 5b22b8e9f66c1054a9614e5ce9de77db, type: 2}
     - target: {fileID: 5804591859698315470, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -495,7 +491,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &786785116
+--- !u!43 &1219615977
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -647,7 +643,7 @@ Mesh:
     m_UVInfo: 0
   m_LocalAABB:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 18282.5, y: 18282.5, z: 18282.5}
+    m_Extent: {x: 32767.5, y: 32767.5, z: 32767.5}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
