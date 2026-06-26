@@ -31,9 +31,12 @@ namespace FieldDay {
                 }
             };
 
-            EditorApplication.quitting += destroy;
+            if (quitMode == QuitMode.ExecuteDuringQuit) {
+                EditorApplication.quitting += destroy;
+            }
+
             AppDomain.CurrentDomain.DomainUnload += (_, __) => {
-                if (!s_Quitting || quitMode == QuitMode.ExecuteDuringQuit) {
+                if (!s_Quitting) {
                     destroy();
                 }
             };
