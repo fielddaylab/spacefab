@@ -1,6 +1,7 @@
 using BeauRoutine;
 using BeauUtil;
 using FieldDay;
+using FieldDay.Audio;
 using FieldDay.Debugging;
 using FieldDay.Rendering;
 using FieldDay.Scenes;
@@ -43,6 +44,7 @@ namespace SpaceFab
         public Mode DefaultMode = Mode.Halftone;
         public float DefaultTransitionTime = 0.3f;
         public Color32 DefaultColor = Color.black;
+        [AudioMixStateRef] public StringHash32 TransitionMix;
 
         [Header("Halftone")]
         public HalftoneAxis HalftoneDirection;
@@ -157,6 +159,8 @@ namespace SpaceFab
         }
 
         void IOnGuiUpdate.OnGuiUpdate() {
+            Sfx.SetMixState(TransitionMix, CurrentTransitionFactor, 0);
+
             if (CurrentTransitionDelay > 0) {
                 CurrentTransitionDelay -= Frame.DeltaTime;
                 return;
@@ -169,7 +173,6 @@ namespace SpaceFab
                     CurrentMode = Mode.Fullscreen;
                     CurrentTransitionFactor = 1;
                     UpdateMaterialAlpha(ColorTransitionMaterial);
-                    Renderer.sharedMaterial = ColorTransitionMaterial;
                 }
             } else if (!ActiveState && CurrentMode != Mode.Off) {
                 CurrentTransitionFactor -= CurrentTransitionSpeed * Frame.DeltaTime;

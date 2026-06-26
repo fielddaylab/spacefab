@@ -36,7 +36,6 @@ namespace SpaceFab
         #endregion // Inspector
 
         [NonSerialized] public int StashedUpdateMask;
-        [NonSerialized] public int StashedEventMask;
         [NonSerialized] public bool GamePaused;
         [NonSerialized] public Routine ButtonRoutine;
         [NonSerialized] public Routine FadeRoutine;
@@ -97,6 +96,7 @@ namespace SpaceFab
             {
                 return;
             }
+            
             state.GamePaused = paused;
 
             if (paused)
@@ -112,21 +112,16 @@ namespace SpaceFab
             GameLoop.TimeScale = paused ? 0 : 1;
             Sfx.SetBusPaused(AudioBus.Master, paused);
 
-            InputState input = Find.State<InputState>();
             if (paused)
             {
                 state.StashedUpdateMask = GameLoop.UpdateMask;
                 GameLoop.SuspendUpdates(Bits.All32);
                 GameLoop.ResumeUpdates(UpdateMasks.PauseUpdateMask);
-                state.StashedEventMask = input.Raycaster.eventMask;
-                InputUtility.SetClickableMaskCustom(input, LayerMasks.Interrupt_UI_Mask);
                 Game.Gui.PushPriority(state.InputLayer);
                 Game.Events.Dispatch(GameEvents.OnGamePaused);
             }
             else
             {
-                InputUtility.SetClickableMaskDefault(input);
-                InputUtility.SetClickableMaskCustom(input, state.StashedEventMask);
                 GameLoop.ResumeUpdates(state.StashedUpdateMask);
                 Game.Gui.PopPriority(state.InputLayer);
                 Game.Events.Dispatch(GameEvents.OnGameResumed);

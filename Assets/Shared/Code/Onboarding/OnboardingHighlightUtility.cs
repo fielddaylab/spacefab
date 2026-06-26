@@ -127,18 +127,15 @@ namespace SpaceFab.Onboarding {
             ApplyTutorialLayerRecursive(tag.gameObject, highlightState);
 
             if (wasFirstLock) {
-                InputState inputState = Find.State<InputState>();
-                if (inputState != null) {
-                    InputUtility.SetClickableMaskCustom(inputState, LayerMasks.TutorialFocus_Mask);
-                }
+                // TODO: apply lock
+                Log.Warn("[OnboardingHighlightUtility] Input mask should be applied - AUTUMN HAS NOT REIMPLEMENTED THIS");
+                // LayerMasks.TutorialFocus_Mask
             }
         }
 
         private static void RestoreInputMask() {
-            InputState inputState = Find.State<InputState>();
-            if (inputState != null) {
-                InputUtility.SetClickableMaskDefault(inputState);
-            }
+            // TODO: undo lock
+            Log.Warn("[OnboardingHighlightUtility] Input mask should be restored - AUTUMN HAS NOT REIMPLEMENTED THIS");
         }
 
         // Walk root + descendants. For each node we haven't already saved, record the

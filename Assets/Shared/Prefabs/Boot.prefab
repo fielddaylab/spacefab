@@ -79,7 +79,6 @@ GameObject:
   - component: {fileID: 3592766179047247135}
   - component: {fileID: 354077145758741014}
   - component: {fileID: 1403977988126329862}
-  - component: {fileID: 7355588358547199947}
   - component: {fileID: 518234563781450344}
   - component: {fileID: 8902631178501730816}
   - component: {fileID: 7655658781834560961}
@@ -135,21 +134,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ServerURL: https://fieldday-web.wcer.wisc.edu/wsgi-bin/opengamedata.wsgi
---- !u!114 &7355588358547199947
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 702368520693917882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b0b8656bb88aa449d05ae6aa85f7fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InputEnabled: 1
-  Raycaster: {fileID: 0}
-  BlockAllInput: 0
 --- !u!114 &518234563781450344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -515,6 +499,8 @@ MonoBehaviour:
   DefaultColor:
     serializedVersion: 2
     rgba: 4278848010
+  TransitionMix:
+    m_HashValue: 0
   HalftoneDirection: 0
   MaxHalftoneTilt: 0.6
   HalftoneMoveDistance: 0.5

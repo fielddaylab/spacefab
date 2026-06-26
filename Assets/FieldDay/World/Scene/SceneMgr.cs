@@ -1780,6 +1780,12 @@ namespace FieldDay.Scenes {
                     yield return null;
                 }
 
+                // wait for streamed packages
+                
+                while (Game.Assets.IsLoadingStreamedPackages()) {
+                    yield return null;
+                }
+
                 // preloads
 
                 counter.Reset();
