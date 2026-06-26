@@ -18,9 +18,7 @@ namespace FieldDay.Rendering {
 
         static private GraphicsBuffer BayerMatrixBuffer;
 
-#if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-#endif // UNITY_EDITOR
+        [EditorStaticResource]
         static public unsafe void CreateBuffer() {
             if (BayerMatrixBuffer != null) {
                 return;
@@ -30,18 +28,7 @@ namespace FieldDay.Rendering {
 
             if (BayerMatrixBuffer == null) {
                 BayerMatrixBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Constant, TotalSize, 4);
-#if UNITY_EDITOR
-                EditorApplication.playModeStateChanged += (state) => {
-                    if (state == PlayModeStateChange.ExitingEditMode) {
-                        DestroyBuffer();
-                    } else if (state == PlayModeStateChange.EnteredEditMode) {
-                        CreateBuffer();
-                    }
-                };
-
-                EditorApplication.quitting += DestroyBuffer;
-                AppDomain.CurrentDomain.DomainUnload += (_, __) => DestroyBuffer();
-#endif // UNITY_EDITOR
+                EditorStaticResource.SetupLifetime(CreateBuffer, DestroyBuffer);
             }
 
             float* data = stackalloc float[TotalSize];

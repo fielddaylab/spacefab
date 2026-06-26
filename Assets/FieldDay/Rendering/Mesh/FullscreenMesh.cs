@@ -19,10 +19,13 @@ namespace FieldDay.Rendering {
 
         static private Mesh s_CachedMesh;
 
+        [EditorStaticResource]
         static public Mesh CreateMesh() {
             if (s_CachedMesh) {
                 return s_CachedMesh;
             }
+
+            EditorStaticResource.SetupLifetime(() => CreateMesh(), DestroyMesh);
 
             MeshData16<Vertex> meshData = new MeshData16<Vertex>(3, MeshTopology.Triangles, false);
             meshData.AddTriangle(
@@ -35,17 +38,6 @@ namespace FieldDay.Rendering {
             mesh.name = "Fullscreen-Viewport";
             meshData.Release();
             s_CachedMesh = mesh;
-
-#if UNITY_EDITOR
-            EditorApplication.playModeStateChanged += (state) => {
-                if (state == PlayModeStateChange.ExitingEditMode) {
-                    DestroyMesh();
-                }
-            };
-
-            EditorApplication.quitting += DestroyMesh;
-            AppDomain.CurrentDomain.DomainUnload += (_, __) => DestroyMesh();
-#endif // UNITY_EDITOR
 
             return mesh;
         }
