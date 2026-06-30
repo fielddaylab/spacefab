@@ -306,7 +306,7 @@ Transform:
   m_GameObject: {fileID: 2264733710519542096}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.001, y: -0.272, z: 0}
+  m_LocalPosition: {x: -4.001, y: -0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -361,8 +361,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IncreaseButton: {fileID: 627788051139554067}
   DecreaseButton: {fileID: 8272728102455269569}
-  FlipButton: {fileID: 0}
-  BatteryFlip: {fileID: 0}
   OwningChamber: {fileID: 9067735912078474555}
   CanAdjust: 1
 --- !u!1 &3546955409230533120

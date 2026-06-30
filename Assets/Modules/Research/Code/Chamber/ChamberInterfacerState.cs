@@ -25,6 +25,7 @@ namespace SpaceFab.Research {
     public enum ActiveChamberKind : byte {
         None,
         Battery,
+        Thermal,
     }
 
     /// <summary>

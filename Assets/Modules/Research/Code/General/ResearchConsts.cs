@@ -17,6 +17,8 @@ namespace SpaceFab.Research
         public static readonly StringHash32 OnSlotFilled = "OnSlotFilled";
         public static readonly StringHash32 OnVoltageIncreased = "OnVoltageIncreased";
         public static readonly StringHash32 OnVoltageDecreased = "OnVoltageDecreased";
+        public static readonly StringHash32 OnHeatIncreased = "OnHeatIncreased";
+        public static readonly StringHash32 OnHeatDecreased = "OnHeatDecreased";
         public static readonly StringHash32 OnObservationPickerOpened = "OnObservationPickerOpened";
         public static readonly StringHash32 OnObservationAdded = "OnObservationAdded";
         // Fires the frame after the Verify (submit) button becomes visible, once its ElementTag is
