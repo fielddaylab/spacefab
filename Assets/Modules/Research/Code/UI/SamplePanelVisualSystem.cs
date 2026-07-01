@@ -23,7 +23,7 @@ namespace SpaceFab.Research {
                     .ReadShared<ChamberInterfacerState>()
                     .ReadShared<ResearchHypothesisPagesState>()
                     .ReadShared<HypothesisViewModelState>()
-                    .ReadShared<BatteryChamberState>()
+                    //.ReadShared<BatteryChamberState>()
                     .ReadShared<ResearchMinigameState>()
                     .ReadWrite<ResearchSamplePanel>()
             );
@@ -38,13 +38,12 @@ namespace SpaceFab.Research {
             Find.State(
                 out ChamberInterfacerState interfacerState,
                 out ResearchHypothesisPagesState pagesState,
-                out HypothesisViewModelState hypoVm,
-                out BatteryChamberState battery
+                out HypothesisViewModelState hypoVm
             );
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
-                SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, battery, researchState);
+                SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, researchState);
             }
 
             // Onboarding hook: fire OnVerifyButtonShown the frame AFTER the verify button becomes
@@ -77,7 +76,6 @@ namespace SpaceFab.Research {
             ChamberInterfacerState interfacerState,
             ResearchHypothesisPagesState pagesState,
             HypothesisViewModelState hypoVm,
-            BatteryChamberState battery,
             ResearchMinigameState researchState
         ) {
             if (panel == null || interfacerState == null || pagesState == null || hypoVm == null) {

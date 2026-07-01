@@ -8,10 +8,10 @@ using UnityEngine;
 namespace SpaceFab.Research
 {
     /// <summary>
-    /// Drives Battery chamber state every frame the chamber is active. Reads
-    /// the active slot and the Battery's voltage; computes current via the
+    /// Drives Thermal chamber state every frame the chamber is active. Reads
+    /// the active slot and the Thermal's temperature; computes heat via the
     /// material's MaterialPhysicsProfile; updates the CircuitRenderer's bulb
-    /// strength and flow speed. Clears the slot on voltage-stability failure.
+    /// strength and flow speed. Clears the slot on temperature-stability failure.
     /// Runs on Update at order 100 under ResearchChamberMask, after
     /// CircuitAnimationSystem (order 0) reads its previous state.
     /// </summary>
@@ -20,12 +20,12 @@ namespace SpaceFab.Research
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.Update, 110, UpdateMasks.ResearchChamberMask),
+                new SysUpdate(GameLoopPhase.Update, 120, UpdateMasks.ResearchChamberMask),
                 new SysPermissions()
-                    .ReadWriteShared<ChamberInterfacerState>()
+                    .ReadShared<ChamberInterfacerState>()
                     .ReadWriteShared<ThermalChamberState>()
-                    .ReadWriteShared<ResearchExplosionState>()
-                    .ReadWriteShared<ResearchPools>()
+                    .ReadShared<ResearchExplosionState>()
+                    .ReadShared<ResearchPools>()
                     .ReadWrite<CircuitRenderer>()
                     .ReadWrite<ResearchSlot>()
             );
@@ -53,10 +53,9 @@ namespace SpaceFab.Research
 
             if (dirty)
             {
-                UpdateBattery(interfacerState, thermalChamberState, explosionState, vfxPool);
+                UpdateHeater(interfacerState, thermalChamberState, explosionState, vfxPool);
+                thermalChamberState.HeatChangedThisFrame = false;
             }
-
-            thermalChamberState.HeatChangedThisFrame = false;
 
             if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
             if (interfacerState.LastUpdatedKind != thermalChamberState.SlotKind) return;
@@ -67,9 +66,7 @@ namespace SpaceFab.Research
 
         }
 
-        // Single-Battery update: read material + voltage, run stability, drive
-        // visuals. Splits out of ProcessWork so the loop body stays linear.
-        private static void UpdateBattery(ChamberInterfacerState interfacerState, ThermalChamberState thermalChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)
+        private static void UpdateHeater(ChamberInterfacerState interfacerState, ThermalChamberState thermalChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)
         {
             MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, thermalChamber.SlotKind);
             float temperature = thermalChamber.HeatControl != null ? thermalChamber.HeatControl.CurrentTemperature : 0f;
@@ -100,7 +97,7 @@ namespace SpaceFab.Research
                 return;
             }
 
-            float current = MaterialPhysicsUtility.GetCurrent(profile, thermalChamber.Battery.CurrentVoltage, thermalChamber.Temperature);
+            float current = MaterialPhysicsUtility.GetCurrent(profile, thermalChamber.Voltage, thermalChamber.Temperature);
             if (current == 0) Sfx.Play(Find.State<BatteryChamberState>().NoCurrentSFX);
             CircuitUtility.SetLightStrength(thermalChamber.Circuit, current);
             CircuitUtility.SetFlowStrength(thermalChamber.Circuit, current);

@@ -78,7 +78,7 @@ namespace SpaceFab.Research
             control.HeatIndex++;
             ApplyChange(control, config);
 
-            ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatIncreased);
+            // ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatIncreased);
         }
 
         // Bumps the voltage index down by one. No-op at the lower magnitude
@@ -91,17 +91,14 @@ namespace SpaceFab.Research
             control.HeatIndex--;
             ApplyChange(control, config);
 
-            ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatDecreased);
+            // ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatDecreased);
         }
 
         public static void Reset(HeatControl control, ResearchHeatConfig config)
-        {
+        {            
             if (control == null || config == null) return;
-            if (control.HeatIndex == config.DefaultIndex) return;
             control.HeatIndex = config.DefaultIndex;
             ApplyChange(control, config);
-            Find.GlobalAsset<ResearchVoltageConfig>(out ResearchVoltageConfig voltageConfig);
-            control.OwningChamber.Battery.CurrentVoltage = voltageConfig.Voltages[voltageConfig.Voltages.Length - 1];
         }
 
         public static void SetAdjustable(HeatControl control, ResearchHeatConfig config, bool canAdjust)
@@ -153,7 +150,7 @@ namespace SpaceFab.Research
             if (control == null || config == null) return;
 
             bool atLow = control.HeatIndex <= 0;
-            bool atHigh = control.HeatIndex >= config.HeatLevels.Length;
+            bool atHigh = control.HeatIndex >= config.HeatLevels.Length - 1;
             bool show = control.CanAdjust;
 
             if (control.IncreaseButton != null)

@@ -60,11 +60,6 @@ namespace SpaceFab.Research
         {
             VoltageUtility.Decrease(this, Find.GlobalAsset<ResearchVoltageConfig>());
         }
-
-        private void HandleFlip()
-        {
-            VoltageUtility.Flip(this, Find.GlobalAsset<ResearchVoltageConfig>());
-        }
     }
 
     /// <summary>
@@ -117,20 +112,6 @@ namespace SpaceFab.Research
             ScriptUtility.Trigger(ResearchScriptTriggers.OnVoltageDecreased);
         }
 
-        // Mirrors the index across CenterIndex so positive flips negative
-        // and vice versa. Center stays put. The mirror preserves magnitude,
-        // so if the current index was within bounds, the mirror is too;
-        // the explicit range check is defensive against bad authoring.
-        public static void Flip(VoltageControl control, ResearchVoltageConfig config)
-        {
-            if (control == null || config == null || !control.CanAdjust) return;
-            int mirror = config.CenterIndex + (config.CenterIndex - control.VoltageIndex);
-            int maxMag = GetMaxMagnitude(control);
-            if (mirror < config.CenterIndex - maxMag || mirror > config.CenterIndex + maxMag) return;
-            control.VoltageIndex = mirror;
-            ApplyChange(control, config);
-        }
-
         // Snaps back to the configured default index. Used when the control
         // is locked while not at default. Authoring constraint: DefaultIndex
         // should equal CenterIndex (magnitude 0) so it sits within every
@@ -139,7 +120,6 @@ namespace SpaceFab.Research
         public static void Reset(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null) return;
-            if (control.VoltageIndex == config.DefaultIndex) return;
             control.VoltageIndex = config.DefaultIndex;
             ApplyChange(control, config);
         }

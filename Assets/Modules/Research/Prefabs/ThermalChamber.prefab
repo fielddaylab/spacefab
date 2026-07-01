@@ -110,7 +110,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 880434010981737646}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -119,7 +119,7 @@ Transform:
   - {fileID: 7165117570430950045}
   - {fileID: 6410783367035615248}
   - {fileID: 2804408699917214800}
-  m_Father: {fileID: 2003659318436975884}
+  m_Father: {fileID: 5086876775841636099}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &130131968842501781
 MonoBehaviour:
@@ -281,38 +281,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &2264733710519542096
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6779361194467327614}
-  m_Layer: 0
-  m_Name: Battery Container
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6779361194467327614
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2264733710519542096}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.991, y: -0.35, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5007784213695818132}
-  m_Father: {fileID: 2003659318436975884}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3546955409230533120
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,7 +666,7 @@ MonoBehaviour:
     m_HashValue: 0
   Flags: 0
   TooltipHeader: 
-  Tooltip: Decrease Voltage
+  Tooltip: Decrease Heat
   TooltipFooter: 
 --- !u!114 &4931253853440185496
 MonoBehaviour:
@@ -743,7 +711,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5043203649386945525}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -1.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -751,7 +719,7 @@ Transform:
   - {fileID: 6892609493068734912}
   - {fileID: 3044624417049191720}
   - {fileID: 7337826428668383187}
-  m_Father: {fileID: 2003659318436975884}
+  m_Father: {fileID: 5086876775841636099}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5122983008877085630
 MonoBehaviour:
@@ -884,9 +852,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4440904702103287142}
-  - {fileID: 6779361194467327614}
-  - {fileID: 4443408536680231796}
+  - {fileID: 5086876775841636099}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3551964868300922241
@@ -904,8 +870,9 @@ MonoBehaviour:
   SlotKind: 0
   Circuit: {fileID: 130131968842501781}
   HeatControl: {fileID: 5122983008877085630}
-  Battery: {fileID: 2517977552382185321}
+  Voltage: 1
   SampleHolder: {fileID: 3546955409230533120}
+  Root: {fileID: 7576376653351747665}
   AvailableObservations: 0203040506
   Temperature: 0
   NoCurrentSFX:
@@ -1052,6 +1019,40 @@ Transform:
   - {fileID: 7934947894250150810}
   - {fileID: 7227960184994574375}
   m_Father: {fileID: 4440904702103287142}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7576376653351747665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5086876775841636099}
+  m_Layer: 0
+  m_Name: Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5086876775841636099
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7576376653351747665}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4440904702103287142}
+  - {fileID: 5007784213695818132}
+  - {fileID: 4443408536680231796}
+  m_Father: {fileID: 2003659318436975884}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8219844176993790895
 GameObject:
@@ -1350,7 +1351,7 @@ MonoBehaviour:
     m_HashValue: 0
   Flags: 0
   TooltipHeader: 
-  Tooltip: Increase Voltage
+  Tooltip: Increase Heat
   TooltipFooter: 
 --- !u!114 &2736913702214612704
 MonoBehaviour:
@@ -4236,7 +4237,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 6779361194467327614}
+    m_TransformParent: {fileID: 5086876775841636099}
     m_Modifications:
     - target: {fileID: 441793776640542739, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_Name
@@ -4248,11 +4249,11 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 430d4a2d80b02944aa71a33141274cbb, type: 3}
     - target: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2.991
       objectReference: {fileID: 0}
     - target: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.35
       objectReference: {fileID: 0}
     - target: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4302,22 +4303,12 @@ PrefabInstance:
       propertyPath: CurrentVoltage
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6545282104873494627, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
---- !u!114 &2517977552382185321 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6545282104873494627, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
-  m_PrefabInstance: {fileID: 8657084358677587722}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8baa854ebeea6904496be4c83a6a6fcc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &5007784213695818132 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}

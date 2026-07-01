@@ -32,7 +32,7 @@ namespace SpaceFab.Research
         }
 
         private static void ProcessWork(float deltaTime)
-        {
+        {            
             ChamberInterfacerState interfacerState = Find.State<ChamberInterfacerState>();
             if (ChamberInterfacerUtility.GetActiveChamber(interfacerState) != ActiveChamberKind.Battery)
             {
@@ -54,9 +54,8 @@ namespace SpaceFab.Research
             if (dirty)
             {
                 UpdateBattery(interfacerState, batteryChamberState, explosionState, vfxPool);
+                batteryChamberState.VoltageChangedThisFrame = false;
             }
-
-            batteryChamberState.VoltageChangedThisFrame = false;
 
             if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
             if (interfacerState.LastUpdatedKind != batteryChamberState.SlotKind) return;

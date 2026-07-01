@@ -18,8 +18,11 @@ namespace SpaceFab.Research
         public CircuitRenderer Circuit;
         public HeatControl HeatControl;
 
-        public ChamberBattery Battery;
+        [Range(0f, 1f)] public float Voltage = 1f;
         public GameObject SampleHolder;
+
+        // Root of thermal chamber's GameObject hierarchy; used to toggle visibility on activation/deactivation.
+        public GameObject Root;
 
         // Observation chips the player can add while this chamber is active.
         // Read by the chip-picker UI (Tier 4).
@@ -50,6 +53,7 @@ namespace SpaceFab.Research
                 SampleHolder.SetActive(false);
             }
             NoCurrentWarningPlayed = false;
+            Root.SetActive(false);
         }
 
         public void OnDeregister()
@@ -59,13 +63,14 @@ namespace SpaceFab.Research
 
     public static class ThermalChamberUtility
     {
-        public static void ResetState(BatteryChamberState state)
+        public static void ResetState(ThermalChamberState state)
         {
             if (state == null)
             {
                 return;
             }
-            VoltageUtility.Reset(state.VoltageControl, Find.GlobalAsset<ResearchVoltageConfig>());
+            HeatUtility.Reset(state.HeatControl, Find.GlobalAsset<ResearchHeatConfig>());
+            state.Root.SetActive(true);
         }
     }
 }

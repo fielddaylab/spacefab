@@ -25,6 +25,7 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<ResearchSampleTrayState>()
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
+                    .ReadWriteShared<ThermalChamberState>()
                     .ReadWriteShared<ResearchHypothesisPagesState>()
                     .ReadWriteShared<HypothesisViewModelState>()
                     .ReadWriteShared<ResearchPools>()
@@ -41,7 +42,8 @@ namespace SpaceFab.Research {
             );
             Find.State(
                 out ChamberInterfacerState interfacerState,
-                out BatteryChamberState batteryChamberState
+                out BatteryChamberState batteryChamberState,
+                out ThermalChamberState thermalChamberState
                 );
             Find.State(
                 out ResearchHypothesisPagesState hypothesisPagesState,
@@ -89,10 +91,10 @@ namespace SpaceFab.Research {
             // this save's unlock state under BatteryContainer, then prime
             // the dial: assigning Battery first lets RefreshVisualState
             // populate the freshly-spawned slots in the same pass.
-            ResearchVoltageConfig config = Find.GlobalAsset<ResearchVoltageConfig>();
-            if (config != null && batteryChamberState.BatteryContainer != null && batteryChamberState.Battery == null)
+            ResearchVoltageConfig voltageConfig = Find.GlobalAsset<ResearchVoltageConfig>();
+            if (voltageConfig != null && batteryChamberState.BatteryContainer != null && batteryChamberState.Battery == null)
             {
-                GameObject meterPrefab = playerProgress.BigBatteryUnlocked ? config.BigBatteryMeterPrefab : config.SmallBatteryMeterPrefab;
+                GameObject meterPrefab = playerProgress.BigBatteryUnlocked ? voltageConfig.BigBatteryMeterPrefab : voltageConfig.SmallBatteryMeterPrefab;
                 if (meterPrefab != null)
                 {
                     GameObject meterInstance = UnityEngine.Object.Instantiate(meterPrefab, batteryChamberState.BatteryContainer, false);
@@ -101,9 +103,17 @@ namespace SpaceFab.Research {
 
                 if (batteryChamberState.VoltageControl != null)
                 {
-                    batteryChamberState.VoltageControl.VoltageIndex = config.DefaultIndex;
-                    VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, config);
+                    batteryChamberState.VoltageControl.VoltageIndex = voltageConfig.DefaultIndex;
+                    VoltageUtility.RefreshVisualState(batteryChamberState.VoltageControl, voltageConfig);
                 }
+            }
+
+            // Init Thermal Chamber.
+            ResearchHeatConfig heatConfig = Find.GlobalAsset<ResearchHeatConfig>();
+            if (heatConfig != null && thermalChamberState.HeatControl != null)
+            {
+                thermalChamberState.HeatControl.HeatIndex = heatConfig.DefaultIndex;
+                HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
             }
 
             // Load the observation picker chip set for the active
