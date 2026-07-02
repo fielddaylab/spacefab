@@ -22,17 +22,9 @@ namespace SpaceFab
         Completed
     }
 
-    [Serializable]
-    public struct ChapterLoadBundle
-    {
-        public SceneReference ChapterScene;
-    }
-
     public class ChapterLoadState : SharedStateComponent
     {
         public ChapterLoadPhase Phase;
-        public ChapterLoadBundle[] Chapters;
-
         public Routine LoadRoutine;
     }
 

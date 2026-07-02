@@ -1,21 +1,22 @@
 using BeauUtil;
+using FieldDay;
 using FieldDay.Assets;
+using Leaf;
 using SpaceFab.Design;
 using SpaceFab.Materials;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace SpaceFab
 {
     [CreateAssetMenu(menuName = "SpaceFab/Chapter Asset")]
     public class ChapterDef : NamedAsset
     {
-        [AssetName(typeof(MaterialAsset))] [SerializeField] private StringHash32[] m_availableMaterials;
-        [AssetName(typeof(MaterialAsset))] [SerializeField] private StringHash32[] m_excludeFromResearch;
-
-        public StringHash32[] AvailableMaterials() { return m_availableMaterials; }
-        public StringHash32[] ExcludeFromResearch() { return m_excludeFromResearch; }
-
+        [AssetName(typeof(ContractDef))] public StringHash32[] AvailableContracts;
+        [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_availableMaterials")] [SerializeField] private StringHash32[] AvailableMaterials;
+        [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_excludeFromResearch")] [SerializeField] private StringHash32[] ExcludeFromResearch;
+        public LeafAsset Script;
     }
 }

@@ -124,7 +124,7 @@ namespace SpaceFab
         /// </summary>
         public static uint PackCompletedContracts(PlayerProgressState state)
         {
-            var contractOrder = Find.GlobalAsset<ContractOrderAsset>();
+            var contractOrder = Find.GlobalAsset<ContractManifest>();
             state.CompletedContractBuffer = 0;
             foreach (var id in state.CompletedContractIds)
             {
@@ -141,7 +141,7 @@ namespace SpaceFab
         /// </summary>
         public static void UnpackCompletedContracts(PlayerProgressState state, uint mask)
         {
-            var contractOrder = Find.GlobalAsset<ContractOrderAsset>();
+            var contractOrder = Find.GlobalAsset<ContractManifest>();
             state.CompletedContractIds.Clear();
             for (int i = 0; i < contractOrder.Count; i++)
             {

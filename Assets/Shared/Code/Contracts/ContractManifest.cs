@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay.Assets;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,8 +11,14 @@ namespace SpaceFab
     /// The array index of each entry is its bit position in the completed-contracts bitmask.
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Contracts/Contract Order")]
-    public class ContractOrderAsset : GlobalAsset
+    public class ContractManifest : GlobalAsset
     {
+        [Serializable]
+        private struct Entry {
+            [AssetName(typeof(ContractDef))] public StringHash32 ContractId;
+            [StreamedPackId] public StringHash32 PackId;
+        }
+
         [AssetName(typeof(ContractDef))]
         [SerializeField] private StringHash32[] m_ContractIds;
 

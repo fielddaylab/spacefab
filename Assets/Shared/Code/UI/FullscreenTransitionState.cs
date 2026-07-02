@@ -294,7 +294,7 @@ namespace SpaceFab
                 return;
             }
 
-            float tilt = RNG.Instance.NextFloat(-fullscreen.MaxHalftoneTilt, fullscreen.MaxHalftoneTilt);
+            float tilt = RNG.Instance.NextFloat(fullscreen.MaxHalftoneTilt * 0.5f, fullscreen.MaxHalftoneTilt) * RNG.Instance.SignNonZero();
             if (fullscreen.HalftoneDirection == FullscreenTransitionState.HalftoneAxis.Horizontal) {
                 fullscreen.HalftoneNormal = new Vector2(1, tilt).normalized;
             } else {

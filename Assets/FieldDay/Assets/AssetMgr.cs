@@ -18,6 +18,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
+using FieldDay.Components;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -1080,18 +1082,52 @@ namespace FieldDay.Assets {
     /// Named asset enumerator.
     /// </summary>
     public struct NamedAssetIterator<T> : IEnumerable<T>, IEnumerator<T>, IDisposable where T : class, INamedAsset {
+        private Dictionary<StringHash32, INamedAsset> m_Map;
         private Dictionary<StringHash32, INamedAsset>.ValueCollection.Enumerator m_Source;
+        private int m_Count;
 
-        internal NamedAssetIterator(Dictionary<StringHash32, INamedAsset>.ValueCollection source) {
-            m_Source = source.GetEnumerator();
+        internal NamedAssetIterator(Dictionary<StringHash32, INamedAsset> source) {
+            if (source != null) {
+                m_Map = source;
+                m_Source = source.Values.GetEnumerator();
+                m_Count = source.Count;
+            } else {
+                m_Map = null;
+                m_Source = default;
+                m_Count = 0;
+            }
+        }
+
+        public readonly T Current {
+            get { return Unsafe.FastCast<T>(m_Source.Current); }
+        }
+
+        /// <summary>
+        /// Total number of assets.
+        /// </summary>
+        public readonly int Count {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return m_Count; }
+        }
+
+        /// <summary>
+        /// Returns the asset with the given id.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly T Get(StringHash32 id) {
+            return Unsafe.FastCast<T>(m_Map[id]);
+        }
+
+        /// <summary>
+        /// Returns the asset with the given id.
+        /// </summary>
+        public readonly T this[StringHash32 id] {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return Unsafe.FastCast<T>(m_Map[id]); }
         }
 
         public bool MoveNext() {
             return m_Source.MoveNext();
-        }
-
-        public T Current {
-            get { return Unsafe.FastCast<T>(m_Source.Current); }
         }
 
         public NamedAssetIterator<T> GetEnumerator() {
@@ -1103,6 +1139,8 @@ namespace FieldDay.Assets {
         public void Dispose() {
             m_Source.Dispose();
             m_Source = default;
+            m_Count = 0;
+            m_Map = null;
         }
 
         object IEnumerator.Current {
@@ -1128,18 +1166,52 @@ namespace FieldDay.Assets {
     /// Lite asset enumerator.
     /// </summary>
     public struct LiteAssetIterator<T> : IEnumerable<T>, IEnumerator<T>, IDisposable where T : struct, ILiteAsset {
+        private Dictionary<StringHash32, T> m_Map;
         private Dictionary<StringHash32, T>.ValueCollection.Enumerator m_Source;
+        private int m_Count;
 
-        internal LiteAssetIterator(Dictionary<StringHash32, T>.ValueCollection source) {
-            m_Source = source.GetEnumerator();
+        internal LiteAssetIterator(Dictionary<StringHash32, T> source) {
+            if (source != null) {
+                m_Map = source;
+                m_Source = source.Values.GetEnumerator();
+                m_Count = source.Count;
+            } else {
+                m_Map = null;
+                m_Source = default;
+                m_Count = 0;
+            }
         }
 
         public bool MoveNext() {
             return m_Source.MoveNext();
         }
 
-        public T Current {
+        public readonly T Current {
             get { return m_Source.Current; }
+        }
+
+        /// <summary>
+        /// Total number of assets.
+        /// </summary>
+        public readonly int Count {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return m_Count; }
+        }
+
+        /// <summary>
+        /// Returns the asset with the given id.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly T Get(StringHash32 id) {
+            return m_Map[id];
+        }
+
+        /// <summary>
+        /// Returns the asset with the given id.
+        /// </summary>
+        public readonly T this[StringHash32 id] {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return m_Map[id]; }
         }
 
         public LiteAssetIterator<T> GetEnumerator() {
@@ -1151,6 +1223,8 @@ namespace FieldDay.Assets {
         public void Dispose() {
             m_Source.Dispose();
             m_Source = default;
+            m_Count = 0;
+            m_Map = null;
         }
 
         object IEnumerator.Current {
