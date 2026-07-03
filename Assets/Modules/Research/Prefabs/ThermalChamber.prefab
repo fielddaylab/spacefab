@@ -989,7 +989,7 @@ MonoBehaviour:
   SlotKind: 0
   Circuit: {fileID: 130131968842501781}
   HeatControl: {fileID: 5122983008877085630}
-  Voltage: 1
+  Voltage: 0.6
   SampleHolder: {fileID: 3546955409230533120}
   Root: {fileID: 7576376653351747665}
   AvailableObservations: 0203040506
@@ -2969,7 +2969,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.35
+      value: -0.41
       objectReference: {fileID: 0}
     - target: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.z

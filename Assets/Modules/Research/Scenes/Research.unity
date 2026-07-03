@@ -332,7 +332,7 @@ MonoBehaviour:
     m_HashValue: 0
   Flags: 0
   TooltipHeader: 
-  Tooltip: 
+  Tooltip: Thermal Chamber
   TooltipFooter: 
 --- !u!1 &154977751
 GameObject:
@@ -449,7 +449,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 110}
-  m_SizeDelta: {x: 180, y: 30}
+  m_SizeDelta: {x: 180, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &254323415
 MonoBehaviour:
@@ -498,7 +498,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
+  m_fontSize: 16
   m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -755,7 +755,7 @@ GameObject:
   m_Component:
   - component: {fileID: 420088014}
   m_Layer: 5
-  m_Name: Chamber Type
+  m_Name: Chamber Buttons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1789,7 +1789,7 @@ MonoBehaviour:
     m_HashValue: 0
   Flags: 0
   TooltipHeader: 
-  Tooltip: 
+  Tooltip: Voltage Chamber
   TooltipFooter: 
 --- !u!1 &774033812
 GameObject:
@@ -2438,6 +2438,10 @@ PrefabInstance:
     - target: {fileID: 2003659318436975884, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5007784213695818132, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.406
       objectReference: {fileID: 0}
     - target: {fileID: 6164802150296184965, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
       propertyPath: m_Name
@@ -3231,7 +3235,7 @@ MonoBehaviour:
     m_HashValue: 0
   Flags: 0
   TooltipHeader: 
-  Tooltip: 
+  Tooltip: Doping Chamber
   TooltipFooter: 
 --- !u!1 &1621446472
 GameObject:
@@ -4151,6 +4155,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 320
+      objectReference: {fileID: 0}
+    - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 186
+      objectReference: {fileID: 0}
+    - target: {fileID: 3174691975147342220, guid: 88d822bfe08580b45a429a140b357837, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -4202,11 +4214,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hypothesis Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 8604637424840788974, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+      propertyPath: Chips.Array.data[2]
+      value: 
+      objectReference: {fileID: 4056313152462021289}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+--- !u!114 &4056313152462021289 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5428908991958724090, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+  m_PrefabInstance: {fileID: 4056313152462021288}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c03bc76a4e7b9b4cbec0d94629ac6ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5201276343860688403
 PrefabInstance:
   m_ObjectHideFlags: 0
