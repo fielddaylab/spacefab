@@ -1,72 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &374265750424888620
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 9194616972895997768}
-    m_Modifications:
-    - target: {fileID: 7079762451319234408, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_Name
-      value: Battery Voltage Slot (4)
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.004000187
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.418
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
---- !u!212 &5901113431790171094 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 6112897420621256442, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-  m_PrefabInstance: {fileID: 374265750424888620}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &8776452370789621320 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-  m_PrefabInstance: {fileID: 374265750424888620}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1047250090102875054
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -81,11 +14,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.004000187
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.136
+      value: 0.379
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -143,6 +76,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 126999615469948158, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 126999615469948158, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.158
       objectReference: {fileID: 0}
@@ -150,6 +87,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Battery (Large) Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 808073015179979276, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 57fee4761aaad1a4fa24c646c323cde5, type: 3}
     - target: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.001
@@ -192,23 +133,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6545282104873494627, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: VoltageLevelSlots.Array.size
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6545282104873494627, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: VoltageLevelSlots.Array.data[2]
       value: 
       objectReference: {fileID: 6511584633876641108}
-    - target: {fileID: 6545282104873494627, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
-      propertyPath: VoltageLevelSlots.Array.data[3]
-      value: 
-      objectReference: {fileID: 2241556736648960027}
-    - target: {fileID: 6545282104873494627, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
-      propertyPath: VoltageLevelSlots.Array.data[4]
-      value: 
-      objectReference: {fileID: 5901113431790171094}
+    - target: {fileID: 8956379526059616955, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8956379526059616955, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.011
+      value: 0.116
+      objectReference: {fileID: 0}
+    - target: {fileID: 9085379664785650432, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.71
+      objectReference: {fileID: 0}
+    - target: {fileID: 9085379664785650432, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 1.75
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -216,83 +161,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8247502902830340298}
-    - targetCorrespondingSourceObject: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3977615740809721221}
-    - targetCorrespondingSourceObject: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8776452370789621320}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
 --- !u!4 &9194616972895997768 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4421159820241178270, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
   m_PrefabInstance: {fileID: 4810629476277469654}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &5462519077602873057
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 9194616972895997768}
-    m_Modifications:
-    - target: {fileID: 7079762451319234408, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_Name
-      value: Battery Voltage Slot (3)
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.004000187
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.285
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
---- !u!212 &2241556736648960027 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 6112897420621256442, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-  m_PrefabInstance: {fileID: 5462519077602873057}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &3977615740809721221 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-  m_PrefabInstance: {fileID: 5462519077602873057}
   m_PrefabAsset: {fileID: 0}

@@ -36,7 +36,6 @@ Transform:
   m_Children:
   - {fileID: 126999615469948158}
   - {fileID: 8956379526059616955}
-  - {fileID: 7659824895599698820}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &808073015179979276
@@ -80,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: -2133937865
   m_SortingLayer: 12
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 57fee4761aaad1a4fa24c646c323cde5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 01fba79dd82c344aa930d0d84f661195, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -106,7 +105,7 @@ MonoBehaviour:
   VoltageLevelSlots:
   - {fileID: 3020788293951152480}
   - {fileID: 6080910841466717989}
-  - {fileID: 4784482655914069530}
+  CurrentVoltage: 0
 --- !u!61 &9085379664785650432
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -143,7 +142,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.71, y: 1.75}
+    oldSize: {x: 0.75, y: 1.49}
     newSize: {x: 0.6, y: 0.6}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -202,11 +201,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.07400001
+      value: 0.232
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -255,73 +254,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
   m_PrefabInstance: {fileID: 51478997795213791}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &1635011660761438432
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 4421159820241178270}
-    m_Modifications:
-    - target: {fileID: 7079762451319234408, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_Name
-      value: Battery Voltage Slot (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.324
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
---- !u!212 &4784482655914069530 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 6112897420621256442, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-  m_PrefabInstance: {fileID: 1635011660761438432}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &7659824895599698820 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
-  m_PrefabInstance: {fileID: 1635011660761438432}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9024827878651852698
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -336,11 +268,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.176
+      value: -0.048
       objectReference: {fileID: 0}
     - target: {fileID: 9006513545707748196, guid: e7d89c437f459a745b4170db3024eb4b, type: 3}
       propertyPath: m_LocalPosition.z

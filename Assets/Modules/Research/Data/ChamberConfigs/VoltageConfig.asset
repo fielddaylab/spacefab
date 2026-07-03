@@ -13,15 +13,11 @@ MonoBehaviour:
   m_Name: VoltageConfig
   m_EditorClassIdentifier: 
   Voltages:
-  - -1
-  - -0.5
-  - -0.25
   - 0
   - 0.25
   - 0.5
   - 1
-  CenterIndex: 3
-  DefaultIndex: 3
+  DefaultIndex: 0
   SmallBatteryMeterPrefab: {fileID: 441793776640542739, guid: 3f70832921ed3d2408dd74d0c58e5d00, type: 3}
   BigBatteryMeterPrefab: {fileID: 4963911391035099589, guid: e24c880cdd870ba4dba66b88badef412, type: 3}
   VoltageSlotFilled: {fileID: 21300000, guid: 430d4a2d80b02944aa71a33141274cbb, type: 3}

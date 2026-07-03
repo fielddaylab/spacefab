@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 93a46632019da464b8d5f20fe3a413a4
+guid: 817f3b5e18aa64bbcbb6bb2efc0f5578
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: thermal-increase-0
+      name: voltage-button_0
       rect:
         serializedVersion: 2
         x: 0
@@ -124,20 +124,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f3016f47c2a20714a81212765ecd774b
-      internalID: 1670993440
+      spriteID: e562688d1f50b45539bbba9a0d03dd51
+      internalID: 1295477288
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: thermal-increase-1
+      name: voltage-button_1
       rect:
         serializedVersion: 2
         x: 75
         y: 82
         width: 75
-        height: 68
+        height: 69
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -145,20 +145,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 029b44ada257d54468a7d3c3acb10a8b
-      internalID: -1566155650
+      spriteID: 6c2cc01ab1c864b5aa089427888f5e5b
+      internalID: 2058378487
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: thermal-decrease-0
+      name: voltage-button_2
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 0.5
         width: 75
-        height: 78
+        height: 77.5
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,20 +166,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 95946670011d37049a419bc38fe03c2e
-      internalID: 919445024
+      spriteID: f5ae87e3e1c01419fbff886472d3e225
+      internalID: -590778375
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: thermal-decrease-1
+      name: voltage-button_3
       rect:
         serializedVersion: 2
         x: 75
         y: 5
         width: 75
-        height: 68
+        height: 69
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -187,8 +187,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eee63555b2f985940ac4c1a36bec0699
-      internalID: -545905453
+      spriteID: 97e845b1ccc994c5eb3420068d15c0ed
+      internalID: 146291767
       vertices: []
       indices: 
       edges: []
@@ -204,10 +204,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      thermal-decrease-0: 919445024
-      thermal-decrease-1: -545905453
-      thermal-increase-0: 1670993440
-      thermal-increase-1: -1566155650
+      voltage-button_0: 1295477288
+      voltage-button_1: 2058378487
+      voltage-button_2: -590778375
+      voltage-button_3: 146291767
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
