@@ -52,7 +52,7 @@ namespace SpaceFab.Research
             foreach (Electron electron in circuit.Electrons)
             {
                 var segment = circuit.FlowSegments[electron.FlowSegmentIndex];
-                electron.TravelDistance += deltaTime * circuit.AnimSpeedMultiplier;
+                electron.TravelDistance += deltaTime * circuit.AnimSpeedMultiplier * circuit.CircuitCurrent;
 
                 // Handle segment transition and wrapping
                 if (electron.TravelDistance >= segment.Length)

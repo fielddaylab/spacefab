@@ -29,9 +29,9 @@ namespace SpaceFab.Research
         public Sprite BulbOnSprite;
 
         public SpriteRenderer[] BulbShines;
-        public float AnimSpeedMultiplier = 0.5f;
+        public float AnimSpeedMultiplier = 1f;
 
-        // Magnitude drives flow density. Set by CircuitUtility.SetFlowStrength.
+        // Magnitude drives flow speed. Set by CircuitUtility.SetFlowStrength.
         [NonSerialized] public float CircuitCurrent;
 
         private void Awake() {
@@ -68,6 +68,8 @@ namespace SpaceFab.Research
 
                 Electrons[i].transform.position = CircuitUtility.GetPositionOnSegment(this, Electrons[i]);
             }
+
+            CircuitCurrent = 0f;
         }
     }
 
@@ -110,18 +112,12 @@ namespace SpaceFab.Research
         public static void SetFlowStrength(CircuitRenderer circuit, float strength)
         {
             if (circuit == null) return;
-
-            float threshold = 0.3f;
-            for (int i = 0; i < circuit.Electrons.Length; i++)
-            {
-                if (strength == 0)
-                    circuit.Electrons[i].gameObject.SetActive(false);
-                else if (strength < threshold)
-                    circuit.Electrons[i].gameObject.SetActive(i % 2 == 0);
-                else
-                    circuit.Electrons[i].gameObject.SetActive(true);
-            }
             circuit.CircuitCurrent = strength;
+
+            foreach (Electron electron in circuit.Electrons)
+            {
+                electron.gameObject.SetActive(strength > 0);
+            }
         }
 
         public static Vector2 GetPositionOnSegment(CircuitRenderer circuit, Electron electron)
