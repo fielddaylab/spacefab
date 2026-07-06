@@ -82,6 +82,7 @@ GameObject:
   - component: {fileID: 518234563781450344}
   - component: {fileID: 8902631178501730816}
   - component: {fileID: 7655658781834560961}
+  - component: {fileID: 9193065839276090745}
   - component: {fileID: 1807206960674959543}
   - component: {fileID: 5367927135572604056}
   m_Layer: 0
@@ -153,10 +154,6 @@ MonoBehaviour:
   Funds: 0
   CompletedContractBuffer: 0
   MaterialPropertyBuffer: []
-  ContractAssetsWrapperId:
-    m_HashValue: 0
-  CurrContractId:
-    m_HashValue: 0
 --- !u!114 &8902631178501730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,6 +189,18 @@ MonoBehaviour:
     Risk: {r: 1, g: 0.6, b: 0, a: 1}
     SoftHighlight: {r: 1, g: 1, b: 1, a: 1}
     HardHighlight: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &9193065839276090745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702368520693917882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e3fb11b1a040384594479bff1f1ea84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1807206960674959543
 MonoBehaviour:
   m_ObjectHideFlags: 0

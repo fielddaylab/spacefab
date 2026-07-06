@@ -33,7 +33,8 @@ namespace SpaceFab.Overarching {
                 );
 
             Find.State(
-                out PlayerProgressState progressState
+                out PlayerProgressState progressState,
+                out ContractState contractState
                 );
 
             switch (completionState.Phase) {
@@ -44,7 +45,7 @@ namespace SpaceFab.Overarching {
                     ProcessLoadFromPrevChapter(completionState, layoutState, chapterState);
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
-                    ProcessEnterPrevContract(completionState, layoutState, progressState);
+                    ProcessEnterPrevContract(completionState, layoutState, progressState, contractState);
                     break;
                 case ContractCompletionPhase.EvaluatePreviousContract:
                     ProcessEvaluatePrevContract(completionState, layoutState);
@@ -76,9 +77,9 @@ namespace SpaceFab.Overarching {
         }
 
         // After entry, runs the evaluate routine (currently a placeholder pause).
-        static private void ProcessEnterPrevContract(ContractCompletionState completionState, ContractLayoutState layoutState, PlayerProgressState progressState) {
+        static private void ProcessEnterPrevContract(ContractCompletionState completionState, ContractLayoutState layoutState, PlayerProgressState progressState, ContractState contractState) {
             if (!layoutState.CompletionRoutine.Exists()) {
-                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(layoutState, progressState));
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EvaluatePreviousRoutine(layoutState, progressState, contractState));
                 completionState.Phase = ContractCompletionPhase.EvaluatePreviousContract;
             }
         }

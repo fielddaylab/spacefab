@@ -22,7 +22,7 @@ namespace SpaceFab {
             foreach(var provider in providers) {
                 ScopedScriptsAsset.Binding[] bindings = provider.Bindings;
                 for(int i = 0; i < bindings.Length; i++) {
-                    if ((bindings[i].Scope & SceneMask) != 0) {
+                    if ((bindings[i].Scope & SceneMask) == 0) {
                         continue;
                     }
 

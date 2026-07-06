@@ -50,7 +50,8 @@ namespace SpaceFab.Overarching {
                 );
             Find.State(
                 out PlayerProgressState progressState,
-                out ProgressMeterState meterState
+                out ProgressMeterState meterState,
+                out ContractState contractState
                 );
 
             // Apply initial wiki unlocks if first time ever entering the scene
@@ -79,7 +80,7 @@ namespace SpaceFab.Overarching {
                     ProcessContractConfirmSystem(startupState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
-                    ProcessLoadSelectedContract(startupState, meterState);
+                    ProcessLoadSelectedContract(startupState, meterState, contractState, chapterState);
                     break;
                 default:
                     break;
@@ -162,27 +163,19 @@ namespace SpaceFab.Overarching {
             else {
                 if (confirmState.Phase == ContractConfirmPhase.Completed) {
                     // load selected contract
-                    contractLoadState.Phase = ContractLoadPhase.Waiting;
                     startupState.Phase = OverarchingStartupSequencePhase.LoadSelectedContract;
                 }
             }
         }
 
         // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
-        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ProgressMeterState meterState) {
-            if (contractLoadState.Phase == ContractLoadPhase.Waiting) {
-                // begin ContractLoadSystem
-                Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractLoadSystem");
-                contractLoadState.Phase = ContractLoadPhase.BeginLoad;
-                GameLoop.SuspendUpdates(UpdateMasks.ChapterMask);
-            }
-            else {
-                if (contractLoadState.Phase == ContractLoadPhase.Completed) {
-                    // refresh progress meter to update funds and cycles
-                    meterState.NeedsRefresh = true;
-                    Complete(startupState);
-                    GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
-                }
+        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ProgressMeterState meterState, ContractState contractState, ChapterState chapterState) {
+            ContractUtility.LoadContractData(contractState, ChapterUtility.SelectedContractId(chapterState));
+            if (!chapterState.LoadRoutine) {
+                // refresh progress meter to update funds and cycles
+                meterState.NeedsRefresh = true;
+                Complete(startupState);
+                GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
             }
         }
 

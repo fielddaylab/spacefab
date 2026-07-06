@@ -47,7 +47,8 @@ namespace SpaceFab.Research {
                 );
             Find.State(
                 out ResearchHypothesisPagesState hypothesisPagesState,
-                out HypothesisViewModelState hypothesisViewModelState
+                out HypothesisViewModelState hypothesisViewModelState,
+                out ContractState contractState
                 );
 
             researchState.AvailableMaterials.Clear();
@@ -60,14 +61,9 @@ namespace SpaceFab.Research {
             }
 
             //researchState.RequiredResearchGoals.Clear();
-            if (Game.Assets.HasNamed<ContractAssetSet>(playerProgress.ContractAssetsWrapperId))
+            if (contractState.ContractDefinition)
             {
-                ContractAssetSet contractAssets = Find.NamedAsset<ContractAssetSet>(playerProgress.ContractAssetsWrapperId);
-                ContractDef contractDef = contractAssets.ContractDef;
-                if (contractDef != null)
-                {
-                    researchState.RequiredResearchGoals = contractDef.RequiredMaterialProperties();
-                }
+                researchState.RequiredResearchGoals = contractState.ContractDefinition.RequiredMaterialProperties();
             }
 
             // Seed the sandbox with previously-confirmed properties for the

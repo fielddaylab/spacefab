@@ -35,7 +35,8 @@ namespace SpaceFab.Design
             Find.State(
                 out SimulateRunState runState,
                 out SimulateUIState uiState,
-                out PlayerProgressState progressState
+                out PlayerProgressState progressState,
+                out ContractState contractState
                 );
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             InputToggleState toggleState = Find.State<InputToggleState>();
@@ -49,7 +50,7 @@ namespace SpaceFab.Design
             // Refresh the matched test-row index on demand.
             if (toggleState != null && toggleState.MatchDirty)
             {
-                TestSuiteData suite = ResolveSuite(progressState, designState);
+                TestSuiteData suite = ResolveSuite(contractState, designState);
                 toggleState.LastMatchedRowIndex = InputToggleUtility.FindMatchingTestRow(toggleState, suite);
                 toggleState.MatchDirty = false;
             }

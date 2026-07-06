@@ -33,7 +33,7 @@ namespace SpaceFab
             return Find.NamedAsset<ContractDef>(contractId);
         }
 
-        static public ContractDef GetInfo(int contractIndex) {
+        static public ContractDef GetDefinition(int contractIndex) {
             Find.GlobalAsset(out ContractManifest manifest);
             Assert.True(contractIndex >= 0 && contractIndex < manifest.Contracts.Length, "Contract index {0} out of range", contractIndex);
             return Find.NamedAsset<ContractDef>(manifest.Contracts[contractIndex]);

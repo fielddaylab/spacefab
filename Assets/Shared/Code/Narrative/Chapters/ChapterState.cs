@@ -17,8 +17,8 @@ namespace SpaceFab
 {
     public class ChapterState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks, ISceneLoadDependency
     {
-        public int ChapterIndex;
-        public int LastSelectedContractIndex;
+        [NonSerialized] public int ChapterIndex;
+        [NonSerialized] public int LastSelectedContractIndex;
 
         [NonSerialized] public StringHash32 ChapterId;
         [NonSerialized] public ChapterDef ChapterDefinition;
@@ -112,24 +112,29 @@ namespace SpaceFab
 
         #endregion // Data Load/Unload
 
-        public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, MinigameSaveStates saveStates)
+        static public StringHash32 SelectedContractId(ChapterState chapterState) {
+            if (chapterState.LastSelectedContractIndex < 0 || !chapterState.ChapterDefinition) {
+                return null;
+            }
+
+            return chapterState.ChapterDefinition.AvailableContracts[chapterState.LastSelectedContractIndex];
+        }
+
+        public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, ContractState contractState, MinigameSaveStates saveStates)
         {
             // save elapsed cycles and funds
             progressState.ElapsedCycles += saveStates.Fabrication.FinalizedTotalCycles;
             progressState.ElapsedCycles += saveStates.Supply.FinalizedTotalCycles;
 
             int contractPayout = 0;
-            if (Game.Assets.HasNamed<ContractAssetSet>(progressState.ContractAssetsWrapperId))
-            {
-                var contractAssets = Find.NamedAsset<ContractAssetSet>(progressState.ContractAssetsWrapperId);
-                contractPayout = contractAssets.ContractDef.Payout();
+            if (contractState.ContractDefinition) {
+                contractPayout = contractState.ContractDefinition.Payout();
             }
             progressState.Funds += contractPayout - saveStates.Supply.FinalizedCost;
 
             // advance chapter
             chapterState.ChapterIndex++;
             progressState.RecentlyCompletedChapter = true;
-            progressState.ContractAssetsWrapperId = default;
             SaveUtility.Save(SaveSlot.Main);
             Game.Scenes.ReloadMainScene();
         }

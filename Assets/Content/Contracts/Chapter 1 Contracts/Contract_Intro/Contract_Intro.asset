@@ -12,15 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 318cdd041ad469e4dae79dcc4f242e18, type: 3}
   m_Name: Contract_Intro
   m_EditorClassIdentifier: 
-  m_value: 6
   m_requiredMaterialProperties:
   - {fileID: 11400000, guid: 80908861703739945a1a052c2bbc110b, type: 2}
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
   m_omitFromSupplyRequirements:
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
-  m_designLevels:
-  - m_HashValue: 1727982144
-  - m_HashValue: 2504724854
   m_title: Frontier Pilot Contract
   m_description: 'Frontier Robotics authorizes payment for this onboarding fabrication.
     Materials: conductor and insulator only.'
@@ -28,6 +24,7 @@ MonoBehaviour:
   m_payout: 6
   m_expectedDuration: 4
   m_expectedProfit: 3
-  m_contractAssets: {fileID: 11400000, guid: 76425ec876d280d43a2ea3b021ad25a1, type: 2}
-  ContractAssetsWrapperId:
-    m_HashValue: 454064052
+  StreamedPack:
+    m_HashValue: 1140760883
+  AssetSet:
+    m_HashValue: 2023518090

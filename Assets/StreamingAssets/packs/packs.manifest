@@ -1,7 +1,16 @@
 ManifestFileVersion: 0
-CRC: 46065017
+CRC: 3037062801
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
+      Name: ch1stream.pak
+      Dependencies: {}
+    Info_1:
+      Name: ch1comicpack.pak
+      Dependencies: {}
+    Info_2:
+      Name: contract_intro_stream.pak
+      Dependencies: {}
+    Info_3:
       Name: ingamestream.pak
       Dependencies: {}

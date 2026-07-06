@@ -9,9 +9,9 @@ namespace SpaceFab {
     public sealed class ContractLoader : MonoBehaviour, IScenePreload {
         public IEnumerator<WorkSlicer.Result?> Preload() {
             Find.State(out ChapterState chapterState, out ContractState contractState);
-            
-            ChapterUtility.LoadChapterData(contractState, contractState.ChapterIndex);
-            while(contractState.LoadRoutine) {
+
+            ContractUtility.LoadContractData(contractState, ChapterUtility.SelectedContractId(chapterState));
+            while (contractState.LoadRoutine) {
                 yield return WorkSlicer.Result.HaltForFrame;
             }
         }

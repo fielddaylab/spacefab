@@ -24,7 +24,7 @@ namespace SpaceFab.Research
         /// empty (the UI should not surface a dynamic property as confirmable
         /// until a context material is set).
         /// </summary>
-        public static void HandleConfirmedProperty(ResearchMinigameState researchState, PlayerProgressState progressState, StringHash32 materialId, MaterialPropertyLabel propertyLabel, StringHash32 contextMaterialId)
+        public static void HandleConfirmedProperty(ResearchMinigameState researchState, PlayerProgressState progressState, ContractState contractState, StringHash32 materialId, MaterialPropertyLabel propertyLabel, StringHash32 contextMaterialId)
         {
             if (researchState == null)
             {
@@ -61,7 +61,7 @@ namespace SpaceFab.Research
             // properties, flip FoundValidSolution. Monotonic: never flips back to false within a
             // session. The contract-accept flow performs the equivalent pre-arming for the case
             // where existing player progress already covers the requirements.
-            ResearchStateUtility.RefreshFoundValidSolutionFromActiveContract(researchState, progressState);
+            ResearchStateUtility.RefreshFoundValidSolutionFromActiveContract(researchState, progressState, contractState);
             
             // Unlock the corresponding material's wiki page on first
             // confirmation. Material wiki pages are authored with the

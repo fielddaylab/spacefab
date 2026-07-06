@@ -42,10 +42,16 @@ namespace SpaceFab
         #region Data Load/Unload
 
         static public bool LoadContractData(ContractState contractState, int contractIndex) {
-            return LoadContractData(contractState, GetInfo(contractIndex));
+            if (contractIndex < 0) {
+                return UnloadContractData(contractState);
+            }
+            return LoadContractData(contractState, GetDefinition(contractIndex));
         }
 
         static public bool LoadContractData(ContractState contractState, StringHash32 contractId) {
+            if (contractId.IsEmpty) {
+                return UnloadContractData(contractState);
+            }
             return LoadContractData(contractState, GetDefinition(contractId));
         }
 

@@ -31,7 +31,7 @@ namespace SpaceFab.Supply {
 
         // Frees any prior rows, then builds one row per requirement in the
         // current contract. No contract => zero rows + minimum panel size.
-        public static void Rebuild(ShoppingListLayoutState layout, SupplyRouteCollection routes, PlayerProgressState progressState) {
+        public static void Rebuild(ShoppingListLayoutState layout, SupplyRouteCollection routes, PlayerProgressState progressState, ContractState contractState) {
             if (layout == null || layout.Pool == null || layout.RowsContainer == null) return;
 
             // 1. Free prior rows.
@@ -40,8 +40,8 @@ namespace SpaceFab.Supply {
             // 2. Resolve the current contract via the active contract-assets
             //    wrapper — the same path Research / Design / Fabrication use, so
             //    it resolves regardless of which contracts bundle is loaded.
-            layout.LastContractId = progressState != null ? progressState.CurrContractId : StringHash32.Null;
-            ContractDef contract = ResolveCurrentContract(progressState);
+            layout.LastContractId = contractState.ContractId;
+            ContractDef contract = ResolveCurrentContract(contractState);
             if (contract == null) {
                 ResizePanel(layout, 0f);
                 return;
@@ -74,11 +74,8 @@ namespace SpaceFab.Supply {
 
         // Resolves the player's active contract through its contract-assets
         // wrapper. Null when no contract is loaded.
-        private static ContractDef ResolveCurrentContract(PlayerProgressState progress) {
-            if (progress == null) return null;
-            if (!Game.Assets.HasNamed<ContractAssetSet>(progress.ContractAssetsWrapperId)) return null;
-            ContractAssetSet wrapper = Find.NamedAsset<ContractAssetSet>(progress.ContractAssetsWrapperId);
-            return wrapper != null ? wrapper.ContractDef : null;
+        private static ContractDef ResolveCurrentContract(ContractState contractState) {
+            return contractState.ContractDefinition;
         }
 
         // True if this requirement is in the contract's Supply omit list,

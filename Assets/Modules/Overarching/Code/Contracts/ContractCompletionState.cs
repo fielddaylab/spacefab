@@ -78,7 +78,7 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
         }
 
-        public static IEnumerator EvaluatePreviousRoutine(ContractLayoutState layoutState, PlayerProgressState progressState)
+        public static IEnumerator EvaluatePreviousRoutine(ContractLayoutState layoutState, PlayerProgressState progressState, ContractState contractState)
         {
             yield return 0.5f;
             
@@ -86,7 +86,7 @@ namespace SpaceFab.Overarching
             
             yield return 0.5f;
 
-            progressState.CompletedContractIds.Add(progressState.CurrContractId);
+            progressState.CompletedContractIds.Add(contractState.ContractId);
         }
 
         public static IEnumerator HidePreviousRoutine(ContractLayoutState layoutState)

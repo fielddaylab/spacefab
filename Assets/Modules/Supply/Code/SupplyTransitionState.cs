@@ -18,7 +18,7 @@ namespace SpaceFab.Supply
         public Routine LoadRoutine;
 
         public bool IsLoaded(SceneLoadFence fence) {
-            return !LoadRoutine && Phase == SupplyTransitionPhase.Completed;
+            return !LoadRoutine;
         }
 
         public void OnDeregister() {

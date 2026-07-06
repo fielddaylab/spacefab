@@ -29,7 +29,8 @@ namespace SpaceFab.Overarching {
             Find.State(
                 out OverarchingSubmitChapterSequenceState submitState,
                 out ChapterState chapterState,
-                out PlayerProgressState progressState
+                out PlayerProgressState progressState,
+                out ContractState contractState
                 );
 
             Find.State(
@@ -44,7 +45,7 @@ namespace SpaceFab.Overarching {
                     ProcessShutdownSequenceSystem(submitState);
                     break;
                 case OverarchingSubmitChapterPhase.MoveToNextChapter:
-                    ProcessMoveToNextChapter(submitState, chapterState, progressState, saveStates);
+                    ProcessMoveToNextChapter(submitState, chapterState, progressState, contractState, saveStates);
                     break;
                 default:
                     break;
@@ -62,8 +63,8 @@ namespace SpaceFab.Overarching {
         }
 
         // Advance to the next chapter (also saves and reloads the main scene inside the utility).
-        static private void ProcessMoveToNextChapter(OverarchingSubmitChapterSequenceState submitState, ChapterState chapterState, PlayerProgressState progressState, MinigameSaveStates saveStates) {
-            ChapterUtility.LoadNextChapter(chapterState, progressState, saveStates);
+        static private void ProcessMoveToNextChapter(OverarchingSubmitChapterSequenceState submitState, ChapterState chapterState, PlayerProgressState progressState, ContractState contractState, MinigameSaveStates saveStates) {
+            ChapterUtility.LoadNextChapter(chapterState, progressState, contractState, saveStates);
             submitState.Phase = OverarchingSubmitChapterPhase.TransitionComplete;
         }
     }

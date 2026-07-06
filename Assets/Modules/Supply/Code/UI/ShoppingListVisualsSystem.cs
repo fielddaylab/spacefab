@@ -32,6 +32,9 @@ namespace SpaceFab.Supply
                 out SupplyRouteCollection routes,
                 out PlayerProgressState progressState
                 );
+            Find.State(
+                out ContractState contractState
+                );
 
             if (!shoppingState.Dirty) { return; }
 
@@ -40,7 +43,7 @@ namespace SpaceFab.Supply
             // ContractProgressUtility.FindFulfillingMaterials — player-confirmed
             // knowledge, so only materials the player has researched enough to
             // satisfy the check count.
-            ShoppingListLoadUtility.Rebuild(layoutState, routes, progressState);
+            ShoppingListLoadUtility.Rebuild(layoutState, routes, progressState, contractState);
         }
     }
 }

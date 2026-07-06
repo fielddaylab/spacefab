@@ -5,20 +5,20 @@ using UnityEngine;
 namespace FieldDay.Editor {
     [CustomEditor(typeof(AssetPack), true), CanEditMultipleObjects]
     public class AssetPackEditor : UnityEditor.Editor {
-        private SerializedProperty m_FolderModeProp;
+        private SerializedProperty m_IncludeModeProp;
         private SerializedProperty m_GlobalAssetsProp;
         private SerializedProperty m_NamedAssetsProp;
         private SerializedProperty m_LiteAssetsProp;
 
         private void OnEnable() {
-            m_FolderModeProp = serializedObject.FindProperty("m_FolderMode");
+            m_IncludeModeProp = serializedObject.FindProperty("m_IncludeMode");
             m_GlobalAssetsProp = serializedObject.FindProperty("m_GlobalAssets");
             m_NamedAssetsProp = serializedObject.FindProperty("m_NamedAssets");
             m_LiteAssetsProp = serializedObject.FindProperty("m_LiteAssets");
         }
 
         private void OnDisable() {
-            m_FolderModeProp = null;
+            m_IncludeModeProp = null;
             m_GlobalAssetsProp = null;
             m_NamedAssetsProp = null;
             m_LiteAssetsProp = null;
@@ -27,10 +27,10 @@ namespace FieldDay.Editor {
         public override void OnInspectorGUI() {
             serializedObject.UpdateIfRequiredOrScript();
             
-            AssetPack.IncludeBehavior folderMode = (AssetPack.IncludeBehavior) m_FolderModeProp.intValue;
-            bool hasSingleMode = !m_FolderModeProp.hasMultipleDifferentValues;
+            AssetPack.IncludeBehavior folderMode = (AssetPack.IncludeBehavior) m_IncludeModeProp.intValue;
+            bool hasSingleMode = !m_IncludeModeProp.hasMultipleDifferentValues;
 
-            EditorGUILayout.PropertyField(m_FolderModeProp);
+            EditorGUILayout.PropertyField(m_IncludeModeProp);
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Assets");

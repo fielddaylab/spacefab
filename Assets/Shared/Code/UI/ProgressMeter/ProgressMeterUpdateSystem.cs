@@ -30,7 +30,8 @@ namespace SpaceFab {
             Find.State(
                 out ProgressMeterState meterState,
                 out PlayerProgressState progressState,
-                out MinigameSaveStates saveStates
+                out MinigameSaveStates saveStates,
+                out ContractState contractState
                 );
 
             // Drain the dirty flag by pushing state into the view.
@@ -47,11 +48,9 @@ namespace SpaceFab {
 
                 // Update pending funds
 
-                if (Game.Assets.HasNamed<ContractAssetSet>(progressState.ContractAssetsWrapperId))
+                if (contractState.ContractDefinition)
                 {
-                    var contractAssets = Find.NamedAsset<ContractAssetSet>(progressState.ContractAssetsWrapperId);
-
-                    int contractPayout = contractAssets.ContractDef.Payout();
+                    int contractPayout = contractState.ContractDefinition.Payout();
                     ProgressMeterUtility.CalculatePendingFundsCells(meterState.ActiveMeter, saveStates, contractPayout, out int pendingReceivedCount, out int pendingSpentCount);
 
                     int spentThreshold = progressState.Funds + contractPayout - pendingSpentCount;
