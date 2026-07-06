@@ -15,21 +15,20 @@ namespace SpaceFab.Design
     {
         // Returns the LevelData for the player's currently-active Design level, or null if the
         // active contract / its wrapper isn't resolvable or the index is out of range.
-        public static LevelData GetActiveLevelData(PlayerProgressState progressState, DesignMinigameState designState)
+        public static LevelData GetActiveLevelData(ContractState contractState, DesignMinigameState designState)
         {
-            ContractAssetsWrapper contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-            if (contractAssets == null || contractAssets.DesignLevels == null)
+            if (contractState.ContractAssets == null || contractState.ContractAssets.DesignLevels == null)
             {
                 return null;
             }
 
             int idx = designState.ActiveLevelIndex;
-            if (idx < 0 || idx >= contractAssets.DesignLevels.Length)
+            if (idx < 0 || idx >= contractState.ContractAssets.DesignLevels.Length)
             {
                 return null;
             }
 
-            return contractAssets.DesignLevels[idx];
+            return contractState.ContractAssets.DesignLevels[idx];
         }
 
         // Marks the active level solved in the save state and mirrors the contract-wide aggregate

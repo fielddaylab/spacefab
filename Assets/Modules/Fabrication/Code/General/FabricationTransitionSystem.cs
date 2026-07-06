@@ -18,7 +18,7 @@ namespace SpaceFab.Fabrication {
                 new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.SetupMask).AllowDuringLoad(),
                 new SysPermissions()
                     .ReadWriteShared<FabricationTransitionState>()
-                    .ReadShared<PlayerProgressState>()
+                    .ReadShared<ContractState>()
                     .ReadWriteShared<SequenceState>()
                     .ReadWriteShared<ProgressMeterState>()
             );
@@ -29,7 +29,7 @@ namespace SpaceFab.Fabrication {
             Find.State(
                 out FabricationTransitionState transitionState,
                 out ModeState modeState,
-                out PlayerProgressState playerProgress,
+                out ContractState contractState,
                 out SequenceState sequenceState
                 );
 
@@ -39,9 +39,8 @@ namespace SpaceFab.Fabrication {
 
             Log.Msg("[FabricationTransitionSystem] Setting up level...");
             // setup
-            if (Game.Assets.HasNamed<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId)) {
-                var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
-                sequenceState.Level = contractAssets.FabricationLevel;
+            if (contractState.ContractAssets) {
+                sequenceState.Level = contractState.ContractAssets.FabricationLevel;
             }
             else {
                 Log.Warn("FabricationTransistionSystem] Tried to load contract assets but returned null!");

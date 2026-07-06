@@ -80,7 +80,7 @@ namespace SpaceFab {
         }
     }
 
-    public static class ContractUtility
+    public static partial class ContractUtility
     {
         public static void LoadContractData(ContractUI ui, ContractDef def)
         {

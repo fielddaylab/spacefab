@@ -1,4 +1,5 @@
 using FieldDay.Assets;
+using Leaf;
 using SpaceFab.Design;
 using SpaceFab.Fabrication.Sequence;
 using System.Collections;
@@ -7,10 +8,13 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    [CreateAssetMenu(menuName ="SpaceFab/Overarching/Contract Asset Wrapper")]
-    public class ContractAssetsWrapper : NamedAsset
+    [CreateAssetMenu(menuName ="SpaceFab/Overarching/Contract Asset Set")]
+    public class ContractAssetSet : NamedAsset
     {
-        public ContractDef ContractDef;
+        /// <summary>
+        /// Global scripting data.
+        /// </summary>
+        public LeafAsset Script;
 
         // Ordered list of Design levels for this contract. The player works through them in
         // sequence; the contract is solved only once every level is solved. Index 0 is the first

@@ -36,10 +36,10 @@ namespace SpaceFab.Overarching
 
     public static class ContractConfirmUtility
     {
-        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup, SharedUIState sharedUIState, PlayerProgressState playerProgress)
+        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, SharedUIState sharedUIState, PlayerProgressState playerProgress)
         {
             // Apply the selected contract's data (active contract id, loaded assets, seeded minigame save).
-            yield return ApplyContractByIndex(chapterState, playerProgress, lookup, selectState.SelectedContractIndex);
+            yield return ApplyContractByIndex(chapterState, playerProgress, selectState.SelectedContractIndex);
 
             float fillAmount = 0;
             while (fillAmount < 1)
@@ -69,7 +69,7 @@ namespace SpaceFab.Overarching
         // as the active contract, loads its asset scene, and seeds the minigame save state from the
         // contract's assets. This is the data core shared by ConfirmContractRoutine and the debug
         // "set contract" tool — no UI, no phase transition.
-        public static IEnumerator ApplyContractByIndex(ChapterState chapterState, PlayerProgressState playerProgress, ContractAssetsLookup lookup, int contractIndex)
+        public static IEnumerator ApplyContractByIndex(ChapterState chapterState, PlayerProgressState playerProgress, int contractIndex)
         {
             chapterState.LastSelectedContractIndex = contractIndex;
             StringHash32 contractId = chapterState.ChapterDefinition.AvailableContracts[contractIndex];
@@ -80,7 +80,7 @@ namespace SpaceFab.Overarching
             ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
 
             // Extract assets into game states
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
+            var contractAssets = Find.NamedAsset<ContractAssetSet>(assetsWrapperId);
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);

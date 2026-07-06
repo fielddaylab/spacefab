@@ -47,9 +47,9 @@ namespace SpaceFab {
 
                 // Update pending funds
 
-                if (Game.Assets.HasNamed<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId))
+                if (Game.Assets.HasNamed<ContractAssetSet>(progressState.ContractAssetsWrapperId))
                 {
-                    var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+                    var contractAssets = Find.NamedAsset<ContractAssetSet>(progressState.ContractAssetsWrapperId);
 
                     int contractPayout = contractAssets.ContractDef.Payout();
                     ProgressMeterUtility.CalculatePendingFundsCells(meterState.ActiveMeter, saveStates, contractPayout, out int pendingReceivedCount, out int pendingSpentCount);

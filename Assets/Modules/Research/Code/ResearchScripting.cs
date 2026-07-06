@@ -40,6 +40,11 @@ namespace SpaceFab.Research {
                         BatteryChamberUtility.ResetState(Find.State<BatteryChamberState>());
                     }
                     break;
+                case ActiveChamberKind.Thermal:
+                    if (Game.SharedState.Has<ThermalChamberState>()) {
+                        ThermalChamberUtility.ResetState(Find.State<ThermalChamberState>());
+                    }
+                    break;
             }
         }
     }

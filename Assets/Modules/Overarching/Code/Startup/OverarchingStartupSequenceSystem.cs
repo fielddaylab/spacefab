@@ -29,7 +29,6 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ContractCompletionState>()
                     .ReadWriteShared<ContractSelectState>()
                     .ReadShared<ChapterState>()
-                    .ReadWriteShared<ContractLoadState>()
                     .ReadWriteShared<ContractConfirmState>()
                     .ReadShared<SharedUIState>()
                     .ReadWriteShared<PlayerProgressState>()
@@ -46,7 +45,6 @@ namespace SpaceFab.Overarching {
                 );
             Find.State(
                 out ChapterState chapterState,
-                out ContractLoadState contractLoadState,
                 out ContractConfirmState confirmState,
                 out SharedUIState uiState
                 );
@@ -78,10 +76,10 @@ namespace SpaceFab.Overarching {
                     break;
                 case OverarchingStartupSequencePhase.ContractConfirmSystem:
                     var prevConfirmPhase = confirmState.Phase;
-                    ProcessContractConfirmSystem(startupState, contractLoadState, confirmState);
+                    ProcessContractConfirmSystem(startupState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
-                    ProcessLoadSelectedContract(startupState, contractLoadState, meterState);
+                    ProcessLoadSelectedContract(startupState, meterState);
                     break;
                 default:
                     break;
@@ -155,7 +153,7 @@ namespace SpaceFab.Overarching {
         }
 
         // Coordinates with ContractConfirmSystem: trigger on Waiting, advance to load on Completed.
-        static private void ProcessContractConfirmSystem(OverarchingStartupSequenceState startupState, ContractLoadState contractLoadState, ContractConfirmState confirmState) {
+        static private void ProcessContractConfirmSystem(OverarchingStartupSequenceState startupState, ContractConfirmState confirmState) {
             if (confirmState.Phase == ContractConfirmPhase.Waiting) {
                 // begin contract confirmation
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractConfirmSystem");
@@ -171,7 +169,7 @@ namespace SpaceFab.Overarching {
         }
 
         // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
-        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ContractLoadState contractLoadState, ProgressMeterState meterState) {
+        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ProgressMeterState meterState) {
             if (contractLoadState.Phase == ContractLoadPhase.Waiting) {
                 // begin ContractLoadSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractLoadSystem");

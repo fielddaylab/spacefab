@@ -1,4 +1,6 @@
 using BeauUtil;
+using BeauUtil.Debugger;
+using FieldDay;
 using FieldDay.Assets;
 using System;
 using System.Collections.Generic;
@@ -10,36 +12,36 @@ namespace SpaceFab
     /// Defines the canonical ordering of all contracts for save serialization.
     /// The array index of each entry is its bit position in the completed-contracts bitmask.
     /// </summary>
-    [CreateAssetMenu(menuName = "SpaceFab/Contracts/Contract Order")]
-    public class ContractManifest : GlobalAsset
-    {
-        [Serializable]
-        private struct Entry {
-            [AssetName(typeof(ContractDef))] public StringHash32 ContractId;
-            [StreamedPackId] public StringHash32 PackId;
+    [CreateAssetMenu(menuName = "SpaceFab/Contracts/Contract Manifest")]
+    public class ContractManifest : GlobalAsset {
+        [AssetName(typeof(ContractDef))] public StringHash32[] Contracts;
+    }
+
+    static public partial class ContractUtility {
+        static public int GetIndex(StringHash32 contractId) {
+            Find.GlobalAsset(out ContractManifest manifest);
+            for (int i = 0, len = manifest.Contracts.Length; i < len; i++) {
+                if (manifest.Contracts[i] == contractId) {
+                    return i;
+                }
+            }
+            Assert.Fail("No contract with id '{0}'", contractId);
+            return -1;
         }
 
-        [AssetName(typeof(ContractDef))]
-        [SerializeField] private StringHash32[] m_ContractIds;
-
-        private Dictionary<StringHash32, int> m_IndexLookup;
-
-        public override void Mount()
-        {
-            m_IndexLookup = new Dictionary<StringHash32, int>(m_ContractIds.Length);
-            for (int i = 0; i < m_ContractIds.Length; i++)
-                m_IndexLookup[m_ContractIds[i]] = i;
+        static public ContractDef GetDefinition(StringHash32 contractId) {
+            return Find.NamedAsset<ContractDef>(contractId);
         }
 
-        public override void Unmount() => m_IndexLookup = null;
+        static public ContractDef GetInfo(int contractIndex) {
+            Find.GlobalAsset(out ContractManifest manifest);
+            Assert.True(contractIndex >= 0 && contractIndex < manifest.Contracts.Length, "Contract index {0} out of range", contractIndex);
+            return Find.NamedAsset<ContractDef>(manifest.Contracts[contractIndex]);
+        }
 
-        /// <summary>
-        /// Returns the bit-mask index for the given contract id, or false if not found.
-        /// </summary>
-        public bool TryGetIndex(StringHash32 contractId, out int index)
-            => m_IndexLookup.TryGetValue(contractId, out index);
-
-        public StringHash32 GetId(int index) => m_ContractIds[index];
-        public int Count => m_ContractIds.Length;
+        static public int ContractCount() {
+            Find.GlobalAsset(out ContractManifest manifest);
+            return manifest.Contracts.Length;
+        }
     }
 }

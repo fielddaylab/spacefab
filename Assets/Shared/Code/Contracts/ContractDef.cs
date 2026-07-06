@@ -22,7 +22,8 @@ namespace SpaceFab
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
 
-        [StreamedPackId] public StringHash32 AdditionalAssets;
+        [StreamedPackId] public StringHash32 StreamedPack;
+        [AssetName(typeof(ContractAssetSet))] public StringHash32 AssetSet;
 
         public MaterialPropertyCheck[] RequiredMaterialProperties() { return m_requiredMaterialProperties; }
         public MaterialPropertyCheck[] OmitFromSupplyRequirements() { return m_omitFromSupplyRequirements; }

@@ -119,9 +119,9 @@ namespace SpaceFab
             progressState.ElapsedCycles += saveStates.Supply.FinalizedTotalCycles;
 
             int contractPayout = 0;
-            if (Game.Assets.HasNamed<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId))
+            if (Game.Assets.HasNamed<ContractAssetSet>(progressState.ContractAssetsWrapperId))
             {
-                var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
+                var contractAssets = Find.NamedAsset<ContractAssetSet>(progressState.ContractAssetsWrapperId);
                 contractPayout = contractAssets.ContractDef.Payout();
             }
             progressState.Funds += contractPayout - saveStates.Supply.FinalizedCost;

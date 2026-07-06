@@ -22,14 +22,10 @@ namespace SpaceFab.Research
     {
         public ResearchSpriteButton IncreaseButton;
         public ResearchSpriteButton DecreaseButton;
-        public ResearchSpriteButton FlipButton;
-        public Transform BatteryFlip;
 
         public BatteryChamberState OwningChamber;
         public bool CanAdjust = true;
-
         [NonSerialized] public int VoltageIndex;
-        [NonSerialized] public float CurrentVoltage;
 
         public void OnRegister()
         {
@@ -40,10 +36,6 @@ namespace SpaceFab.Research
             if (DecreaseButton != null && DecreaseButton.Cursor != null)
             {
                 DecreaseButton.Cursor.onClick.Register(HandleDecrease);
-            }
-            if (FlipButton != null && FlipButton.Cursor != null)
-            {
-                FlipButton.Cursor.onClick.Register(HandleFlip);
             }
         }
 
@@ -57,10 +49,6 @@ namespace SpaceFab.Research
             {
                 DecreaseButton.Cursor.onClick.Deregister(HandleDecrease);
             }
-            if (FlipButton != null && FlipButton.Cursor != null)
-            {
-                FlipButton.Cursor.onClick.Deregister(HandleFlip);
-            }
         }
 
         private void HandleIncrease()
@@ -71,11 +59,6 @@ namespace SpaceFab.Research
         private void HandleDecrease()
         {
             VoltageUtility.Decrease(this, Find.GlobalAsset<ResearchVoltageConfig>());
-        }
-
-        private void HandleFlip()
-        {
-            VoltageUtility.Flip(this, Find.GlobalAsset<ResearchVoltageConfig>());
         }
     }
 
@@ -129,20 +112,6 @@ namespace SpaceFab.Research
             ScriptUtility.Trigger(ResearchScriptTriggers.OnVoltageDecreased);
         }
 
-        // Mirrors the index across CenterIndex so positive flips negative
-        // and vice versa. Center stays put. The mirror preserves magnitude,
-        // so if the current index was within bounds, the mirror is too;
-        // the explicit range check is defensive against bad authoring.
-        public static void Flip(VoltageControl control, ResearchVoltageConfig config)
-        {
-            if (control == null || config == null || !control.CanAdjust) return;
-            int mirror = config.CenterIndex + (config.CenterIndex - control.VoltageIndex);
-            int maxMag = GetMaxMagnitude(control);
-            if (mirror < config.CenterIndex - maxMag || mirror > config.CenterIndex + maxMag) return;
-            control.VoltageIndex = mirror;
-            ApplyChange(control, config);
-        }
-
         // Snaps back to the configured default index. Used when the control
         // is locked while not at default. Authoring constraint: DefaultIndex
         // should equal CenterIndex (magnitude 0) so it sits within every
@@ -151,7 +120,6 @@ namespace SpaceFab.Research
         public static void Reset(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null) return;
-            if (control.VoltageIndex == config.DefaultIndex) return;
             control.VoltageIndex = config.DefaultIndex;
             ApplyChange(control, config);
         }
@@ -189,17 +157,18 @@ namespace SpaceFab.Research
             // CurrentVoltage is independent of the meter; guard the
             // Voltages[] read on its own so an in-range index still
             // updates CurrentVoltage even when no meter rig exists yet.
+            ChamberBattery battery = control.OwningChamber != null ? control.OwningChamber.Battery : null;
+            if (battery == null) return;
             if (control.VoltageIndex >= 0 && config.Voltages != null && control.VoltageIndex < config.Voltages.Length)
             {
-                control.CurrentVoltage = config.Voltages[control.VoltageIndex];
+                battery.CurrentVoltage = config.Voltages[control.VoltageIndex];
             }
 
             // Meter fill: filled for slots [0..magnitude-1], empty for the
             // rest. Magnitude is the index's distance from CenterIndex —
             // polarity is indicated by BatteryFlip's rotation below, not
             // by which side of the meter lights up.
-            ChamberBattery battery = control.OwningChamber != null ? control.OwningChamber.Battery : null;
-            if (battery != null && battery.VoltageLevelSlots != null
+            if (battery.VoltageLevelSlots != null
                 && config.VoltageSlotFilled != null && config.VoltageSlotEmpty != null)
             {
                 int magnitude = Mathf.Abs(control.VoltageIndex - config.CenterIndex);
@@ -211,12 +180,6 @@ namespace SpaceFab.Research
                 }
             }
 
-            if (control.BatteryFlip != null)
-            {
-                bool flipped = control.VoltageIndex < config.CenterIndex;
-                control.BatteryFlip.localRotation = Quaternion.Euler(0f, 0f, flipped ? 180f : 0f);
-            }
-
             RefreshButtonVisibility(control, config);
         }
 
@@ -225,6 +188,9 @@ namespace SpaceFab.Research
         private static void RefreshButtonVisibility(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null) return;
+
+            ChamberBattery battery = control.OwningChamber != null ? control.OwningChamber.Battery : null;
+            if (battery == null) return;
 
             int maxMag = GetMaxMagnitude(control);
             bool atLow = control.VoltageIndex <= config.CenterIndex;
@@ -238,10 +204,6 @@ namespace SpaceFab.Research
             if (control.DecreaseButton != null)
             {
                 control.DecreaseButton.gameObject.SetActive(show && !atLow);
-            }
-            if (control.FlipButton != null)
-            {
-                control.FlipButton.gameObject.SetActive(show);
             }
         }
     }

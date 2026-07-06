@@ -33,6 +33,9 @@ namespace SpaceFab.Research
 
         public GameObject SampleHolder;
 
+        // Root of battery chamber's GameObject hierarchy; used to toggle visibility on activation/deactivation.
+        public GameObject Root;
+
         // Runtime ref to the instantiated meter rig's ChamberBattery.
         // Assigned by ResearchTransitionSystem after Instantiate; null
         // until then. VoltageUtility reads VoltageLevelSlots.Length off
@@ -74,6 +77,7 @@ namespace SpaceFab.Research
                 SampleHolder.SetActive(false);
             }
             NoCurrentWarningPlayed = false;
+            Root.SetActive(true);
         }
 
         public void OnDeregister()
@@ -96,6 +100,7 @@ namespace SpaceFab.Research
                 return;
             }
             VoltageUtility.Reset(state.VoltageControl, Find.GlobalAsset<ResearchVoltageConfig>());
+            state.Root.SetActive(true);
         }
     }
 }

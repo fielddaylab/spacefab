@@ -72,10 +72,9 @@ namespace SpaceFab.Design
 
         // Pulls the TestSuiteData off the active Design level; returns null on a missing chain so
         // FindMatchingTestRow can short-circuit to -1.
-        static private TestSuiteData ResolveSuite(PlayerProgressState progressState, DesignMinigameState designState)
+        static private TestSuiteData ResolveSuite(ContractState contractState, DesignMinigameState designState)
         {
-            if (progressState == null || designState == null) { return null; }
-            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             if (levelData == null) { return null; }
             return levelData.GetTestSuite();
         }

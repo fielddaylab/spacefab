@@ -614,6 +614,11 @@ namespace ScriptableBake {
 
         #region Assets
 
+        public enum AssetDirectorySearchMode {
+            FolderOnly,
+            IncludeSubfolders
+        }
+
         /// <summary>
         /// Finds the asset with the given type.
         /// </summary>
@@ -669,6 +674,13 @@ namespace ScriptableBake {
         /// Finds all assets with the given type in the given directories.
         /// </summary>
         static public TAsset[] FindAssets<TAsset>(params string[] directories) where TAsset : UnityEngine.Object {
+            return FindAssets<TAsset>(AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all assets with the given type in the given directories.
+        /// </summary>
+        static public TAsset[] FindAssets<TAsset>(AssetDirectorySearchMode searchMode, params string[] directories) where TAsset : UnityEngine.Object {
             HashSet<TAsset> found = new HashSet<TAsset>();
             foreach (var path in AssetPaths(SearchFilter(typeof(TAsset)), directories)) {
                 foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(path)) {
@@ -688,6 +700,13 @@ namespace ScriptableBake {
         /// Finds all assets with the given type in the given directories that match the given predicate.
         /// </summary>
         static public TAsset[] FindAssets<TAsset>(Predicate<TAsset> predicate, params string[] directories) where TAsset : UnityEngine.Object {
+            return FindAssets<TAsset>(predicate, AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all assets with the given type in the given directories that match the given predicate.
+        /// </summary>
+        static public TAsset[] FindAssets<TAsset>(Predicate<TAsset> predicate, AssetDirectorySearchMode searchMode, params string[] directories) where TAsset : UnityEngine.Object {
             HashSet<TAsset> found = new HashSet<TAsset>();
             foreach (var path in AssetPaths(SearchFilter(typeof(TAsset)), directories)) {
                 foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(path)) {
@@ -707,6 +726,13 @@ namespace ScriptableBake {
         /// Finds all TextAssets with the given extension in the given directories.
         /// </summary>
         static public TextAsset[] FindTextAssets(string extension, params string[] directories) {
+            return FindTextAssets(extension, AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all TextAssets with the given extension in the given directories.
+        /// </summary>
+        static public TextAsset[] FindTextAssets(string extension, AssetDirectorySearchMode searchMode, params string[] directories) {
             HashSet<TextAsset> found = new HashSet<TextAsset>();
             foreach (var path in AssetPaths(SearchFilter(typeof(TextAsset)), directories)) {
                 if (!path.EndsWith(extension))

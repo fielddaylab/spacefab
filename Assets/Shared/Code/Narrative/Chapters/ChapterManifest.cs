@@ -46,5 +46,10 @@ namespace SpaceFab {
             Assert.True(chapterIndex >= 0 && chapterIndex < manifest.Chapters.Length, "Chapter index {0} out of range", chapterIndex);
             return manifest.Chapters[chapterIndex];
         }
+
+        static public int ChapterCount() {
+            Find.GlobalAsset(out ChapterManifest manifest);
+            return manifest.Chapters.Length;
+        }
     }
 }

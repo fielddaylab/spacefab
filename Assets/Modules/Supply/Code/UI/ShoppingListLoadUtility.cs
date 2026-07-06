@@ -76,8 +76,8 @@ namespace SpaceFab.Supply {
         // wrapper. Null when no contract is loaded.
         private static ContractDef ResolveCurrentContract(PlayerProgressState progress) {
             if (progress == null) return null;
-            if (!Game.Assets.HasNamed<ContractAssetsWrapper>(progress.ContractAssetsWrapperId)) return null;
-            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(progress.ContractAssetsWrapperId);
+            if (!Game.Assets.HasNamed<ContractAssetSet>(progress.ContractAssetsWrapperId)) return null;
+            ContractAssetSet wrapper = Find.NamedAsset<ContractAssetSet>(progress.ContractAssetsWrapperId);
             return wrapper != null ? wrapper.ContractDef : null;
         }
 

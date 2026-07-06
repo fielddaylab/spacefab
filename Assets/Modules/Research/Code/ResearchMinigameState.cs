@@ -229,7 +229,7 @@ namespace SpaceFab.Research
             {
                 return;
             }
-            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
+            ContractAssetSet wrapper = Find.NamedAsset<ContractAssetSet>(playerProgress.ContractAssetsWrapperId);
             if (wrapper == null || wrapper.ContractDef == null)
             {
                 return;

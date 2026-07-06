@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace SpaceFab.Research {
     public enum ActiveChamberKind : byte {
         None,
         Battery,
+        Thermal,
     }
 
     /// <summary>
@@ -56,13 +58,53 @@ namespace SpaceFab.Research {
         // Currently-active chamber discriminator. Default None; activation flow
         // sets it when the player navigates into a chamber. Chamber systems
         // short-circuit when this is not their own kind.
+        [NonSerialized] public bool ActiveChamberChangedThisFrame;
         [NonSerialized] public ActiveChamberKind ActiveChamber;
 
-        public void OnRegister() {
+        // Chamber buttons
+        public CursorHint VoltageChamberButton;
+        public CursorHint ThermalChamberButton;
+        public CursorHint DopingChamberButton;
+
+        public void OnRegister()
+        {
+            if (VoltageChamberButton != null) {
+                VoltageChamberButton.onClick.AddListener(HandleBatteryChamber);
+            }
+            if (ThermalChamberButton != null) {
+                ThermalChamberButton.onClick.AddListener(HandleThermalChamber);
+            }
+            if (DopingChamberButton != null) {
+                DopingChamberButton.onClick.AddListener(HandleDopingChamber);
+            }
         }
 
         public void OnDeregister() {
             LastUpdatedMaterial = null;
+
+            if (VoltageChamberButton != null) {
+                VoltageChamberButton.onClick.RemoveListener(HandleBatteryChamber);
+            }
+            if (ThermalChamberButton != null) {
+                ThermalChamberButton.onClick.RemoveListener(HandleThermalChamber);
+            }
+            if (DopingChamberButton != null) {
+                DopingChamberButton.onClick.RemoveListener(HandleDopingChamber);
+            }
+        }
+
+        private void HandleBatteryChamber()
+        {
+            ChamberInterfacerUtility.SetActiveChamber(this, ActiveChamberKind.Battery);
+        }
+        private void HandleThermalChamber()
+        {
+            ChamberInterfacerUtility.SetActiveChamber(this, ActiveChamberKind.Thermal);
+        }
+        private void HandleDopingChamber()
+        {
+            // ChamberInterfacerUtility.SetActiveChamber(this, ActiveChamberKind.Doping);
+            // ChamberInterfacerUtility.SetReceptive(this, ChamberSlotKind.Secondary, true);
         }
     }
 
@@ -113,6 +155,7 @@ namespace SpaceFab.Research {
         // caller; chamber systems read via GetActiveChamber.
         public static void SetActiveChamber(ChamberInterfacerState interfacerState, ActiveChamberKind kind) {
             interfacerState.ActiveChamber = kind;
+            interfacerState.ActiveChamberChangedThisFrame = true;
         }
 
         // Returns the currently-active chamber kind.

@@ -42,9 +42,6 @@ namespace SpaceFab
         public Dictionary<StringHash32, MaterialPropertyRecord> MaterialProperties;
         public HashSet<StringHash32> CompletedContractIds;
 
-        public StringHash32 ContractAssetsWrapperId;
-        public StringHash32 CurrContractId;
-
         public void OnDeregister()
         {
         }
@@ -126,11 +123,10 @@ namespace SpaceFab
         {
             var contractOrder = Find.GlobalAsset<ContractManifest>();
             state.CompletedContractBuffer = 0;
-            foreach (var id in state.CompletedContractIds)
-            {
-                if (contractOrder.TryGetIndex(id, out int idx))
-                {
-                    state.CompletedContractBuffer |= (1u << idx);
+            for(int i = 0; i < contractOrder.Contracts.Length; i++) {
+                StringHash32 contractId = contractOrder.Contracts[i];
+                if (!contractId.IsEmpty && state.CompletedContractIds.Contains(contractId)) {
+                    state.CompletedContractBuffer |= (1u << i);
                 }
             }
             return state.CompletedContractBuffer;
@@ -143,11 +139,11 @@ namespace SpaceFab
         {
             var contractOrder = Find.GlobalAsset<ContractManifest>();
             state.CompletedContractIds.Clear();
-            for (int i = 0; i < contractOrder.Count; i++)
+            for (int i = 0; i < contractOrder.Contracts.Length; i++)
             {
                 if ((mask & (1u << i)) != 0)
                 {
-                    state.CompletedContractIds.Add(contractOrder.GetId(i));
+                    state.CompletedContractIds.Add(contractOrder.Contracts[i]);
                 }
             }
         }
