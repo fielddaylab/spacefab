@@ -35,7 +35,7 @@ namespace SpaceFab.Supply {
                 case SupplyTransitionPhase.LoadingChapterMap:
                     if (!transitionState.LoadRoutine.Exists()) {
                         transitionState.LoadRoutine.Replace(
-                            SupplyChainUtility.LoadChapterMap(lookup, supplyState, transitionState, chapterState.CurrChapterIndex)
+                            SupplyChainUtility.LoadChapterMap(lookup, supplyState, transitionState, chapterState.ChapterIndex)
                         );
                     }
                     break;

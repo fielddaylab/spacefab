@@ -18,7 +18,6 @@ namespace SpaceFab.Overarching {
                 new SysUpdate(GameLoopPhaseMask.LateUpdate, 0, UpdateMasks.ShutdownMask),
                 new SysPermissions()
                     .ReadWriteShared<OverarchingToMinigameSequenceState>()
-                    .ReadWriteShared<OverarchingShutdownSequenceState>()
                     .ReadShared<MinigameZonesState>()
             );
         }
@@ -27,16 +26,15 @@ namespace SpaceFab.Overarching {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out OverarchingToMinigameSequenceState toMinigameState,
-                out OverarchingShutdownSequenceState shutdownState,
                 out MinigameZonesState zonesState
                 );
 
             switch (toMinigameState.Phase) {
                 case OverarchingToMinigamePhase.Starting:
-                    ProcessStarting(toMinigameState, shutdownState);
+                    ProcessStarting(toMinigameState);
                     break;
                 case OverarchingToMinigamePhase.ShutdownSequenceSystem:
-                    ProcessShutdownSequenceSystem(toMinigameState, shutdownState);
+                    ProcessShutdownSequenceSystem(toMinigameState);
                     break;
                 case OverarchingToMinigamePhase.TransitionToMinigame:
                     ProcessTransitionToMinigame(toMinigameState, zonesState);
@@ -47,20 +45,13 @@ namespace SpaceFab.Overarching {
         }
 
         // Entry: ask the shutdown subsystem to start and move to the waiting phase.
-        static private void ProcessStarting(OverarchingToMinigameSequenceState toMinigameState, OverarchingShutdownSequenceState shutdownState) {
-            shutdownState.Phase = OverarchingShutdownPhase.Waiting;
+        static private void ProcessStarting(OverarchingToMinigameSequenceState toMinigameState) {
             toMinigameState.Phase = OverarchingToMinigamePhase.ShutdownSequenceSystem;
         }
 
         // Coordinates with the shutdown subsystem: trigger it on Waiting, advance when Complete.
-        static private void ProcessShutdownSequenceSystem(OverarchingToMinigameSequenceState toMinigameState, OverarchingShutdownSequenceState shutdownState) {
-            if (shutdownState.Phase == OverarchingShutdownPhase.Waiting) {
-                // defer to ShutdownSequenceSystem
-                shutdownState.Phase = OverarchingShutdownPhase.BeginShutdown;
-            }
-            else if (shutdownState.Phase == OverarchingShutdownPhase.ShutdownComplete) {
-                toMinigameState.Phase = OverarchingToMinigamePhase.TransitionToMinigame;
-            }
+        static private void ProcessShutdownSequenceSystem(OverarchingToMinigameSequenceState toMinigameState) {
+            toMinigameState.Phase = OverarchingToMinigamePhase.TransitionToMinigame;
         }
 
         // Swap update masks, load the target minigame scene, and announce the load.

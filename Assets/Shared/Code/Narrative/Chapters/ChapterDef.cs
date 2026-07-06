@@ -14,9 +14,14 @@ namespace SpaceFab
     [CreateAssetMenu(menuName = "SpaceFab/Chapter Asset")]
     public class ChapterDef : NamedAsset
     {
+        [Header("Contracts")]
         [AssetName(typeof(ContractDef))] public StringHash32[] AvailableContracts;
-        [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_availableMaterials")] [SerializeField] private StringHash32[] AvailableMaterials;
-        [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_excludeFromResearch")] [SerializeField] private StringHash32[] ExcludeFromResearch;
+
+        [Header("Materials")]
+        [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_availableMaterials")] public StringHash32[] AvailableMaterials;
+        [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_excludeFromResearch")] public StringHash32[] ExcludeFromResearch;
+
+        [Header("Assets")]
         public LeafAsset Script;
     }
 }

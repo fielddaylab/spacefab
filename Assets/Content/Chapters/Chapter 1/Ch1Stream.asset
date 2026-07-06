@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-  m_Name: Chapter 1
+  m_Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
+  m_Name: Ch1Stream
   m_EditorClassIdentifier: 
-  m_GlobalAssets: []
-  m_NamedAssets:
-  - {fileID: 11400000, guid: c0199e93c254ba24ba3f105c07b4c4d8, type: 2}
-  m_LiteAssets: []
+  m_Packages:
+  - {fileID: 11400000, guid: f59ecbe6627c97e4c850be6e80dfd6fc, type: 2}

@@ -26,7 +26,6 @@ namespace SpaceFab.Overarching {
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.SetupMask),
                 new SysPermissions()
                     .ReadWriteShared<OverarchingStartupSequenceState>()
-                    .ReadWriteShared<ChapterLoadState>()
                     .ReadWriteShared<ContractCompletionState>()
                     .ReadWriteShared<ContractSelectState>()
                     .ReadShared<ChapterState>()
@@ -42,7 +41,6 @@ namespace SpaceFab.Overarching {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out OverarchingStartupSequenceState startupState,
-                out ChapterLoadState chapterLoadState,
                 out ContractCompletionState completionState,
                 out ContractSelectState selectState
                 );
@@ -67,23 +65,23 @@ namespace SpaceFab.Overarching {
 
             switch (startupState.Phase) {
                 case OverarchingStartupSequencePhase.LoadCurrChapter:
-                    ProcessLoadCurrChapter(startupState, chapterLoadState, completionState, progressState);
+                    ProcessLoadCurrChapter(startupState, completionState, progressState);
                     break;
                 case OverarchingStartupSequencePhase.ContractCompletionSystem:
                     ProcessContractCompletion(startupState, completionState);
                     break;
                 case OverarchingStartupSequencePhase.LoadCurrAvailableContracts:
-                    ProcessLoadCurrAvailableContracts(startupState, chapterLoadState, selectState, chapterState);
+                    ProcessLoadCurrAvailableContracts(startupState, selectState, chapterState);
                     break;
                 case OverarchingStartupSequencePhase.ContractSelectSystem:
-                    ProcessContractSelectSystem(startupState, chapterLoadState, selectState, confirmState);
+                    ProcessContractSelectSystem(startupState, selectState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.ContractConfirmSystem:
                     var prevConfirmPhase = confirmState.Phase;
                     ProcessContractConfirmSystem(startupState, contractLoadState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
-                    ProcessLoadSelectedContract(startupState, chapterLoadState, contractLoadState, meterState);
+                    ProcessLoadSelectedContract(startupState, contractLoadState, meterState);
                     break;
                 default:
                     break;
@@ -91,27 +89,17 @@ namespace SpaceFab.Overarching {
         }
 
         // Kicks off ChapterLoadSystem. When it completes, branches to contract-completion or straight to loading contracts.
-        static private void ProcessLoadCurrChapter(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractCompletionState completionState, PlayerProgressState progressState) {
-            if (chapterLoadState.Phase == ChapterLoadPhase.Waiting) {
-                // begin ChapterLoadSystem
-                GameLoop.ResumeUpdates(UpdateMasks.ChapterMask);
-                Debug.Log("[OverarchingStartupSequenceSystem] Begin ChapterLoadSystem");
-                chapterLoadState.Phase = ChapterLoadPhase.LoadingChapter;
+        static private void ProcessLoadCurrChapter(OverarchingStartupSequenceState startupState, ContractCompletionState completionState, PlayerProgressState progressState) {
+            // Decide whether to run the contract-completion sequence
+            if (progressState.RecentlyCompletedChapter) {
+                startupState.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
+                completionState.Phase = ContractCompletionPhase.Waiting;
+                progressState.RecentlyCompletedChapter = false;
             }
             else {
-                if (chapterLoadState.Phase == ChapterLoadPhase.Completed) {
-                    // Decide whether to run the contract-completion sequence
-                    if (progressState.RecentlyCompletedChapter) {
-                        startupState.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
-                        completionState.Phase = ContractCompletionPhase.Waiting;
-                        progressState.RecentlyCompletedChapter = false;
-                    }
-                    else {
-                        startupState.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
-                    }
-                    GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
-                }
+                startupState.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
             }
+            GameLoop.ResumeUpdates(UpdateMasks.ContractSystemsMask);
         }
 
         // Coordinates with ContractCompletionSystem: trigger it on Waiting, continue on Completed.
@@ -130,11 +118,10 @@ namespace SpaceFab.Overarching {
         }
 
         // Starts loading available contracts, then either opens contract selection or jumps to loading the known-selected contract.
-        static private void ProcessLoadCurrAvailableContracts(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractSelectState selectState, ChapterState chapterState) {
+        static private void ProcessLoadCurrAvailableContracts(OverarchingStartupSequenceState startupState, ContractSelectState selectState, ChapterState chapterState) {
             // start load available contracts
             //Debug.Log("[OverarchingStartupSequenceSystem] ship menu displayed");
             //SpacefabGame.Events.Dispatch(GameEvents.ShipMenuDisplayed);
-            chapterLoadState.Phase = ChapterLoadPhase.LoadingAvailableContracts;
 
             // If no contract is selected yet, defer to selection; otherwise jump to loading the selected contract.
             if (chapterState.LastSelectedContractIndex == -1) {
@@ -149,10 +136,9 @@ namespace SpaceFab.Overarching {
         }
 
         // Coordinates with ContractSelectSystem after available-contracts load finishes: trigger, then advance to confirm on Completed.
-        static private void ProcessContractSelectSystem(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractSelectState selectState, ContractConfirmState confirmState) {
+        static private void ProcessContractSelectSystem(OverarchingStartupSequenceState startupState, ContractSelectState selectState, ContractConfirmState confirmState) {
             // wait for LoadAvailableContracts routine to complete
-            if (chapterLoadState.LoadRoutine.Exists() || chapterLoadState.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
-
+            
             if (selectState.Phase == ContractSelectPhase.Waiting) {
                 // begin ContractSelectSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractSelectSystem");
@@ -185,9 +171,7 @@ namespace SpaceFab.Overarching {
         }
 
         // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
-        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ChapterLoadState chapterLoadState, ContractLoadState contractLoadState, ProgressMeterState meterState) {
-            if (chapterLoadState.LoadRoutine.Exists() || chapterLoadState.Phase == ChapterLoadPhase.LoadingAvailableContracts) { return; }
-
+        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ContractLoadState contractLoadState, ProgressMeterState meterState) {
             if (contractLoadState.Phase == ContractLoadPhase.Waiting) {
                 // begin ContractLoadSystem
                 Debug.Log("[OverarchingStartupSequenceSystem] Begin ContractLoadSystem");

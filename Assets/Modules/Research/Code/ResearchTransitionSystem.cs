@@ -49,9 +49,9 @@ namespace SpaceFab.Research {
                 );
 
             researchState.AvailableMaterials.Clear();
-            if (chapterState.CurrChapterDef != null) {
-                StringHash32[] excluded = chapterState.CurrChapterDef.ExcludeFromResearch();
-                foreach (var id in chapterState.CurrChapterDef.AvailableMaterials()) {
+            if (chapterState.ChapterDefinition != null) {
+                StringHash32[] excluded = chapterState.ChapterDefinition.ExcludeFromResearch;
+                foreach (var id in chapterState.ChapterDefinition.AvailableMaterials) {
                     if (IsExcluded(excluded, id)) continue;
                     researchState.AvailableMaterials.Add(id);
                 }

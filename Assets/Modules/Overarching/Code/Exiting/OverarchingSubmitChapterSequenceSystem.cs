@@ -18,7 +18,6 @@ namespace SpaceFab.Overarching {
                 new SysUpdate(GameLoopPhaseMask.LateUpdate, 10, UpdateMasks.ShutdownMask),
                 new SysPermissions()
                     .ReadWriteShared<OverarchingSubmitChapterSequenceState>()
-                    .ReadWriteShared<OverarchingShutdownSequenceState>()
                     .ReadWriteShared<ChapterState>()
                     .ReadWriteShared<PlayerProgressState>()
                     .ReadShared<MinigameSaveStates>()
@@ -29,7 +28,6 @@ namespace SpaceFab.Overarching {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out OverarchingSubmitChapterSequenceState submitState,
-                out OverarchingShutdownSequenceState shutdownState,
                 out ChapterState chapterState,
                 out PlayerProgressState progressState
                 );
@@ -40,10 +38,10 @@ namespace SpaceFab.Overarching {
 
             switch (submitState.Phase) {
                 case OverarchingSubmitChapterPhase.Starting:
-                    ProcessStarting(submitState, shutdownState);
+                    ProcessStarting(submitState);
                     break;
                 case OverarchingSubmitChapterPhase.ShutdownSequenceSystem:
-                    ProcessShutdownSequenceSystem(submitState, shutdownState);
+                    ProcessShutdownSequenceSystem(submitState);
                     break;
                 case OverarchingSubmitChapterPhase.MoveToNextChapter:
                     ProcessMoveToNextChapter(submitState, chapterState, progressState, saveStates);
@@ -54,20 +52,13 @@ namespace SpaceFab.Overarching {
         }
 
         // Entry: ask the shutdown subsystem to start.
-        static private void ProcessStarting(OverarchingSubmitChapterSequenceState submitState, OverarchingShutdownSequenceState shutdownState) {
-            shutdownState.Phase = OverarchingShutdownPhase.Waiting;
+        static private void ProcessStarting(OverarchingSubmitChapterSequenceState submitState) {
             submitState.Phase = OverarchingSubmitChapterPhase.ShutdownSequenceSystem;
         }
 
         // Coordinates with the shutdown subsystem: trigger on Waiting, advance on Complete.
-        static private void ProcessShutdownSequenceSystem(OverarchingSubmitChapterSequenceState submitState, OverarchingShutdownSequenceState shutdownState) {
-            if (shutdownState.Phase == OverarchingShutdownPhase.Waiting) {
-                // defer to ShutdownSequenceSystem
-                shutdownState.Phase = OverarchingShutdownPhase.BeginShutdown;
-            }
-            else if (shutdownState.Phase == OverarchingShutdownPhase.ShutdownComplete) {
-                submitState.Phase = OverarchingSubmitChapterPhase.MoveToNextChapter;
-            }
+        static private void ProcessShutdownSequenceSystem(OverarchingSubmitChapterSequenceState submitState) {
+            submitState.Phase = OverarchingSubmitChapterPhase.MoveToNextChapter;
         }
 
         // Advance to the next chapter (also saves and reloads the main scene inside the utility).

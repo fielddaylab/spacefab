@@ -19,6 +19,8 @@ namespace SpaceFab
         static public TransitionStateMgr TransitionState { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; internal set; }
         static public SaveMgr SaveBuffer { get; private set; }
 
+        static private bool s_IsInGame;
+
         [InvokePreBoot]
         static private void OnPreBoot()
         {
@@ -39,6 +41,21 @@ namespace SpaceFab
                 Overlap = 0.2f
             });
             MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
+
+            Scenes.OnLoadProcessStarted.Register(OnLoadProcessStarted);
+        }
+
+        static private void OnLoadProcessStarted(SceneProcessCallbackArgs args) {
+            bool inGame = args.SceneIndex > 2;
+            if (s_IsInGame != inGame) {
+                s_IsInGame = inGame;
+
+                if (inGame) {
+                    Game.Assets.LoadStreamedPackage("InGameStream");
+                } else {
+                    Game.Assets.UnloadStreamedPackage("InGameStream");
+                }
+            }
         }
 
         [InvokeOnBoot]

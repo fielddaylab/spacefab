@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scenes;
 using SpaceFab.Save;
 
 namespace SpaceFab.Design
@@ -75,12 +76,8 @@ namespace SpaceFab.Design
             // More levels remain: reload the Design scene for the next level. Resolve the scene from
             // the global lookup by the active minigame's id, point the exit pipeline at it, and kick
             // the pipeline. The Exiting phase exports + saves before the reload.
-            MinigameSceneLookup sceneLookup = Find.GlobalAsset<MinigameSceneLookup>();
-            if (sceneLookup != null && sceneLookup.TryGetScene(interfacer.Id, out SceneReference designScene))
-            {
-                loadExitState.HasReloadTarget = true;
-                loadExitState.ReloadTarget = designScene;
-            }
+            loadExitState.HasReloadTarget = true;
+            loadExitState.ReloadTarget = Game.Scenes.MainScene();
 
             // Reuse the exit pipeline: flip to Exiting and swap to the transition mask, exactly as
             // MinigameRequestExitSystem does on a confirmed exit.

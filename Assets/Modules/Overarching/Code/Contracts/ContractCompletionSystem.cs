@@ -20,7 +20,6 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ContractCompletionState>()
                     .ReadWriteShared<ContractLayoutState>()
                     .ReadWriteShared<ChapterState>()
-                    .ReadWriteShared<AvailableContractsLookup>()
                     .ReadWriteShared<PlayerProgressState>()
             );
         }
@@ -30,8 +29,7 @@ namespace SpaceFab.Overarching {
             Find.State(
                 out ContractCompletionState completionState,
                 out ContractLayoutState layoutState,
-                out ChapterState chapterState,
-                out AvailableContractsLookup availableLookup
+                out ChapterState chapterState
                 );
 
             Find.State(
@@ -40,10 +38,10 @@ namespace SpaceFab.Overarching {
 
             switch (completionState.Phase) {
                 case ContractCompletionPhase.BeginLoadFromPrevChapter:
-                    ProcessBeginLoadFromPrevChapter(completionState, layoutState, chapterState, availableLookup);
+                    ProcessBeginLoadFromPrevChapter(completionState, layoutState, chapterState);
                     break;
                 case ContractCompletionPhase.LoadFromPrevChapter:
-                    ProcessLoadFromPrevChapter(completionState, layoutState, chapterState, availableLookup);
+                    ProcessLoadFromPrevChapter(completionState, layoutState, chapterState);
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
                     ProcessEnterPrevContract(completionState, layoutState, progressState);
@@ -52,7 +50,7 @@ namespace SpaceFab.Overarching {
                     ProcessEvaluatePrevContract(completionState, layoutState);
                     break;
                 case ContractCompletionPhase.HidePreviousContract:
-                    ProcessHidePrevContract(completionState, layoutState, chapterState, availableLookup);
+                    ProcessHidePrevContract(completionState, layoutState, chapterState);
                     break;
                 case ContractCompletionPhase.UnloadFromPrevChapter:
                     ProcessUnloadFromPrevChapter(completionState, layoutState);
@@ -63,15 +61,15 @@ namespace SpaceFab.Overarching {
         }
 
         // Kicks off the load of the previously-available contracts.
-        static private void ProcessBeginLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
-            layoutState.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(completionState, chapterState, availableLookup));
+        static private void ProcessBeginLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState) {
+            layoutState.CompletionRoutine.Replace(ContractCompletionUtility.LoadFromPrevChapterRoutine(completionState, chapterState));
             completionState.Phase = ContractCompletionPhase.LoadFromPrevChapter;
         }
 
         // Once loaded, populates and animates in the completed-contract UI.
-        static private void ProcessLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
+        static private void ProcessLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState) {
             if (!layoutState.CompletionRoutine.Exists()) {
-                ContractCompletionUtility.PopulateContractUI(completionState, layoutState, chapterState, availableLookup);
+                ContractCompletionUtility.PopulateContractUI(completionState, layoutState, chapterState);
                 layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(layoutState));
                 completionState.Phase = ContractCompletionPhase.EnterPreviousContract;
             }
@@ -94,11 +92,11 @@ namespace SpaceFab.Overarching {
         }
 
         // Once hidden, clears the last-selected index and unloads previous-chapter contracts.
-        static private void ProcessHidePrevContract(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup availableLookup) {
+        static private void ProcessHidePrevContract(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState) {
             if (!layoutState.CompletionRoutine.Exists()) {
                 chapterState.LastSelectedContractIndex = -1;
                 // Unload
-                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(completionState, chapterState, availableLookup));
+                layoutState.CompletionRoutine.Replace(ContractCompletionUtility.UnloadFromPrevChapterRoutine(completionState, chapterState));
                 completionState.Phase = ContractCompletionPhase.UnloadFromPrevChapter;
             }
         }

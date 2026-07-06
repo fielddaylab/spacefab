@@ -9,10 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-  m_Name: AvailableContracts_Ch2
+  m_Script: {fileID: 11500000, guid: 5e65d41defac0b94a8f1a377f5f47cd9, type: 3}
+  m_Name: ChapterList
   m_EditorClassIdentifier: 
-  m_GlobalAssets: []
-  m_NamedAssets:
-  - {fileID: 11400000, guid: fffd20ccdf65d114280137ddba9857fc, type: 2}
-  m_LiteAssets: []
+  Chapters:
+  - ChapterId:
+      m_HashValue: 3266730720
+    PackageId:
+      m_HashValue: 1396134493
+  - ChapterId:
+      m_HashValue: 1645296827
+    PackageId:
+      m_HashValue: 0

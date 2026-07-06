@@ -51,7 +51,7 @@ namespace SpaceFab.Overarching {
 
         // Kicks off the load routine for the currently-selected contract and advances to the Loading phase.
         static private void ProcessBeginLoad(ContractLoadState loadState, ContractAssetsLookup assetsLookup, ChapterState chapterState, PlayerProgressState playerProgress) {
-            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex].AssetId;
+            StringHash32 contractId = chapterState.ChapterDefinition.AvailableContracts[chapterState.LastSelectedContractIndex];
             loadState.LoadRoutine.Replace(ContractsLookupUtility.LoadContract(assetsLookup, playerProgress, contractId));
             loadState.Phase = ContractLoadPhase.Loading;
         }

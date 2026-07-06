@@ -72,7 +72,7 @@ namespace SpaceFab.Overarching
         public static IEnumerator ApplyContractByIndex(ChapterState chapterState, PlayerProgressState playerProgress, ContractAssetsLookup lookup, int contractIndex)
         {
             chapterState.LastSelectedContractIndex = contractIndex;
-            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[contractIndex].AssetId;
+            StringHash32 contractId = chapterState.ChapterDefinition.AvailableContracts[contractIndex];
 
             playerProgress.CurrContractId = contractId;
 

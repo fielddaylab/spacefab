@@ -20,7 +20,6 @@ using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
 using FieldDay.Components;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif // UNITY_EDITOR
@@ -532,6 +531,18 @@ namespace FieldDay.Assets {
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Is the given streamed package loading.
+        /// </summary>
+        public bool IsLoadingStreamedPackage(StringHash32 packageId) {
+            int index = IndexOfStreamingBundle(packageId);
+            if (index < 0) {
+                return false;
+            }
+
+            return m_StreamedPackageData[index].LoadState < StreamedPackageLoadState.Success;
         }
 
         static private void HandleAssetBundleDownloadResult(FileLoadRequest request, FileLoadResult result, object context) {

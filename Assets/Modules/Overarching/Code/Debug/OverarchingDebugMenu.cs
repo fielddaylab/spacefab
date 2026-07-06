@@ -83,7 +83,7 @@ namespace SpaceFab.Overarching
             for (int i = 0; i < MaxContractSlots; i++)
             {
                 int index = i; // capture per-iteration for the closures
-                menu.AddButton("Set contract #" + i, () => DebugSetContract(index), () => index < AvailableContractCount() && !IsTransitioning());
+                //menu.AddButton("Set contract #" + i, () => DebugSetContract(index), () => index < AvailableContractCount() && !IsTransitioning());
             }
 
             // Opening the menu loads the chapter's available-contracts bundle if it isn't already (safe: no
@@ -120,20 +120,20 @@ namespace SpaceFab.Overarching
 
         private static void AppendContractList(StringBuilder sb)
         {
-            ContractsBundle bundle = ResolveContractsBundle();
-            if (bundle == null || bundle.AvailableContracts == null || bundle.AvailableContracts.Length == 0)
-            {
-                sb.Append("(no contracts loaded)");
-                return;
-            }
+            //ContractsBundle bundle = ResolveContractsBundle();
+            //if (bundle == null || bundle.AvailableContracts == null || bundle.AvailableContracts.Length == 0)
+            //{
+            //    sb.Append("(no contracts loaded)");
+            //    return;
+            //}
 
-            ContractDef[] contracts = bundle.AvailableContracts;
-            for (int i = 0; i < contracts.Length; i++)
-            {
-                if (i > 0) { sb.Append('\n'); }
-                string title = string.IsNullOrEmpty(contracts[i].Title()) ? ("Contract " + i) : contracts[i].Title();
-                sb.Append(i).Append(": ").Append(title);
-            }
+            //ContractDef[] contracts = bundle.AvailableContracts;
+            //for (int i = 0; i < contracts.Length; i++)
+            //{
+            //    if (i > 0) { sb.Append('\n'); }
+            //    string title = string.IsNullOrEmpty(contracts[i].Title()) ? ("Contract " + i) : contracts[i].Title();
+            //    sb.Append(i).Append(": ").Append(title);
+            //}
         }
 
         // Applies the chosen contract as the active one via the shared data path (no selection UI). Runs the

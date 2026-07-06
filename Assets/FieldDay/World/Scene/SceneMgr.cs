@@ -225,6 +225,7 @@ namespace FieldDay.Scenes {
 
         #region Exposed Events
 
+        public readonly CastableEvent<SceneProcessCallbackArgs> OnLoadProcessStarted = new CastableEvent<SceneProcessCallbackArgs>();
         public readonly CastableEvent<SceneCallbackArgs> OnPrepareScene = new CastableEvent<SceneCallbackArgs>();
         public readonly CastableEvent<SceneCallbackArgs> OnScenePreload = new CastableEvent<SceneCallbackArgs>();
         public readonly CastableEvent<SceneCallbackArgs> OnSceneReady = new CastableEvent<SceneCallbackArgs>();
@@ -1233,6 +1234,14 @@ namespace FieldDay.Scenes {
                         m_MainSceneLoadProcess = Routine.Start(SceneLoadProcess(args));
                         m_LoadProcessQueue.PopFront();
                         m_AssetUnloadLock++;
+                        if (!OnLoadProcessStarted.IsEmpty) {
+                            SceneBinding scene = SceneHelper.FindSceneByPath(args.Path, SceneCategories.AllBuild);
+                            OnLoadProcessStarted.Invoke(new SceneProcessCallbackArgs() {
+                                Path = args.Path,
+                                SceneIndex = scene.BuildIndex,
+                                LoadType = SceneType.Main
+                            });
+                        }
                     }
                 } else {
                     if (!m_AdditionalSceneLoadProcess) {
@@ -1241,6 +1250,14 @@ namespace FieldDay.Scenes {
                             m_AdditionalSceneLoadProcess = Routine.Start(SceneLoadProcess(args));
                             m_LoadProcessQueue.PopFront();
                             m_AssetUnloadLock++;
+                            if (!OnLoadProcessStarted.IsEmpty) {
+                                SceneBinding scene = SceneHelper.FindSceneByPath(args.Path, SceneCategories.AllBuild);
+                                OnLoadProcessStarted.Invoke(new SceneProcessCallbackArgs() {
+                                    Path = args.Path,
+                                    SceneIndex = scene.BuildIndex,
+                                    LoadType = args.Type
+                                });
+                            }
                         }
                     }
                 }
@@ -1576,6 +1593,10 @@ namespace FieldDay.Scenes {
         }
 
         private bool ProcessPreloadQueue() {
+            if (Game.Assets.IsLoadingStreamedPackages()) {
+                return false;
+            }
+
             if (m_CurrentPreloadOperation.Active) {
                 var result = WorkSlicer.Step(m_CurrentPreloadOperation.Preloads, PreloadManifest.ExecutePreloader, ref m_CurrentPreloadOperation.WorkState);
                 if (result == WorkSlicer.Result.OutOfData) {
@@ -2142,6 +2163,15 @@ namespace FieldDay.Scenes {
     /// </summary>
     public struct SceneCallbackArgs {
         public Scene Scene;
+        public SceneType LoadType;
+    }
+
+    /// <summary>
+    /// Scene process callback arguments.
+    /// </summary>
+    public struct SceneProcessCallbackArgs {
+        public string Path;
+        public int SceneIndex;
         public SceneType LoadType;
     }
 

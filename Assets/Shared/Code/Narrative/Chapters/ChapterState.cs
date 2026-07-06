@@ -1,30 +1,44 @@
+using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Data;
+using FieldDay.Scenes;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using SpaceFab.Design;
 using SpaceFab.Save;
+using System;
 using System.Collections;
 using UnityEngine;
 
 namespace SpaceFab
 {
-    public class ChapterState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks
+    public class ChapterState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks, ISceneLoadDependency
     {
-        public int CurrChapterIndex;
+        public int ChapterIndex;
         public int LastSelectedContractIndex;
 
-        [HideInInspector] public ChapterDef CurrChapterDef;
+        [NonSerialized] public StringHash32 ChapterId;
+        [NonSerialized] public ChapterDef ChapterDefinition;
+        [NonSerialized] public UniqueId16 ChapterScriptHandle;
 
-        public void OnDeregister()
-        {
+        [NonSerialized] public Routine LoadRoutine;
+
+        public bool IsLoaded(SceneLoadFence fence) {
+            return !LoadRoutine;
+        }
+
+        public void OnDeregister() {
+            Game.Scenes.DeregisterLoadDependency(this);
         }
 
         public void OnRegister()
         {
             LastSelectedContractIndex = -1;
             SpacefabGame.SaveBuffer.RegisterHandler("ChapterState", this);
+            Game.Scenes.RegisterLoadDependency(this);
         }
 
 
@@ -34,21 +48,70 @@ namespace SpaceFab
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-            reader.Read(ref CurrChapterIndex);
+            reader.Read(ref ChapterIndex);
             reader.Read(ref LastSelectedContractIndex);
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
-            writer.Write(CurrChapterIndex);
+            writer.Write(ChapterIndex);
             writer.Write(LastSelectedContractIndex);
         }
 
         #endregion // Interfaces
     }
 
-    public static class ChapterUtility
-    {
+    public static partial class ChapterUtility {
+        #region Data Load/Unload
+
+        static public bool LoadChapterData(ChapterState chapterState, int chapterIndex) {
+            return LoadChapterData(chapterState, GetLoadInfo(chapterIndex));
+        }
+
+        static public bool LoadChapterData(ChapterState chapterState, StringHash32 chapterId) {
+            return LoadChapterData(chapterState, GetLoadInfo(chapterId));
+        }
+
+        static public bool LoadChapterData(ChapterState chapterState, ChapterManifest.Entry loadInfo) {
+            if (chapterState.ChapterId == loadInfo.ChapterId) {
+                return false;
+            }
+
+            UnloadChapterData(chapterState);
+            chapterState.ChapterId = loadInfo.ChapterId;
+            chapterState.LoadRoutine.Replace(chapterState, LoadChapterProcess(chapterState, loadInfo));
+            return true;
+        }
+
+        static private IEnumerator LoadChapterProcess(ChapterState chapterState, ChapterManifest.Entry loadInfo) {
+            Game.Assets.LoadStreamedPackage(loadInfo.PackageId);
+            while (Game.Assets.IsLoadingStreamedPackage(loadInfo.PackageId)) {
+                yield return null;
+            }
+            ChapterDef chapterAsset = Find.NamedAsset<ChapterDef>(loadInfo.ChapterId);
+            chapterState.ChapterDefinition = chapterAsset;
+            chapterState.ChapterScriptHandle = ScriptDBUtility.Load(chapterAsset.Script);
+        }
+
+        static public bool UnloadChapterData(ChapterState chapterState) {
+            if (chapterState.ChapterId.IsEmpty) {
+                return false;
+            }
+
+            ScriptDBUtility.Unload(chapterState.ChapterScriptHandle);
+
+            var loadInfo = GetLoadInfo(chapterState.ChapterId);
+            Game.Assets.UnloadStreamedPackage(loadInfo.PackageId);
+
+            chapterState.LoadRoutine.Stop();
+            chapterState.ChapterDefinition = null;
+            chapterState.ChapterScriptHandle = default;
+            chapterState.ChapterId = default;
+            return true;
+        }
+
+        #endregion // Data Load/Unload
+
         public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, MinigameSaveStates saveStates)
         {
             // save elapsed cycles and funds
@@ -64,7 +127,7 @@ namespace SpaceFab
             progressState.Funds += contractPayout - saveStates.Supply.FinalizedCost;
 
             // advance chapter
-            chapterState.CurrChapterIndex++;
+            chapterState.ChapterIndex++;
             progressState.RecentlyCompletedChapter = true;
             progressState.ContractAssetsWrapperId = default;
             SaveUtility.Save(SaveSlot.Main);
