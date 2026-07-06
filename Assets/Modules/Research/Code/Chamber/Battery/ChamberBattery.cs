@@ -1,3 +1,4 @@
+using System;
 using FieldDay.Components;
 using UnityEngine;
 
@@ -18,5 +19,6 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ChamberBattery : BatchedComponent {
         public SpriteRenderer[] VoltageLevelSlots;
+        public float CurrentVoltage;
     }
 }

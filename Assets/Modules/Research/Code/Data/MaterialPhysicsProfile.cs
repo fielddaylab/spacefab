@@ -64,6 +64,8 @@ namespace SpaceFab.Research
                 conduction *= 1.5f;
             }
             float thermal = 1f + temperature * (profile.ThermalMultiplier - 1f);
+
+            Debug.Log($"GetCurrent: voltage={voltage}, temperature={temperature}, conduction={conduction}, current={voltage * thermal * conduction}");
             return voltage * thermal * conduction;
         }
 

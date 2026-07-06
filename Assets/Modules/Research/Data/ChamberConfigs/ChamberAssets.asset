@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ChamberAssets
   m_EditorClassIdentifier: 
   m_GlobalAssets:
+  - {fileID: 11400000, guid: 60fbac41a77684ed8b0930d1ce56d735, type: 2}
   - {fileID: 11400000, guid: 6e77773d9e33fc945964d7959f54b239, type: 2}
   m_NamedAssets: []
   m_LiteAssets: []
