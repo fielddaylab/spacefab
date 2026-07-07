@@ -9,7 +9,7 @@ namespace SpaceFab {
     public sealed class ChapterLoader : MonoBehaviour, IScenePreload {
         public IEnumerator<WorkSlicer.Result?> Preload() {
             Find.State(out ChapterState chapterState);
-            ChapterUtility.LoadChapterData(chapterState, chapterState.ChapterIndex);
+            ChapterUtility.LoadCurrentChapter(chapterState);
             while(chapterState.LoadRoutine) {
                 yield return WorkSlicer.Result.HaltForFrame;
             }

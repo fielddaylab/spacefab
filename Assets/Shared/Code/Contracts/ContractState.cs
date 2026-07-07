@@ -95,5 +95,16 @@ namespace SpaceFab
         }
 
         #endregion // Data Load/Unload
+
+        static public bool LoadCurrentContract(ContractState contractState, ChapterState chapterState) {
+            return LoadContractData(contractState, ChapterUtility.GetSelectedContractId(chapterState));
+        }
+
+        static public bool LoadQueuedContract(ContractState contractState, ChapterState chapterState, PlayerProgressState playerProgress) {
+            if (playerProgress.RecentlyCompletedContract.IsEmpty) {
+                return LoadCurrentContract(contractState, chapterState);
+            }
+            return LoadContractData(contractState, playerProgress.RecentlyCompletedContract);
+        }
     }
 }

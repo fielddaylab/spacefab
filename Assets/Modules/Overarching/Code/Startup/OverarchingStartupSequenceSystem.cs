@@ -90,10 +90,10 @@ namespace SpaceFab.Overarching {
         // Kicks off ChapterLoadSystem. When it completes, branches to contract-completion or straight to loading contracts.
         static private void ProcessLoadCurrChapter(OverarchingStartupSequenceState startupState, ContractCompletionState completionState, PlayerProgressState progressState) {
             // Decide whether to run the contract-completion sequence
-            if (progressState.RecentlyCompletedChapter) {
+            if (!progressState.RecentlyCompletedContract.IsEmpty) {
                 startupState.Phase = OverarchingStartupSequencePhase.ContractCompletionSystem;
                 completionState.Phase = ContractCompletionPhase.Waiting;
-                progressState.RecentlyCompletedChapter = false;
+                progressState.RecentlyCompletedContract = default;
             }
             else {
                 startupState.Phase = OverarchingStartupSequencePhase.LoadCurrAvailableContracts;
@@ -170,7 +170,7 @@ namespace SpaceFab.Overarching {
 
         // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
         static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ProgressMeterState meterState, ContractState contractState, ChapterState chapterState) {
-            ContractUtility.LoadContractData(contractState, ChapterUtility.SelectedContractId(chapterState));
+            ContractUtility.LoadContractData(contractState, ChapterUtility.GetSelectedContractId(chapterState));
             if (!chapterState.LoadRoutine) {
                 // refresh progress meter to update funds and cycles
                 meterState.NeedsRefresh = true;

@@ -17,8 +17,12 @@ namespace SpaceFab
 {
     public class ChapterState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks, ISceneLoadDependency
     {
+        #region Saved
+
         [NonSerialized] public int ChapterIndex;
         [NonSerialized] public int LastSelectedContractIndex;
+
+        #endregion // Saved
 
         [NonSerialized] public StringHash32 ChapterId;
         [NonSerialized] public ChapterDef ChapterDefinition;
@@ -112,12 +116,16 @@ namespace SpaceFab
 
         #endregion // Data Load/Unload
 
-        static public StringHash32 SelectedContractId(ChapterState chapterState) {
+        static public StringHash32 GetSelectedContractId(ChapterState chapterState) {
             if (chapterState.LastSelectedContractIndex < 0 || !chapterState.ChapterDefinition) {
                 return null;
             }
 
             return chapterState.ChapterDefinition.AvailableContracts[chapterState.LastSelectedContractIndex];
+        }
+
+        static public bool LoadCurrentChapter(ChapterState chapterState) {
+            return LoadChapterData(chapterState, chapterState.ChapterIndex);
         }
 
         public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, ContractState contractState, MinigameSaveStates saveStates)
@@ -134,7 +142,7 @@ namespace SpaceFab
 
             // advance chapter
             chapterState.ChapterIndex++;
-            progressState.RecentlyCompletedChapter = true;
+            progressState.RecentlyCompletedContract = contractState.ContractId;
             SaveUtility.Save(SaveSlot.Main);
             Game.Scenes.ReloadMainScene();
         }

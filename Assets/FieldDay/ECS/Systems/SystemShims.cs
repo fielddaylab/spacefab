@@ -9,6 +9,8 @@ using System.Diagnostics;
 using UnityEngine.Scripting;
 
 namespace FieldDay.Systems {
+#if FIELD_DAY_INCLUDE_SYSTEM_SHIMS
+
     [AttributeUsage(AttributeTargets.Class)]
     [Obsolete("This is using the old version of ECS Systems. Please rework to the new standard when you can.", !Game.IsDevBuild)]
 #if DEVELOPMENT
@@ -268,4 +270,6 @@ namespace FieldDay.Systems {
                 .ReadWriteShared<TSharedH>();
         }
     }
+
+#endif // FIELD_DAY_INCLUDE_SYSTEM_SHIMS
 }

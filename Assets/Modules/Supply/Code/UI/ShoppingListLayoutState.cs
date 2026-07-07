@@ -4,6 +4,7 @@ using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
+using FieldDay.UI.Widgets;
 using SpaceFab.UI;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace SpaceFab.Supply {
         public RectTransform PanelRect;
 
         // confirm button
-        public AutoSizedButton ConfirmButton;
+        public GuiButton ConfirmButton;
 
         public ShoppingListRowPool Pool;
 
