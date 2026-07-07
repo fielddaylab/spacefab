@@ -91,7 +91,7 @@ namespace SpaceFab.Research
         public static void Increase(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null || !control.CanAdjust) return;
-            int maxIndex = config.CenterIndex + GetMaxMagnitude(control);
+            int maxIndex = GetMaxMagnitude(control);
             if (control.VoltageIndex >= maxIndex) return;
             control.VoltageIndex++;
             ApplyChange(control, config);
@@ -104,8 +104,7 @@ namespace SpaceFab.Research
         public static void Decrease(VoltageControl control, ResearchVoltageConfig config)
         {
             if (control == null || config == null || !control.CanAdjust) return;
-            int minIndex = config.CenterIndex;
-            if (control.VoltageIndex <= minIndex) return;
+            if (control.VoltageIndex <= 0) return;
             control.VoltageIndex--;
             ApplyChange(control, config);
 
@@ -171,12 +170,11 @@ namespace SpaceFab.Research
             if (battery.VoltageLevelSlots != null
                 && config.VoltageSlotFilled != null && config.VoltageSlotEmpty != null)
             {
-                int magnitude = Mathf.Abs(control.VoltageIndex - config.CenterIndex);
                 for (int i = 0; i < battery.VoltageLevelSlots.Length; i++)
                 {
                     SpriteRenderer slot = battery.VoltageLevelSlots[i];
                     if (slot == null) continue;
-                    slot.sprite = i < magnitude ? config.VoltageSlotFilled : config.VoltageSlotEmpty;
+                    slot.sprite = i < control.VoltageIndex ? config.VoltageSlotFilled : config.VoltageSlotEmpty;
                 }
             }
 
@@ -193,8 +191,8 @@ namespace SpaceFab.Research
             if (battery == null) return;
 
             int maxMag = GetMaxMagnitude(control);
-            bool atLow = control.VoltageIndex <= config.CenterIndex;
-            bool atHigh = control.VoltageIndex >= config.CenterIndex + maxMag;
+            bool atLow = control.VoltageIndex <= 0;
+            bool atHigh = control.VoltageIndex >= maxMag;
             bool show = control.CanAdjust;
 
             if (control.IncreaseButton != null)

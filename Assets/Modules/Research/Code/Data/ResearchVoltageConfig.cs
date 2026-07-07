@@ -21,7 +21,6 @@ namespace SpaceFab.Research
     public class ResearchVoltageConfig : GlobalAsset
     {
         public float[] Voltages;
-        public int CenterIndex;
         public int DefaultIndex;
 
         [Header("Battery Meter Prefabs")]

@@ -1,6 +1,3 @@
-using FieldDay;
-using FieldDay.Systems;
-using SpaceFab;
 using UnityEngine;
 
 namespace SpaceFab.Research
