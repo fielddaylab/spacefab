@@ -158,7 +158,6 @@ namespace SpaceFab.Title
                     SpacefabGame.SaveBuffer.Clear();
                     HandleStartAccepted();
                     Debug.Log("[TitleUI] new game clicked. Is dev build.");
-                    SaveUtility.Save(SaveSlot.Main);
                 }
                 else
                 {
@@ -272,7 +271,6 @@ namespace SpaceFab.Title
         {
             m_NotFoundRoutine.Stop();
             Game.SharedState.Get<UserSettingsState>().PlayerCode = m_PlayerCodeInput.text;
-            SaveUtility.Save(SaveSlot.Main);
 
             // TODO: set this in OGD
             //SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
@@ -283,6 +281,10 @@ namespace SpaceFab.Title
             } else {
                 Game.Scenes.LoadMainScene(m_NextScene);
             }
+
+            Game.Scenes.GetQueuedLoadContext(out SceneRequestContext context);
+            context.Set("QueueSave", true);
+            Game.Scenes.QueueMainLoadContext(context);
         }
 
         private void HandleClaimNewIdError(OGD.Core.Error err)

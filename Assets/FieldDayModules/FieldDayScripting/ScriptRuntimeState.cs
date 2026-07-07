@@ -230,6 +230,8 @@ namespace FieldDay.Scripting {
             Game.SharedState.Register(new ScriptRuntimeState());
             ScriptLoadingSystem.RegisterModule();
             ScriptRuntimeTickSystem.RegisterModule();
+
+            GameLoop.SetDebugUpdateBitName(31, "ScriptRuntime");
         }
 
         #region Replace

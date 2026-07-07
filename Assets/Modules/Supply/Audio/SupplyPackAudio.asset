@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: SupplyPackAudio
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
   m_GlobalAssets: []
   m_NamedAssets:
   - {fileID: 11400000, guid: 16806d8faa8f56045b7782935d31d9d3, type: 2}

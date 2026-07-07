@@ -43,6 +43,8 @@ namespace SpaceFab
             MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
 
             Scenes.OnLoadProcessStarted.Register(OnLoadProcessStarted);
+
+            UpdateMasks.RegisterDebugNames();
         }
 
         static private void OnLoadProcessStarted(SceneProcessCallbackArgs args) {
@@ -51,9 +53,16 @@ namespace SpaceFab
                 s_IsInGame = inGame;
 
                 if (inGame) {
-                    Game.Assets.LoadStreamedPackage("InGameStream");
+                    Assets.LoadStreamedPackage("InGameStream");
                 } else {
-                    Game.Assets.UnloadStreamedPackage("InGameStream");
+                    Assets.UnloadStreamedPackage("InGameStream");
+                }
+            }
+
+            if (args.LoadType == SceneType.Main) {
+                Scenes.GetQueuedLoadContext(out SceneRequestContext context);
+                if (context.Get("QueueSave").AsBool()) {
+                    Scenes.QueueOnEnable(() => SaveUtility.Save(SaveSlot.Main));
                 }
             }
         }
