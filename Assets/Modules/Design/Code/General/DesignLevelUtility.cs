@@ -59,7 +59,7 @@ namespace SpaceFab.Design
         // exit back to overarching. Shared by the results-panel "Continue" flow and the debug skip
         // button so both route through one implementation. Callers are expected to have already
         // marked the active level solved when that's the intent.
-        public static void AdvanceFromActiveLevel(DesignSaveState saveState, DesignMinigameState designState, MinigameLoadExitState loadExitState, MinigameRequestExitState requestExitState, MinigameStateInterfacer interfacer)
+        public static void AdvanceFromActiveLevel(DesignSaveState saveState, DesignMinigameState designState, MinigameRequestExitState requestExitState, MinigameStateInterfacer interfacer)
         {
             int activeIdx = designState.ActiveLevelIndex;
             int levelCount = saveState.LevelCount;
@@ -75,14 +75,7 @@ namespace SpaceFab.Design
             // More levels remain: reload the Design scene for the next level. Resolve the scene from
             // the global lookup by the active minigame's id, point the exit pipeline at it, and kick
             // the pipeline. The Exiting phase exports + saves before the reload.
-            loadExitState.HasReloadTarget = true;
-            loadExitState.ReloadTarget = Game.Scenes.MainScene();
-
-            // Reuse the exit pipeline: flip to Exiting and swap to the transition mask, exactly as
-            // MinigameRequestExitSystem does on a confirmed exit.
-            loadExitState.Phase = MinigameLoadExitPhase.Exiting;
-            GameLoop.SuspendUpdates(Bits.All32);
-            GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
+            MinigameUtility.Exit(Game.Scenes.MainScene());
         }
     }
 }

@@ -115,7 +115,7 @@ namespace SpaceFab
             if (paused)
             {
                 state.StashedUpdateMask = GameLoop.UpdateMask;
-                GameLoop.SuspendUpdates(Bits.All32);
+                GameLoop.SuspendUpdates(UpdateMasks.EntireGame);
                 GameLoop.ResumeUpdates(UpdateMasks.PauseUpdateMask);
                 Game.Gui.PushPriority(state.InputLayer);
                 Game.Events.Dispatch(GameEvents.OnGamePaused);

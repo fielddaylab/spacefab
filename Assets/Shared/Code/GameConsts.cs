@@ -123,7 +123,6 @@ namespace SpaceFab
     public static class UpdateMasks
     {
         public const int PauseUpdateMask = 1 << 0;
-        public const int MinigameTransitionMask = 1 << 1;
 
         public const int ResearchMask = 1 << 2;
         public const int DesignMask = 1 << 3;
@@ -133,9 +132,7 @@ namespace SpaceFab
         // overarching
         public const int OverarchingMask = 1 << 6;
         public const int ContractSystemsMask = 1 << 7;
-        public const int ChapterMask = 1 << 8;
         public const int SetupMask = 1 << 9;
-        public const int ShutdownMask = 1 << 10;
 
         // fab
         public const int PreAttemptMask = 1 << 11;
@@ -158,6 +155,9 @@ namespace SpaceFab
 
         // shared UI
         public const int WikiMask = 1 << 20;
+
+        // entire game mask
+        public const int EntireGame = (1 << 24) - 1;
     }
 
     static public class LayerMasks

@@ -62,8 +62,7 @@ namespace SpaceFab.Overarching
             {
                 return true;
             }
-            if (Game.SharedState.Has<OverarchingToMinigameSequenceState>()
-                && Find.State<OverarchingToMinigameSequenceState>().Phase != OverarchingToMinigamePhase.Waiting)
+            if (Game.SharedState.Has<OverarchingState>())
             {
                 return true;
             }
