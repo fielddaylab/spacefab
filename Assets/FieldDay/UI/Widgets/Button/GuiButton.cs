@@ -14,7 +14,6 @@ namespace FieldDay.UI.Widgets {
         }
 
         [SerializeField] private Style m_Style;
-        [SerializeField] private Graphic m_PrimaryClickable;
 
         [NonSerialized] private GuiWidgetInteractableState m_InteractableState;
         [NonSerialized] private bool m_WasClicked = false;
@@ -53,8 +52,8 @@ namespace FieldDay.UI.Widgets {
 
         protected override void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags change, GuiWidgetUpdateFlags flags = GuiWidgetUpdateFlags.Default) {
             CursorHint.enabled = (state & GuiWidgetStateFlags.PauseInteractions) == 0;
-            if (m_PrimaryClickable) {
-                m_PrimaryClickable.raycastTarget = (state & GuiWidgetStateFlags.PauseInteractions) == 0;
+            if (GuiRenderer) {
+                GuiRenderer.raycastTarget = (state & GuiWidgetStateFlags.PauseInteractions) == 0;
             }
 
             TryUpdateInteractableState(this, ref m_InteractableState, m_Style);

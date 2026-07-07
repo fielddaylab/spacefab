@@ -45,10 +45,10 @@ namespace SpaceFab.Supply {
             Pool.Prewarm();
             ActiveRows = new List<ShoppingListRow>(4);
 
-            // ConfirmButton.Button.onClick.AddListener(() => {
-            //     Find.Panel<SupplyResultPanel>().Show();
-            // });
-            
+            ConfirmButton.OnClick.AddListener(() => {
+                Find.Panel<SupplyResultPanel>().Show();
+            });
+
             return null;
         }
     }

@@ -62,7 +62,7 @@ namespace SpaceFab.Overarching
             {
                 return true;
             }
-            if (Game.SharedState.Has<OverarchingState>())
+            if (!Game.SharedState.Has<OverarchingState>())
             {
                 return true;
             }

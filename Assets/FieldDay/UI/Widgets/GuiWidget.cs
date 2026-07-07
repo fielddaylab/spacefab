@@ -26,6 +26,7 @@ namespace FieldDay.UI.Widgets {
 
         [Header("Components")]
         [SerializeField] private CursorHint m_Cursor;
+        [SerializeField] private Graphic m_PrimaryGraphic;
 
         #region Identifiers
 
@@ -98,6 +99,13 @@ namespace FieldDay.UI.Widgets {
         /// </summary>
         public CursorHint CursorHint {
             get { return m_Cursor == null ? (m_Cursor = GetComponentInChildren<CursorHint>(true)) : m_Cursor; }
+        }
+
+        /// <summary>
+        /// Primary renderer.
+        /// </summary>
+        public Graphic GuiRenderer {
+            get { return m_PrimaryGraphic; }
         }
 
         #endregion // References
