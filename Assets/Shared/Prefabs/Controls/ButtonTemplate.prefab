@@ -246,6 +246,7 @@ MonoBehaviour:
     m_HashValue: 0
   m_Cursor: {fileID: 8344467952360881231}
   m_Style: {fileID: 1420737200516501435}
+  m_PrimaryClickable: {fileID: 5784843740027511850}
 --- !u!114 &1420737200516501435
 MonoBehaviour:
   m_ObjectHideFlags: 0

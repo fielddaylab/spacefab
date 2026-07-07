@@ -2088,6 +2088,10 @@ namespace FieldDay.Scenes {
 
             DebugFlags.Menu.AddFlagToggle(menu, "Display Queue Stats", DebuggingFlags.ShowQueueStats);
             DebugFlags.Menu.AddFlagToggle(menu, "Display File Progress", DebuggingFlags.ShowPreloadStats);
+            menu.AddDivider();
+            menu.AddSlider("Simulate Load Slowdown", () => s_DEBUGLoadSlowdown,
+                (f) => s_DEBUGLoadSlowdown = f, 0, 1, 0.05f);
+            menu.AddDivider();
             DMPredicate loadPredicate = () => !Game.Scenes.IsMainLoading();
             menu.AddButton("Reload Current Scene", () => { Game.Scenes.ReloadMainScene(); InvokeDebugSceneLoad(); }, loadPredicate);
             menu.AddDivider();

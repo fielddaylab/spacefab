@@ -82,7 +82,7 @@ namespace SpaceFab.Overarching
             for (int i = 0; i < MaxContractSlots; i++)
             {
                 int index = i; // capture per-iteration for the closures
-                //menu.AddButton("Set contract #" + i, () => DebugSetContract(index), () => index < AvailableContractCount() && !IsTransitioning());
+                menu.AddButton("Set contract #" + i, () => DebugSetContract(index), () => index < AvailableContractCount() && !IsTransitioning());
             }
 
             // Opening the menu loads the chapter's available-contracts bundle if it isn't already (safe: no
@@ -94,86 +94,61 @@ namespace SpaceFab.Overarching
         // Loads the current chapter's available-contracts bundle on menu open if it isn't loaded yet.
         private static void EnsureContractsLoaded(DMInfo menu)
         {
-            //if (!Game.SharedState.Has<ChapterState>() || !Game.SharedState.Has<AvailableContractsLookup>())
-            //{
-            //    return;
-            //}
+            ChapterUtility.LoadCurrentChapter(Find.State<ChapterState>());
+        }
 
-            //ChapterState chapterState = Find.State<ChapterState>();
-            //if (chapterState.CurrAvailableContractsBundle != null)
-            //{
-            //    return;
-            //}
-
-            //AvailableContractsLookup lookup = Find.State<AvailableContractsLookup>();
-            //int chapterIndex = chapterState.CurrChapterIndex;
-            //if (lookup.Entries == null || chapterIndex < 0 || chapterIndex >= lookup.Entries.Length)
-            //{
-            //    return;
-            //}
-
-            //// Host the routine on the lookup component so BeauRoutine stops it if that scene unloads (e.g. a
-            //// minigame jump mid-load) instead of letting a hostless routine run on into destroyed state.
-            //Routine.Start(lookup, ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterIndex));
+        static private int AvailableContractCount() {
+            Find.State(out ChapterState chapterState);
+            return chapterState.ChapterDefinition == null ? 0 : chapterState.ChapterDefinition.AvailableContracts.Length;
         }
 
         private static void AppendContractList(StringBuilder sb)
         {
-            //ContractsBundle bundle = ResolveContractsBundle();
-            //if (bundle == null || bundle.AvailableContracts == null || bundle.AvailableContracts.Length == 0)
-            //{
-            //    sb.Append("(no contracts loaded)");
-            //    return;
-            //}
+            Find.State(out ChapterState chapterState);
+            if (chapterState.ChapterDefinition == null || chapterState.ChapterDefinition.AvailableContracts.Length == 0) {
+                sb.Append("(no contracts loaded)");
+                return;
+            }
 
-            //ContractDef[] contracts = bundle.AvailableContracts;
-            //for (int i = 0; i < contracts.Length; i++)
-            //{
-            //    if (i > 0) { sb.Append('\n'); }
-            //    string title = string.IsNullOrEmpty(contracts[i].Title()) ? ("Contract " + i) : contracts[i].Title();
-            //    sb.Append(i).Append(": ").Append(title);
-            //}
+            StringHash32[] contracts = chapterState.ChapterDefinition.AvailableContracts;
+            for (int i = 0; i < contracts.Length; i++) {
+                ContractDef contract = ContractUtility.GetDefinition(contracts[i]);
+
+                if (i > 0) { sb.Append('\n'); }
+                string title = string.IsNullOrEmpty(contract.Title()) ? ("Contract " + i) : contract.Title();
+                sb.Append(i).Append(": ").Append(title);
+            }
         }
 
         // Applies the chosen contract as the active one via the shared data path (no selection UI). Runs the
         // confirm data core as a routine because it waits on the contract-assets scene load.
         private static void DebugSetContract(int index)
         {
-            //if (!Game.SharedState.Has<ChapterState>() || !Game.SharedState.Has<PlayerProgressState>() || !Game.SharedState.Has<ContractAssetsLookup>())
-            //{
-            //    Log.Warn("[OverarchingDebugMenu] Set Contract unavailable: required states not present");
-            //    return;
-            //}
+            if (!Game.SharedState.Has<ChapterState>() || !Game.SharedState.Has<PlayerProgressState>()) {
+                Log.Warn("[OverarchingDebugMenu] Set Contract unavailable: required states not present");
+                return;
+            }
 
-            //if (IsTransitioning())
-            //{
-            //    Log.Warn("[OverarchingDebugMenu] Set Contract ignored: a scene load or transition is in progress");
-            //    return;
-            //}
+            if (IsTransitioning()) {
+                Log.Warn("[OverarchingDebugMenu] Set Contract ignored: a scene load or transition is in progress");
+                return;
+            }
 
-            //ChapterState chapterState = Find.State<ChapterState>();
-            //ContractsBundle bundle = chapterState.CurrAvailableContractsBundle;
-            //if (bundle == null || bundle.AvailableContracts == null || index < 0 || index >= bundle.AvailableContracts.Length)
-            //{
-            //    Log.Warn("[OverarchingDebugMenu] Set Contract: index {0} out of range or contracts not loaded", index);
-            //    return;
-            //}
+            ChapterState chapterState = Find.State<ChapterState>();
+            ChapterDef bundle = chapterState.ChapterDefinition;
+            if (bundle == null || bundle.AvailableContracts == null || index < 0 || index >= bundle.AvailableContracts.Length) {
+                Log.Warn("[OverarchingDebugMenu] Set Contract: index {0} out of range or contracts not loaded", index);
+                return;
+            }
 
-            //PlayerProgressState playerProgress = Find.State<PlayerProgressState>();
-            //ContractAssetsLookup lookup = Find.State<ContractAssetsLookup>();
-            //StringHash32 contractId = bundle.AvailableContracts[index].AssetId;
+            PlayerProgressState playerProgress = Find.State<PlayerProgressState>();
+            ContractState contractState = Find.State<ContractState>();
+            StringHash32 contractId = bundle.AvailableContracts[index];
 
-            //ContractsLookupUtility.ConstructMap(lookup);
-            //if (lookup.Map == null || !lookup.Map.ContainsKey(contractId))
-            //{
-            //    Log.Warn("[OverarchingDebugMenu] Set Contract: no asset-lookup entry for '{0}'", contractId.ToDebugString());
-            //    return;
-            //}
-
-            //// Host on the lookup so the routine is stopped if its scene unloads mid-flight, and keep the
-            //// handle so IsTransitioning() can hold off a minigame jump until the contract is fully applied.
-            //s_ContractApplyRoutine.Replace(lookup, ContractConfirmUtility.ApplyContractByIndex(chapterState, playerProgress, lookup, index));
-            //Log.Msg("[OverarchingDebugMenu] Set contract to index {0} ('{1}')", index, bundle.AvailableContracts[index].Title());
+            // Host on the lookup so the routine is stopped if its scene unloads mid-flight, and keep the
+            // handle so IsTransitioning() can hold off a minigame jump until the contract is fully applied.
+            s_ContractApplyRoutine.Replace(ContractConfirmUtility.ApplyContractByIndex(chapterState, playerProgress, contractState, index));
+            Log.Msg("[OverarchingDebugMenu] Set contract to index {0} ('{1}')", index, ContractUtility.GetDefinition(contractId).Title());
         }
 
         // ---- JumpTo ----

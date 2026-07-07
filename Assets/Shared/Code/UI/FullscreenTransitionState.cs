@@ -145,7 +145,8 @@ namespace SpaceFab
         }
 
         private void UpdateSubtractMaterial() {
-            Color c = Color.white;
+            Color invCurrent = CurrentColor.Invert();
+            Color c = Color.LerpUnclamped(invCurrent, Color.white, CurrentTransitionFactor);
             c.a = CurrentTransitionFactor;
             SubtractTransitionMaterial.SetColor(DefaultShaderProps.Color, c);
             Renderer.sharedMaterial = SubtractTransitionMaterial;
@@ -204,7 +205,13 @@ namespace SpaceFab
             } else if (transitionArgs.TransitionType == "halftone") {
                 mode = FullscreenTransitionState.Mode.Halftone;
             }
-            
+
+            if (transitionArgs.TransitionColorOverride.a > 0) {
+                SetColor(fullscreen, transitionArgs.TransitionColorOverride);
+            } else {
+                ResetColor(fullscreen);
+            }
+
             FadeOut(fullscreen, mode, fullscreen.DefaultTransitionTime, FullscreenTransitionFlags.FlipHalftoneAxis);
             return WaitToComplete(fullscreen);
         }
@@ -304,6 +311,10 @@ namespace SpaceFab
 
         static public bool IsTransitionDone(FullscreenTransitionState fullscreen) {
             return fullscreen.CurrentMode == (fullscreen.ActiveState ? FullscreenTransitionState.Mode.Fullscreen : FullscreenTransitionState.Mode.Off);
+        }
+
+        static public bool IsTransitionFullyFadedOut(FullscreenTransitionState fullscreen) {
+            return fullscreen.CurrentMode == FullscreenTransitionState.Mode.Fullscreen;
         }
 
         static public IEnumerator WaitToComplete(FullscreenTransitionState fullscreen) {

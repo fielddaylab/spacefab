@@ -131,7 +131,7 @@ namespace FieldDay.UI.Widgets {
         public bool Interactable {
             get { return (m_StateFlags & GuiWidgetStateFlags.PauseInteractions) == 0; }
             set {
-                TryUpdateState(this, Bits.Set(m_StateFlags, GuiWidgetStateFlags.PauseInteractions, value));
+                TryUpdateState(this, Bits.Set(m_StateFlags, GuiWidgetStateFlags.PauseInteractions, !value));
             }
         }
 

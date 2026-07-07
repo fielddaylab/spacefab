@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: AudioCore
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
   m_GlobalAssets: []
   m_NamedAssets:
   - {fileID: 11400000, guid: 76e70da6eb8ce0e4bb1bfcacaf794949, type: 2}
@@ -22,5 +23,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 01c52f9e50fe9d747859006868924f25, type: 2}
   - {fileID: 11400000, guid: ff66be8a7c6a49b488c7abe366edc394, type: 2}
   - {fileID: 11400000, guid: f417073fe5bdbb54ca46e06621015a49, type: 2}
+  - {fileID: 11400000, guid: ab5262d60ce03f94c87d9e8c7b9e7ad8, type: 2}
   - {fileID: 11400000, guid: 45eaee1eb8bac224a9b4628deb165826, type: 2}
   m_LiteAssets: []

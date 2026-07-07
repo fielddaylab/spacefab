@@ -30,30 +30,13 @@ namespace SpaceFab
 
         public static void Init(SharedUIState ui)
         {
-            SetLoadIconVisible(ui.LoadIcon, false);
+            ui.LoadIcon.Group.gameObject.SetActive(false);
             SetSaveIconVisible(ui.SaveIcon, false);
         }
 
         #endregion // Init
 
         #region General
-
-        private static void SetLoadIconVisible(LoadIcon icon, bool isVisible)
-        {
-            icon.Group.alpha = isVisible ? 1 : 0;
-        }
-
-        public static IEnumerator FadeInLoadIcon(SharedUIState ui, float inTime)
-        {
-            ui.LoadIcon.gameObject.SetActive(true);
-            yield return ui.LoadIcon.Group.FadeTo(1, inTime);
-        }
-
-        public static IEnumerator FadeOutLoadIcon(SharedUIState ui, float inTime)
-        {
-            yield return ui.LoadIcon.Group.FadeTo(0, inTime);
-            ui.LoadIcon.gameObject.SetActive(false);
-        }
 
         private static void SetSaveIconVisible(SaveIcon icon, bool isVisible)
         {
@@ -73,23 +56,6 @@ namespace SpaceFab
         }
 
         #endregion General
-
-        #region Loading
-
-        public static IEnumerator OnBeginLoading(SharedUIState uiState)
-        {
-            // TODO: begin loading animation
-            uiState.LoadIcon.LoadingText.SetText("Loading");
-            yield return FadeInLoadIcon(uiState, 0.1f);
-        }
-
-        public static IEnumerator OnLoadingComplete(SharedUIState uiState)
-        {
-            uiState.LoadIcon.LoadingText.SetText("Loaded!");
-            yield return FadeOutLoadIcon(uiState, 0.1f);
-        }
-
-        #endregion // Loading
 
         #region Saving
 

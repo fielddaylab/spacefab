@@ -147,13 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08555c6ab7e38f841ad368c1d0e771df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RecentlyCompletedChapter: 0
-  BigBatteryUnlocked: 0
-  InitialUnlocksApplied: 0
-  ElapsedCycles: 0
-  Funds: 0
-  CompletedContractBuffer: 0
-  MaterialPropertyBuffer: []
 --- !u!114 &8902631178501730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,8 +206,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9f8ae4a71ab75540bba45c6a46206e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChapterIndex: 0
-  LastSelectedContractIndex: 0
 --- !u!114 &5367927135572604056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -559,7 +550,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1426292637
   m_SortingLayer: 28
-  m_SortingOrder: -2
+  m_SortingOrder: 4999
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &287980489653284801
 MeshFilter:
@@ -582,7 +573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Layer: -1426292637
-  m_Order: -2
+  m_Order: 4999
 --- !u!114 &3548347457692627550
 MonoBehaviour:
   m_ObjectHideFlags: 0
