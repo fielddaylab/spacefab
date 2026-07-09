@@ -66,8 +66,7 @@ namespace SpaceFab.Research {
             // hypothesis viewmodel.
             bool slotChanged = interfacerState.SlotMaterialUpdatedThisFrame
                 && interfacerState.LastUpdatedKind == ChamberSlotKind.Primary;
-            bool cycleRequested = inputState.HypothesisCycleDelta != 0;
-            if (!viewModelState.NeedsRebuild && !slotChanged && !cycleRequested) {
+            if (!viewModelState.NeedsRebuild && !slotChanged) {
                 viewModelState.HypothesisChangedThisFrame = false;
                 return;
             }
@@ -103,12 +102,6 @@ namespace SpaceFab.Research {
                     prevIndex != 0 || prevLeafSatisfied != 0 || prevSubmit || prevFulfilledMask != 0
                     || prevSlotCount != 0 || prevSlotLocked != 0;
                 return;
-            }
-
-            int delta = inputState.HypothesisCycleDelta;
-            if (delta != 0) {
-                int next = ((viewModelState.ActivePageIndex + delta) % pageCount + pageCount) % pageCount;
-                viewModelState.ActivePageIndex = next;
             }
 
             // 2. Resolve slotted material + the active page's leaves.

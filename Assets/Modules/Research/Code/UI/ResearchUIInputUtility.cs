@@ -9,13 +9,6 @@ namespace SpaceFab.Research {
     /// guard every site.
     /// </summary>
     public static class ResearchUIInputUtility {
-        // Hypothesis paginator step. Delta accumulates within a frame so a
-        // double-click composes; HypothesisViewModelSystem consumes the sum.
-        public static void RequestHypothesisCycle(ResearchUIInputState inputState, int delta) {
-            if (inputState == null) return;
-            inputState.HypothesisCycleDelta += delta;
-        }
-
         // Sample panel's ADD OBSERVATION + button. The view tracks the
         // picker-open state itself; this flag is for telemetry / refresh.
         public static void RequestAddObservation(ResearchUIInputState inputState) {
@@ -52,7 +45,6 @@ namespace SpaceFab.Research {
         // its ProcessWork.
         public static void ClearFrameFlags(ResearchUIInputState inputState) {
             if (inputState == null) return;
-            inputState.HypothesisCycleDelta = 0;
             inputState.AddObservationClickedThisFrame = false;
             inputState.ChipPickerSelectedThisFrame = false;
             inputState.RemoveObservationClickedThisFrame = false;

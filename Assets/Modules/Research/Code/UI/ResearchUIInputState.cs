@@ -11,10 +11,6 @@ namespace SpaceFab.Research {
     /// Replaces the prototype's per-MonoBehaviour CastableEvent listeners.
     /// </summary>
     public class ResearchUIInputState : SharedStateComponent {
-        // Net delta from the hypothesis paginator's left/right arrow clicks.
-        // Accumulated within a frame so successive clicks compose.
-        [NonSerialized] public int HypothesisCycleDelta;
-
         // True for one frame after the sample panel's "ADD OBSERVATION +"
         // button is clicked. ResearchSamplePanel toggles its picker overlay
         // on; no system reads this flag (it's UI-internal), but lives here

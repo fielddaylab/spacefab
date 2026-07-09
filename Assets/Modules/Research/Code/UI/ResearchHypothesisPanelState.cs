@@ -30,20 +30,7 @@ namespace SpaceFab.Research {
     public class ResearchHypothesisPanelState : SharedStateComponent, IRegistrationCallbacks {
         public TMP_Text HeaderLabel;
 
-        public CursorHint LeftArrow;
-        public CursorHint RightArrow;
-
-        // Parent that alloced pagination dots are reparented under on
-        // grow. Typically a RectTransform sitting
-        // between the arrows so the dots flow into place automatically.
-        public RectTransform PaginationDotContainer;
-
-        // Single indicator that moves to the active dot's position
-        // when refreshed. Renders on top of the dots (the visual util
-        // forces it last-sibling on refresh).
-        public RectTransform CurrentHypothesisIndicator;
-
-        public ResearchObservationChip[] Chips;
+        public ResearchObservationChip[] GoalLabels; // Goal property labels
 
         // Refresh request flag. HypothesisPanelVisualSystem reads it
         // alongside HypothesisViewModelState.HypothesisChangedThisFrame
@@ -55,29 +42,10 @@ namespace SpaceFab.Research {
 
         public void OnRegister() {
             NeedsRefresh = true;
-            if (LeftArrow != null) {
-                LeftArrow.onClick.Register(HandleLeftArrow);
-            }
-            if (RightArrow != null) {
-                RightArrow.onClick.Register(HandleRightArrow);
-            }
         }
 
         public void OnDeregister() {
-            if (LeftArrow != null) {
-                LeftArrow.onClick.Deregister(HandleLeftArrow);
-            }
-            if (RightArrow != null) {
-                RightArrow.onClick.Deregister(HandleRightArrow);
-            }
-        }
 
-        private void HandleLeftArrow() {
-            ResearchUIInputUtility.RequestHypothesisCycle(Find.State<ResearchUIInputState>(), -1);
-        }
-
-        private void HandleRightArrow() {
-            ResearchUIInputUtility.RequestHypothesisCycle(Find.State<ResearchUIInputState>(), +1);
         }
     }
 
