@@ -28,7 +28,7 @@ namespace SpaceFab.Research {
     /// chips beyond bit 31 silently fall off.
     /// </summary>
     public class HypothesisViewModelState : SharedStateComponent, FieldDay.IRegistrationCallbacks {
-        public const int MaxObservationsPerPage = 32;
+        public const int MaxObservationsPerPage = 3;
 
         [NonSerialized] public int ActivePageIndex;
 

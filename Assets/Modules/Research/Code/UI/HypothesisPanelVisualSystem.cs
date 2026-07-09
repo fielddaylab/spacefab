@@ -1,4 +1,3 @@
-using BeauPools;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
@@ -55,12 +54,10 @@ namespace SpaceFab.Research {
 
     /// <summary>
     /// Pushes viewmodel state into the ResearchHypothesisPanel's
-    /// inspector-assigned visuals and into the shared dot pool. Invoked
-    /// only when a refresh has been requested (see
-    /// HypothesisPanelVisualSystem). Mutation is on Unity components
-    /// owned by the panel + dot instances (text, GameObject active,
-    /// transform position); the pagesState and viewModel arguments are
-    /// read-only.
+    /// inspector-assigned visuals. Invoked only when a refresh has been
+    /// requested (see HypothesisPanelVisualSystem). Mutation is on Unity
+    /// components owned by the panel (text, GameObject active, transform
+    /// position); the pagesState and viewModel arguments are read-only.
     /// </summary>
     public static class HypothesisPanelVisualUtility {
         public static void Apply(ResearchHypothesisPanelState panel, ResearchHypothesisPagesState pagesState, HypothesisViewModelState viewModel, ResearchPools pools) {
@@ -73,40 +70,32 @@ namespace SpaceFab.Research {
 
             // 3. Empty-page fast path.
             if (pageCount == 0) {
-                if (panel.HeaderLabel != null) {
-                    panel.HeaderLabel.text = string.Empty;
-                }
                 ClearChips(panel);
                 return;
             }
 
-            // 4. Active page header + chips. Per-page fulfilled state is
-            // already on each dot's ConfirmedOverlay above. Submit
-            // button visibility lives on the sample panel.
-            HypothesisPage page = pagesState.Pages[activeIdx];
-            if (panel.HeaderLabel != null) {
-                panel.HeaderLabel.text = "FIND A " + MaterialPropertyLabelDisplay.GetPropertyName(page.Label);
-            }
-            RenderChips(panel, page, viewModel.ActivePageLeafSatisfiedMask, viewModel.ActivePageLeafLockedMask);
+            RenderChips(panel, pagesState, viewModel.PageFulfilledMask);
         }
 
-        private static void RenderChips(ResearchHypothesisPanelState panel, HypothesisPage page, uint satisfiedMask, uint lockedMask) {
-            if (panel.GoalLabels == null) {
+        private static void RenderChips(ResearchHypothesisPanelState panel, ResearchHypothesisPagesState pagesState, uint pageFulfilledMask) {
+            if (panel.PropertyChips == null) {
                 return;
             }
-            MaterialObservationEntry[] leaves = page.DecomposedObservations;
-            int leafCount = leaves != null ? leaves.Length : 0;
-            for (int i = 0; i < panel.GoalLabels.Length; i++) {
-                if (i >= leafCount) {
-                    panel.GoalLabels[i].gameObject.SetActive(false);
+            int pageCount = pagesState.Pages.Count;
+            for (int i = 0; i < panel.PropertyChips.Length; i++)
+            {
+                if (i >= pageCount)
+                {
+                    panel.PropertyChips[i].gameObject.SetActive(false);
                     continue;
                 }
-                panel.GoalLabels[i].gameObject.SetActive(true);
-                bool filled = (satisfiedMask & (1u << i)) != 0;
-                bool locked = (lockedMask & (1u << i)) != 0;
-                panel.GoalLabels[i].SetState(MaterialPropertyLabelDisplay.GetObservationName(leaves[i].Label), filled, locked, leaves[i].ObservationType);
+                HypothesisPage page = pagesState.Pages[i];
+                panel.PropertyChips[i].gameObject.SetActive(true);
+                bool filled = (pageFulfilledMask & (1u << i)) != 0;
+                panel.PropertyChips[i].SetState(MaterialPropertyLabelDisplay.GetPropertyName(page.Label), !filled, false, MaterialObservationChamberLookup.GetChamberType(page.Label));
             }
-            LayoutChips(panel.GoalLabels, leafCount);
+            
+            LayoutChips(panel.PropertyChips, pageCount);
         }
 
         // Gap (px) between adjacent chip rects. Measured edge-to-edge so
@@ -122,11 +111,11 @@ namespace SpaceFab.Research {
         }
 
         private static void ClearChips(ResearchHypothesisPanelState panel) {
-            if (panel.GoalLabels == null) {
+            if (panel.PropertyChips == null) {
                 return;
             }
-            for (int i = 0; i < panel.GoalLabels.Length; i++) {
-                panel.GoalLabels[i].gameObject.SetActive(false);
+            for (int i = 0; i < panel.PropertyChips.Length; i++) {
+                panel.PropertyChips[i].gameObject.SetActive(false);
             }
         }
     }

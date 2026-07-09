@@ -28,9 +28,7 @@ namespace SpaceFab.Research {
     /// largest hypothesis decomposition we expect.
     /// </summary>
     public class ResearchHypothesisPanelState : SharedStateComponent, IRegistrationCallbacks {
-        public TMP_Text HeaderLabel;
-
-        public ResearchObservationChip[] GoalLabels; // Goal property labels
+        public ResearchObservationChip[] PropertyChips; // Goal property labels
 
         // Refresh request flag. HypothesisPanelVisualSystem reads it
         // alongside HypothesisViewModelState.HypothesisChangedThisFrame
