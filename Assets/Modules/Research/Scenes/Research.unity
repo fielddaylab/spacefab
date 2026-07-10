@@ -250,6 +250,7 @@ GameObject:
   - component: {fileID: 153333691}
   - component: {fileID: 153333690}
   - component: {fileID: 153333692}
+  - component: {fileID: 153333693}
   m_Layer: 5
   m_Name: Thermal
   m_TagString: Untagged
@@ -334,6 +335,20 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: Thermal Chamber
   TooltipFooter: 
+--- !u!114 &153333693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 153333687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5049f41cf08a5471699373868a9afccb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cursor: {fileID: 153333692}
+  Image: {fileID: 153333690}
 --- !u!1 &154977751
 GameObject:
   m_ObjectHideFlags: 0
@@ -885,7 +900,10 @@ MonoBehaviour:
   ChipPickerOverlay: {fileID: 154977751}
   PickerChipContainer: {fileID: 154977752}
   VerifyButton: {fileID: 90222739}
-  ChamberSwitchButtonStubs: []
+  VoltageChamberButton: {fileID: 757854192}
+  ThermalChamberButton: {fileID: 153333693}
+  DopingChamberButton: {fileID: 1561945538}
+  ChamberText: {fileID: 254323415}
 --- !u!1 &429588018
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,9 +975,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrimarySlot: {fileID: 745562931947869658}
   SecondarySlot: {fileID: 1507321826}
-  VoltageChamberButton: {fileID: 757854191}
-  ThermalChamberButton: {fileID: 153333692}
-  DopingChamberButton: {fileID: 1561945537}
 --- !u!114 &429588023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1133,6 +1148,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e6b6916973d8e8b42983eb83d21dc12c, type: 2}
   - {fileID: 11400000, guid: c04696d6e82e815489eed9ed544f23c7, type: 2}
   - {fileID: 11400000, guid: 2770786280182f546a14d6db5fc05fc5, type: 2}
+  - {fileID: 11400000, guid: e597f3aae59bc440baf18faf3a1a5706, type: 2}
 --- !u!4 &436549460
 Transform:
   m_ObjectHideFlags: 0
@@ -1700,6 +1716,7 @@ GameObject:
   - component: {fileID: 757854190}
   - component: {fileID: 757854189}
   - component: {fileID: 757854191}
+  - component: {fileID: 757854192}
   m_Layer: 5
   m_Name: Voltage
   m_TagString: Untagged
@@ -1784,6 +1801,20 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: Voltage Chamber
   TooltipFooter: 
+--- !u!114 &757854192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757854186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5049f41cf08a5471699373868a9afccb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cursor: {fileID: 757854191}
+  Image: {fileID: 757854189}
 --- !u!1 &774033812
 GameObject:
   m_ObjectHideFlags: 0
@@ -3259,6 +3290,7 @@ GameObject:
   - component: {fileID: 1561945536}
   - component: {fileID: 1561945535}
   - component: {fileID: 1561945537}
+  - component: {fileID: 1561945538}
   m_Layer: 5
   m_Name: Doping
   m_TagString: Untagged
@@ -3343,6 +3375,20 @@ MonoBehaviour:
   TooltipHeader: 
   Tooltip: Doping Chamber
   TooltipFooter: 
+--- !u!114 &1561945538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561945532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5049f41cf08a5471699373868a9afccb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cursor: {fileID: 1561945537}
+  Image: {fileID: 1561945535}
 --- !u!1 &1621446472
 GameObject:
   m_ObjectHideFlags: 0

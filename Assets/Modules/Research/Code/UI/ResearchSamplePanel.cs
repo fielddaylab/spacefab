@@ -43,7 +43,11 @@ namespace SpaceFab.Research {
 
         public CursorHint VerifyButton;
 
-        public GameObject[] ChamberSwitchButtonStubs;
+        // Chamber buttons
+        public ChamberButton VoltageChamberButton;
+        public ChamberButton ThermalChamberButton;
+        public ChamberButton DopingChamberButton;
+        public TMP_Text ChamberText;
 
         // Whether the picker overlay is currently open. Per-instance
         // transient state; the visual system reads it to decide whether
@@ -91,6 +95,16 @@ namespace SpaceFab.Research {
                 VerifyButton.onClick.Register(HandleSubmit);
             }
 
+            if (VoltageChamberButton != null) {
+                VoltageChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Voltage));
+            }
+            if (ThermalChamberButton != null) {
+                ThermalChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Thermal));
+            }
+            if (DopingChamberButton != null) {
+                DopingChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
+            }
+
             SamplePanelInputUtility.ClosePicker(this);
         }
 
@@ -116,6 +130,16 @@ namespace SpaceFab.Research {
             }
             if (VerifyButton != null) {
                 VerifyButton.onClick.Deregister(HandleSubmit);
+            }
+
+            if (VoltageChamberButton != null) {
+                VoltageChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Voltage));
+            }
+            if (ThermalChamberButton != null) {
+                ThermalChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Thermal));
+            }
+            if (DopingChamberButton != null) {
+                DopingChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
         }
 
@@ -148,6 +172,11 @@ namespace SpaceFab.Research {
 
         private void HandleSubmit() {
             ResearchUIInputUtility.RequestSubmit(Find.State<ResearchUIInputState>());
+        }
+
+        private void HandleChamberSwitch(ActiveChamberKind kind)
+        {
+            ChamberInterfacerUtility.SetActiveChamber(Find.State<ChamberInterfacerState>(), kind);
         }
     }
 

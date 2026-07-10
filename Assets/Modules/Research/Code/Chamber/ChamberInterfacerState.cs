@@ -3,6 +3,7 @@ using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Research {
@@ -25,8 +26,9 @@ namespace SpaceFab.Research {
     /// </summary>
     public enum ActiveChamberKind : byte {
         None,
-        Battery,
+        Voltage,
         Thermal,
+        Doping
     }
 
     /// <summary>
@@ -61,50 +63,13 @@ namespace SpaceFab.Research {
         [NonSerialized] public bool ActiveChamberChangedThisFrame;
         [NonSerialized] public ActiveChamberKind ActiveChamber;
 
-        // Chamber buttons
-        public CursorHint VoltageChamberButton;
-        public CursorHint ThermalChamberButton;
-        public CursorHint DopingChamberButton;
-
         public void OnRegister()
         {
-            if (VoltageChamberButton != null) {
-                VoltageChamberButton.onClick.AddListener(HandleBatteryChamber);
-            }
-            if (ThermalChamberButton != null) {
-                ThermalChamberButton.onClick.AddListener(HandleThermalChamber);
-            }
-            if (DopingChamberButton != null) {
-                DopingChamberButton.onClick.AddListener(HandleDopingChamber);
-            }
+            
         }
 
         public void OnDeregister() {
             LastUpdatedMaterial = null;
-
-            if (VoltageChamberButton != null) {
-                VoltageChamberButton.onClick.RemoveListener(HandleBatteryChamber);
-            }
-            if (ThermalChamberButton != null) {
-                ThermalChamberButton.onClick.RemoveListener(HandleThermalChamber);
-            }
-            if (DopingChamberButton != null) {
-                DopingChamberButton.onClick.RemoveListener(HandleDopingChamber);
-            }
-        }
-
-        private void HandleBatteryChamber()
-        {
-            ChamberInterfacerUtility.SetActiveChamber(this, ActiveChamberKind.Battery);
-        }
-        private void HandleThermalChamber()
-        {
-            ChamberInterfacerUtility.SetActiveChamber(this, ActiveChamberKind.Thermal);
-        }
-        private void HandleDopingChamber()
-        {
-            // ChamberInterfacerUtility.SetActiveChamber(this, ActiveChamberKind.Doping);
-            // ChamberInterfacerUtility.SetReceptive(this, ChamberSlotKind.Secondary, true);
         }
     }
 

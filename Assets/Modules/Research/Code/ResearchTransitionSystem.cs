@@ -137,7 +137,7 @@ namespace SpaceFab.Research {
             // when the station-transition system lands, this hardcoded
             // activation moves into station logic and reacts to player nav.
             // TODO: clear ActiveChamber + receptive flags on minigame exit.
-            ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Battery);
+            ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Voltage);
             ChamberInterfacerUtility.SetReceptive(interfacerState, ChamberSlotKind.Primary, true);
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
