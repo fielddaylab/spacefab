@@ -55,10 +55,10 @@ namespace SpaceFab.Research {
                 s_VerifyShownPending = false;
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnVerifyButtonShown);
             }
-            if (hypoVm.SubmitButtonVisible && !s_PrevSubmitVisible) {
+            if (hypoVm.VerifyButtonVisible && !s_PrevSubmitVisible) {
                 s_VerifyShownPending = true;
             }
-            s_PrevSubmitVisible = hypoVm.SubmitButtonVisible;
+            s_PrevSubmitVisible = hypoVm.VerifyButtonVisible;
         }
     }
 
@@ -93,7 +93,7 @@ namespace SpaceFab.Research {
             // and filled-state paths regardless of where the button
             // sits in the panel hierarchy.
             if (panel.VerifyButton != null) {
-                panel.VerifyButton.gameObject.SetActive(hypoVm.SubmitButtonVisible);
+                panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
             }
 
             // 1. Empty-state path: no material slotted.

@@ -83,7 +83,7 @@ namespace SpaceFab.Research {
             uint prevLeafLocked = viewModelState.ActivePageLeafLockedMask;
             uint prevSlotLocked = viewModelState.ActivePageSlotLockedMask;
             int prevSlotCount = viewModelState.ActivePageSlotCount;
-            bool prevSubmit = viewModelState.SubmitButtonVisible;
+            bool prevSubmit = viewModelState.VerifyButtonVisible;
             uint prevFulfilledMask = viewModelState.PageFulfilledMask;
 
             // 1. Apply page cycle. Wrapping in both directions; bail to 0
@@ -96,7 +96,7 @@ namespace SpaceFab.Research {
                 viewModelState.ActivePageSlotCount = 0;
                 viewModelState.ActivePageSlotLockedMask = 0;
                 viewModelState.PageFulfilledMask = 0;
-                viewModelState.SubmitButtonVisible = false;
+                viewModelState.VerifyButtonVisible = false;
                 viewModelState.HypothesisChangedThisFrame =
                     prevIndex != 0 || prevLeafSatisfied != 0 || prevSubmit || prevFulfilledMask != 0
                     || prevSlotCount != 0 || prevSlotLocked != 0;
@@ -188,8 +188,10 @@ namespace SpaceFab.Research {
                 || slotLockedMask != prevSlotLocked;
             viewModelState.HypothesisChangedThisFrame = changed;
 
-            if (viewModelState.ActivePageIndex == -1)
+            if (viewModelState.ActivePageIndex == -1) {
+                viewModelState.VerifyButtonVisible = false;
                 return;
+            }
 
             HypothesisPage page = pagesState.Pages[viewModelState.ActivePageIndex];
             MaterialObservationEntry[] leaves = page.DecomposedObservations;
@@ -229,7 +231,7 @@ namespace SpaceFab.Research {
             // match. The hypothesis is only confirmed if every slot
             // also matches; otherwise the wrong picks get culled and
             // the player tries again.
-            viewModelState.SubmitButtonVisible = leafCount > 0 && slotCount == leafCount;
+            viewModelState.VerifyButtonVisible = leafCount > 0 && slotCount == leafCount && viewModelState.ActivePageIndex != -1;
 
             // 5. Per-page fulfilled mask: bit i = page i has been
             // confirmed by some known material (sandbox or saved
@@ -249,7 +251,7 @@ namespace SpaceFab.Research {
             changed = changed
                 || leafSatisfiedMask != prevLeafSatisfied
                 || leafLockedMask != prevLeafLocked
-                || viewModelState.SubmitButtonVisible != prevSubmit
+                || viewModelState.VerifyButtonVisible != prevSubmit
                 || pageFulfilledMask != prevFulfilledMask;
             viewModelState.HypothesisChangedThisFrame = changed;
         }

@@ -55,7 +55,7 @@ namespace SpaceFab.Research {
         // HypothesisSubmitSystem consumes the flag next Update.
         public static void RequestSubmit(ResearchUIInputState inputState) {
             if (inputState == null) return;
-            inputState.SubmitHypothesisClickedThisFrame = true;
+            inputState.VerifyHypothesisClickedThisFrame = true;
         }
 
         // End-of-frame clear. ResearchUIInputRefreshSystem calls this from
@@ -66,7 +66,7 @@ namespace SpaceFab.Research {
             inputState.ChipPickerSelectedThisFrame = false;
             inputState.RemoveObservationClickedThisFrame = false;
             inputState.RemoveObservationSlotIndex = -1;
-            inputState.SubmitHypothesisClickedThisFrame = false;
+            inputState.VerifyHypothesisClickedThisFrame = false;
             inputState.RemoveHypothesisClickedThisFrame = false;
             inputState.HypothesisSelectedClickedThisFrame = false;
         }

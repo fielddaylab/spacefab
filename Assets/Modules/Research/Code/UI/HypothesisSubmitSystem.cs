@@ -50,7 +50,7 @@ namespace SpaceFab.Research {
                 out PlayerProgressState progressState
                 );
 
-            if (!inputState.SubmitHypothesisClickedThisFrame) {
+            if (!inputState.VerifyHypothesisClickedThisFrame) {
                 return;
             }
 

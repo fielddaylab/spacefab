@@ -71,7 +71,7 @@ namespace SpaceFab.Research {
 
         // True when every leaf on the active page is satisfied. Drives
         // the submit button's visibility.
-        [NonSerialized] public bool SubmitButtonVisible;
+        [NonSerialized] public bool VerifyButtonVisible;
 
         // === Frame flags ===
 

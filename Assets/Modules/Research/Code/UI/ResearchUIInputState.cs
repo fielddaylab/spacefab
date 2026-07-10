@@ -37,6 +37,6 @@ namespace SpaceFab.Research {
 
         // Set when the hypothesis panel's submit button is clicked.
         // HypothesisSubmitSystem consumes it.
-        [NonSerialized] public bool SubmitHypothesisClickedThisFrame;
+        [NonSerialized] public bool VerifyHypothesisClickedThisFrame;
     }
 }
