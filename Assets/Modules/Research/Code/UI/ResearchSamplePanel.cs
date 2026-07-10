@@ -107,6 +107,10 @@ namespace SpaceFab.Research {
                     }
                 }
             }
+            if (HypothesisChip != null) {
+                HypothesisChip.Click.onClick.Deregister(HandlePropertySlotClick);
+            }
+
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Deregister(HandleAddObservation);
             }
@@ -205,7 +209,7 @@ namespace SpaceFab.Research {
             if (panel == null || viewModel == null) {
                 return;
             }
-            if (viewModel.ActivePageIndex != -1) {
+            if (viewModel.ActivePageIndex == -1) {
                 return;
             }
             bool locked = (viewModel.PageFulfilledMask & (1u << viewModel.ActivePageIndex)) != 0;

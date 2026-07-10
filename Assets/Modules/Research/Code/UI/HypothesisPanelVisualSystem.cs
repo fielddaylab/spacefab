@@ -66,7 +66,6 @@ namespace SpaceFab.Research {
             }
 
             int pageCount = pagesState.Pages.Count;
-            int activeIdx = viewModel.ActivePageIndex;
 
             // 3. Empty-page fast path.
             if (pageCount == 0) {

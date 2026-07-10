@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -168,20 +169,18 @@ namespace SpaceFab.Research {
                 }
             }
 
-            // 3-1. Show hypothesis chip slot if at least one observation slot
-            // chip is filled.
-            panel.HypothesisChip.gameObject.SetActive(hypoVm.ActivePageSlotCount > 0);
+            // 3-1. Render hypothesis chip slot
+            panel.HypothesisChip.gameObject.SetActive(true);
             bool hypoFilled = hypoVm.ActivePageIndex != -1;
             bool hypoLocked = hypoFilled && (hypoVm.PageFulfilledMask & (1u << hypoVm.ActivePageIndex)) != 0;
+            string hypoLabel = null;
+            ObservationType hypoType = default;
             if (hypoFilled) {
-                MaterialPropertyLabel hypoLabel = pagesState.Pages[hypoVm.ActivePageIndex].Label;
-                panel.HypothesisChip.SetState(
-                    MaterialPropertyLabelDisplay.GetPropertyName(hypoLabel),
-                    hypoFilled,
-                    hypoLocked,
-                    MaterialObservationChamberLookup.GetChamberType(hypoLabel)
-                );
+                MaterialPropertyLabel hypo = pagesState.Pages[hypoVm.ActivePageIndex].Label;
+                hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
+                hypoType = MaterialObservationChamberLookup.GetChamberType(hypo);
             }
+            panel.HypothesisChip.SetState(hypoLabel, hypoFilled, hypoLocked, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
             // once on chamber load (ObservationPickerLoadUtility);
