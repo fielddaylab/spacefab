@@ -31,6 +31,7 @@ namespace SpaceFab.Research {
         public GameObject MainContent;
 
         public ResearchObservationChip[] SlotChips;
+        public ResearchObservationChip HypothesisChip;
 
         public CursorHint AddObservationButton;
         public GameObject ChipPickerOverlay;
@@ -40,7 +41,7 @@ namespace SpaceFab.Research {
         // lays chips out here vertically and resizes the overlay to fit.
         public RectTransform PickerChipContainer;
 
-        public CursorHint SubmitButton;
+        public CursorHint VerifyButton;
 
         public GameObject[] ChamberSwitchButtonStubs;
 
@@ -78,11 +79,16 @@ namespace SpaceFab.Research {
                     }
                 }
             }
+
+            if (HypothesisChip != null) {
+                HypothesisChip.Click.onClick.Register(HandlePropertySlotClick);
+            }
+            
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Register(HandleAddObservation);
             }
-            if (SubmitButton != null) {
-                SubmitButton.onClick.Register(HandleSubmit);
+            if (VerifyButton != null) {
+                VerifyButton.onClick.Register(HandleSubmit);
             }
 
             SamplePanelInputUtility.ClosePicker(this);
@@ -104,8 +110,8 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Deregister(HandleAddObservation);
             }
-            if (SubmitButton != null) {
-                SubmitButton.onClick.Deregister(HandleSubmit);
+            if (VerifyButton != null) {
+                VerifyButton.onClick.Deregister(HandleSubmit);
             }
         }
 
@@ -129,6 +135,11 @@ namespace SpaceFab.Research {
 
         private void HandleSlotClick(int index) {
             SamplePanelInputUtility.RequestSlotRemove(this, Find.State<ResearchUIInputState>(), Find.State<HypothesisViewModelState>(), index);
+        }
+
+        private void HandlePropertySlotClick()
+        {
+            SamplePanelInputUtility.RequestHypothesisSlotRemove(this, Find.State<ResearchUIInputState>(), Find.State<HypothesisViewModelState>());
         }
 
         private void HandleSubmit() {
@@ -187,6 +198,21 @@ namespace SpaceFab.Research {
                 return;
             }
             ResearchUIInputUtility.RequestRemoveObservation(inputState, index);
+        }
+
+        // Hypothesis-slot click. Can be removed if the slot is filled and non-locked.
+        public static void RequestHypothesisSlotRemove(ResearchSamplePanel panel, ResearchUIInputState inputState, HypothesisViewModelState viewModel) {
+            if (panel == null || viewModel == null) {
+                return;
+            }
+            if (viewModel.ActivePageIndex != -1) {
+                return;
+            }
+            bool locked = (viewModel.PageFulfilledMask & (1u << viewModel.ActivePageIndex)) != 0;
+            if (locked) {
+                return;
+            }
+            ResearchUIInputUtility.RequestRemoveHypothesis(inputState);
         }
 
         // Returns every pool-held picker chip to the pool, deregistering

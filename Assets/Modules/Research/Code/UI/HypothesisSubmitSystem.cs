@@ -78,8 +78,7 @@ namespace SpaceFab.Research {
             // observation evaluator's logic is satisfied — Conductive
             // simply isn't true for Silicon.
             
-            string failureReason = null;
-            bool anyPruned = PruneIncorrectPicks(researchState, slotted, page, viewModelState, out failureReason);
+            bool anyPruned = PruneIncorrectPicks(researchState, slotted, page, viewModelState, out string failureReason);
             if (anyPruned) {
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
 

@@ -91,8 +91,8 @@ namespace SpaceFab.Research {
             // Driven explicitly here so it works in both the empty-state
             // and filled-state paths regardless of where the button
             // sits in the panel hierarchy.
-            if (panel.SubmitButton != null) {
-                panel.SubmitButton.gameObject.SetActive(hypoVm.SubmitButtonVisible);
+            if (panel.VerifyButton != null) {
+                panel.VerifyButton.gameObject.SetActive(hypoVm.SubmitButtonVisible);
             }
 
             // 1. Empty-state path: no material slotted.
@@ -114,6 +114,8 @@ namespace SpaceFab.Research {
                         }
                     }
                 }
+                if (panel.HypothesisChip != null)
+                    panel.HypothesisChip.gameObject.SetActive(false);
                 SamplePanelInputUtility.ClosePicker(panel);
                 return;
             }
@@ -164,6 +166,21 @@ namespace SpaceFab.Research {
                     }
                     panel.SlotChips[i].SetState(label, filled, locked, type, useEmptyDashedSprite: true);
                 }
+            }
+
+            // 3-1. Show hypothesis chip slot if at least one observation slot
+            // chip is filled.
+            panel.HypothesisChip.gameObject.SetActive(hypoVm.ActivePageSlotCount > 0);
+            bool hypoFilled = hypoVm.ActivePageIndex != -1;
+            bool hypoLocked = hypoFilled && (hypoVm.PageFulfilledMask & (1u << hypoVm.ActivePageIndex)) != 0;
+            if (hypoFilled) {
+                MaterialPropertyLabel hypoLabel = pagesState.Pages[hypoVm.ActivePageIndex].Label;
+                panel.HypothesisChip.SetState(
+                    MaterialPropertyLabelDisplay.GetPropertyName(hypoLabel),
+                    hypoFilled,
+                    hypoLocked,
+                    MaterialObservationChamberLookup.GetChamberType(hypoLabel)
+                );
             }
 
             // 4. Picker overlay. Population + layout + resize happen

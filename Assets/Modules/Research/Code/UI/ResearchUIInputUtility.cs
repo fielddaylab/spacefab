@@ -34,6 +34,14 @@ namespace SpaceFab.Research {
             inputState.RemoveObservationClickedThisFrame = true;
         }
 
+        // Player clicked a filled hypothesis slot in the
+        // sample panel. ObservationCollectSystem resolves the slot index
+        // to a (label, context) via the active hypothesis page.
+        public static void RequestRemoveHypothesis(ResearchUIInputState inputState) {
+            if (inputState == null) return;
+            inputState.RemoveHypothesisClickedThisFrame = true;
+        }
+
         // Player clicked the hypothesis-panel submit button.
         // HypothesisSubmitSystem consumes the flag next Update.
         public static void RequestSubmit(ResearchUIInputState inputState) {
