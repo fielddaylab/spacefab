@@ -31,6 +31,8 @@ namespace SpaceFab.Research {
         [NonSerialized] public int RemoveObservationSlotIndex;
         [NonSerialized] public bool RemoveObservationClickedThisFrame;
 
+        [NonSerialized] public int AddHypothesisIndex;
+        [NonSerialized] public bool HypothesisSelectedClickedThisFrame;
         [NonSerialized] public bool RemoveHypothesisClickedThisFrame;
 
         // Set when the hypothesis panel's submit button is clicked.

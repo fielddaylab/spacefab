@@ -34,6 +34,15 @@ namespace SpaceFab.Research {
             inputState.RemoveObservationClickedThisFrame = true;
         }
 
+        // Player picked a chip from the hypothesis panel.
+        // ObservationCollectSystem consumes the (label, slottedId) pair
+        // next Update.
+        public static void RequestHypothesisSelection(ResearchUIInputState inputState, int hypoIndex) {
+            if (inputState == null) return;
+            inputState.AddHypothesisIndex = hypoIndex;
+            inputState.HypothesisSelectedClickedThisFrame = true;
+        }
+
         // Player clicked a filled hypothesis slot in the
         // sample panel. ObservationCollectSystem resolves the slot index
         // to a (label, context) via the active hypothesis page.
@@ -58,6 +67,8 @@ namespace SpaceFab.Research {
             inputState.RemoveObservationClickedThisFrame = false;
             inputState.RemoveObservationSlotIndex = -1;
             inputState.SubmitHypothesisClickedThisFrame = false;
+            inputState.RemoveHypothesisClickedThisFrame = false;
+            inputState.HypothesisSelectedClickedThisFrame = false;
         }
     }
 }

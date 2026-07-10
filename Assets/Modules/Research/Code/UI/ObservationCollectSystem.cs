@@ -43,7 +43,7 @@ namespace SpaceFab.Research {
             );
 
             if (!inputState.ChipPickerSelectedThisFrame && !inputState.RemoveObservationClickedThisFrame
-                && !inputState.RemoveHypothesisClickedThisFrame) {
+                && !inputState.HypothesisSelectedClickedThisFrame && !inputState.RemoveHypothesisClickedThisFrame) {
                 return;
             }
 
@@ -89,14 +89,23 @@ namespace SpaceFab.Research {
                 }
             }
 
-            // Remove hypothesis chip
-            if (inputState.RemoveHypothesisClickedThisFrame) {
+            // Add hypothesis chip
+            if (inputState.HypothesisSelectedClickedThisFrame) {
                 HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
                 if (viewModelState != null) {
                     bool locked = (viewModelState.PageFulfilledMask & (1u << viewModelState.ActivePageIndex)) != 0;
                     if (!locked) {
                         viewModelDirty = true;
                     }
+                }
+            }
+
+            // Remove hypothesis chip
+            if (inputState.RemoveHypothesisClickedThisFrame) {
+                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
+                if (viewModelState != null) {
+                    viewModelState.ActivePageIndex = -1;
+                    viewModelDirty = true;
                 }
             }
 

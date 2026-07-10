@@ -28,7 +28,12 @@ namespace SpaceFab.Research {
     /// largest hypothesis decomposition we expect.
     /// </summary>
     public class ResearchHypothesisPanelState : SharedStateComponent, IRegistrationCallbacks {
-        public ResearchObservationChip[] PropertyChips; // Goal property labels
+        // Goal property labels
+        public ResearchObservationChip[] PropertyChips;
+        
+        // Cached delegate references for slot click handlers so
+        // OnDeregister can detach precisely.
+        [NonSerialized] private Action[] m_SlotClickHandlers;
 
         // Refresh request flag. HypothesisPanelVisualSystem reads it
         // alongside HypothesisViewModelState.HypothesisChangedThisFrame
@@ -39,11 +44,33 @@ namespace SpaceFab.Research {
         [NonSerialized] public bool NeedsRefresh;
 
         public void OnRegister() {
+            if (PropertyChips != null) {
+                m_SlotClickHandlers = new Action[PropertyChips.Length];
+                for (int i = 0; i < PropertyChips.Length; i++) {
+                    int captured = i;
+                    m_SlotClickHandlers[i] = () => HandlePropertyClick(captured);
+                    if (PropertyChips[i] != null && PropertyChips[i].Click != null) {
+                        PropertyChips[i].Click.onClick.Register(m_SlotClickHandlers[i]);
+                    }
+                }
+            }
+
             NeedsRefresh = true;
         }
 
         public void OnDeregister() {
+            if (PropertyChips != null && m_SlotClickHandlers != null) {
+                for (int i = 0; i < PropertyChips.Length; i++) {
+                    if (PropertyChips[i] != null && PropertyChips[i].Click != null && m_SlotClickHandlers[i] != null) {
+                        PropertyChips[i].Click.onClick.Deregister(m_SlotClickHandlers[i]);
+                    }
+                }
+            }
+        }
 
+        private void HandlePropertyClick(int index)
+        {
+            ResearchUIInputUtility.RequestHypothesisSelection(Find.State<ResearchUIInputState>(), index);
         }
     }
 

@@ -102,6 +102,10 @@ namespace SpaceFab.Research {
                     || prevSlotCount != 0 || prevSlotLocked != 0;
                 return;
             }
+
+            if (inputState.HypothesisSelectedClickedThisFrame) {
+                viewModelState.ActivePageIndex = inputState.AddHypothesisIndex;
+            }
             
             // 2. Resolve slotted material + the active page's leaves.
             ResearchSlot primarySlot = interfacerState.PrimarySlot;
