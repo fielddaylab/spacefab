@@ -145,19 +145,13 @@ namespace SpaceFab.Research {
 
             // 3. Slot chips render the viewmodel's slot view (auto-
             // locked entries first, then player picks in insertion
-            // order). Capacity = ActivePageObservationCount (= leaf
-            // count). Filled slots [0..SlotCount) show the picked
+            // order). Filled slots [0..SlotCount) show the picked
             // label + that label's per-type sprite; remaining slots
             // up to capacity render dashed-empty.
-            int slotCapacity = hypoVm.ActivePageObservationCount;
             int slotCount = hypoVm.ActivePageSlotCount;
 
             if (panel.SlotChips != null) {
                 for (int i = 0; i < panel.SlotChips.Length; i++) {
-                    if (i >= slotCapacity) {
-                        panel.SlotChips[i].gameObject.SetActive(false);
-                        continue;
-                    }
                     panel.SlotChips[i].gameObject.SetActive(true);
                     bool filled = i < slotCount;
                     bool locked = filled && (hypoVm.ActivePageSlotLockedMask & (1u << i)) != 0;

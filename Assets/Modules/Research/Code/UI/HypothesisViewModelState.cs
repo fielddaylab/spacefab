@@ -28,14 +28,10 @@ namespace SpaceFab.Research {
     /// chips beyond bit 31 silently fall off.
     /// </summary>
     public class HypothesisViewModelState : SharedStateComponent, FieldDay.IRegistrationCallbacks {
+        // Capacity for the slot view; Always show 3 slots.
         public const int MaxObservationsPerPage = 3;
 
         [NonSerialized] public int ActivePageIndex;
-
-        // Capacity for the slot view; equals the active page's leaf count
-        // (clamped to MaxObservationsPerPage). Also bounds the slot
-        // arrays' meaningful range.
-        [NonSerialized] public int ActivePageObservationCount;
 
         // === Leaf view ===
 

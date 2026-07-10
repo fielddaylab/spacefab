@@ -90,7 +90,6 @@ namespace SpaceFab.Research {
             // when the page list is empty.
             if (pageCount == 0) {
                 viewModelState.ActivePageIndex = 0;
-                viewModelState.ActivePageObservationCount = 0;
                 viewModelState.ActivePageLeafSatisfiedMask = 0;
                 viewModelState.ActivePageLeafLockedMask = 0;
                 viewModelState.ActivePageLeafSatisfiedCount = 0;
@@ -117,7 +116,6 @@ namespace SpaceFab.Research {
                 // Mask is a uint; chips beyond bit 31 silently fall off.
                 leafCount = slotCap;
             }
-            viewModelState.ActivePageObservationCount = leafCount;
 
             // 3. Build the slot view. Auto-locked entries first (one per
             // ancestor-confirmed leaf), then player picks in insertion
