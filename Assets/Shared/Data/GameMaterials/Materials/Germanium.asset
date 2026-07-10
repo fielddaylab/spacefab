@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Germanium
   m_EditorClassIdentifier: 
   DisplayName: Germanium
+  ShortName: Ge
   ValenceElectronCounts: 04000000
   AtomicRadii: 7d000000
+  Properties: 1219

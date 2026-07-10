@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Aluminum
   m_EditorClassIdentifier: 
   DisplayName: Aluminum
+  ShortName: Al
   ValenceElectronCounts: 03000000
   AtomicRadii: 76000000
+  Properties: 11

@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: SiliconNitride
   m_EditorClassIdentifier: 
   DisplayName: Silicon Nitride
+  ShortName: Si3N4
   ValenceElectronCounts: 0400000005000000
   AtomicRadii: 6f00000038000000
+  Properties: 10

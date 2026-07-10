@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Tungsten
   m_EditorClassIdentifier: 
   DisplayName: Tungsten
+  ShortName: W
   ValenceElectronCounts: 02000000
   AtomicRadii: c1000000
+  Properties: 1113
