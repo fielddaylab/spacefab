@@ -6,6 +6,7 @@ using FieldDay.SharedState;
 using SpaceFab.Materials;
 using SpaceFab.Save;
 using SpaceFab.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,34 +17,31 @@ namespace SpaceFab
     {
         #region Save State
 
-        public bool RecentlyCompletedChapter;
+        [NonSerialized] public StringHash32 RecentlyCompletedContract;
 
-        public bool BigBatteryUnlocked;
+        [NonSerialized] public bool BigBatteryUnlocked;
 
         // Tracks whether the one-shot wiki initial-unlocks pass has
         // already run for this save. OverarchingStartupSequenceSystem
         // applies WikiInitialUnlocksConfig.InitialUnlockedPages once
         // when this is false, then sets it true.
-        public bool InitialUnlocksApplied;
+        [NonSerialized] public bool InitialUnlocksApplied;
 
-        public int ElapsedCycles;
-        public int Funds;
+        [NonSerialized] public int ElapsedCycles;
+        [NonSerialized] public int Funds;
 
-        public uint CompletedContractBuffer;
-        public MaterialPropertyRecord[] MaterialPropertyBuffer;
+        [NonSerialized] public uint CompletedContractBuffer;
+        [NonSerialized] public MaterialPropertyRecord[] MaterialPropertyBuffer;
 
         // Wiki pages the player has unlocked. Populated by WikiUtility.UnlockPage; read by
         // WikiAvailabilityUtility and WikiUtility's lock queries to decide which tabs/pages
         // are exposed. Account-scoped, so it persists across minigames.
-        public HashSet<StringHash32> UnlockedWikiPages;
-        
+        [NonSerialized] public HashSet<StringHash32> UnlockedWikiPages;
+
         #endregion // Save State
 
-        public Dictionary<StringHash32, MaterialPropertyRecord> MaterialProperties;
-        public HashSet<StringHash32> CompletedContractIds;
-
-        public StringHash32 ContractAssetsWrapperId;
-        public StringHash32 CurrContractId;
+        [NonSerialized] public Dictionary<StringHash32, MaterialPropertyRecord> MaterialProperties;
+        [NonSerialized] public HashSet<StringHash32> CompletedContractIds;
 
         public void OnDeregister()
         {
@@ -63,10 +61,11 @@ namespace SpaceFab
 
         public void Read(object self, ref ByteReader reader, SaveStateChunkConsts consts)
         {
-            RecentlyCompletedChapter = reader.Read<bool>();
-
             UnlockedWikiPages ??= new HashSet<StringHash32>();
             UnlockedWikiPages.Clear();
+
+            RecentlyCompletedContract = reader.Read<StringHash32>();
+
             int count = reader.Read<int>();
             for (int i = 0; i < count; i++)
             {
@@ -81,11 +80,12 @@ namespace SpaceFab
             // versioned slot.
             BigBatteryUnlocked = reader.Read<bool>();
             InitialUnlocksApplied = reader.Read<bool>();
+            
         }
 
         public void Write(object self, ref ByteWriter writer, SaveStateChunkConsts consts)
         {
-            writer.Write(RecentlyCompletedChapter);
+            writer.Write(RecentlyCompletedContract);
 
             int count = UnlockedWikiPages?.Count ?? 0;
             writer.Write(count);
@@ -124,13 +124,12 @@ namespace SpaceFab
         /// </summary>
         public static uint PackCompletedContracts(PlayerProgressState state)
         {
-            var contractOrder = Find.GlobalAsset<ContractOrderAsset>();
+            var contractOrder = Find.GlobalAsset<ContractManifest>();
             state.CompletedContractBuffer = 0;
-            foreach (var id in state.CompletedContractIds)
-            {
-                if (contractOrder.TryGetIndex(id, out int idx))
-                {
-                    state.CompletedContractBuffer |= (1u << idx);
+            for(int i = 0; i < contractOrder.Contracts.Length; i++) {
+                StringHash32 contractId = contractOrder.Contracts[i];
+                if (!contractId.IsEmpty && state.CompletedContractIds.Contains(contractId)) {
+                    state.CompletedContractBuffer |= (1u << i);
                 }
             }
             return state.CompletedContractBuffer;
@@ -141,13 +140,13 @@ namespace SpaceFab
         /// </summary>
         public static void UnpackCompletedContracts(PlayerProgressState state, uint mask)
         {
-            var contractOrder = Find.GlobalAsset<ContractOrderAsset>();
+            var contractOrder = Find.GlobalAsset<ContractManifest>();
             state.CompletedContractIds.Clear();
-            for (int i = 0; i < contractOrder.Count; i++)
+            for (int i = 0; i < contractOrder.Contracts.Length; i++)
             {
                 if ((mask & (1u << i)) != 0)
                 {
-                    state.CompletedContractIds.Add(contractOrder.GetId(i));
+                    state.CompletedContractIds.Add(contractOrder.Contracts[i]);
                 }
             }
         }

@@ -19,7 +19,6 @@ namespace SpaceFab.Overarching {
                     .ReadShared<ContractSelectState>()
                     .ReadWriteShared<ContractLayoutState>()
                     .ReadWriteShared<ChapterState>()
-                    .ReadWriteShared<ContractAssetsLookup>()
                     .ReadShared<SharedUIState>()
                     .ReadWriteShared<PlayerProgressState>()
             );
@@ -34,14 +33,14 @@ namespace SpaceFab.Overarching {
                 out ChapterState chapterState
                 );
             Find.State(
-                out ContractAssetsLookup assetsLookup,
                 out SharedUIState uiState,
-                out PlayerProgressState playerProgress
+                out PlayerProgressState playerProgress,
+                out ContractState contractState
                 );
 
             switch (confirmState.Phase) {
                 case ContractConfirmPhase.Confirming:
-                    ProcessConfirming(confirmState, selectState, layoutState, chapterState, assetsLookup, uiState, playerProgress);
+                    ProcessConfirming(confirmState, selectState, layoutState, chapterState, uiState, playerProgress, contractState);
                     break;
                 default:
                     break;
@@ -49,9 +48,9 @@ namespace SpaceFab.Overarching {
         }
 
         // Starts the confirmation coroutine if one isn't already running.
-        static private void ProcessConfirming(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup assetsLookup, SharedUIState uiState, PlayerProgressState playerProgress) {
+        static private void ProcessConfirming(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, SharedUIState uiState, PlayerProgressState playerProgress, ContractState contractState) {
             if (!confirmState.ConfirmRoutine.Exists()) {
-                confirmState.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(confirmState, selectState, layoutState, chapterState, assetsLookup, uiState, playerProgress));
+                confirmState.ConfirmRoutine.Replace(ContractConfirmUtility.ConfirmContractRoutine(confirmState, selectState, layoutState, chapterState, uiState, playerProgress, contractState));
             }
         }
     }

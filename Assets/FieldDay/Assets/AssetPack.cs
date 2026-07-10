@@ -16,6 +16,13 @@ namespace FieldDay.Assets {
     /// </summary>
     [CreateAssetMenu(menuName = "Field Day/Asset Pack", order = -300)]
     public sealed class AssetPack : AssetPackBase {
+        public enum IncludeBehavior {
+            IncludeSubfolders,
+            DirectoryOnly,
+            Manual
+        }
+
+        [SerializeField] private IncludeBehavior m_IncludeMode = IncludeBehavior.IncludeSubfolders;
         [SerializeField] private GlobalAsset[] m_GlobalAssets = Array.Empty<GlobalAsset>();
         [SerializeField] private NamedAsset[] m_NamedAssets = Array.Empty<NamedAsset>();
         [SerializeField] private LiteAssetGroup[] m_LiteAssets = Array.Empty<LiteAssetGroup>();
@@ -55,7 +62,41 @@ namespace FieldDay.Assets {
 #if UNITY_EDITOR
 
         protected internal override void EditorRebuild() {
-            ReadFromEditorDirectory(this);
+            if (m_IncludeMode != IncludeBehavior.Manual) {
+                ReadFromEditorDirectory(this);
+            } else {
+                CleanUpIncludes(this);
+            }
+        }
+
+        /// <summary>
+        /// Removes all null and duplicate assets from the pack.
+        /// </summary>
+        static public void CleanUpIncludes(AssetPack pack) {
+            GlobalAsset[] global = AssetUtility.Editor.StripNullAndDuplicateReferences(pack.m_GlobalAssets);
+            NamedAsset[] named = AssetUtility.Editor.StripNullAndDuplicateReferences(pack.m_NamedAssets);
+            LiteAssetGroup[] lite = AssetUtility.Editor.StripNullAndDuplicateReferences(pack.m_LiteAssets);
+
+            Array.Sort(named, (a, b) => a.GetType().FullName.CompareTo(b.GetType().FullName));
+
+            bool isChanged = false;
+            if (!ArrayUtils.ContentEquals(pack.m_GlobalAssets, global)) {
+                isChanged = true;
+                pack.m_GlobalAssets = global;
+            }
+            if (!ArrayUtils.ContentEquals(pack.m_NamedAssets, named)) {
+                isChanged = true;
+                pack.m_NamedAssets = named;
+            }
+            if (!ArrayUtils.ContentEquals(pack.m_LiteAssets, lite)) {
+                isChanged = true;
+                pack.m_LiteAssets = lite;
+            }
+
+            if (isChanged) {
+                Log.Msg("[AssetPack] Contents of pack '{0}' updated", pack.name);
+                EditorUtility.SetDirty(pack);
+            }
         }
 
         /// <summary>
@@ -63,9 +104,11 @@ namespace FieldDay.Assets {
         /// </summary>
         static public void ReadFromEditorDirectory(AssetPack pack) {
             string myDir = Baking.GetAssetDirectory(pack);
-            GlobalAsset[] global = Baking.FindAssets<GlobalAsset>(myDir);
-            NamedAsset[] named = Baking.FindAssets<NamedAsset>(myDir);
-            LiteAssetGroup[] lite = Baking.FindAssets<LiteAssetGroup>(myDir);
+            Baking.AssetDirectorySearchMode searchMode = pack.m_IncludeMode == IncludeBehavior.DirectoryOnly ? Baking.AssetDirectorySearchMode.FolderOnly : Baking.AssetDirectorySearchMode.IncludeSubfolders;
+
+            GlobalAsset[] global = Baking.FindAssets<GlobalAsset>(searchMode, myDir);
+            NamedAsset[] named = Baking.FindAssets<NamedAsset>(searchMode, myDir);
+            LiteAssetGroup[] lite = Baking.FindAssets<LiteAssetGroup>(searchMode, myDir);
 
             Array.Sort(named, (a, b) => a.GetType().FullName.CompareTo(b.GetType().FullName));
 

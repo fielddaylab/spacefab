@@ -8,8 +8,8 @@ using UnityEngine;
 namespace FieldDay.UI.Widgets {
     public sealed class GuiCounter : GuiWidget, IGuiDataWidget<int> {
         public abstract class Style : GuiWidgetStyle<int>, IGuiWidgetRangedDataStyle<int> {
-            public virtual void SetRange(in GuiDataWidgetRange<int> range, GuiWidgetUpdateFlags flags) { }
-            public override void UpdateState(GuiWidgetStateFlags state, GuiWidgetUpdateFlags flags) { }
+            public virtual void SetRange(in GuiDataWidgetRange<int> range, GuiWidget source, GuiWidgetUpdateFlags flags) { }
+            public override void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags changed, GuiWidget source, GuiWidgetUpdateFlags flags) { }
         }
 
         [SerializeField] private int m_StartingValue;
@@ -18,7 +18,9 @@ namespace FieldDay.UI.Widgets {
 
         [NonSerialized] private int m_CurrentValue = -1;
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
+
             if (!GameLoop.IsBooted()) {
                 GameLoop.QueueOnBoot(Init);
             } else {
@@ -28,8 +30,9 @@ namespace FieldDay.UI.Widgets {
 
         private void Init() {
             AssignBaseStyle(m_Style);
+            m_Style.SetRange(new GuiDataWidgetRange<int>(0, m_MaxValue), this, GuiWidgetUpdateFlags.Initialization);
             if (m_CurrentValue < 0) {
-                SetValue(m_StartingValue, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
+                SetValue(m_StartingValue, GuiWidgetUpdateFlags.Initialization);
             }
         }
 
@@ -58,9 +61,9 @@ namespace FieldDay.UI.Widgets {
                 flags &= ~GuiWidgetUpdateFlags.IsDecrease;
             }
 
-            m_Style.Populate(value, flags);
+            m_Style.Populate(value, this, flags);
 
-            GuiWidgetStateFlags state = m_StateFlags;
+            GuiWidgetStateFlags state = State;
             if (value > 0) {
                 state = (state & ~GuiWidgetStateFlags.IsEmpty) | GuiWidgetStateFlags.CanDecrease;
             } else {
@@ -73,7 +76,7 @@ namespace FieldDay.UI.Widgets {
                 state = (state | GuiWidgetStateFlags.IsFull) & ~GuiWidgetStateFlags.CanIncrease;
             }
 
-            UpdateState(state, flags);
+            TryUpdateState(this, state, flags);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

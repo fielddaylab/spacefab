@@ -1,4 +1,5 @@
 using BeauUtil;
+using FieldDay;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -123,7 +124,6 @@ namespace SpaceFab
     public static class UpdateMasks
     {
         public const int PauseUpdateMask = 1 << 0;
-        public const int MinigameTransitionMask = 1 << 1;
 
         public const int ResearchMask = 1 << 2;
         public const int DesignMask = 1 << 3;
@@ -133,9 +133,7 @@ namespace SpaceFab
         // overarching
         public const int OverarchingMask = 1 << 6;
         public const int ContractSystemsMask = 1 << 7;
-        public const int ChapterMask = 1 << 8;
         public const int SetupMask = 1 << 9;
-        public const int ShutdownMask = 1 << 10;
 
         // fab
         public const int PreAttemptMask = 1 << 11;
@@ -158,6 +156,35 @@ namespace SpaceFab
 
         // shared UI
         public const int WikiMask = 1 << 20;
+
+        // entire game mask
+        public const int EntireGame = (1 << 24) - 1;
+
+        static public void RegisterDebugNames() {
+            GameLoop.SetDebugUpdateBitName(0, "Pause");
+            GameLoop.SetDebugUpdateBitName(2, "Research");
+            GameLoop.SetDebugUpdateBitName(3, "Design");
+            GameLoop.SetDebugUpdateBitName(4, "Supply");
+            GameLoop.SetDebugUpdateBitName(5, "Fabrication");
+
+            GameLoop.SetDebugUpdateBitName(6, "Overarching");
+            GameLoop.SetDebugUpdateBitName(7, "Contract Systems");
+            GameLoop.SetDebugUpdateBitName(9, "Setup");
+
+            GameLoop.SetDebugUpdateBitName(11, "Fab: Pre-Attempt");
+            GameLoop.SetDebugUpdateBitName(12, "Fab: Attempt");
+            GameLoop.SetDebugUpdateBitName(13, "Fab: Attempt Lead-In");
+            GameLoop.SetDebugUpdateBitName(14, "Fab: Post-Attempt");
+
+            GameLoop.SetDebugUpdateBitName(15, "Design: Tool Mode");
+            GameLoop.SetDebugUpdateBitName(16, "Design: Simulate Mode");
+
+            GameLoop.SetDebugUpdateBitName(17, "Fab: Microgame");
+            GameLoop.SetDebugUpdateBitName(18, "Research: Chambers");
+
+            GameLoop.SetDebugUpdateBitName(19, "Tutorial");
+            GameLoop.SetDebugUpdateBitName(20, "Wiki");
+        }
     }
 
     static public class LayerMasks

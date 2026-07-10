@@ -422,7 +422,8 @@ namespace FieldDay.Systems {
 
         private enum DebuggingFlags {
             DisplayStats,
-            DisplayOrder
+            DisplayOrder,
+            DisplayUpdateMask
         }
 
 #if DEVELOPMENT
@@ -467,6 +468,23 @@ namespace FieldDay.Systems {
                     DebugDraw.AddViewportText(new Vector2(0, 1), new Vector2(16, -16), psb, ColorBank.Wheat, 0, TextAnchor.UpperLeft, DebugTextStyle.BackgroundDark);
                 }
             }
+
+            if (DebugFlags.IsFlagSet(DebuggingFlags.DisplayUpdateMask)) {
+                using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                    int updateMask = GameLoop.UpdateMask;
+                    psb.Builder.Append("Update Bits: ").AppendNoAlloc(Bits.Count(updateMask));
+                    for(int i = 0; i < Bits.Length; i++) {
+                        if ((updateMask & (1 << i)) != 0) {
+                            psb.Builder.Append("\n[X] ");
+                        } else {
+                            psb.Builder.Append("\n[ ] ");
+                        }
+                        psb.Builder.AppendNoAlloc(i, 2).Append(": ");
+                        psb.Builder.Append(GameLoop.GetDebugUpdateBitName(i));
+                    }
+                    DebugDraw.AddViewportText(new Vector2(0, 1), new Vector2(16, -16), psb, ColorBank.Wheat, 0, TextAnchor.UpperLeft, DebugTextStyle.BackgroundDark);
+                }
+            }
         }
 
         static private readonly GameLoopPhase[] BucketList = new GameLoopPhase[] {
@@ -497,13 +515,17 @@ namespace FieldDay.Systems {
         static private DMInfo CreateSystemsDebugMenu() {
             DMInfo info = new DMInfo("ECS Systems", 24);
             info.SetMinWidth(300);
+
+            DebugFlags.AddToggleGroup(DebuggingFlags.DisplayOrder, DebuggingFlags.DisplayUpdateMask);
             
             DebugFlags.Menu.AddFlagToggle(info, "Display Stats", DebuggingFlags.DisplayStats);
+            DebugFlags.Menu.AddFlagToggle(info, "Display Update Bits", DebuggingFlags.DisplayUpdateMask);
             info.AddDivider();
             
             DMPredicate groupPredicate = () => DebugFlags.IsFlagSet(DebuggingFlags.DisplayOrder);
             DebugFlags.Menu.AddFlagToggle(info, "Display Order", DebuggingFlags.DisplayOrder);
             info.AddSelector("Bucket Selection", () => s_DebugBucketIndex, (f) => s_DebugBucketIndex = f, BucketNames, groupPredicate);
+
             return info;
         }
 

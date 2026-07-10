@@ -219,7 +219,7 @@ namespace FieldDay.Scripting {
     }
 
     static public partial class ScriptUtility {
-        public const int RuntimeUpdateMask = 0x7FFFFFFF;
+        public const int RuntimeUpdateMask = 1 << 31;
 
         [SharedStateReference] static public ScriptRuntimeState Runtime { get; private set; }
         [SharedStateReference] static public ScriptDatabase DB { get; private set; }
@@ -230,6 +230,8 @@ namespace FieldDay.Scripting {
             Game.SharedState.Register(new ScriptRuntimeState());
             ScriptLoadingSystem.RegisterModule();
             ScriptRuntimeTickSystem.RegisterModule();
+
+            GameLoop.SetDebugUpdateBitName(31, "ScriptRuntime");
         }
 
         #region Replace

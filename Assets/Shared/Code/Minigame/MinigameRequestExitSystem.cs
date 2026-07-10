@@ -18,15 +18,13 @@ namespace SpaceFab {
                 new SysUpdate(GameLoopPhaseMask.Update, 10),
                 new SysPermissions()
                     .ReadWriteShared<MinigameRequestExitState>()
-                    .ReadWriteShared<MinigameLoadExitState>()
             );
         }
 
         // Once the request is Confirmed, begin the exit flow and swap update masks.
         static private void ProcessWork(float deltaTime) {
             Find.State(
-                out MinigameRequestExitState requestExitState,
-                out MinigameLoadExitState loadExitState
+                out MinigameRequestExitState requestExitState
                 );
 
             switch (requestExitState.ExitRequestState) {
@@ -36,9 +34,7 @@ namespace SpaceFab {
                     break;
                 case RequestState.Confirmed:
                     // begin exit system
-                    loadExitState.Phase = MinigameLoadExitPhase.Exiting;
-                    GameLoop.SuspendUpdates(Bits.All32);
-                    GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
+                    MinigameUtility.Exit();
                     requestExitState.ExitRequestState = RequestState.None;
                     break;
                 case RequestState.None:

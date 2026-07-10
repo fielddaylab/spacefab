@@ -223,18 +223,16 @@ namespace SpaceFab.Research
         // ResearchPropertyConfirmBridge.HandleConfirmedProperty after each sandbox confirmation.
         // The contract-accept flow performs the equivalent check directly on the save state via
         // ContractProgressUtility.IsContractSatisfied(progress, contract).
-        public static void RefreshFoundValidSolutionFromActiveContract(ResearchMinigameState researchState, PlayerProgressState playerProgress)
+        public static void RefreshFoundValidSolutionFromActiveContract(ResearchMinigameState researchState, PlayerProgressState playerProgress, ContractState contractState)
         {
             if (researchState.FoundValidSolution)
             {
                 return;
             }
-            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(playerProgress.ContractAssetsWrapperId);
-            if (wrapper == null || wrapper.ContractDef == null)
-            {
+            if (contractState.ContractDefinition == null) {
                 return;
             }
-            if (ContractProgressUtility.IsContractSatisfied(playerProgress, researchState, wrapper.ContractDef))
+            if (ContractProgressUtility.IsContractSatisfied(playerProgress, researchState, contractState.ContractDefinition))
             {
                 researchState.MarkFoundValidSolution();
             }

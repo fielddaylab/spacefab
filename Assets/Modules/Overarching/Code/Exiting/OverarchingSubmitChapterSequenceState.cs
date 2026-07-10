@@ -30,8 +30,7 @@ namespace SpaceFab.Overarching
         public void OnRegister()
         {
             SubmitButton.onClick.AddListener(() => {
-                GameLoop.ResumeUpdates(UpdateMasks.ShutdownMask);
-                Find.State<OverarchingSubmitChapterSequenceState>().Phase = OverarchingSubmitChapterPhase.Starting;
+                OverarchingTransitions.AdvanceContract();
                 });
 
             // Hidden by default; OverarchingSubmitButtonUtility.Refresh reveals it once every

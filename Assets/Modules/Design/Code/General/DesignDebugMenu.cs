@@ -31,7 +31,6 @@ namespace SpaceFab.Design
         {
             return Game.SharedState.Has<DesignMinigameState>()
                 && Game.SharedState.Has<MinigameSaveStates>()
-                && Game.SharedState.Has<MinigameLoadExitState>()
                 && Game.SharedState.Has<MinigameRequestExitState>()
                 && Game.SharedState.Has<MinigameStateInterfacer>();
         }
@@ -49,13 +48,12 @@ namespace SpaceFab.Design
             Find.State(
                 out DesignMinigameState designState,
                 out MinigameSaveStates saveStates,
-                out MinigameLoadExitState loadExitState,
                 out MinigameRequestExitState requestExitState
                 );
             MinigameStateInterfacer interfacer = Find.State<MinigameStateInterfacer>();
 
             DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
-            DesignLevelUtility.AdvanceFromActiveLevel(saveStates.Design, designState, loadExitState, requestExitState, interfacer);
+            DesignLevelUtility.AdvanceFromActiveLevel(saveStates.Design, designState, requestExitState, interfacer);
             Log.Msg("[DesignDebugMenu] Skipped level {0}", designState.ActiveLevelIndex);
         }
     }

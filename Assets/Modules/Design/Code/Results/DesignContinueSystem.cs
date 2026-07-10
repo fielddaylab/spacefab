@@ -20,7 +20,6 @@ namespace SpaceFab.Design
                 new SysPermissions()
                     .ReadWriteShared<ResultState>()
                     .ReadWriteShared<MinigameRequestExitState>()
-                    .ReadWriteShared<MinigameLoadExitState>()
                     .ReadShared<MinigameStateInterfacer>()
                     .ReadShared<DesignMinigameState>()
                     .ReadShared<MinigameSaveStates>()
@@ -33,7 +32,6 @@ namespace SpaceFab.Design
             Find.State(
                 out ResultState resultState,
                 out MinigameRequestExitState requestExitState,
-                out MinigameLoadExitState loadExitState,
                 out MinigameStateInterfacer interfacer
                 );
             Find.State(
@@ -45,7 +43,7 @@ namespace SpaceFab.Design
             resultState.ContinueRequested = false;
 
             // The active level was already marked solved when the suite passed; advance out of it.
-            DesignLevelUtility.AdvanceFromActiveLevel(saveStates.Design, designState, loadExitState, requestExitState, interfacer);
+            DesignLevelUtility.AdvanceFromActiveLevel(saveStates.Design, designState, requestExitState, interfacer);
         }
     }
 }

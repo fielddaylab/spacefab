@@ -61,7 +61,7 @@ namespace SpaceFab.Supply {
 
         // Rebuilds the aggregate panel cells and the per-ship breakdown rows from the current
         // (pending-aware) route state.
-        public static void Refresh(SupplyProgressMeterLayoutState layout, SupplyRouteCollection routes, SupplyRouteDrawingState drawing, SupplyShipIndex ships, PlayerProgressState progress) {
+        public static void Refresh(SupplyProgressMeterLayoutState layout, SupplyRouteCollection routes, SupplyRouteDrawingState drawing, SupplyShipIndex ships, ContractState contract) {
             if (layout == null) {
                 return;
             }
@@ -71,7 +71,7 @@ namespace SpaceFab.Supply {
             }
 
             ComputeAggregate(routes, drawing, out int risk, out int cost, out int time, out int activeMask);
-            int funds = ResolvePayout(progress);
+            int funds = ResolvePayout(contract);
 
             // Aggregate "Result" panel.
             if (layout.AggregateView != null) {
@@ -109,18 +109,11 @@ namespace SpaceFab.Supply {
 
         // Reads the active contract's payout via its asset wrapper (the funds the cost meter
         // counts down from). 0 when no contract is loaded.
-        private static int ResolvePayout(PlayerProgressState progress) {
-            if (progress == null) {
+        private static int ResolvePayout(ContractState contractState) {
+            if (!contractState.ContractDefinition) {
                 return 0;
             }
-            if (!Game.Assets.HasNamed<ContractAssetsWrapper>(progress.ContractAssetsWrapperId)) {
-                return 0;
-            }
-            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(progress.ContractAssetsWrapperId);
-            if (wrapper == null || wrapper.ContractDef == null) {
-                return 0;
-            }
-            return wrapper.ContractDef.Payout();
+            return contractState.ContractDefinition.Payout();
         }
 
         #endregion // Refresh

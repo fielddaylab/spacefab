@@ -27,37 +27,37 @@ namespace SpaceFab.Overarching
 
     public static class ContractCompletionUtility
     {
-        public static IEnumerator LoadFromPrevChapterRoutine(ContractCompletionState completionState, ChapterState chapterState, AvailableContractsLookup lookup)
+        public static IEnumerator LoadFromPrevChapterRoutine(ContractCompletionState completionState, ChapterState chapterState)
         {
-            if (chapterState.CurrChapterIndex <= 0) {
+            if (chapterState.ChapterIndex <= 0) {
                 Log.Error("ContractCompletionState] Attempted to load a previous chapter when none exists!");
                 yield break;
             }
 
             // Load previously available contracts
-            yield return ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1);
+            //yield return ContractsLookupUtility.LoadAvailableContractsAtChapter(lookup, chapterState, chapterState.ChapterIndex - 1);
 
             yield break;
         }
 
-        public static IEnumerator UnloadFromPrevChapterRoutine(ContractCompletionState completionState, ChapterState chapterState, AvailableContractsLookup lookup)
+        public static IEnumerator UnloadFromPrevChapterRoutine(ContractCompletionState completionState, ChapterState chapterState)
         {
-            if (chapterState.CurrChapterIndex <= 0)
+            if (chapterState.ChapterIndex <= 0)
             {
                 Log.Error("ContractCompletionState] Attempted to unload a previous chapter when none exists!");
                 yield break;
             }
 
             // Load previously available contracts
-            yield return ContractsLookupUtility.UnloadAvailableContractsAtChapter(lookup, chapterState, chapterState.CurrChapterIndex - 1);
+            //yield return ContractsLookupUtility.UnloadAvailableContractsAtChapter(lookup, chapterState, chapterState.ChapterIndex - 1);
 
             yield break;
         }
 
-        public static void PopulateContractUI(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState, AvailableContractsLookup lookup)
+        public static void PopulateContractUI(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState)
         {
-            ContractDef contractDef = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex];
-            ContractUtility.LoadContractData(layoutState.CompletedContractUI, contractDef);
+            //ContractDef contractDef = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex];
+            //ContractUtility.LoadContractData(layoutState.CompletedContractUI, contractDef);
         }
 
         public static IEnumerator EnterPreviousRoutine(ContractLayoutState layoutState)
@@ -78,7 +78,7 @@ namespace SpaceFab.Overarching
             yield return 0.5f;
         }
 
-        public static IEnumerator EvaluatePreviousRoutine(ContractLayoutState layoutState, PlayerProgressState progressState)
+        public static IEnumerator EvaluatePreviousRoutine(ContractLayoutState layoutState, PlayerProgressState progressState, ContractState contractState)
         {
             yield return 0.5f;
             
@@ -86,7 +86,7 @@ namespace SpaceFab.Overarching
             
             yield return 0.5f;
 
-            progressState.CompletedContractIds.Add(progressState.CurrContractId);
+            progressState.CompletedContractIds.Add(contractState.ContractId);
         }
 
         public static IEnumerator HidePreviousRoutine(ContractLayoutState layoutState)

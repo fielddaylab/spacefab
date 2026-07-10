@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ namespace SpaceFab.Onboarding {
         // attachToCanvas=true groups the highlight under HighlightCanvas instead of beside its
         // target. Idempotent on id — a second Show on an already-active id is a no-op.
         public static void Show(OnboardingHighlightState highlightState, StringHash32 id, bool lockFocus, float margin, bool attachToCanvas) {
-            if (highlightState == null || highlightState.ActiveById == null) { return; }
+            Assert.NotNullOrDestroyed(highlightState);
 
             if (highlightState.ActiveById.ContainsKey(id)) {
                 return;
@@ -57,7 +58,7 @@ namespace SpaceFab.Onboarding {
         // If that highlight held a focus lock, the lock is also released; if no locks
         // remain after, the raycaster's clickable mask is restored to default.
         public static void Release(OnboardingHighlightState highlightState, StringHash32 id) {
-            if (highlightState == null || highlightState.ActiveById == null) { return; }
+            Assert.NotNullOrDestroyed(highlightState);
 
             if (!highlightState.ActiveById.TryGetValue(id, out Highlight highlight)) {
                 return;
@@ -82,7 +83,7 @@ namespace SpaceFab.Onboarding {
         // Release every active highlight and clear all focus locks. Restores the
         // raycaster mask exactly once at the end if any lock was active.
         public static void ReleaseAll(OnboardingHighlightState highlightState) {
-            if (highlightState == null || highlightState.ActiveById == null) { return; }
+            Assert.NotNullOrDestroyed(highlightState);
 
             bool hadLocks = highlightState.LockedTagIds.Count > 0;
             ElementTagLookup lookup = Find.State<ElementTagLookup>();
@@ -126,18 +127,15 @@ namespace SpaceFab.Onboarding {
             ApplyTutorialLayerRecursive(tag.gameObject, highlightState);
 
             if (wasFirstLock) {
-                InputState inputState = Find.State<InputState>();
-                if (inputState != null) {
-                    InputUtility.SetClickableMaskCustom(inputState, LayerMasks.TutorialFocus_Mask);
-                }
+                // TODO: apply lock
+                Log.Warn("[OnboardingHighlightUtility] Input mask should be applied - AUTUMN HAS NOT REIMPLEMENTED THIS");
+                // LayerMasks.TutorialFocus_Mask
             }
         }
 
         private static void RestoreInputMask() {
-            InputState inputState = Find.State<InputState>();
-            if (inputState != null) {
-                InputUtility.SetClickableMaskDefault(inputState);
-            }
+            // TODO: undo lock
+            Log.Warn("[OnboardingHighlightUtility] Input mask should be restored - AUTUMN HAS NOT REIMPLEMENTED THIS");
         }
 
         // Walk root + descendants. For each node we haven't already saved, record the

@@ -19,6 +19,8 @@ namespace SpaceFab
         static public TransitionStateMgr TransitionState { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; internal set; }
         static public SaveMgr SaveBuffer { get; private set; }
 
+        static private bool s_IsInGame;
+
         [InvokePreBoot]
         static private void OnPreBoot()
         {
@@ -40,21 +42,34 @@ namespace SpaceFab
             });
             MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
 
-            Game.Scenes.RegisterLoadDependency(new WaitForSetupMasksToBeSuspended());
+            Scenes.OnLoadProcessStarted.Register(OnLoadProcessStarted);
+
+            UpdateMasks.RegisterDebugNames();
+        }
+
+        static private void OnLoadProcessStarted(SceneProcessCallbackArgs args) {
+            bool inGame = args.SceneIndex > 2;
+            if (s_IsInGame != inGame) {
+                s_IsInGame = inGame;
+
+                if (inGame) {
+                    Assets.LoadStreamedPackage("InGameStream");
+                } else {
+                    Assets.UnloadStreamedPackage("InGameStream");
+                }
+            }
+
+            if (args.LoadType == SceneType.Main) {
+                Scenes.GetQueuedLoadContext(out SceneRequestContext context);
+                if (context.Get("QueueSave").AsBool()) {
+                    Scenes.QueueOnEnable(() => SaveUtility.Save(SaveSlot.Main));
+                }
+            }
         }
 
         [InvokeOnBoot]
         static private void OnBoot()
         {
-        }
-
-        private class WaitForSetupMasksToBeSuspended : ISceneLoadDependency
-        {
-            bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
-                if (loadPhase == SceneLoadFence.BeforeReady)
-                    return GameLoop.IsSuspended(UpdateMasks.SetupMask) || GameLoop.IsSuspended(UpdateMasks.OverarchingMask);
-                return true;
-            }
         }
     }
 }

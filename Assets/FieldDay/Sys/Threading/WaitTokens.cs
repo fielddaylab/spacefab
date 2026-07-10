@@ -25,6 +25,7 @@ namespace FieldDay.Threading {
 
     static public partial class WaitTokens {
         static private IPool<IdAllocatorToken> s_IdAllocatorTokenPool;
+        static private IPool<PredicateToken> s_PredicateTokenPool;
 
         #region Lifetime
 
@@ -35,11 +36,15 @@ namespace FieldDay.Threading {
                 int dynCapacity = EngineHints.GetHintInt("POOL_WAIT_TOKENS_ID", 8);
                 s_IdAllocatorTokenPool = new DynamicPool<IdAllocatorToken>(dynCapacity, (p) => new IdAllocatorToken(p));
             }
+            s_PredicateTokenPool = new DynamicPool<PredicateToken>(16, (p) => new PredicateToken(p));
+
             s_IdAllocatorTokenPool.Prewarm();
+            s_PredicateTokenPool.Prewarm();
         }
 
         static internal void Shutdown() {
             s_IdAllocatorTokenPool.Dispose();
+            s_PredicateTokenPool.Dispose();
         }
 
         #endregion // Lifetime
@@ -77,6 +82,25 @@ namespace FieldDay.Threading {
         }
 
         #endregion // Id Allocators
+
+        #region Predicates
+
+        /// <summary>
+        /// Returns a WaitToken that waits until the given predicate returns true.
+        /// </summary>
+        static public WaitToken WhileNotPredicate(Func<bool> predicate) {
+            Assert.NotNull(predicate);
+
+            if (predicate()) {
+                return null;
+            }
+
+            PredicateToken token = s_PredicateTokenPool.Alloc();
+            token.Initialize(predicate);
+            return token;
+        }
+
+        #endregion // Predicates
     }
 
     internal sealed class IdAllocatorToken : WaitToken {
@@ -126,6 +150,30 @@ namespace FieldDay.Threading {
             if (m_Allocator != null) {
                 m_Allocator = null;
                 m_Mode = 0;
+                m_Pool.Free(this);
+            }
+        }
+    }
+
+    internal sealed class PredicateToken : WaitToken {
+        private readonly IPool<PredicateToken> m_Pool;
+        private Func<bool> m_Predicate;
+
+        public PredicateToken(IPool<PredicateToken> pool) {
+            m_Pool = pool;
+        }
+
+        public void Initialize(Func<bool> predicate) {
+            m_Predicate = predicate;
+        }
+
+        public override unsafe bool MoveNext() {
+            return m_Predicate != null && !m_Predicate();
+        }
+
+        public override void Dispose() {
+            if (m_Predicate != null) {
+                m_Predicate = null;
                 m_Pool.Free(this);
             }
         }

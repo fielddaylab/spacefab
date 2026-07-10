@@ -12,10 +12,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Planet0
       objectReference: {fileID: 0}
+    - target: {fileID: 5762547994963964593, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: m_SortingLayer
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: Collider
       value: 
-      objectReference: {fileID: 3984501148172515094}
+      objectReference: {fileID: 0}
     - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: Id.m_Source
       value: supply:planet0
@@ -73,8 +77,3 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2479505f42e77544ab55898a175383cc, type: 3}
---- !u!58 &3984501148172515094 stripped
-CircleCollider2D:
-  m_CorrespondingSourceObject: {fileID: 1921850755403689519, guid: 2479505f42e77544ab55898a175383cc, type: 3}
-  m_PrefabInstance: {fileID: 3305646226385557817}
-  m_PrefabAsset: {fileID: 0}

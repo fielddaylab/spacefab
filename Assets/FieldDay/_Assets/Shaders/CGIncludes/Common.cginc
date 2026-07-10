@@ -3,6 +3,7 @@
 
 #include "UnityCG.cginc"
 #include "./DXCompat.cginc"
+#include "./Geometry.cginc"
 
 /// Keywords
 
@@ -48,7 +49,15 @@ inline half Quantize8(half value)
 
 /// Screen Space
 
-#define     VaryingsFragCoords(channel)  half2 pixelCoords : VPOS
+inline float2 ClipSpaceToViewportSpace(float4 clipSpace)
+{
+    return (clipSpace.xy + 1) * 0.5;
+}
+
+inline float4 ViewportSpaceToClipSpace(float2 viewportSpace)
+{
+    return float4((2 * viewportSpace) - 1, 0, 1);
+}
 
 /// Math
 
@@ -65,6 +74,8 @@ inline float2 Rotate2d(float2 base, float radians)
 {
     return mul(MatrixCreateRotation2d(radians), base);
 }
+
+#define invstep(y, x) float((y) < (x))
 
 /// Color Space
 
@@ -126,5 +137,9 @@ inline float4 SamplePaletteArray(sampler2DArray palette, float normalizedIndex, 
     return tex2DArray(palette, float3(normalizedIndex, 0.5, depth));
 }
 */
+
+/// VPOS
+
+#define float_vpos UNITY_VPOS_TYPE
 
 #endif // FD_COMMON_INCLUDED

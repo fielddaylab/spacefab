@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using BeauUtil;
+using BeauUtil.Debugger;
 using TinyIL;
 using UnityEngine;
 
@@ -8,6 +10,7 @@ namespace FieldDay.Rendering {
     static public class MeshRendererUtility {
         static private readonly List<Material> s_MaterialWorkList = new List<Material>(4);
         static private MaterialPropertyBlock s_EmptyPropertyBlock;
+        static private MaterialPropertyBlock s_SpriteWorkPropertyBlock;
 
         /// <summary>
         /// Sets the shared material at the given index.
@@ -67,6 +70,49 @@ namespace FieldDay.Rendering {
         static public void ClearPropertyBlock(this Renderer renderer, int materialIndex) {
             MaterialPropertyBlock block = s_EmptyPropertyBlock ?? (s_EmptyPropertyBlock = new MaterialPropertyBlock());
             renderer.SetPropertyBlock(block, materialIndex);
+        }
+
+        /// <summary>
+        /// Sets a property block to reference a specific section of a texture.
+        /// </summary>
+        static public void SetSprite(this MaterialPropertyBlock propertyBlock, int texturePropertyId, int textureOffsetScalePropertyId, Sprite sprite) {
+            Assert.True(!sprite.packed || (sprite.packingMode == SpritePackingMode.Rectangle && sprite.packingRotation == SpritePackingRotation.None), "Cannot assign a tightly-packed or rotated sprite ({0})", sprite.name);
+            Texture2D texture = sprite.texture;
+            float width = texture.width;
+            float height = texture.height;
+            
+            Rect uvRect = sprite.textureRect;
+            Vector4 uvVec = new Vector4(uvRect.width / width, uvRect.height / height, uvRect.xMin / width, uvRect.yMin / height);
+            
+            propertyBlock.SetTexture(texturePropertyId, texture);
+            propertyBlock.SetVector(textureOffsetScalePropertyId, uvVec);
+        }
+
+        /// <summary>
+        /// Sets a property block to reference a specific section of a texture.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetSprite(this MaterialPropertyBlock propertyBlock, Sprite sprite) {
+            SetSprite(propertyBlock, DefaultShaderProps.MainTex, DefaultShaderProps.MainTexScaleOffset, sprite);
+        }
+
+        /// <summary>
+        /// Sets a renderer to reference a specific section of a texture.
+        /// </summary>
+        static public void SetSprite(this Renderer renderer, int texturePropertyId, int textureOffsetScalePropertyId, Sprite sprite) {
+            MaterialPropertyBlock block = s_SpriteWorkPropertyBlock ?? (s_SpriteWorkPropertyBlock = new MaterialPropertyBlock());
+            block.Clear();
+            renderer.GetPropertyBlock(block);
+            SetSprite(block, texturePropertyId, textureOffsetScalePropertyId, sprite);
+            renderer.SetPropertyBlock(block);
+            block.Clear();
+        }
+
+        /// <summary>
+        /// Sets a renderer to reference a specific section of a texture.
+        /// </summary>
+        static public void SetSprite(this Renderer renderer, Sprite sprite) {
+            SetSprite(renderer, DefaultShaderProps.MainTex, DefaultShaderProps.MainTexScaleOffset, sprite);
         }
     }
 }

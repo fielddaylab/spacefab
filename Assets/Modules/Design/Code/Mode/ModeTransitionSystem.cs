@@ -52,7 +52,8 @@ namespace SpaceFab.Design
 
             Find.State(
                 out PlayerProgressState progressState,
-                out DesignMinigameState designState
+                out DesignMinigameState designState,
+                out ContractState contractState
                 );
 
             // Tool → Simulate. Any pending play indicator triggers entry; we run before
@@ -67,7 +68,7 @@ namespace SpaceFab.Design
                 if (playRequested)
                 {
 
-                    EnterSimulateMode(modeState, runState, graphState, graphBuildScratch, runScratch, gridStackState, progressState, designState);
+                    EnterSimulateMode(modeState, runState, graphState, graphBuildScratch, runScratch, gridStackState, progressState, contractState, designState);
                 }
             }
             // Simulate → Tool. Any toolbar-button click triggers exit. The click flag survives
@@ -98,7 +99,7 @@ namespace SpaceFab.Design
         // Builds the evaluation graph from the current grid, sizes scratch arrays, allocates
         // RowVerdicts, and flips the active update mask from Tool to Simulate. Idempotent within
         // a single tick — caller gates on modeState.Mode.
-        static private void EnterSimulateMode(ModeTransitionState modeState, SimulateRunState runState, SimulateGraphState graphState, SimulateGraphBuildScratch graphBuildScratch, SimulateRunScratch runScratch, GridStackState gridStackState, PlayerProgressState progressState, DesignMinigameState designState)
+        static private void EnterSimulateMode(ModeTransitionState modeState, SimulateRunState runState, SimulateGraphState graphState, SimulateGraphBuildScratch graphBuildScratch, SimulateRunScratch runScratch, GridStackState gridStackState, PlayerProgressState progressState, ContractState contractState, DesignMinigameState designState)
         {
             // Rebuild graph from the current grid. The player may have edited the grid in Tool
             // mode; the prior graph (if any) is stale.
@@ -121,7 +122,7 @@ namespace SpaceFab.Design
 
             // Allocate RowVerdicts to match the suite length. Reuse the existing array when its
             // length already matches, otherwise allocate fresh (default TestRowVerdict.Untested).
-            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
             if (runState.RowVerdicts == null || runState.RowVerdicts.Length != suite.Tests.Length)
             {

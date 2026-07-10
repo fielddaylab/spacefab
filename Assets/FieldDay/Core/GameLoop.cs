@@ -247,6 +247,10 @@ namespace FieldDay {
         // profiling
         static private PhaseTiming s_TimeProfiling;
 
+#if DEVELOPMENT
+        static private string[] s_DebugUpdateBitNames = new string[Bits.Length];
+#endif // DEVELOPMENT
+
         [NonSerialized] private bool m_Initialized;
 
         static private GameLoop s_Instance;
@@ -1102,6 +1106,31 @@ namespace FieldDay {
         /// </summary>
         static public void ResumeUpdates(int resumeMask) {
             s_QueuedUpdateMask |= resumeMask;
+        }
+
+        /// <summary>
+        /// Sets the debug name of the given update bit.
+        /// </summary>
+#if !DEVELOPMENT
+        [System.Diagnostics.Conditional("__NEVER")]
+#endif // !DEVELOPMENT
+        static public void SetDebugUpdateBitName(int index, string name) {
+#if DEVELOPMENT
+            Assert.True(index >= 0 && index < Bits.Length, "Invalid bit index");
+            s_DebugUpdateBitNames[index] = name;
+#endif // DEVELOPMENT
+        }
+
+        /// <summary>
+        /// Gets the debug name of the given update bit.
+        /// </summary>
+        static public string GetDebugUpdateBitName(int index) {
+#if DEVELOPMENT
+            Assert.True(index >= 0 && index < Bits.Length, "Invalid bit index");
+            return s_DebugUpdateBitNames[index] ?? "Not set";
+#else
+            return "Not set";
+#endif // DEVELOPMENT
         }
 
         #endregion // Update Mask

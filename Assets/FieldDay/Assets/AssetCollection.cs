@@ -18,7 +18,7 @@ namespace FieldDay.Assets {
         IEnumerable GetAll();
     }
 
-    internal class AssetCollection<T> : IAssetCollection {
+    internal sealed class AssetCollection<T> : IAssetCollection {
         private readonly Dictionary<StringHash32, T> m_Lookup;
 
         internal AssetCollection() {
@@ -71,8 +71,8 @@ namespace FieldDay.Assets {
         /// <summary>
         /// Gets all the assets of this type.
         /// </summary>
-        public Dictionary<StringHash32, T>.ValueCollection GetAll() {
-            return m_Lookup.Values;
+        public Dictionary<StringHash32, T> GetAll() {
+            return m_Lookup;
         }
 
         #region Modifications

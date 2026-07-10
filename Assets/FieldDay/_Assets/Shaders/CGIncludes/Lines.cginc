@@ -23,7 +23,6 @@ struct Attributes_Line
 
 struct Varyings_Line
 {
-    float4 vertex   : SV_POSITION;
     fixed4 color    : COLOR;
     float2 texcoord : TEXCOORD0;
     VaryingsFog(1)
@@ -81,19 +80,19 @@ inline fixed4 SampleMainWithExternalAlpha(float2 uv)
 
 /// Programs
 
-Varyings_Line DefaultLineVert(Attributes_Line v)
+Varyings_Line DefaultLineVert(Attributes_Line v, out float4 vertex : SV_Position)
 {
     Varyings_Line output;
     InstancingInitialize(v);
     InstancingTransfer(v, output);
     StereoInitialize(output);
 
-    output.vertex = UnityObjectToClipPos(v.vertex);
+    vertex = UnityObjectToClipPos(v.vertex);
     output.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
     output.color = v.color * _Color;
     
-    FogTransfer(output, output.vertex);
-
+    FogTransfer(output, vertex);
+        
     return output;
 }
 

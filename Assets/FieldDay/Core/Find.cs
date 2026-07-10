@@ -70,6 +70,15 @@ namespace FieldDay {
         }
 
         /// <summary>
+        /// Looks up the set of named assets of the given type.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Il2CppSetOption(Option.NullChecks, false)]
+        static public NamedAssetIterator<T> NamedAssets<T>() where T : class, INamedAsset {
+            return Game.Assets.GetAllNamed<T>();
+        }
+
+        /// <summary>
         /// Looks up the lite asset with the given id.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

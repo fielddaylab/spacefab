@@ -47,7 +47,8 @@ namespace SpaceFab.Research {
             );
 
             Find.State(
-                out PlayerProgressState progressState
+                out PlayerProgressState progressState,
+                out ContractState contractState
                 );
 
             if (!inputState.VerifyHypothesisClickedThisFrame) {
@@ -90,7 +91,7 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            bool success = ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, slotted.AssetId, page.Label, page.Context);
+            bool success = ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, page.Label, page.Context);
             if (success) {
                 // A new property bit flipped (or the property was already
                 // confirmed and the call was idempotent). Either way the

@@ -25,7 +25,6 @@ struct Attributes_Sprite
 
 struct Varyings_Sprite
 {
-    float4 vertex   : SV_POSITION;
     fixed4 color    : COLOR;
     float2 texcoord : TEXCOORD0;
     VaryingsFog(1)
@@ -113,20 +112,20 @@ inline fixed4 SampleMainWithExternalAlpha(float2 uv)
 
 /// Programs
 
-Varyings_Sprite DefaultSpriteVert(Attributes_Sprite v)
+Varyings_Sprite DefaultSpriteVert(Attributes_Sprite v, out float4 vertex : SV_Position)
 {
     Varyings_Sprite output;
     InstancingInitialize(v);
     InstancingTransfer(v, output);
     StereoInitialize(output);
 
-    output.vertex = UnityObjectToClipPos(UnityFlipSprite(v.vertex, _Flip));
+    vertex = UnityObjectToClipPos(UnityFlipSprite(v.vertex, _Flip));
     output.texcoord = v.texcoord;
     output.color = v.color * _Color * _RendererColor;
     
-    FogTransfer(output, output.vertex);
+    FogTransfer(output, vertex);
 
-    PixelSnapApply(output.vertex);
+    PixelSnapApply(vertex);
 
     return output;
 }

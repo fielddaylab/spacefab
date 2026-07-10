@@ -614,6 +614,11 @@ namespace ScriptableBake {
 
         #region Assets
 
+        public enum AssetDirectorySearchMode {
+            FolderOnly,
+            IncludeSubfolders
+        }
+
         /// <summary>
         /// Finds the asset with the given type.
         /// </summary>
@@ -669,8 +674,15 @@ namespace ScriptableBake {
         /// Finds all assets with the given type in the given directories.
         /// </summary>
         static public TAsset[] FindAssets<TAsset>(params string[] directories) where TAsset : UnityEngine.Object {
+            return FindAssets<TAsset>(AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all assets with the given type in the given directories.
+        /// </summary>
+        static public TAsset[] FindAssets<TAsset>(AssetDirectorySearchMode searchMode, params string[] directories) where TAsset : UnityEngine.Object {
             HashSet<TAsset> found = new HashSet<TAsset>();
-            foreach (var path in AssetPaths(SearchFilter(typeof(TAsset)), directories)) {
+            foreach (var path in AssetPaths(SearchFilter(typeof(TAsset)), searchMode, directories)) {
                 foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(path)) {
                     TAsset asset = obj as TAsset;
                     if (asset) {
@@ -688,8 +700,15 @@ namespace ScriptableBake {
         /// Finds all assets with the given type in the given directories that match the given predicate.
         /// </summary>
         static public TAsset[] FindAssets<TAsset>(Predicate<TAsset> predicate, params string[] directories) where TAsset : UnityEngine.Object {
+            return FindAssets<TAsset>(predicate, AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all assets with the given type in the given directories that match the given predicate.
+        /// </summary>
+        static public TAsset[] FindAssets<TAsset>(Predicate<TAsset> predicate, AssetDirectorySearchMode searchMode, params string[] directories) where TAsset : UnityEngine.Object {
             HashSet<TAsset> found = new HashSet<TAsset>();
-            foreach (var path in AssetPaths(SearchFilter(typeof(TAsset)), directories)) {
+            foreach (var path in AssetPaths(SearchFilter(typeof(TAsset)), searchMode, directories)) {
                 foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(path)) {
                     TAsset asset = obj as TAsset;
                     if (asset && predicate(asset)) {
@@ -707,8 +726,15 @@ namespace ScriptableBake {
         /// Finds all TextAssets with the given extension in the given directories.
         /// </summary>
         static public TextAsset[] FindTextAssets(string extension, params string[] directories) {
+            return FindTextAssets(extension, AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all TextAssets with the given extension in the given directories.
+        /// </summary>
+        static public TextAsset[] FindTextAssets(string extension, AssetDirectorySearchMode searchMode, params string[] directories) {
             HashSet<TextAsset> found = new HashSet<TextAsset>();
-            foreach (var path in AssetPaths(SearchFilter(typeof(TextAsset)), directories)) {
+            foreach (var path in AssetPaths(SearchFilter(typeof(TextAsset)), searchMode, directories)) {
                 if (!path.EndsWith(extension))
                     continue;
 
@@ -850,13 +876,36 @@ namespace ScriptableBake {
             }
         }
 
-        static private IEnumerable<string> AssetPaths(string filter, params string[] directories) {
+        static private IEnumerable<string> AssetPaths(string filter, string[] directories) {
             string[] guids = AssetDatabase.FindAssets(filter, directories);
             if (guids != null) {
                 for (int i = 0; i < guids.Length; i++) {
                     yield return AssetDatabase.GUIDToAssetPath(guids[i]);
                 }
             }
+        }
+
+        static private IEnumerable<string> AssetPaths(string filter, AssetDirectorySearchMode searchMode, params string[] directories) {
+            string[] guids = AssetDatabase.FindAssets(filter, directories);
+            if (guids != null) {
+                for (int i = 0; i < guids.Length; i++) {
+                    string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+                    if (searchMode == AssetDirectorySearchMode.IncludeSubfolders || IsContainedDirectlyInFolder(assetPath, directories)) {
+                        yield return assetPath;
+                    }
+                }
+            }
+        }
+
+        static private bool IsContainedDirectlyInFolder(string path, string[] directories) {
+            string directoryName = Path.GetDirectoryName(path).Replace('\\', '/');
+            foreach(var directory in directories) {
+                if (directory == directoryName) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         static private string SearchFilter(Type type, string name = null) {

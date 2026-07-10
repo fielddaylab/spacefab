@@ -23,8 +23,8 @@ namespace SpaceFab
 
         public TransitionStateMgr()
         {
-            Game.Scenes.OnPrepareScene.Register(HandlePrepareScene);
-            Game.Scenes.OnSceneReady.Register(HandleSceneReady);
+            Game.Scenes.OnMainSceneUnloading.Register(HandleMainSceneUnloading);
+            Game.Scenes.OnMainSceneReady.Register(HandleMainSceneReady);
 
             Game.Events.Register(GameEvents.ProfileSaveBegin, HandleProfileSaveBegin);
             Game.Events.Register(GameEvents.ProfileSaveSuccess, HandleProfileSaveSuccess);
@@ -33,47 +33,33 @@ namespace SpaceFab
 
         #endregion // Constructor
 
-        #region SceneMgr Handlers
+        #region Scene Loading
 
-        private void HandlePrepareScene(SceneCallbackArgs args)
-        {
-            // Skip SharedUI behavior in Boot scene, and when loading aux / persistent scenes
-            SceneBinding active = SceneManager.GetActiveScene();
-            if (active.BuildIndex != GameConsts.StartGameSceneIndex) {
-                if ((args.LoadType != SceneType.Aux) && (args.LoadType != SceneType.Persistent))
-                {
-                    m_SceneLoadRoutine.Stop();
-
-                    SharedUIState uiState = Find.State<SharedUIState>();
-                    m_SceneLoadRoutine.Replace(SharedUIUtility.OnBeginLoading(uiState));
-                }
-            }
+        private void HandleMainSceneUnloading() {
+            m_SceneLoadRoutine.Replace(LoadingIconTransition());
         }
 
-        private void HandleSceneReady(SceneCallbackArgs args)
-        {
-            // Skip SharedUI behavior in Boot scene
-            SceneBinding active = SceneManager.GetActiveScene();
-            if (active.BuildIndex != GameConsts.StartGameSceneIndex)
-            {
-                if ((args.LoadType != SceneType.Aux) && (args.LoadType != SceneType.Persistent))
-                {
-                    if (m_SceneLoadRoutine.Exists())
-                    {
-                        m_SceneLoadRoutine.OnComplete(() =>
-                        {
-                            SharedUIState uiState = Find.State<SharedUIState>();
-                            m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
-                        });
-                    }
-                    else
-                    {
-                        SharedUIState uiState = Find.State<SharedUIState>();
-                        m_SceneLoadRoutine.Replace(SharedUIUtility.OnLoadingComplete(uiState));
-                    }
-                }
-            }
+        private void HandleMainSceneReady() {
+            Find.State(out SharedUIState uiState);
+
+            m_SceneLoadRoutine.Stop();
+            uiState.LoadIcon.Group.gameObject.SetActive(false);
         }
+
+        private IEnumerator LoadingIconTransition() {
+            Find.State(out FullscreenTransitionState fullscreenTransition, out SharedUIState uiState);
+            while(!FullscreenTransitionUtility.IsTransitionFullyFadedOut(fullscreenTransition)) {
+                yield return null;
+            }
+            yield return 1.5;
+            uiState.LoadIcon.Group.gameObject.SetActive(true);
+            uiState.LoadIcon.Group.alpha = 0;
+            yield return uiState.LoadIcon.Group.FadeTo(1, 0.3f);
+        }
+
+        #endregion // Scene Loading
+
+        #region Profile Saving
 
         private void HandleProfileSaveBegin()
         {
@@ -117,6 +103,6 @@ namespace SpaceFab
             }
         }
 
-        #endregion // SceneMgr Handlers
+        #endregion // Profile Saving
     }
 }
