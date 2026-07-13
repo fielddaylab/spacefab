@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
-  m_Name: Chapter 2 Def
+  m_Name: Chapter 4 Def
   m_EditorClassIdentifier: 
   AvailableContracts:
-  - m_HashValue: 3403050406
+  - m_HashValue: 273533912
   AvailableMaterials:
   - m_HashValue: 3821421172
   - m_HashValue: 1163381446
   - m_HashValue: 1571298950
   - m_HashValue: 541320182
   - m_HashValue: 1821685427
+  - m_HashValue: 3317014541
   ExcludeFromResearch:
   - m_HashValue: 1163381446
   Script: {fileID: 0}
