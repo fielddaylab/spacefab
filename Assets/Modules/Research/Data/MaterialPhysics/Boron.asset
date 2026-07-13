@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: SiliconDioxide
+  m_Name: Boron
   m_EditorClassIdentifier: 
   MaterialId:
-    m_Source: SiliconDioxide
-    m_HashValue: 1571298950
+    m_Source: Boron
+    m_HashValue: 3317014541
   ConductionMultiplier: 0.1
   ThermalMultiplier: 1
   MaxTemperature: 0.66

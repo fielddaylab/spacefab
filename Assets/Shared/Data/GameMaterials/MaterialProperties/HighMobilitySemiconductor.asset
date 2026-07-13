@@ -9,15 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: Silicon
+  m_Script: {fileID: 11500000, guid: f43422ee47823964a955a9909c3ee88c, type: 3}
+  m_Name: HighMobilitySemiconductor
   m_EditorClassIdentifier: 
-  MaterialId:
-    m_Source: Silicon
-    m_HashValue: 1163381446
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
-  MaxTemperature: 0.66
-  MaxVoltage: 0.66
-  IsHighMobility: 0
-  IsLightEmitting: 0
+  Label: 25
+  InComparisonTo:
+    m_HashValue: 0
