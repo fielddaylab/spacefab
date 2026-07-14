@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: Contract_Ch6_TrickyPuzzle
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
   m_GlobalAssets: []
   m_NamedAssets:
-  - {fileID: 11400000, guid: be5708d1b0ba1db4e84c06e94e8d983e, type: 2}
+  - {fileID: 11400000, guid: b6b6156813ad1459da51d29deb46ec23, type: 2}
   m_LiteAssets: []
