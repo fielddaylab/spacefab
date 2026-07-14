@@ -12,6 +12,7 @@ Shader "SpaceFab/Screen Halftone Transition"
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend Mode", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DestBlend("Destination Blend Mode", Int) = 10
         [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp("Blend Operation", Int) = 0
+		[Toggle(INVERT_TRANSITION)] _InvertTransition("Invert Transition", Float) = 0
 
         [Header(Planes (Tile Space))] [Space]
         _Plane0 ("Plane A", Vector) = (0, 0, 1, 1)
@@ -43,6 +44,7 @@ Shader "SpaceFab/Screen Halftone Transition"
             #pragma vertex OverlayVert
             #pragma fragment OverlayFrag
             #pragma target 2.0
+			#pragma multi_compile_fragment _ INVERT_TRANSITION
 
             #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/PostProcess.cginc"
             #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/Dithering.cginc"
@@ -77,14 +79,24 @@ Shader "SpaceFab/Screen Halftone Transition"
             fixed4 OverlayFrag(Varyings_PP f) : SV_Target
             {
                 fixed4 color = _Color;
-                float2 center = ComputeHalftoneCellPosition(f.texcoord);
+				float2 cellOffset = float2(0.5 * (int(f.texcoord.y) % 2), 0);
+
+                float2 center = ComputeHalftoneCellPosition(f.texcoord + cellOffset) - cellOffset;
 
                 float centerAlpha = ComputeAlphaForCell(center);
-                centerAlpha *= color.a;
+				#if INVERT_TRANSITION
+                centerAlpha = lerp(1, 1 - centerAlpha, color.a);
+				#else
+				centerAlpha *= color.a;
+				#endif // INVERT_TRANSITION
 
                 float dist = distance(center, f.texcoord);
                 float fillDistance = centerAlpha / SQRT_2;
-                color.a = step(dist, fillDistance);
+                #if INVERT_TRANSITION
+				color.a = step(fillDistance, dist);
+				#else
+				color.a = step(dist, fillDistance);
+				#endif // INVERT_TRANSITION
                 color.rgb *= color.a;
                 return color;
             }
