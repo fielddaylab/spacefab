@@ -32,15 +32,26 @@ namespace SpaceFab.Research
             batteryChamber.Root.SetActive(false);
             thermalChamber.Root.SetActive(false);
 
-            switch (ChamberInterfacerUtility.GetActiveChamber(interfacer))
+            ActiveChamberKind activeChamber = ChamberInterfacerUtility.GetActiveChamber(interfacer);
+
+            switch (activeChamber)
             {
-                case ActiveChamberKind.Battery:
+                case ActiveChamberKind.None:
+                    ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, false);
+                    break;
+                case ActiveChamberKind.Voltage:
                     BatteryChamberUtility.ResetState(batteryChamber);
                     break;
                 case ActiveChamberKind.Thermal:
                     ThermalChamberUtility.ResetState(thermalChamber);
                     break;
+                case ActiveChamberKind.Doping:
+                    // TODO
+                    break;
             }
+
+            ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
+            ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, activeChamber == ActiveChamberKind.Doping);
 
             interfacer.ActiveChamberChangedThisFrame = false;
         }

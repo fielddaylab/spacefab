@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Magnesium
   m_EditorClassIdentifier: 
   DisplayName: Magnesium
+  ShortName: Mg
   ValenceElectronCounts: 02000000
   AtomicRadii: 91000000
+  Properties: 1511

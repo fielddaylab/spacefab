@@ -28,22 +28,12 @@ namespace SpaceFab.Research {
     /// largest hypothesis decomposition we expect.
     /// </summary>
     public class ResearchHypothesisPanelState : SharedStateComponent, IRegistrationCallbacks {
-        public TMP_Text HeaderLabel;
-
-        public CursorHint LeftArrow;
-        public CursorHint RightArrow;
-
-        // Parent that alloced pagination dots are reparented under on
-        // grow. Typically a RectTransform sitting
-        // between the arrows so the dots flow into place automatically.
-        public RectTransform PaginationDotContainer;
-
-        // Single indicator that moves to the active dot's position
-        // when refreshed. Renders on top of the dots (the visual util
-        // forces it last-sibling on refresh).
-        public RectTransform CurrentHypothesisIndicator;
-
-        public ResearchObservationChip[] Chips;
+        // Goal property labels
+        public ResearchObservationChip[] PropertyChips;
+        
+        // Cached delegate references for slot click handlers so
+        // OnDeregister can detach precisely.
+        [NonSerialized] private Action[] m_SlotClickHandlers;
 
         // Refresh request flag. HypothesisPanelVisualSystem reads it
         // alongside HypothesisViewModelState.HypothesisChangedThisFrame
@@ -54,30 +44,33 @@ namespace SpaceFab.Research {
         [NonSerialized] public bool NeedsRefresh;
 
         public void OnRegister() {
+            if (PropertyChips != null) {
+                m_SlotClickHandlers = new Action[PropertyChips.Length];
+                for (int i = 0; i < PropertyChips.Length; i++) {
+                    int captured = i;
+                    m_SlotClickHandlers[i] = () => HandlePropertyClick(captured);
+                    if (PropertyChips[i] != null && PropertyChips[i].Click != null) {
+                        PropertyChips[i].Click.onClick.Register(m_SlotClickHandlers[i]);
+                    }
+                }
+            }
+
             NeedsRefresh = true;
-            if (LeftArrow != null) {
-                LeftArrow.onClick.Register(HandleLeftArrow);
-            }
-            if (RightArrow != null) {
-                RightArrow.onClick.Register(HandleRightArrow);
-            }
         }
 
         public void OnDeregister() {
-            if (LeftArrow != null) {
-                LeftArrow.onClick.Deregister(HandleLeftArrow);
-            }
-            if (RightArrow != null) {
-                RightArrow.onClick.Deregister(HandleRightArrow);
+            if (PropertyChips != null && m_SlotClickHandlers != null) {
+                for (int i = 0; i < PropertyChips.Length; i++) {
+                    if (PropertyChips[i] != null && PropertyChips[i].Click != null && m_SlotClickHandlers[i] != null) {
+                        PropertyChips[i].Click.onClick.Deregister(m_SlotClickHandlers[i]);
+                    }
+                }
             }
         }
 
-        private void HandleLeftArrow() {
-            ResearchUIInputUtility.RequestHypothesisCycle(Find.State<ResearchUIInputState>(), -1);
-        }
-
-        private void HandleRightArrow() {
-            ResearchUIInputUtility.RequestHypothesisCycle(Find.State<ResearchUIInputState>(), +1);
+        private void HandlePropertyClick(int index)
+        {
+            ResearchUIInputUtility.RequestHypothesisSelection(Find.State<ResearchUIInputState>(), index);
         }
     }
 

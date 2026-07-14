@@ -34,7 +34,7 @@ namespace SpaceFab.Research
         private static void ProcessWork(float deltaTime)
         {            
             ChamberInterfacerState interfacerState = Find.State<ChamberInterfacerState>();
-            if (ChamberInterfacerUtility.GetActiveChamber(interfacerState) != ActiveChamberKind.Battery)
+            if (ChamberInterfacerUtility.GetActiveChamber(interfacerState) != ActiveChamberKind.Voltage)
             {
                 return;
             }

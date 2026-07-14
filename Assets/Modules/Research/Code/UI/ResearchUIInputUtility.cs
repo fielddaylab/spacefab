@@ -9,13 +9,6 @@ namespace SpaceFab.Research {
     /// guard every site.
     /// </summary>
     public static class ResearchUIInputUtility {
-        // Hypothesis paginator step. Delta accumulates within a frame so a
-        // double-click composes; HypothesisViewModelSystem consumes the sum.
-        public static void RequestHypothesisCycle(ResearchUIInputState inputState, int delta) {
-            if (inputState == null) return;
-            inputState.HypothesisCycleDelta += delta;
-        }
-
         // Sample panel's ADD OBSERVATION + button. The view tracks the
         // picker-open state itself; this flag is for telemetry / refresh.
         public static void RequestAddObservation(ResearchUIInputState inputState) {
@@ -41,23 +34,41 @@ namespace SpaceFab.Research {
             inputState.RemoveObservationClickedThisFrame = true;
         }
 
+        // Player picked a chip from the hypothesis panel.
+        // ObservationCollectSystem consumes the (label, slottedId) pair
+        // next Update.
+        public static void RequestHypothesisSelection(ResearchUIInputState inputState, int hypoIndex) {
+            if (inputState == null) return;
+            inputState.AddHypothesisIndex = hypoIndex;
+            inputState.HypothesisSelectedClickedThisFrame = true;
+        }
+
+        // Player clicked a filled hypothesis slot in the
+        // sample panel. ObservationCollectSystem resolves the slot index
+        // to a (label, context) via the active hypothesis page.
+        public static void RequestRemoveHypothesis(ResearchUIInputState inputState) {
+            if (inputState == null) return;
+            inputState.RemoveHypothesisClickedThisFrame = true;
+        }
+
         // Player clicked the hypothesis-panel submit button.
         // HypothesisSubmitSystem consumes the flag next Update.
         public static void RequestSubmit(ResearchUIInputState inputState) {
             if (inputState == null) return;
-            inputState.SubmitHypothesisClickedThisFrame = true;
+            inputState.VerifyHypothesisClickedThisFrame = true;
         }
 
         // End-of-frame clear. ResearchUIInputRefreshSystem calls this from
         // its ProcessWork.
         public static void ClearFrameFlags(ResearchUIInputState inputState) {
             if (inputState == null) return;
-            inputState.HypothesisCycleDelta = 0;
             inputState.AddObservationClickedThisFrame = false;
             inputState.ChipPickerSelectedThisFrame = false;
             inputState.RemoveObservationClickedThisFrame = false;
             inputState.RemoveObservationSlotIndex = -1;
-            inputState.SubmitHypothesisClickedThisFrame = false;
+            inputState.VerifyHypothesisClickedThisFrame = false;
+            inputState.RemoveHypothesisClickedThisFrame = false;
+            inputState.HypothesisSelectedClickedThisFrame = false;
         }
     }
 }

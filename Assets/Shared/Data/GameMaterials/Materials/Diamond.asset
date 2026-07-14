@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Diamond
   m_EditorClassIdentifier: 
   DisplayName: Diamond
+  ShortName: C
   ValenceElectronCounts: 04000000
   AtomicRadii: 43000000
+  Properties: 12141819

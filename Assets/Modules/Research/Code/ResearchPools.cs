@@ -23,7 +23,6 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ResearchPools : SharedStateComponent, IScenePreload {
         [Serializable] public sealed class VfxPool : SerializablePool<ResearchVfxInstance> { }
-        [Serializable] public sealed class DotPool : SerializablePool<ResearchPaginationDot> { }
         [Serializable] public sealed class ObservationChipPool : SerializablePool<ResearchObservationChip> { }
 
         [Header("VFX")]
@@ -35,17 +34,7 @@ namespace SpaceFab.Research {
         public Material PreExplodeItemMaterial;
 
         [Header("UI")]
-        public DotPool PaginationDotPool;
         public ObservationChipPool PickerChipPool;
-
-        // Currently-allocated pagination dots, grown/shrunk by
-        // HypothesisPanelVisualUtility against PaginationDotPool. List
-        // tracks the active set so the visual util can iterate to apply
-        // the per-dot confirmed-overlay state each frame and position the
-        // shared CurrentHypothesisIndicator over the active dot.
-        // Multiple hypothesis panels would need their own tracking;
-        // today there is one in scope.
-        [NonSerialized] public List<ResearchPaginationDot> ActivePaginationDots;
 
         // Currently-allocated observation picker chips, grown/shrunk
         // once per chamber load by ObservationPickerLoadUtility against
@@ -58,9 +47,7 @@ namespace SpaceFab.Research {
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
             ExplosionEffectPool.Prewarm();
             BoltZapEffectPool.Prewarm();
-            PaginationDotPool.Prewarm();
             PickerChipPool.Prewarm();
-            ActivePaginationDots = new List<ResearchPaginationDot>(4);
             ActivePickerChips = new List<ResearchObservationChip>(8);
             return null;
         }

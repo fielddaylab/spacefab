@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Phosphorus
   m_EditorClassIdentifier: 
   DisplayName: Phosphorus
+  ShortName: P
   ValenceElectronCounts: 05000000
   AtomicRadii: 62000000
+  Properties: 1611

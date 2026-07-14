@@ -35,7 +35,7 @@ namespace SpaceFab.Research {
             if (!Game.SharedState.Has<ChamberInterfacerState>()) { return; }
 
             switch (Find.State<ChamberInterfacerState>().ActiveChamber) {
-                case ActiveChamberKind.Battery:
+                case ActiveChamberKind.Voltage:
                     if (Game.SharedState.Has<BatteryChamberState>()) {
                         BatteryChamberUtility.ResetState(Find.State<BatteryChamberState>());
                     }

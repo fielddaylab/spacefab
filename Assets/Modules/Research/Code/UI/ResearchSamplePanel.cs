@@ -31,6 +31,7 @@ namespace SpaceFab.Research {
         public GameObject MainContent;
 
         public ResearchObservationChip[] SlotChips;
+        public ResearchObservationChip HypothesisChip;
 
         public CursorHint AddObservationButton;
         public GameObject ChipPickerOverlay;
@@ -40,9 +41,13 @@ namespace SpaceFab.Research {
         // lays chips out here vertically and resizes the overlay to fit.
         public RectTransform PickerChipContainer;
 
-        public CursorHint SubmitButton;
+        public CursorHint VerifyButton;
 
-        public GameObject[] ChamberSwitchButtonStubs;
+        // Chamber buttons
+        public ChamberButton VoltageChamberButton;
+        public ChamberButton ThermalChamberButton;
+        public ChamberButton DopingChamberButton;
+        public TMP_Text ChamberText;
 
         // Whether the picker overlay is currently open. Per-instance
         // transient state; the visual system reads it to decide whether
@@ -78,11 +83,26 @@ namespace SpaceFab.Research {
                     }
                 }
             }
+
+            if (HypothesisChip != null) {
+                HypothesisChip.Click.onClick.Register(HandlePropertySlotClick);
+            }
+            
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Register(HandleAddObservation);
             }
-            if (SubmitButton != null) {
-                SubmitButton.onClick.Register(HandleSubmit);
+            if (VerifyButton != null) {
+                VerifyButton.onClick.Register(HandleSubmit);
+            }
+
+            if (VoltageChamberButton != null) {
+                VoltageChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Voltage));
+            }
+            if (ThermalChamberButton != null) {
+                ThermalChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Thermal));
+            }
+            if (DopingChamberButton != null) {
+                DopingChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
 
             SamplePanelInputUtility.ClosePicker(this);
@@ -101,11 +121,25 @@ namespace SpaceFab.Research {
                     }
                 }
             }
+            if (HypothesisChip != null) {
+                HypothesisChip.Click.onClick.Deregister(HandlePropertySlotClick);
+            }
+
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Deregister(HandleAddObservation);
             }
-            if (SubmitButton != null) {
-                SubmitButton.onClick.Deregister(HandleSubmit);
+            if (VerifyButton != null) {
+                VerifyButton.onClick.Deregister(HandleSubmit);
+            }
+
+            if (VoltageChamberButton != null) {
+                VoltageChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Voltage));
+            }
+            if (ThermalChamberButton != null) {
+                ThermalChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Thermal));
+            }
+            if (DopingChamberButton != null) {
+                DopingChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
         }
 
@@ -131,8 +165,18 @@ namespace SpaceFab.Research {
             SamplePanelInputUtility.RequestSlotRemove(this, Find.State<ResearchUIInputState>(), Find.State<HypothesisViewModelState>(), index);
         }
 
+        private void HandlePropertySlotClick()
+        {
+            SamplePanelInputUtility.RequestHypothesisSlotRemove(this, Find.State<ResearchUIInputState>(), Find.State<HypothesisViewModelState>());
+        }
+
         private void HandleSubmit() {
             ResearchUIInputUtility.RequestSubmit(Find.State<ResearchUIInputState>());
+        }
+
+        private void HandleChamberSwitch(ActiveChamberKind kind)
+        {
+            ChamberInterfacerUtility.SetActiveChamber(Find.State<ChamberInterfacerState>(), kind);
         }
     }
 
@@ -187,6 +231,21 @@ namespace SpaceFab.Research {
                 return;
             }
             ResearchUIInputUtility.RequestRemoveObservation(inputState, index);
+        }
+
+        // Hypothesis-slot click. Can be removed if the slot is filled and non-locked.
+        public static void RequestHypothesisSlotRemove(ResearchSamplePanel panel, ResearchUIInputState inputState, HypothesisViewModelState viewModel) {
+            if (panel == null || viewModel == null) {
+                return;
+            }
+            if (viewModel.ActivePageIndex == -1) {
+                return;
+            }
+            bool locked = (viewModel.PageFulfilledMask & (1u << viewModel.ActivePageIndex)) != 0;
+            if (locked) {
+                return;
+            }
+            ResearchUIInputUtility.RequestRemoveHypothesis(inputState);
         }
 
         // Returns every pool-held picker chip to the pool, deregistering
