@@ -5,6 +5,7 @@ using SpaceFab.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Design.Visuals;
+using BeauRoutine;
 
 namespace SpaceFab.Design
 {
