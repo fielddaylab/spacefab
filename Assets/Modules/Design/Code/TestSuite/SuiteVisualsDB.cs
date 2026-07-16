@@ -43,7 +43,8 @@ namespace SpaceFab.Design.Visuals
         public Sprite SuiteFlowLo;
         public Sprite SuiteFlowEmpty;
         public Sprite SuiteFlowUnstable;
-        public Sprite SuiteFlowOutput;
+        public Sprite SuiteFlowOutputHi;
+        public Sprite SuiteFlowOutputLow;
         public Sprite SuiteArrow;
 
         [Header("Run Button Icons")]
@@ -60,7 +61,12 @@ namespace SpaceFab.Design.Visuals
     {
         public static Sprite LookupSuiteColSprite(SuiteVisualsDB suiteDB, FlowState state, bool isOutput = false, bool isArrow = false)
         {
-            if (isOutput) { return suiteDB.SuiteFlowOutput; }
+            if (isOutput) { 
+                if (state == FlowState.Hi)
+                    return suiteDB.SuiteFlowOutputHi;
+                else 
+                    return suiteDB.SuiteFlowOutputLow;
+            }
             if (isArrow) { return suiteDB.SuiteArrow; }
 
             switch (state)

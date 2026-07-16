@@ -17,11 +17,12 @@ MonoBehaviour:
   InputColPrefab: {fileID: 5715295697611549655, guid: ae4bfeb8fb1f1f24495835e6348d29e6, type: 3}
   OutputColPrefab: {fileID: 6778299151088476016, guid: 3cf6c7d742cebf8409701a10ba4d24e3, type: 3}
   ArrowColPrefab: {fileID: 5715295697611549655, guid: ae4bfeb8fb1f1f24495835e6348d29e6, type: 3}
-  SuiteFlowHi: {fileID: 21300000, guid: 5e3564716e50ac240ab765f5a661a971, type: 3}
-  SuiteFlowLo: {fileID: 21300000, guid: 70868b634d516434ab7f4f564c812ae0, type: 3}
+  SuiteFlowHi: {fileID: 21300000, guid: 63053d871368a6d4c9dbe04a1e31b2c9, type: 3}
+  SuiteFlowLo: {fileID: 21300000, guid: d3c25e8e538d1a648b4cadabf7fd5699, type: 3}
   SuiteFlowEmpty: {fileID: 0}
   SuiteFlowUnstable: {fileID: 0}
-  SuiteFlowOutput: {fileID: 21300000, guid: 5c971d65fa08fd14589cc447a63dcd49, type: 3}
+  SuiteFlowOutputHi: {fileID: 21300000, guid: 5005f9a740565bd4a9cf23c3a0320a81, type: 3}
+  SuiteFlowOutputLow: {fileID: 21300000, guid: 4c01ff45da641d14f93a8057b90e4950, type: 3}
   SuiteArrow: {fileID: 21300000, guid: 40255e9857efe994b9c28446bed68ffa, type: 3}
   PlayIcon: {fileID: -946789618, guid: 49dabb21ba5a7c940b208ab77d746834, type: 3}
   PauseIcon: {fileID: -102904144, guid: 49dabb21ba5a7c940b208ab77d746834, type: 3}
