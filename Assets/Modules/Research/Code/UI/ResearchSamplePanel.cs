@@ -241,10 +241,10 @@ namespace SpaceFab.Research {
             if (viewModel.ActivePageIndex == -1) {
                 return;
             }
-            bool locked = (viewModel.PageFulfilledMask & (1u << viewModel.ActivePageIndex)) != 0;
-            if (locked) {
-                return;
-            }
+            // bool locked = (viewModel.PageFulfilledMask & (1u << viewModel.ActivePageIndex)) != 0;
+            // if (locked) {
+            //     return;
+            // }
             ResearchUIInputUtility.RequestRemoveHypothesis(inputState);
         }
 

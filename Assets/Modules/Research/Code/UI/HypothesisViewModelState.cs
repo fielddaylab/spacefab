@@ -74,7 +74,6 @@ namespace SpaceFab.Research {
         [NonSerialized] public bool VerifyButtonVisible;
 
         // === Frame flags ===
-
         [NonSerialized] public bool HypothesisChangedThisFrame;
 
         // Rebuild request flag. Other systems set this via

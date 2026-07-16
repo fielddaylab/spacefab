@@ -96,22 +96,28 @@ namespace SpaceFab.Research {
                 panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
             }
 
-            ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
-            ActiveChamberKind chamberKind = ChamberInterfacerUtility.GetActiveChamber(interfacerState);
-            if (panel.VoltageChamberButton != null) {
-                panel.VoltageChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Voltage
-                    ? uiAssets.VoltagePressed : uiAssets.VoltageNormal;
-            }
-            if (panel.ThermalChamberButton != null) {
-                panel.ThermalChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Thermal
-                    ? uiAssets.ThermalPressed : uiAssets.ThermalNormal;
-            }
-            if (panel.DopingChamberButton != null) {
-                panel.DopingChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Doping
-                    ? uiAssets.DopingPressed : uiAssets.DopingNormal;
-            }
+            if (interfacerState.ActiveChamberChangedThisFrame)
+            {
+                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+                ActiveChamberKind chamberKind = ChamberInterfacerUtility.GetActiveChamber(interfacerState);
 
-            panel.ChamberText.text = chamberKind == ActiveChamberKind.None ? "" : $"{chamberKind} Chamber";
+                if (panel.VoltageChamberButton != null) {
+                    panel.VoltageChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Voltage
+                        ? uiAssets.VoltagePressed : uiAssets.VoltageNormal;
+                }
+                if (panel.ThermalChamberButton != null) {
+                    panel.ThermalChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Thermal
+                        ? uiAssets.ThermalPressed : uiAssets.ThermalNormal;
+                }
+                if (panel.DopingChamberButton != null) {
+                    panel.DopingChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Doping
+                        ? uiAssets.DopingPressed : uiAssets.DopingNormal;
+                }
+
+                if (panel.ChamberText != null) {
+                    panel.ChamberText.text = chamberKind == ActiveChamberKind.None ? "" : $"{chamberKind} Chamber";
+                }
+            }
 
             // 1. Empty-state path: no material slotted.
             if (slottedMaterial == null) {

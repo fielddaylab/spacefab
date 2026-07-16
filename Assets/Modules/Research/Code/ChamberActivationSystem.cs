@@ -35,17 +35,36 @@ namespace SpaceFab.Research
             dopingChamber.Root.SetActive(false);
 
             ActiveChamberKind activeChamber = ChamberInterfacerUtility.GetActiveChamber(interfacer);
+            ResearchPools pools = Find.State<ResearchPools>();
 
             switch (activeChamber)
             {
                 case ActiveChamberKind.Voltage:
                     BatteryChamberUtility.ResetState(batteryChamber);
+                    if (pools != null) {
+                        foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, batteryChamber.AvailableObservations);
+                            break;
+                        }
+                    }
                     break;
                 case ActiveChamberKind.Thermal:
                     ThermalChamberUtility.ResetState(thermalChamber);
+                    if (pools != null) {
+                        foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, thermalChamber.AvailableObservations);
+                            break;
+                        }
+                    }
                     break;
                 case ActiveChamberKind.Doping:
                     DopingChamberUtility.ResetState(dopingChamber);
+                    if (pools != null) {
+                        foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, dopingChamber.AvailableObservations);
+                            break;
+                        }
+                    }
                     break;
             }
 

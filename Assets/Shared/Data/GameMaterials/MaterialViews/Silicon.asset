@@ -17,7 +17,8 @@ MonoBehaviour:
     m_HashValue: 1163381446
   SingleAtomSprite: {fileID: 21300000, guid: c09ba6faf804e9a45a0fe5affeb74db0, type: 3}
   MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 1, g: 1, b: 1, a: 1}
+  GemColor: {r: 0.23529412, g: 0.31764707, b: 0.37254903, a: 1}
   GemScale: 1
   IsMultiAtom: 0
   SampleNumber: 1
+  SampleLabel: 

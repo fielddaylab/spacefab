@@ -70,6 +70,7 @@ namespace SpaceFab.Research {
                 viewModelState.HypothesisChangedThisFrame = false;
                 return;
             }
+            if (slotChanged) viewModelState.ActivePageIndex = -1;
             viewModelState.NeedsRebuild = false;
 
             Find.State(
@@ -246,6 +247,8 @@ namespace SpaceFab.Research {
                 }
             }
             viewModelState.PageFulfilledMask = pageFulfilledMask;
+            if (pageFulfilledMask != prevFulfilledMask)
+                viewModelState.ActivePageIndex = -1;
 
             // 6. Frame-flag — any change drives the panel's LateUpdate render.
             changed = changed
