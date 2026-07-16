@@ -10,6 +10,7 @@ namespace SpaceFab.Design
         public SuiteRunRowButton RunButton;
         public HorizontalLayoutGroup HorizontalLayout;
         [HideInInspector] public SuiteCol[] Cols;
+        [HideInInspector] public SuiteCol ArrowCol;
 
         // Parallel to Cols. Output columns hold the VerdictVisualizer attached to their prefab;
         // non-output columns hold null. Cached at BuildTable time so VerdictVisualizerRefreshSystem

@@ -310,6 +310,8 @@ namespace SpaceFab.Design
                 var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
                 arrowCol.FlowImg.enabled = false;
                 arrowCol.Label.enabled = false;
+
+
             }
 
             // Pass 2: output headers.
@@ -374,6 +376,7 @@ namespace SpaceFab.Design
                     var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[firstOutputCol].State, isArrow: true);
                     arrowCol.Label.enabled = false;
+                    uiState.Rows[row].ArrowCol = arrowCol;
                 }
 
                 // Pass 2: outputs.
@@ -383,6 +386,7 @@ namespace SpaceFab.Design
 
                     SuiteCol newCol = GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
+                    newCol.Label.color = Color.black;
                     newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
                     uiState.Rows[row].Cols[col] = newCol;
