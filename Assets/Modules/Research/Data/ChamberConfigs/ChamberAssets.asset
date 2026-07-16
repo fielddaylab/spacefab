@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: ChamberAssets
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
   m_GlobalAssets:
+  - {fileID: 11400000, guid: 03dc7a8191cb64a7cb4a5ae906e591c5, type: 2}
   - {fileID: 11400000, guid: 60fbac41a77684ed8b0930d1ce56d735, type: 2}
   - {fileID: 11400000, guid: 6e77773d9e33fc945964d7959f54b239, type: 2}
   m_NamedAssets: []

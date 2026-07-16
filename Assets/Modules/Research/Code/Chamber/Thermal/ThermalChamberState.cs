@@ -11,8 +11,8 @@ namespace SpaceFab.Research
 {
     public class ThermalChamberState : SharedStateComponent, IRegistrationCallbacks
     {
-        // Which slot kind on ChamberInterfacerState this Battery reads.
-        // Battery is single-slot; defaults to Primary.
+        // Which slot kind on ChamberInterfacerState this chamber reads.
+        // Thermal is single-slot; defaults to Primary.
         public ChamberSlotKind SlotKind = ChamberSlotKind.Primary;
 
         public CircuitRenderer Circuit;

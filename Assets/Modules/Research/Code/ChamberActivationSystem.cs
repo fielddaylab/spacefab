@@ -14,7 +14,7 @@ namespace SpaceFab.Research
                     .ReadShared<ChamberInterfacerState>()
                     .ReadShared<BatteryChamberState>()
                     .ReadShared<ThermalChamberState>()
-                    //.ReadShared<DopingChamberState>()
+                    .ReadShared<DopingChamberState>()
             );
         }
 
@@ -26,19 +26,18 @@ namespace SpaceFab.Research
             
             Find.State(
                 out BatteryChamberState batteryChamber,
-                out ThermalChamberState thermalChamber
+                out ThermalChamberState thermalChamber,
+                out DopingChamberState dopingChamber
             );
 
             batteryChamber.Root.SetActive(false);
             thermalChamber.Root.SetActive(false);
+            dopingChamber.Root.SetActive(false);
 
             ActiveChamberKind activeChamber = ChamberInterfacerUtility.GetActiveChamber(interfacer);
 
             switch (activeChamber)
             {
-                case ActiveChamberKind.None:
-                    ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, false);
-                    break;
                 case ActiveChamberKind.Voltage:
                     BatteryChamberUtility.ResetState(batteryChamber);
                     break;
@@ -46,13 +45,12 @@ namespace SpaceFab.Research
                     ThermalChamberUtility.ResetState(thermalChamber);
                     break;
                 case ActiveChamberKind.Doping:
-                    // TODO
+                    DopingChamberUtility.ResetState(dopingChamber);
                     break;
             }
 
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
-            ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, activeChamber == ActiveChamberKind.Doping);
-
+            ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
             interfacer.ActiveChamberChangedThisFrame = false;
         }
     }

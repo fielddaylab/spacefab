@@ -57,7 +57,7 @@ namespace SpaceFab.Research {
             Sprite bodySprite = view.IsMultiAtom ? view.MultiAtomSprite : view.SingleAtomSprite;
             if (rig.Renderer != null) {
                 rig.Renderer.sprite = bodySprite;
-                rig.Renderer.color = view.GemColor;
+                // rig.Renderer.color = view.GemColor;
             }
             if (rig.ShadowRenderer != null) {
                 rig.ShadowRenderer.sprite = bodySprite;
