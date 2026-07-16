@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: GalliumArsenide
   m_EditorClassIdentifier: 
   DisplayName: GalliumArsenide
+  ShortName: GaAs
   ValenceElectronCounts: 0300000005000000
   AtomicRadii: 8800000072000000
+  Properties: 121917

@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: GalliumNitride
   m_EditorClassIdentifier: 
   DisplayName: GalliumNitride
+  ShortName: GaN
   ValenceElectronCounts: 0300000005000000
   AtomicRadii: 8800000038000000
+  Properties: 121817

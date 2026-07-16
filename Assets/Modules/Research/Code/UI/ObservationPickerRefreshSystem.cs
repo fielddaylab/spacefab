@@ -41,8 +41,7 @@ namespace SpaceFab.Research {
             if (viewModel == null || !viewModel.HypothesisChangedThisFrame) return;
             if (pools == null || pools.ActivePickerChips == null) return;
 
-            bool slotsFull = viewModel.ActivePageSlotCount >= viewModel.ActivePageObservationCount
-                && viewModel.ActivePageObservationCount > 0;
+            bool slotsFull = viewModel.ActivePageSlotCount >= HypothesisViewModelState.MaxObservationsPerPage;
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                 if (panel == null || panel.PickerLabels == null) continue;

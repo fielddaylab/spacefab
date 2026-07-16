@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: SiliconCarbide
   m_EditorClassIdentifier: 
   DisplayName: Silicon Carbide
+  ShortName: SiC
   ValenceElectronCounts: 0400000004000000
   AtomicRadii: 6f00000043000000
+  Properties: 121418

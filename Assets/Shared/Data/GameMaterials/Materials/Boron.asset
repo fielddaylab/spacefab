@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Boron
   m_EditorClassIdentifier: 
   DisplayName: Boron
+  ShortName: B
   ValenceElectronCounts: 03000000
   AtomicRadii: 57000000
+  Properties: 150f10

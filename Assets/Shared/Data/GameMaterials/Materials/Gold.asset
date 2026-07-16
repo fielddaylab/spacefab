@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Gold
   m_EditorClassIdentifier: 
   DisplayName: Gold
+  ShortName: Au
   ValenceElectronCounts: 01000000
   AtomicRadii: ae000000
+  Properties: 11

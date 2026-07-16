@@ -12,5 +12,12 @@ namespace SpaceFab.Research {
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Research/UI Assets")]
     public class ResearchUIAssets : GlobalAsset {
+        [Header("Chamber Button Sprites")]
+        public Sprite VoltageNormal;
+        public Sprite VoltagePressed;
+        public Sprite ThermalNormal;
+        public Sprite ThermalPressed;
+        public Sprite DopingNormal;
+        public Sprite DopingPressed;
     }
 }

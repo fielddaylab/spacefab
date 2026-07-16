@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be94885d8ce25d34c9838739426a2847, type: 3}
-  m_Name: HighVoltageSemiConductor
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: ResearchUIAsset
   m_EditorClassIdentifier: 
-  Label: 24
-  Dependencies: 010206
+  m_GlobalAssets:
+  - {fileID: 11400000, guid: ab68c0497d295814b82b4de1a7147063, type: 2}
+  m_NamedAssets: []
+  m_LiteAssets: []

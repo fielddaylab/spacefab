@@ -28,7 +28,7 @@ namespace SpaceFab.Research {
             MaterialPropertyDefinitionAsset registry = Find.GlobalAsset<MaterialPropertyDefinitionAsset>();
             if (registry == null) {
                 Debug.LogWarning("[ResearchHypothesisUtility] No MaterialPropertyDefinitionAsset registered; hypothesis panel will be empty.");
-                viewModelState.ActivePageIndex = 0;
+                viewModelState.ActivePageIndex = -1;
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
                 return;
             }
@@ -63,7 +63,7 @@ namespace SpaceFab.Research {
                 }
             }
 
-            viewModelState.ActivePageIndex = 0;
+            viewModelState.ActivePageIndex = -1;
             HypothesisViewModelUtility.RequestRebuild(viewModelState);
         }
     }

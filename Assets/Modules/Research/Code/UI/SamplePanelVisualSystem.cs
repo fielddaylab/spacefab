@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -54,10 +55,10 @@ namespace SpaceFab.Research {
                 s_VerifyShownPending = false;
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnVerifyButtonShown);
             }
-            if (hypoVm.SubmitButtonVisible && !s_PrevSubmitVisible) {
+            if (hypoVm.VerifyButtonVisible && !s_PrevSubmitVisible) {
                 s_VerifyShownPending = true;
             }
-            s_PrevSubmitVisible = hypoVm.SubmitButtonVisible;
+            s_PrevSubmitVisible = hypoVm.VerifyButtonVisible;
         }
     }
 
@@ -91,9 +92,26 @@ namespace SpaceFab.Research {
             // Driven explicitly here so it works in both the empty-state
             // and filled-state paths regardless of where the button
             // sits in the panel hierarchy.
-            if (panel.SubmitButton != null) {
-                panel.SubmitButton.gameObject.SetActive(hypoVm.SubmitButtonVisible);
+            if (panel.VerifyButton != null) {
+                panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
             }
+
+            ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+            ActiveChamberKind chamberKind = ChamberInterfacerUtility.GetActiveChamber(interfacerState);
+            if (panel.VoltageChamberButton != null) {
+                panel.VoltageChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Voltage
+                    ? uiAssets.VoltagePressed : uiAssets.VoltageNormal;
+            }
+            if (panel.ThermalChamberButton != null) {
+                panel.ThermalChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Thermal
+                    ? uiAssets.ThermalPressed : uiAssets.ThermalNormal;
+            }
+            if (panel.DopingChamberButton != null) {
+                panel.DopingChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Doping
+                    ? uiAssets.DopingPressed : uiAssets.DopingNormal;
+            }
+
+            panel.ChamberText.text = chamberKind == ActiveChamberKind.None ? "" : $"{chamberKind} Chamber";
 
             // 1. Empty-state path: no material slotted.
             if (slottedMaterial == null) {
@@ -114,6 +132,8 @@ namespace SpaceFab.Research {
                         }
                     }
                 }
+                if (panel.HypothesisChip != null)
+                    panel.HypothesisChip.gameObject.SetActive(false);
                 SamplePanelInputUtility.ClosePicker(panel);
                 return;
             }
@@ -145,19 +165,13 @@ namespace SpaceFab.Research {
 
             // 3. Slot chips render the viewmodel's slot view (auto-
             // locked entries first, then player picks in insertion
-            // order). Capacity = ActivePageObservationCount (= leaf
-            // count). Filled slots [0..SlotCount) show the picked
+            // order). Filled slots [0..SlotCount) show the picked
             // label + that label's per-type sprite; remaining slots
             // up to capacity render dashed-empty.
-            int slotCapacity = hypoVm.ActivePageObservationCount;
             int slotCount = hypoVm.ActivePageSlotCount;
 
             if (panel.SlotChips != null) {
                 for (int i = 0; i < panel.SlotChips.Length; i++) {
-                    if (i >= slotCapacity) {
-                        panel.SlotChips[i].gameObject.SetActive(false);
-                        continue;
-                    }
                     panel.SlotChips[i].gameObject.SetActive(true);
                     bool filled = i < slotCount;
                     bool locked = filled && (hypoVm.ActivePageSlotLockedMask & (1u << i)) != 0;
@@ -171,6 +185,19 @@ namespace SpaceFab.Research {
                     panel.SlotChips[i].SetState(label, filled, locked, type, useEmptyDashedSprite: true);
                 }
             }
+
+            // 3-1. Render hypothesis chip slot
+            panel.HypothesisChip.gameObject.SetActive(true);
+            bool hypoFilled = hypoVm.ActivePageIndex != -1;
+            bool hypoLocked = hypoFilled && (hypoVm.PageFulfilledMask & (1u << hypoVm.ActivePageIndex)) != 0;
+            string hypoLabel = null;
+            ObservationType hypoType = default;
+            if (hypoFilled) {
+                MaterialPropertyLabel hypo = pagesState.Pages[hypoVm.ActivePageIndex].Label;
+                hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
+                hypoType = MaterialObservationChamberLookup.GetChamberType(hypo);
+            }
+            panel.HypothesisChip.SetState(hypoLabel, hypoFilled, hypoLocked, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
             // once on chamber load (ObservationPickerLoadUtility);
