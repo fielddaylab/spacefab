@@ -34,7 +34,6 @@ namespace SpaceFab.Research
             MaterialPropertyLabel.HeatVulnerable,
             MaterialPropertyLabel.HeatResistant
         };
-        [Range(0f, 1f)] public float Temperature = 0f;
         [NonSerialized] public bool HeatChangedThisFrame;
 
         // Sound played when no current
