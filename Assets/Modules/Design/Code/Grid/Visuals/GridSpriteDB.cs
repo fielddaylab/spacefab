@@ -47,7 +47,8 @@ namespace SpaceFab.Design.Visuals
         public Sprite FlowUnstableBelow;
 
         [Header("Input Toggle Overlay")]
-        public Sprite InputToggleBackground;
+        public Sprite InputToggleBackgroundHi;
+        public Sprite InputToggleBackgroundLow;
         public Sprite InputToggleArrow;
         public Color InputToggleLoColor = Color.white;
         public Color InputToggleLoTextColor = Color.white;
@@ -111,6 +112,14 @@ namespace SpaceFab.Design.Visuals
             if (state == FlowState.Hi) { return spriteDB.InputToggleHiColor; }
             if (state == FlowState.Lo) { return spriteDB.InputToggleLoColor; }
             return Color.white;
+        }
+
+        public static Sprite LookupInputBackground(GridSpriteDB spriteDB, FlowState state)
+        {
+            if (spriteDB == null) { return spriteDB.InputToggleBackgroundHi; }
+            if (state == FlowState.Hi) { return spriteDB.InputToggleBackgroundHi; }
+            if (state == FlowState.Lo) { return spriteDB.InputToggleBackgroundLow; }
+            return null;
         }
 
         public static Color LookupInputToggleTextColor(GridSpriteDB spriteDB, FlowState state)
