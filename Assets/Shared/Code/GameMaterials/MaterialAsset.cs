@@ -30,5 +30,6 @@ namespace SpaceFab.Materials
         public int[] AtomicRadii;
 
         public MaterialPropertyLabel[] Properties;
+        public MaterialAsset[] Contexts;
     }
 }

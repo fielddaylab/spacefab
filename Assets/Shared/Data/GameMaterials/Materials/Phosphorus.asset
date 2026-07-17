@@ -17,3 +17,8 @@ MonoBehaviour:
   ValenceElectronCounts: 05000000
   AtomicRadii: 62000000
   Properties: 1611
+  Contexts:
+  - {fileID: 11400000, guid: dc22a706ffb89fc41b2a09a5bc892658, type: 2}
+  - {fileID: 11400000, guid: 24818b68876bf024da7fbbd33988c8aa, type: 2}
+  - {fileID: 11400000, guid: d97efd548e5b1fc4cb9bc30084ad6e21, type: 2}
+  - {fileID: 11400000, guid: dbd11141a76d726488b6cb4aa46c6b7e, type: 2}

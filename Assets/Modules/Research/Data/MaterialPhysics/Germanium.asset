@@ -19,5 +19,5 @@ MonoBehaviour:
   ThermalMultiplier: 2
   MaxTemperature: 0.33
   MaxVoltage: 0.66
-  IsHighMobility: 0
+  IsHighMobility: 1
   IsLightEmitting: 0

@@ -9,15 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: Diamond
+  m_Script: {fileID: 11500000, guid: f43422ee47823964a955a9909c3ee88c, type: 3}
+  m_Name: Insulator
   m_EditorClassIdentifier: 
-  MaterialId:
-    m_Source: Diamond
-    m_HashValue: 3747167047
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
-  MaxTemperature: 1
-  MaxVoltage: 1
-  IsHighMobility: 1
-  IsLightEmitting: 0
+  Label: 16
+  InComparisonTo:
+    m_HashValue: 0

@@ -20,4 +20,4 @@ MonoBehaviour:
   MaxTemperature: 1
   MaxVoltage: 1
   IsHighMobility: 0
-  IsLightEmitting: 0
+  IsLightEmitting: 1

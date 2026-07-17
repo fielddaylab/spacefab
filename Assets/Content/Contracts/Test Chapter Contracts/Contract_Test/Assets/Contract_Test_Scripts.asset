@@ -9,15 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: Diamond
+  m_Script: {fileID: 11500000, guid: 2613736b2e35237448e4a0f57709855d, type: 3}
+  m_Name: Contract_Test_Scripts
   m_EditorClassIdentifier: 
-  MaterialId:
-    m_Source: Diamond
-    m_HashValue: 3747167047
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
-  MaxTemperature: 1
-  MaxVoltage: 1
-  IsHighMobility: 1
-  IsLightEmitting: 0
+  Bindings: []
