@@ -152,6 +152,7 @@ GameObject:
   - component: {fileID: 8344467952360881231}
   - component: {fileID: 4451205377387921288}
   - component: {fileID: 1420737200516501435}
+  - component: {fileID: 3831710365006796672}
   m_Layer: 5
   m_Name: ButtonTemplate
   m_TagString: Untagged
@@ -245,8 +246,8 @@ MonoBehaviour:
     m_Source: 
     m_HashValue: 0
   m_Cursor: {fileID: 8344467952360881231}
+  m_PrimaryGraphic: {fileID: 0}
   m_Style: {fileID: 1420737200516501435}
-  m_PrimaryClickable: {fileID: 5784843740027511850}
 --- !u!114 &1420737200516501435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,6 +264,22 @@ MonoBehaviour:
   HoverYShift: 2
   DownYShift: -2
   DisabledYShift: -2
+--- !u!114 &3831710365006796672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7858774295019505386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 146583e573e6a89459b814b5eb30d560, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Background:
+  - {fileID: 8423745539401913140}
+  Content:
+  - {fileID: 6787585165383491076}
 --- !u!1 &7942867145077683270
 GameObject:
   m_ObjectHideFlags: 0

@@ -2292,6 +2292,30 @@ namespace FieldDay.Scenes {
             static internal void SetDelayedSceneProcessorsRunning(bool running) {
                 s_DelayedSceneProcessorsRunning = running;
             }
+
+            static public bool HasAnyScenePipelineStagesInHierarchy(GameObject gameObject) {
+                if (gameObject.GetComponentInChildren<IScenePreload>(true) != null) {
+                    return true;
+                }
+                if (gameObject.GetComponentInChildren<LateEnable>(true) != null) {
+                    return true;
+                }
+                if (gameObject.GetComponentInChildren<ImportScene>(true) != null) {
+                    return true;
+                }
+                if (gameObject.GetComponentInChildren<IDynamicSceneImport>(true) != null) {
+                    return true;
+                }
+                if (gameObject.GetComponentInChildren<ISceneLateInitialize>(true) != null) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            static public bool HasAnyScenePipelineStagesInHierarchy(Component component) {
+                return HasAnyScenePipelineStagesInHierarchy(component.gameObject);
+            }
 #else
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             static public bool AreDelayedSceneProcessorsRunning() {

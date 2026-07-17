@@ -8,11 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ModuleBackgroundLightBeamMat
-  m_Shader: {fileID: 4800000, guid: 351179e8d072f4f4abb65ee16d28e15b, type: 3}
-  m_Parent: {fileID: 2100000, guid: 90dc566dd7a3c484e832f99bedf05514, type: 2}
+  m_Shader: {fileID: 4800000, guid: 70e4509c769006140989c2a04eebc210, type: 3}
+  m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - FD_INTENSITY_COLOR_ALPHA
   - FD_PREMULTIPLY_ALPHA
+  - FD_SAMPLE_R
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -30,11 +32,22 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - FD_INTENSITY: 2
+    - FD_SAMPLE: 0
+    - _AlphaCutoff: 0
     - _BlendOp: 0
     - _CullMode: 2
     - _DestBlend: 1
+    - _EnableAlphaClip: 0
+    - _EnableFog: 0
+    - _IntensityAlphaMinThreshold: 0
+    - _IntensityAlphaThreshold: 1
+    - _IntensityColorMinThreshold: 0.001
+    - _IntensityColorThreshold: 1
     - _PremultiplyAlpha: 1
     - _SrcBlend: 2
+    - _ZTestMode: 4
+    - _ZWriteMode: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _LerpColor: {r: 1, g: 1, b: 1, a: 0}

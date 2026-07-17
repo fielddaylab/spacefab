@@ -83,6 +83,14 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 42
       objectReference: {fileID: 0}
+    - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: Content.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: Content.Array.data[1]
+      value: 
+      objectReference: {fileID: 4175924112435929362}
     - target: {fileID: 3837406893295165992, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_Pivot.x
       value: 1

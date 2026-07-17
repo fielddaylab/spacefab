@@ -40,6 +40,18 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 42
       objectReference: {fileID: 0}
+    - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: Background.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: Background.Array.data[0]
+      value: 
+      objectReference: {fileID: 3722771882752122432}
+    - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: Background.Array.data[1]
+      value: 
+      objectReference: {fileID: 168192530895116136}
     - target: {fileID: 3837406893295165992, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_Pivot.x
       value: 1
@@ -120,6 +132,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4451205377387921288, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: m_PrimaryGraphic
+      value: 
+      objectReference: {fileID: 2943192689760791763}
     - target: {fileID: 5161275308998455219, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_AnchorMax.x
       value: 1
@@ -284,3 +300,14 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2943192689760791763 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6787585165383491076, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+  m_PrefabInstance: {fileID: 8568672883404124887}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

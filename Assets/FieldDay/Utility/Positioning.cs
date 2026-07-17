@@ -137,7 +137,7 @@ namespace FieldDay {
             Vector2 min, max;
             min = rect.anchorMin;
             max = rect.anchorMax;
-            min.x = max.y = anchorY;
+            min.y = max.y = anchorY;
             rect.anchorMin = min;
             rect.anchorMax = max;
         }

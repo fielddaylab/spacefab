@@ -30,7 +30,7 @@ Material:
     - _DestBlend: 1
     - _FadeBand: 7
     - _PremultiplyAlpha: 1
-    - _SrcBlend: 5
+    - _SrcBlend: 1
     - _Tiling: 40
     - _ZTestMode: 0
     - _ZWriteMode: 0

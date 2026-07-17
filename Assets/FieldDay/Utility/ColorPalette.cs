@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using BeauRoutine;
 using BeauUtil;
 using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
@@ -240,7 +241,17 @@ namespace FieldDay {
             target.Background.Apply(palette.Background);
         }
 
+        static public void Apply(in ColorPalette2 palette, in ColorPaletteTargetSet4 target) {
+            target.Content.Apply(palette.Content);
+            target.Background.Apply(palette.Background);
+        }
+
         static public void Apply(in ColorPalette2 palette, in ColorPaletteTarget2 target) {
+            target.Content.Apply(palette.Content);
+            target.Background.Apply(palette.Background);
+        }
+
+        static public void Apply(in ColorPalette2 palette, in ColorPaletteTarget4 target) {
             target.Content.Apply(palette.Content);
             target.Background.Apply(palette.Background);
         }
@@ -255,7 +266,17 @@ namespace FieldDay {
             target.Background.Apply(palette.Background);
         }
 
+        static public void Apply(in ColorPalette2F palette, in ColorPaletteTargetSet4 target) {
+            target.Content.Apply(palette.Content);
+            target.Background.Apply(palette.Background);
+        }
+
         static public void Apply(in ColorPalette2F palette, in ColorPaletteTarget2 target) {
+            target.Content.Apply(palette.Content);
+            target.Background.Apply(palette.Background);
+        }
+
+        static public void Apply(in ColorPalette2F palette, in ColorPaletteTarget4 target) {
             target.Content.Apply(palette.Content);
             target.Background.Apply(palette.Background);
         }
@@ -294,6 +315,61 @@ namespace FieldDay {
         }
 
         #endregion // Apply
+
+        #region Single Channel
+
+        [Il2CppSetOption(Option.NullChecks, false)]
+        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        static public void Apply(Color paletteColor, Graphic[] targets) {
+            for (int i = 0, len = targets.Length; i < len; i++) {
+                targets[i].color = paletteColor;
+            }
+        }
+
+        [Il2CppSetOption(Option.NullChecks, false)]
+        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        static public void ApplyPreserveAlpha(Color paletteColor, Graphic[] targets) {
+            for (int i = 0, len = targets.Length; i < len; i++) {
+                var target = targets[i];
+                target.color = paletteColor.WithAlpha(target.color.a);
+            }
+        }
+
+        [Il2CppSetOption(Option.NullChecks, false)]
+        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        static public void Apply(Color paletteColor, SpriteRenderer[] targets) {
+            for (int i = 0, len = targets.Length; i < len; i++) {
+                targets[i].color = paletteColor;
+            }
+        }
+
+        [Il2CppSetOption(Option.NullChecks, false)]
+        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        static public void ApplyPreserveAlpha(Color paletteColor, SpriteRenderer[] targets) {
+            for (int i = 0, len = targets.Length; i < len; i++) {
+                var target = targets[i];
+                target.color = paletteColor.WithAlpha(target.color.a);
+            }
+        }
+
+        [Il2CppSetOption(Option.NullChecks, false)]
+        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        static public void Apply(Color paletteColor, ColorGroup[] targets) {
+            for (int i = 0, len = targets.Length; i < len; i++) {
+                targets[i].Color = paletteColor;
+            }
+        }
+
+        [Il2CppSetOption(Option.NullChecks, false)]
+        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        static public void ApplyPreserveAlpha(Color paletteColor, ColorGroup[] targets) {
+            for (int i = 0, len = targets.Length; i < len; i++) {
+                var target = targets[i];
+                target.Color = paletteColor.WithAlpha(target.GetAlpha());
+            }
+        }
+
+        #endregion // Single Channel
     }
 
     #region Targets
@@ -399,15 +475,9 @@ namespace FieldDay {
         [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
         [Il2CppSetOption(Option.NullChecks, false)]
         public readonly void Apply(Color color) {
-            for (int i = 0, len = Graphics.Length; i < len; i++) {
-                Graphics[i].color = color;
-            }
-            for (int i = 0, len = Sprites.Length; i < len; i++) {
-                Sprites[i].color = color;
-            }
-            for (int i = 0, len = Groups.Length; i < len; i++) {
-                Groups[i].Color = color;
-            }
+            ColorPalette.Apply(color, Graphics);
+            ColorPalette.Apply(color, Sprites);
+            ColorPalette.Apply(color, Groups);
         }
 
         public readonly bool IsEmpty {
@@ -451,4 +521,9 @@ namespace FieldDay {
     }
 
     #endregion // Target Sets
+
+    public interface IColorPaletteTint {
+        void SetTint(ColorPalette2F palette);
+        void SetTint(ColorPalette4F palette);
+    }
 }

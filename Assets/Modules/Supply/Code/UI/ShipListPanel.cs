@@ -12,10 +12,19 @@ using UnityEngine.UI;
 
 namespace SpaceFab.Supply {
     public sealed class ShipListPanel : SharedPanel, IRegistrationCallbacks {
-        public ShipListRow[] Rows;
+        [Serializable]
+        public struct SpeedIconConfig {
+            public Sprite Image;
+            public Vector2 Size;
+        }
+
         public LayoutSizeGroup Layout;
         public LayoutOptions VerticalLayoutOptions;
 
+        [Header("Row Config")]
+        public SpeedIconConfig[] SpeedIcons;
+
+        [NonSerialized] public ShipListRow[] Rows;
         [NonSerialized] public ShipListRow SelectedRow;
 
         void IRegistrationCallbacks.OnDeregister() {
@@ -30,26 +39,26 @@ namespace SpaceFab.Supply {
         private void OnRouteStarted(SupplyRouteEventArgs evtArgs) {
             SelectedRow = Rows[evtArgs.RouteIndex];
             SelectedRow.LayoutOffset.Offset0 = new Vector2(40, 0);
-            SelectedRow.Click.TooltipFooter = "<sprite name=\"MouseLeft\"> Cancel";
-            SelectedRow.Click.MarkDirty();
+            SelectedRow.CursorHint.TooltipFooter = "<sprite name=\"MouseLeft\"> Cancel";
+            SelectedRow.CursorHint.MarkDirty();
         }
 
         private void OnRouteEnded(SupplyRouteEventArgs evtArgs) {
-            SelectedRow.Click.TooltipFooter = "<sprite name=\"MouseLeft\"> Draw Route";
-            SelectedRow.Click.MarkDirty();
+            SelectedRow.CursorHint.TooltipFooter = "<sprite name=\"MouseLeft\"> Draw Route";
+            SelectedRow.CursorHint.MarkDirty();
             SelectedRow.LayoutOffset.Offset0 = default;
             SelectedRow = null;
         }
     }
 
     static public partial class SupplyChainUtility {
-        static public void PopulateShipList(ShipListPanel panel, SupplyShipIndex ships, SupplyRouteConfig config) {
+        static public void PopulateShipList(ShipListPanel panel, SupplyShipIndex ships) {
             for(int i = 0; i < ships.ShipCount; i++) {
                 ShipListRow row = panel.Rows[i];
-                PopulateShipInformation(row, ships.ShipAssets[i], config);
-                row.Click.UserData = row;
+                PopulateShipInformation(row, ships.ShipAssets[i], panel);
+                row.CursorHint.Owner = row.CursorHint.UserData = row;
                 row.ShipIndex = i;
-                row.Click.onClick.Register(HandleShipClicked);
+                row.CursorHint.onClick.Register(HandleShipClicked);
                 row.gameObject.SetActive(true);
             }
 
