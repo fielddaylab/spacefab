@@ -47,11 +47,11 @@ PrefabInstance:
     - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: Background.Array.data[0]
       value: 
-      objectReference: {fileID: 3722771882752122432}
+      objectReference: {fileID: 168192530895116136}
     - target: {fileID: 3831710365006796672, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: Background.Array.data[1]
       value: 
-      objectReference: {fileID: 168192530895116136}
+      objectReference: {fileID: 3722771882752122432}
     - target: {fileID: 3837406893295165992, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_Pivot.x
       value: 1
@@ -78,7 +78,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3837406893295165992, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 164
+      value: 218
       objectReference: {fileID: 0}
     - target: {fileID: 3837406893295165992, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_SizeDelta.y
@@ -214,7 +214,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7858774295019505386, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_Name
-      value: WideButton
+      value: XWideButton
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2356737789482036004, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 335bd17548c23504db98e0d4a362a12a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: efc012f4d63a85e44a28589f417cf209, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -290,7 +290,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: efac0a8e69ad71c459688043e7835fe3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0ed023672b050374a995743e468f3512, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

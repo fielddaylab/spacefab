@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace FieldDay.UI {
-    [DisallowMultipleComponent, RequireComponent(typeof(Camera), typeof(BaseRaycaster))]
+    [DisallowMultipleComponent, RequireComponent(typeof(Camera), typeof(PhysicsRaycaster))]
     public sealed class PhysicsInputLayer : BaseRaycasterInputLayer {
         #region Inspector
 

@@ -52,8 +52,8 @@ namespace FieldDay.UI.Widgets {
 
         protected override void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags change, GuiWidgetUpdateFlags flags = GuiWidgetUpdateFlags.Default) {
             CursorHint.enabled = (state & GuiWidgetStateFlags.PauseInteractions) == 0;
-            if (GuiRenderer) {
-                GuiRenderer.raycastTarget = (state & GuiWidgetStateFlags.PauseInteractions) == 0;
+            if (CanvasGraphic) {
+                CanvasGraphic.raycastTarget = (state & GuiWidgetStateFlags.PauseInteractions) == 0;
             }
 
             TryUpdateInteractableState(this, ref m_InteractableState, m_Style);
