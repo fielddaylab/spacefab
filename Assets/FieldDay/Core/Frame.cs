@@ -309,7 +309,7 @@ namespace FieldDay {
 
         #if UNITY_EDITOR
 
-        [InitializeOnLoadMethod]
+        [EditorStaticResource]
         static private void EditorInitialize() {
             EditorApplication.update -= EditorAdvance;
             EditorStaticResource.SetupLifetime(EditorCreate, EditorDestroy);
