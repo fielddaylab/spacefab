@@ -14,7 +14,7 @@ namespace SpaceFab.Research
                     .ReadShared<ChamberInterfacerState>()
                     .ReadShared<BatteryChamberState>()
                     .ReadShared<ThermalChamberState>()
-                    //.ReadShared<DopingChamberState>()
+                    .ReadShared<DopingChamberState>()
             );
         }
 
@@ -26,33 +26,50 @@ namespace SpaceFab.Research
             
             Find.State(
                 out BatteryChamberState batteryChamber,
-                out ThermalChamberState thermalChamber
+                out ThermalChamberState thermalChamber,
+                out DopingChamberState dopingChamber
             );
 
             batteryChamber.Root.SetActive(false);
             thermalChamber.Root.SetActive(false);
+            dopingChamber.Root.SetActive(false);
 
             ActiveChamberKind activeChamber = ChamberInterfacerUtility.GetActiveChamber(interfacer);
+            ResearchPools pools = Find.State<ResearchPools>();
 
             switch (activeChamber)
             {
-                case ActiveChamberKind.None:
-                    ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, false);
-                    break;
                 case ActiveChamberKind.Voltage:
                     BatteryChamberUtility.ResetState(batteryChamber);
+                    if (pools != null) {
+                        foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, batteryChamber.AvailableObservations);
+                            break;
+                        }
+                    }
                     break;
                 case ActiveChamberKind.Thermal:
                     ThermalChamberUtility.ResetState(thermalChamber);
+                    if (pools != null) {
+                        foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, thermalChamber.AvailableObservations);
+                            break;
+                        }
+                    }
                     break;
                 case ActiveChamberKind.Doping:
-                    // TODO
+                    DopingChamberUtility.ResetState(dopingChamber);
+                    if (pools != null) {
+                        foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, dopingChamber.AvailableObservations);
+                            break;
+                        }
+                    }
                     break;
             }
 
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
-            ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, activeChamber == ActiveChamberKind.Doping);
-
+            ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
             interfacer.ActiveChamberChangedThisFrame = false;
         }
     }

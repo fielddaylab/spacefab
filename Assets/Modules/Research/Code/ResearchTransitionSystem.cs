@@ -112,23 +112,6 @@ namespace SpaceFab.Research {
                 HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
             }
 
-            // Load the observation picker chip set for the active
-            // chamber. Available observations are constant per chamber,
-            // so this is a one-shot sync — pool alloc + layout + overlay
-            // resize. Per-chip disabled state is refreshed reactively by
-            // ObservationPickerRefreshSystem. When the station-transition
-            // system lands and the active chamber goes dynamic, this
-            // call moves alongside the SetActiveChamber switch.
-            ResearchPools pools = Find.State<ResearchPools>();
-            if (pools != null)
-            {
-                foreach (var samplePanel in Find.Components<ResearchSamplePanel>())
-                {
-                    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, batteryChamberState.AvailableObservations);
-                    break;
-                }
-            }
-
             // Activate the Battery chamber. This is the only chamber today;
             // when the station-transition system lands, this hardcoded
             // activation moves into station logic and reacts to player nav.

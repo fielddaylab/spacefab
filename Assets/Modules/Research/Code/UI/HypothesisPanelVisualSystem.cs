@@ -66,8 +66,6 @@ namespace SpaceFab.Research {
             }
 
             int pageCount = pagesState.Pages.Count;
-
-            // 3. Empty-page fast path.
             if (pageCount == 0) {
                 ClearChips(panel);
                 return;
@@ -76,7 +74,7 @@ namespace SpaceFab.Research {
             RenderChips(panel, pagesState, viewModel.PageFulfilledMask);
         }
 
-        private static void RenderChips(ResearchHypothesisPanelState panel, ResearchHypothesisPagesState pagesState, uint pageFulfilledMask) {
+        private static void RenderChips(ResearchHypothesisPanelState panel, ResearchHypothesisPagesState pagesState, uint pageFulfilledMask) {            
             if (panel.PropertyChips == null) {
                 return;
             }

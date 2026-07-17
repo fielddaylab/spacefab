@@ -17,7 +17,7 @@ MonoBehaviour:
     m_HashValue: 1163381446
   ConductionMultiplier: 0.4
   ThermalMultiplier: 2
-  MaxTemperature: 0.6
-  MaxVoltage: 0.6
+  MaxTemperature: 0.66
+  MaxVoltage: 0.66
   IsHighMobility: 0
   IsLightEmitting: 0
