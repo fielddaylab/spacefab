@@ -49,6 +49,9 @@ namespace FieldDay.Editor {
             }
 
             StreamedPack[] allPacks = AssetDBUtils.FindAssets<StreamedPack>();
+            foreach(var pack in allPacks) {
+                pack.EditorRebuild();
+            }
             AssetBundleBuild[] bundleBuilds = new AssetBundleBuild[allPacks.Length];
             for(int i = 0; i < allPacks.Length; i++) {
                 bundleBuilds[i] = GeneratePackageBuildParameters(allPacks[i]);

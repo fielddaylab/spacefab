@@ -35,6 +35,14 @@ namespace FieldDay.Assets {
             RemoveDuplicateReferences(this);
         }
 
+        protected internal override void RecursiveRebuild() {
+            base.RecursiveRebuild();
+
+            foreach(var package in m_Packages) {
+                package.RecursiveRebuild();
+            }
+        }
+
         static public void RemoveDuplicateReferences(MetaPack pack) {
             if (AssetUtility.Editor.StripNullAndDuplicateReferences(ref pack.m_Packages, pack)) {
                 Log.Warn("[MetaPack] Contents of pack '{0}' updated to remove null and self references", pack.name);

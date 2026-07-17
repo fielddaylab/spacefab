@@ -50,6 +50,10 @@ namespace FieldDay.Assets {
 
         protected internal virtual void EditorRebuild() { }
 
+        protected internal virtual void RecursiveRebuild() {
+            EditorRebuild();
+        }
+
         bool IBaked.Bake(BakeFlags flags, BakeContext context) {
             EditorRebuild();
             return EditorUtility.IsDirty(this);

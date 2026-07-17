@@ -203,7 +203,7 @@ namespace FieldDay.Assets {
             static public T[] StripNullAndDuplicateReferences<T>(T[] values) where T : class {
                 using (TempReferenceBuffer<T> tempBuffer = TempReferenceBuffer<T>.Create(values.Length)) {
                     foreach (var value in values) {
-                        if (value != null && tempBuffer.IndexOf(value) < 0) {
+                        if (IsNotNullOrDestroyed(value) && tempBuffer.IndexOf(value) < 0) {
                             tempBuffer.Add(value);
                         }
                     }
@@ -229,7 +229,7 @@ namespace FieldDay.Assets {
             static public T[] StripNullAndDuplicateReferences<T>(T[] values, T exclude) where T : class {
                 using (TempReferenceBuffer<T> tempBuffer = TempReferenceBuffer<T>.Create(values.Length)) {
                     foreach (var value in values) {
-                        if (value != null && value != exclude && tempBuffer.IndexOf(value) < 0) {
+                        if (IsNotNullOrDestroyed(value) && value != exclude && tempBuffer.IndexOf(value) < 0) {
                             tempBuffer.Add(value);
                         }
                     }
@@ -255,7 +255,7 @@ namespace FieldDay.Assets {
             static public T[] StripNullAndDuplicateReferences<T>(T[] values, T exclude, Predicate<T> filter) where T : class {
                 using (TempReferenceBuffer<T> tempBuffer = TempReferenceBuffer<T>.Create(values.Length)) {
                     foreach (var value in values) {
-                        if (value != null && value != exclude && filter(value) && tempBuffer.IndexOf(value) < 0) {
+                        if (IsNotNullOrDestroyed(value) && value != exclude && filter(value) && tempBuffer.IndexOf(value) < 0) {
                             tempBuffer.Add(value);
                         }
                     }
@@ -276,6 +276,19 @@ namespace FieldDay.Assets {
                 }
 
                 return false;
+            }
+
+            static private bool IsNotNullOrDestroyed<T>(T value) where T : class {
+                if (ReferenceEquals(value, null)) {
+                    return false;
+                }
+
+                UnityEngine.Object unityObj = value as UnityEngine.Object;
+                if (!ReferenceEquals(unityObj, null) && !unityObj) {
+                    return false;
+                }
+
+                return true;
             }
 
             #endregion // Array Modification
