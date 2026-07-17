@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3760780465900a41abc9d5b147727d6, type: 3}
-  m_Name: SiliconDioxide
+  m_Name: SiliconCarbide
   m_EditorClassIdentifier: 
   MaterialId:
-    m_Source: SiliconDioxide
-    m_HashValue: 1571298950
-  SingleAtomSprite: {fileID: 21300000, guid: 98726fdccfc48614fa8d9c50c571483f, type: 3}
+    m_Source: SiliconCarbide
+    m_HashValue: 3774176290
+  SingleAtomSprite: {fileID: 21300000, guid: d3ea5e04abacf4ccb9b1881aa7399ff8, type: 3}
   MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.34117648, g: 0.30980393, b: 0.46666667, a: 1}
+  GemColor: {r: 0.47108185, g: 0.5849056, b: 0.44419718, a: 1}
   GemScale: 1
   IsMultiAtom: 1
-  SampleNumber: 0
-  SampleLabel: A
+  SampleNumber: 6
+  SampleLabel: F

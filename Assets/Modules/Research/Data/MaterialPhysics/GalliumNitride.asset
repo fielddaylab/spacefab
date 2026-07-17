@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: Gallium Arsenide
+  m_Name: GalliumNitride
   m_EditorClassIdentifier: 
   MaterialId:
-    m_Source: SiliconNitride
-    m_HashValue: 4101603807
+    m_Source: GalliumNitride
+    m_HashValue: 296790427
   ConductionMultiplier: 0.4
   ThermalMultiplier: 2
-  MaxTemperature: 0.66
-  MaxVoltage: 0.66
-  IsHighMobility: 1
+  MaxTemperature: 1
+  MaxVoltage: 1
+  IsHighMobility: 0
   IsLightEmitting: 1
