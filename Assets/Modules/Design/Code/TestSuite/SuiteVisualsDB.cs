@@ -24,6 +24,7 @@ namespace SpaceFab.Design.Visuals
     public enum CellVerdict
     {
         Hidden,
+        InProgress,
         Correct,
         Incorrect,
     }
@@ -49,6 +50,9 @@ namespace SpaceFab.Design.Visuals
         public Sprite SuiteArrow;
         public Sprite SuiteCheckmark;
         public Sprite SuiteXMark;
+        public Color SuiteInProgressColor;
+        public Color SuiteCorrectColor;
+        public Color SuiteIncorrectColor;
 
         [Header("Run Button Icons")]
         public Sprite PlayIcon;

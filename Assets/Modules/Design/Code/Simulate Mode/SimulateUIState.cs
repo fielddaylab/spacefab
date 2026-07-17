@@ -164,6 +164,10 @@ namespace SpaceFab.Design
         {
             // TODO: for each non-output column in row rowIndex, look up the value in test.Bundle
             //       by its InputOutputNodeTypeFlags and set the contents cell's FlowImg sprite.
+            var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
+
+            uiState.Rows[rowIndex].RowBGBar.enabled = true;
+            uiState.Rows[rowIndex].RowBGBar.color = suiteDB.SuiteInProgressColor;
         }
 
         // Records per-output verdict outcomes for a row into uiState.CellVerdicts and flags the
@@ -349,6 +353,7 @@ namespace SpaceFab.Design
                 uiState.Rows[row].Cols = new SuiteCol[bundle.Length];
                 uiState.Rows[row].Verdicts = new VerdictVisualizer[bundle.Length];
                 uiState.Rows[row].RunButton.RowIndex = row;
+                uiState.Rows[row].RowBGBar.enabled = false;
                 uiState.CellVerdicts[row] = new CellVerdict[bundle.Length];
 
                 // Two passes so all inputs render left of the arrow and all outputs right of it,
@@ -415,6 +420,7 @@ namespace SpaceFab.Design
         private static float InstantiateHeader(SuiteRow headerRow, SuiteVisualsDB suiteDB, InputOutputNodeTypeFlags id)
         {
             SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, headerRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
+            headerRow.RowBGBar.enabled = false;
             currHeader.Label.SetText(GetLocTextForId(id));
             var size = currHeader.Rect.sizeDelta;
             size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;

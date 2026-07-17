@@ -65,7 +65,8 @@ namespace SpaceFab.Design
                         //viz.Icon.enabled = false;
                         uiState.Rows[row].Cols[col].FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
                         uiState.Rows[row].Cols[col].Label.color = UnityEngine.Color.black;
-                            uiState.Rows[row].ArrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupValidSprite(suiteDB, -1);
+                        uiState.Rows[row].ArrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupValidSprite(suiteDB, -1);
+                        uiState.Rows[row].RowBGBar.enabled = false;
                         //viz.Icon.sprite = SuiteVisualsDBUtility.LookupVerdictSprite(suiteDB, state);
                     }
                     else
@@ -75,11 +76,15 @@ namespace SpaceFab.Design
                             uiState.Rows[row].Cols[col].FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true, isValid: true);
                             uiState.Rows[row].Cols[col].Label.color = UnityEngine.Color.white;
                             uiState.Rows[row].ArrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupValidSprite(suiteDB, 1);
+                            uiState.Rows[row].RowBGBar.enabled = true;
+                            uiState.Rows[row].RowBGBar.color = suiteDB.SuiteCorrectColor;
                         } else
                         {
                             uiState.Rows[row].Cols[col].FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
                             uiState.Rows[row].Cols[col].Label.color = UnityEngine.Color.black;
                             uiState.Rows[row].ArrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupValidSprite(suiteDB, 0);
+                            uiState.Rows[row].RowBGBar.enabled = true;
+                            uiState.Rows[row].RowBGBar.color = suiteDB.SuiteIncorrectColor;
                         }
                         //viz.Icon.sprite = SuiteVisualsDBUtility.LookupVerdictSprite(suiteDB, state);
                     }
