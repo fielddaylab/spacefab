@@ -43,7 +43,7 @@ namespace SpaceFab.Supply {
 
             yield return null;
 
-            SupplyChainUtility.PopulateShipList(Find.Panel<ShipListPanel>(), shipIndex, Find.GlobalAsset<SupplyRouteConfig>());
+            SupplyChainUtility.PopulateShipList(Find.Panel<ShipListPanel>(), shipIndex);
 
             yield return null;
 

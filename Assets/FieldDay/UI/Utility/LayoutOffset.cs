@@ -2,6 +2,11 @@ using System;
 using BeauRoutine;
 using UnityEngine.Scripting;
 
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif // UNITY_EDITOR
+
 namespace UnityEngine.UI {
     /// <summary>
     /// Offset for a RectTransform's anchoredPosition.
@@ -98,6 +103,11 @@ namespace UnityEngine.UI {
             }
 
             if (!Application.IsPlaying(this) && UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) {
+                return;
+            }
+
+            if (PrefabUtility.IsPartOfPrefabAsset(this)) {
+                ApplyOffset(default);
                 return;
             }
 
