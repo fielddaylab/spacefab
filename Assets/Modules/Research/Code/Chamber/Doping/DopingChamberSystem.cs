@@ -44,13 +44,17 @@ namespace SpaceFab.Research
                 return;
 
             Find.State(out ResearchExplosionState explosionState,
-                       out ResearchPools vfxPool);
+                       out ResearchPools pools);
 
             if (interfacerState.LastUpdatedKind == ChamberSlotKind.Primary) {
                 UpdateSemiconductor(interfacerState, dopingChamberState);
+                foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacerState, dopingChamberState.AvailableObservations);
+                    break;
+                }
             }
             else {
-                UpdateDopant(interfacerState, dopingChamberState, explosionState, vfxPool);
+                UpdateDopant(interfacerState, dopingChamberState, explosionState, pools);
             }
 
             dopingChamberState.AtomicViewChangedThisFrame = false;
@@ -103,7 +107,7 @@ namespace SpaceFab.Research
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary);
             ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
             
-            // Polyelemental materials cannot be used as dopants
+            // TODO: Polyelemental materials cannot be used as dopants (will have a toggle later)
             if (view.IsMultiAtom) {
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
@@ -117,7 +121,7 @@ namespace SpaceFab.Research
 
             // TODO: handle polyelemental semiconductors
             bool validRadius = semiconductor.AtomicRadii[0] > material.AtomicRadii[0];
-            bool validElectronDiff = Mathf.Abs(semiconductor.ValenceElectronCounts[0] - material.ValenceElectronCounts[0]) == 0;
+            bool validElectronDiff = Mathf.Abs(semiconductor.ValenceElectronCounts[0] - material.ValenceElectronCounts[0]) == 1;
 
             if (validRadius && validElectronDiff) {
                 // TODO: increased conduction multiplier
@@ -156,7 +160,7 @@ namespace SpaceFab.Research
             // Dopant atom
             MaterialAsset dopant = ChamberInterfacerUtility.GetCurrent(interfacer, ChamberSlotKind.Secondary);
             bool hasDopant = dopant != null;
-            ResearchMaterialView dopantView = hasDopant ? Find.NamedAsset<ResearchMaterialView>(semiconductor.AssetId) : null;
+            ResearchMaterialView dopantView = hasDopant ? Find.NamedAsset<ResearchMaterialView>(dopant.AssetId) : null;
             
             SpriteRenderer MaterialSprite = dopingChamber.DopantAtomicView.MaterialSprite;
             // MaterialSprite.transform.SetScale(view.GemScale); // TODO
@@ -173,7 +177,10 @@ namespace SpaceFab.Research
             for (int i = 0; i < electrons.Length; i++)
             {
                 // sprite
-                if (count < cap) {
+                if (!hasDopant) {
+                    electrons[i].sprite = i < cap ? config.EmptySlotSprite : config.FilledSlotSprite;
+                }
+                else if (count < cap) {
                     electrons[i].sprite = i < count ? config.FilledSlotSprite : config.EmptySlotSprite;
                 }
                 else {

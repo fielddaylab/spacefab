@@ -1,3 +1,5 @@
+using BeauUtil;
+using FieldDay;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -33,7 +35,7 @@ namespace SpaceFab.Research {
         // overlay to fit. Initial disabled state is false for every
         // chip; ObservationPickerRefreshSystem updates it on the next
         // HypothesisChangedThisFrame.
-        public static void LoadFor(ResearchSamplePanel panel, ResearchPools pools, MaterialPropertyLabel[] availableObservations) {
+        public static void LoadFor(ResearchSamplePanel panel, ResearchPools pools, ChamberInterfacerState interfacerState, MaterialPropertyLabel[] availableObservations) {
             if (panel == null || pools == null || pools.PickerChipPool == null) return;
             if (panel.PickerChipContainer == null) return;
 
@@ -64,7 +66,16 @@ namespace SpaceFab.Research {
                 // read as "ready to take" rather than "empty slot."
                 // ResearchObservationChipAssets supplies the filled
                 // sprite per ObservationType.
-                chip.SetState(MaterialPropertyLabelDisplay.GetObservationName(label), true, false, observationType);
+                string text = MaterialPropertyLabelDisplay.GetObservationName(label);
+                if (interfacerState.ActiveChamber == ActiveChamberKind.Doping && interfacerState != null) {
+                    MaterialAsset context = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary);
+                    // TODO: show element name if element name has been found
+                    if (context != null) {
+                        ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(context.AssetId);
+                        text = $"{text} than sample {view.SampleLabel}";
+                    }
+                }
+                chip.SetState(text, true, false, observationType);
                 chip.SetPickerChipDisabledVisual(false);
 
                 pools.ActivePickerChips.Add(chip);

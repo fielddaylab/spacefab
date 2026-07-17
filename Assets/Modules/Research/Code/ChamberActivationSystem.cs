@@ -43,7 +43,7 @@ namespace SpaceFab.Research
                     BatteryChamberUtility.ResetState(batteryChamber);
                     if (pools != null) {
                         foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
-                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, batteryChamber.AvailableObservations);
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacer, batteryChamber.AvailableObservations);
                             break;
                         }
                     }
@@ -52,7 +52,7 @@ namespace SpaceFab.Research
                     ThermalChamberUtility.ResetState(thermalChamber);
                     if (pools != null) {
                         foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
-                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, thermalChamber.AvailableObservations);
+                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacer, thermalChamber.AvailableObservations);
                             break;
                         }
                     }
@@ -61,7 +61,8 @@ namespace SpaceFab.Research
                     DopingChamberUtility.ResetState(dopingChamber);
                     if (pools != null) {
                         foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
-                            ObservationPickerLoadUtility.LoadFor(samplePanel, pools, dopingChamber.AvailableObservations);
+                            // Load picker chips when semiconductor is changed
+                            SamplePanelInputUtility.FreeAllPickerChips(samplePanel, pools);
                             break;
                         }
                     }
@@ -70,6 +71,8 @@ namespace SpaceFab.Research
 
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
+            ResearchMaterialVisualRigUtility.ClearRig(ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary).Rig);
+            
             interfacer.ActiveChamberChangedThisFrame = false;
         }
     }

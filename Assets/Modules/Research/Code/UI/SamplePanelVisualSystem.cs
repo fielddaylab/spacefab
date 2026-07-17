@@ -84,7 +84,10 @@ namespace SpaceFab.Research {
             }
 
             ResearchSlot primarySlot = interfacerState.PrimarySlot;
-            MaterialAsset slottedMaterial = primarySlot != null ? primarySlot.CurrentMaterial : null;
+            MaterialAsset primaryMaterial = primarySlot != null ? primarySlot.CurrentMaterial : null;
+
+            ResearchSlot secondarySlot = interfacerState.SecondarySlot;
+            MaterialAsset secondaryMaterial = secondarySlot != null ? secondarySlot.CurrentMaterial : null;
 
             // Submit button mirrors the hypothesis viewmodel's
             // SubmitButtonVisible flag (true only when the slotted
@@ -119,8 +122,11 @@ namespace SpaceFab.Research {
                 }
             }
 
-            // 1. Empty-state path: no material slotted.
-            if (slottedMaterial == null) {
+            // 1. Empty-state path: no material slotted
+            bool isSlotFilled = interfacerState.ActiveChamber == ActiveChamberKind.Doping ?
+                secondaryMaterial != null : primaryMaterial != null;
+
+            if (!isSlotFilled) {
                 if (panel.EmptyState != null) {
                     panel.EmptyState.SetActive(true);
                 }
@@ -157,12 +163,13 @@ namespace SpaceFab.Research {
                 // show their ShortName; unknown materials show their
                 // sample number prefixed with "SAMPLE ".
                 bool known = researchState != null
-                    && researchState.SandboxProperties.TryGetValue(slottedMaterial.AssetId, out var record)
+                    && researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var record)
                     && !MaterialPropertyRecordUtility.IsEmpty(record);
+                ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
+                panel.SampleSprite.sprite = view.SingleAtomSprite;
                 if (known) {
-                    panel.SampleHeader.text = slottedMaterial.ShortName;
+                    panel.SampleHeader.text = primaryMaterial.ShortName;
                 } else {
-                    ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(slottedMaterial.AssetId);
                     //int sampleNumber = view != null ? view.SampleNumber : 0;
                     string sampleLabel = view != null ? view.SampleLabel : "Z"; // z as fallback
                     panel.SampleHeader.text = "SAMPLE " + sampleLabel;

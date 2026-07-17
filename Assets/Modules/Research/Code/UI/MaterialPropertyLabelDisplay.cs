@@ -21,13 +21,12 @@ namespace SpaceFab.Research {
                 case MaterialPropertyLabel.HeatUnaffected: return "Heat does not affect current";
                 case MaterialPropertyLabel.HeatVulnerable: return "Heat causes breakdown";
                 case MaterialPropertyLabel.HeatResistant: return "Resists high temperatures";
-                case MaterialPropertyLabel.AtomicRadiusLessThan: return "Smaller atomic radius";
-                case MaterialPropertyLabel.AtomicRadiusGreaterThan: return "Larger atomic radius";
+                case MaterialPropertyLabel.AtomicRadiusCompliant: return "Smaller atomic radius";
                 case MaterialPropertyLabel.LightEmitting: return "Emits light when active";
                 case MaterialPropertyLabel.HighMobility: return "High electron mobility";
                 case MaterialPropertyLabel.VoltageResistant: return "Withstands extreme voltage";
-                case MaterialPropertyLabel.ValenceOneLessThan: return "Valence is one less";
-                case MaterialPropertyLabel.ValenceOneMoreThan: return "Valence is one more";
+                case MaterialPropertyLabel.ValenceOneLessThan: return "1 less valence electron";
+                case MaterialPropertyLabel.ValenceOneMoreThan: return "1 more valence electron";
                 default: return label.ToString();
             }
         }

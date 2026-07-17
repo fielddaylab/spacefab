@@ -259,7 +259,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2133937865
   m_SortingLayer: 12
-  m_SortingOrder: 5
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: 85e2dde8398704bfbbcf69602b227894, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -735,7 +735,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2133937865
   m_SortingLayer: 12
-  m_SortingOrder: 3
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 0050082d365ca234e8bca060715b905b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -927,7 +927,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2fcd12b2dec24fb48b8df93913cfd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SlotKind: 0
   Circuit: {fileID: 130131968842501781}
   SampleHolder: {fileID: 3546955409230533120}
   Root: {fileID: 7576376653351747665}
@@ -943,8 +942,9 @@ MonoBehaviour:
   - {fileID: 7257610482751630196}
   - {fileID: 7806264353576467042}
   DopantAtomicView: {fileID: 1099987963829235032}
-  AvailableObservations: 0807090a
+  AvailableObservations: 070809
   Voltage: 1
+  Temperature: 0
   NoCurrentSFX:
     m_HashValue: 0
 --- !u!1 &6165560960228309612
@@ -1019,7 +1019,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2133937865
   m_SortingLayer: 12
-  m_SortingOrder: 5
+  m_SortingOrder: 7
   m_Sprite: {fileID: 21300000, guid: 841828ef09d91454a95cd73fc6e98146, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

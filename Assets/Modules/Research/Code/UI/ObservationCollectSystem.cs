@@ -60,9 +60,26 @@ namespace SpaceFab.Research {
             // always null. Combiner will pass a meaningful context once it
             // lands.
             if (inputState.ChipPickerSelectedThisFrame) {
-                if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
-                    viewModelDirty = true;
-                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                if (interfacerState.ActiveChamber == ActiveChamberKind.Doping)
+                {
+                    ResearchSlot secondarySlot = interfacerState.SecondarySlot;
+                    MaterialAsset secondarySlotted = secondarySlot != null ? secondarySlot.CurrentMaterial : null;
+                    if (secondarySlotted == null) {
+                        return;
+                    }
+
+                    StringHash32 secondarySlottedId = secondarySlotted.AssetId;
+                    if (ResearchInventoryUtility.AddObservation(researchState, secondarySlottedId, inputState.ChipPickerSelectionLabel, slottedId)) {
+                        viewModelDirty = true;
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                    }
+                }
+                else
+                {
+                    if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
+                        viewModelDirty = true;
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                    }
                 }
             }
 

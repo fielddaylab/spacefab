@@ -28,8 +28,7 @@ namespace SpaceFab.Research
         // Read by the chip-picker UI (Tier 4).
         public MaterialPropertyLabel[] AvailableObservations = new MaterialPropertyLabel[]
         {
-            MaterialPropertyLabel.AtomicRadiusGreaterThan,
-            MaterialPropertyLabel.AtomicRadiusLessThan,
+            MaterialPropertyLabel.AtomicRadiusCompliant,
             MaterialPropertyLabel.ValenceOneLessThan,
             MaterialPropertyLabel.ValenceOneMoreThan
         };

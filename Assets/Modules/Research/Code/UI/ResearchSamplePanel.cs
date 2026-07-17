@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -27,6 +28,7 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ResearchSamplePanel : BatchedComponent, IRegistrationCallbacks {
         public TMP_Text SampleHeader;
+        public Image SampleSprite;
         public GameObject EmptyState;
         public GameObject MainContent;
 
