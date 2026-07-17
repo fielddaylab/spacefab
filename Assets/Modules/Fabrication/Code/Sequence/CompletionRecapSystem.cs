@@ -75,7 +75,6 @@ namespace SpaceFab.Fabrication.Sequence
             int stepsLength = sequenceState.Level != null && sequenceState.Level.Steps != null ? sequenceState.Level.Steps.Length : 0;
             if (recapState.RecapJustCompletedIndex + 1 >= stepsLength)
             {
-                Debug.Log("Occurred");
                 visualsState.CompletionRequested = true;
             }
             else
