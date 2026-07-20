@@ -15,7 +15,6 @@ MonoBehaviour:
   m_requiredMaterialProperties:
   - {fileID: 11400000, guid: 6d66cd15838f54a4fb236b7a33f7ff29, type: 2}
   - {fileID: 11400000, guid: 2f285b257626f4df1a1a7f21403d89c8, type: 2}
-  - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
   - {fileID: 11400000, guid: 08721792820144d26b307c84e32a71ae, type: 2}
   - {fileID: 11400000, guid: 78093ac5e7fad463894f49b0b629d47c, type: 2}
   m_omitFromSupplyRequirements:
