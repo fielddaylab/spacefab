@@ -84,7 +84,7 @@ namespace SpaceFab.Research
             }
 
             // Clear dopant
-            ResearchMaterialVisualRigUtility.ClearRig(ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary).Rig);
+            ResearchSlotUtility.FillInSlot(interfacerState, ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
         }
 
         private static void UpdateDopant(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)

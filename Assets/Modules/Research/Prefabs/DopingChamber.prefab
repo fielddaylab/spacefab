@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2804408699917214800}
   - component: {fileID: 678996408627853387}
   m_Layer: 0
-  m_Name: Slot
+  m_Name: SubstrateSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -646,7 +646,7 @@ GameObject:
   - component: {fileID: 82032833344680947}
   - component: {fileID: 416468158097574022}
   m_Layer: 0
-  m_Name: Slot (1)
+  m_Name: DopantSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
