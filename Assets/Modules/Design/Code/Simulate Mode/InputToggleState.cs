@@ -395,9 +395,9 @@ namespace SpaceFab.Design
         private static void ApplyOverlayCommonVisuals(InputToggleVisual overlay, GridSpriteDB spriteDB)
         {
             if (spriteDB == null) { return; }
-            if (overlay.BackgroundRenderer != null && spriteDB.InputToggleBackground != null)
+            if (overlay.BackgroundRenderer != null && spriteDB.InputToggleBackgroundHi != null)
             {
-                overlay.BackgroundRenderer.sprite = spriteDB.InputToggleBackground;
+                overlay.BackgroundRenderer.sprite = spriteDB.InputToggleBackgroundHi;
             }
             if (overlay.ArrowRenderer != null && spriteDB.InputToggleArrow != null)
             {

@@ -5,8 +5,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
-
-
+using BeauUtil.Debugger;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -23,36 +22,73 @@ namespace FieldDay {
                 return;
             }
 
-            EditorApplication.playModeStateChanged += (state) => {
-                if (state == PlayModeStateChange.ExitingEditMode) {
-                    destroy();
-                } else if (state == PlayModeStateChange.EnteredEditMode) {
-                    create();
-                }
-            };
+            Log.Trace("[EditorStaticResource] Registered resource '{0}::{1}'", create.Method.DeclaringType.FullName, create.Method.Name);
+
+            s_CreateActions.Add(create);
 
             if (quitMode == QuitMode.ExecuteDuringQuit) {
-                EditorApplication.quitting += destroy;
+                s_QuitActions.Add(destroy);
             }
 
-            AppDomain.CurrentDomain.DomainUnload += (_, __) => {
-                if (!s_Quitting) {
-                    destroy();
-                }
-            };
+            s_UnloadActions.Add(destroy);
 #endif // UNITY_EDITOR
         }
 
 #if UNITY_EDITOR
         static private HashSet<MethodInfo> s_Registered = new HashSet<MethodInfo>();
+        static private List<Action> s_CreateActions = new List<Action>();
+        static private List<Action> s_QuitActions = new List<Action>();
+        static private List<Action> s_UnloadActions = new List<Action>();
 
         [InitializeOnLoadMethod]
         static private void SetupAll() {
+            EditorApplication.quitting += HandleQuit;
+            AssemblyReloadEvents.beforeAssemblyReload += HandleAssemblyUnload;
+            EditorApplication.playModeStateChanged += HandleEditorStateChange;
+
             foreach(var method in TypeCache.GetMethodsWithAttribute(typeof(EditorStaticResource))) {
                 method.Invoke(null, null);
             }
+        }
 
-            Application.quitting += () => s_Quitting = true;
+        static private void HandleQuit() {
+            if (s_Quitting) {
+                return;
+            }
+
+            s_Quitting = true;
+            Log.Trace("[EditorStaticResource] Quit detected");
+            InvokeActions(s_QuitActions, "destroy");
+        }
+
+        static private void HandleEditorStateChange(PlayModeStateChange state) {
+            if (s_Quitting) {
+                return;
+            }
+
+            if (state == PlayModeStateChange.ExitingEditMode) {
+                Log.Trace("[EditorStaticResource] Exiting edit mode detected");
+                InvokeActions(s_UnloadActions, "destroy");
+            } else if (state == PlayModeStateChange.EnteredEditMode) {
+                Log.Trace("[EditorStaticResource] Entering edit mode detected");
+                InvokeActions(s_CreateActions, "create");
+            }
+        }
+
+        static private void HandleAssemblyUnload() {
+            if (s_Quitting) {
+                return;
+            }
+
+            Log.Trace("[EditorStaticResource] Domain unload detected");
+            InvokeActions(s_UnloadActions, "destroy");
+        }
+
+        static private void InvokeActions(List<Action> actions, string funcType) {
+            foreach (var action in actions) {
+                Log.Trace("[EditorStaticResource] Calling {0} '{1}::{2}'...", funcType, action.Method.DeclaringType.FullName, action.Method.Name);
+                action();
+            }
         }
 
         static private bool s_Quitting = false;

@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Design.Visuals;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -59,6 +60,28 @@ namespace SpaceFab.Design
         }
 
         #endregion // Loading
+
+        
+        public static Vector2Int ConvertToGridSpace(Vector3 worldPos, GridStackState gridStackState, VisualGridStackState visualState)
+        {
+            Vector3 localPos = visualState.GridRenderer.transform.InverseTransformPoint(worldPos);
+
+            float width = visualState.GridRenderer.bounds.size.x;
+            float height = visualState.GridRenderer.bounds.size.y;
+
+            float x = localPos.x + width * 0.5f;
+            float y = localPos.y + height * 0.5f;
+
+            int rows = gridStackState.GridStack.LayerDims.X;
+            int columns = gridStackState.GridStack.LayerDims.Y;
+
+            int gridX = Mathf.FloorToInt(x / (width / rows));
+            int gridY = Mathf.FloorToInt(y / (height / columns));
+
+            var gridPos = new Vector2Int(gridX, gridY);
+
+            return gridPos;
+        }
 
         #region Queries
 

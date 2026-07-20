@@ -5,6 +5,7 @@ using BeauUtil.Variants;
 using FieldDay.Components;
 using System;
 using System.Runtime.CompilerServices;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ namespace FieldDay.UI.Widgets {
         [NonSerialized] private IGuiPanel m_Panel;
         [NonSerialized] private LayoutOffset m_LayoutOffset;
         [NonSerialized] private LayoutSizeGroup m_LayoutGroup;
+        [NonSerialized] private IColorPaletteTint m_Tint;
         [NonSerialized] protected CanvasGroup m_CanvasGroup;
 
         [NonSerialized] private GuiWidgetStateFlags m_StateFlags;
@@ -104,8 +106,36 @@ namespace FieldDay.UI.Widgets {
         /// <summary>
         /// Primary renderer.
         /// </summary>
-        public Graphic GuiRenderer {
+        public CanvasRenderer CanvasRenderer {
+            get { return m_PrimaryGraphic ? m_PrimaryGraphic.canvasRenderer : null; }
+        }
+
+        /// <summary>
+        /// Primary canvas graphic.
+        /// </summary>
+        public Graphic CanvasGraphic {
             get { return m_PrimaryGraphic; }
+        }
+
+        /// <summary>
+        /// Primary canvas graphic, as an image.
+        /// </summary>
+        public Image ImageGraphic {
+            get { return m_PrimaryGraphic as Image; }
+        }
+
+        /// <summary>
+        /// Primary canvas graphic, as a text renderer.
+        /// </summary>
+        public TMP_Text TextGraphic {
+            get { return m_PrimaryGraphic as TMP_Text; }
+        }
+
+        /// <summary>
+        /// Color palette control.
+        /// </summary>
+        public IColorPaletteTint ColorTinter {
+            get { return this.CacheComponent(ref m_Tint); }
         }
 
         #endregion // References
@@ -189,7 +219,7 @@ namespace FieldDay.UI.Widgets {
 
         #region Interactable
 
-    /// <summary>
+        /// <summary>
         /// Evaluates the current interactable state of a widget.
         /// </summary>
         static public GuiWidgetInteractableState EvaluateInteractableState(GuiWidget widget) {

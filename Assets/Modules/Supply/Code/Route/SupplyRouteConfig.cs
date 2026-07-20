@@ -16,9 +16,6 @@ namespace SpaceFab.Supply {
         public SupplyRouteLineConfig ReturnLine;
         public SupplyRouteLineConfig SolidLine;
 
-        [Header("Ship Appearance")]
-        public float[] ShipSpeedIconScales;
-
         [Header("Math Settings")]
         public float[] ShipSpeeds;
     }

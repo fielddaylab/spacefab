@@ -8,19 +8,25 @@ namespace SpaceFab.Supply {
     public sealed class ShipListRow : GuiWidget {
         public Image SpeedIcon;
         public Image ShipIcon;
+        public Image[] ShipBody;
         public RectTransform[] Slots;
         public Image[] SlotMaterials;
-        public CursorHint Click;
+        public bool IsWideRow;
 
         [NonSerialized] public int ShipIndex;
     }
 
     static public partial class SupplyChainUtility {
-        static public void PopulateShipInformation(ShipListRow row, SupplyShipAsset shipAsset, SupplyRouteConfig config) {
+        static public void PopulateShipInformation(ShipListRow row, SupplyShipAsset shipAsset, ShipListPanel panel) {
             row.ShipIcon.sprite = shipAsset.Icon;
+            row.ShipIcon.color = shipAsset.IconColor;
+            foreach(var bodySprite in row.ShipBody) {
+                bodySprite.sprite = shipAsset.BodyImage;
+            }
 
-            float speedScale = config.ShipSpeedIconScales[shipAsset.Speed];
-            row.SpeedIcon.rectTransform.localScale = new Vector3(speedScale, speedScale, speedScale);
+            ShipListPanel.SpeedIconConfig speedIcon = panel.SpeedIcons[shipAsset.Speed - 1];
+            row.SpeedIcon.sprite = speedIcon.Image;
+            row.SpeedIcon.rectTransform.sizeDelta = speedIcon.Size;
 
             for (int i = 0; i < row.Slots.Length; i++) {
                 row.Slots[i].gameObject.SetActive(i < shipAsset.Capacity);
@@ -30,7 +36,7 @@ namespace SpaceFab.Supply {
                 row.SlotMaterials[i].enabled = false;
             }
 
-            row.Click.TooltipHeader = shipAsset.DisplayName;
+            row.CursorHint.TooltipHeader = shipAsset.DisplayName;
         }
     }
 }

@@ -139,6 +139,12 @@ namespace SpaceFab
             maxPlane.x = maxTilePos.x;
             maxPlane.y = maxTilePos.y;
 
+            if (ActiveState) {
+                HalftoneTransitionMaterial.DisableKeyword("INVERT_TRANSITION");
+            } else {
+                HalftoneTransitionMaterial.EnableKeyword("INVERT_TRANSITION");
+            }
+
             HalftoneTransitionMaterial.SetVector("_Plane0", minPlane);
             HalftoneTransitionMaterial.SetVector("_Plane1", maxPlane);
             UpdateMaterialAlpha(HalftoneTransitionMaterial);

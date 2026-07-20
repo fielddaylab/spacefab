@@ -76,16 +76,13 @@ namespace FieldDay.Rendering {
         /// Sets a property block to reference a specific section of a texture.
         /// </summary>
         static public void SetSprite(this MaterialPropertyBlock propertyBlock, int texturePropertyId, int textureOffsetScalePropertyId, Sprite sprite) {
-            Assert.True(!sprite.packed || (sprite.packingMode == SpritePackingMode.Rectangle && sprite.packingRotation == SpritePackingRotation.None), "Cannot assign a tightly-packed or rotated sprite ({0})", sprite.name);
-            Texture2D texture = sprite.texture;
-            float width = texture.width;
-            float height = texture.height;
-            
-            Rect uvRect = sprite.textureRect;
-            Vector4 uvVec = new Vector4(uvRect.width / width, uvRect.height / height, uvRect.xMin / width, uvRect.yMin / height);
-            
-            propertyBlock.SetTexture(texturePropertyId, texture);
-            propertyBlock.SetVector(textureOffsetScalePropertyId, uvVec);
+            if (sprite == null) {
+                propertyBlock.SetTexture(texturePropertyId, Texture2D.whiteTexture);
+            } else {
+                SpriteRectMeshInfo rectMeshInfo = SpriteMeshUtility.ComputeRectMesh(sprite);
+                propertyBlock.SetTexture(texturePropertyId, rectMeshInfo.Texture);
+                propertyBlock.SetVector(textureOffsetScalePropertyId, RectUVs.ComputeScaleOffset(rectMeshInfo.Texcoords));
+            }
         }
 
         /// <summary>

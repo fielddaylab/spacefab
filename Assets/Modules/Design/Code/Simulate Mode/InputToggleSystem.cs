@@ -90,11 +90,12 @@ namespace SpaceFab.Design
         {
             if (visual.BackgroundRenderer != null)
             {
-                Color tint = GridSpriteDBUtility.LookupInputToggleColor(spriteDB, state);
-                if (visual.BackgroundRenderer.color != tint)
-                {
-                    visual.BackgroundRenderer.color = tint;
-                }
+                //Color tint = GridSpriteDBUtility.LookupInputToggleColor(spriteDB, state);
+                visual.BackgroundRenderer.sprite = GridSpriteDBUtility.LookupInputBackground(spriteDB, state);
+                // if (visual.BackgroundRenderer.color != tint)
+                // {
+                //     visual.BackgroundRenderer.color = tint;
+                // }
             }
 
             if (visual.StateText != null)

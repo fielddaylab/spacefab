@@ -73,8 +73,14 @@ namespace SpaceFab.Design {
         // On mouse-down: convert the cursor to a grid coord and invoke the click handler for the cell's layer and occupancy.
         static private void HandleLeftMouseDown(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
             // get mouse position in world space
+            // var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
+            // var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+
+            // this needs to be relative to the grid
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
-            var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+            var gridPos = GridStackUtility.ConvertToGridSpace(worldPos, gridStackState, visualState);
+
+            //Debug.Log($"World pos: {worldPos}, gridPos: {gridPos}");
 
             // if grid cell is out of bounds:
             if (!GridStackUtility.InBounds(gridStackState, gridPos.x, gridPos.y)) {
@@ -115,7 +121,7 @@ namespace SpaceFab.Design {
         // On mouse-held: compute a new grid coord, bail on redundant/too-fast/out-of-bounds moves, and invoke the drag handler for the cell.
         static private void HandleLeftMouseDrag(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
-            var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+            var gridPos = GridStackUtility.ConvertToGridSpace(worldPos, gridStackState, visualState);
 
             if (gridPos == toolModeState.LastKnownDragCoord) {
                 // no change in drag position

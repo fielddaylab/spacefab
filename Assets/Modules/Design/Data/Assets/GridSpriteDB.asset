@@ -38,13 +38,14 @@ MonoBehaviour:
   FlowHiBelow: {fileID: 21300000, guid: 5470c5cf47724d94cb91b78743f92178, type: 3}
   FlowLoBelow: {fileID: 21300000, guid: 0000528798af3d742b42798ef503b719, type: 3}
   FlowUnstableBelow: {fileID: 21300000, guid: 691f87bd2f7ba074db27fc2fd484b8e6, type: 3}
-  InputToggleBackground: {fileID: 21300000, guid: dcc7ae436663d884d84eb2871c91f7e2, type: 3}
+  InputToggleBackgroundHi: {fileID: 21300000, guid: e877ce26fc146df44af91033f10f79fe, type: 3}
+  InputToggleBackgroundLow: {fileID: 21300000, guid: 1072ddcf57df7df4e8758d5554cfa721, type: 3}
   InputToggleArrow: {fileID: 21300000, guid: da2d98ec4ffb90c43a16391796f0a3e4, type: 3}
   InputToggleLoColor: {r: 0.6901961, g: 0.6431373, b: 0.9607844, a: 1}
   InputToggleLoTextColor: {r: 0.3137255, g: 0.24313727, b: 0.7254902, a: 1}
   InputToggleHiColor: {r: 1, g: 0.62352943, b: 0.48627454, a: 1}
   InputToggleHiTextColor: {r: 0.78823537, g: 0.25882354, b: 0.06666667, a: 1}
-  OutputToggleBackground: {fileID: 0}
+  OutputToggleBackground: {fileID: 21300000, guid: 38df8dd3b4a49334db9aaa6c19c1437e, type: 3}
   OutputEmptyColor: {r: 1, g: 1, b: 1, a: 1}
   OutputEmptyTextColor: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
   OutputUnstableColor: {r: 1, g: 0.26630434, b: 0, a: 1}

@@ -25,7 +25,7 @@ namespace SpaceFab.Design
                 for (int col = 0; col < xDim; col++)
                 {
                     var cell = GameObject.Instantiate(cellVisualsPrefab, container).GetComponent<VisualGridCell>();
-                    cell.transform.position = new Vector3(col + cellOffset, row + cellOffset, 0);
+                    cell.transform.localPosition = new Vector3(col + cellOffset, row + cellOffset, 0);
                     cell.gameObject.name = "Cell Visual (" + col + ", " + row + ")";
                     SetCell(col, row, cell);
                 }

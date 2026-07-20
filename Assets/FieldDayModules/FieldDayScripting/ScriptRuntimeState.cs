@@ -718,7 +718,7 @@ namespace FieldDay.Scripting {
             ScriptNode node = ScriptDBUtility.FindRandomTrigger(DB, triggerId, lookup);
             if (node != null) {
                 Log.Msg("[ScriptUtility] Triggered '{0}', found response '{1}'", triggerId.ToDebugString(), node.FullName);
-                return Runtime.Plugin.Run(node, targetId, actor, vars, "Trigger Invokation", true);
+                return Runtime.Plugin.Run(node, targetId, actor, vars, "Trigger Invocation", true);
             }
 
             Log.Msg("[ScriptUtility] Triggered '{0}', no response", triggerId.ToDebugString());

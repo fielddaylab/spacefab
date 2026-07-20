@@ -24,6 +24,7 @@ namespace SpaceFab.Design.Visuals
     public enum CellVerdict
     {
         Hidden,
+        InProgress,
         Correct,
         Incorrect,
     }
@@ -43,8 +44,15 @@ namespace SpaceFab.Design.Visuals
         public Sprite SuiteFlowLo;
         public Sprite SuiteFlowEmpty;
         public Sprite SuiteFlowUnstable;
-        public Sprite SuiteFlowOutput;
+        public Sprite SuiteFlowOutputEmpty;
+        public Sprite SuiteFlowOutputHi;
+        public Sprite SuiteFlowOutputLow;
         public Sprite SuiteArrow;
+        public Sprite SuiteCheckmark;
+        public Sprite SuiteXMark;
+        public Color SuiteInProgressColor;
+        public Color SuiteCorrectColor;
+        public Color SuiteIncorrectColor;
 
         [Header("Run Button Icons")]
         public Sprite PlayIcon;
@@ -58,9 +66,20 @@ namespace SpaceFab.Design.Visuals
 
     public static class SuiteVisualsDBUtility
     {
-        public static Sprite LookupSuiteColSprite(SuiteVisualsDB suiteDB, FlowState state, bool isOutput = false, bool isArrow = false)
+        public static Sprite LookupSuiteColSprite(SuiteVisualsDB suiteDB, FlowState state, bool isOutput = false, bool isArrow = false, bool isValid = false)
         {
-            if (isOutput) { return suiteDB.SuiteFlowOutput; }
+            if (isValid && isOutput) { 
+                if (state == FlowState.Hi)
+                {
+                    return suiteDB.SuiteFlowOutputHi;
+                } else
+                {
+                    return suiteDB.SuiteFlowOutputLow;
+                }
+            } else if (isOutput)
+            {
+                return suiteDB.SuiteFlowOutputEmpty;
+            }
             if (isArrow) { return suiteDB.SuiteArrow; }
 
             switch (state)
@@ -73,6 +92,21 @@ namespace SpaceFab.Design.Visuals
                     return suiteDB.SuiteFlowLo;
                 case FlowState.Unstable:
                     return suiteDB.SuiteFlowUnstable;
+                default:
+                    return null;
+            }
+        }
+
+        public static Sprite LookupValidSprite(SuiteVisualsDB suiteDB, int validity = -1)
+        {
+            switch (validity)
+            {
+                case -1:
+                    return suiteDB.SuiteArrow;
+                case 0:
+                    return suiteDB.SuiteXMark;
+                case 1:
+                    return suiteDB.SuiteCheckmark;
                 default:
                     return null;
             }

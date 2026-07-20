@@ -56,6 +56,10 @@ namespace FieldDay.Assets {
                 Log.Warn("[StreamedPack] Contents of pack '{0}' updated to remove null references", name);
                 EditorUtility.SetDirty(this);
             }
+
+            foreach(var package in m_Packages) {
+                package.RecursiveRebuild();
+            }
         }
 #endif // UNITY_EDITOR
     }
