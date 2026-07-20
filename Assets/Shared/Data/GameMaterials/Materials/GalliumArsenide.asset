@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: GalliumArsenide
   ShortName: GaAs
+  GemSprite: {fileID: 21300000, guid: a8d08f13a1a914ed3afe3d479bc2fc8c, type: 3}
   ValenceElectronCounts: 0300000005000000
   AtomicRadii: 8800000072000000
   Properties: 121917
+  Contexts: []

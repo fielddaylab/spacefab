@@ -5,6 +5,7 @@ using SpaceFab.Research;
 using UnityEngine.UI;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using SpaceFab.Materials;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -173,9 +174,9 @@ namespace SpaceFab.UI {
                 if (widgets.IllustrationImage != null) {
                     Sprite illustration = null;
                     if (materialPage) {
-                        ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(activePage.MaterialId);
-                        if (view != null) {
-                            illustration = view.IsMultiAtom ? view.MultiAtomSprite : view.SingleAtomSprite;
+                        MaterialAsset material = Find.NamedAsset<MaterialAsset>(activePage.MaterialId);
+                        if (material != null) {
+                            illustration = material.GemSprite;
                         }
                     } else {
                         illustration = activePage.Illustration;
@@ -222,9 +223,9 @@ namespace SpaceFab.UI {
                 WikiPageData thumbPage = activeTab.Pages[thumb.PageIndex];
                 Sprite thumbSprite = thumbPage != null ? thumbPage.Icon : null;
                 if (thumbPage != null && thumbPage.IsMaterialPage) {
-                    ResearchMaterialView thumbView = Find.NamedAsset<ResearchMaterialView>(thumbPage.MaterialId);
-                    if (thumbView != null) {
-                        thumbSprite = thumbView.IsMultiAtom ? thumbView.MultiAtomSprite : thumbView.SingleAtomSprite;
+                    MaterialAsset material = Find.NamedAsset<MaterialAsset>(thumbPage.MaterialId);
+                    if (material != null) {
+                        thumbSprite = material.GemSprite;
                     }
                 }
                 thumb.DynamicButton.image.sprite = thumbSprite;

@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -172,12 +173,14 @@ namespace SpaceFab.Research {
                 for (int p = 0; p < pickedCount && slotCount < slotCap; p++) {
                     MaterialPropertyLabel label = MaterialObservationListUtility.GetLabel(pickedList, p);
                     StringHash32 context = MaterialObservationListUtility.GetContext(pickedList, p);
+                    Debug.Log($"{p}: {label}, {context}");
                     if (ContainsSlot(slotLabels, slotContexts, slotCount, label, context)) {
                         continue;
                     }
                     slotLabels[slotCount] = label;
                     slotContexts[slotCount] = context;
                     slotCount++;
+                    Debug.Log($"{slotCount}");
                 }
             }
 

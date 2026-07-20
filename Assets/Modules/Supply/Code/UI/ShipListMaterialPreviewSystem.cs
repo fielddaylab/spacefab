@@ -5,6 +5,7 @@ using FieldDay;
 using FieldDay.Systems;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
+using SpaceFab.Materials;
 using SpaceFab.Research;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,9 +32,9 @@ namespace SpaceFab.Supply {
                 SupplyRouteStats routeStats = routes.RouteStats[routeIndex];
                 for(int i = 0; i < routeStats.MaterialCount; i++) {
                     StringHash32 materialId = new StringHash32(routeStats.MaterialHashes[i]);
-                    ResearchMaterialView materialView = Find.NamedAsset<ResearchMaterialView>(materialId);
+                    MaterialAsset materialView = Find.NamedAsset<MaterialAsset>(materialId);
                     Image materialDisplay = row.SlotMaterials[i];
-                    materialDisplay.sprite = materialView.SingleAtomSprite;
+                    materialDisplay.sprite = materialView.GemSprite;
                     materialDisplay.color = Color.white;
                     materialDisplay.enabled = true;
                 }
@@ -54,22 +55,22 @@ namespace SpaceFab.Supply {
                     uint preview = previewStats.MaterialHashes[i];
 
                     Image materialDisplay = row.SlotMaterials[i];
-                    ResearchMaterialView materialView;
+                    MaterialAsset materialView;
 
                     Color previewColor = Color.white;
 
                     Assert.True(preview != 0 || current != 0);
                     if (preview == current) {
-                        materialView = Find.NamedAsset<ResearchMaterialView>(new StringHash32(current));
+                        materialView = Find.NamedAsset<MaterialAsset>(new StringHash32(current));
                     } else if (preview == 0) {
-                        materialView = Find.NamedAsset<ResearchMaterialView>(new StringHash32(current));
+                        materialView = Find.NamedAsset<MaterialAsset>(new StringHash32(current));
                         previewColor = Color.gray;
                     } else {
-                        materialView = Find.NamedAsset<ResearchMaterialView>(new StringHash32(preview));
+                        materialView = Find.NamedAsset<MaterialAsset>(new StringHash32(preview));
                         previewColor = Color.white.WithAlpha(0.8f);
                     }
 
-                    materialDisplay.sprite = materialView.SingleAtomSprite;
+                    materialDisplay.sprite = materialView.GemSprite;
                     materialDisplay.color = previewColor;
                     materialDisplay.enabled = true;
                 }

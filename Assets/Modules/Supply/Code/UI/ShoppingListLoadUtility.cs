@@ -121,9 +121,9 @@ namespace SpaceFab.Supply {
         // material's ResearchMaterialView (same source Supply uses for node
         // icons). Null if no view is registered.
         private static Sprite ResolveMaterialIcon(StringHash32 materialId) {
-            ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(materialId);
-            if (view == null) return null;
-            return view.IsMultiAtom ? view.MultiAtomSprite : view.SingleAtomSprite;
+            MaterialAsset material = Find.NamedAsset<MaterialAsset>(materialId);
+            if (material == null) return null;
+            return material.GemSprite;
         }
 
         // Collects every non-empty material hash across all finalized routes

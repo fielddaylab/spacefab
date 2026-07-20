@@ -166,7 +166,7 @@ namespace SpaceFab.Research {
                     && researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var record)
                     && !MaterialPropertyRecordUtility.IsEmpty(record);
                 ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
-                panel.SampleSprite.sprite = view.SingleAtomSprite;
+                panel.SampleSprite.sprite = primaryMaterial.GemSprite;
                 if (known) {
                     panel.SampleHeader.text = primaryMaterial.ShortName;
                 } else {

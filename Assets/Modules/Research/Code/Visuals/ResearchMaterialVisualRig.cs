@@ -47,14 +47,13 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
-            if (view == null) {
-                Debug.LogWarningFormat(rig, "[ResearchMaterialVisualRig] No ResearchMaterialView registered for material '{0}'; rig will keep its current sprite.", material.name);
+            if (material.GemSprite == null) {
+                Debug.LogWarningFormat(rig, "[ResearchMaterialVisualRig] No gem sprite registered for material '{0}'; rig will keep its current sprite.", material.name);
                 return;
             }
 
             // 1. Sprite selection — single vs. multi-atom path.
-            Sprite bodySprite = view.IsMultiAtom ? view.MultiAtomSprite : view.SingleAtomSprite;
+            Sprite bodySprite = material.GemSprite;
             if (rig.Renderer != null) {
                 rig.Renderer.sprite = bodySprite;
                 // rig.Renderer.color = view.GemColor;
@@ -64,13 +63,13 @@ namespace SpaceFab.Research {
             }
 
             // 3. Uniform scale, baked into the view.
-            Vector3 scale = new Vector3(view.GemScale, view.GemScale, 1f);
-            if (rig.RendererPosition != null) {
-                rig.RendererPosition.localScale = scale;
-            }
-            if (rig.ShadowPosition != null) {
-                rig.ShadowPosition.localScale = scale;
-            }
+            // Vector3 scale = new Vector3(view.GemScale, view.GemScale, 1f);
+            // if (rig.RendererPosition != null) {
+            //     rig.RendererPosition.localScale = scale;
+            // }
+            // if (rig.ShadowPosition != null) {
+            //     rig.ShadowPosition.localScale = scale;
+            // }
 
             // 4. Label: ShortName once any property is confirmed for
             // this material in the sandbox; sample number until then.
@@ -78,6 +77,7 @@ namespace SpaceFab.Research {
                 bool known = researchState != null
                     && researchState.SandboxProperties.TryGetValue(material.AssetId, out var record)
                     && !MaterialPropertyRecordUtility.IsEmpty(record);
+                ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
                 //rig.Label.SetText(known ? material.ShortName : view.SampleNumber.ToString());
                 rig.Label.SetText(known ? material.ShortName : view.SampleLabel.ToString());
             }

@@ -45,8 +45,8 @@ namespace SpaceFab.Supply
                 node.Index = i;
 
                 if (node.Type != SupplyRouteNodeType.Home && node.InfoPopup != null) {
-                    ResearchMaterialView matView = Find.NamedAsset<ResearchMaterialView>(node.MaterialType);
-                    node.InfoPopup.OutputMaterialIcon.sprite = matView.SingleAtomSprite;
+                    MaterialAsset matView = Find.NamedAsset<MaterialAsset>(node.MaterialType);
+                    node.InfoPopup.OutputMaterialIcon.sprite = matView.GemSprite;
                 }
 
                 SupplyRouteUtility.InitializeTooltipReferences(node);

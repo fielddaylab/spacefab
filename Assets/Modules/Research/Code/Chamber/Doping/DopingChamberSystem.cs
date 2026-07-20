@@ -107,8 +107,8 @@ namespace SpaceFab.Research
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary);
             ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
             
-            // TODO: Polyelemental materials cannot be used as dopants (will have a toggle later)
-            if (view.IsMultiAtom) {
+            // TODO: add a toggle for polyelemental materials
+            if (material.AtomicRadii.Length > 1) {
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
                 ExplosionStyle.TooBig, delay: 1f);
