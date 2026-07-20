@@ -27,8 +27,6 @@ namespace SpaceFab.Research {
     /// under, and the parallel labels + handlers lists.
     /// </summary>
     public class ResearchSamplePanel : BatchedComponent, IRegistrationCallbacks {
-        public TMP_Text SampleHeader;
-        public Image SampleSprite;
         public GameObject EmptyState;
         public GameObject MainContent;
 
@@ -50,6 +48,16 @@ namespace SpaceFab.Research {
         public ChamberButton ThermalChamberButton;
         public ChamberButton DopingChamberButton;
         public TMP_Text ChamberText;
+
+        // Sample material view
+        public Image SampleSprite;
+        public TMP_Text SampleLabel;
+
+        // Sample panel view for doping chamber
+        public GameObject DopingGroup;
+        // Dopant material view
+        public Image SubstrateSprite;
+        public TMP_Text SubstrateLabel;
 
         // Whether the picker overlay is currently open. Per-instance
         // transient state; the visual system reads it to decide whether

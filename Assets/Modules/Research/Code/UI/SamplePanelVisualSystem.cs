@@ -123,7 +123,8 @@ namespace SpaceFab.Research {
             }
 
             // 1. Empty-state path: no material slotted
-            bool isSlotFilled = interfacerState.ActiveChamber == ActiveChamberKind.Doping ?
+            bool isDopingChamber = interfacerState.ActiveChamber == ActiveChamberKind.Doping;
+            bool isSlotFilled = isDopingChamber ?
                 secondaryMaterial != null : primaryMaterial != null;
 
             if (!isSlotFilled) {
@@ -155,24 +156,42 @@ namespace SpaceFab.Research {
             }
             if (panel.MainContent != null) {
                 panel.MainContent.SetActive(true);
+                panel.DopingGroup.SetActive(isDopingChamber);
             }
 
-            // 2. Sample header — derived from the slotted material's view.
-            if (panel.SampleHeader != null) {
+            // 2. Sample label — derived from the slotted material's view.
+            if (panel.SampleLabel != null) {
                 // Known materials (any property confirmed in the sandbox)
                 // show their ShortName; unknown materials show their
                 // sample number prefixed with "SAMPLE ".
+                MaterialAsset targetMaterial = isDopingChamber ? secondaryMaterial : primaryMaterial;
+                
                 bool known = researchState != null
-                    && researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var record)
+                    && researchState.SandboxProperties.TryGetValue(targetMaterial.AssetId, out var record)
                     && !MaterialPropertyRecordUtility.IsEmpty(record);
-                ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
-                panel.SampleSprite.sprite = primaryMaterial.GemSprite;
+
+                ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(targetMaterial.AssetId);
+                panel.SampleSprite.sprite = targetMaterial.GemSprite;
                 if (known) {
-                    panel.SampleHeader.text = primaryMaterial.ShortName;
+                    panel.SampleLabel.text = targetMaterial.ShortName;
                 } else {
                     //int sampleNumber = view != null ? view.SampleNumber : 0;
-                    string sampleLabel = view != null ? view.SampleLabel : "Z"; // z as fallback
-                    panel.SampleHeader.text = "SAMPLE " + sampleLabel;
+                    panel.SampleLabel.text = view != null ? view.SampleLabel : "Z"; // z as fallback
+                }
+
+                // Set the substrate label and sprite if currently on doping chamber
+                if (isDopingChamber)
+                {
+                    bool substrateKnown = researchState != null
+                        && researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
+                        && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
+                    ResearchMaterialView substrateView = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
+                    panel.SubstrateSprite.sprite = primaryMaterial.GemSprite;
+                    if (substrateKnown) {
+                        panel.SubstrateLabel.text = primaryMaterial.ShortName;
+                    } else {
+                        panel.SubstrateLabel.text = view != null ? substrateView.SampleLabel : "Z"; // z as fallback
+                    }
                 }
             }
 

@@ -454,8 +454,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id:
-    m_Source: research:decrease-heat-btn
-    m_HashValue: 1234105790
+    m_Source: research:element-button-2
+    m_HashValue: 3192824834
   RectTransform: {fileID: 0}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 6277175887702230878}
@@ -1295,8 +1295,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id:
-    m_Source: research:decrease-heat-btn
-    m_HashValue: 1234105790
+    m_Source: research:element-btn-1
+    m_HashValue: 1272408445
   RectTransform: {fileID: 0}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 2881249684982380818}
