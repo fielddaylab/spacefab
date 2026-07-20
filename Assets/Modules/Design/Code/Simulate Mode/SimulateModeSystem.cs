@@ -391,9 +391,9 @@ namespace SpaceFab.Design
                 bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
                 if (suiteAllCorrect)
                 {
-                    SimulateUIUtility.ShowResultsPanel(uiState, true);
                     ScriptUtility.Trigger(DesignScriptTriggers.OnAllTestsComplete);
-
+                    SimulateUIUtility.ShowResultsPanel(uiState, true); // called too early relative to sim table
+                    
                     DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
                     SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteSucceeded);
                 }
