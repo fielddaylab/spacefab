@@ -92,20 +92,22 @@ namespace SpaceFab.Research {
                 panel.PropertyChips[i].SetState(MaterialPropertyLabelDisplay.GetPropertyName(page.Label), !filled, false, MaterialObservationChamberLookup.GetChamberType(page.Label));
             }
             
-            LayoutChips(panel.PropertyChips, pageCount);
+            // TODO: For now, the maximum number of goals in a contract is four, so layout is unnecessary.
+            // Uncomment this line if level design changes.
+            // LayoutChips(panel.PropertyChips, pageCount);
         }
 
         // Gap (px) between adjacent chip rects. Measured edge-to-edge so
         // chips of differing heights still sit flush at the same visual
         // gap.
-        private const float ChipGap = 8f;
+        // private const float ChipGap = 8f;
 
         // Delegates to ResearchUILayoutUtility so the picker uses the
         // same vertical-centered math. Hypothesis panel doesn't resize
         // its parent, so the returned height is discarded.
-        private static void LayoutChips(ResearchObservationChip[] chips, int visibleCount) {
-            ResearchUILayoutUtility.LayoutVerticalCentered(chips, visibleCount, ChipGap);
-        }
+        // private static void LayoutChips(ResearchObservationChip[] chips, int visibleCount) {
+        //     ResearchUILayoutUtility.LayoutVerticalCentered(chips, visibleCount, ChipGap);
+        // }
 
         private static void ClearChips(ResearchHypothesisPanelState panel) {
             if (panel.PropertyChips == null) {

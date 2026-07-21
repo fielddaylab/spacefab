@@ -3011,22 +3011,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Contract UI
       objectReference: {fileID: 0}
-    - target: {fileID: 3067941642469003432, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3067941642469003432, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3067941642469003432, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3067941642469003432, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3116347595303609387, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3291,52 +3275,13 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 489047138888094280, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5447715456025954559}
-    - targetCorrespondingSourceObject: {fileID: 8004026610345360194, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7635849733926211695}
     - targetCorrespondingSourceObject: {fileID: 4744602156587529470, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3168955279467087124}
   m_SourcePrefab: {fileID: 100100000, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
---- !u!1 &1309707014600414754 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 489047138888094280, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-  m_PrefabInstance: {fileID: 1505453928513324138}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &5447715456025954559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1309707014600414754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Id:
-    m_Source: overarching:costs-section
-    m_HashValue: 856066611
-  RectTransform: {fileID: 2024375733087974583}
-  SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
 --- !u!224 &1688199917153977154 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 254948977253697320, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-  m_PrefabInstance: {fileID: 1505453928513324138}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &2024375733087974583 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 647521500611604701, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-  m_PrefabInstance: {fileID: 1505453928513324138}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &3759811546148651744 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2362695394210252426, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
   m_PrefabInstance: {fileID: 1505453928513324138}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &4324141842441096738 stripped
@@ -3365,28 +3310,5 @@ MonoBehaviour:
     m_Source: overarching:select-contract-btn
     m_HashValue: 3351703775
   RectTransform: {fileID: 4324141842441096738}
-  SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
---- !u!1 &8930762944374406952 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8004026610345360194, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
-  m_PrefabInstance: {fileID: 1505453928513324138}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7635849733926211695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8930762944374406952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Id:
-    m_Source: overarching:profit-section
-    m_HashValue: 292981409
-  RectTransform: {fileID: 3759811546148651744}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 0}
