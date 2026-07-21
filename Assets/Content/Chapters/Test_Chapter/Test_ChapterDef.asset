@@ -15,18 +15,9 @@ MonoBehaviour:
   AvailableContracts:
   - m_HashValue: 2865540556
   AvailableMaterials:
-  - m_HashValue: 2571817723
-  - m_HashValue: 3317014541
-  - m_HashValue: 3821421172
   - m_HashValue: 2929137943
-  - m_HashValue: 466928580
-  - m_HashValue: 1821685427
   - m_HashValue: 336354447
-  - m_HashValue: 541320182
-  - m_HashValue: 1163381446
-  - m_HashValue: 3774176290
-  - m_HashValue: 1571298950
-  - m_HashValue: 527899933
+  - m_HashValue: 1821685427
   ExcludeFromResearch:
   - m_HashValue: 1163381446
   Script: {fileID: -1942890987711236906, guid: 42b89bb99f9dc4f1cbd8d4edb3bf2e71, type: 3}

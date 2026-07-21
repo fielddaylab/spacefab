@@ -1,3 +1,4 @@
+using System.Linq;
 using BeauRoutine;
 using FieldDay;
 using FieldDay.Audio;
@@ -128,11 +129,22 @@ namespace SpaceFab.Research
 
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary);
             
-            // Polyelemental materials cannot be used as dopants
-            if (dopant.AtomicRadii.Length > 1) {
+            // Substrates must be semiconductors.
+            if (!substrate.Properties.Contains(MaterialPropertyLabel.Semiconductor)) {
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
-                ExplosionStyle.TooBig, delay: 1f);
+                ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
+                CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
+                dopingChamber.AtomicViewChangedThisFrame = true;
+
+                return;
+            }
+            // Polyelemental materials cannot be used as dopants.
+            if (dopant.ConstituentElementNames.Length > 1) {
+                ResearchExplosionUtility.ExplodeSlot(
+                explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
+                ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
                 CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
                 CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
                 dopingChamber.AtomicViewChangedThisFrame = true;
@@ -176,13 +188,18 @@ namespace SpaceFab.Research
             bool substrateKnown = researchState != null
                 && researchState.SandboxProperties.TryGetValue(substrate.AssetId, out var record)
                 && !MaterialPropertyRecordUtility.IsEmpty(record);
+            bool isPolyelemental = substrate.ConstituentElementNames.Length > 1;
             
             for (int i = 0; i < dopingChamber.SubstrateAtomicViews.Length; i++) {
                 MaterialAtom atom = dopingChamber.SubstrateAtomicViews[i];
-
-                int index = (i + hostIndex) % 2;
+                int index = isPolyelemental ? (i + hostIndex) % 2 : 0;
                 atom.MaterialSprite.color = substrateView.AtomColor[index];
-                atom.Label.text = substrateKnown ? substrate.ConstituentElementNames[index] : substrateView.SampleLabel + (index + 1);
+                if (isPolyelemental) {
+                    atom.Label.text = substrateKnown ? substrate.ConstituentElementNames[index] : substrateView.SampleLabel + (index + 1);
+                }
+                else {
+                    atom.Label.text = substrateKnown ? substrate.ShortName : substrateView.SampleLabel;
+                }
             }
 
             // Dopant atom -- empty

@@ -93,6 +93,7 @@ namespace SpaceFab.Research
                 return;
             }
 
+            state.HostElementIndex = 0;
             state.AtomicViewChangedThisFrame = true;
             state.Root.SetActive(true);
         }
