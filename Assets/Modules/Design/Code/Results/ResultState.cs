@@ -24,6 +24,7 @@ namespace SpaceFab.Design
         // Design scene) or return to overarching (last level). Mirrors the PlayFullSuiteRequested
         // hand-off OnRetryClicked uses, keeping scene-loading out of this UI click handler.
         public bool ContinueRequested;
+        public bool CopyRequested;
 
         public void OnRegister()
         {
@@ -97,9 +98,10 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
+            //resultState.CopyRequested = true;
         }
 
-        private static void CopySimTable(ResultState resultState)
+        public static void CopySimTable(ResultState resultState)
         {
             // first clear
             for (int i = 0; i < resultState.VerticalLayoutCopy.childCount; i++)
@@ -131,8 +133,6 @@ namespace SpaceFab.Design
                         ? "All outputs matched the expected values."
                         : "Some outputs were incorrect or unstable.");
             }
-
-            CopySimTable(resultState);
 
             SetEnabledResultsGroup(resultState, true);
         }

@@ -36,7 +36,7 @@ namespace SpaceFab.Design
             TestSuiteData suite = levelData.GetTestSuite();
             
             
-            Find.State(out SimulateUIState uiState);
+            Find.State(out SimulateUIState uiState, out ResultState resultState);
 
             if (!uiState.VerdictsNeedRefreshing) { return; }
             if (!uiState.TableBuilt || uiState.Rows == null || uiState.CellVerdicts == null) { return; }
@@ -92,7 +92,7 @@ namespace SpaceFab.Design
             }
 
             uiState.VerdictsNeedRefreshing = false;
-            
+            resultState.CopyRequested = true;
         }
     }
 }
