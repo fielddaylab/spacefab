@@ -1,4 +1,5 @@
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>

@@ -110,8 +110,9 @@ namespace SpaceFab.Research {
             }
             
             // 2. Resolve slotted material + the active page's leaves.
-            ResearchSlot primarySlot = interfacerState.PrimarySlot;
-            MaterialAsset slottedMaterial = primarySlot != null ? primarySlot.CurrentMaterial : null;
+            ResearchSlot slot = interfacerState.ActiveChamber == ActiveChamberKind.Doping ?
+                interfacerState.SecondarySlot : interfacerState.PrimarySlot;
+            MaterialAsset slottedMaterial = slot != null ? slot.CurrentMaterial : null;
             StringHash32 slottedId = slottedMaterial != null ? slottedMaterial.AssetId : StringHash32.Null;
 
             int slotCap = HypothesisViewModelState.MaxObservationsPerPage;
@@ -180,7 +181,6 @@ namespace SpaceFab.Research {
                     slotLabels[slotCount] = label;
                     slotContexts[slotCount] = context;
                     slotCount++;
-                    Debug.Log($"{slotCount}");
                 }
             }
 

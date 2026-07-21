@@ -57,8 +57,8 @@ namespace SpaceFab.Research
                 thermalChamberState.HeatChangedThisFrame = false;
             }
 
-            if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
-            if (interfacerState.LastUpdatedKind != thermalChamberState.SlotKind) return;
+            // if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
+            // if (interfacerState.LastUpdatedKind != thermalChamberState.SlotKind) return;
             if (thermalChamberState.SampleHolder == null) return;
 
             bool filled = ChamberInterfacerUtility.GetCurrent(interfacerState, thermalChamberState.SlotKind) != null;

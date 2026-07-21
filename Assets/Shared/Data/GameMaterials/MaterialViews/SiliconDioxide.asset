@@ -15,10 +15,9 @@ MonoBehaviour:
   MaterialId:
     m_Source: SiliconDioxide
     m_HashValue: 1571298950
-  SingleAtomSprite: {fileID: 21300000, guid: 98726fdccfc48614fa8d9c50c571483f, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.34117648, g: 0.30980393, b: 0.46666667, a: 1}
+  AtomColor:
+  - {r: 0.7781729, g: 0.55108577, b: 0.9056604, a: 1}
+  - {r: 0.56322706, g: 0.34117648, b: 0.6901961, a: 1}
   GemScale: 1
-  IsMultiAtom: 1
-  SampleNumber: 0
+  SampleOrder: 0
   SampleLabel: A

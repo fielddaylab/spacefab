@@ -15,7 +15,10 @@ MonoBehaviour:
   DisplayName: Silicon Nitride
   ShortName: Si3N4
   GemSprite: {fileID: 21300000, guid: bfc7d0965e7fd4d97aef1a80a5abd58e, type: 3}
+  ConstituentElementNames:
+  - Si
+  - N
   ValenceElectronCounts: 0400000005000000
   AtomicRadii: 6f00000038000000
-  Properties: 10
+  Properties: 0f
   Contexts: []

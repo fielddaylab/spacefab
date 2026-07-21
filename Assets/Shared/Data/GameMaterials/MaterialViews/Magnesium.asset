@@ -15,10 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Magnesium
     m_HashValue: 336354447
-  SingleAtomSprite: {fileID: 21300000, guid: 47699a89e7ce24041abe6161309fd5cc, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0, g: 0.2933621, b: 0.47058824, a: 1}
+  AtomColor:
+  - {r: 0.34117648, g: 0.6901961, b: 0.65386134, a: 1}
   GemScale: 1
-  IsMultiAtom: 0
-  SampleNumber: 10
+  SampleOrder: 0
   SampleLabel: J

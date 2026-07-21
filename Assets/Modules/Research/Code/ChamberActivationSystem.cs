@@ -69,9 +69,9 @@ namespace SpaceFab.Research
                     break;
             }
 
+            ResearchSlotUtility.FillInSlot(interfacer, ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
-            ResearchMaterialVisualRigUtility.ClearRig(ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary).Rig);
             
             interfacer.ActiveChamberChangedThisFrame = false;
         }

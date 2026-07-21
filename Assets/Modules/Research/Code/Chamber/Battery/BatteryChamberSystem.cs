@@ -57,8 +57,8 @@ namespace SpaceFab.Research
                 batteryChamberState.VoltageChangedThisFrame = false;
             }
 
-            if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
-            if (interfacerState.LastUpdatedKind != batteryChamberState.SlotKind) return;
+            // if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
+            // if (interfacerState.LastUpdatedKind != batteryChamberState.SlotKind) return;
             if (batteryChamberState.SampleHolder == null) return;
 
             bool filled = ChamberInterfacerUtility.GetCurrent(interfacerState, batteryChamberState.SlotKind) != null;

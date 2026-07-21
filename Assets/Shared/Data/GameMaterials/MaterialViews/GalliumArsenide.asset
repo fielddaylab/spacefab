@@ -15,10 +15,9 @@ MonoBehaviour:
   MaterialId:
     m_Source: GalliumArsenide
     m_HashValue: 2929137943
-  SingleAtomSprite: {fileID: 21300000, guid: bfc7d0965e7fd4d97aef1a80a5abd58e, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0, g: 0.4716981, b: 0.38139483, a: 1}
+  AtomColor:
+  - {r: 0.6332493, g: 0.6901961, b: 0.34117648, a: 1}
+  - {r: 0.43960193, g: 0.5188679, b: 0.2667764, a: 1}
   GemScale: 1
-  IsMultiAtom: 1
-  SampleNumber: 9
+  SampleOrder: 0
   SampleLabel: I

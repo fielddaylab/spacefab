@@ -20,7 +20,7 @@ namespace SpaceFab.Research {
         public SerializedHash32 MaterialId;
 
         // Gem color for atomic view
-        public Color GemColor = Color.white;
+        public Color[] AtomColor = new Color[] { Color.white };
 
         // Uniform scale applied to the gem renderer's transform.
         public float GemScale = 1f;

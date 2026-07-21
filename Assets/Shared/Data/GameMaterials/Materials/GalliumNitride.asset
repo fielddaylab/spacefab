@@ -15,7 +15,10 @@ MonoBehaviour:
   DisplayName: GalliumNitride
   ShortName: GaN
   GemSprite: {fileID: 21300000, guid: 04461df0c7f7841d8a41997b675b12f1, type: 3}
+  ConstituentElementNames:
+  - Ga
+  - N
   ValenceElectronCounts: 0300000005000000
   AtomicRadii: 8800000038000000
-  Properties: 121817
+  Properties: 11121716
   Contexts: []

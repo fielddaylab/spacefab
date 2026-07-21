@@ -15,7 +15,8 @@ MonoBehaviour:
   DisplayName: Aluminum
   ShortName: Al
   GemSprite: {fileID: 21300000, guid: 3506396ffcc5f48f5a48d3ed4403d744, type: 3}
+  ConstituentElementNames: []
   ValenceElectronCounts: 03000000
   AtomicRadii: 76000000
-  Properties: 11
+  Properties: 10
   Contexts: []
