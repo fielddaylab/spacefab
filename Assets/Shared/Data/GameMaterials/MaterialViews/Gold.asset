@@ -15,10 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Gold
     m_HashValue: 1821685427
-  SingleAtomSprite: {fileID: 21300000, guid: a8d08f13a1a914ed3afe3d479bc2fc8c, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.7720616, g: 0.63127446, b: 0.7735849, a: 1}
+  AtomColor:
+  - {r: 0.34117648, g: 0.6901961, b: 0.49788857, a: 1}
   GemScale: 1
-  IsMultiAtom: 0
-  SampleNumber: 4
+  SampleOrder: 0
   SampleLabel: D

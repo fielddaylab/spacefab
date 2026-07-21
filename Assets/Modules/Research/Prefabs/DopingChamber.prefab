@@ -454,8 +454,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id:
-    m_Source: research:element-button-2
-    m_HashValue: 3192824834
+    m_Source: research:element-btn-2
+    m_HashValue: 1222075588
   RectTransform: {fileID: 0}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 6277175887702230878}
@@ -591,7 +591,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1567,7 +1567,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1745,19 +1745,26 @@ MonoBehaviour:
   Root: {fileID: 7576376653351747665}
   AtomicView: {fileID: 2825397926812422657}
   SecondarySlotLid: {fileID: 6165560960228309612}
-  SemiconductorAtomicViews:
+  SubstrateAtomicViews:
   - {fileID: 9063142787166569742}
   - {fileID: 9189919294333916253}
   - {fileID: 8304061388126904949}
   - {fileID: 8083536319596942725}
+  - {fileID: 1099987963829235032}
   - {fileID: 6656415302190466832}
   - {fileID: 715358838817463980}
   - {fileID: 7257610482751630196}
   - {fileID: 7806264353576467042}
   DopantAtomicView: {fileID: 1099987963829235032}
   AvailableObservations: 070809
-  Voltage: 1
-  Temperature: 0
+  Toggle: {fileID: 666686157682583144}
+  ElementToggle:
+  - {fileID: 6312140173100963590}
+  - {fileID: 7782682785881417548}
+  ElementToggleLabel:
+  - {fileID: 943709496378817302}
+  - {fileID: 5249382091931786170}
+  HostElementIndex: 0
   NoCurrentSFX:
     m_HashValue: 0
 --- !u!1 &6165560960228309612
@@ -2031,7 +2038,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -2233,7 +2240,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -2425,7 +2432,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -2714,7 +2721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -3118,7 +3125,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -3506,7 +3513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -3698,7 +3705,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4771,7 +4778,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7446684733054685872, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_Name
-      value: Semiconductor Atom
+      value: SubstrateAtom
       objectReference: {fileID: 0}
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalScale.x
@@ -5124,6 +5131,14 @@ PrefabInstance:
     - target: {fileID: 8457595498784370207, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8532863083811572411, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8532863083811572411, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0.8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

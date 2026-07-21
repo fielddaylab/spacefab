@@ -15,10 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Germanium
     m_HashValue: 466928580
-  SingleAtomSprite: {fileID: 21300000, guid: 04461df0c7f7841d8a41997b675b12f1, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.27167144, g: 0.29043382, b: 0.31132078, a: 1}
+  AtomColor:
+  - {r: 0.44457275, g: 0.6901961, b: 0.34117648, a: 1}
   GemScale: 1
-  IsMultiAtom: 0
-  SampleNumber: 7
+  SampleOrder: 0
   SampleLabel: G

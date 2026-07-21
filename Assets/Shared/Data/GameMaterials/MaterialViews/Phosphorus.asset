@@ -15,10 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Phosphorus
     m_HashValue: 541320182
-  SingleAtomSprite: {fileID: 21300000, guid: 3506396ffcc5f48f5a48d3ed4403d744, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.49061054, g: 0.59327996, b: 0.5943396, a: 1}
+  AtomColor:
+  - {r: 0.34117648, g: 0.545835, b: 0.6901961, a: 1}
   GemScale: 1
-  IsMultiAtom: 0
-  SampleNumber: 3
+  SampleOrder: 0
   SampleLabel: C
