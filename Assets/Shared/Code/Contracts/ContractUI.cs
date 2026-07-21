@@ -4,59 +4,52 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Research;
+using FieldDay;
 
 namespace SpaceFab {
     public class ContractUI : MonoBehaviour
     {
         public TMP_Text Title;
         public TMP_Text Description;
-        public Transform DurationParent;
-        public Transform[] ProfitParent;
         public Transform RequirementParent;
-
-        public GameObject DurationElement, ProfitElement;
         public ResearchObservationChip RequirementElement;
+
+        public Image[] TimeIndicators;
+        public Image[] RevenueIndicators;
+
         public GameObject ApprovedStamp;
         public Image SignatureImage;
 
         public void ClearElements()
         {
-            for (int i = 0; i < DurationParent.childCount; i++)
-            {
-                Destroy(DurationParent.GetChild(i).gameObject);
+            Find.GlobalAsset<ContractMeterSpriteSet>(out ContractMeterSpriteSet spriteSet);
+
+            for (int i = 0; i < TimeIndicators.Length; i++) {
+                TimeIndicators[i].sprite = spriteSet.TimeEmpty;
             }
-            for (int i = 0; i < ProfitParent[0].childCount; i++)
-            {
-                Destroy(ProfitParent[0].GetChild(i).gameObject);
+            for (int i = 0; i < RevenueIndicators.Length; i++) {
+                RevenueIndicators[i].sprite = spriteSet.RevenueEmpty;
             }
-            for (int i = 0; i < ProfitParent[1].childCount; i++)
-            {
-                Destroy(ProfitParent[1].GetChild(i).gameObject);
-            }
-            for (int i = 0; i < RequirementParent.childCount; i++)
-            {
+            for (int i = 0; i < RequirementParent.childCount; i++) {
                 Destroy(RequirementParent.GetChild(i).gameObject);
             }
         }
 
         public void ShowDuration(int duration)
         {
-            for (int i = 0; i < duration; i++)
-            {
-                GameObject element = Instantiate(DurationElement);
-                element.transform.SetParent(DurationParent);
-                element.transform.localScale = Vector3.one;
+            Find.GlobalAsset<ContractMeterSpriteSet>(out ContractMeterSpriteSet spriteSet);
+
+            for (int i = 0; i < duration; i++) {
+                TimeIndicators[i].sprite = spriteSet.TimeFilled;
             }
         }
 
         public void ShowProfit(int profit)
         {
-            ProfitParent[1].gameObject.SetActive(profit > 5);
-            for (int i = 0; i < profit; i++)
-            {
-                GameObject element = Instantiate(ProfitElement);
-                element.transform.SetParent(ProfitParent[i / 5]);
-                element.transform.localScale = Vector3.one;
+            Find.GlobalAsset<ContractMeterSpriteSet>(out ContractMeterSpriteSet spriteSet);
+            
+            for (int i = 0; i < profit; i++) {
+                RevenueIndicators[i].sprite = spriteSet.RevenueFilled;
             }
         }
 
@@ -91,6 +84,7 @@ namespace SpaceFab {
             }
             else
             {
+                Debug.Log(def.Title());
                 ui.Title.SetText(def.Title());
                 ui.Description.SetText(def.Description());
                 ui.ClearElements();
