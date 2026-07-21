@@ -17,7 +17,7 @@ MonoBehaviour:
   GemSprite: {fileID: 21300000, guid: 70b6be176a1374957abb6ace02a3a835, type: 3}
   ConstituentElementNames: []
   ValenceElectronCounts: 02000000
-  AtomicRadii: 91000000
+  AtomicRadii: 87000000
   Properties: 1410
   Contexts:
   - {fileID: 11400000, guid: 17100c779c19ac747a829b5fbc0d0843, type: 2}
