@@ -87,6 +87,7 @@ namespace SpaceFab.Overarching
                 if (locked)
                 {
                     SetZoneVisualsEmpty(zone);
+                    if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
                     continue;
                 }
 
@@ -95,7 +96,10 @@ namespace SpaceFab.Overarching
                 if (sprite == null)
                 {
                     SetZoneVisualsEmpty(zone);
-                    continue;
+                    if (locked)
+                    {
+                        if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
+                    }
                 }
 
                 zone.HighlightRenderer.sprite = sprite;
@@ -127,7 +131,7 @@ namespace SpaceFab.Overarching
         public static void SetZoneVisualsEmpty(MinigameZone zone)
         {
             if (zone.HighlightRenderer != null) { zone.HighlightRenderer.enabled = false; }
-            if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
+            //if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
         }
 
         #endregion // Zone Visuals
