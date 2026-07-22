@@ -492,6 +492,7 @@ GameObject:
   - component: {fileID: 4868592689423206356}
   - component: {fileID: 5452973553588017402}
   - component: {fileID: 709885260145749738}
+  - component: {fileID: 5436364920503911063}
   m_Layer: 5
   m_Name: Time Section
   m_TagString: Untagged
@@ -552,6 +553,24 @@ MonoBehaviour:
   m_Resolution: 0
   m_Outline: 0
   m_Thickness: 1
+--- !u!114 &5436364920503911063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1570053837378581972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: overarching:costs-section
+    m_HashValue: 856066611
+  RectTransform: {fileID: 4868592689423206356}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &2269621329301562837
 GameObject:
   m_ObjectHideFlags: 0
@@ -851,6 +870,7 @@ GameObject:
   - component: {fileID: 6576435800795684042}
   - component: {fileID: 5997348661387879090}
   - component: {fileID: 8503564247898527847}
+  - component: {fileID: 6178046912351378005}
   m_Layer: 5
   m_Name: Revenue Section
   m_TagString: Untagged
@@ -911,6 +931,24 @@ MonoBehaviour:
   m_Resolution: 0
   m_Outline: 0
   m_Thickness: 1
+--- !u!114 &6178046912351378005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3175516637023103457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: overarching:profit-section
+    m_HashValue: 292981409
+  RectTransform: {fileID: 6576435800795684042}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1 &3885963058937820973
 GameObject:
   m_ObjectHideFlags: 0
