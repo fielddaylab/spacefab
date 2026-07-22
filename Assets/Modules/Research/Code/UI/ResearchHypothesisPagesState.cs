@@ -1,4 +1,3 @@
-using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
@@ -15,7 +14,7 @@ namespace SpaceFab.Research {
     /// </summary>
     public struct HypothesisPage {
         public MaterialPropertyLabel Label;
-        public StringHash32 Context;
+        //public StringHash32 Context;
         public MaterialPropertyDefinition Definition;
         public MaterialObservationEntry[] DecomposedObservations;
     }

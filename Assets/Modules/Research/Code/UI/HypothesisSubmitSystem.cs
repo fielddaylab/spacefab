@@ -5,6 +5,7 @@ using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Design;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -57,8 +58,9 @@ namespace SpaceFab.Research {
 
             Find.State(out ChamberInterfacerState interfacerState);
 
-            ResearchSlot primarySlot = interfacerState.PrimarySlot;
-            MaterialAsset slotted = primarySlot != null ? primarySlot.CurrentMaterial : null;
+            ResearchSlot slot = interfacerState.ActiveChamber == ActiveChamberKind.Doping ?
+                interfacerState.SecondarySlot : interfacerState.PrimarySlot;
+            MaterialAsset slotted = slot != null ? slot.CurrentMaterial : null;
             if (slotted == null) {
                 return;
             }
@@ -91,7 +93,7 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            bool success = ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, page.Label, page.Context);
+            bool success = ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, page.Label, viewModelState.HypothesisContext);
             if (success) {
                 // A new property bit flipped (or the property was already
                 // confirmed and the call was idempotent). Either way the
@@ -135,8 +137,18 @@ namespace SpaceFab.Research {
                 MaterialPropertyLabel slotLabel = viewModelState.ActivePageSlotLabels[i];
                 StringHash32 slotContext = viewModelState.ActivePageSlotContexts[i];
 
-                bool onLeaf = LeafMatches(leaves, leafCount, slotLabel, slotContext);
-                bool materialHasIt = MaterialPropertyDefinitionUtility.IsObservationTrueForProperties(trueProperties, slotLabel, slotContext);
+                bool isDopant = MaterialObservationChamberLookup.GetChamberType(slotLabel) == ObservationType.Dopant;
+                StringHash32[] contextIds = isDopant ? new StringHash32[material.Contexts.Length] : new StringHash32[] {StringHash32.Null};
+                if (isDopant)
+                {
+                    for (int c = 0; c < material.Contexts.Length; c++)
+                    {
+                        contextIds[c] = material.Contexts[c].AssetId;
+                    }
+                }
+
+                bool onLeaf = LeafMatches(leaves, leafCount, slotLabel, null);
+                bool materialHasIt = MaterialPropertyDefinitionUtility.IsObservationTrueForProperties(trueProperties, slotLabel, slotContext, contextIds);
                 if (onLeaf && materialHasIt) continue;
 
                 // Determine if removal was hypothesis mismatch error or observation error

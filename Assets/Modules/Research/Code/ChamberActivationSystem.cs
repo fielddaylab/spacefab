@@ -20,7 +20,6 @@ namespace SpaceFab.Research
 
         static private void ProcessWork(float deltaTime)
         {
-
             ChamberInterfacerState interfacer = Find.State<ChamberInterfacerState>();
             if (!interfacer.ActiveChamberChangedThisFrame) { return; }
             
@@ -61,7 +60,7 @@ namespace SpaceFab.Research
                     DopingChamberUtility.ResetState(dopingChamber);
                     if (pools != null) {
                         foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
-                            // Load picker chips when semiconductor is changed
+                            // In doping chamber, picker chips are loaded when substrate changes
                             SamplePanelInputUtility.FreeAllPickerChips(samplePanel, pools);
                             break;
                         }
@@ -72,7 +71,7 @@ namespace SpaceFab.Research
             ResearchSlotUtility.FillInSlot(interfacer, ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
-            
+
             interfacer.ActiveChamberChangedThisFrame = false;
         }
     }

@@ -229,6 +229,11 @@ namespace SpaceFab.Research {
                 hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
                 hypoType = MaterialObservationChamberLookup.GetChamberType(hypo);
             }
+            if (hypoVm.HypothesisContext != StringHash32.Null)
+            {
+                ResearchMaterialView hypoContext = Find.NamedAsset<ResearchMaterialView>(hypoVm.HypothesisContext);
+                hypoLabel += " for " + hypoContext.SampleLabel; // TODO: show actual name for known materials
+            }
             panel.HypothesisChip.SetState(hypoLabel, hypoFilled, hypoLocked, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen

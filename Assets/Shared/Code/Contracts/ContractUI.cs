@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -84,7 +82,6 @@ namespace SpaceFab {
             }
             else
             {
-                Debug.Log(def.Title());
                 ui.Title.SetText(def.Title());
                 ui.Description.SetText(def.Description());
                 ui.ClearElements();

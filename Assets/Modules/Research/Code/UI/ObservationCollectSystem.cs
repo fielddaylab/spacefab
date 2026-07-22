@@ -2,9 +2,7 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
-using SpaceFab;
 using SpaceFab.Materials;
-using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -91,9 +89,9 @@ namespace SpaceFab.Research {
             // client-side by SamplePanelInputUtility before the click
             // fires; the server-side guard here is the slot-index range
             // check + the locked-mask test.
-            if (inputState.RemoveObservationClickedThisFrame) {
-                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
+            HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
 
+            if (inputState.RemoveObservationClickedThisFrame) {
                 int idx = inputState.RemoveObservationSlotIndex;
                 if (viewModelState != null && idx >= 0 && idx < viewModelState.ActivePageSlotCount) {
                     bool locked = (viewModelState.ActivePageSlotLockedMask & (1u << idx)) != 0;
@@ -115,7 +113,6 @@ namespace SpaceFab.Research {
 
             // Add hypothesis chip
             if (inputState.HypothesisSelectedClickedThisFrame) {
-                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
                 if (viewModelState != null) {
                     bool locked = (viewModelState.PageFulfilledMask & (1u << viewModelState.ActivePageIndex)) != 0;
                     if (!locked) {
@@ -126,15 +123,15 @@ namespace SpaceFab.Research {
 
             // Remove hypothesis chip
             if (inputState.RemoveHypothesisClickedThisFrame) {
-                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
                 if (viewModelState != null) {
                     viewModelState.ActivePageIndex = -1;
+                    viewModelState.HypothesisContext = StringHash32.Null;
                     viewModelDirty = true;
                 }
             }
 
             if (viewModelDirty) {
-                HypothesisViewModelUtility.RequestRebuild(Find.State<HypothesisViewModelState>());
+                HypothesisViewModelUtility.RequestRebuild(viewModelState);
             }
         }
     }

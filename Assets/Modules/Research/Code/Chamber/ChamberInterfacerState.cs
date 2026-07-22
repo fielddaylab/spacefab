@@ -119,6 +119,8 @@ namespace SpaceFab.Research {
         // Sets the currently-active chamber. Activation flow is the only
         // caller; chamber systems read via GetActiveChamber.
         public static void SetActiveChamber(ChamberInterfacerState interfacerState, ActiveChamberKind kind) {
+            if (interfacerState.ActiveChamber == kind) { return; }
+
             interfacerState.ActiveChamber = kind;
             interfacerState.ActiveChamberChangedThisFrame = true;
         }
