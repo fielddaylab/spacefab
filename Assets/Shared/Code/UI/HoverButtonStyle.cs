@@ -1,5 +1,6 @@
 using BeauRoutine;
 using FieldDay.UI;
+using FieldDay.UI.Animation;
 using FieldDay.UI.Widgets;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace SpaceFab.UI {
         public float DisabledYShift;
 
         public override void OnClick(GuiButton button) {
-            
+            PopAnim.Play(button.LayoutOffset, PopAnim.Default);
         }
 
         public override void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags) {

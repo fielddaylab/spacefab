@@ -98,6 +98,10 @@ namespace SpaceFab
                 // so the default no-reload-if-loaded path would be a no-op. Force a fresh load
                 // so the re-import lands on the next first-unsolved level.
                 Game.Scenes.LoadMainScene(reloadTarget, true);
+
+                SceneRequestContext loadContext = default;
+                loadContext.Set("PreserveMusic", true);
+                Game.Scenes.QueueMainLoadContext(loadContext);
             } else {
                 Game.Events.Dispatch(GameEvents.OnMinigameExit);
                 Game.Scenes.LoadMainScene(returnState.ReturnScene);

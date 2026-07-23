@@ -46,6 +46,7 @@ namespace FieldDay.UI.Animation {
         }
 
         static public readonly FlashAnim Default = new FlashAnim(12 / 60f, Curve.Linear);
+        static public readonly FlashAnim Quick = new FlashAnim(6 / 60f, Curve.Linear);
 
         static public AnimHandle Play(Graphic graphic, Color color, FlashAnim config, float delay = 0, GameLoopPhase phase = GameLoopPhase.Update) {
             LiteAnimatorState animState = new LiteAnimatorState();

@@ -35,7 +35,7 @@ namespace EasyAssetStreaming {
             UnityEditor.SceneManagement.EditorSceneManager.sceneOpened += OnSceneOpened;
             UnityEditor.SceneManagement.PrefabStage.prefabStageClosing += OnPrefabStageClosing;
             UnityEditor.EditorApplication.quitting += () => s_EditorQuitting = true;
-            AppDomain.CurrentDomain.DomainUnload += OnDomainUnload;
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += OnDomainUnload;
             StreamingHelper.Init();
         }
 
@@ -61,7 +61,7 @@ namespace EasyAssetStreaming {
             UnloadUnusedSync();
         }
 
-        static private void OnDomainUnload(object sender, EventArgs args) {
+        static private void OnDomainUnload() {
             if (s_EditorQuitting) {
                 return;
             }

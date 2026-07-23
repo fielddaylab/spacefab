@@ -34,6 +34,15 @@ namespace FieldDay {
 #endif // UNITY_EDITOR
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public bool IsEditor() {
+#if UNITY_EDITOR
+            return !EditorApplication.isPlayingOrWillChangePlaymode;
+#else
+            return false;
+#endif // UNITY_EDITOR
+        }
+
 #if UNITY_EDITOR
         static private HashSet<MethodInfo> s_Registered = new HashSet<MethodInfo>();
         static private List<Action> s_CreateActions = new List<Action>();
@@ -46,7 +55,7 @@ namespace FieldDay {
             AssemblyReloadEvents.beforeAssemblyReload += HandleAssemblyUnload;
             EditorApplication.playModeStateChanged += HandleEditorStateChange;
 
-            foreach(var method in TypeCache.GetMethodsWithAttribute(typeof(EditorStaticResource))) {
+            foreach (var method in TypeCache.GetMethodsWithAttribute(typeof(EditorStaticResource))) {
                 method.Invoke(null, null);
             }
         }

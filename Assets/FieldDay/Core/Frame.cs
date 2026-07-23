@@ -313,12 +313,9 @@ namespace FieldDay {
         static private void EditorInitialize() {
             EditorApplication.update -= EditorAdvance;
             EditorStaticResource.SetupLifetime(EditorCreate, EditorDestroy);
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode) {
-                return;
+            if (EditorStaticResource.IsEditor()) {
+                EditorCreate();
             }
-
-            EditorCreate();
         }
 
         static private void EditorCreate() {

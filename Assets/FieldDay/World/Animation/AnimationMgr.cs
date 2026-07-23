@@ -10,6 +10,7 @@ namespace FieldDay.Animation {
         private struct LiteAnimatorRecord {
             public ILiteAnimator Animator;
             public object Target;
+            public int TargetUnityHandle;
             public LiteAnimatorState State;
             public UniqueId16 Handle;
         }
@@ -78,6 +79,7 @@ namespace FieldDay.Animation {
             liteAnimators.PushBack(new LiteAnimatorRecord() {
                 Animator = animator,
                 Target = target,
+                TargetUnityHandle = UnityHelper.Id(target as UnityEngine.Object),
                 State = state,
                 Handle = id
             });
@@ -105,6 +107,7 @@ namespace FieldDay.Animation {
             liteAnimators.PushBack(new LiteAnimatorRecord() {
                 Animator = animator,
                 Target = target,
+                TargetUnityHandle = UnityHelper.Id(target as UnityEngine.Object),
                 State = state,
                 Handle = id
             });
@@ -255,7 +258,10 @@ namespace FieldDay.Animation {
             int count = liteAnimators.Count;
             while (count-- > 0) {
                 LiteAnimatorRecord animRecord = liteAnimators.PopFront();
-                if (animRecord.Animator.UpdateAnimation(animRecord.Target, ref animRecord.State, deltaTime)) {
+                if (animRecord.TargetUnityHandle != 0 && !UnityHelper.IsAlive(animRecord.TargetUnityHandle)) {
+                    Log.Warn("[AnimationMgr] Target unity object died before animation could complete");
+                    m_HandleIdGenerator.Free(animRecord.Handle);
+                } else if (animRecord.Animator.UpdateAnimation(animRecord.Target, ref animRecord.State, deltaTime)) {
                     liteAnimators.PushBack(animRecord);
                 } else {
                     m_HandleIdGenerator.Free(animRecord.Handle);

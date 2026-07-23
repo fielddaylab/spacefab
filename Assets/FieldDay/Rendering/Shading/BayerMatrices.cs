@@ -26,10 +26,8 @@ namespace FieldDay.Rendering {
 
             Log.Msg("[BayerMatrices] Initializing bayer matrix buffer");
 
-            if (BayerMatrixBuffer == null) {
-                BayerMatrixBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Constant, TotalSize, 4);
-                EditorStaticResource.SetupLifetime(CreateBuffer, DestroyBuffer);
-            }
+            BayerMatrixBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Constant, TotalSize, 4);
+            EditorStaticResource.SetupLifetime(CreateBuffer, DestroyBuffer);
 
             float* data = stackalloc float[TotalSize];
             float* head = data;
