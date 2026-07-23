@@ -10,7 +10,7 @@ namespace FieldDay.Rendering {
     public sealed class FullscreenMeshFilter : MonoBehaviour {
         private void OnEnable() {
 #if UNITY_EDITOR
-            if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer) {
+            if (BuildPipeline.isBuildingPlayer) {
                 return;
             }
 #endif // UNITY_EDITOR

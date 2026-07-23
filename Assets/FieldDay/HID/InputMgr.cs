@@ -516,6 +516,21 @@ namespace FieldDay.HID {
 
         #endregion // Consume
 
+        #region Editing
+
+        /// <summary>
+        /// Returns if the user has an editable text field selected.
+        /// </summary>
+        public bool IsEditingTextField() {
+            if (m_ExposedInputModule != null && m_ExposedInputModule.IsEditingText) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        #endregion // Editing
+
         #region Debug
 
 #if DEVELOPMENT

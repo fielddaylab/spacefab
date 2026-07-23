@@ -1078,6 +1078,8 @@ namespace FieldDay.Scenes {
             m_MainSceneLoadProcess.Stop();
             m_AdditionalSceneLoadProcess.Stop();
 
+            OnLoadProcessStarted.Clear();
+
             OnPrepareScene.Clear();
             OnScenePreload.Clear();
             OnSceneReady.Clear();
@@ -1228,8 +1230,7 @@ namespace FieldDay.Scenes {
 
                 if (args.Type == SceneType.Main) {
                     if (m_MainSceneLoadProcess) {
-                        Log.Error("Multiple main scene load processes at once.");
-                        m_LoadProcessQueue.PopFront();
+                        Assert.Fail("Multiple main scene load processes at once.");
                     } else {
                         m_MainSceneLoadProcess = Routine.Start(SceneLoadProcess(args));
                         m_LoadProcessQueue.PopFront();

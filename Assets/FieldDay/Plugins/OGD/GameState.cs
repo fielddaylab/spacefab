@@ -13,6 +13,14 @@ namespace OGD {
         static private Core.Request<Core.DefaultResponse> s_CurrentPostGameState;
 
         /// <summary>
+        /// Cancels ongoing requests.
+        /// </summary>
+        static public void CancelRequests() {
+            Core.CancelRequest(ref s_CurrentRequestGameState);
+            Core.CancelRequest(ref s_CurrentPostGameState);
+        }
+
+        /// <summary>
         /// Requests the latest state for the given player id.
         /// </summary>
         static public IDisposable RequestLatestState(string playerId, Action<string> onSuccess, Core.DefaultErrorHandlerDelegate onError, int retryCount) {

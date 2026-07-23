@@ -39,6 +39,8 @@ namespace FieldDay.Rendering {
             meshData.Release();
             s_CachedMesh = mesh;
 
+            Log.Msg("[FullscreenMesh] Created mesh");
+
             return mesh;
         }
 
@@ -46,6 +48,8 @@ namespace FieldDay.Rendering {
             if (s_CachedMesh) {
                 GameObject.DestroyImmediate(s_CachedMesh);
                 s_CachedMesh = null;
+
+                Log.Msg("[FullscreenMesh] Destroyed mesh");
             }
         }
     }

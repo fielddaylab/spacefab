@@ -1,3 +1,4 @@
+using BeauUtil.Debugger;
 using System;
 using TMPro;
 using UnityEngine;
@@ -139,11 +140,8 @@ namespace FieldDay.HID {
 
             m_LastKnownMousePosition = newMousePos;
 
-            TMP_InputField inputField = m_EditingText;
-            if (!ReferenceEquals(inputField, null) && !inputField) {
-                inputField = null;
-            }
-
+            TMP_InputField inputField = null;
+            
             GameObject focus = eventSystem.currentSelectedGameObject;
             if (focus != null) {
                 if (focus.TryGetComponent(out TMP_InputField selectedInputField) && selectedInputField.isFocused) {
@@ -158,6 +156,7 @@ namespace FieldDay.HID {
 
             if (!ReferenceEquals(m_EditingText, inputField)) {
                 m_EditingText = inputField;
+                Log.Msg("[ExposedPointerInputModule] Text edit focus changed to '{0}'", inputField);
                 OnTextEditFocusChanged?.Invoke(inputField);
             }
         }

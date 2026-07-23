@@ -3,6 +3,7 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.Rendering;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SpaceFab
@@ -56,12 +57,12 @@ namespace SpaceFab
 
         private void UpdateVolume(float volume)
         {
-            SettingsUtility.SetMasterVolume(Find.State<UserSettingsState>(), volume);
+            SettingsUtility.SetMasterVolume(Find.State<UserSettingsState>(), volume / 10);
         }
 
         private void UpdateBusVolume(StringHash32 bus, float volume)
         {
-            SettingsUtility.SetAudioBusVolume(Find.State<UserSettingsState>(), bus, volume);
+            SettingsUtility.SetAudioBusVolume(Find.State<UserSettingsState>(), bus, volume / 10);
         }
 
         private void OnFullscreenUpdated(bool fullscreen)
