@@ -18,3 +18,5 @@ MonoBehaviour:
   ThermalPressed: {fileID: 21300000, guid: da9f46ab8793c4bb0869559767c1ebe6, type: 3}
   DopingNormal: {fileID: 21300000, guid: 6c6bf227070f34a9d9f14841f72148f8, type: 3}
   DopingPressed: {fileID: 21300000, guid: 2f6092b33edd7476990ca8df19e29853, type: 3}
+  ButtonUp: {fileID: 21300000, guid: 403c4a7975e864f30a879482ba7fc2e8, type: 3}
+  ButtonDown: {fileID: 21300000, guid: c82658f14c99f439fb4f2ee8b248fe43, type: 3}

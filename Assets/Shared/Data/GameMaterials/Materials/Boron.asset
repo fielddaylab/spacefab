@@ -15,9 +15,10 @@ MonoBehaviour:
   DisplayName: Boron
   ShortName: B
   GemSprite: {fileID: 21300000, guid: d641a0b1663444d69884de4a7457a4fa, type: 3}
+  ConstituentElementNames: []
   ValenceElectronCounts: 03000000
-  AtomicRadii: 57000000
-  Properties: 150f10
+  AtomicRadii: 42000000
+  Properties: 140f
   Contexts:
   - {fileID: 11400000, guid: dc22a706ffb89fc41b2a09a5bc892658, type: 2}
   - {fileID: 11400000, guid: 24818b68876bf024da7fbbd33988c8aa, type: 2}

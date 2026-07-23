@@ -15,10 +15,9 @@ MonoBehaviour:
   MaterialId:
     m_Source: SiliconCarbide
     m_HashValue: 3774176290
-  SingleAtomSprite: {fileID: 21300000, guid: d3ea5e04abacf4ccb9b1881aa7399ff8, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.47108185, g: 0.5849056, b: 0.44419718, a: 1}
+  AtomColor:
+  - {r: 0.5752492, g: 0.58203816, b: 0.8773585, a: 1}
+  - {r: 0.34117648, g: 0.34709275, b: 0.6901961, a: 1}
   GemScale: 1
-  IsMultiAtom: 1
-  SampleNumber: 6
+  SampleOrder: 0
   SampleLabel: F

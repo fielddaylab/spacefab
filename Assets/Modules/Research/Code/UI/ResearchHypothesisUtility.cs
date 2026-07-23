@@ -51,11 +51,12 @@ namespace SpaceFab.Research {
 
                     for (int d = 0; d < defs.Length; d++) {
                         scratch.Clear();
-                        MaterialPropertyDefinitionUtility.DecomposeToObservations(defs[d], goal.InComparisonTo, scratch);
+                        // Goals do not have a context; contexts are assigned during verification.
+                        MaterialPropertyDefinitionUtility.DecomposeToObservations(defs[d], new StringHash32[] {StringHash32.Null}, scratch);
 
                         HypothesisPage page;
                         page.Label = goal.Label;
-                        page.Context = goal.InComparisonTo;
+                        // page.Context = StringHash32.Null;
                         page.Definition = defs[d];
                         page.DecomposedObservations = scratch.ToArray();
                         pagesState.Pages.Add(page);

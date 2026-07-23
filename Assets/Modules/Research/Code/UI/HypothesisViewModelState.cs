@@ -32,6 +32,7 @@ namespace SpaceFab.Research {
         public const int MaxObservationsPerPage = 3;
 
         [NonSerialized] public int ActivePageIndex;
+        [NonSerialized] public StringHash32 HypothesisContext;
 
         // === Leaf view ===
 

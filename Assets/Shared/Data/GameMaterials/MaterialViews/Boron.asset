@@ -15,10 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Boron
     m_HashValue: 3317014541
-  SingleAtomSprite: {fileID: 21300000, guid: d641a0b1663444d69884de4a7457a4fa, type: 3}
-  MultiAtomSprite: {fileID: 21300000, guid: 90c1592dce8c93348996a9459d500048, type: 3}
-  GemColor: {r: 0.3597151, g: 0.21867214, b: 0.509434, a: 1}
+  AtomColor:
+  - {r: 0.6901961, g: 0.49648392, b: 0.34117648, a: 1}
   GemScale: 1
-  IsMultiAtom: 0
-  SampleNumber: 5
+  SampleOrder: 0
   SampleLabel: E

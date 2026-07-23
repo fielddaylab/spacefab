@@ -12,6 +12,8 @@ namespace SpaceFab.Research {
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Research/UI Assets")]
     public class ResearchUIAssets : GlobalAsset {
+        // TODO: Replace chamber button sprites to the shared ButtonUp/ButtonDown sprites
+        // with separate icon overlays to reduce the number of sprite assets.
         [Header("Chamber Button Sprites")]
         public Sprite VoltageNormal;
         public Sprite VoltagePressed;
@@ -19,5 +21,9 @@ namespace SpaceFab.Research {
         public Sprite ThermalPressed;
         public Sprite DopingNormal;
         public Sprite DopingPressed;
+
+        [Header ("Atomic View Toggle")]
+        public Sprite ButtonUp;
+        public Sprite ButtonDown;
     }
 }

@@ -112,12 +112,7 @@ namespace SpaceFab.Research {
                 HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
             }
 
-            // Activate the Battery chamber. This is the only chamber today;
-            // when the station-transition system lands, this hardcoded
-            // activation moves into station logic and reacts to player nav.
-            // TODO: clear ActiveChamber + receptive flags on minigame exit.
             ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Voltage);
-            ChamberInterfacerUtility.SetReceptive(interfacerState, ChamberSlotKind.Primary, true);
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.ResearchMask | UpdateMasks.ResearchChamberMask);

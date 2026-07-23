@@ -71,7 +71,10 @@ namespace SpaceFab.Research {
                 viewModelState.HypothesisChangedThisFrame = false;
                 return;
             }
-            if (slotChanged) viewModelState.ActivePageIndex = -1;
+            if (slotChanged) {
+                viewModelState.ActivePageIndex = -1;
+                viewModelState.HypothesisContext = StringHash32.Null;
+            }
             viewModelState.NeedsRebuild = false;
 
             Find.State(
@@ -92,6 +95,7 @@ namespace SpaceFab.Research {
             // when the page list is empty.
             if (pageCount == 0) {
                 viewModelState.ActivePageIndex = -1;
+                viewModelState.HypothesisContext = StringHash32.Null;
                 viewModelState.ActivePageLeafSatisfiedMask = 0;
                 viewModelState.ActivePageLeafLockedMask = 0;
                 viewModelState.ActivePageLeafSatisfiedCount = 0;
@@ -105,13 +109,31 @@ namespace SpaceFab.Research {
                 return;
             }
 
+            bool isDopingChamber = interfacerState.ActiveChamber == ActiveChamberKind.Doping;
             if (inputState.HypothesisSelectedClickedThisFrame) {
                 viewModelState.ActivePageIndex = inputState.AddHypothesisIndex;
+                bool needsContext = MaterialPropertyLabelUtility.IsDynamic(pagesState.Pages[viewModelState.ActivePageIndex].Label);
+                // Add context for dopants
+                if (needsContext && isDopingChamber) {
+                    MaterialAsset substrate = interfacerState.PrimarySlot.CurrentMaterial;
+                    if (substrate != null) {
+                        viewModelState.HypothesisContext = substrate.AssetId;
+                    }
+                }
+                // Reject hypothesis if the context is required but null
+                else if (needsContext && !isDopingChamber) {
+                    viewModelState.ActivePageIndex = -1;
+                    viewModelState.HypothesisContext = StringHash32.Null;
+                }
+                else {
+                    viewModelState.HypothesisContext = StringHash32.Null;
+                }
             }
             
             // 2. Resolve slotted material + the active page's leaves.
-            ResearchSlot primarySlot = interfacerState.PrimarySlot;
-            MaterialAsset slottedMaterial = primarySlot != null ? primarySlot.CurrentMaterial : null;
+            ResearchSlot slot = isDopingChamber ?
+                interfacerState.SecondarySlot : interfacerState.PrimarySlot;
+            MaterialAsset slottedMaterial = slot != null ? slot.CurrentMaterial : null;
             StringHash32 slottedId = slottedMaterial != null ? slottedMaterial.AssetId : StringHash32.Null;
 
             int slotCap = HypothesisViewModelState.MaxObservationsPerPage;
@@ -173,14 +195,12 @@ namespace SpaceFab.Research {
                 for (int p = 0; p < pickedCount && slotCount < slotCap; p++) {
                     MaterialPropertyLabel label = MaterialObservationListUtility.GetLabel(pickedList, p);
                     StringHash32 context = MaterialObservationListUtility.GetContext(pickedList, p);
-                    Debug.Log($"{p}: {label}, {context}");
                     if (ContainsSlot(slotLabels, slotContexts, slotCount, label, context)) {
                         continue;
                     }
                     slotLabels[slotCount] = label;
                     slotContexts[slotCount] = context;
                     slotCount++;
-                    Debug.Log($"{slotCount}");
                 }
             }
 
@@ -245,13 +265,16 @@ namespace SpaceFab.Research {
             int maskBound = pageCount > 32 ? 32 : pageCount;
             for (int p = 0; p < maskBound; p++) {
                 HypothesisPage pageEntry = pagesState.Pages[p];
-                if (AnyMaterialFulfills(researchState, progressState, pageEntry.Label, pageEntry.Context)) {
+                if (AnyMaterialFulfills(researchState, progressState, pageEntry.Label, viewModelState.HypothesisContext)) {
                     pageFulfilledMask |= 1u << p;
                 }
             }
             viewModelState.PageFulfilledMask = pageFulfilledMask;
-            if (pageFulfilledMask != prevFulfilledMask)
+            // Remove hypothesis once verfied
+            if (pageFulfilledMask != prevFulfilledMask) {
                 viewModelState.ActivePageIndex = -1;
+                viewModelState.HypothesisContext = StringHash32.Null;
+            }
 
             // 6. Frame-flag — any change drives the panel's LateUpdate render.
             changed = changed
@@ -287,12 +310,12 @@ namespace SpaceFab.Research {
         // saved PlayerProgress has the property confirmed.
         private static bool AnyMaterialFulfills(ResearchMinigameState researchState, PlayerProgressState progressState, MaterialPropertyLabel label, StringHash32 context) {
             foreach (var kvp in researchState.SandboxProperties) {
-                if (MaterialPropertyRecordUtility.Has(kvp.Value, label, context)) {
+                if (MaterialPropertyRecordUtility.HasAny(kvp.Value, label)) {
                     return true;
                 }
             }
             foreach (var kvp in progressState.MaterialProperties) {
-                if (MaterialPropertyRecordUtility.Has(kvp.Value, label, context)) {
+                if (MaterialPropertyRecordUtility.HasAny(kvp.Value, label)) {
                     return true;
                 }
             }

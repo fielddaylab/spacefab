@@ -15,7 +15,10 @@ MonoBehaviour:
   DisplayName: Silicon Carbide
   ShortName: SiC
   GemSprite: {fileID: 21300000, guid: bfc7d0965e7fd4d97aef1a80a5abd58e, type: 3}
+  ConstituentElementNames:
+  - Si
+  - C
   ValenceElectronCounts: 0400000004000000
-  AtomicRadii: 6f00000043000000
-  Properties: 121418
+  AtomicRadii: 6f00000041000000
+  Properties: 111317
   Contexts: []

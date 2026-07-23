@@ -1,10 +1,6 @@
 using FieldDay;
-using FieldDay.HID;
 using FieldDay.SharedState;
-using FieldDay.UI;
 using System;
-using TMPro;
-using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>

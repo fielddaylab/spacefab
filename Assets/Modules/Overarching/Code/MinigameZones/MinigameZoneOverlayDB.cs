@@ -49,7 +49,7 @@ namespace SpaceFab.Overarching
             {
                 if (db.Overlays[i].Minigame == minigame)
                 {
-                    return focus ? db.Overlays[i].Focus : db.Overlays[i].NonFocus;
+                    return focus ? db.Overlays[i].Focus : null;
                 }
             }
             return null;

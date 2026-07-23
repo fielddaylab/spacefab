@@ -2,9 +2,7 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
-using SpaceFab;
 using SpaceFab.Materials;
-using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -54,32 +52,33 @@ namespace SpaceFab.Research {
             }
             StringHash32 slottedId = slotted.AssetId;
 
+            // Get the secondary material; null check is done later because it
+            // is only used for doping chamber
+            bool isDopingChamber = interfacerState.ActiveChamber == ActiveChamberKind.Doping;
+            ResearchSlot secondarySlot = interfacerState.SecondarySlot;
+            MaterialAsset secondarySlotted = secondarySlot != null ? secondarySlot.CurrentMaterial : null;
+            StringHash32 secondarySlottedId = secondarySlotted == null ? null : secondarySlotted.AssetId;
+
             bool viewModelDirty = false;
 
             // Add path: chip picker selection. Battery scope — context is
             // always null. Combiner will pass a meaningful context once it
             // lands.
             if (inputState.ChipPickerSelectedThisFrame) {
-                if (interfacerState.ActiveChamber == ActiveChamberKind.Doping)
+                if (isDopingChamber)
                 {
-                    ResearchSlot secondarySlot = interfacerState.SecondarySlot;
-                    MaterialAsset secondarySlotted = secondarySlot != null ? secondarySlot.CurrentMaterial : null;
                     if (secondarySlotted == null) {
                         return;
                     }
 
-                    StringHash32 secondarySlottedId = secondarySlotted.AssetId;
                     if (ResearchInventoryUtility.AddObservation(researchState, secondarySlottedId, inputState.ChipPickerSelectionLabel, slottedId)) {
                         viewModelDirty = true;
                         ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
                     }
                 }
-                else
-                {
-                    if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
-                        viewModelDirty = true;
-                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
-                    }
+                else if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
+                    viewModelDirty = true;
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
                 }
             }
 
@@ -90,16 +89,22 @@ namespace SpaceFab.Research {
             // client-side by SamplePanelInputUtility before the click
             // fires; the server-side guard here is the slot-index range
             // check + the locked-mask test.
-            if (inputState.RemoveObservationClickedThisFrame) {
-                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
+            HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
 
+            if (inputState.RemoveObservationClickedThisFrame) {
                 int idx = inputState.RemoveObservationSlotIndex;
                 if (viewModelState != null && idx >= 0 && idx < viewModelState.ActivePageSlotCount) {
                     bool locked = (viewModelState.ActivePageSlotLockedMask & (1u << idx)) != 0;
                     if (!locked) {
                         MaterialPropertyLabel label = viewModelState.ActivePageSlotLabels[idx];
                         StringHash32 context = viewModelState.ActivePageSlotContexts[idx];
-                        if (ResearchInventoryUtility.RemoveObservation(researchState, slottedId, label, context)) {
+                        if (isDopingChamber)
+                        {
+                            if (ResearchInventoryUtility.RemoveObservation(researchState, secondarySlottedId, label, context)) {
+                                viewModelDirty = true;
+                            }
+                        }
+                        else if (ResearchInventoryUtility.RemoveObservation(researchState, slottedId, label, context)) {
                             viewModelDirty = true;
                         }
                     }
@@ -108,7 +113,6 @@ namespace SpaceFab.Research {
 
             // Add hypothesis chip
             if (inputState.HypothesisSelectedClickedThisFrame) {
-                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
                 if (viewModelState != null) {
                     bool locked = (viewModelState.PageFulfilledMask & (1u << viewModelState.ActivePageIndex)) != 0;
                     if (!locked) {
@@ -119,15 +123,15 @@ namespace SpaceFab.Research {
 
             // Remove hypothesis chip
             if (inputState.RemoveHypothesisClickedThisFrame) {
-                HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
                 if (viewModelState != null) {
                     viewModelState.ActivePageIndex = -1;
+                    viewModelState.HypothesisContext = StringHash32.Null;
                     viewModelDirty = true;
                 }
             }
 
             if (viewModelDirty) {
-                HypothesisViewModelUtility.RequestRebuild(Find.State<HypothesisViewModelState>());
+                HypothesisViewModelUtility.RequestRebuild(viewModelState);
             }
         }
     }

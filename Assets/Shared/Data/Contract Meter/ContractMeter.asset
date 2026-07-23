@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37dd966b6ae3e492da4082b818fdfee3, type: 3}
+  m_Name: ContractMeter
+  m_EditorClassIdentifier: 
+  TimeFilled: {fileID: 21300000, guid: b34573908acca40408e69d42d964e37a, type: 3}
+  TimeEmpty: {fileID: 21300000, guid: 39a186dfed29cfa46bb50a3de17817d2, type: 3}
+  RevenueFilled: {fileID: 21300000, guid: 5238226ae92e1b44682a3dadaddc379f, type: 3}
+  RevenueEmpty: {fileID: 21300000, guid: 9ba5ceb671985c0438992f444f8070cc, type: 3}
