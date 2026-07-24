@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cdfb41291a9df764ea8382b0100074c2, type: 3}
-  m_Name: GridStackConfig_Intro2
+  m_Name: GridStackConfig_Lv6
   m_EditorClassIdentifier: 
   LayerDims:
     X: 8
@@ -21,34 +21,14 @@ MonoBehaviour:
     ColumnIndex: 1
     CellType: 1
     SubtypeLabel: 8
-    Edges:
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 1
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    TransferType: 4
+    Edges: []
+    TransferType: 0
     DefaultInputState: 0
   - LayerIndex: 1
-    RowIndex: 1
+    RowIndex: 2
     ColumnIndex: 1
     CellType: 1
     SubtypeLabel: 16
-    Edges: []
-    TransferType: 0
-    DefaultInputState: 0
-  - LayerIndex: 1
-    RowIndex: 4
-    ColumnIndex: 4
-    CellType: 5
-    SubtypeLabel: 128
     Edges:
     - EdgeState: 0
       Eraseable: 0
@@ -64,16 +44,8 @@ MonoBehaviour:
       Eraseable: 0
     TransferType: 4
     DefaultInputState: 0
-  - LayerIndex: 1
-    RowIndex: 1
-    ColumnIndex: 4
-    CellType: 5
-    SubtypeLabel: 256
-    Edges: []
-    TransferType: 0
-    DefaultInputState: 0
   - LayerIndex: 0
-    RowIndex: 4
+    RowIndex: 2
     ColumnIndex: 1
     CellType: 2
     SubtypeLabel: 0
@@ -93,7 +65,7 @@ MonoBehaviour:
     TransferType: 4
     DefaultInputState: 0
   - LayerIndex: 0
-    RowIndex: 4
+    RowIndex: 2
     ColumnIndex: 2
     CellType: 2
     SubtypeLabel: 0
@@ -110,16 +82,56 @@ MonoBehaviour:
       Eraseable: 0
     - EdgeState: 0
       Eraseable: 0
-    TransferType: 0
+    TransferType: 4
     DefaultInputState: 0
   - LayerIndex: 0
-    RowIndex: 4
+    RowIndex: 2
     ColumnIndex: 3
     CellType: 2
     SubtypeLabel: 0
     Edges:
     - EdgeState: 0
       Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    TransferType: 1
+    DefaultInputState: 0
+  - LayerIndex: 1
+    RowIndex: 2
+    ColumnIndex: 3
+    CellType: 4
+    SubtypeLabel: 0
+    Edges:
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    TransferType: 1
+    DefaultInputState: 0
+  - LayerIndex: 1
+    RowIndex: 2
+    ColumnIndex: 4
+    CellType: 4
+    SubtypeLabel: 0
+    Edges:
+    - EdgeState: 0
+      Eraseable: 0
     - EdgeState: 1
       Eraseable: 0
     - EdgeState: 0
@@ -130,11 +142,51 @@ MonoBehaviour:
       Eraseable: 0
     - EdgeState: 0
       Eraseable: 0
-    TransferType: 0
+    TransferType: 4
+    DefaultInputState: 0
+  - LayerIndex: 1
+    RowIndex: 2
+    ColumnIndex: 5
+    CellType: 4
+    SubtypeLabel: 0
+    Edges:
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    TransferType: 4
     DefaultInputState: 0
   - LayerIndex: 0
-    RowIndex: 4
-    ColumnIndex: 4
+    RowIndex: 2
+    ColumnIndex: 5
+    CellType: 2
+    SubtypeLabel: 0
+    Edges:
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    TransferType: 4
+    DefaultInputState: 0
+  - LayerIndex: 0
+    RowIndex: 2
+    ColumnIndex: 6
     CellType: 2
     SubtypeLabel: 0
     Edges:
@@ -149,6 +201,26 @@ MonoBehaviour:
     - EdgeState: 1
       Eraseable: 0
     - EdgeState: 1
+      Eraseable: 0
+    TransferType: 4
+    DefaultInputState: 0
+  - LayerIndex: 1
+    RowIndex: 2
+    ColumnIndex: 6
+    CellType: 5
+    SubtypeLabel: 128
+    Edges:
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 1
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
       Eraseable: 0
     TransferType: 4
     DefaultInputState: 0

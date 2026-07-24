@@ -10,23 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cdfb41291a9df764ea8382b0100074c2, type: 3}
-  m_Name: GridStackConfig_Intro
+  m_Name: GridStackConfig_Lv1
   m_EditorClassIdentifier: 
   LayerDims:
     X: 8
     Y: 6
   Cells:
   - LayerIndex: 1
-    RowIndex: 2
+    RowIndex: 4
     ColumnIndex: 1
     CellType: 1
     SubtypeLabel: 8
     Edges: []
     TransferType: 0
+    DefaultInputState: 0
   - LayerIndex: 1
-    RowIndex: 2
-    ColumnIndex: 4
+    RowIndex: 1
+    ColumnIndex: 6
     CellType: 5
     SubtypeLabel: 128
     Edges: []
     TransferType: 0
+    DefaultInputState: 0

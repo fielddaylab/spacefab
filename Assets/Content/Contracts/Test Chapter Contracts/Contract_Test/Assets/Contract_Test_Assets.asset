@@ -14,6 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Script: {fileID: 0}
   DesignLevels:
-  - {fileID: 11400000, guid: d99e578fb541c154799e1789a503e866, type: 2}
-  - {fileID: 11400000, guid: d2ffbc6664d62924494acecbd99ec155, type: 2}
+  - {fileID: 11400000, guid: 2812dfe2319494182ba916e32d02231e, type: 2}
   FabricationLevel: {fileID: 11400000, guid: 5b812138e7801474c8de8ae37b655ff9, type: 2}
