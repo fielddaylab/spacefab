@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShipIds:
   - m_HashValue: 4036650106
+  CameraBounds: {x: 20, y: 20}
   Positions:
   - Name:
       m_HashValue: 1391791790
