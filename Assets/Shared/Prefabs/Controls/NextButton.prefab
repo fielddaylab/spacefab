@@ -79,6 +79,14 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 62
       objectReference: {fileID: 0}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.data[3]
+      value: 
+      objectReference: {fileID: 6346798224545395955}
     - target: {fileID: 3539750417565351040, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_SizeDelta.x
       value: 42

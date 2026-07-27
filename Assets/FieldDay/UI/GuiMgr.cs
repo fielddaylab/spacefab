@@ -671,8 +671,12 @@ namespace FieldDay.UI {
 
         internal void ProcessShortcuts() {
             bool isPaused = Game.Input.AreDevicesPaused() || Game.Input.AreRaycastsPaused();
+            bool isEditingText = Game.Input.WasEditingTextField();
             if (!isPaused) {
                 foreach(var c in Find.Components<KeyboardShortcut>()) {
+                    if (isEditingText && (c.Settings & KeyboardShortcut.Flags.AllowDuringTextEdit) == 0) {
+                        continue;
+                    }
                     if (Game.Input.IsKeyComboPressed(c.Modifiers, c.KeyCode)) {
                         GuiCommands.TryClick(c.gameObject);
                     }

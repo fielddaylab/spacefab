@@ -102,6 +102,7 @@ namespace FieldDay.HID {
         private uint m_EventPauseCounter;
         private uint m_DevicePauseCounter;
         private bool m_InputConsumed;
+        private bool m_WasEditingText;
 
         private PointerInputMode m_InputMode;
         private Vector2 m_LastKnownMousePosition;
@@ -353,6 +354,8 @@ namespace FieldDay.HID {
                 m_LastKnownMousePosition = newMousePos;
             }
 
+            m_WasEditingText = m_ExposedInputModule && m_ExposedInputModule.IsEditingText;
+
             m_InputConsumed = false;
         }
 
@@ -363,7 +366,7 @@ namespace FieldDay.HID {
             }
 
             // TODO: block input if all is paused
-            if (m_ExposedInputModule != null && m_ExposedInputModule.IsEditingText) {
+            if (m_WasEditingText) {
                 return;
             }
 
@@ -519,14 +522,10 @@ namespace FieldDay.HID {
         #region Editing
 
         /// <summary>
-        /// Returns if the user has an editable text field selected.
+        /// Returns if the user had an editable text field selected at the start of the frame.
         /// </summary>
-        public bool IsEditingTextField() {
-            if (m_ExposedInputModule != null && m_ExposedInputModule.IsEditingText) {
-                return true;
-            } else {
-                return false;
-            }
+        public bool WasEditingTextField() {
+            return m_WasEditingText;
         }
 
         #endregion // Editing

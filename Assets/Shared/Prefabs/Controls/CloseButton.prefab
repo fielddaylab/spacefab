@@ -36,6 +36,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.data[1]
+      value: 
+      objectReference: {fileID: 679788699090296843}
     - target: {fileID: 2356737789482036004, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_Material
       value: 
@@ -265,6 +273,11 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!222 &679788699090296843 stripped
+CanvasRenderer:
+  m_CorrespondingSourceObject: {fileID: 9188771157150077660, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+  m_PrefabInstance: {fileID: 8568672883404124887}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1788123680315459217 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7942867145077683270, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
@@ -319,6 +332,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KeyCode: 27
   Modifiers: 0
+  Settings: 0
 --- !u!114 &3813813470218680950
 MonoBehaviour:
   m_ObjectHideFlags: 0

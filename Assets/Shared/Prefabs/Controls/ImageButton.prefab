@@ -252,10 +252,26 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 52
       objectReference: {fileID: 0}
+    - target: {fileID: 5417778828197023071, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
+      propertyPath: m_PrimaryGraphic
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6354743642293735106, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
       propertyPath: TextContent
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 7304119937644838252, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
+      propertyPath: DisabledTint.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7304119937644838252, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
+      propertyPath: DisabledTint.Array.data[1]
+      value: 
+      objectReference: {fileID: 6145058558639792549}
+    - target: {fileID: 7304119937644838252, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
+      propertyPath: DisabledTint.Array.data[3]
+      value: 
+      objectReference: {fileID: 8987228275043002349}
     - target: {fileID: 7858774295019505386, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
       propertyPath: m_Name
       value: ImageButton
@@ -300,5 +316,10 @@ MonoBehaviour:
 --- !u!224 &6241759787770380184 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8228771757793586310, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
+  m_PrefabInstance: {fileID: 2642864369311109918}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &8987228275043002349 stripped
+CanvasRenderer:
+  m_CorrespondingSourceObject: {fileID: 6346798224545395955, guid: 5e27677b55bf10d49a9179634bb6829d, type: 3}
   m_PrefabInstance: {fileID: 2642864369311109918}
   m_PrefabAsset: {fileID: 0}

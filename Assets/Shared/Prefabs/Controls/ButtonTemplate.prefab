@@ -278,6 +278,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Shift: {fileID: 349155167643278929}
+  DisabledTint:
+  - {fileID: 7551931346360085782}
+  - {fileID: 7633529724347825922}
+  - {fileID: 9188771157150077660}
   HoverYShift: 2
   DownYShift: -2
   DisabledYShift: -2

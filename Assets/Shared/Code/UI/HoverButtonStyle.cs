@@ -1,4 +1,5 @@
 using BeauRoutine;
+using BeauUtil;
 using FieldDay.UI;
 using FieldDay.UI.Animation;
 using FieldDay.UI.Widgets;
@@ -7,6 +8,7 @@ using UnityEngine;
 namespace SpaceFab.UI {
     public sealed class HoverButtonStyle : GuiButton.Style {
         public RectTransform Shift;
+        public CanvasRenderer[] DisabledTint;
         public float HoverYShift;
         public float DownYShift;
         public float DisabledYShift;
@@ -17,6 +19,7 @@ namespace SpaceFab.UI {
 
         public override void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags) {
             float y = 0;
+            Color tint = Color.white;
 
             switch(state) {
                 case GuiWidgetInteractableState.Down: {
@@ -28,6 +31,7 @@ namespace SpaceFab.UI {
                     break;
                 }
                 case GuiWidgetInteractableState.Disabled: {
+                    tint = ColorBank.DarkGray;
                     y = DisabledYShift;
                     break;
                 }
@@ -36,6 +40,10 @@ namespace SpaceFab.UI {
             Vector3 anchorPos = Shift.anchoredPosition3D;
             anchorPos.y = y;
             Shift.anchoredPosition = anchorPos;
+
+            foreach(var tintable in DisabledTint) {
+                tintable.SetColor(tint);
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ namespace SpaceFab
         }
 
         static private void OnLoadProcessStarted(SceneProcessCallbackArgs args) {
-            bool inGame = args.SceneIndex > 2;
+            bool inGame = args.SceneIndex > 3;
             if (s_IsInGame != inGame) {
                 s_IsInGame = inGame;
 

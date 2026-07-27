@@ -155,7 +155,7 @@ namespace FieldDay.Debugging {
                 DebugInput.ConsumeAllForFrame();
             }
 
-            if (DebugInput.IsPressed(InputModifierKeys.Shift, KeyCode.Return) && !Game.Input.IsEditingTextField()) {
+            if (DebugInput.IsPressed(InputModifierKeys.Shift, KeyCode.Return) && !Game.Input.WasEditingTextField()) {
                 DebugInput.ConsumeAllForFrame();
 
                 Camera cam = Game.Rendering.PrimaryCamera;
@@ -183,7 +183,7 @@ namespace FieldDay.Debugging {
         }
 
         private void CheckCameraControls() {
-            if (DebugFlags.IsAutomatedTestActive() || Game.Input.IsEditingTextField()) {
+            if (DebugFlags.IsAutomatedTestActive() || Game.Input.WasEditingTextField()) {
                 ClearFreecam();
                 return;
             }
@@ -358,7 +358,7 @@ namespace FieldDay.Debugging {
 
         private void UpdateMenu() {
 
-            bool canHaveMenuOpen = !GameLoop.IsLoading && !DebugFlags.IsAutomatedTestActive() && !Game.Input.IsEditingTextField();
+            bool canHaveMenuOpen = !GameLoop.IsLoading && !DebugFlags.IsAutomatedTestActive() && !Game.Input.WasEditingTextField();
 
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.W) && canHaveMenuOpen) {
                 SetMenuVisible(!m_MenuOpen);
