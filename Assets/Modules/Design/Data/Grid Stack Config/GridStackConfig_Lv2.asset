@@ -96,26 +96,6 @@ MonoBehaviour:
       Eraseable: 0
     TransferType: 1
     DefaultInputState: 0
-  - LayerIndex: 1
-    RowIndex: 4
-    ColumnIndex: 5
-    CellType: 0
-    SubtypeLabel: 0
-    Edges:
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 1
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    TransferType: 0
-    DefaultInputState: 0
   - LayerIndex: 0
     RowIndex: 4
     ColumnIndex: 5
@@ -132,9 +112,9 @@ MonoBehaviour:
       Eraseable: 0
     - EdgeState: 0
       Eraseable: 0
-    - EdgeState: 1
+    - EdgeState: 0
       Eraseable: 0
-    TransferType: 0
+    TransferType: 4
     DefaultInputState: 0
   - LayerIndex: 0
     RowIndex: 4

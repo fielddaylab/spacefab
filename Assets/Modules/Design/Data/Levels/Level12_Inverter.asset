@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
-  m_Name: Level6_DepletionGate
+  m_Name: Level12_Inverter
   m_EditorClassIdentifier: 
-  m_title: Depletion Gate
-  m_allowedTools: 116
-  m_gridConfig: {fileID: 11400000, guid: f1ce5d590fd6a4d27a2fdebaf0713371, type: 2}
-  m_testSuite: {fileID: 11400000, guid: 43c3d2d406d8244988c7ea2e06f740cd, type: 2}
+  m_title: Inverter
+  m_allowedTools: 125
+  m_gridConfig: {fileID: 11400000, guid: 1a4b09119900f496bab6519f9c6b210a, type: 2}
+  m_testSuite: {fileID: 11400000, guid: e82d3bb7167fb44419a5f57e8bef42f8, type: 2}

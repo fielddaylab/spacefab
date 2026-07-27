@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
-  m_Name: Level6_DepletionGate
+  m_Name: Level11_HeatResistantNMOS
   m_EditorClassIdentifier: 
-  m_title: Depletion Gate
-  m_allowedTools: 116
-  m_gridConfig: {fileID: 11400000, guid: f1ce5d590fd6a4d27a2fdebaf0713371, type: 2}
-  m_testSuite: {fileID: 11400000, guid: 43c3d2d406d8244988c7ea2e06f740cd, type: 2}
+  m_title: Heat Resistant NMOS
+  m_allowedTools: 125
+  m_gridConfig: {fileID: 11400000, guid: 1df4ad2a86c5f433b870ff561af2a055, type: 2}
+  m_testSuite: {fileID: 11400000, guid: 694696d2d81454766ac01f5fdb153c50, type: 2}
