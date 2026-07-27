@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
-  m_Name: Contract_Ch7_TrickyPuzzle_Stream
+  m_Script: {fileID: 11500000, guid: 0706af4c126b34f88b210125a2c875b9, type: 3}
+  m_Name: Fabrication_Ch3
   m_EditorClassIdentifier: 
-  m_Packages:
-  - {fileID: 11400000, guid: 6e271e94bde3848ce9eea5b9e76ddbe8, type: 2}
+  m_sequence: {fileID: 11400000, guid: 27fcaf7c2c8b34daea4736e6cfacb51e, type: 2}
+  m_GlitchChance: 0.1

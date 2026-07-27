@@ -84,10 +84,10 @@ namespace SpaceFab.Fabrication.Sequence
         public static IEnumerator PlayRecap(CompletionRecapState recapState, SequenceState sequenceState, int justCompletedIndex)
         {
             // 1. Guard against missing level data or a bad index.
-            if (sequenceState.Level == null || sequenceState.Level.Steps == null) {
+            if (sequenceState.Level == null || sequenceState.Level.Sequence.Steps == null) {
                 yield break;
             }
-            FabricationStep[] steps = sequenceState.Level.Steps;
+            FabricationStep[] steps = sequenceState.Level.Sequence.Steps;
             if (justCompletedIndex < 0 || justCompletedIndex >= steps.Length) {
                 yield break;
             }

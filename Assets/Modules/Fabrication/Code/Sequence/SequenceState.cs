@@ -79,7 +79,7 @@ namespace SpaceFab.Fabrication.Sequence
 
         // The level asset this sequence is running. Assigned by the level-load flow
         // (FabricationMinigameState.ImportState -> SequenceUtility.ResetSequence).
-        [HideInInspector] public FabricationSequenceLevel Level;
+        [HideInInspector] public FabricationLevel Level;
 
         // 0-based index into Level.Steps. Valid only when Status is Active. When Status is
         // Restoring, CurrentStepIndex has already been rolled back to the step after the checkpoint.

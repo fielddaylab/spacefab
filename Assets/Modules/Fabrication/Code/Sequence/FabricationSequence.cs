@@ -8,15 +8,6 @@ using UnityEngine;
 namespace SpaceFab.Fabrication.Sequence
 {
     /// <summary>
-    /// How glitched cards are authored for a level. Either/or: the level picks one mode.
-    /// </summary>
-    public enum GlitchMode
-    {
-        Explicit,   // GlitchedStepIndices is authoritative; exactly those steps are glitched.
-        Percentage  // Each step is glitched with probability GlitchChance, rolled at sequence reset.
-    }
-
-    /// <summary>
     /// A single step in a fabrication sequence. Carries a chunk (N / P / Metal; determines card
     /// background) and a step id (determines card foreground AND the target station via
     /// SequenceLookup). Plus the wafer postcondition and checkpoint flag.
@@ -48,24 +39,10 @@ namespace SpaceFab.Fabrication.Sequence
     /// SequenceLookup asset (not authored per-level). The checkpoint-rollback lead-in is game-wide
     /// and lives on SequenceUtility.
     /// </summary>
-    [CreateAssetMenu(menuName = "SpaceFab/Fabrication/Sequence Level")]
-    public class FabricationSequenceLevel : NamedAsset
+    [CreateAssetMenu(menuName = "SpaceFab/Fabrication/Sequence")]
+    public class FabricationSequence : NamedAsset
     {
         [SerializeField] private FabricationStep[] m_Steps;
         public FabricationStep[] Steps => m_Steps;
-
-        // Glitch authoring mode. Scaffold default is Explicit (an empty GlitchedStepIndices array
-        // means no steps are glitched).
-        [SerializeField] private GlitchMode m_GlitchMode = GlitchMode.Explicit;
-        public GlitchMode GlitchMode => m_GlitchMode;
-
-        // Used when GlitchMode == Explicit. Indices into Steps that should be glitched.
-        [SerializeField] private int[] m_GlitchedStepIndices;
-        public int[] GlitchedStepIndices => m_GlitchedStepIndices;
-
-        // Used when GlitchMode == Percentage. Each step is independently rolled against this
-        // probability at sequence reset. Range [0,1].
-        [SerializeField, Range(0f, 1f)] private float m_GlitchChance = 0f;
-        public float GlitchChance => m_GlitchChance;
     }
 }

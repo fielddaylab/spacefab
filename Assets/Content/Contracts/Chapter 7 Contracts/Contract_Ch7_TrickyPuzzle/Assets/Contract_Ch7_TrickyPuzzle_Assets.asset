@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Contract_Ch7_TrickyPuzzle_Assets
   m_EditorClassIdentifier: 
   Script: {fileID: 0}
-  DesignLevels: []
-  FabricationLevel: {fileID: 11400000, guid: 5b812138e7801474c8de8ae37b655ff9, type: 2}
+  DesignLevels:
+  - {fileID: 11400000, guid: 01e23ed3d40fe4232a8007d0b43b9a27, type: 2}
+  FabricationLevel: {fileID: 11400000, guid: 9d9bf1c1d3f5f47eeb3e6f512b8ba762, type: 2}
