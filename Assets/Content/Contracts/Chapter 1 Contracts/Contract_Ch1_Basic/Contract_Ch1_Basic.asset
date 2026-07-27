@@ -10,17 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 318cdd041ad469e4dae79dcc4f242e18, type: 3}
-  m_Name: Contract_Intro
+  m_Name: Contract_Ch1_Basic
   m_EditorClassIdentifier: 
   m_requiredMaterialProperties:
   - {fileID: 11400000, guid: 80908861703739945a1a052c2bbc110b, type: 2}
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
   m_omitFromSupplyRequirements:
   - {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
-  m_title: Frontier Pilot Contract
-  m_description: 'Frontier Robotics authorizes payment for this onboarding fabrication.
-    Materials: conductor and insulator only.'
-  m_client: '[Client Name]'
+  m_title: Connect Chip
+  m_description: This chip is... well, completely useless. But you gotta start somewhere!
+  m_client: PAL
   m_payout: 6
   m_expectedDuration: 4
   m_expectedProfit: 3

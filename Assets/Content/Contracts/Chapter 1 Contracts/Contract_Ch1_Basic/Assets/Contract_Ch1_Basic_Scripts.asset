@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2613736b2e35237448e4a0f57709855d, type: 3}
-  m_Name: Contract_Intro_Scripts
+  m_Name: Contract_Ch1_Basic_Scripts
   m_EditorClassIdentifier: 
   Bindings:
   - Scope: 2

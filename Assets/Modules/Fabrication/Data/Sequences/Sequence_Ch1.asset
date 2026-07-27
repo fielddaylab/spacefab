@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb0260a7392db7742baaf91a4a9be63b, type: 3}
-  m_Name: Sequence_Contract_Intro
+  m_Name: Sequence_Ch1
   m_EditorClassIdentifier: 
   m_Steps:
   - Chunk: 2

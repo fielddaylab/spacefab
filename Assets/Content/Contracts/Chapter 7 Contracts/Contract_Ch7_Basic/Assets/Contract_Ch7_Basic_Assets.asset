@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7de82cf62335d041bae34db3ff1041f, type: 3}
-  m_Name: ContractAssetsWrapper_Ch2_Basic
+  m_Name: Contract_Ch7_Basic_Assets
   m_EditorClassIdentifier: 
   Script: {fileID: 0}
   DesignLevels:
-  - {fileID: 11400000, guid: 2812dfe2319494182ba916e32d02231e, type: 2}
+  - {fileID: 11400000, guid: 57f0c900537934b9d9c617ab57812cfc, type: 2}
   FabricationLevel: {fileID: 11400000, guid: 5b812138e7801474c8de8ae37b655ff9, type: 2}

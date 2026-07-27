@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
   m_Name: Level15_CompactNAND
   m_EditorClassIdentifier: 
-  m_title: AND
-  m_allowedTools: 125
-  m_gridConfig: {fileID: 11400000, guid: 38ee69962e556433387ecf53db54dc00, type: 2}
-  m_testSuite: {fileID: 11400000, guid: 14b76ae1edcf54f4c9a6b9efda3a0d16, type: 2}
+  m_title: Compact NAND
+  m_allowedTools: -1
+  m_gridConfig: {fileID: 11400000, guid: 87b3877c4e8a2407b8e2a5a1570a8864, type: 2}
+  m_testSuite: {fileID: 11400000, guid: ec0169ef95edc47688bb58da60187ba4, type: 2}

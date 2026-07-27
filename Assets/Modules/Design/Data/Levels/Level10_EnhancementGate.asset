@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Level10_EnhancementGate
   m_EditorClassIdentifier: 
   m_title: Enhancement Gate (PMOS)
-  m_allowedTools: 125
+  m_allowedTools: -1
   m_gridConfig: {fileID: 11400000, guid: 50011c322eb334a6497ee31c2a6b69ee, type: 2}
   m_testSuite: {fileID: 11400000, guid: 7eab5d5fb465a4278a050037a22cf9f2, type: 2}
