@@ -220,6 +220,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7858774295019505386, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       insertIndex: -1
       addedObject: {fileID: 868517197406721417}
+    - targetCorrespondingSourceObject: {fileID: 7858774295019505386, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3813813470218680950}
     - targetCorrespondingSourceObject: {fileID: 7942867145077683270, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3722771882752122432}
@@ -316,3 +319,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KeyCode: 27
   Modifiers: 0
+--- !u!114 &3813813470218680950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010280006177584189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1

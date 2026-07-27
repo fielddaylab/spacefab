@@ -49,7 +49,7 @@ namespace SpaceFab.Comic
             public override void InitAnimation(ComicCameraState target, ref LiteAnimatorState state) {
                 StartPose = ComicCameraPose.Extract(target);
 
-                int cameraIndex = state.InitParamA.Int;
+                int cameraIndex = state.RegisterA.Int32();
                 EndPose = ComicCameraPose.Calculate(ComicsUtility.Manifest.Cameras[cameraIndex]);
             }
 
@@ -135,7 +135,7 @@ namespace SpaceFab.Comic
             LiteAnimatorState animParams = new LiteAnimatorState();
             animParams.ResetTime(duration);
             animParams.Easing = easing;
-            animParams.InitParamA.Int = cameraIndex;
+            animParams.RegisterA.Int32() = cameraIndex;
             camState.CameraTransition = Game.Animation.AddLiteAnimator(camState.MoveAnimator, camState, animParams, GameLoopPhase.Update);
             return camState.CameraTransition;
         }

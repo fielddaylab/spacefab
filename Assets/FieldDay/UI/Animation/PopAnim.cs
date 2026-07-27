@@ -20,13 +20,13 @@ namespace FieldDay.UI.Animation {
         static private void PrepareState(ref LiteAnimatorState state, Vector2 offsetAmt, float duration, float delay, Curve easing) {
             state.Duration = duration;
             state.TimeRemaining = duration + delay;
-            state.InitParamA.Float2 = offsetAmt;
+            state.RegisterA.Float2() = offsetAmt;
             state.Easing = easing;
         }
 
         public override void InitAnimation(LayoutOffset target, ref LiteAnimatorState state) {
             if (state.TimeRemaining <= state.Duration) {
-                target.Offset3 = state.InitParamA.Float2;
+                target.Offset3 = state.RegisterA.Float2();
             }
         }
 
@@ -38,7 +38,7 @@ namespace FieldDay.UI.Animation {
             state.TimeRemaining -= deltaTime;
             float percent = state.Easing.Evaluate(1 - Math.Max(0, state.TimeRemaining / state.Duration));
             if (percent >= 0) {
-                target.Offset3 = state.InitParamA.Float2 * (1f - percent);
+                target.Offset3 = state.RegisterA.Float2() * (1f - percent);
             }
             return state.TimeRemaining > 0;
         }

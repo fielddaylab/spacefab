@@ -208,6 +208,31 @@ namespace FieldDay {
             rect.anchoredPosition = offset;
         }
 
+        /// <summary>
+        /// Sets the offset from the anchor on the x-axis for the given RectTransform.
+        /// </summary>
+        static public void SetOffsetX(RectTransform rect, float offsetX) {
+            Vector2 anchorPos = rect.anchoredPosition;
+            anchorPos.x = offsetX;
+            rect.anchoredPosition = anchorPos;
+        }
+
+        /// <summary>
+        /// Sets the offset from the anchor on the y-axis for the given RectTransform.
+        /// </summary>
+        static public void SetOffsetY(RectTransform rect, float offsetY) {
+            Vector2 anchorPos = rect.anchoredPosition;
+            anchorPos.y = offsetY;
+            rect.anchoredPosition = anchorPos;
+        }
+
+        /// <summary>
+        /// Sets the offset from the anchor for the given RectTransform.
+        /// </summary>
+        static public void SetOffset(RectTransform rect, float offsetX, float offsetY) {
+            rect.anchoredPosition = new Vector2(offsetX, offsetY);
+        }
+
         #endregion // Anchors
 
         #region Pivot

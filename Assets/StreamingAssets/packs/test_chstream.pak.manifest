@@ -1,0 +1,30 @@
+ManifestFileVersion: 0
+CRC: 1927286600
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 151b95c3e880919241d75b34d1d94796
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: effda642116eddc7911ae9964f01a611
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 151b95c3e880919241d75b34d1d94796
+HashAppended: 0
+ClassTypes:
+- Class: 114
+  Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0e92568ecc7a7614c9937680232609b9, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: BeauUtil
+  ClassName: BeauUtil.StringHash32
+Assets:
+- Assets/Content/Chapters/Test_Chapter/Test_ChStream.asset
+Dependencies: []

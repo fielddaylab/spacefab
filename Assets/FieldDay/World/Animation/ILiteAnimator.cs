@@ -1,9 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using BeauRoutine;
 using BeauUtil;
-using UnityEngine;
+using FieldDay.Mathematics;
 
 namespace FieldDay.Animation {
     public interface ILiteAnimator {
@@ -42,10 +41,9 @@ namespace FieldDay.Animation {
         public float TimeRemaining;
         public float Duration;
         public Curve Easing;
-        public byte StateId;
-        public ushort Flags;
-        public LiteAnimatorStateParam InitParamA;
-        public LiteAnimatorStateParam InitParamB;
+        public Vector128 RegisterA;
+        public Vector128 RegisterX;
+        public Vector128 RegisterY;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetTime(float duration) {
@@ -77,36 +75,6 @@ namespace FieldDay.Animation {
         public bool IsStarted {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return TimeRemaining < Duration; }
-        }
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    public struct LiteAnimatorStateParam {
-        [FieldOffset(0)] public bool Bool;
-        [FieldOffset(0)] public BitSet128 Bits;
-
-        [FieldOffset(0)] public int Int;
-        [FieldOffset(0)] public unsafe fixed int PackedInts[4];
-        
-        [FieldOffset(0)] public float Float;
-        [FieldOffset(0)] public unsafe fixed int PackedFloats[4];
-
-        [FieldOffset(0)] public Vector2 Float2;
-        [FieldOffset(0)] public Vector3 Float3;
-        [FieldOffset(0)] public Vector4 Float4;
-        [FieldOffset(0)] public Quaternion Quaternion;
-        [FieldOffset(0)] public RuntimeObjectHandle Object;
-
-        [FieldOffset(0)] public Color ColorF;
-        [FieldOffset(0)] public Color32 Color;
-        [FieldOffset(0)] public unsafe fixed uint PackedColors[4];
-
-        [FieldOffset(0)] public unsafe fixed ulong PackedStruct[3];
-
-        public unsafe ref T Packed<T>() where T : unmanaged {
-            fixed(ulong* bytes = PackedStruct) {
-                return ref Unsafe.AsRef((T*)bytes);
-            }
         }
     }
 }

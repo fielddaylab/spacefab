@@ -303,11 +303,11 @@ namespace FieldDay.UI {
         /// Returns the shared panel object of the given type.
         /// This will assert if none is found.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ISharedGuiPanel GetShared(Type type) {
             int index = PanelIndex.Get(type);
             ISharedGuiPanel panel = m_SharedPanelMap[index];
             if (panel == null) {
+                Log.Warn("[GuiMgr] Performing expensive shared panel lookup for type '{0}'", type.FullName);
                 panel = (ISharedGuiPanel) GameObject.FindAnyObjectByType(type, FindObjectsInactive.Include);
                 if (panel != null) {
                     RegisterPanel(panel);
@@ -325,11 +325,11 @@ namespace FieldDay.UI {
         /// Returns the shared panel object for the given type.
         /// This will assert if none is found.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetShared<T>() where T : class, ISharedGuiPanel {
             int index = PanelIndex.Get<T>();
             ISharedGuiPanel panel = m_SharedPanelMap[index];
             if (panel == null) {
+                Log.Warn("[GuiMgr] Performing expensive shared panel lookup for type '{0}'", typeof(T).FullName);
                 panel = (ISharedGuiPanel) GameObject.FindAnyObjectByType(typeof(T), FindObjectsInactive.Include);
                 if (panel != null) {
                     RegisterPanel(panel);

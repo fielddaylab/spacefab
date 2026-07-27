@@ -71,7 +71,7 @@ namespace FieldDay.UI.Animation {
 
             LiteAnimatorState state = default;
             state.ResetTime(duration);
-            state.InitParamA.ColorF = target;
+            state.RegisterA.ColorF() = target;
             state.Easing = easing;
             return (FadeHandle = Game.Animation.AddLiteAnimator(FadeAnimator, this, state));
         }
@@ -90,8 +90,8 @@ namespace FieldDay.UI.Animation {
 
             LiteAnimatorState state = default;
             state.ResetTimeWithDelay(duration, delay);
-            state.InitParamA.ColorF = Graphic.color.WithAlpha(0);
-            state.InitParamB.Bool = m_Allocated && autoFree;
+            state.RegisterA.ColorF() = Graphic.color.WithAlpha(0);
+            state.RegisterX.Bool() = m_Allocated && autoFree;
             state.Easing = easing;
             return (FadeHandle = Game.Animation.AddLiteAnimator(FadeAnimator, this, state));
         }
@@ -104,8 +104,8 @@ namespace FieldDay.UI.Animation {
 
         private sealed class FadeToAnim : LiteAnimator<GuiFader> {
             public override unsafe void InitAnimation(GuiFader target, ref LiteAnimatorState state) {
-                Color targetColor = state.InitParamA.ColorF;
-                bool killOnFade = targetColor.a <= 0 && state.InitParamB.Bool;
+                Color targetColor = state.RegisterA.Color(0);
+                bool killOnFade = targetColor.a <= 0 && state.RegisterX.Bool();
 
                 Color currentColor = target.Graphic.color;
                 if (!target.Graphic.isActiveAndEnabled || target.Graphic.GetAlpha() == 0) {
@@ -117,9 +117,9 @@ namespace FieldDay.UI.Animation {
                     GuiCommands.SetActive(target.Graphic.gameObject, true);
                 }
 
-                state.InitParamA.ColorF = currentColor;
-                state.InitParamB.ColorF = targetColor;
-                state.StateId = killOnFade ? (byte) 1 : (byte)0;
+                state.RegisterA.Color(0) = currentColor;
+                state.RegisterA.Color(1) = targetColor;
+                state.RegisterX.Bool() = killOnFade;
             }
 
             public override void ResetAnimation(GuiFader target, ref LiteAnimatorState state) {
@@ -129,14 +129,14 @@ namespace FieldDay.UI.Animation {
                 state.TimeRemaining -= deltaTime;
                 float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
 
-                target.Graphic.color = Color.LerpUnclamped(state.InitParamA.ColorF, state.InitParamB.ColorF, state.Easing.Evaluate(percent));
+                target.Graphic.color = Color.LerpUnclamped(state.RegisterA.Color(0), state.RegisterA.Color(1), state.Easing.Evaluate(percent));
                 if (state.TimeRemaining > 0) {
                     return true;
                 }
 
-                if (state.InitParamB.ColorF.a <= 0) {
+                if (((Color) (state.RegisterA.Color(1))).a <= 0) {
                     GuiCommands.SetActive(target.Graphic.gameObject, false);
-                    if (state.StateId == 1 && target.m_Allocated) {
+                    if (state.RegisterX.Bool() && target.m_Allocated) {
                         GuiCommands.FreeToPool(target.SourcePool, target);
                     }
                 }

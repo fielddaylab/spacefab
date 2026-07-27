@@ -226,14 +226,18 @@ namespace FieldDay.Scenes {
         #region Exposed Events
 
         public readonly CastableEvent<SceneProcessCallbackArgs> OnLoadProcessStarted = new CastableEvent<SceneProcessCallbackArgs>();
+        
         public readonly CastableEvent<SceneCallbackArgs> OnPrepareScene = new CastableEvent<SceneCallbackArgs>();
         public readonly CastableEvent<SceneCallbackArgs> OnScenePreload = new CastableEvent<SceneCallbackArgs>();
         public readonly CastableEvent<SceneCallbackArgs> OnSceneReady = new CastableEvent<SceneCallbackArgs>();
+        public readonly CastableEvent<SceneCallbackArgs> OnSceneUnload = new CastableEvent<SceneCallbackArgs>();
+
+        public readonly ActionEvent OnMainSceneLoadQueued = new ActionEvent();
         public readonly ActionEvent OnMainSceneLateEnable = new ActionEvent();
         public readonly ActionEvent OnMainSceneReady = new ActionEvent();
         public readonly ActionEvent OnMainSceneUnloading = new ActionEvent();
         public readonly ActionEvent OnMainSceneUnloaded = new ActionEvent();
-        public readonly CastableEvent<SceneCallbackArgs> OnSceneUnload = new CastableEvent<SceneCallbackArgs>();
+        
         public readonly ActionEvent OnAnySceneUnloaded = new ActionEvent();
         public readonly ActionEvent OnAnySceneEnabled = new ActionEvent();
 
@@ -1083,6 +1087,7 @@ namespace FieldDay.Scenes {
             OnPrepareScene.Clear();
             OnScenePreload.Clear();
             OnSceneReady.Clear();
+            OnMainSceneLoadQueued.Clear();
             OnMainSceneLateEnable.Clear();
             OnMainSceneReady.Clear();
             OnMainSceneUnloading.Clear();
@@ -1170,6 +1175,8 @@ namespace FieldDay.Scenes {
             if (!isDefaultScene) {
                 DebugFlags.MarkNewSceneLoaded();
             }
+
+            OnMainSceneLoadQueued.Invoke();
         }
 
         private void QueueSceneLoadInternal(string path, StringHash32 tag, SceneType type, SceneImportFlags flags, Matrix4x4? transform, SceneLoadPriority priority) {
@@ -1734,15 +1741,17 @@ namespace FieldDay.Scenes {
                 if (args.Type == SceneType.Main) {
                     m_MainSceneTransition.Stop();
 
-                    Game.Events.Dispatch(SceneUtils.Events.PreUnload);
-                    OnMainSceneUnloading.Invoke();
+                    if (m_MainScene != null) {
+                        Game.Events.Dispatch(SceneUtils.Events.PreUnload);
+                        OnMainSceneUnloading.Invoke();
 
-                    if (m_MainTransitionUnload != null) {
-                        if (m_MainScene != null || m_AuxScenes.Count > 0) {
-                            Scene targetScene = SafeGetSceneByPath(args.Path);
-                            IEnumerator wait = m_MainTransitionUnload(targetScene, args.Tag, m_QueuedMainTransitionArgs);
-                            if (wait != null) {
-                                yield return wait;
+                        if (m_MainTransitionUnload != null) {
+                            if (m_MainScene != null || m_AuxScenes.Count > 0) {
+                                Scene targetScene = SafeGetSceneByPath(args.Path);
+                                IEnumerator wait = m_MainTransitionUnload(targetScene, args.Tag, m_QueuedMainTransitionArgs);
+                                if (wait != null) {
+                                    yield return wait;
+                                }
                             }
                         }
                     }

@@ -104,8 +104,8 @@ namespace FieldDay.UI.Animation {
                 }
 
                 target.CurrentState = true;
-                state.InitParamA.Float = target.Group.alpha;
-                state.ResetTime(target.ToOnTween.Time * (1 - state.InitParamA.Float));
+                state.RegisterA.Float() = target.Group.alpha;
+                state.ResetTime(target.ToOnTween.Time * (1 - state.RegisterA.Float()));
             }
 
             public override void ResetAnimation(FadeGroup target, ref LiteAnimatorState state) {
@@ -115,7 +115,7 @@ namespace FieldDay.UI.Animation {
                 state.TimeRemaining -= deltaTime;
                 float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
 
-                target.Group.alpha = Mathf.LerpUnclamped(state.InitParamA.Float, 1, percent);
+                target.Group.alpha = Mathf.LerpUnclamped(state.RegisterA.Float(), 1, percent);
                 if (state.TimeRemaining > 0) {
                     return true;
                 } else {
@@ -130,8 +130,8 @@ namespace FieldDay.UI.Animation {
         private sealed class FadeOutAnim : LiteAnimator<FadeGroup> {
             public override void InitAnimation(FadeGroup target, ref LiteAnimatorState state) {
                 target.CurrentState = false;
-                state.InitParamA.Float = target.Group.alpha;
-                state.ResetTime(target.ToOffTween.Time * (state.InitParamA.Float));
+                state.RegisterA.Float() = target.Group.alpha;
+                state.ResetTime(target.ToOffTween.Time * (state.RegisterA.Float()));
                 if (target.SyncBlocksRaycasts) {
                     target.Group.blocksRaycasts = false;
                 }
@@ -144,7 +144,7 @@ namespace FieldDay.UI.Animation {
                 state.TimeRemaining -= deltaTime;
                 float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
 
-                target.Group.alpha = Mathf.LerpUnclamped(state.InitParamA.Float, 0, percent);
+                target.Group.alpha = Mathf.LerpUnclamped(state.RegisterA.Float(), 0, percent);
                 if (state.TimeRemaining > 0) {
                     return true;
                 } else {

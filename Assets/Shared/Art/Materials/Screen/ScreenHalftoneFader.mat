@@ -11,8 +11,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: ec61bd8f746558c4690544f352632fea, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - INVERT_TRANSITION
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -33,7 +32,7 @@ Material:
     - _SrcBlend: 1
     - _Tiling: 37
     m_Colors:
-    - _Color: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 0.0010876032}
-    - _Plane0: {r: 18.27027, g: -0.4850969, b: 0.5098361, a: 0.8602715}
-    - _Plane1: {r: 18.27027, g: 26.890503, b: -0.5098361, a: -0.8602715}
+    - _Color: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 0.05560915}
+    - _Plane0: {r: 13.337838, g: 0.5771328, b: 0.3928467, a: 0.91960394}
+    - _Plane1: {r: 13.337838, g: 20.179623, b: -0.3928467, a: -0.91960394}
   m_BuildTextureStacks: []

@@ -18,14 +18,14 @@ namespace FieldDay.UI.Animation {
         static private void PrepareState(ref LiteAnimatorState state, Color color, float duration, float delay, Curve easing) {
             state.Duration = duration;
             state.TimeRemaining = duration + delay;
-            state.InitParamA.Color = color;
+            state.RegisterA.Color() = color;
             state.Easing = easing;
         }
 
         public override void InitAnimation(Graphic target, ref LiteAnimatorState state) {
             if (state.TimeRemaining <= state.Duration) {
                 target.enabled = true;
-                target.color = state.InitParamA.Color;
+                target.color = state.RegisterA.Color();
             }
         }
 
@@ -37,7 +37,7 @@ namespace FieldDay.UI.Animation {
             state.TimeRemaining -= deltaTime;
             float percent = state.Easing.Evaluate(1 - Math.Max(0, state.TimeRemaining / state.Duration));
             if (percent >= 0) {
-                Color newColor = state.InitParamA.Color;
+                Color newColor = state.RegisterA.Color();
                 newColor.a *= (1f - percent);
                 target.color = newColor;
                 target.enabled = newColor.a > 0;
