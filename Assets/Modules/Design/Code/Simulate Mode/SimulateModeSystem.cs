@@ -186,7 +186,7 @@ namespace SpaceFab.Design
                 }
             }
 
-            Debug.Log("${inputs} \n ${outputs}");
+            Debug.Log($"{inputs} \n {outputs}");
 
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, EvtArgs.Box((inputs, outputs, runState.CurrentRow)));
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
@@ -370,6 +370,7 @@ namespace SpaceFab.Design
             TestRowVerdict verdict = runState.IsUnstable
                 ? TestRowVerdict.Unstable
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
+            Debug.Log("<color=cyan>Set Verdict</color>");//TODO
             SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
             SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
             
