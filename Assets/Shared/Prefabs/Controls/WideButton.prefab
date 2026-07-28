@@ -32,6 +32,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.data[0]
+      value: 
+      objectReference: {fileID: 679788699090296843}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.data[1]
+      value: 
+      objectReference: {fileID: 2172937456003653569}
+    - target: {fileID: 1420737200516501435, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+      propertyPath: DisabledTint.Array.data[2]
+      value: 
+      objectReference: {fileID: 2235390984042057173}
     - target: {fileID: 2356737789482036004, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_Material
       value: 
@@ -170,7 +186,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6787585165383491076, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_fontSize
-      value: 20
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 6787585165383491076, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_fontAsset
@@ -194,7 +210,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6787585165383491076, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_fontSizeBase
-      value: 20
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 6787585165383491076, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
       propertyPath: m_sharedMaterial
@@ -265,6 +281,11 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!222 &679788699090296843 stripped
+CanvasRenderer:
+  m_CorrespondingSourceObject: {fileID: 9188771157150077660, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+  m_PrefabInstance: {fileID: 8568672883404124887}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1788123680315459217 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7942867145077683270, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
@@ -300,6 +321,16 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2172937456003653569 stripped
+CanvasRenderer:
+  m_CorrespondingSourceObject: {fileID: 7551931346360085782, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+  m_PrefabInstance: {fileID: 8568672883404124887}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &2235390984042057173 stripped
+CanvasRenderer:
+  m_CorrespondingSourceObject: {fileID: 7633529724347825922, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+  m_PrefabInstance: {fileID: 8568672883404124887}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2943192689760791763 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6787585165383491076, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}

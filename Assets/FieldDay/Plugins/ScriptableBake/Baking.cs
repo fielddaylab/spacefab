@@ -751,6 +751,31 @@ namespace ScriptableBake {
             return output;
         }
 
+        /// <summary>
+        /// Finds all assets that fulfill the given filter.
+        /// </summary>
+        static public UnityEngine.Object[] FindFilteredAssets(string filter, params string[] directories) {
+            return FindFilteredAssets(filter, AssetDirectorySearchMode.IncludeSubfolders, directories);
+        }
+
+        /// <summary>
+        /// Finds all assets the fulfill the given filter in the given directories.
+        /// </summary>
+        static public UnityEngine.Object[] FindFilteredAssets(string filter, AssetDirectorySearchMode searchMode, params string[] directories) {
+            HashSet<UnityEngine.Object> found = new HashSet<UnityEngine.Object>();
+            foreach (var path in AssetPaths(filter, searchMode, directories)) {
+                foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(path)) {
+                    if (obj) {
+                        found.Add(obj);
+                    }
+                }
+            }
+
+            UnityEngine.Object[] output = new UnityEngine.Object[found.Count];
+            found.CopyTo(output);
+            return output;
+        }
+
         #endregion // Assets
 
         #region Scenes

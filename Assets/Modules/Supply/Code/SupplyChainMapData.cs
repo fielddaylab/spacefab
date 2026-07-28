@@ -26,6 +26,7 @@ namespace SpaceFab.Supply
         // [AssetName(typeof(StreamedPack))] public StringHash32 AdditionalAssets;
 
         [AssetName(typeof(SupplyShipAsset))] public StringHash32[] ShipIds;
+        public Vector2 CameraBounds;
         public NodeData[] Positions;
         public NodeOverride[] Overrides;
     }

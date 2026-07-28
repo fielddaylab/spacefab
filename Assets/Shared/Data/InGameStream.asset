@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Packages:
   - {fileID: 11400000, guid: be0517bfe41a33441bbfa2ccbfe53159, type: 2}
-  - {fileID: 11400000, guid: ebbc849135a042b48806ae14cd8f8bd2, type: 2}
-  - {fileID: 11400000, guid: 46f0252d572bab34da906dc24d3b78b1, type: 2}
   - {fileID: 11400000, guid: 52d80346b54751b4c9a3f960500b0a93, type: 2}
   - {fileID: 11400000, guid: 538e73164294ef846a0c15a9422da501, type: 2}
   - {fileID: 11400000, guid: 252c3106e0175b043a476d226651f064, type: 2}
   - {fileID: 11400000, guid: 2803c3bb261e7df4a93c23cb3caef4ab, type: 2}
-  - {fileID: 11400000, guid: 13274513da8fd2840bd6175a4f9e50c8, type: 2}
+  - {fileID: 11400000, guid: 75d94e527eeee3b4b80a221d18b81638, type: 2}

@@ -10,6 +10,7 @@ using SpaceFab;
 using UnityEngine;
 using FieldDay.Music;
 using FieldDay.Scenes;
+using BeauUtil;
 
 namespace SpaceFab
 {
@@ -22,8 +23,7 @@ namespace SpaceFab
         static private bool s_IsInGame;
 
         [InvokePreBoot]
-        static private void OnPreBoot()
-        {
+        static private void OnPreBoot() {
             Events = new EventDispatcher<EvtArgs>();
             SetEventDispatcher(Events);
 
@@ -43,12 +43,22 @@ namespace SpaceFab
             MusicPlayer.ConfigureSceneUnloadBehavior(true, "PreserveMusic");
 
             Scenes.OnLoadProcessStarted.Register(OnLoadProcessStarted);
+            Scenes.OnMainSceneLoadQueued.Register(OnMainSceneLoadQueued);
+            Scenes.OnMainSceneUnloaded.Register(OnMainSceneUnloaded);
 
             UpdateMasks.RegisterDebugNames();
         }
 
+        static private void OnMainSceneLoadQueued() {
+            Game.Input.PauseAll();
+        }
+
+        static private void OnMainSceneUnloaded() {
+            Game.Input.ResumeAll();
+        }
+
         static private void OnLoadProcessStarted(SceneProcessCallbackArgs args) {
-            bool inGame = args.SceneIndex > 2;
+            bool inGame = args.SceneIndex > 3;
             if (s_IsInGame != inGame) {
                 s_IsInGame = inGame;
 
@@ -68,8 +78,8 @@ namespace SpaceFab
         }
 
         [InvokeOnBoot]
-        static private void OnBoot()
-        {
+        static private void OnBoot() {
+            Game.Scenes.LoadPersistentScene(SceneReference.FromName("PersistentUI"));
         }
     }
 }

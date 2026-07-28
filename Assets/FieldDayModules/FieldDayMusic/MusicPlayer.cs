@@ -111,6 +111,7 @@ namespace FieldDay.Music {
                     if (music.TrackQueue.Count == 0) {
                         Log.Msg("[MusicPlayer] Out of tracks - stopping playback");
                         music.PlaybackState = MusicPlaybackState.Stopped;
+                        music.PlaylistId = default;
                     }
                 } else {
                     music.TrackQueue.PushBack(track);

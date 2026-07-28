@@ -65,5 +65,12 @@ namespace OGD {
                 onError?.Invoke(error);
             }, null);
         }
+
+        /// <summary>
+        /// Returns if the given id is a valid.
+        /// </summary>
+        static public bool IsValidPotentialId(string id) {
+            return !string.IsNullOrEmpty(id) && id.Length > 1;
+        }
     }
 }

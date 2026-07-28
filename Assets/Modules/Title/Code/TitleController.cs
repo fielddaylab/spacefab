@@ -14,6 +14,9 @@ using FieldDay.Debugging;
 using SpaceFab.Comic;
 using FieldDay.Assets;
 using FieldDay.UI.Widgets;
+using SpaceFab.UI;
+using BeauUtil.Debugger;
+using FieldDay.UI;
 
 namespace SpaceFab.Title
 {
@@ -33,7 +36,6 @@ namespace SpaceFab.Title
         public TitleCanvasLayer OptionsPage;
 
         [Header("Targets")]
-        public SceneReference NewGameScene;
         [StreamedPackId] public StringHash32 NewGameComic;
         public SceneReference ContinueGameScene;
         public SceneReference CreditsScene;
@@ -91,6 +93,7 @@ namespace SpaceFab.Title
 
             PlayPage.CloseButton.OnClick.Register(OnPlayClickBack);
             OptionsPage.CloseButton.OnClick.Register(OnSettingsClickBack);
+            PlayCodeInput.onValueChanged.AddListener(OnTextUpdated);
         }
 
         protected override void OnSceneReady() {
@@ -106,6 +109,8 @@ namespace SpaceFab.Title
             PlayCodeInputGroup.blocksRaycasts = false;
             PlayCodeInput.readOnly = true;
             PlayCodeInput.SetTextWithoutNotify(string.Empty);
+            PlayButton.Interactable = false;
+            OGD.Player.NewId(OnCodeGenerated, OnCodeError);
 
             Game.Input.PauseAll();
             Routine.Start(this, ToPlay(PageId.NewGame, NewGameCameraPosition));
@@ -116,6 +121,7 @@ namespace SpaceFab.Title
             PlayCodeInputGroup.blocksRaycasts = true;
             PlayCodeInput.readOnly = false;
             PlayCodeInput.SetTextWithoutNotify(Find.State<UserSettingsState>().PlayerCode);
+            PlayButton.Interactable = OGD.Player.IsValidPotentialId(PlayCodeInput.text);
 
             Game.Input.PauseAll();
             Routine.Start(this, ToPlay(PageId.ContinueGame, ContinueGameCameraPosition));
@@ -132,7 +138,24 @@ namespace SpaceFab.Title
         }
 
         private void OnStartClick() {
-
+            PlayPage.Input.SetInputOverride(false);
+            if (CurrentPage == PageId.NewGame) {
+                SpacefabGame.SaveBuffer.Clear();
+                if (Game.IsDevBuild && DebugInput.IsDown(KeyCode.LeftShift)) {
+                    SaveUtility.SetDebugFlag(true);
+                    Log.Msg("[TitleController] Debug save starting");
+                    OnStartSuccess();
+                } else {
+                    SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
+                    SaveUtility.SetDebugFlag(false);
+                    OGD.Player.ClaimId(PlayCodeInput.text, null, OnStartSuccess, OnNewFailure);
+                }
+            } else {
+                SpacefabGame.Events.Dispatch(GameEvents.TitleContinueGameClicked);
+                SaveUtility.LoadFromServer(PlayCodeInput.text)
+                    .OnComplete(OnStartSuccess)
+                    .OnFail(OnContinueFailure);
+            }
         }
 
         private void OnPlayClickBack() {
@@ -143,6 +166,12 @@ namespace SpaceFab.Title
         private void OnSettingsClickBack() {
             Game.Input.PauseAll();
             Routine.Start(this, BackToMain());
+        }
+
+        private void OnTextUpdated(string text) {
+            if (CurrentPage == PageId.ContinueGame) {
+                PlayButton.Interactable = OGD.Player.IsValidPotentialId(text);
+            }
         }
 
         #endregion // Handlers
@@ -161,6 +190,7 @@ namespace SpaceFab.Title
                 case PageId.NewGame:
                 case PageId.ContinueGame: {
                     PlayPage.Hide();
+                    PlayButton.Interactable = false;
                     break;
                 }
                 case PageId.Settings: {
@@ -273,5 +303,45 @@ namespace SpaceFab.Title
         }
 
         #endregion // Logo
+
+        #region OGD
+
+        private void OnCodeGenerated(string id) {
+            PlayCodeInput.SetTextWithoutNotify(id);
+            PlayButton.Interactable = OGD.Player.IsValidPotentialId(id);
+        }
+
+        private void OnCodeError(OGD.Core.Error error) {
+            PlayPage.Input.ClearInputOverride();
+        }
+
+        private void OnStartSuccess() {
+            Game.SharedState.Get<UserSettingsState>().PlayerCode = PlayCodeInput.text;
+
+            // TODO: set this in OGD
+            //SpacefabGame.Events.Dispatch(GameEvents.TitleNewGameClicked);
+            SpacefabGame.Events.Dispatch(GameEvents.TitleProfileStarting, PlayCodeInput.text);
+
+            if (CurrentPage == PageId.NewGame) {
+                ComicScripting.LoadComic(NewGameComic);
+                Game.Scenes.GetQueuedLoadContext(out SceneRequestContext context);
+                context.Set("QueueSave", true);
+                Game.Scenes.QueueMainLoadContext(context);
+            } else {
+                Game.Scenes.LoadMainScene(ContinueGameScene);
+            }
+        }
+
+        private void OnNewFailure(OGD.Core.Error error) {
+            PlayPage.Input.ClearInputOverride();
+            PopupUtility.DisplayGenericPopup("Uh oh!", "We encountered an error!");
+        }
+
+        private void OnContinueFailure() {
+            PlayPage.Input.ClearInputOverride();
+            PopupUtility.DisplayGenericPopup("Uh oh!", "We encountered an error!");
+        }
+
+        #endregion // OGD
     }
 }

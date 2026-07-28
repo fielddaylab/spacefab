@@ -38,6 +38,8 @@ namespace FieldDay.UI.Widgets {
         public StringHash32 Id {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return m_Id; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set { m_Id = value; }
         }
 
         /// <summary>

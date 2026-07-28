@@ -10,6 +10,9 @@ namespace FieldDay.UI {
         bool IsInputEnabled();
         void UpdateInputEnabled(bool enabled);
 
+        bool TryPushPriority();
+        bool TryPopPriority();
+
         static public IInputLayer Find(GameObject go) {
             return go.GetComponentInParent<IInputLayer>();
         }
@@ -52,6 +55,17 @@ namespace FieldDay.UI {
             if (overrideEnabled.HasValue) {
                 flags |= (overrideEnabled.Value ? InputLayerFlags.ForceOn : InputLayerFlags.ForceOff);
             }
+            if (flags != mask.Flags) {
+                mask.Flags = flags;
+                layer.InputMask = mask;
+                Game.Gui.ForceUpdate(layer);
+            }
+        }
+
+        static public void ClearInputOverride(this IInputLayer layer) {
+            InputLayerMask mask = layer.InputMask;
+            InputLayerFlags flags = mask.Flags & ~(InputLayerFlags.ForceOff | InputLayerFlags.ForceOn);
+            
             if (flags != mask.Flags) {
                 mask.Flags = flags;
                 layer.InputMask = mask;
