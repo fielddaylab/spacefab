@@ -71,7 +71,7 @@ namespace FieldDay.UI.Animation {
 
             LiteAnimatorState state = default;
             state.ResetTime(duration);
-            state.RegisterA.ColorF() = target;
+            state.Registers.A.ColorF() = target;
             state.Easing = easing;
             return (FadeHandle = Game.Animation.AddLiteAnimator(FadeAnimator, this, state));
         }
@@ -90,8 +90,8 @@ namespace FieldDay.UI.Animation {
 
             LiteAnimatorState state = default;
             state.ResetTimeWithDelay(duration, delay);
-            state.RegisterA.ColorF() = Graphic.color.WithAlpha(0);
-            state.RegisterX.Bool() = m_Allocated && autoFree;
+            state.Registers.A.ColorF() = Graphic.color.WithAlpha(0);
+            state.Registers.X.Bool() = m_Allocated && autoFree;
             state.Easing = easing;
             return (FadeHandle = Game.Animation.AddLiteAnimator(FadeAnimator, this, state));
         }
@@ -104,8 +104,8 @@ namespace FieldDay.UI.Animation {
 
         private sealed class FadeToAnim : LiteAnimator<GuiFader> {
             public override unsafe void InitAnimation(GuiFader target, ref LiteAnimatorState state) {
-                Color targetColor = state.RegisterA.Color(0);
-                bool killOnFade = targetColor.a <= 0 && state.RegisterX.Bool();
+                Color targetColor = state.Registers.A.Color(0);
+                bool killOnFade = targetColor.a <= 0 && state.Registers.A.Bool();
 
                 Color currentColor = target.Graphic.color;
                 if (!target.Graphic.isActiveAndEnabled || target.Graphic.GetAlpha() == 0) {
@@ -117,30 +117,28 @@ namespace FieldDay.UI.Animation {
                     GuiCommands.SetActive(target.Graphic.gameObject, true);
                 }
 
-                state.RegisterA.Color(0) = currentColor;
-                state.RegisterA.Color(1) = targetColor;
-                state.RegisterX.Bool() = killOnFade;
+                state.Registers.A.Color(0) = currentColor;
+                state.Registers.A.Color(1) = targetColor;
+                state.Registers.A.Bool() = killOnFade;
             }
 
             public override void ResetAnimation(GuiFader target, ref LiteAnimatorState state) {
             }
 
-            public override unsafe bool UpdateAnimation(GuiFader target, ref LiteAnimatorState state, float deltaTime) {
-                state.TimeRemaining -= deltaTime;
-                float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
+            public override unsafe void UpdateAnimation(GuiFader target, ref LiteAnimatorState state, float deltaTime) {
+                state.CurrentTime -= deltaTime;
+                float percent = 1 - Math.Max(0, state.CurrentTime / state.Duration);
 
-                target.Graphic.color = Color.LerpUnclamped(state.RegisterA.Color(0), state.RegisterA.Color(1), state.Easing.Evaluate(percent));
-                if (state.TimeRemaining > 0) {
-                    return true;
-                }
+                target.Graphic.color = Color.LerpUnclamped(state.Registers.A.Color(0), state.Registers.A.Color(1), state.Easing.Evaluate(percent));
 
-                if (((Color) (state.RegisterA.Color(1))).a <= 0) {
-                    GuiCommands.SetActive(target.Graphic.gameObject, false);
-                    if (state.RegisterX.Bool() && target.m_Allocated) {
-                        GuiCommands.FreeToPool(target.SourcePool, target);
+                if (state.IsLastFrame()) {
+                    if (((Color)(state.Registers.A.Color(1))).a <= 0) {
+                        GuiCommands.SetActive(target.Graphic.gameObject, false);
+                        if (state.Registers.A.Bool() && target.m_Allocated) {
+                            GuiCommands.FreeToPool(target.SourcePool, target);
+                        }
                     }
                 }
-                return false;
             }
         }
 

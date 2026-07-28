@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 4141608005
+CRC: 686836984
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 05e3b6ec238358597d9b028dabcd758c
+    Hash: 673a21367d5deaa674d7ed323c1a3dae
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 54712448e6664e5256836d2699c5e010
+    Hash: 9f0e2e95c1da755ba9af63f1e2fe3c3f
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 05e3b6ec238358597d9b028dabcd758c
+    Hash: 673a21367d5deaa674d7ed323c1a3dae
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -18,8 +18,6 @@ ClassTypes:
   Script: {fileID: 11500000, guid: c3760780465900a41abc9d5b147727d6, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: f3fa937c2c803464d8f0eaff2033531d, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 5e65d41defac0b94a8f1a377f5f47cd9, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
 - Class: 114
@@ -31,11 +29,7 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: f43422ee47823964a955a9909c3ee88c, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 5f48a13cc088ac74e9e7da959e891823, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: a8b882d3389e734469471cc13be6aca6, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 8296a62884b8f834386f0acddb62b337, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 318cdd041ad469e4dae79dcc4f242e18, type: 3}
 - Class: 114
@@ -45,8 +39,6 @@ ClassTypes:
 - Class: 213
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers:
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.ChapterManifest/Entry
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Research.ResearchObservationChipAssets/ObservationSpritePair
 - AssemblyName: BeauUtil

@@ -1,5 +1,7 @@
 using System;
+using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
@@ -31,13 +33,16 @@ namespace SpaceFab.UI {
         public PopupRequestButton ButtonB;
         public StringHash32 CloseResponseId;
         public PopupRequestFlags Flags;
+        public PopupResponseDelegate Callback;
     }
 
     public struct PopupRequestButton {
         public StringHash32 ResponseId;
-        public string Label;
         public ColorPalette2 Tint;
+        public string Label;
     }
+
+    public delegate void PopupResponseDelegate(StringHash32 buttonId);
 
     [Flags]
     public enum PopupRequestFlags : ushort {
@@ -49,34 +54,45 @@ namespace SpaceFab.UI {
             contents.Header.SetTextAndActive(request.Header);
             contents.Text.SetTextAndActive(request.Text);
 
-            contents.CloseButton.gameObject.SetActive((request.Flags & PopupRequestFlags.DisplayClose) != 0);
-            contents.CloseButton.Id = request.CloseResponseId;
-
             bool hasButtonA = PopulateButton(contents.ButtonA, request.ButtonA);
             bool hasButtonB = PopulateButton(contents.ButtonB, request.ButtonB);
             bool hasBothButtons = hasButtonA & hasButtonB;
 
             contents.ButtonGroup.gameObject.SetActive(hasButtonA | hasButtonB);
 
-            if (hasBothButtons) {
-                Positioning.SetAnchorX(contents.ButtonA.Rect, -contents.DefaultButtonSpacing);
-                Positioning.SetAnchorX(contents.ButtonB.Rect, contents.DefaultButtonSpacing);
-            } else {
-                Positioning.SetAnchorX(contents.ButtonA.Rect, 0);
-                Positioning.SetAnchorX(contents.ButtonB.Rect, 0);
+            bool showClose = (request.Flags & PopupRequestFlags.DisplayClose) != 0 || !request.CloseResponseId.IsEmpty;
+            if (!showClose && !hasButtonA && !hasButtonB) {
+                showClose = true;
+                Log.Warn("[PopupUtility] Popup had no valid buttons or close button - forcing close on!");
             }
+
+            contents.CloseButton.gameObject.SetActive(showClose);
+            contents.CloseButton.Id = request.CloseResponseId;
+
+            Positioning.ResizeToPreferred(contents.Header);
+            Positioning.ResizeToPreferred(contents.Text);
+
+            if (hasBothButtons) {
+                Positioning.SetOffsetX(contents.ButtonA.Rect, -contents.DefaultButtonSpacing);
+                Positioning.SetOffsetX(contents.ButtonB.Rect, contents.DefaultButtonSpacing);
+            } else {
+                Positioning.SetOffsetX(contents.ButtonA.Rect, 0);
+                Positioning.SetOffsetX(contents.ButtonB.Rect, 0);
+            }
+
+            contents.LayoutGroup.VerticalLayout(contents.LayoutOptions);
         }
 
-        static public bool PopulateButton(GuiButton popupButton, in PopupRequestButton request) {
-            if (request.ResponseId.IsEmpty) {
+        static public bool PopulateButton(GuiButton popupButton, in PopupRequestButton buttonConfig) {
+            if (buttonConfig.ResponseId.IsEmpty && string.IsNullOrEmpty(buttonConfig.Label)) {
                 popupButton.gameObject.SetActive(false);
                 return false;
             }
 
             popupButton.gameObject.SetActive(true);
-            popupButton.TextGraphic.SetText(request.Label);
-            popupButton.ColorTinter.SetTint((ColorPalette2F) request.Tint);
-            popupButton.Id = request.ResponseId;
+            popupButton.TextGraphic.SetText(buttonConfig.Label);
+            popupButton.ColorTinter.SetTint((ColorPalette2F) buttonConfig.Tint);
+            popupButton.Id = buttonConfig.ResponseId;
             return true;
         }
     }

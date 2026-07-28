@@ -35,22 +35,19 @@ namespace FieldDay.Animation {
 
         public AnimHandle AddLiteAnimator(ILiteAnimator animator, float duration, GameLoopPhase phase = GameLoopPhase.Update) {
             return AddLiteAnimator(animator, new LiteAnimatorState() {
-                Duration = duration,
-                TimeRemaining = duration
+                Duration = duration
             }, phase);
         }
 
         public AnimHandle AddLiteAnimator(ILiteAnimator animator, object target, float duration, GameLoopPhase phase = GameLoopPhase.Update) {
             return AddLiteAnimator(animator, target, new LiteAnimatorState() {
-                Duration = duration,
-                TimeRemaining = duration
+                Duration = duration
             }, phase);
         }
 
         public AnimHandle AddLiteAnimator<T>(ILiteAnimator<T> animator, T target, float duration, GameLoopPhase phase = GameLoopPhase.Update) where T : class {
             return AddLiteAnimator(animator, target, new LiteAnimatorState() {
                 Duration = duration,
-                TimeRemaining = duration
             }, phase);
         }
 
@@ -258,13 +255,23 @@ namespace FieldDay.Animation {
             int count = liteAnimators.Count;
             while (count-- > 0) {
                 LiteAnimatorRecord animRecord = liteAnimators.PopFront();
+                animRecord.State.Advance(deltaTime);
+                bool isDone = false;
                 if (animRecord.TargetUnityHandle != 0 && !UnityHelper.IsAlive(animRecord.TargetUnityHandle)) {
                     Log.Warn("[AnimationMgr] Target unity object died before animation could complete");
-                    m_HandleIdGenerator.Free(animRecord.Handle);
-                } else if (animRecord.Animator.UpdateAnimation(animRecord.Target, ref animRecord.State, deltaTime)) {
-                    liteAnimators.PushBack(animRecord);
+                    isDone = true;
                 } else {
+                    animRecord.State.Advance(deltaTime);
+                    if (animRecord.State.IsRunning()) {
+                        animRecord.Animator.UpdateAnimation(animRecord.Target, ref animRecord.State, deltaTime);
+                    }
+                    isDone = animRecord.State.CurrentTime >= animRecord.State.Duration;
+                }
+
+                if (isDone) {
                     m_HandleIdGenerator.Free(animRecord.Handle);
+                } else {
+                    liteAnimators.PushBack(animRecord);
                 }
             }
         }

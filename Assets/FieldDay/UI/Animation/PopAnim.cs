@@ -19,14 +19,14 @@ namespace FieldDay.UI.Animation {
 
         static private void PrepareState(ref LiteAnimatorState state, Vector2 offsetAmt, float duration, float delay, Curve easing) {
             state.Duration = duration;
-            state.TimeRemaining = duration + delay;
-            state.RegisterA.Float2() = offsetAmt;
+            state.CurrentTime = duration + delay;
+            state.Registers.A.Float2() = offsetAmt;
             state.Easing = easing;
         }
 
         public override void InitAnimation(LayoutOffset target, ref LiteAnimatorState state) {
-            if (state.TimeRemaining <= state.Duration) {
-                target.Offset3 = state.RegisterA.Float2();
+            if (!state.IsDelayed()) {
+                target.Offset3 = state.Registers.A.Float2();
             }
         }
 
@@ -34,13 +34,9 @@ namespace FieldDay.UI.Animation {
             target.Offset3 = default;
         }
 
-        public override bool UpdateAnimation(LayoutOffset target, ref LiteAnimatorState state, float deltaTime) {
-            state.TimeRemaining -= deltaTime;
-            float percent = state.Easing.Evaluate(1 - Math.Max(0, state.TimeRemaining / state.Duration));
-            if (percent >= 0) {
-                target.Offset3 = state.RegisterA.Float2() * (1f - percent);
-            }
-            return state.TimeRemaining > 0;
+        public override void UpdateAnimation(LayoutOffset target, ref LiteAnimatorState state, float deltaTime) {
+            float percent = state.Easing.Evaluate(state.PercentProgress);
+            target.Offset3 = state.Registers.A.Float2() * (1f - percent);
         }
 
         static public readonly PopAnim Default = new PopAnim(new Vector2(0, -4), 8 / 60f, Curve.Linear);

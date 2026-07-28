@@ -73,19 +73,15 @@ namespace FieldDay.UI.Animation {
             public override void ResetAnimation(LoadingIcon target, ref LiteAnimatorState state) {
             }
 
-            public override bool UpdateAnimation(LoadingIcon target, ref LiteAnimatorState state, float deltaTime) {
-                state.TimeRemaining -= deltaTime;
-                float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
+            public override void UpdateAnimation(LoadingIcon target, ref LiteAnimatorState state, float deltaTime) {
+                float percent = state.PercentProgress;
 
-                bool bWasZero = target.m_FadeGroup.alpha <= 0;
                 target.m_FadeGroup.alpha = percent;
 
-                if (bWasZero && percent > 0) {
+                if (state.IsFirstFrame()) {
                     target.m_CanvasLayer.enabled = true;
                     target.BeginAnimation.Invoke(target);
                 }
-
-                return state.TimeRemaining > 0;
             }
         }
 
@@ -96,18 +92,16 @@ namespace FieldDay.UI.Animation {
             public override void ResetAnimation(LoadingIcon target, ref LiteAnimatorState state) {
             }
 
-            public override bool UpdateAnimation(LoadingIcon target, ref LiteAnimatorState state, float deltaTime) {
-                state.TimeRemaining -= deltaTime;
-                float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
+            public override void UpdateAnimation(LoadingIcon target, ref LiteAnimatorState state, float deltaTime) {
+                state.CurrentTime -= deltaTime;
+                float percent = state.PercentProgress;
 
                 target.m_FadeGroup.alpha = 1 - percent;
 
-                if (percent >= 1) {
+                if (state.IsLastFrame()) {
                     target.m_CanvasLayer.enabled = false;
                     target.EndAnimation.Invoke(target);
                 }
-
-                return state.TimeRemaining > 0;
             }
         }
 

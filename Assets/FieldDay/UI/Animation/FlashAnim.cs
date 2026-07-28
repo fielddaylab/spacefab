@@ -17,15 +17,15 @@ namespace FieldDay.UI.Animation {
 
         static private void PrepareState(ref LiteAnimatorState state, Color color, float duration, float delay, Curve easing) {
             state.Duration = duration;
-            state.TimeRemaining = duration + delay;
-            state.RegisterA.Color() = color;
+            state.CurrentTime = duration + delay;
+            state.Registers.A.Color() = color;
             state.Easing = easing;
         }
 
         public override void InitAnimation(Graphic target, ref LiteAnimatorState state) {
-            if (state.TimeRemaining <= state.Duration) {
+            if (!state.IsDelayed()) {
                 target.enabled = true;
-                target.color = state.RegisterA.Color();
+                target.color = state.Registers.A.Color();
             }
         }
 
@@ -33,16 +33,12 @@ namespace FieldDay.UI.Animation {
             target.enabled = false;
         }
 
-        public override bool UpdateAnimation(Graphic target, ref LiteAnimatorState state, float deltaTime) {
-            state.TimeRemaining -= deltaTime;
-            float percent = state.Easing.Evaluate(1 - Math.Max(0, state.TimeRemaining / state.Duration));
-            if (percent >= 0) {
-                Color newColor = state.RegisterA.Color();
-                newColor.a *= (1f - percent);
-                target.color = newColor;
-                target.enabled = newColor.a > 0;
-            }
-            return state.TimeRemaining > 0;
+        public override void UpdateAnimation(Graphic target, ref LiteAnimatorState state, float deltaTime) {
+            float percent = state.Easing.Evaluate(state.PercentProgress);
+            Color newColor = state.Registers.A.Color();
+            newColor.a *= (1f - percent);
+            target.color = newColor;
+            target.enabled = newColor.a > 0;
         }
 
         static public readonly FlashAnim Default = new FlashAnim(12 / 60f, Curve.Linear);

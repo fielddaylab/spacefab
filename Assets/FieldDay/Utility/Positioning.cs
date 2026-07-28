@@ -5,6 +5,7 @@ using FieldDay.Collections;
 using ScriptableBake;
 using System;
 using System.Runtime.CompilerServices;
+using TMPro;
 using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
@@ -653,6 +654,76 @@ namespace FieldDay {
         }
 
         #endregion // Axis Layout
+
+        #region Preferred
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
+        /// </summary>
+        static public void ResizeToPreferred(RectTransform rect, ILayoutElement layoutElement) {
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, layoutElement.preferredWidth);
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, layoutElement.preferredHeight);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred width.
+        /// </summary>
+        static public void ResizeToPreferredWidth(RectTransform rect, ILayoutElement layoutElement) {
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, layoutElement.preferredWidth);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred height.
+        /// </summary>
+        static public void ResizeToPreferredHeight(RectTransform rect, ILayoutElement layoutElement) {
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, layoutElement.preferredHeight);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
+        /// </summary>
+        static public void ResizeToPreferred<TGraphic>(TGraphic graphic) where TGraphic : Graphic, ILayoutElement {
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, graphic.preferredWidth);
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, graphic.preferredHeight);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred width.
+        /// </summary>
+        static public void ResizeToPreferredWidth<TGraphic>(TGraphic graphic) where TGraphic : Graphic, ILayoutElement {
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, graphic.preferredWidth);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred height.
+        /// </summary>
+        static public void ResizeToPreferredHeight<TGraphic>(TGraphic graphic) where TGraphic : Graphic, ILayoutElement {
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, graphic.preferredHeight);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
+        /// </summary>
+        static public void ResizeToPreferred(TMP_Text graphic) {
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, graphic.preferredWidth);
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, graphic.preferredHeight);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred width.
+        /// </summary>
+        static public void ResizeToPreferredWidth(TMP_Text graphic) {
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, graphic.preferredWidth);
+        }
+
+        /// <summary>
+        /// Resizes the RectTransform to the given ILayoutElement's preferred height.
+        /// </summary>
+        static public void ResizeToPreferredHeight(TMP_Text graphic) {
+            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, graphic.preferredHeight);
+        }
+
+        #endregion // Preferred
 
         #region Property Retrieval
 

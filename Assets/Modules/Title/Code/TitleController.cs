@@ -334,10 +334,12 @@ namespace SpaceFab.Title
 
         private void OnNewFailure(OGD.Core.Error error) {
             PlayPage.Input.ClearInputOverride();
+            PopupUtility.DisplayGenericPopup("Uh oh!", "We encountered an error!");
         }
 
         private void OnContinueFailure() {
             PlayPage.Input.ClearInputOverride();
+            PopupUtility.DisplayGenericPopup("Uh oh!", "We encountered an error!");
         }
 
         #endregion // OGD

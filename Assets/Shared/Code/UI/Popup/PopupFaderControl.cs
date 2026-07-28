@@ -29,20 +29,16 @@ namespace SpaceFab.UI {
             static public readonly FadeAnim Instance = new FadeAnim();
 
             public override void InitAnimation(PopupFaderControl target, ref LiteAnimatorState state) {
-                state.RegisterX.Float() = target.CurrentAlpha;
+                state.Registers.X.Float() = target.CurrentAlpha;
             }
 
             public override void ResetAnimation(PopupFaderControl target, ref LiteAnimatorState state) {
             }
 
-            public override bool UpdateAnimation(PopupFaderControl target, ref LiteAnimatorState state, float deltaTime) {
-                state.TimeRemaining -= deltaTime;
-                
-                target.CurrentAlpha = Mathf.LerpUnclamped(state.RegisterX.Float(), state.RegisterA.Float(), state.PercentProgress);
+            public override void UpdateAnimation(PopupFaderControl target, ref LiteAnimatorState state, float deltaTime) {
+                target.CurrentAlpha = Mathf.LerpUnclamped(state.Registers.X.Float(), state.Registers.A.Float(), state.PercentProgress);
                 target.Canvas.enabled = target.CurrentAlpha > 0;
                 target.Fade.alpha = target.CurrentAlpha;
-
-                return state.TimeRemaining > 0;
             }
         }
     }
@@ -56,7 +52,7 @@ namespace SpaceFab.UI {
 
                 LiteAnimatorState animState = default;
                 animState.ResetTime((1 - fader.CurrentAlpha) * fader.TransitionDuration);
-                animState.RegisterA.Float() = 1;
+                animState.Registers.A.Float() = 1;
                 fader.CurrentAnim = Game.Animation.AddLiteAnimator(PopupFaderControl.FadeAnim.Instance, fader, animState);
             }
         }
@@ -69,7 +65,7 @@ namespace SpaceFab.UI {
 
                 LiteAnimatorState animState = default;
                 animState.ResetTime(fader.CurrentAlpha * fader.TransitionDuration);
-                animState.RegisterA.Float() = 0;
+                animState.Registers.A.Float() = 0;
                 fader.CurrentAnim = Game.Animation.AddLiteAnimator(PopupFaderControl.FadeAnim.Instance, fader, animState);
             }
         }
