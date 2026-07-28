@@ -187,13 +187,13 @@ namespace SpaceFab.Logging
                         m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.METAL);
                     }
                     break;
-                case "PNodes":
+                case "PTransistor":
                     if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.PTYPE))
                     {
                         m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.PTYPE);
                     }
                     break;
-                case "NNodes":
+                case "NTransistor":
                     if (!m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Contains(ToolID.NTYPE))
                     {
                         m_DesignGrid.Value.Grid[gridPos.x][gridPos.y].Add(ToolID.NTYPE);
@@ -681,9 +681,11 @@ namespace SpaceFab.Logging
                     break;
                 case "PNodes":
                     toolId = ToolID.PTYPE;
+                    tool = "PTransistor";
                     break;
                 case "NNodes":
                     toolId = ToolID.NTYPE;
+                    tool = "NTransistor";
                     break;
                 case "Via":
                     toolId = ToolID.CONTACT;

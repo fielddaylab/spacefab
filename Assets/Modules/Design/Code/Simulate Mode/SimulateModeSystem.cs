@@ -370,7 +370,6 @@ namespace SpaceFab.Design
             TestRowVerdict verdict = runState.IsUnstable
                 ? TestRowVerdict.Unstable
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
-            Debug.Log("<color=cyan>Set Verdict</color>");//TODO
             SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
             SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
             

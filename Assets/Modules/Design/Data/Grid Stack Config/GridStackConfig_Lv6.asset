@@ -16,7 +16,7 @@ MonoBehaviour:
     X: 8
     Y: 6
   Cells:
-  - LayerIndex: 1
+  - LayerIndex: 0
     RowIndex: 4
     ColumnIndex: 1
     CellType: 1
@@ -24,31 +24,11 @@ MonoBehaviour:
     Edges: []
     TransferType: 0
     DefaultInputState: 0
-  - LayerIndex: 1
-    RowIndex: 2
-    ColumnIndex: 1
-    CellType: 1
-    SubtypeLabel: 16
-    Edges:
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 1
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    TransferType: 4
-    DefaultInputState: 0
   - LayerIndex: 0
     RowIndex: 2
     ColumnIndex: 1
-    CellType: 2
-    SubtypeLabel: 0
+    CellType: 1
+    SubtypeLabel: 2
     Edges:
     - EdgeState: 0
       Eraseable: 0
@@ -63,7 +43,7 @@ MonoBehaviour:
     - EdgeState: 1
       Eraseable: 0
     TransferType: 4
-    DefaultInputState: 0
+    DefaultInputState: 1
   - LayerIndex: 0
     RowIndex: 2
     ColumnIndex: 2
@@ -122,7 +102,7 @@ MonoBehaviour:
       Eraseable: 0
     - EdgeState: 0
       Eraseable: 0
-    TransferType: 1
+    TransferType: 0
     DefaultInputState: 0
   - LayerIndex: 1
     RowIndex: 2
@@ -182,29 +162,9 @@ MonoBehaviour:
       Eraseable: 0
     - EdgeState: 1
       Eraseable: 0
-    TransferType: 4
+    TransferType: 1
     DefaultInputState: 0
   - LayerIndex: 0
-    RowIndex: 2
-    ColumnIndex: 6
-    CellType: 2
-    SubtypeLabel: 0
-    Edges:
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 1
-      Eraseable: 0
-    - EdgeState: 1
-      Eraseable: 0
-    TransferType: 4
-    DefaultInputState: 0
-  - LayerIndex: 1
     RowIndex: 2
     ColumnIndex: 6
     CellType: 5
@@ -214,11 +174,11 @@ MonoBehaviour:
       Eraseable: 0
     - EdgeState: 0
       Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
+    - EdgeState: 0
+      Eraseable: 0
     - EdgeState: 1
-      Eraseable: 0
-    - EdgeState: 0
-      Eraseable: 0
-    - EdgeState: 0
       Eraseable: 0
     - EdgeState: 0
       Eraseable: 0

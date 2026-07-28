@@ -16,7 +16,7 @@ MonoBehaviour:
     X: 8
     Y: 6
   Cells:
-  - LayerIndex: 1
+  - LayerIndex: 0
     RowIndex: 3
     ColumnIndex: 1
     CellType: 1
@@ -24,15 +24,15 @@ MonoBehaviour:
     Edges: []
     TransferType: 0
     DefaultInputState: 0
-  - LayerIndex: 1
+  - LayerIndex: 0
     RowIndex: 5
     ColumnIndex: 3
     CellType: 1
-    SubtypeLabel: 16
+    SubtypeLabel: 2
     Edges: []
     TransferType: 0
     DefaultInputState: 1
-  - LayerIndex: 1
+  - LayerIndex: 0
     RowIndex: 3
     ColumnIndex: 6
     CellType: 5

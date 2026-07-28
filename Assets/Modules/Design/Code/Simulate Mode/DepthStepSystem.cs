@@ -1,7 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
-using UnityEngine;
 
 namespace SpaceFab.Design
 {
@@ -122,8 +121,6 @@ namespace SpaceFab.Design
                 flowState = runScratch.NodeFlow[edge.OriginIndex];
             }
 
-            Debug.Log($"<color=cyan>{originCell.CellType} cell flow: </color> {flowState}");//TODO
-
             bool flowThrough = true;
             bool stable = flowState != FlowState.Unstable;
 
@@ -191,10 +188,8 @@ namespace SpaceFab.Design
                 && runScratch.NodeFlow[edge.OriginIndex] != FlowState.Empty)
             {
                 stable = runScratch.NodeFlow[edge.OriginIndex] == runScratch.NodeFlow[edge.OtherIndex];
-                Debug.Log($"<color=cyan>Stability check 1: </color> {stable}");//TODO
             }
             if (edge.CycleDetected) { stable = false; }
-            Debug.Log($"<color=cyan>Stability check 2: </color> {stable}");//TODO
 
             // --- Step 5: apply flow + path paint --------------------------------------------
             if (!flowThrough) { return; }
