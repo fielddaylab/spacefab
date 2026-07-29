@@ -1,3 +1,4 @@
+using BeauPools;
 using BeauUtil;
 using FieldDay.Rendering;
 using System;
@@ -55,7 +56,7 @@ namespace FieldDay.UI {
             if (renderMode != RenderMode.ScreenSpaceCamera || !renderCam) {
                 planeDistance = 0;
             } else {
-                planeDistance = (uint)(Math.Clamp(modeCanvas.planeDistance / renderCam.farClipPlane, 0, 1) * PlaneDistanceMask);
+                planeDistance = (uint)((1f - Math.Clamp(modeCanvas.planeDistance / renderCam.farClipPlane, 0, 1)) * PlaneDistanceMask);
             }
 
             return new CanvasSortKey(BitwiseKey(cameraOrder, renderType, planeDistance, sortingLayer, sortingOrder));
@@ -95,6 +96,25 @@ namespace FieldDay.UI {
             }
 
             return 0;
+        }
+
+        public override string ToString() {
+            uint cameraOrder, renderType, planeDistance, sortingLayer, sortingOrder;
+
+            cameraOrder = (uint) (RawValue >> CameraOrderOffset) & CameraOrderMask;
+            renderType = (uint)(RawValue >> RenderTypeOffset) & RenderTypeMask;
+            planeDistance = (uint)(RawValue >> PlaneDistanceOffset) & PlaneDistanceMask;
+            sortingLayer = (uint)(RawValue >> SortingLayerOffset) & SortingLayerMask;
+            sortingOrder = (uint)(RawValue >> SortingOrderOffset) & SortingOrderMask;
+
+            using (PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                psb.Builder.AppendNoAlloc(cameraOrder, 3)
+                    .Append(' ').AppendNoAlloc(renderType, 1)
+                    .Append(' ').AppendNoAlloc(planeDistance, 4)
+                    .Append(' ').AppendNoAlloc(sortingLayer, 3)
+                    .Append(' ').AppendNoAlloc(sortingOrder, 5);
+                return psb.Builder.ToString();
+            }
         }
     }
 }

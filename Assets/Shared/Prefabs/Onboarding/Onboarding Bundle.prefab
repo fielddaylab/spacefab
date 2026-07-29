@@ -138,7 +138,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4894371107984069439}
   - component: {fileID: 1484307971181311267}
-  - component: {fileID: 2977397021107404976}
   m_Layer: 0
   m_Name: Onboarding States
   m_TagString: Untagged
@@ -184,18 +183,6 @@ MonoBehaviour:
     m_DefaultSpawnRoot: {fileID: 0}
     m_ResetTransformOnAlloc: 1
   DefaultMargin: 25
---- !u!114 &2977397021107404976
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7975852959444168034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c58de17014c2d6429c8b7d72fed4489, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1318761542243666702
 PrefabInstance:
   m_ObjectHideFlags: 0

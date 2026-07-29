@@ -17,8 +17,7 @@ namespace SpaceFab
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             Find.State(
                 out MinigameStateInterfacer interfacer,
-                out MinigameSaveStates saveStates,
-                out ReturnMenuState returnState
+                out MinigameSaveStates saveStates
                 );
             Find.State(out SaveLoadState saveOpState);
 
@@ -33,8 +32,7 @@ namespace SpaceFab
         public IEnumerator<WorkSlicer.Result?> Preload() {
             Find.State(
                 out MinigameStateInterfacer interfacer,
-                out MinigameSaveStates saveStates,
-                out ReturnMenuState returnState
+                out MinigameSaveStates saveStates
                 );
             Find.State(out SaveLoadState saveOpState);
 
@@ -63,7 +61,7 @@ namespace SpaceFab
             Find.State(
                 out MinigameStateInterfacer interfacer,
                 out MinigameSaveStates saveStates,
-                out ReturnMenuState returnState
+                out GlobalUISceneConfig globalSceneConfig
                 );
             Find.State(out SaveLoadState saveOpState);
 
@@ -105,7 +103,7 @@ namespace SpaceFab
                 Game.Scenes.QueueMainLoadContext(loadContext);
             } else {
                 Game.Events.Dispatch(GameEvents.OnMinigameExit);
-                Game.Scenes.LoadMainScene(returnState.ReturnScene);
+                Game.Scenes.LoadMainScene(globalSceneConfig.ReturnScene);
             }
         }
     }

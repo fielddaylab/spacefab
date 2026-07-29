@@ -723,6 +723,8 @@ namespace FieldDay.UI {
             Assert.False(m_InputLayers.Contains(inputLayer), "Already registered");
             m_InputLayers.PushBack(inputLayer);
             ForceUpdate(inputLayer);
+
+            Log.Msg("[GuiMgr] Registered input layer '{0}' with priority {1}", AssetUtility.NameOf(inputLayer), inputLayer.InputMask.SortKey);
         }
 
         public void DeregisterInputLayer(IInputLayer inputLayer) {
@@ -730,6 +732,8 @@ namespace FieldDay.UI {
             Assert.True(m_InputLayers.Contains(inputLayer), "Already deregistered");
             m_InputLayers.FastRemove(inputLayer);
             inputLayer.UpdateInputEnabled(false);
+
+            Log.Msg("[GuiMgr] Deregistered input layer '{0}' with priority {1}", AssetUtility.NameOf(inputLayer), inputLayer.InputMask.SortKey);
         }
 
         private void UpdateInputLayers() {
@@ -782,6 +786,8 @@ namespace FieldDay.UI {
                 ContextId = UnityHelper.Id(layer as UnityEngine.Object)
             });
 
+            Log.Msg("[GuiMgr] Pushed input layer '{0}' to stack with priority {1}", AssetUtility.NameOf(layer), sortKey);
+
             if (sortKey.RawValue > m_CurrentInputPriority.RawValue) {
                 m_CurrentInputPriority = sortKey;
                 m_InputLayersDirty = true;
@@ -810,6 +816,8 @@ namespace FieldDay.UI {
             if (!found) {
                 return;
             }
+
+            Log.Msg("[GuiMgr] Popped input layer '{0}' from stack with priority {1}", AssetUtility.NameOf(layer), sortKey);
 
             CanvasSortKey largestSortKey = default;
             for (int i = m_InputPriorityStack.Count; i-- > 0;) {

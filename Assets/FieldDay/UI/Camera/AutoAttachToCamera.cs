@@ -11,6 +11,7 @@ namespace FieldDay.UI {
     /// </summary>
     [RequireComponent(typeof(Canvas)), ExecuteAlways]
     [AddComponentMenu("Field Day/Canvas/Auto Attach To Camera")]
+    [DefaultExecutionOrder(-200)]
     public class AutoAttachToCamera : MonoBehaviour {
         private void OnEnable() {
 #if UNITY_EDITOR

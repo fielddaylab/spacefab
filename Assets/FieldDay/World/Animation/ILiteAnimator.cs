@@ -87,7 +87,7 @@ namespace FieldDay.Animation {
             float prevTime = CurrentTime;
             CurrentTime += Math.Max(0, deltaTime);
             bool isFirstFrame = prevTime <= 0 && CurrentTime > 0;
-            bool isLastFrame = prevTime < Duration && CurrentTime >= Duration;
+            bool isLastFrame = CurrentTime >= Duration;
             Events = (isFirstFrame ? LiteAnimatorStateEvents.FirstFrame : 0)
                 | (isLastFrame ? LiteAnimatorStateEvents.LastFrame : 0);
         }

@@ -8,6 +8,8 @@ using FieldDay.UI;
 using FieldDay.Audio;
 using FieldDay.UI.Widgets;
 using SpaceFab.UI;
+using FieldDay.Animation;
+using UnityEngine.UI;
 
 namespace SpaceFab
 {
@@ -15,12 +17,15 @@ namespace SpaceFab
     {
         #region Inspector
 
+        public Canvas Canvas;
         public BaseRaycasterInputLayer InputLayer;
         
         [Header("Buttons")]
         public GuiButton CloseButton;
 
         [Header("Display")]
+        public LayoutOffset Offset;
+        public CanvasGroup Fader;
         public SettingsMenu SettingsMenu;
         public TMP_Text PlayerCodeDisplay;
 
@@ -28,17 +33,69 @@ namespace SpaceFab
 
         [NonSerialized] public int StashedUpdateMask;
         [NonSerialized] public bool GamePaused;
-        [NonSerialized] public Routine FadeRoutine;
+        [NonSerialized] public AnimHandle FadeRoutine;
 
         public void OnRegister()
         {
             PlayerCodeDisplay.SetTextAndActive(PlayerPrefs.GetString("LatestPlayerCode", null));
             CloseButton.OnClick.Register(() => PauseUtility.SetPaused(this, false));
+
+            Canvas.enabled = false;
+            InputLayer.SetInputOverride(false);
         }
 
         public void OnDeregister()
         {
-            FadeRoutine.Stop();
+            Game.Animation.CancelAnimation(ref FadeRoutine);
+        }
+
+        public sealed class OpenAnim : LiteAnimator<PauseModule> {
+            public override void InitAnimation(PauseModule target, ref LiteAnimatorState state) {
+                if (!target.Canvas.enabled) {
+                    target.Canvas.enabled = true;
+                    target.Fader.alpha = 0;
+                }
+
+                float alpha = target.Fader.alpha;
+                state.Registers.A.Float() = alpha;
+                state.ScaleTime(1 - alpha);
+
+                target.InputLayer.SetInputOverride(false);
+            }
+
+            public override void ResetAnimation(PauseModule target, ref LiteAnimatorState state) {
+            }
+
+            public override void UpdateAnimation(PauseModule target, ref LiteAnimatorState state, float deltaTime) {
+                target.Fader.alpha = Mathf.Lerp(state.Registers.A.Float(), 1, state.PercentProgress);
+                if (state.IsLastFrame()) {
+                    target.InputLayer.ClearInputOverride();
+                }
+            }
+
+            static public readonly OpenAnim Instance = new OpenAnim();
+        }
+
+        public sealed class CloseAnim : LiteAnimator<PauseModule> {
+            public override void InitAnimation(PauseModule target, ref LiteAnimatorState state) {
+                float alpha = target.Fader.alpha;
+                state.Registers.A.Float() = alpha;
+                state.ScaleTime(alpha);
+
+                target.InputLayer.SetInputOverride(false);
+            }
+
+            public override void ResetAnimation(PauseModule target, ref LiteAnimatorState state) {
+            }
+
+            public override void UpdateAnimation(PauseModule target, ref LiteAnimatorState state, float deltaTime) {
+                target.Fader.alpha = state.Registers.A.Float() * state.PercentRemaining;
+                if (state.IsLastFrame()) {
+                    target.Canvas.enabled = false;
+                }
+            }
+
+            static public readonly CloseAnim Instance = new CloseAnim();
         }
     }
 
@@ -74,6 +131,9 @@ namespace SpaceFab
                 PopupUtility.PushState();
                 state.InputLayer.TryPushPriority();
                 Game.Events.Dispatch(GameEvents.OnGamePaused);
+
+                Game.Animation.CancelAnimation(ref state.FadeRoutine);
+                state.FadeRoutine = Game.Animation.AddLiteAnimator(PauseModule.OpenAnim.Instance, state, 0.2f, GameLoopPhase.UnscaledUpdate);
             }
             else
             {
@@ -81,6 +141,9 @@ namespace SpaceFab
                 state.InputLayer.TryPopPriority();
                 PopupUtility.PopState();
                 Game.Events.Dispatch(GameEvents.OnGameResumed);
+
+                Game.Animation.CancelAnimation(ref state.FadeRoutine);
+                state.FadeRoutine = Game.Animation.AddLiteAnimator(PauseModule.CloseAnim.Instance, state, 0.2f, GameLoopPhase.UnscaledUpdate);
             }
         }
     }
