@@ -313,6 +313,9 @@ namespace SpaceFab.Title
 
         private void OnCodeError(OGD.Core.Error error) {
             PlayPage.Input.ClearInputOverride();
+            PopupUtility.DisplayGenericPopup("Uh oh!", "We encountered an error!", (_) => {
+                OnPlayClickBack();
+            });
         }
 
         private void OnStartSuccess() {

@@ -81,6 +81,7 @@ namespace SpaceFab
                 );
             }
 
+            interfacer.MinigameState.MergeState();
             interfacer.MinigameState.ExportState(ref saveStates);
             SaveUtility.Save(SaveSlot.Main);
 

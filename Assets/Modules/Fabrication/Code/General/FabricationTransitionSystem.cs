@@ -45,8 +45,6 @@ namespace SpaceFab.Fabrication {
             else {
                 Log.Warn("FabricationTransistionSystem] Tried to load contract assets but returned null!");
             }
-            // hide progress meter
-            ProgressMeterUtility.Hide(meterState.ActiveMeter);
 
             Log.Msg("[FabricationTransitionSystem] Setup complete!");
 

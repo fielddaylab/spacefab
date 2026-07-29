@@ -37,12 +37,6 @@ namespace SpaceFab
     {
         public static void OnReturnClicked(ReturnMenuState state)
         {
-            var pauseState = Find.State<PauseMenuState>();
-            if (pauseState.GamePaused)
-            {
-                PauseUtility.StartTogglePause(pauseState);
-            }
-
             var requestExitState = Find.State<MinigameRequestExitState>();
             requestExitState.ExitRequestState = RequestState.Requested;
         }
