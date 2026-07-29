@@ -35,6 +35,7 @@ namespace SpaceFab.Fabrication.Microgames
         [HideInInspector] public float FinalHeat;
 
         [HideInInspector] public bool InputAccepted;
+        [HideInInspector] public bool isSpacebarHeld;
         [HideInInspector] public bool IncreasingHeat;
 
         // 2d sprites
@@ -100,6 +101,7 @@ namespace SpaceFab.Fabrication.Microgames
             // reset value
             state.CurrentValue = 0;
             state.IncreasingHeat = true;
+            state.isSpacebarHeld = false;
             
             state.FurnaceUI.SetActive(true);
             state.Phase = FurnaceMicrogamePhase.Entering;

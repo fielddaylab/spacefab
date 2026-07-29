@@ -71,9 +71,7 @@ namespace SpaceFab.Fabrication
 
         public static void ShowResults(ResultDisplayState displayState)
         {
-            displayState.ResultsTransitionRoutine.Replace(ShowResultsRoutine(displayState));
-            Debug.Log("Show results");
-            
+            displayState.ResultsTransitionRoutine.Replace(ShowResultsRoutine(displayState));            
         }
 
         public static void HideResults(ResultDisplayState displayState)
@@ -94,7 +92,7 @@ namespace SpaceFab.Fabrication
             // TODO: determine success/failure
             // Set display color
             WaferState waferState = Find.State<WaferState>();
-            bool success = WaferStateUtility.GetAggregatedPrecision(waferState) > 70f;
+            bool success = WaferStateUtility.GetAggregatedPrecision(waferState) > 0.8f;
             displayState.Heading.Text.text = success ? "WAFER COMPLETE" : "WAFER FAILED";
             displayState.Background.sprite = displayState.BackgroundSprites[success ? 0 : 1];
             displayState.Heading.Background.sprite = displayState.HeadingSprites[success ? 0 : 1];
@@ -111,7 +109,8 @@ namespace SpaceFab.Fabrication
             yield return 0.5f;
 
             // Show ratings for each station
-            for (int i = 0; i < waferState.RecordedStepCount; i++)
+            // TODO: StepPrecisions[i] is not always the station result at i
+            for (int i = 0; i < displayState.StationResults.Length; i++)
             {
                 displayState.StationResults[i].SetRating(waferState.StepPrecisions[i]);
                 displayState.StationResults[i].gameObject.SetActive(true);

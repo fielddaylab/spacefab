@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: DefinitiveContractOrdering
   m_EditorClassIdentifier: 
-  m_IncludeMode: 2
+  m_IncludeMode: 1
+  m_FilterSearch: 
   m_GlobalAssets:
   - {fileID: 11400000, guid: f32e0a388708e254b9f7f79ae3ccd4a6, type: 2}
   m_NamedAssets: []

@@ -53,6 +53,8 @@ namespace SpaceFab.Fabrication.Microgames
         {
             if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate))
             {
+                state.isSpacebarHeld = true;
+
                 if (state.IncreasingHeat)
                 {
                     state.CurrentValue += state.Sensitivity * deltaTime;
@@ -73,9 +75,10 @@ namespace SpaceFab.Fabrication.Microgames
                 float percentage = state.CurrentValue / state.MaxRange;
                 state.MeterArrowAnchor.rotation = Quaternion.Euler(new Vector3(0, 0, -percentage * 180));
             }
-            else if (state.InputAccepted && Game.Input.IsKeyUp(FabricationConsts.Activate))
+            else if (state.InputAccepted && state.isSpacebarHeld)
             {
                 state.FinalHeat = state.CurrentValue;
+                state.isSpacebarHeld = false;
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
                 return;

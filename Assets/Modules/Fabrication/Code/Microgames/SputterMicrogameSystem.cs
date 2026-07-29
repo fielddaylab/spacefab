@@ -66,7 +66,7 @@ namespace SpaceFab.Fabrication.Microgames
             if (spawnTimer <= 0f)
             {
                 spawnTimer = 0.2f;
-                SputterMicrogameProjectile projectile = Instantiate(state.SputterProjectilePrefab, state.ProjectileParent);
+                SputterMicrogameProjectile projectile = Instantiate(state.ProjectilePrefab, state.ProjectileParent);
                 projectile.transform.position = startPosition;
                 // direction
                 projectile.SetDirection(angle);

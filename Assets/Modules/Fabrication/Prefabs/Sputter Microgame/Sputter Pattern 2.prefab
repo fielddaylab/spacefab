@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SputterPattern: {fileID: 6381458024169033857}
-  Collider: {fileID: 0}
+  Collider: {fileID: 556438705406794124}
 --- !u!1 &4477975049436297613
 GameObject:
   m_ObjectHideFlags: 0
@@ -384,7 +384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SputterPattern: {fileID: 6381458024169033857}
-  Collider: {fileID: 0}
+  Collider: {fileID: 6801323885370408254}
 --- !u!1 &8542996314537402172
 GameObject:
   m_ObjectHideFlags: 0

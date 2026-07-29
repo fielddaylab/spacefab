@@ -35,7 +35,7 @@ namespace SpaceFab.Fabrication.Microgames
         public Transform ProjectileParent;
         public LineRenderer TrajectoryPreview;
 
-        public SputterMicrogameProjectile SputterProjectilePrefab;
+        public SputterMicrogameProjectile ProjectilePrefab;
         [HideInInspector] public SputterPatternData SputterPattern;
 
         public void OnRegister()
@@ -66,14 +66,17 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out SputterMicrogameState state, out SequenceState sequence);
 
+            state.SputterUI.SetActive(true);
+
+            // Set pattern
             int patternIndex = sequence.Level.PatternIndex;
             Find.GlobalAsset(out MicrogameStationConfig config);
             state.SputterPattern = GameObject.Instantiate(config.SputterPatterns[patternIndex], state.SputterUI.transform).GetComponent<SputterPatternData>();
+            state.SputterPattern.SetPatternData(state.ProjectilePrefab.Sprite.bounds.size.x);
 
             state.Phase = SputterMicrogamePhase.Entering;
             state.IsActive = true;
             state.InputAccepted = false;
-            state.SputterUI.SetActive(true);
         }
 
         public static void EnterComplete()
@@ -119,7 +122,10 @@ namespace SpaceFab.Fabrication.Microgames
             state.IsActive = false;
             state.Phase = SputterMicrogamePhase.Idle;
 
-            // TODO: destroy projectile objects
+            for (int i = 0; i < state.ProjectileParent.childCount; i++)
+            {
+                GameObject.Destroy(state.ProjectileParent.GetChild(i).gameObject);
+            }
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
