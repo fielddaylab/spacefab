@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_sequence: {fileID: 11400000, guid: 67490de75942e4cb5be86a47118dc0df, type: 2}
   m_GlitchChance: 0.1
+  m_PatternIndex: 1

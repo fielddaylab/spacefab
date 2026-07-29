@@ -36,7 +36,7 @@ namespace SpaceFab.Fabrication.Microgames
         public LineRenderer TrajectoryPreview;
 
         public SputterMicrogameProjectile SputterProjectilePrefab;
-        public SputterPatternData SputterPattern;
+        [HideInInspector] public SputterPatternData SputterPattern;
 
         public void OnRegister()
         {
@@ -64,7 +64,11 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out SputterMicrogameState state);
+            Find.State(out SputterMicrogameState state, out SequenceState sequence);
+
+            int patternIndex = sequence.Level.PatternIndex;
+            Find.GlobalAsset(out MicrogameStationConfig config);
+            state.SputterPattern = GameObject.Instantiate(config.SputterPatterns[patternIndex], state.SputterUI.transform).GetComponent<SputterPatternData>();
 
             state.Phase = SputterMicrogamePhase.Entering;
             state.IsActive = true;
@@ -88,8 +92,11 @@ namespace SpaceFab.Fabrication.Microgames
                 out SputterMicrogameState state,
                 out MicrogameCanvasState canvasState
             );
+            
             state.Phase = SputterMicrogamePhase.Exiting;
             if (!completedNormally) { return; }
+
+            GameObject.Destroy(state.SputterPattern.gameObject);
 
             state.SputterUI.SetActive(false);
             MicrogameCanvasUtility.HideStationInstructions(canvasState);

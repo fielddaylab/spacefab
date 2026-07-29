@@ -70,12 +70,26 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out FurnaceMicrogameState state);
+            Find.State(out FurnaceMicrogameState state, out SequenceState sequence);
             state.IsActive = true;
             
             // TODO: play intro (station name flash, spawn heat dial UI).
             
             // Set up range position
+            // TODO: set value for different wafer types
+            switch (sequence.Level.Sequence.Steps[sequence.CurrentStepIndex].Chunk)
+            {
+                case SequenceChunk.Metal:
+                    state.TargetRange = 5;
+                    break;
+                case SequenceChunk.P:
+                    state.TargetRange = 3;
+                    break;
+                case SequenceChunk.N:
+                    state.TargetRange = 9;
+                    break;
+            }
+
             float targetPercentage = state.TargetRange / state.MaxRange;
             float targetZRotation = -targetPercentage * 180;
             Vector3 targetRotation = new Vector3(0, 0, targetZRotation);

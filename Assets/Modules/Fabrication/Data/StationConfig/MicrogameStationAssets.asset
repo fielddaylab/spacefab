@@ -9,9 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0706af4c126b34f88b210125a2c875b9, type: 3}
-  m_Name: Fabrication_Ch6_FancyMater
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: MicrogameStationAssets
   m_EditorClassIdentifier: 
-  m_sequence: {fileID: 11400000, guid: 27fcaf7c2c8b34daea4736e6cfacb51e, type: 2}
-  m_GlitchChance: 0.2
-  m_PatternIndex: 2
+  m_IncludeMode: 0
+  m_FilterSearch: 
+  m_GlobalAssets:
+  - {fileID: 11400000, guid: 8194741d601bd4eeaba1aff2c6575903, type: 2}
+  m_NamedAssets: []
+  m_LiteAssets: []
