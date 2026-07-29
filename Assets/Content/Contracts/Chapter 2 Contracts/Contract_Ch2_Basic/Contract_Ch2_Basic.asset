@@ -16,13 +16,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6d66cd15838f54a4fb236b7a33f7ff29, type: 2}
   - {fileID: 11400000, guid: 2f285b257626f4df1a1a7f21403d89c8, type: 2}
   m_omitFromSupplyRequirements: []
-  m_title: Criss-Cross Chip Contract
-  m_description: This is where the contract is described
+  m_title: Criss-Cross Chip
+  m_description: Flip some inputs.
   m_client: '[Client Name]'
   m_payout: 9
   m_expectedDuration: 2
   m_expectedProfit: 2
   StreamedPack:
-    m_HashValue: 0
+    m_HashValue: 1099542355
   AssetSet:
-    m_HashValue: 0
+    m_HashValue: 2300275882

@@ -169,6 +169,8 @@ namespace SpaceFab.Design
             if ((id & InputOutputNodeTypeFlags.A) != 0) { return "A"; }
             if ((id & InputOutputNodeTypeFlags.B) != 0) { return "B"; }
             if ((id & InputOutputNodeTypeFlags.C) != 0) { return "C"; }
+            if ((id & InputOutputNodeTypeFlags.VMINUS) != 0) { return "LO"; }
+            if ((id & InputOutputNodeTypeFlags.VPLUS) != 0) { return "HI"; }
             return string.Empty;
         }
 

@@ -186,7 +186,7 @@ namespace SpaceFab.Design
                 }
             }
 
-            Debug.Log("${inputs} \n ${outputs}");
+            Debug.Log($"{inputs} \n {outputs}");
 
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, EvtArgs.Box((inputs, outputs, runState.CurrentRow)));
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);

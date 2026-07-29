@@ -90,7 +90,7 @@ namespace SpaceFab.Fabrication.Sequence
             BringToFront(visualsState.FrontCard);
 
             // 3. Bail with both cards hidden if there is nothing to display.
-            if (sequenceState.Level == null || sequenceState.Level.Steps == null || sequenceState.Level.Steps.Length == 0) {
+            if (sequenceState.Level == null || sequenceState.Level.Sequence.Steps == null || sequenceState.Level.Sequence.Steps.Length == 0) {
                 SetCardVisible(visualsState.FrontCard, false);
                 SetCardVisible(visualsState.BackCard, false);
                 return;
@@ -100,7 +100,7 @@ namespace SpaceFab.Fabrication.Sequence
             WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
 
             int currentIndex = sequenceState.CurrentStepIndex;
-            FabricationStep[] steps = sequenceState.Level.Steps;
+            FabricationStep[] steps = sequenceState.Level.Sequence.Steps;
 
             // 4. Populate and show the front card with the current step (if in range).
             if (currentIndex >= 0 && currentIndex < steps.Length) {
@@ -152,7 +152,7 @@ namespace SpaceFab.Fabrication.Sequence
             //    but keep it hidden — it only becomes visible at the next advance. AdvanceStep has
             //    already incremented CurrentStepIndex, so the new upcoming "next" step is
             //    CurrentStepIndex + 1 == justCompletedIndex + 2.
-            FabricationStep[] steps = sequenceState.Level != null ? sequenceState.Level.Steps : null;
+            FabricationStep[] steps = sequenceState.Level != null ? sequenceState.Level.Sequence.Steps : null;
             int newBackIndex = justCompletedIndex + 2;
             if (steps != null && newBackIndex < steps.Length) {
                 SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();

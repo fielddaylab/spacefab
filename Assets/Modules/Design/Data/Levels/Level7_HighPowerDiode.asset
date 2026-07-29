@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
+  m_Name: Level7_HighPowerDiode
+  m_EditorClassIdentifier: 
+  m_title: High Power Diode
+  m_allowedTools: 111
+  m_gridConfig: {fileID: 11400000, guid: e4525421a9ec94fe38646a4b5f8520e6, type: 2}
+  m_testSuite: {fileID: 11400000, guid: 188ab4c2a678f4db4922d78fd04bd5ab, type: 2}

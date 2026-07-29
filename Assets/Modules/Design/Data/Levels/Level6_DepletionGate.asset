@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
+  m_Name: Level6_DepletionGate
+  m_EditorClassIdentifier: 
+  m_title: Depletion Gate
+  m_allowedTools: 116
+  m_gridConfig: {fileID: 11400000, guid: f1ce5d590fd6a4d27a2fdebaf0713371, type: 2}
+  m_testSuite: {fileID: 11400000, guid: 43c3d2d406d8244988c7ea2e06f740cd, type: 2}

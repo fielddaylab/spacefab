@@ -19,11 +19,11 @@ namespace SpaceFab.Fabrication.Sequence
         // (i.e. sequence is Idle, Halted, Completed, or CurrentStepIndex is past the last step).
         public static FabricationStep? GetCurrentStep(SequenceState sequenceState)
         {
-            if (sequenceState.CurrentStepIndex < 0 || sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length)
+            if (sequenceState.CurrentStepIndex < 0 || sequenceState.CurrentStepIndex >= sequenceState.Level.Sequence.Steps.Length)
                 return null;
             if (sequenceState.Status != SequenceStatus.Active)
                 return null;
-            return sequenceState.Level.Steps[sequenceState.CurrentStepIndex];
+            return sequenceState.Level.Sequence.Steps[sequenceState.CurrentStepIndex];
         }
 
         // returns wether the player is attempting to enter the next correct station in the sequence
@@ -54,12 +54,12 @@ namespace SpaceFab.Fabrication.Sequence
         // on player-initiated reset, and on results-retry. Rebuilds StepRuntime (including a fresh
         // glitch roll based on GlitchMode), clears any captured checkpoint, sets Status = Active,
         // dispatches FabSequenceReset, and signals the visuals layer to rebuild the on-screen cards.
-        public static void ResetSequence(SequenceState sequenceState, FabricationSequenceLevel level, SequenceVisualsState visualsState)
+        public static void ResetSequence(SequenceState sequenceState, FabricationLevel level, SequenceVisualsState visualsState)
         {
             sequenceState.Status = SequenceStatus.Active;
             sequenceState.Level = level;
             sequenceState.CurrentStepIndex = 0;
-            sequenceState.StepRuntime = new StepRuntimeData[level.Steps.Length];
+            sequenceState.StepRuntime = new StepRuntimeData[level.Sequence.Steps.Length];
 
             RollGlitches(sequenceState, level);
 
@@ -70,7 +70,7 @@ namespace SpaceFab.Fabrication.Sequence
 
             // Allocate per-step precision storage on the wafer. Indices align 1:1 with Level.Steps.
             WaferState waferState = Find.State<WaferState>();
-            waferState.StepPrecisions = new float[level.Steps.Length];
+            waferState.StepPrecisions = new float[level.Sequence.Steps.Length];
             waferState.RecordedStepCount = 0;
             visualsState.ResetRequested = true;
         }
@@ -87,13 +87,13 @@ namespace SpaceFab.Fabrication.Sequence
             if (GetCurrentStep(sequenceState) == null) return; // safety check
 
             int justCompleted = sequenceState.CurrentStepIndex;
-            FabricationStep step = sequenceState.Level.Steps[justCompleted];
+            FabricationStep step = sequenceState.Level.Sequence.Steps[justCompleted];
             if (step.IsCheckpoint)
                 CaptureCheckpoint(sequenceState, waferState, timeState, movementState, justCompleted);
 
             sequenceState.CurrentStepIndex++;
 
-            if (sequenceState.CurrentStepIndex >= sequenceState.Level.Steps.Length) {
+            if (sequenceState.CurrentStepIndex >= sequenceState.Level.Sequence.Steps.Length) {
                 sequenceState.Status = SequenceStatus.Completed;
                 Game.Events.Dispatch(GameEvents.FabSequenceCompleted);
             }
@@ -189,20 +189,10 @@ namespace SpaceFab.Fabrication.Sequence
         // ---- Glitch machinery ----
 
         // Rebuilds StepRuntime[].IsGlitched based on the level's GlitchMode. Called from ResetSequence.
-        public static void RollGlitches(SequenceState sequenceState, FabricationSequenceLevel level)
+        public static void RollGlitches(SequenceState sequenceState, FabricationLevel level)
         {
-            switch (level.GlitchMode)
-            {
-                case GlitchMode.Explicit:
-                    foreach (int i in level.GlitchedStepIndices) {
-                        sequenceState.StepRuntime[i].IsGlitched = true;
-                    }
-                    break;
-                case GlitchMode.Percentage:
-                    for (int i = 0; i < sequenceState.StepRuntime.Length; i++) {
-                        sequenceState.StepRuntime[i].IsGlitched = UnityEngine.Random.value < level.GlitchChance;
-                    }
-                    break;
+            for (int i = 0; i < sequenceState.StepRuntime.Length; i++) {
+                sequenceState.StepRuntime[i].IsGlitched = UnityEngine.Random.value < level.GlitchChance;
             }
         }
     }

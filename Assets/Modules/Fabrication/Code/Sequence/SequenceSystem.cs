@@ -116,7 +116,7 @@ namespace SpaceFab.Fabrication.Sequence
                 return;
             }
 
-            string stationID = sequenceState.Level.Steps[sequenceState.CurrentStepIndex].StepId.ToString();
+            string stationID = sequenceState.Level.Sequence.Steps[sequenceState.CurrentStepIndex].StepId.ToString();
             float accuracy = waferState.StepPrecisions[sequenceState.CurrentStepIndex];
             bool isAutomated = false;
             // TODO: Dispatch isAutomated
