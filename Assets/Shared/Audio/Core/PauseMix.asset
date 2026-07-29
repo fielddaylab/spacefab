@@ -16,17 +16,17 @@ MonoBehaviour:
   - Bus:
       m_HashValue: 3137079997
     Volume: 0.6
-    Pitch: 0
+    Pitch: 0.7
     Pan: 0
     LoPass: 0
     HiPass: 0
   - Bus:
       m_HashValue: 1324408261
     Volume: 0.6
-    Pitch: 0
+    Pitch: 0.7
     Pan: 0
     LoPass: 0
     HiPass: 0
   DefaultEnvelope:
-    Attack: 0.2
+    Attack: 0.35
     Decay: 0.2

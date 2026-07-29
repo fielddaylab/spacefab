@@ -61,7 +61,7 @@ namespace SpaceFab {
                 ResponseId = "Yes",
                 Tint = new ColorPalette2(Color.black, new Color32(255, 137, 137, 255))
             };
-            request.ButtonA = new PopupRequestButton() {
+            request.ButtonB = new PopupRequestButton() {
                 Label = "Cancel",
                 ResponseId = "No",
                 Tint = new ColorPalette2(Color.black, new Color32(255, 255, 255, 255))
@@ -97,10 +97,10 @@ namespace SpaceFab {
         static private void OnLeavePopupSelected(StringHash32 option) {
             Find.State(out MinigameRequestExitState requestExitState);
 
-            if (option.IsEmpty || option == "No") {
-                requestExitState.ExitRequestState = RequestState.None;
-            } else {
+            if (option == "Yes") {
                 requestExitState.ExitRequestState = RequestState.Confirmed;
+            } else {
+                requestExitState.ExitRequestState = RequestState.None;
             }
         }
     }
