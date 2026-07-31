@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using SpaceFab.Fabrication.Sequence;
+using System.Linq;
 
 namespace SpaceFab.Fabrication
 {
@@ -109,10 +111,25 @@ namespace SpaceFab.Fabrication
             yield return 0.5f;
 
             // Show ratings for each station
-            // TODO: StepPrecisions[i] is not always the station result at i
+            Find.State(out SequenceState sequence);
+            FabricationStep[] steps = sequence.Level.Sequence.Steps;
+            float[] stationPrecisions = new float[displayState.StationResults.Length];
+            float[] stationCount = new float[displayState.StationResults.Length];
+            for (int i = 0; i < steps.Length; i++)
+            {
+                stationPrecisions[(int)steps[i].StepId] += waferState.StepPrecisions[i];
+                stationCount[(int)steps[i].StepId]++;
+            }
+
             for (int i = 0; i < displayState.StationResults.Length; i++)
             {
-                displayState.StationResults[i].SetRating(waferState.StepPrecisions[i]);
+                if (stationCount[i] == 0) {
+                    displayState.StationResults[i].gameObject.SetActive(false);
+                    continue;
+                }
+
+                float average = stationPrecisions[i] / stationCount[i];
+                displayState.StationResults[i].SetRating(average);
                 displayState.StationResults[i].gameObject.SetActive(true);
                 yield return 0.25f;
             }

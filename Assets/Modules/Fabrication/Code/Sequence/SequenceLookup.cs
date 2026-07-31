@@ -25,7 +25,6 @@ namespace SpaceFab.Fabrication.Sequence
     public enum SequenceStepID
     {
         AddStencil_Oxide,
-        AddStencil_Sputter, // DEPRECATED?
         ApplyResist,
         DrawPattern,
         EtchPattern,
