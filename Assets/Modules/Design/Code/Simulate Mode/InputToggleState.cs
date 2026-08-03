@@ -150,8 +150,15 @@ namespace SpaceFab.Design
         // Raises MatchDirty so the next refresh recomputes LastMatchedRowIndex.
         public static void ToggleEntry(InputToggleState state, int entryIndex)
         {
-            if (state == null || state.Inputs == null) { return; }
-            if (entryIndex < 0 || entryIndex >= state.InputCount) { return; }
+            Assert.False(state.Inputs == null, "No input cell");
+            Assert.False(entryIndex < 0 || entryIndex >= state.InputCount, "Cell index out of range");
+
+            // Cannot flip if default value is pre-assigned
+            if (state.Inputs[entryIndex].Subtype == InputOutputNodeTypeFlags.VMINUS
+                || state.Inputs[entryIndex].Subtype == InputOutputNodeTypeFlags.VPLUS) {
+                return;
+            }
+
             FlowState curr = state.Inputs[entryIndex].State;
             state.Inputs[entryIndex].State = (curr == FlowState.Hi) ? FlowState.Lo : FlowState.Hi;
             state.MatchDirty = true;
@@ -186,14 +193,11 @@ namespace SpaceFab.Design
         public static void HandleToggleClick(int cellIndex)
         {
             InputToggleState state = Find.State<InputToggleState>();
-            if (state == null) { return; }
-
             ModeTransitionState modeState = Find.State<ModeTransitionState>();
             SimulateRunState runState = Find.State<SimulateRunState>();
             if (!CanAcceptToggle(modeState, runState)) { return; }
 
             int idx = IndexOfCellIndex(state, cellIndex);
-            if (idx < 0) { return; }
             ToggleEntry(state, idx);
 
             // Any flow visuals on the grid from the prior test no longer correspond to the
@@ -266,8 +270,6 @@ namespace SpaceFab.Design
         // are written back via Export on minigame save), so no merge logic needed.
         public static void ImportFromSaveData(InputToggleState state, InputToggleSaveData saveData)
         {
-            if (state == null) { return; }
-
             int count = saveData.Count;
             if (count <= 0 || saveData.Entries == null)
             {
@@ -318,7 +320,7 @@ namespace SpaceFab.Design
         // SpawnInputOverlays (clean slate before re-allocating for the freshly-loaded grid).
         public static void FreeAllInputOverlays(DesignPools pools)
         {
-            if (pools == null || pools.ActiveInputToggleOverlays == null) { return; }
+            Assert.False(pools.ActiveInputToggleOverlays == null, "No active input toggle overlays");
             int n = pools.ActiveInputToggleOverlays.Count;
             for (int i = n - 1; i >= 0; i--)
             {
