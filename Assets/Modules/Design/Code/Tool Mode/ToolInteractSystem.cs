@@ -305,15 +305,15 @@ namespace SpaceFab.Design {
                     SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
-                    // only relevant if the occupied cell is a transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
+                    // only relevant if the occupied cell is a p-transistor and not pre-assigned
+                    if (cell.CellType == CellType.PTransistor && cell.NodeEraseable) {
                         cell.CellType = CellType.NTransistor;
                         // note: preserves edge connections
                     }
                     break;
                 case ToolType.DrawPNodes:
-                    // only relevant if the occupied cell is a transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
+                    // only relevant if the occupied cell is a n-transistor and not pre-assigned
+                    if (cell.CellType == CellType.NTransistor && cell.NodeEraseable) {
                         cell.CellType = CellType.PTransistor;
                         // note: preserves edge connections
                     }
