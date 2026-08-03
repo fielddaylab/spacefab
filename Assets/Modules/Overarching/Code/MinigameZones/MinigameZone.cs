@@ -3,6 +3,7 @@ using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,58 +13,22 @@ namespace SpaceFab.Overarching
 {
     public class MinigameZone : BatchedComponent, IRegistrationCallbacks
     {
-        public int ZoneIndex = -1;
-        public PointerListener PointerListener;
-
-        // The hover CursorHint on the zone's interact collider (sibling of PointerListener).
-        // Disabled by the select system on locked zones so the cursor doesn't change over them.
-        public CursorHint Cursor;
-
-        public SceneReference MinigameScene;
-
         // Identifies which minigame this zone represents. Drives the per-zone alert mask lookup
         // in OverarchingAlertState and the FoundValidSolution auto-rule.
         public MinigameId Minigame;
+        public int AnalyticsId;
 
-        public bool ClickedThisFrame;
-        public bool PointerEnterThisFrame;
-        public bool PointerExitThisFrame;
+        [Header("Components")]
+        [Required] public CursorHint Cursor;
+        [Required] public MinigameZoneOverlay Overlay;
 
-        [Header("Visuals")]
-        // Overlay sprites are no longer authored here — they're looked up per-minigame from
-        // MinigameZoneOverlayDB by (Minigame, focus). This renderer is the surface they draw on.
-        public SpriteRenderer HighlightRenderer;
-        public TMP_Text StationLabel;
-
-        // Sprite behind the station label. Tinted to the zone's color while focused, else the
-        // shared default (MinigameZoneOverlayDB.LabelBackgroundColor). Lives under LabelGroup.
-        public SpriteRenderer StationLabelBackground;
-        // Small dot attached to the label, always tinted to the zone's color. Lives under LabelGroup.
-        public SpriteRenderer StationLabelDot;
-
-        // Parent of the label text + background + dot. Toggled active/inactive to show or hide the
-        // whole label (RefreshZoneVisuals); the renderers within it stay enabled.
-        public GameObject LabelGroup;
-
-        // Worldspace child transform where OverarchingAlertSystem parents pooled AlertIconView
-        // instances. Icons are positioned at fixed horizontal offsets per stack index.
-        public Transform AlertIconContainer;
-
-        public void OnRegister()
-        {
-            PointerListener.onClick.AddListener(HandleClick);
-            PointerListener.onPointerEnter.AddListener(HandlePointerEnter);
-            PointerListener.onPointerExit.AddListener(HandlePointerExit);
-
-            HighlightRenderer.enabled = false;
-            if (LabelGroup != null) { LabelGroup.SetActive(false); }
+        public void OnRegister() {
+            Cursor.onClick.AddListener(HandleClick);
+            Cursor.onPointerEnter.AddListener(HandlePointerEnter);
+            Cursor.onPointerExit.AddListener(HandlePointerExit);
         }
 
-        public void OnDeregister()
-        {
-            PointerListener.onClick.RemoveListener(HandleClick);
-            PointerListener.onPointerEnter.RemoveListener(HandlePointerEnter);
-            PointerListener.onPointerExit.RemoveListener(HandlePointerExit);
+        public void OnDeregister() {
         }
 
         #region Pointer Handlers
@@ -75,12 +40,12 @@ namespace SpaceFab.Overarching
 
         private void HandlePointerEnter()
         {
-            MinigameZonesUtility.OnPointerEnter(this);
+            MinigameZonesUtility.SetHoverState(this, true);
         }
 
         private void HandlePointerExit()
         {
-            MinigameZonesUtility.OnPointerExit(this);
+            MinigameZonesUtility.SetHoverState(this, false);
         }
 
         #endregion // Pointer Handlers
@@ -90,17 +55,12 @@ namespace SpaceFab.Overarching
     {
         public static void OnClick(MinigameZone zone)
         {
-            zone.ClickedThisFrame = true;
+            //zone.ClickedThisFrame = true;
         }
 
-        public static void OnPointerEnter(MinigameZone zone)
-        {
-            zone.PointerEnterThisFrame = true;
-        }
-
-        public static void OnPointerExit(MinigameZone zone)
-        {
-            zone.PointerExitThisFrame = true;
+        static public void SetHoverState(MinigameZone zone, bool hoverActive) {
+            zone.Overlay.HighlightOutline.color = hoverActive ? Color.white : Color.black;
+            zone.Overlay.NameFill.color = hoverActive ? zone.Overlay.ThemeColor : Color.black;
         }
     }
 }

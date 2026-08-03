@@ -21,7 +21,6 @@ namespace FieldDay.UI {
 
             if (TransformHelper.TryGetCameraFromLayer(transform, out Camera camera)) {
                 var c = GetComponent<Canvas>();
-                c.renderMode = RenderMode.ScreenSpaceCamera;
                 c.worldCamera = camera;
             }
         }

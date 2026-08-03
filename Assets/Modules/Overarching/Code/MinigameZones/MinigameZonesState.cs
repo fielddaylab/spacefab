@@ -2,6 +2,7 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,138 +10,102 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    public class MinigameZonesState : SharedStateComponent, IRegistrationCallbacks
+    public class MinigameZonesState : SharedStateComponent
     {
-        public MinigameZone[] Zones;
-        public int CurrSelectedIndex;
-        public int CurrHoverIndex;
-
-        public void OnDeregister()
-        {
-        }
-
-        public void OnRegister()
-        {
-            MinigameZonesUtility.AssignIndices(this);
-            CurrSelectedIndex = -1;
-            CurrHoverIndex = -1;
-        }
+        [NonSerialized] public MinigameZone HoverZone;
+        [NonSerialized] public MinigameZone QueuedZone;
     }
 
     public static partial class MinigameZonesUtility
     {
-        public static void AssignIndices(MinigameZonesState state)
-        {
-            for (int i = 0; i < state.Zones.Length; i++)
-            {
-                state.Zones[i].ZoneIndex = i;
-            }
-        }
+        //// Hover is now just index bookkeeping; the sprite/label swap happens declaratively in
+        //// RefreshZoneVisuals based on the current hover index.
+        //public static void CancelHover(MinigameZonesState state, int indexToCancel)
+        //{
+        //    if (state.CurrHoverIndex == indexToCancel)
+        //    {
+        //        state.CurrHoverIndex = -1;
+        //    }
+        //}
 
-        // Hover is now just index bookkeeping; the sprite/label swap happens declaratively in
-        // RefreshZoneVisuals based on the current hover index.
-        public static void CancelHover(MinigameZonesState state, int indexToCancel)
-        {
-            if (state.CurrHoverIndex == indexToCancel)
-            {
-                state.CurrHoverIndex = -1;
-            }
-        }
+        //public static void BeginHover(MinigameZonesState state, int indexToHover)
+        //{
+        //    state.CurrHoverIndex = indexToHover;
+        //}
 
-        public static void BeginHover(MinigameZonesState state, int indexToHover)
-        {
-            state.CurrHoverIndex = indexToHover;
-        }
+        //// A click records which zone is being entered (read by OverarchingToMinigameSequenceSystem
+        //// to resolve the scene) and starts the enter-minigame transition. There's no separate
+        //// selection highlight — the focus sprite is driven entirely by hover.
+        //public static void ClickZone(MinigameZonesState state, int indexToClick)
+        //{
+        //    state.CurrSelectedIndex = indexToClick;
+        //    ConfirmEnterMinigame(state);
+        //}
 
-        // A click records which zone is being entered (read by OverarchingToMinigameSequenceSystem
-        // to resolve the scene) and starts the enter-minigame transition. There's no separate
-        // selection highlight — the focus sprite is driven entirely by hover.
-        public static void ClickZone(MinigameZonesState state, int indexToClick)
-        {
-            state.CurrSelectedIndex = indexToClick;
-            ConfirmEnterMinigame(state);
-        }
+        //#region Zone Visuals
 
-        #region Zone Visuals
+        //// Recomputes every zone's overlay + label from current state, as a pure function of
+        //// (locked, hovered, needs-attention). Locked zones hide everything; unlocked zones show
+        //// their non-focus overlay, swapping to the focus sprite while hovered. The station label
+        //// (with its background + dot) shows while hovered or while the zone wants attention. The
+        //// dot always carries the zone's color; the background takes the zone's color while focused
+        //// and the shared default otherwise. Overlay sprites are self-colored (renderer untinted).
+        //public static void RefreshZoneVisuals(MinigameZonesState state, OverarchingAlertState alertState)
+        //{
+        //    //for (int i = 0; i < state.Zones.Length; i++)
+        //    //{
+        //    //    MinigameZone zone = state.Zones[i];
 
-        // Recomputes every zone's overlay + label from current state, as a pure function of
-        // (locked, hovered, needs-attention). Locked zones hide everything; unlocked zones show
-        // their non-focus overlay, swapping to the focus sprite while hovered. The station label
-        // (with its background + dot) shows while hovered or while the zone wants attention. The
-        // dot always carries the zone's color; the background takes the zone's color while focused
-        // and the shared default otherwise. Overlay sprites are self-colored (renderer untinted).
-        public static void RefreshZoneVisuals(MinigameZonesState state, OverarchingAlertState alertState, MinigameZoneOverlayDB overlayDB)
-        {
-            for (int i = 0; i < state.Zones.Length; i++)
-            {
-                MinigameZone zone = state.Zones[i];
+        //    //    bool locked = OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Locked);
 
-                bool locked = OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Locked);
+        //    //    // Locked zones offer no interaction affordance: disable the hover CursorHint so the
+        //    //    // pointer doesn't change over them (their overlay and click are already suppressed).
+        //    //    if (zone.Cursor != null)
+        //    //    {
+        //    //        zone.Cursor.enabled = !locked;
+        //    //    }
 
-                // Locked zones offer no interaction affordance: disable the hover CursorHint so the
-                // pointer doesn't change over them (their overlay and click are already suppressed).
-                if (zone.Cursor != null)
-                {
-                    zone.Cursor.enabled = !locked;
-                }
+        //    //    if (locked)
+        //    //    {
+        //    //        SetZoneVisualsEmpty(zone);
+        //    //        continue;
+        //    //    }
 
-                if (locked)
-                {
-                    SetZoneVisualsEmpty(zone);
-                    if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
-                    continue;
-                }
+        //    //    bool focused = state.CurrHoverIndex == zone.ZoneIndex;
 
-                bool focused = state.CurrHoverIndex == zone.ZoneIndex;
-                Sprite sprite = MinigameZoneOverlayDBUtility.LookupOverlaySprite(overlayDB, zone.Minigame, focused);
-                if (sprite == null)
-                {
-                    SetZoneVisualsEmpty(zone);
-                    if (locked)
-                    {
-                        if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
-                    }
-                }
+        //    //    zone.Overlay.HighlightFill.enabled = true;
+        //    //    zone.Overlay.HighlightOutline.enabled = true;
 
-                zone.HighlightRenderer.sprite = sprite;
-                zone.HighlightRenderer.color = Color.white;
-                zone.HighlightRenderer.enabled = true;
+        //    //    zone.Overlay.HighlightOutline.color = focused ? Color.white : Color.black;
 
-                // Label (with its background + dot) stays visible for any unlocked, not-yet-completed
-                // zone; a completed zone shows it only while hovered. (Locked zones already returned.)
-                bool completed = OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Complete);
-                bool labelVisible = focused || !completed;
-                Color zoneColor = MinigameZoneOverlayDBUtility.LookupZoneColor(overlayDB, zone.Minigame);
+        //    //    // Label (with its background + dot) stays visible for any unlocked, not-yet-completed
+        //    //    // zone; a completed zone shows it only while hovered. (Locked zones already returned.)
+        //    //    bool completed = OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Complete);
+        //    //    bool labelVisible = focused || !completed;
 
-                // Color the label's parts (valid even while LabelGroup is inactive), then toggle the
-                // whole group's visibility.
-                if (zone.StationLabelBackground != null)
-                {
-                    zone.StationLabelBackground.color = focused ? zoneColor : overlayDB.LabelBackgroundColor;
-                }
-                if (zone.StationLabelDot != null)
-                {
-                    zone.StationLabelDot.color = zoneColor;
-                }
-                if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(labelVisible); }
-            }
-        }
+        //    //    zone.Overlay.NameFill.color = focused ? zone.Overlay.ThemeColor : Color.black;
+        //    //    zone.Overlay.NameBadge.SetActive(labelVisible);
+        //    //    zone.Overlay.CompletedBadge.SetActive(completed);
+        //    //}
+        //}
 
-        // Hides every per-zone visual: the overlay highlight and the whole label group (text,
-        // background, dot). Used for locked zones and zones with no authored overlay sprite.
-        public static void SetZoneVisualsEmpty(MinigameZone zone)
-        {
-            if (zone.HighlightRenderer != null) { zone.HighlightRenderer.enabled = false; }
-            //if (zone.LabelGroup != null) { zone.LabelGroup.SetActive(false); }
-        }
+        //// Hides every per-zone visual: the overlay highlight and the whole label group (text,
+        //// background, dot). Used for locked zones and zones with no authored overlay sprite.
+        //public static void SetZoneVisualsEmpty(MinigameZone zone)
+        //{
+        //    zone.Overlay.HighlightFill.enabled = false;
+        //    zone.Overlay.HighlightOutline.enabled = false;
+        //    zone.Overlay.CompletedBadge.SetActive(false);
+        //    zone.Overlay.NameBadge.SetActive(false);
+        //}
 
-        #endregion // Zone Visuals
+        //#endregion // Zone Visuals
 
-        public static void ConfirmEnterMinigame(MinigameZonesState state)
-        {
-            Debug.Log("Start minigame: " + state.CurrSelectedIndex);
-            SpacefabGame.Events.Dispatch(GameEvents.StartMinigame, state.CurrSelectedIndex);
-            OverarchingTransitions.ToMinigame();
-        }
+        //public static void ConfirmEnterMinigame(MinigameZonesState state)
+        //{
+        //    Debug.Log("Start minigame: " + state.CurrSelectedIndex);
+        //    SpacefabGame.Events.Dispatch(GameEvents.StartMinigame, state.CurrSelectedIndex);
+        //    OverarchingTransitions.ToMinigame();
+        //}
     }
 }

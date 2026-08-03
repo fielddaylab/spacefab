@@ -28,41 +28,40 @@ namespace SpaceFab.Overarching
         {
             MinigameZonesState state = Find.State<MinigameZonesState>();
             OverarchingAlertState alertState = Find.State<OverarchingAlertState>();
-            MinigameZoneOverlayDB overlayDB = Find.GlobalAsset<MinigameZoneOverlayDB>();
 
 			var components = Find.Components<MinigameZone>();
 
-			for(int i = 0; i < components.Count; i++) {
-				MinigameZone zone = components[i];
-				if (IsZoneLocked(alertState, zone)) { continue; }
-				if (zone.PointerExitThisFrame) {
-					MinigameZonesUtility.CancelHover(state, zone.ZoneIndex);
-				}
-			}
+			//for(int i = 0; i < components.Count; i++) {
+			//	MinigameZone zone = components[i];
+			//	if (IsZoneLocked(alertState, zone)) { continue; }
+			//	if (zone.PointerExitThisFrame) {
+			//		MinigameZonesUtility.CancelHover(state, zone.ZoneIndex);
+			//	}
+			//}
 
-			for (int i = 0; i < components.Count; i++) {
-				MinigameZone zone = components[i];
-				if (IsZoneLocked(alertState, zone)) { continue; }
-				if (zone.PointerEnterThisFrame)
-                {
-                    MinigameZonesUtility.BeginHover(state, zone.ZoneIndex);
-                }
-            }
+			//for (int i = 0; i < components.Count; i++) {
+			//	MinigameZone zone = components[i];
+			//	if (IsZoneLocked(alertState, zone)) { continue; }
+			//	if (zone.PointerEnterThisFrame)
+   //             {
+   //                 MinigameZonesUtility.BeginHover(state, zone.ZoneIndex);
+   //             }
+   //         }
 
-			for (int i = 0; i < components.Count; i++) {
-				MinigameZone zone = components[i];
-				if (IsZoneLocked(alertState, zone)) { continue; }
-				if (zone.ClickedThisFrame)
-                {
-                    SpacefabGame.Events.Dispatch(GameEvents.SelectMinigame, i);
-                    MinigameZonesUtility.ClickZone(state, zone.ZoneIndex);
-                }
-            }
+			//for (int i = 0; i < components.Count; i++) {
+			//	MinigameZone zone = components[i];
+			//	if (IsZoneLocked(alertState, zone)) { continue; }
+			//	if (zone.ClickedThisFrame)
+   //             {
+   //                 SpacefabGame.Events.Dispatch(GameEvents.SelectMinigame, i);
+   //                 MinigameZonesUtility.ClickZone(state, zone.ZoneIndex);
+   //             }
+   //         }
 
             // Apply each zone's resting + hover overlay every frame, so unlocked zones always show
             // their non-focus overlay (and react to lock / needs-attention changes) regardless of
             // whether a pointer event fired this frame.
-            MinigameZonesUtility.RefreshZoneVisuals(state, alertState, overlayDB);
+            //MinigameZonesUtility.RefreshZoneVisuals(state, alertState);
         }
 
         // True when the zone's alert mask has the Locked bit set. Locked zones get no hover

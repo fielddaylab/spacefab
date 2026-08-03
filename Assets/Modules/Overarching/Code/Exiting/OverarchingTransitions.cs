@@ -20,7 +20,7 @@ namespace SpaceFab.Overarching {
             Find.State(out MinigameZonesState zonesState);
             GameLoop.SuspendUpdates(UpdateMasks.EntireGame);
             GameLoop.ResumeUpdates(ScriptUtility.RuntimeUpdateMask);
-            Game.Scenes.LoadMainScene(zonesState.Zones[zonesState.CurrSelectedIndex].MinigameScene);
+            //Game.Scenes.LoadMainScene(zonesState.Zones[zonesState.CurrSelectedIndex].MinigameScene);
             Game.Events.Dispatch(GameEvents.OnMinigameLoad);
         }
     }

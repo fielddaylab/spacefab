@@ -1,3 +1,4 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using Leaf.Runtime;
@@ -75,10 +76,7 @@ namespace SpaceFab.Overarching
     {
         public static AlertType GetMask(OverarchingAlertState state, MinigameId mg)
         {
-            if (state == null || state.Masks == null) { return AlertType.None; }
-            int idx = (int)mg;
-            if (idx < 0 || idx >= state.Masks.Length) { return AlertType.None; }
-            return state.Masks[idx];
+            return state.Masks[(int) mg];
         }
 
         public static bool HasAlert(OverarchingAlertState state, MinigameId mg, AlertType bit)
@@ -88,40 +86,40 @@ namespace SpaceFab.Overarching
 
         public static void SetAlertBit(OverarchingAlertState state, MinigameId mg, AlertType bit)
         {
-            if (state == null || state.Masks == null) { return; }
+            Assert.NotNullOrDestroyed(state);
+            Assert.NotNull(state.Masks);
+
             int idx = (int)mg;
-            if (idx < 0 || idx >= state.Masks.Length) { return; }
+            Assert.True(idx >= 0 && idx < state.Masks.Length);
+
             AlertType prev = state.Masks[idx];
             AlertType next = prev | bit;
             if (next == prev) { return; }
+
             state.Masks[idx] = next;
             state.AlertVisualsDirty = true;
         }
 
         [LeafMember("SetMinigameAlert")]
-        public static void SetAlertBitLeaf(MinigameId mg, AlertType bit)
+        private static void Leaf_SetAlertBit(MinigameId mg, AlertType bit)
         {
-            var state = Find.State<OverarchingAlertState>();
-            if (state == null || state.Masks == null) { return; }
-            int idx = (int)mg;
-            if (idx < 0 || idx >= state.Masks.Length) { return; }
-            AlertType prev = state.Masks[idx];
-            AlertType next = prev | bit;
-            if (next == prev) { return; }
-            state.Masks[idx] = next;
-            state.AlertVisualsDirty = true;
+            SetAlertBit(Find.State<OverarchingAlertState>(), mg, bit);
         }
 
         [LeafMember("ClearMinigameAlert")]
-        public static void ClearAlertBitLeaf(MinigameId mg, AlertType bit)
+        private static void Leaf_ClearAlertBit(MinigameId mg, AlertType bit)
         {
             var state = Find.State<OverarchingAlertState>();
-            if (state == null || state.Masks == null) { return; }
+            Assert.NotNullOrDestroyed(state);
+            Assert.NotNull(state.Masks);
+
             int idx = (int)mg;
-            if (idx < 0 || idx >= state.Masks.Length) { return; }
+            Assert.True(idx >= 0 && idx < state.Masks.Length);
+
             AlertType prev = state.Masks[idx];
             AlertType next = prev & ~bit;
             if (next == prev) { return; }
+
             state.Masks[idx] = next;
             state.AlertVisualsDirty = true;
         }

@@ -7,10 +7,10 @@ using UnityEditor;
 #endif // UNITY_EDITOR
 
 namespace FieldDay.Rendering {
-    [RequireComponent(typeof(MeshRenderer)), ExecuteAlways]
+    [RequireComponent(typeof(Renderer)), ExecuteAlways]
     public sealed class UseSpriteAsTexture : MonoBehaviour {
         [SerializeField] private Sprite m_Sprite;
-        [NonSerialized] private MeshRenderer m_Renderer;
+        [NonSerialized] private Renderer m_Renderer;
 
         /// <summary>
         /// Which sprite to render

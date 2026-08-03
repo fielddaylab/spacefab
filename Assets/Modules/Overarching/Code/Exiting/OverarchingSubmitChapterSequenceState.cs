@@ -1,4 +1,5 @@
 using BeauRoutine;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Save;
@@ -50,11 +51,14 @@ namespace SpaceFab.Overarching
         // also covers scene start, since entering the scene loads a contract).
         public static void Refresh(OverarchingSubmitChapterSequenceState submitState, MinigameSaveStates saveStates)
         {
-            if (submitState == null || submitState.SubmitButton == null) { return; }
+            Assert.NotNullOrDestroyed(submitState);
+            Assert.NotNullOrDestroyed(saveStates);
 
             bool allSolved = MinigameSaveUtility.AllSolved(saveStates);
             GameObject go = submitState.SubmitButton.gameObject;
-            if (go.activeSelf != allSolved) { go.SetActive(allSolved); }
+            if (go.activeSelf != allSolved) {
+                go.SetActive(allSolved);
+            }
         }
     }
 }
