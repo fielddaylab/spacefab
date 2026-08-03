@@ -41,7 +41,7 @@ MonoBehaviour:
     TransferType: 0
     DefaultInputState: 0
   - LayerIndex: 0
-    RowIndex: 1
+    RowIndex: 0
     ColumnIndex: 3
     CellType: 5
     SubtypeLabel: 256
