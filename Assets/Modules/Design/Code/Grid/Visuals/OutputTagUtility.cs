@@ -1,5 +1,6 @@
 using BeauPools;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using SpaceFab.Design.Visuals;
 
@@ -17,7 +18,8 @@ namespace SpaceFab.Design
         // SpawnOutputOverlays (clean slate before re-allocating for the freshly-loaded grid).
         public static void FreeAllOutputOverlays(DesignPools pools)
         {
-            if (pools == null || pools.ActiveOutputTagOverlays == null) { return; }
+            Assert.False(pools.ActiveOutputTagOverlays == null, "Null ActiveOutputTagOverlays in DesignPools");
+
             int n = pools.ActiveOutputTagOverlays.Count;
             for (int i = n - 1; i >= 0; i--)
             {
@@ -39,11 +41,12 @@ namespace SpaceFab.Design
         // transition leaves a clean set. Called from GridStackLoadSystem alongside SpawnInputOverlays.
         public static void SpawnOutputOverlays(GridStackState gridStackState, VisualGridStackState visualState, DesignPools pools)
         {
-            if (pools == null) { return; }
             FreeAllOutputOverlays(pools);
 
-            if (gridStackState == null || gridStackState.GridStack == null || gridStackState.GridStack.GridLayers == null) { return; }
-            if (visualState == null || visualState.VisualGridStack == null || visualState.VisualGridStack.GridLayers == null) { return; }
+            Assert.False(gridStackState.GridStack == null, "Null GridStack");
+            Assert.False(gridStackState.GridStack.GridLayers == null, "Null GridLayers in GridStack");
+            Assert.False(visualState.VisualGridStack == null, "Null VisualGridStack");
+            Assert.False(visualState.VisualGridStack.GridLayers == null, "Null GridLayers in VisualGridStack");
 
             GridStack stack = gridStackState.GridStack;
             int layerLimit = stack.GridLayers.Length;
@@ -92,7 +95,6 @@ namespace SpaceFab.Design
         // OutputTagSystem.
         private static void ApplyOverlayCommonVisuals(OutputTagVisual overlay, GridSpriteDB spriteDB)
         {
-            if (spriteDB == null) { return; }
             if (overlay.BackgroundRenderer != null && spriteDB.OutputToggleBackground != null)
             {
                 overlay.BackgroundRenderer.sprite = spriteDB.OutputToggleBackground;

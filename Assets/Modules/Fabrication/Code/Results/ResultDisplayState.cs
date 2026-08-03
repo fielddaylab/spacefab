@@ -1,17 +1,11 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
-using FieldDay.Systems;
-using SpaceFab.Fabrication.Movement;
-using SpaceFab.Fabrication.Stations;
 using SpaceFab.UI;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 using SpaceFab.Fabrication.Sequence;
-using System.Linq;
 
 namespace SpaceFab.Fabrication
 {

@@ -1,11 +1,8 @@
 using BeauUtil.Debugger;
 using FieldDay;
-using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -79,8 +76,6 @@ namespace SpaceFab.Design {
             // this needs to be relative to the grid
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
             var gridPos = GridStackUtility.ConvertToGridSpace(worldPos, gridStackState, visualState);
-
-            //Debug.Log($"World pos: {worldPos}, gridPos: {gridPos}");
 
             // if grid cell is out of bounds:
             if (!GridStackUtility.InBounds(gridStackState, gridPos.x, gridPos.y)) {
@@ -197,7 +192,6 @@ namespace SpaceFab.Design {
 
         // Click on an empty Metal-layer cell: apply the active tool (draw/erase/via/gate) and refresh visuals.
         static private void ClickEmptyMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
-            Debug.Log("<color=red>Empty metal layer</color>");//TODO
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
             var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
@@ -229,7 +223,6 @@ namespace SpaceFab.Design {
 
         // Click on an empty Transistor-layer cell: apply the active tool.
         static private void ClickEmptyTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
-            Debug.Log("<color=red>Empty transistor layer</color>");//TODO
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
             var gridCoord = new GridCoord((int) toolModeState.ActiveLayer, gridPos.x, gridPos.y);
@@ -265,7 +258,6 @@ namespace SpaceFab.Design {
 
         // Click on an occupied Metal-layer cell: draw-tools only apply if the existing cell is Metal.
         static private void ClickOccupiedMLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
-            Debug.Log("<color=red>occupied metal layer</color>");//TODO
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
             var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);
@@ -280,7 +272,6 @@ namespace SpaceFab.Design {
                     // Do nothing. Click only matters if node is empty.
                     break;
                 case ToolType.DrawVia:
-                    Debug.Log($"<color=red>cell type: {cell.CellType}</color>");//TODO
                     // place a via if metal
                     if (cell.CellType == CellType.Metal) {
                         DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
@@ -303,7 +294,6 @@ namespace SpaceFab.Design {
 
         // Click on an occupied Transistor-layer cell: preserves edge connections when swapping N/P type.
         static private void ClickOccupiedTLayerCell(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState, Vector2Int gridPos) {
-            Debug.Log("<color=red>occupied transistor layer</color>");//TODO
             var layer = gridStackState.GridStack.GridLayers[(int)toolModeState.ActiveLayer];
             var cell = GridLayerUtility.GetCell(layer, gridPos);
             var gridCoord = new GridCoord((int)toolModeState.ActiveLayer, gridPos.x, gridPos.y);

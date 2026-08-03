@@ -39,7 +39,7 @@ namespace SpaceFab.Design
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             GridSpriteDB spriteDB = Find.GlobalAsset<GridSpriteDB>();
 
-            bool modeOn = designState != null && designState.UseToggleInputMode;
+            bool modeOn = designState.UseToggleInputMode;
 
             var visuals = Find.Components<InputToggleVisual>();
             for (int i = 0; i < visuals.Count; i++)

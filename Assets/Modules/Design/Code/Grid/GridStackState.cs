@@ -34,8 +34,8 @@ namespace SpaceFab.Design
             gridStack.LayerDims = new Dimensions(numCols, numRows);
             gridStack.GridLayers = new GridLayer[2]
             {
-                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y),  // metal layer (highest)
-                new GridLayer(gridStack.LayerDims.X, gridStack.LayerDims.Y)   // transistor layer (lowest)
+                new GridLayer(DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS),  // metal layer (highest)
+                new GridLayer(DesignConsts.NUM_GRID_COLS, DesignConsts.NUM_GRID_ROWS)   // transistor layer (lowest)
             };
         }
 
@@ -47,7 +47,6 @@ namespace SpaceFab.Design
             for (int i = 0; i < config.Cells.Length; i++)
             {
                 LoadCellConfig(ref gridStack, config.Cells[i]);
-                Debug.Log($"initial grid: {config.Cells[i].CellType}, {config.Cells[i].TransferType}, {config.Cells[i].ColumnIndex}, {config.Cells[i].RowIndex}");
             }
             SpacefabGame.Events.Dispatch(GameEvents.DeisgnGridSetup, EvtArgs.Ref(config));
         }

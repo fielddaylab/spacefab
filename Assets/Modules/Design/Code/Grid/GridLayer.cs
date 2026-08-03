@@ -1,11 +1,6 @@
-using BeauUtil.Debugger;
-using FieldDay;
 using SpaceFab.Design.Visuals;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static SpaceFab.Logging.Logging;
 
 namespace SpaceFab.Design
 {

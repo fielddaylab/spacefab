@@ -1,7 +1,5 @@
 using FieldDay;
 using SpaceFab.Design.Visuals;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Design
@@ -20,12 +18,14 @@ namespace SpaceFab.Design
             LayerIndex = layerIndex;
             m_Cells = new VisualGridCell[yDim * xDim];
             float cellOffset = 0.5f;
+            int xOffset = (DesignConsts.NUM_GRID_COLS - xDim) / 2;
+            int yOffset = (DesignConsts.NUM_GRID_ROWS - yDim) / 2;
             for (int row = 0; row < yDim; row++)
             {
                 for (int col = 0; col < xDim; col++)
                 {
                     var cell = GameObject.Instantiate(cellVisualsPrefab, container).GetComponent<VisualGridCell>();
-                    cell.transform.localPosition = new Vector3(col + cellOffset, row + cellOffset, 0);
+                    cell.transform.localPosition = new Vector3(col + cellOffset + xOffset, row + cellOffset + yOffset, 0);
                     cell.gameObject.name = "Cell Visual (" + col + ", " + row + ")";
                     SetCell(col, row, cell);
                 }
@@ -51,12 +51,6 @@ namespace SpaceFab.Design
         public VisualGridCell GetCell(int x, int y)
         {
             return m_Cells[y * Dimensions.X + x];
-        }
-
-        // Access x, y in row, col order
-        public VisualGridCell GetCell(Vector2Int coord)
-        {
-            return m_Cells[coord.y * Dimensions.X + coord.x];
         }
 
         // Set cell at x, y in row, col order
