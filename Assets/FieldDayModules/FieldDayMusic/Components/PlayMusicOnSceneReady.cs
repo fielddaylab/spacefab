@@ -12,7 +12,7 @@ namespace FieldDay.Music {
         [AssetName(typeof(MusicAsset))] public StringHash32 PlaylistId;
 
         private void Awake() {
-            Game.Scenes.QueueOnLoad(PlayMusic);
+            Game.Scenes.QueueOnLoad(this, PlayMusic);
         }
 
         private void PlayMusic() {
