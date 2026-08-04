@@ -21,6 +21,13 @@ MonoBehaviour:
       RecordedStepCount: 0
     IsCheckpoint: 0
   - Chunk: 0
+    StepId: 1
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 0
     StepId: 2
     ExpectedWaferAfter:
       PlaceholderVersion: 0
@@ -35,84 +42,77 @@ MonoBehaviour:
       RecordedStepCount: 0
     IsCheckpoint: 0
   - Chunk: 0
-    StepId: 4
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 0
-    StepId: 6
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 1
-    StepId: 0
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 1
-    StepId: 2
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 1
-    StepId: 3
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 1
-    StepId: 4
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 1
-    StepId: 6
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 2
-    StepId: 0
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 2
-    StepId: 2
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 2
-    StepId: 3
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 2
-    StepId: 4
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  - Chunk: 2
     StepId: 5
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 1
+    StepId: 0
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 1
+    StepId: 1
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 1
+    StepId: 2
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 1
+    StepId: 3
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 1
+    StepId: 5
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 2
+    StepId: 0
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 2
+    StepId: 1
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 2
+    StepId: 2
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 2
+    StepId: 3
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 2
+    StepId: 4
     ExpectedWaferAfter:
       PlaceholderVersion: 0
       StepPrecisions: []

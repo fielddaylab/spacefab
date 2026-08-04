@@ -35,6 +35,7 @@ namespace SpaceFab.Fabrication.Microgames
         [HideInInspector] public float FinalHeat;
 
         [HideInInspector] public bool InputAccepted;
+        [HideInInspector] public bool isSpacebarHeld;
         [HideInInspector] public bool IncreasingHeat;
 
         // 2d sprites
@@ -70,12 +71,26 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out FurnaceMicrogameState state);
+            Find.State(out FurnaceMicrogameState state, out SequenceState sequence);
             state.IsActive = true;
             
             // TODO: play intro (station name flash, spawn heat dial UI).
             
             // Set up range position
+            // TODO: set value for different wafer types
+            switch (sequence.Level.Sequence.Steps[sequence.CurrentStepIndex].Chunk)
+            {
+                case SequenceChunk.Metal:
+                    state.TargetRange = 5;
+                    break;
+                case SequenceChunk.P:
+                    state.TargetRange = 3;
+                    break;
+                case SequenceChunk.N:
+                    state.TargetRange = 9;
+                    break;
+            }
+
             float targetPercentage = state.TargetRange / state.MaxRange;
             float targetZRotation = -targetPercentage * 180;
             Vector3 targetRotation = new Vector3(0, 0, targetZRotation);
@@ -86,6 +101,7 @@ namespace SpaceFab.Fabrication.Microgames
             // reset value
             state.CurrentValue = 0;
             state.IncreasingHeat = true;
+            state.isSpacebarHeld = false;
             
             state.FurnaceUI.SetActive(true);
             state.Phase = FurnaceMicrogamePhase.Entering;

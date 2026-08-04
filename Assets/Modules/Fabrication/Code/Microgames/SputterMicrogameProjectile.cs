@@ -6,14 +6,14 @@ namespace SpaceFab.Fabrication.Microgames
 {
     public class SputterMicrogameProjectile : MonoBehaviour
     {
-        private Rigidbody2D Rigidbody;
+        public SpriteRenderer Sprite;
+        public Rigidbody2D Rigidbody;
         private float Speed = 5f;
         private float InitialAngle = 0;
         private bool Reflected = false;
 
         public void SetDirection(float angle)
         {
-            Rigidbody = this.GetComponent<Rigidbody2D>();
             InitialAngle = angle;
             Vector2 direction = Quaternion.Euler(0, 0, InitialAngle) * Vector2.right;
             Rigidbody.velocity = direction * Speed;

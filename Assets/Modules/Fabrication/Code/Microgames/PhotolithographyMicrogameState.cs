@@ -30,6 +30,8 @@ namespace SpaceFab.Fabrication.Microgames
         public PhotolithographyMicrogamePhase Phase;
 
         public GameObject Photomask;
+        public SpriteRenderer PhotomaskSprite;
+        public SpriteRenderer OutlineSprite;
 
         public float PhotomaskAngle;
         public float PhotomaskY;
@@ -53,13 +55,29 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out PhotolithographyMicrogameState state);
+            Find.State(out PhotolithographyMicrogameState state, out SequenceState sequence);
 
-            state.PhotomaskAngle = 120f;
-            state.PhotomaskY = 2.75f;
-            state.FallSpeed = 0.75f;
+            // Set pattern sprites
+            int patternIndex = sequence.Level.PatternIndex;
+            Find.GlobalAsset(out MicrogameStationConfig config);
+            state.PhotomaskSprite.sprite = config.PhotolithographyMasks[patternIndex];
+            state.OutlineSprite.sprite = config.PhotolithographyOutlines[patternIndex];
 
+            // Set angle by chunk type
+            switch (sequence.Level.Sequence.Steps[sequence.CurrentStepIndex].Chunk)
+            {
+                case SequenceChunk.Metal:
+                    state.PhotomaskAngle = 120f;
+                    break;
+                case SequenceChunk.P:
+                    state.PhotomaskAngle = 150f;
+                    break;
+                case SequenceChunk.N:
+                    state.PhotomaskAngle = 200f;
+                    break;
+            }
             state.Photomask.transform.rotation = Quaternion.Euler(0f, 0f, state.PhotomaskAngle);
+            state.PhotomaskY = 2.75f;
 
             state.Phase = PhotolithographyMicrogamePhase.Entering;
             state.IsActive = true;

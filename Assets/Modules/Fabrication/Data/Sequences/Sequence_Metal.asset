@@ -21,6 +21,13 @@ MonoBehaviour:
       RecordedStepCount: 0
     IsCheckpoint: 0
   - Chunk: 2
+    StepId: 1
+    ExpectedWaferAfter:
+      PlaceholderVersion: 0
+      StepPrecisions: []
+      RecordedStepCount: 0
+    IsCheckpoint: 0
+  - Chunk: 2
     StepId: 2
     ExpectedWaferAfter:
       PlaceholderVersion: 0
@@ -41,13 +48,3 @@ MonoBehaviour:
       StepPrecisions: []
       RecordedStepCount: 0
     IsCheckpoint: 0
-  - Chunk: 2
-    StepId: 5
-    ExpectedWaferAfter:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    IsCheckpoint: 0
-  m_GlitchMode: 0
-  m_GlitchedStepIndices: 
-  m_GlitchChance: 0

@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: GridStackConfig_Lv7
   m_EditorClassIdentifier: 
   LayerDims:
-    X: 8
+    X: 6
     Y: 6
   Cells:
   - LayerIndex: 0
     RowIndex: 4
-    ColumnIndex: 1
+    ColumnIndex: 0
     CellType: 1
     SubtypeLabel: 8
     Edges: []
@@ -26,7 +26,7 @@ MonoBehaviour:
     DefaultInputState: 0
   - LayerIndex: 0
     RowIndex: 3
-    ColumnIndex: 6
+    ColumnIndex: 5
     CellType: 5
     SubtypeLabel: 128
     Edges: []

@@ -1,11 +1,8 @@
 using FieldDay;
-using FieldDay.HID;
 using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
@@ -30,11 +27,12 @@ namespace SpaceFab.Fabrication.Microgames
         [HideInInspector] public bool InputAccepted;
         
         public GameObject IonUI;
+        public Transform PatternParent;
         public Transform DropperAnchor;
 
         public float PointDensity = 10;
         public float FillRadius = 3;
-        public IonPatternData IonPattern;
+        [HideInInspector] public IonPatternData IonPattern;
 
         public IonMicrogamePhase Phase;
 
@@ -66,8 +64,9 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(
                 out IonMicrogameState state,
-                out MicrogameCanvasState canvasState
-                );
+                out MicrogameCanvasState canvasState,
+                out SequenceState sequence);
+
             state.IsActive = true;
             
             // setup UI
@@ -76,6 +75,11 @@ namespace SpaceFab.Fabrication.Microgames
             HintedCursor.Visibility = HintedCursor.VisiblityMode.Invisible;
 
             // setup IonPoints
+            int patternIndex = sequence.Level.PatternIndex;
+
+            Find.GlobalAsset(out MicrogameStationConfig config);
+            state.IonPattern = GameObject.Instantiate(config.IonPatterns[patternIndex], state.PatternParent).GetComponent<IonPatternData>();
+
             state.IonPattern.SetupRenderers(state.PointDensity, state.FillRadius);
             state.Phase = IonMicrogamePhase.Entering;
         }
@@ -99,6 +103,8 @@ namespace SpaceFab.Fabrication.Microgames
 
             // TODO: freeze dropper.
             if (!completedNormally) { return; }
+
+            GameObject.Destroy(state.IonPattern.gameObject);
 
             HintedCursor.Visibility = HintedCursor.VisiblityMode.Always;
             MicrogameUtility.CommitStepPrecision(ComputePrecision());

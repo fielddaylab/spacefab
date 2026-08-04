@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using BeauUtil;
 using FieldDay;
 using FieldDay.Rendering;
 using UnityEngine;
@@ -53,8 +50,7 @@ namespace SpaceFab.Fabrication.Microgames
             float halfHeight = m_CellHeight * 0.5f;
 
             Vector3 cellScale = new Vector3(m_CellWidth, m_CellHeight, 1);
-            Vector3 forwardCamera = Game.Rendering.PrimaryCamera.transform.forward;
-            Quaternion cellRotation = Quaternion.LookRotation(-forwardCamera, Vector3.up); // drawing to face the camera, should port specific line from bloom
+            Quaternion cellRotation = Quaternion.identity;
             
             IonPoints = new IonPoint[m_Rows * m_Columns];
 

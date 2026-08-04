@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0336719e41e043f4d8d649595af3b889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_BoxCollider: {fileID: 0}
+  m_BoxCollider: {fileID: 5077104107667823790}
   IonMesh: {fileID: -2124705421725058983, guid: 2248d1c0e7d25eb4bb03e77ce13167a2, type: 3}
   IonMaterial: {fileID: 2100000, guid: 98d18fb0f49e4cc4597c669ee187c55f, type: 2}
   IsRendering: 0

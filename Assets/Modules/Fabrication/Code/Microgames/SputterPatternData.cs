@@ -7,18 +7,18 @@ namespace SpaceFab.Fabrication.Microgames
     public class SputterPatternData : MonoBehaviour
     {
         public SputterBoxCollider[] Colliders;
-        public SpriteRenderer ProjectilePrefab;
         public int m_FilledSlots, m_TotalSlots;
-        public bool CompletelyFilled => m_FilledSlots == m_TotalSlots;
+        public bool CompletelyFilled => m_FilledSlots == m_TotalSlots && m_FilledSlots > 0;
 
-        private void Start()
+        public void SetPatternData(float size)
         {
+            m_FilledSlots = 0;
             m_TotalSlots = 0;
+
             foreach (var collider in Colliders)
             {
-                m_TotalSlots += collider.GenerateSlot(ProjectilePrefab.bounds.size.x);
+                m_TotalSlots += collider.GenerateSlot(size);
             }
         }
     }
-
 }

@@ -29,7 +29,7 @@ MonoBehaviour:
     StationIconSprite: {fileID: 21300000, guid: 0b0940a4583ec844d971d12d9791ed54, type: 3}
     StationLabel: FURNACE
     InstructionLabel: Apply Oxide Layer
-  - StepId: 2
+  - StepId: 1
     StationId:
       m_Source: station:resist
       m_HashValue: 1292633441
@@ -45,7 +45,7 @@ MonoBehaviour:
     StationIconSprite: {fileID: 21300000, guid: 9f830cc135a5eab4db9ae26810996c2d, type: 3}
     StationLabel: SPIN COAT
     InstructionLabel: Apply Photo Resist
-  - StepId: 3
+  - StepId: 2
     StationId:
       m_Source: station:photolithography
       m_HashValue: 1024899852
@@ -61,7 +61,7 @@ MonoBehaviour:
     StationIconSprite: {fileID: 21300000, guid: 04be6752c65ebe04c8a761f2c29bb1df, type: 3}
     StationLabel: MASK ALIGNER
     InstructionLabel: Align Mask
-  - StepId: 4
+  - StepId: 3
     StationId:
       m_Source: station:etch
       m_HashValue: 418197577
@@ -77,23 +77,7 @@ MonoBehaviour:
     StationIconSprite: {fileID: 21300000, guid: 3e0abb2e85922b746b76427836c07d09, type: 3}
     StationLabel: ETCHER
     InstructionLabel: Etch Path
-  - StepId: 1
-    StationId:
-      m_Source: station:sputter
-      m_HashValue: 2865545500
-    ConvertFrom:
-      m_Source: 
-      m_HashValue: 0
-    ConvertToA:
-      m_Source: 
-      m_HashValue: 0
-    ConvertToB:
-      m_Source: 
-      m_HashValue: 0
-    StationIconSprite: {fileID: 0}
-    StationLabel: 
-    InstructionLabel: 
-  - StepId: 5
+  - StepId: 4
     StationId:
       m_Source: station:sputter
       m_HashValue: 2865545500
@@ -109,7 +93,7 @@ MonoBehaviour:
     StationIconSprite: {fileID: 21300000, guid: 3dd73ff47aaac054697e55a84a150997, type: 3}
     StationLabel: SPUTTER MACHINE
     InstructionLabel: Apply Metal Layer
-  - StepId: 6
+  - StepId: 5
     StationId:
       m_Source: station:ion
       m_HashValue: 1666425855
