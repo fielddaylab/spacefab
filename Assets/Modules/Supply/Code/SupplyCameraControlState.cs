@@ -15,7 +15,7 @@ namespace SpaceFab.Supply
         public Transform CameraPosition;
 
         [Header("Configuration")]
-        public BoxCollider2D Region;
+        public Rect Region;
         public float InterpolationStrength;
         public float MovementSpeed;
         

@@ -1,4 +1,6 @@
 using System;
+using BeauRoutine;
+using FieldDay;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
 using UnityEngine;
@@ -11,16 +13,28 @@ namespace SpaceFab.Supply {
         public Image[] ShipBody;
         public RectTransform[] Slots;
         public Image[] SlotMaterials;
-        public bool IsWideRow;
 
         [NonSerialized] public int ShipIndex;
+        [NonSerialized] public Vector2 TargetPos;
     }
 
     static public partial class SupplyChainUtility {
         static public void PopulateShipInformation(ShipListRow row, SupplyShipAsset shipAsset, ShipListPanel panel) {
+            bool isWide = shipAsset.Capacity > 2;
+            float iconPos = 95;
+            float bodySize = 130;
+
+            if (isWide) {
+                iconPos += 20;
+                bodySize += 20;
+            }
+
+            Positioning.SetOffsetX(row.ShipIcon.rectTransform, iconPos);
+            
             row.ShipIcon.sprite = shipAsset.Icon;
             row.ShipIcon.color = shipAsset.IconColor;
             foreach(var bodySprite in row.ShipBody) {
+                Positioning.SetWidthDelta(bodySprite.rectTransform, bodySize);
                 bodySprite.sprite = shipAsset.BodyImage;
             }
 

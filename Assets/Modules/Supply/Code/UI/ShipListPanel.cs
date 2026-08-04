@@ -7,6 +7,7 @@ using FieldDay.Scenes;
 using FieldDay.Scripting;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
+using FieldDay.World;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,9 +23,9 @@ namespace SpaceFab.Supply {
         public LayoutOptions VerticalLayoutOptions;
 
         [Header("Row Config")]
+        public ShipListRow[] Rows;
         public SpeedIconConfig[] SpeedIcons;
 
-        [NonSerialized] public ShipListRow[] Rows;
         [NonSerialized] public ShipListRow SelectedRow;
 
         void IRegistrationCallbacks.OnDeregister() {
@@ -66,7 +67,21 @@ namespace SpaceFab.Supply {
                 panel.Rows[i].gameObject.SetActive(false);
             }
 
-            panel.Layout.VerticalLayout(panel.VerticalLayoutOptions);
+            ReflowShipList(panel, true);
+        }
+
+        static public void ReflowShipList(ShipListPanel panel, bool snap) {
+            using (var children = panel.Layout.Root.QueryLayoutChildren()) {
+                var yBuffer = Frame.AllocSpan<float>(children.Count);
+                Positioning.DeferredVerticalLayout(children, panel.VerticalLayoutOptions, 0, yBuffer);
+                for(int i = 0; i < children.Count; i++) {
+                    var row = panel.Rows[i];
+                    row.TargetPos.y = yBuffer[i];
+                    if (snap) {
+                        Positioning.SetOffsetY(row.Rect, row.TargetPos.y);
+                    }
+                }
+            }
         }
 
         static public void HandleShipClicked(PointerListener.EventData evtData) {

@@ -86,6 +86,7 @@ namespace SpaceFab.Supply
         static private void EditorExport(Transform root, SupplyChainMapData target) {
             List<SupplyChainMapData.NodeData> nodes = new List<SupplyChainMapData.NodeData>();
             List<SupplyChainMapData.NodeOverride> overrides = new List<SupplyChainMapData.NodeOverride>();
+            Rect cameraBounds = new Rect(-5, -5, 10, 10);
 
             int childCount = root.childCount;
             for(int i = 0; i < childCount; i++) {
@@ -94,22 +95,24 @@ namespace SpaceFab.Supply
                     continue;
                 }
 
-                if (!child.TryGetComponent(out SupplyRouteNode node)) {
-                    continue;
+                if (child.TryGetComponent(out SupplyRouteNode node)) {
+                    Vector2 position = node.transform.localPosition;
+                    nodes.Add(new SupplyChainMapData.NodeData() {
+                        Name = node.gameObject.name,
+                        Position = position
+                    });
+
+                    // TODO: overrides
+
+                } else if (child.TryGetComponent(out BoxCollider2D collider)) {
+                    cameraBounds = Geom.BoundsToRect(collider.bounds);
                 }
-
-                Vector2 position = node.transform.localPosition;
-                nodes.Add(new SupplyChainMapData.NodeData() {
-                    Name = node.gameObject.name,
-                    Position = position
-                });
-
-                // TODO: overrides
             }
 
             Baking.PrepareUndo(target, "Exporting map data");
             target.Positions = nodes.ToArray();
             target.Overrides = overrides.ToArray();
+            target.CameraBounds = cameraBounds;
 
             Log.Msg("[SupplyChainMap] Exported map data ({0} nodes) to '{1}'", target.Positions.Length, target.name);
         }
@@ -122,25 +125,34 @@ namespace SpaceFab.Supply
                     continue;
                 }
 
-                if (!child.TryGetComponent(out SupplyRouteNode node)) {
-                    continue;
-                }
+                if (child.TryGetComponent(out SupplyRouteNode node)) {
+                    Baking.PrepareUndo(child, "Importing map data");
 
-                Baking.PrepareUndo(child, "Importing map data");
-
-                StringHash32 id = node.gameObject.name;
-                bool activeState = false;
-                foreach(var pos in data.Positions) {
-                    if (pos.Name == id) {
-                        child.localPosition = pos.Position;
-                        activeState = true;
-                        break;
+                    StringHash32 id = node.gameObject.name;
+                    bool activeState = false;
+                    foreach (var pos in data.Positions) {
+                        if (pos.Name == id) {
+                            child.localPosition = pos.Position;
+                            activeState = true;
+                            break;
+                        }
                     }
-                }
 
-                child.gameObject.SetActive(activeState);
-                Baking.SetDirty(child);
+                    child.gameObject.SetActive(activeState);
+                    Baking.SetDirty(child);
+                } else if (child.TryGetComponent(out BoxCollider2D collider)) {
+                    Vector2 center = data.CameraBounds.center;
+                    Vector2 size = data.CameraBounds.size;
+
+                    collider.transform.localPosition = center;
+                    collider.offset = default;
+                    collider.size = size;
+
+                    Baking.SetDirty(child);
+                }
             }
+
+            
         }
 #endif // UNITY_EDITOR
     }

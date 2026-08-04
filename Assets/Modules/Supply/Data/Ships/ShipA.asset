@@ -13,21 +13,20 @@ MonoBehaviour:
   m_Name: ShipA
   m_EditorClassIdentifier: 
   DisplayName: Rock Bus
-  BodyImage: {fileID: 0}
-  UseWidePrefab: 0
+  BodyImage: {fileID: 21300000, guid: 592d9ac6978f9e846aeb7c4d554f5848, type: 3}
   Icon: {fileID: 21300000, guid: 063e9405da1eb2d42be20daf0793194c, type: 3}
   IconColor:
     serializedVersion: 2
-    rgba: 0
+    rgba: 4278398745
   Colors:
     Content:
       serializedVersion: 2
       rgba: 4278190080
     Background:
       serializedVersion: 2
-      rgba: 4290619218
+      rgba: 4283426971
   LineColor:
     serializedVersion: 2
-    rgba: 4290619218
+    rgba: 4283426971
   Speed: 1
   Capacity: 1

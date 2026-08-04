@@ -71,7 +71,7 @@ namespace SpaceFab.Supply {
 
             // set up camera bounding region
             Find.State(out SupplyCameraControlState cameraState);
-            cameraState.Region.size = map.Entries[chapterIndex].CameraBounds;
+            cameraState.Region = entry.CameraBounds;
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);

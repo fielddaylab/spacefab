@@ -9,7 +9,6 @@ namespace SpaceFab.Supply {
 
         [Header("Display")]
         public Sprite BodyImage;
-        public bool UseWidePrefab;
 
         [Header("Icon")]
         public Sprite Icon;
