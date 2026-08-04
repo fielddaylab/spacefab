@@ -37,7 +37,7 @@ Material:
     - _BlendOp: 0
     - _CullMode: 0
     - _DestBlend: 10
-    - _DitherScale: 3
+    - _DitherScale: 2
     - _EnableAlphaClip: 0
     - _EnableFog: 0
     - _PremultiplyAlpha: 1

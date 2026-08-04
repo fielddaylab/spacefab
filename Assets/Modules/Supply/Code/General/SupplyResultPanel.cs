@@ -17,13 +17,6 @@ namespace SpaceFab.Supply {
         public SupplyProgressMeterView MeterView;
         public SupplyShipBreakdownRow[] ShipRows;
 
-        // Tracks whether this panel currently holds a pushed GUI input priority. Pushing is balanced
-        // against popping through OnDisable so the priority is always released when the panel goes
-        // away — including when the Commit button tears the minigame down without Hide() running.
-        // A leaked PushPriority survives on the persistent GuiMgr stack and disables every
-        // lower-priority layer in the next scene (overarching), which reads as "all input dead".
-        [NonSerialized] private bool m_PriorityPushed;
-
         protected override void Awake() {
             base.Awake();
 
@@ -48,19 +41,13 @@ namespace SpaceFab.Supply {
 
         // Pushes GUI input priority for this panel, at most once.
         private void AcquirePriority() {
-            if (m_PriorityPushed) { return; }
-            m_PriorityPushed = true;
-            Game.Gui.PushPriority(Input);
+            Input.TryPushPriority();
         }
 
         // Pops the priority pushed by AcquirePriority, if held. Skipped during shutdown (the GuiMgr
         // stack is being torn down anyway and the layer may already be invalid).
         private void ReleasePriority() {
-            if (!m_PriorityPushed) { return; }
-            m_PriorityPushed = false;
-            if (!Game.IsShuttingDown) {
-                Game.Gui.PopPriority(Input);
-            }
+            Input.TryPopPriority();
         }
 
         public override void Show() {
