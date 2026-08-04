@@ -4,6 +4,7 @@ using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using FieldDay.UI;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -187,6 +188,7 @@ namespace SpaceFab.Overarching {
             // Fire the Leaf trigger now that the overarching scene is fully loaded and interactive,
             // letting narrative scripts respond to entering the scene (e.g. gating a node on
             // IsSolutionFoundFor for completed minigames).
+            OverarchingSubmitButtonUtility.Refresh(Find.State<OverarchingSubmitChapterSequenceState>(), Find.State<MinigameSaveStates>());
             ScriptUtility.Trigger(ScriptTriggers.OnOverarchingLoaded);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }

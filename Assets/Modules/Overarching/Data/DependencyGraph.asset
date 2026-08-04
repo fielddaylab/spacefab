@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DependencyGraph
   m_EditorClassIdentifier: 
   UnlockRules:
-  - Minigame: 2
-    Prerequisites: 0000000001000000
   - Minigame: 3
-    Prerequisites: 02000000
+    Prerequisites: 0000000001000000
+  - Minigame: 2
+    Prerequisites: 03000000
