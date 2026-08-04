@@ -20,7 +20,6 @@ namespace SpaceFab.Fabrication {
                     .ReadWriteShared<FabricationTransitionState>()
                     .ReadShared<ContractState>()
                     .ReadWriteShared<SequenceState>()
-                    .ReadWriteShared<ProgressMeterState>()
             );
         }
 
@@ -31,10 +30,6 @@ namespace SpaceFab.Fabrication {
                 out ModeState modeState,
                 out ContractState contractState,
                 out SequenceState sequenceState
-                );
-
-            Find.State(
-                out ProgressMeterState meterState
                 );
 
             Log.Msg("[FabricationTransitionSystem] Setting up level...");

@@ -68,6 +68,17 @@ namespace SpaceFab
             Game.Gui.DeregisterUpdate(this);
         }
 
+#if UNITY_EDITOR
+        private void OnDestroy() {
+            HalftoneTransitionMaterial.DisableKeyword("INVERT_TRANSITION");
+            HalftoneTransitionMaterial.SetVector("_Plane0", default);
+            HalftoneTransitionMaterial.SetVector("_Plane1", default);
+            ColorTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
+            SubtractTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
+            DitherTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
+        }
+#endif // UNITY_EDITOR
+
         public void OnRegister()
         {
             CameraHelper.AddOnPreCull(this);
