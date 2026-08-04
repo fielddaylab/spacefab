@@ -73,6 +73,7 @@ namespace SpaceFab
             HalftoneTransitionMaterial.DisableKeyword("INVERT_TRANSITION");
             HalftoneTransitionMaterial.SetVector("_Plane0", default);
             HalftoneTransitionMaterial.SetVector("_Plane1", default);
+            HalftoneTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
             ColorTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
             SubtractTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
             DitherTransitionMaterial.SetColor(DefaultShaderProps.Color, default);
