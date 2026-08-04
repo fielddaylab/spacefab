@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2016959710
+CRC: 3379021196
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0a8905c0892e6ba58f40c6525c54bf13
+    Hash: 965c6214a942132f442abbc5d6cfc30f
   TypeTreeHash:
     serializedVersion: 2
     Hash: f3e8405b8e1cb3676525c58b46a1ec3d
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 0a8905c0892e6ba58f40c6525c54bf13
+    Hash: 965c6214a942132f442abbc5d6cfc30f
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -26,5 +26,5 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: BeauUtil
   ClassName: BeauUtil.StringHash32
 Assets:
-- Assets/Content/Chapters/Test_Chapter/Test_ChStream.asset
+- Assets/Content/Chapters/Chapter 4/Ch4Stream.asset
 Dependencies: []
