@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 903750907962853160}
   - component: {fileID: 4939192686741622403}
   - component: {fileID: 4036388449076893831}
+  - component: {fileID: 3942859479463581189}
   m_Layer: 5
   m_Name: UpperRightQuickBar
   m_TagString: Untagged
@@ -133,6 +134,22 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
+--- !u!114 &3942859479463581189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5228638197193639289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdc01d531f6a15a419738db8cfdf13a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Canvas: {fileID: 96700195516624590}
+  InputLayer: {fileID: 4939192686741622403}
+  HelperButton: {fileID: 8936933169735841658}
+  WikiButton: {fileID: 4107475219901997672}
 --- !u!1001 &7817713799715877744
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -235,6 +252,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2945871561539863648, guid: cf652b02f9277e44d90256fa3eb6ed51, type: 3}
   m_PrefabInstance: {fileID: 7817713799715877744}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8936933169735841658 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1186773379470410762, guid: cf652b02f9277e44d90256fa3eb6ed51, type: 3}
+  m_PrefabInstance: {fileID: 7817713799715877744}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 906fb8621338e4a4aad55f85580e6292, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8208846869598040962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -337,3 +365,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8102700056206283136, guid: 6421347f38aea9e4aa1eab51d15d8d19, type: 3}
   m_PrefabInstance: {fileID: 8208846869598040962}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4107475219901997672 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5254293731440169450, guid: 6421347f38aea9e4aa1eab51d15d8d19, type: 3}
+  m_PrefabInstance: {fileID: 8208846869598040962}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 906fb8621338e4a4aad55f85580e6292, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

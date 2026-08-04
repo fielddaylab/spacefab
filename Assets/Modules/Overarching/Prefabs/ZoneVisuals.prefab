@@ -270,8 +270,9 @@ MonoBehaviour:
   HighlightFill: {fileID: 6586716530386014910}
   NameBadge: {fileID: 8836946041369639190}
   NameFill: {fileID: 7543684373409876686}
-  CompletedBadge: {fileID: 8298501662005482501}
+  CompletedBadge: {fileID: 1991091558418240711}
   ThemeColor: {r: 0, g: 0, b: 0, a: 1}
+  NeutralColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!1001 &2505173333928045325
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -425,13 +426,19 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7e7c193fb4ee46d4fae70535d8842e9d, type: 3}
+--- !u!114 &1991091558418240711 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6684832531043157080, guid: 7e7c193fb4ee46d4fae70535d8842e9d, type: 3}
+  m_PrefabInstance: {fileID: 5144391696729100447}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f5610fa5de3e5243b52cd364ecfd3ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4643195879991822724 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 507638955160213787, guid: 7e7c193fb4ee46d4fae70535d8842e9d, type: 3}
-  m_PrefabInstance: {fileID: 5144391696729100447}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &8298501662005482501 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3769160729359451290, guid: 7e7c193fb4ee46d4fae70535d8842e9d, type: 3}
   m_PrefabInstance: {fileID: 5144391696729100447}
   m_PrefabAsset: {fileID: 0}

@@ -20,9 +20,33 @@ PrefabInstance:
       propertyPath: ThemeColor.r
       value: 0.36078432
       objectReference: {fileID: 0}
+    - target: {fileID: 5559399169171591546, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: NeutralColor.b
+      value: 0.24640001
+      objectReference: {fileID: 0}
+    - target: {fileID: 5559399169171591546, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: NeutralColor.g
+      value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 5559399169171591546, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: NeutralColor.r
+      value: 0.2797094
+      objectReference: {fileID: 0}
     - target: {fileID: 6570131382845652506, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.0667
+      objectReference: {fileID: 0}
+    - target: {fileID: 6586716530386014910, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: m_Color.b
+      value: 0.16860946
+      objectReference: {fileID: 0}
+    - target: {fileID: 6586716530386014910, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: m_Color.g
+      value: 0.695
+      objectReference: {fileID: 0}
+    - target: {fileID: 6586716530386014910, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: m_Color.r
+      value: 0.3783432
       objectReference: {fileID: 0}
     - target: {fileID: 7621238297515207688, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
       propertyPath: m_LocalPosition.x

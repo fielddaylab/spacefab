@@ -12,24 +12,25 @@ namespace SpaceFab.Overarching
     /// PointerEvents get set AFTER Update. So this system checks for them before update,
     /// then refreshes the fields on Update (see MinigameZoneRefreshSystem)
     /// </summary>
-    public class SelectMinigameZoneSystem : SystemComponent
+    public class UpdateZoneAppearanceSystem : SystemComponent
     {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
-            ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.OverarchingMask),
-                new SysPermissions()
-                    .ReadWrite<MinigameZone>()
-                    .ReadWriteShared<MinigameZonesState>()
-            );
+			ecs.Register(&ProcessWork,
+				new SysUpdate(GameLoopPhase.LateUpdate, -1),
+				new SysPermissions()
+					.ReadWrite<MinigameZone>()
+					.ReadWriteShared<MinigameZonesState>()
+			);
         }
 
         static private void ProcessWork(float deltaTime)
         {
-            MinigameZonesState state = Find.State<MinigameZonesState>();
+            Find.State(out MinigameZonesState state);
 
-            if (state.QueuedZone != null) {
-                MinigameZonesUtility.AttemptStartGame(state.QueuedZone);
-                state.QueuedZone = null;
+            if (state.StatusDirty) {
+                state.StatusDirty = false;
+
+                MinigameZonesUtility.UpdateAllZoneAppearances(state);
             }
         }
     }

@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-  m_Name: ZoneOverlays
+  m_Script: {fileID: 11500000, guid: 3ee23d2c6fe91eb4b906ae509dcb6cfa, type: 3}
+  m_Name: DependencyGraph
   m_EditorClassIdentifier: 
-  m_IncludeMode: 0
-  m_FilterSearch: 
-  m_GlobalAssets: []
-  m_NamedAssets: []
-  m_LiteAssets: []
+  UnlockRules:
+  - Minigame: 2
+    Prerequisites: 0000000001000000
+  - Minigame: 3
+    Prerequisites: 02000000

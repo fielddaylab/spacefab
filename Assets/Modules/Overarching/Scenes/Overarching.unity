@@ -396,9 +396,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Packs:
-  - {fileID: 11400000, guid: 8a50f7de9daa38844bf0101c3bb9513e, type: 2}
-  - {fileID: 11400000, guid: 5b4f1bd664a4fe441aad3be2d61f8386, type: 2}
-  - {fileID: 11400000, guid: db039b9c5c4d6434a959e45fdcb02588, type: 2}
+  - {fileID: 11400000, guid: 123bfb912b4eb8d4694407795c2b58af, type: 2}
   - {fileID: 11400000, guid: db039b9c5c4d6434a959e45fdcb02588, type: 2}
   - {fileID: 11400000, guid: 964dc666c417c4bbbb71f7a285b23559, type: 2}
 --- !u!4 &422788435
@@ -1740,7 +1738,6 @@ GameObject:
   - component: {fileID: 963110161}
   - component: {fileID: 963110158}
   - component: {fileID: 963110165}
-  - component: {fileID: 963110167}
   m_Layer: 0
   m_Name: Overarching States
   m_TagString: Untagged
@@ -1815,26 +1812,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Phase: 0
   SubmitButton: {fileID: 262904317}
---- !u!114 &963110167
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963110155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2405f9e5dbbeb44d96ab4c090df71ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UnlockRules:
-  - Minigame: 3
-    Prerequisites: 0000000001000000
-  - Minigame: 2
-    Prerequisites: 03000000
-  Masks: 
-  AlertVisualsDirty: 0
-  AutoRuleApplied: 0
 --- !u!1001 &994501227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1918,7 +1895,7 @@ PrefabInstance:
     - target: {fileID: 3143394367997152360, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1949813302}
+      objectReference: {fileID: 1939386262}
     - target: {fileID: 3697406585824129828, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2157,8 +2134,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Minigame: 1
-  AnalyticsId: 0
-  Cursor: {fileID: 0}
+  Scene:
+    m_ScenePath: Assets/Modules/Research/Scenes/Research.unity
+    m_GUID: 97d523d0140735349a8156319e1862ca
+  Cursor: {fileID: 1022372723}
   Overlay: {fileID: 581002841}
 --- !u!225 &1036893079 stripped
 CanvasGroup:
@@ -2221,6 +2200,7 @@ GameObject:
   - component: {fileID: 1164620745}
   - component: {fileID: 1164620741}
   - component: {fileID: 1164620738}
+  - component: {fileID: 1164620746}
   m_Layer: 0
   m_Name: Overarching Systems
   m_TagString: Untagged
@@ -2278,6 +2258,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9d2fe0898961774595c14f546a65658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1164620746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1164620735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69631a1f15dde4c4b8c849fa5102bbf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1248874235 stripped
@@ -2569,15 +2561,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Minigame: 3
-  AnalyticsId: 0
-  Cursor: {fileID: 0}
+  Scene:
+    m_ScenePath: Assets/Modules/Supply/Scenes/Supply.unity
+    m_GUID: 79ca403f924321f4b8bb6edd6399951e
+  Cursor: {fileID: 1618859506}
   Overlay: {fileID: 1059831989}
 --- !u!225 &1798265855 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 7386836286221549102, guid: 3c04d8d1d6b5ff746aaed33926794c92, type: 3}
   m_PrefabInstance: {fileID: 2892304983068427007}
   m_PrefabAsset: {fileID: 0}
---- !u!43 &1949813302
+--- !u!43 &1939386262
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2840,8 +2834,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Minigame: 2
-  AnalyticsId: 0
-  Cursor: {fileID: 0}
+  Scene:
+    m_ScenePath: Assets/Modules/Fabrication/Scenes/Fabrication.unity
+    m_GUID: 8fa7bf6efe4210c4cb6f6dc5c1a6602d
+  Cursor: {fileID: 1981516453}
   Overlay: {fileID: 2077423818}
 --- !u!1 &2025114820
 GameObject:
@@ -3067,8 +3063,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Minigame: 0
-  AnalyticsId: 0
-  Cursor: {fileID: 0}
+  Scene:
+    m_ScenePath: Assets/Modules/Design/Scenes/Design.unity
+    m_GUID: afca99bc1d285fa409336ad60445568f
+  Cursor: {fileID: 2048587170}
   Overlay: {fileID: 2074757164}
 --- !u!1001 &2054010281
 PrefabInstance:

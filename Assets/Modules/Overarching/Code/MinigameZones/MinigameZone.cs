@@ -16,16 +16,20 @@ namespace SpaceFab.Overarching
         // Identifies which minigame this zone represents. Drives the per-zone alert mask lookup
         // in OverarchingAlertState and the FoundValidSolution auto-rule.
         public MinigameId Minigame;
-        public int AnalyticsId;
+        public SceneReference Scene;
 
         [Header("Components")]
         [Required] public CursorHint Cursor;
         [Required] public MinigameZoneOverlay Overlay;
 
+        [NonSerialized] public MinigameZoneStatus CachedStatus;
+
         public void OnRegister() {
             Cursor.onClick.AddListener(HandleClick);
             Cursor.onPointerEnter.AddListener(HandlePointerEnter);
             Cursor.onPointerExit.AddListener(HandlePointerExit);
+
+            Cursor.enabled = false;
         }
 
         public void OnDeregister() {
@@ -51,16 +55,48 @@ namespace SpaceFab.Overarching
         #endregion // Pointer Handlers
     }
 
+    public enum MinigameZoneStatus {
+        Disabled,
+        Locked,
+        NotStarted,
+        InProgress,
+        Completed
+    }
+
     public static partial class MinigameZonesUtility
     {
-        public static void OnClick(MinigameZone zone)
-        {
-            //zone.ClickedThisFrame = true;
+        public static void OnClick(MinigameZone zone) {
+            Find.State<MinigameZonesState>().QueuedZone = zone;
+        }
+
+        static public void UpdateZoneStatus(MinigameZone zone, MinigameZoneStatus status) {
+            zone.CachedStatus = status;
+
+            zone.Cursor.enabled = status > MinigameZoneStatus.Locked;
+            
+            zone.Overlay.CompletedBadge.gameObject.SetActive(status == MinigameZoneStatus.Completed);
+            zone.Overlay.HighlightFill.enabled = zone.Overlay.HighlightOutline.enabled = status > MinigameZoneStatus.Locked;
+
+            zone.Overlay.NameBadge.SetActive(status == MinigameZoneStatus.NotStarted | status == MinigameZoneStatus.InProgress);
+            zone.Overlay.HighlightFill.color = status == MinigameZoneStatus.Completed ? zone.Overlay.NeutralColor : zone.Overlay.ThemeColor;
         }
 
         static public void SetHoverState(MinigameZone zone, bool hoverActive) {
+            Find.State(out MinigameZonesState state);
+
             zone.Overlay.HighlightOutline.color = hoverActive ? Color.white : Color.black;
+            zone.Overlay.HighlightOutline.sortingOrder = hoverActive ? -2 : -4;
             zone.Overlay.NameFill.color = hoverActive ? zone.Overlay.ThemeColor : Color.black;
+
+            if (hoverActive) {
+                if (state.HoverZone != zone) {
+                    state.HoverZone = zone;
+                }
+            } else {
+                if (state.HoverZone == zone) {
+                    state.HoverZone = null;
+                }
+            }
         }
     }
 }

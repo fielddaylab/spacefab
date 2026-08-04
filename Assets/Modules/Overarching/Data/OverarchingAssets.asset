@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-  m_Name: AlertIcons
+  m_Name: OverarchingAssets
   m_EditorClassIdentifier: 
   m_IncludeMode: 0
   m_FilterSearch: 
-  m_GlobalAssets: []
+  m_GlobalAssets:
+  - {fileID: 11400000, guid: 2b03aa0b9ca91dd4fb85e7a3c5236a54, type: 2}
   m_NamedAssets: []
   m_LiteAssets: []

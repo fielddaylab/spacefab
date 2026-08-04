@@ -84,6 +84,7 @@ namespace SpaceFab.Overarching
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);
+            MinigameZonesUtility.UpdateStatusFromSave(Find.State<MinigameZonesState>(), minigameSaveState, Find.GlobalAsset<MinigameDependencyGraph>());
 
             // Seed every Design level under the contract. Each level gets its own grid + input
             // toggle defaults, all marked unsolved. The player works through them in order; the

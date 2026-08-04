@@ -56,13 +56,25 @@ PrefabInstance:
       propertyPath: ThemeColor.g
       value: 0.5686275
       objectReference: {fileID: 0}
+    - target: {fileID: 5559399169171591546, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: NeutralColor.b
+      value: 0.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 5559399169171591546, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: NeutralColor.g
+      value: 0.30880654
+      objectReference: {fileID: 0}
+    - target: {fileID: 5559399169171591546, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
+      propertyPath: NeutralColor.r
+      value: 0.21333334
+      objectReference: {fileID: 0}
     - target: {fileID: 6120202132406039651, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.36
       objectReference: {fileID: 0}
     - target: {fileID: 6120202132406039651, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.1
+      value: -0.1115
       objectReference: {fileID: 0}
     - target: {fileID: 6570131382845652506, guid: a48bc06a7718fde45aa6c0d73f68ad35, type: 3}
       propertyPath: m_LocalPosition.x

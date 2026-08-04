@@ -1,7 +1,9 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scenes;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using SpaceFab.Save;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,102 +12,84 @@ using UnityEngine;
 
 namespace SpaceFab.Overarching
 {
-    public class MinigameZonesState : SharedStateComponent
+    [PreloadOrder(1000)]
+    public class MinigameZonesState : SharedStateComponent, IScenePreload
     {
+        [NonSerialized] public MinigameZoneStatus[] ZoneStatus = new MinigameZoneStatus[(int) MinigameId.COUNT];
+        
         [NonSerialized] public MinigameZone HoverZone;
         [NonSerialized] public MinigameZone QueuedZone;
+
+        [NonSerialized] public bool StatusDirty;
+
+        IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
+            Find.State(out ContractState contracts, out MinigameSaveStates saves);
+            Find.GlobalAsset(out MinigameDependencyGraph depGraph);
+            if (!contracts.ContractId.IsEmpty) {
+                MinigameZonesUtility.UpdateStatusFromSave(this, saves, depGraph);
+            } else {
+                MinigameZonesUtility.DisableAllZones(this);
+            }
+            return null;
+        }
     }
 
-    public static partial class MinigameZonesUtility
-    {
-        //// Hover is now just index bookkeeping; the sprite/label swap happens declaratively in
-        //// RefreshZoneVisuals based on the current hover index.
-        //public static void CancelHover(MinigameZonesState state, int indexToCancel)
-        //{
-        //    if (state.CurrHoverIndex == indexToCancel)
-        //    {
-        //        state.CurrHoverIndex = -1;
-        //    }
-        //}
+    public static partial class MinigameZonesUtility {
 
-        //public static void BeginHover(MinigameZonesState state, int indexToHover)
-        //{
-        //    state.CurrHoverIndex = indexToHover;
-        //}
+        static public MinigameZoneStatus GetStatus(MinigameZonesState zones, MinigameId mg) {
+            return zones.ZoneStatus[(int) mg];
+        }
 
-        //// A click records which zone is being entered (read by OverarchingToMinigameSequenceSystem
-        //// to resolve the scene) and starts the enter-minigame transition. There's no separate
-        //// selection highlight — the focus sprite is driven entirely by hover.
-        //public static void ClickZone(MinigameZonesState state, int indexToClick)
-        //{
-        //    state.CurrSelectedIndex = indexToClick;
-        //    ConfirmEnterMinigame(state);
-        //}
+        static public void DisableAllZones(MinigameZonesState zones) {
+            for (int i = 0; i < (int) MinigameId.COUNT; i++) {
+                zones.ZoneStatus[i] = MinigameZoneStatus.Disabled;
+            }
+            zones.StatusDirty = true;
+        }
 
-        //#region Zone Visuals
+        static public unsafe void UpdateStatusFromSave(MinigameZonesState zones, MinigameSaveStates saveStates, MinigameDependencyGraph dependencyGraph) {
+            MinigameZoneStatus* statusBuffer = stackalloc MinigameZoneStatus[(int) MinigameId.COUNT];
 
-        //// Recomputes every zone's overlay + label from current state, as a pure function of
-        //// (locked, hovered, needs-attention). Locked zones hide everything; unlocked zones show
-        //// their non-focus overlay, swapping to the focus sprite while hovered. The station label
-        //// (with its background + dot) shows while hovered or while the zone wants attention. The
-        //// dot always carries the zone's color; the background takes the zone's color while focused
-        //// and the shared default otherwise. Overlay sprites are self-colored (renderer untinted).
-        //public static void RefreshZoneVisuals(MinigameZonesState state, OverarchingAlertState alertState)
-        //{
-        //    //for (int i = 0; i < state.Zones.Length; i++)
-        //    //{
-        //    //    MinigameZone zone = state.Zones[i];
+            for (MinigameId id = 0; id < MinigameId.COUNT; id++) {
+                MinigameSaveStateBase save = MinigameSaveUtility.GetState(saveStates, id);
+                statusBuffer[(int) id] = save.FoundValidSolution ? MinigameZoneStatus.Completed : (save.Started ? MinigameZoneStatus.InProgress : MinigameZoneStatus.InProgress);
+            }
 
-        //    //    bool locked = OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Locked);
+            for (int i = 0; i < dependencyGraph.UnlockRules.Length; i++) {
+                MinigameUnlockRule rule = dependencyGraph.UnlockRules[i];
+                if (rule.Prerequisites == null || rule.Prerequisites.Length <= 0) {
+                    continue;
+                }
 
-        //    //    // Locked zones offer no interaction affordance: disable the hover CursorHint so the
-        //    //    // pointer doesn't change over them (their overlay and click are already suppressed).
-        //    //    if (zone.Cursor != null)
-        //    //    {
-        //    //        zone.Cursor.enabled = !locked;
-        //    //    }
+                bool locked = false;
+                for (int p = 0; p < rule.Prerequisites.Length; p++) {
+                    if (!MinigameSaveUtility.GetState(saveStates, rule.Prerequisites[p]).FoundValidSolution) {
+                        locked = true;
+                        break;
+                    }
+                }
+                if (locked) {
+                    statusBuffer[(int) rule.Minigame] = MinigameZoneStatus.Locked;
+                }
+            }
 
-        //    //    if (locked)
-        //    //    {
-        //    //        SetZoneVisualsEmpty(zone);
-        //    //        continue;
-        //    //    }
+            for (int i = 0; i < (int) MinigameId.COUNT; i++) {
+                zones.ZoneStatus[i] = statusBuffer[i];
+            }
 
-        //    //    bool focused = state.CurrHoverIndex == zone.ZoneIndex;
+            zones.StatusDirty = true;
+        }
 
-        //    //    zone.Overlay.HighlightFill.enabled = true;
-        //    //    zone.Overlay.HighlightOutline.enabled = true;
+        static public void UpdateAllZoneAppearances(MinigameZonesState zones) {
+            foreach (var zone in Find.Components<MinigameZone>()) {
+                MinigameZonesUtility.UpdateZoneStatus(zone, zones.ZoneStatus[(int) zone.Minigame]);
+                MinigameZonesUtility.SetHoverState(zone, zone == zones.HoverZone);
+            }
+        }
 
-        //    //    zone.Overlay.HighlightOutline.color = focused ? Color.white : Color.black;
-
-        //    //    // Label (with its background + dot) stays visible for any unlocked, not-yet-completed
-        //    //    // zone; a completed zone shows it only while hovered. (Locked zones already returned.)
-        //    //    bool completed = OverarchingAlertUtility.HasAlert(alertState, zone.Minigame, AlertType.Complete);
-        //    //    bool labelVisible = focused || !completed;
-
-        //    //    zone.Overlay.NameFill.color = focused ? zone.Overlay.ThemeColor : Color.black;
-        //    //    zone.Overlay.NameBadge.SetActive(labelVisible);
-        //    //    zone.Overlay.CompletedBadge.SetActive(completed);
-        //    //}
-        //}
-
-        //// Hides every per-zone visual: the overlay highlight and the whole label group (text,
-        //// background, dot). Used for locked zones and zones with no authored overlay sprite.
-        //public static void SetZoneVisualsEmpty(MinigameZone zone)
-        //{
-        //    zone.Overlay.HighlightFill.enabled = false;
-        //    zone.Overlay.HighlightOutline.enabled = false;
-        //    zone.Overlay.CompletedBadge.SetActive(false);
-        //    zone.Overlay.NameBadge.SetActive(false);
-        //}
-
-        //#endregion // Zone Visuals
-
-        //public static void ConfirmEnterMinigame(MinigameZonesState state)
-        //{
-        //    Debug.Log("Start minigame: " + state.CurrSelectedIndex);
-        //    SpacefabGame.Events.Dispatch(GameEvents.StartMinigame, state.CurrSelectedIndex);
-        //    OverarchingTransitions.ToMinigame();
-        //}
+        static public void AttemptStartGame(MinigameZone zone) {
+            SpacefabGame.Events.Dispatch(GameEvents.StartMinigame, EvtArgs.Create(zone.Minigame));
+            OverarchingTransitions.ToMinigame(zone);
+        }
     }
 }
