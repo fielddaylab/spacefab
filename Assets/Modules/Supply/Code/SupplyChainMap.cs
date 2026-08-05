@@ -102,7 +102,14 @@ namespace SpaceFab.Supply
                         Position = position
                     });
 
-                    // TODO: overrides
+                    if (HasNodeOverrides(node)) {
+                        overrides.Add(new SupplyChainMapData.NodeOverride() {
+                            Name = node.gameObject.name,
+                            Time = node.Time,
+                            Cost = node.Cost,
+                            Risk = node.Risk
+                        });
+                    }
 
                 } else if (child.TryGetComponent(out BoxCollider2D collider)) {
                     cameraBounds = Geom.BoundsToRect(collider.bounds);
@@ -117,16 +124,25 @@ namespace SpaceFab.Supply
             Log.Msg("[SupplyChainMap] Exported map data ({0} nodes) to '{1}'", target.Positions.Length, target.name);
         }
 
+        static private bool HasNodeOverrides(SupplyRouteNode node) {
+            var prefabOverrides = PrefabUtility.GetObjectOverrides(node.gameObject);
+            foreach(var overrideDesc in prefabOverrides) {
+                if (overrideDesc.instanceObject == node) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         static private void EditorImport(SupplyChainMapData data, Transform root) {
             int childCount = root.childCount;
             for(int i = 0; i < childCount; i++) {
                 Transform child = root.GetChild(i);
-                if (!child.gameObject.activeSelf) {
-                    continue;
-                }
 
                 if (child.TryGetComponent(out SupplyRouteNode node)) {
                     Baking.PrepareUndo(child, "Importing map data");
+
+                    PrefabUtility.RevertObjectOverride(node, InteractionMode.UserAction);
 
                     StringHash32 id = node.gameObject.name;
                     bool activeState = false;
@@ -138,9 +154,20 @@ namespace SpaceFab.Supply
                         }
                     }
 
+                    foreach (var change in data.Overrides) {
+                        if (change.Name == id) {
+                            node.Time = change.Time;
+                            node.Cost = change.Cost;
+                            node.Risk = change.Risk;
+                            break;
+                        }
+                    }
+
                     child.gameObject.SetActive(activeState);
                     Baking.SetDirty(child);
                 } else if (child.TryGetComponent(out BoxCollider2D collider)) {
+                    Baking.PrepareUndo(child, "Importing map data");
+
                     Vector2 center = data.CameraBounds.center;
                     Vector2 size = data.CameraBounds.size;
 

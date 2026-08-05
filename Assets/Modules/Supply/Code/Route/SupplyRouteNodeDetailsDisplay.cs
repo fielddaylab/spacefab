@@ -2,14 +2,16 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Components;
+using FieldDay.Scenes;
 using FieldDay.UI.Widgets;
 using SpaceFab.Materials;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
-    public sealed class SupplyRouteNodeDetailsDisplay : BatchedComponent {
+    public sealed class SupplyRouteNodeDetailsDisplay : BatchedComponent, IScenePreload {
         public float RadiusPadding = 0.25f;
 
         [Header("Underlay")]
@@ -31,6 +33,11 @@ namespace SpaceFab.Supply {
         public float RiskPosition = -0.45f;
 
         [NonSerialized] public float LastKnownRadius;
+
+        IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
+            gameObject.SetActive(false);
+            return null;
+        }
     }
 
     static public partial class SupplyRouteUtility {
@@ -53,7 +60,7 @@ namespace SpaceFab.Supply {
             // precision
             const int pointCount = 20;
             Vector3* positions = stackalloc Vector3[pointCount];
-            GenerateCoordinates(positions, pointCount, radius, display.TimePosition * Mathf.PI, display.RiskPosition * Mathf.PI);
+            GenerateCoordinates(positions, pointCount, radius, display.CostPosition * Mathf.PI, display.RiskPosition * Mathf.PI);
             display.Underlay.SetPositions(Unsafe.NativeArray(positions, pointCount));
             GenerateCoordinates(positions, pointCount, radius, 0.5f * Mathf.PI, Mathf.PI);
             display.TopUnderlay.SetPositions(Unsafe.NativeArray(positions, pointCount));

@@ -17,7 +17,6 @@ namespace SpaceFab.Onboarding {
         [LeafMember("HighlightElement")]
         public static void Leaf_HighlightElement(string id, bool lockFocus = false, float margin = -1f, bool attachToCanvas = false) {
             OnboardingHighlightState highlightState = Find.State<OnboardingHighlightState>();
-            if (highlightState == null) { return; }
             OnboardingHighlightUtility.Show(highlightState, NormalizeId(id), lockFocus, margin, attachToCanvas);
         }
 
@@ -25,7 +24,6 @@ namespace SpaceFab.Onboarding {
         [LeafMember("ReleaseHighlight")]
         public static void Leaf_ReleaseHighlight(string id) {
             OnboardingHighlightState highlightState = Find.State<OnboardingHighlightState>();
-            if (highlightState == null) { return; }
             OnboardingHighlightUtility.Release(highlightState, NormalizeId(id));
         }
 
@@ -33,7 +31,6 @@ namespace SpaceFab.Onboarding {
         [LeafMember("ReleaseAllHighlights")]
         public static void Leaf_ReleaseAllHighlights() {
             OnboardingHighlightState highlightState = Find.State<OnboardingHighlightState>();
-            if (highlightState == null) { return; }
             OnboardingHighlightUtility.ReleaseAll(highlightState);
         }
 

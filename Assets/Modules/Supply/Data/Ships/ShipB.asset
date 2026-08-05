@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32a2262c22269de49bca1259173cd969, type: 3}
-  m_Name: ShipA
+  m_Name: ShipB
   m_EditorClassIdentifier: 
-  DisplayName: The Sphere
-  BodyImage: {fileID: 21300000, guid: 592d9ac6978f9e846aeb7c4d554f5848, type: 3}
-  Icon: {fileID: 21300000, guid: 063e9405da1eb2d42be20daf0793194c, type: 3}
+  DisplayName: The Star
+  BodyImage: {fileID: 21300000, guid: 9a585ac2bdec63e42bd46af21e11a18f, type: 3}
+  Icon: {fileID: 21300000, guid: c372e1dd35753c34cbda66a541627792, type: 3}
   IconColor:
     serializedVersion: 2
-    rgba: 4278398745
+    rgba: 4284612708
   Colors:
     Content:
       serializedVersion: 2
       rgba: 4278190080
     Background:
       serializedVersion: 2
-      rgba: 4283426971
+      rgba: 4292702431
   LineColor:
     serializedVersion: 2
-    rgba: 4283426971
-  Speed: 1
-  Capacity: 3
+    rgba: 4292702431
+  Speed: 2
+  Capacity: 2

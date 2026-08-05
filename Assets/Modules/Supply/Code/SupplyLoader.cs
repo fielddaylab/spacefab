@@ -53,7 +53,12 @@ namespace SpaceFab.Supply {
                 node.gameObject.SetActive(true);
             }
 
-            // TODO: apply overrides
+            foreach(var data in entry.Overrides) {
+                SupplyRouteNode node = SupplyRouteUtility.GetNodeForId(data.Name);
+                node.Time = data.Time;
+                node.Cost = data.Cost;
+                node.Risk = data.Risk;
+            }
 
             foreach (var node in map.Nodes) {
                 node.Position = node.transform.localPosition;
@@ -67,7 +72,6 @@ namespace SpaceFab.Supply {
 
             supplyState.CurrSupplyChainMap = entry;
             yield return null;
-
 
             // set up camera bounding region
             Find.State(out SupplyCameraControlState cameraState);

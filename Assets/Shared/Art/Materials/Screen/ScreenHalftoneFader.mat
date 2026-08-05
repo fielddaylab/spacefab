@@ -32,7 +32,7 @@ Material:
     - _SrcBlend: 1
     - _Tiling: 37
     m_Colors:
-    - _Color: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 0.04007569}
+    - _Color: {r: 0, g: 0, b: 0, a: 0}
     - _Plane0: {r: 0, g: 0, b: 0, a: 0}
     - _Plane1: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
