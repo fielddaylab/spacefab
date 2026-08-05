@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Debugging;
 using FieldDay.Music;
 using FieldDay.Scenes;
 using FieldDay.Scripting;
@@ -17,6 +18,9 @@ namespace SpaceFab.Supply {
     /// </summary>
     [PreloadOrder(10000)]
     public class SupplyLoader : MonoBehaviour, IScenePreload, ISceneLoadHandler {
+        [Header("-- DEBUG --")]
+        [Range(0, 12)] public int DebugChapterIndex;
+
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);
@@ -27,6 +31,9 @@ namespace SpaceFab.Supply {
             Find.State(out SupplyChainMap map, out ChapterState chapterState, out SupplyMinigameState supplyState);
 
             int chapterIndex = chapterState.ChapterIndex;
+            if (DebugFlags.LaunchedFromThisScene) {
+                chapterIndex = DebugChapterIndex;
+            }
 
             var entry = map.Entries[chapterIndex];
 

@@ -38,7 +38,7 @@ namespace SpaceFab.Supply {
                 bodySprite.sprite = shipAsset.BodyImage;
             }
 
-            ShipListPanel.SpeedIconConfig speedIcon = panel.SpeedIcons[shipAsset.Speed - 1];
+            ShipListPanel.SpeedIconConfig speedIcon = panel.SpeedIcons[shipAsset.Speed];
             row.SpeedIcon.sprite = speedIcon.Image;
             row.SpeedIcon.rectTransform.sizeDelta = speedIcon.Size;
 

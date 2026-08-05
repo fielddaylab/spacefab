@@ -26,14 +26,9 @@ MonoBehaviour:
     Position: {x: -0.37, y: 0.01}
   - Name:
       m_HashValue: 57385584
-    Position: {x: -4.21, y: -3.21}
-  - Name:
-      m_HashValue: 3801165340
-    Position: {x: 3.43, y: -2.46}
-  - Name:
-      m_HashValue: 1161631464
-    Position: {x: 3.43, y: -2.46}
+    Position: {x: -0.5, y: -5.33}
   - Name:
       m_HashValue: 1616771497
-    Position: {x: -0.8, y: 4.1}
+    Position: {x: 7.45, y: -0.67}
+  Hazards: []
   Overrides: []

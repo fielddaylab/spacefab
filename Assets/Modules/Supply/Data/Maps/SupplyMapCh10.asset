@@ -14,20 +14,65 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShipIds:
   - m_HashValue: 4036650106
+  - m_HashValue: 4019872487
+  - m_HashValue: 4003094868
   CameraBounds:
     serializedVersion: 2
-    x: -10
-    y: -10
-    width: 20
-    height: 20
+    x: -16
+    y: -12
+    width: 32
+    height: 24
   Positions:
   - Name:
       m_HashValue: 1391791790
-    Position: {x: -2.68, y: 0.34}
+    Position: {x: -0.37, y: 0.01}
   - Name:
-      m_HashValue: 2050365977
-    Position: {x: 4.38, y: -0.55}
+      m_HashValue: 543539177
+    Position: {x: 2.19, y: 5.18}
   - Name:
-      m_HashValue: 2033588358
-    Position: {x: 0.59, y: -3.62}
-  Overrides: []
+      m_HashValue: 392540606
+    Position: {x: 4.12, y: -8.05}
+  - Name:
+      m_HashValue: 3566278674
+    Position: {x: -6.45, y: -4.55}
+  - Name:
+      m_HashValue: 57385584
+    Position: {x: 5.28, y: -2.63}
+  - Name:
+      m_HashValue: 1038204968
+    Position: {x: 8.03, y: 0.24}
+  - Name:
+      m_HashValue: 593577844
+    Position: {x: 0.77, y: -4.36}
+  - Name:
+      m_HashValue: 91235012
+    Position: {x: -3.91, y: 4.61}
+  - Name:
+      m_HashValue: 3801165340
+    Position: {x: -7.32, y: 0.65}
+  - Name:
+      m_HashValue: 1616771497
+    Position: {x: 8.48, y: -6.55}
+  - Name:
+      m_HashValue: 241399131
+    Position: {x: -2.83, y: -6.22}
+  - Name:
+      m_HashValue: 460151471
+    Position: {x: 6.87, y: 3.88}
+  Hazards: []
+  Overrides:
+  - Name:
+      m_HashValue: 392540606
+    Time: 2
+    Cost: 3
+    Risk: 1
+  - Name:
+      m_HashValue: 57385584
+    Time: 3
+    Cost: 2
+    Risk: 2
+  - Name:
+      m_HashValue: 593577844
+    Time: 2
+    Cost: 3
+    Risk: 1

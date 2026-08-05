@@ -17,10 +17,6 @@ PrefabInstance:
       value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
-      propertyPath: Collider
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: Id.m_Source
       value: supply:planet0
       objectReference: {fileID: 0}

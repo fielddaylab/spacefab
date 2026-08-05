@@ -24,6 +24,7 @@ namespace SpaceFab.Supply
 
         public Transform NodeRoot;
         public SupplyRouteNode[] Nodes;
+        public SupplyRouteHazard[] Hazards;
 
         [NonSerialized] public SupplyRouteNode Home;
 
@@ -33,6 +34,7 @@ namespace SpaceFab.Supply
 
         bool IBaked.Bake(BakeFlags flags, BakeContext context) {
             Nodes = NodeRoot.GetComponentsInChildren<SupplyRouteNode>(true);
+            Hazards = NodeRoot.GetComponentsInChildren<SupplyRouteHazard>(true);
             return true;
         }
 
@@ -51,6 +53,15 @@ namespace SpaceFab.Supply
 
                 SupplyRouteUtility.InitializeTooltipReferences(node);
                 node.gameObject.SetActive(false);
+                yield return null;
+            }
+
+            for (int i = 0; i < Hazards.Length; i++) {
+                var hazard = Hazards[i];
+                hazard.Id = hazard.name;
+                hazard.Index = i;
+
+                hazard.gameObject.SetActive(false);
                 yield return null;
             }
         }
@@ -86,7 +97,8 @@ namespace SpaceFab.Supply
         static private void EditorExport(Transform root, SupplyChainMapData target) {
             List<SupplyChainMapData.NodeData> nodes = new List<SupplyChainMapData.NodeData>();
             List<SupplyChainMapData.NodeOverride> overrides = new List<SupplyChainMapData.NodeOverride>();
-            Rect cameraBounds = new Rect(-5, -5, 10, 10);
+            List<SupplyChainMapData.NodeData> hazards = new List<SupplyChainMapData.NodeData>();
+            Rect cameraBounds = new Rect(-20, -20, 40, 40);
 
             int childCount = root.childCount;
             for(int i = 0; i < childCount; i++) {
@@ -111,6 +123,12 @@ namespace SpaceFab.Supply
                         });
                     }
 
+                } else if (child.TryGetComponent(out SupplyRouteHazard hazard)) {
+                    Vector2 position = hazard.transform.localPosition;
+                    hazards.Add(new SupplyChainMapData.NodeData() {
+                        Name = hazard.gameObject.name,
+                        Position = position
+                    });
                 } else if (child.TryGetComponent(out BoxCollider2D collider)) {
                     cameraBounds = Geom.BoundsToRect(collider.bounds);
                 }
@@ -165,6 +183,23 @@ namespace SpaceFab.Supply
 
                     child.gameObject.SetActive(activeState);
                     Baking.SetDirty(child);
+                } else if (child.TryGetComponent(out SupplyRouteHazard hazard)) {
+                    Baking.PrepareUndo(child, "Importing map data");
+
+                    PrefabUtility.RevertObjectOverride(hazard, InteractionMode.UserAction);
+
+                    StringHash32 id = hazard.gameObject.name;
+                    bool activeState = false;
+                    foreach (var pos in data.Hazards) {
+                        if (pos.Name == id) {
+                            child.localPosition = pos.Position;
+                            activeState = true;
+                            break;
+                        }
+                    }
+
+                    child.gameObject.SetActive(activeState);
+                    Baking.SetDirty(child);
                 } else if (child.TryGetComponent(out BoxCollider2D collider)) {
                     Baking.PrepareUndo(child, "Importing map data");
 
@@ -204,6 +239,28 @@ namespace SpaceFab.Supply
             }
 
             Assert.Fail("No supply node with id '{0}'", id);
+            return null;
+        }
+
+        static public SupplyRouteHazard GetHazardForIndex(int index) {
+            Find.State(out SupplyChainMap loader);
+            Assert.True(index >= 0 && index < loader.Hazards.Length, "Supply hazard index {0} out of range", index);
+            return loader.Hazards[index];
+        }
+
+        static public SupplyRouteHazard GetHazardForId(StringHash32 id) {
+            if (id.IsEmpty) {
+                return null;
+            }
+
+            Find.State(out SupplyChainMap loader);
+            foreach (var hazard in loader.Hazards) {
+                if (hazard.Id == id) {
+                    return hazard;
+                }
+            }
+
+            Assert.Fail("No supply hazard with id '{0}'", id);
             return null;
         }
     }
