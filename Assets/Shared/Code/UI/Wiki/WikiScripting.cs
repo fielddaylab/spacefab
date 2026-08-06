@@ -14,7 +14,7 @@ namespace SpaceFab.UI {
         [LeafMember("CloseWiki")]
         public static void Leaf_CloseWiki() {
             if (!Game.SharedState.Has<WikiState>()) { return; }
-            WikiUtility.Close();
+            WikiUtility.Close(Find.State<WikiState>());
         }
 
         // Open (expanding if collapsed) the wiki to a specific tab + page by id. Each id may be the

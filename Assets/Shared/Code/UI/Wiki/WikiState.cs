@@ -86,15 +86,13 @@ namespace SpaceFab.UI {
 
         // Open the wiki to the last-viewed tab + page. No-op if already expanded or mid-
         // transition. Callers: gameplay code, debug menus, the collapsed icon's click handler.
-        public static void Open() {
-            WikiState wikiState = Find.State<WikiState>();
+        public static void Open(WikiState wikiState) {
             if (wikiState.Expanded || wikiState.Transitioning) { return; }
             wikiState.OpenRequestedThisFrame = true;
         }
 
         // Close the wiki. No-op if already collapsed or mid-transition.
-        public static void Close() {
-            WikiState wikiState = Find.State<WikiState>();
+        public static void Close(WikiState wikiState) {
             if (!wikiState.Expanded || wikiState.Transitioning) { return; }
             wikiState.CloseRequestedThisFrame = true;
         }
@@ -109,6 +107,19 @@ namespace SpaceFab.UI {
             wikiState.OpenToRequestedThisFrame = true;
             wikiState.RequestedTabId = tabId;
             wikiState.RequestedPageId = pageId;
+        }
+
+        // Toggles Wiki open or close
+        public static void ToggleWikiOpen(WikiState wikiState)
+        {
+            if (wikiState.Transitioning) { return; }
+
+            if (wikiState.Expanded) {
+                Close(wikiState);
+            }
+            else {
+                Open(wikiState);
+            }
         }
 
         #endregion // External API
