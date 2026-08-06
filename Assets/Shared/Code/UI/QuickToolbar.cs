@@ -7,6 +7,7 @@ using UnityEngine;
 using FieldDay.UI;
 using FieldDay.Audio;
 using FieldDay.UI.Widgets;
+using SpaceFab.UI;
 
 namespace SpaceFab
 {
@@ -25,6 +26,7 @@ namespace SpaceFab
 
         public void OnDeregister() {
             Game.Scenes.OnMainSceneLateEnable.Deregister(OnSceneLateEnable);
+            WikiButton.OnClick.RemoveAllListeners();
         }
 
         public void OnRegister() {
@@ -36,11 +38,20 @@ namespace SpaceFab
             if (Game.SharedState.TryGet(out GlobalUISceneConfig config)) {
                 HelperButton.gameObject.SetActive(config.DisplayHelper);
                 WikiButton.gameObject.SetActive(config.DisplayWiki);
+                WikiButton.OnClick.AddListener(OnCollapsedWikiClicked);
                 visible = config.DisplayHelper | config.DisplayWiki;
             }
 
             Canvas.enabled = visible;
             InputLayer.SetInputOverride(visible ? null : false);
         }
+
+        #region // Handlers
+        
+        private void OnCollapsedWikiClicked() {
+            WikiUtility.ToggleWikiOpen(Find.State<WikiState>());
+        }
+
+        #endregion // Handlers
     }
 }
