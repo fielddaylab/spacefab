@@ -21,6 +21,7 @@ namespace SpaceFab.Supply {
 
         public LayoutSizeGroup Layout;
         public LayoutOptions VerticalLayoutOptions;
+        public float SelectedRowOffset;
 
         [Header("Row Config")]
         public ShipListRow[] Rows;
@@ -39,16 +40,22 @@ namespace SpaceFab.Supply {
 
         private void OnRouteStarted(SupplyRouteEventArgs evtArgs) {
             SelectedRow = Rows[evtArgs.RouteIndex];
-            SelectedRow.LayoutOffset.Offset0 = new Vector2(40, 0);
+            SelectedRow.LayoutOffset.Offset0 = new Vector2(SelectedRowOffset, 0);
             SelectedRow.CursorHint.TooltipFooter = "<sprite name=\"MouseLeft\"> Cancel";
             SelectedRow.CursorHint.MarkDirty();
+            SupplyChainUtility.SetShipRowStatsActive(SelectedRow, true);
+            SupplyChainUtility.SyncShipRowPositions(SelectedRow);
+            SupplyChainUtility.ReflowShipList(this, true);
         }
 
         private void OnRouteEnded(SupplyRouteEventArgs evtArgs) {
             SelectedRow.CursorHint.TooltipFooter = "<sprite name=\"MouseLeft\"> Draw Route";
             SelectedRow.CursorHint.MarkDirty();
             SelectedRow.LayoutOffset.Offset0 = default;
+            SupplyChainUtility.SetShipRowStatsActive(SelectedRow, evtArgs.Stats.Time > 0);
+            SupplyChainUtility.SyncShipRowPositions(SelectedRow);
             SelectedRow = null;
+            SupplyChainUtility.ReflowShipList(this, true);
         }
     }
 
@@ -61,6 +68,7 @@ namespace SpaceFab.Supply {
                 row.ShipIndex = i;
                 row.CursorHint.onClick.Register(HandleShipClicked);
                 row.gameObject.SetActive(true);
+                SetShipRowStatsActive(row, false);
             }
 
             for(int i = ships.ShipCount; i < panel.Rows.Length; i++) {
@@ -79,6 +87,7 @@ namespace SpaceFab.Supply {
                     row.TargetPos.y = yBuffer[i];
                     if (snap) {
                         Positioning.SetOffsetY(row.Rect, row.TargetPos.y);
+                        SyncShipRowPositions(row);
                     }
                 }
             }

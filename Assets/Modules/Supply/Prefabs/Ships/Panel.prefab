@@ -79,15 +79,14 @@ MonoBehaviour:
   VerticalLayoutOptions:
     Source: 2
     Flags: 0
-    NormalizedAlignment: 0.5
+    NormalizedAlignment: 1
     Spacing: 8
     FixedSize: 0
+  SelectedRowOffset: 140
   Rows:
   - {fileID: 6375169116172518004}
   - {fileID: 5586807418180650433}
   - {fileID: 7679113508737858843}
-  - {fileID: 1811127864790145895}
-  - {fileID: 4800641413181143345}
   SpeedIcons:
   - Image: {fileID: 21300000, guid: 5e8609804057db44789478516e2b2e16, type: 3}
     Size: {x: 16, y: 13}
@@ -152,17 +151,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fdae4dcde43c8884096465e5798fb555, type: 3}
---- !u!114 &1811127864790145895 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3636382318278454420, guid: fdae4dcde43c8884096465e5798fb555, type: 3}
-  m_PrefabInstance: {fileID: 3122522045877811187}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb75f6b9118d35647ae2c19c96df2aa7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &7946932102408400284 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4979927742887500399, guid: fdae4dcde43c8884096465e5798fb555, type: 3}
@@ -368,17 +356,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4979927742887500399, guid: fdae4dcde43c8884096465e5798fb555, type: 3}
   m_PrefabInstance: {fileID: 8135835866989811109}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4800641413181143345 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3636382318278454420, guid: fdae4dcde43c8884096465e5798fb555, type: 3}
-  m_PrefabInstance: {fileID: 8135835866989811109}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb75f6b9118d35647ae2c19c96df2aa7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &9223184899112134997
 PrefabInstance:
   m_ObjectHideFlags: 0

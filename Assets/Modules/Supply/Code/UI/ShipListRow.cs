@@ -3,6 +3,8 @@ using BeauRoutine;
 using FieldDay;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
+using SpaceFab.Fabrication;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,9 +15,22 @@ namespace SpaceFab.Supply {
         public Image[] ShipBody;
         public RectTransform[] Slots;
         public Image[] SlotMaterials;
+        public TMP_Text ShipName;
+
+        [Header("Links")]
+        public Image LineLayer;
+        public SupplyShipBreakdownRow StatsLayer;
+        public LayoutStyleInfo Style;
 
         [NonSerialized] public int ShipIndex;
         [NonSerialized] public Vector2 TargetPos;
+
+        protected override void OnDisable() {
+            LineLayer.gameObject.SetActive(false);
+            StatsLayer.gameObject.SetActive(false);
+            
+            base.OnDisable();
+        }
     }
 
     static public partial class SupplyChainUtility {
@@ -51,6 +66,27 @@ namespace SpaceFab.Supply {
             }
 
             row.CursorHint.TooltipHeader = shipAsset.DisplayName;
+
+            row.LineLayer.color = shipAsset.LineColor;
+
+            row.ShipName.SetText(shipAsset.DisplayName);
+            row.ShipName.color = shipAsset.Colors.Content;
+        }
+
+        static public void SyncShipRowPositions(ShipListRow row) {
+            Vector2 anchorPos = row.Rect.anchoredPosition;
+            row.LineLayer.rectTransform.anchoredPosition = anchorPos;
+            Positioning.SetOffsetY(row.StatsLayer.Rect, anchorPos.y);
+        }
+
+        static public void SetShipRowStatsActive(ShipListRow row, bool active) {
+            if (active) {
+                row.StatsLayer.gameObject.SetActive(true);
+                row.Style.Style.MarginLower.y = 52;
+            } else {
+                row.Style.Style.MarginLower.y = 0;
+                row.StatsLayer.gameObject.SetActive(false);
+            }
         }
     }
 }
