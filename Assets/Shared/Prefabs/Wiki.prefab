@@ -787,6 +787,7 @@ MonoBehaviour:
   PageThumbActiveSprite: {fileID: 0}
   PageThumbInactiveSprite: {fileID: 0}
   PageThumbStride: 60
+  WikiContent: {fileID: 3742335956658932119}
 --- !u!114 &2376959418062856433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1938,10 +1939,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaec82a1713dce845b1e2b5a14b6f6cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Tabs:
-  - {fileID: 11400000, guid: 73442683a878e914f974c9b62f6a3b03, type: 2}
-  - {fileID: 11400000, guid: 8a9d9d7fda594d942a5b359fd0398d25, type: 2}
-  - {fileID: 11400000, guid: 64bb228a83f3b184eb45a5510fef6e09, type: 2}
   PageWindowSize: 5
 --- !u!1 &7504433869379224055
 GameObject:

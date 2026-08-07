@@ -77,12 +77,10 @@ namespace SpaceFab.UI {
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
 
-        // Requests a strip rebuild + unlock pass. Consumed by OnSceneLateEnable.
+        // Requests a strip rebuild + unlock pass — the set of pooled button instances is wrong, as
+        // opposed to VisualsDirty's "existing instances need restyling". Drained by
+        // WikiRefreshSystem ahead of the visuals pass, and by OnSceneLateEnable on level load.
         [HideInInspector] public bool NeedsRebuild;
-
-        // Set for one frame when the active page changes, or when the wiki expands onto a page.
-        // Drives WikiCharacteristicsRefreshSystem; cleared by WikiRefreshSystem.
-        [HideInInspector] public bool ActivePageChangedThisFrame;
 
         // Which presentation domains are stale. Raised by the WikiUtility mutators at the point of
         // mutation, consumed and cleared by WikiVisualsUtility.Refresh. Unlike the *ThisFrame
@@ -121,6 +119,7 @@ namespace SpaceFab.UI {
             Find.State(
                 out WikiState wikiState,
                 out WikiLayoutState layoutState,
+                out WikiChipPools chipPools,
                 out PlayerProgressState progressState
                 );
 
@@ -128,20 +127,17 @@ namespace SpaceFab.UI {
 
             // No WikiContent means this scene doesn't ship the wiki prefab. Everything past this
             // point assumes the full authoring is present and asserts if it isn't.
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return; }
-            WikiContent content = contents[0];
 
             var pools = Find.Components<WikiPools>();
             Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
 
-            WikiPoolUtility.RebuildStrips(wikiState, content, pools[0]);
-            WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
+            WikiPoolUtility.RebuildStrips(wikiState, layoutState.WikiContent, pools[0]);
+            WikiAvailabilityUtility.ApplyUnlocks(layoutState.WikiContent, pools[0], progressState);
             wikiState.NeedsRebuild = false;
 
             // Painted here rather than left to WikiRefreshSystem's drain: waiting for the first
             // LateUpdate would show one frame of an unstyled panel on scene load.
-            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], progressState);
+            WikiVisualsUtility.Refresh(wikiState, layoutState, layoutState.WikiContent, pools[0], chipPools, progressState);
         }
     }
 
@@ -186,6 +182,25 @@ namespace SpaceFab.UI {
             }
         }
 
+        // Pushes a scene's authored tab set into the wiki and resets the selection to the first
+        // tab's first page — the previous scene's indices mean nothing against a new tab set.
+        //
+        // Raises NeedsRebuild rather than rebuilding here, so the load is order-independent with
+        // respect to WikiState.OnSceneLateEnable: whichever of the two runs second does the work,
+        // and WikiRefreshSystem's LateUpdate drain catches the case where neither did.
+        public static void LoadTabs(WikiState wikiState, WikiContent content, WikiTabData[] tabs) {
+            content.Tabs = tabs ?? Array.Empty<WikiTabData>();
+
+            wikiState.ActiveTabIndex = 0;
+            wikiState.ActivePageIndex = 0;
+            wikiState.PageWindowStartIndex = 0;
+            wikiState.NeedsRebuild = true;
+
+            // Every pooled instance is about to change identity, and the panel may already be
+            // painted with the previous scene's content.
+            WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.All);
+        }
+
         #endregion // External API
 
         #region Material Page Lookup
@@ -227,7 +242,6 @@ namespace SpaceFab.UI {
             wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
             wikiState.PageWindowStartIndex = 0;
             wikiState.NeedsRebuild = true;
-            wikiState.ActivePageChangedThisFrame = true;
 
             // A tab switch moves the highlight, rebinds the page, and resets the window.
             WikiVisualsUtility.Invalidate(wikiState,
@@ -266,7 +280,6 @@ namespace SpaceFab.UI {
             }
 
             wikiState.NeedsRebuild = true;
-            wikiState.ActivePageChangedThisFrame = true;
 
             // A page change leaves the tab strip alone — only the bind and the strip below it.
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
@@ -288,7 +301,6 @@ namespace SpaceFab.UI {
 
             wikiState.ActivePageIndex = index;
             EnsureWindowContains(wikiState, content, tab, progressState);
-            wikiState.ActivePageChangedThisFrame = true;
 
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
         }
@@ -322,10 +334,9 @@ namespace SpaceFab.UI {
         public static void BeginExpand(WikiState wikiState) {
             if (wikiState.Expanded || wikiState.Transitioning) { return; }
 
+            // ExpandRoutine invalidates every domain, so the panel rebinds against fresh state
+            // rather than whatever it was showing when it was last closed.
             wikiState.TransitionRoutine.Replace(ExpandRoutine(wikiState));
-
-            // Opening counts as a page change so the chip column rebuilds against fresh state.
-            wikiState.ActivePageChangedThisFrame = true;
         }
 
         // The single collapse guard. Mirror of BeginExpand.
@@ -474,7 +485,6 @@ namespace SpaceFab.UI {
             if (resolved >= 0) {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
-                wikiState.ActivePageChangedThisFrame = true;
 
                 WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
             }

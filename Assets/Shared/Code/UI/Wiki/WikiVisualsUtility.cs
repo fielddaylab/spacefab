@@ -31,7 +31,7 @@ namespace SpaceFab.UI {
         }
 
         // Applies every dirty domain, then clears the mask. Systems pass the states they hold.
-        public static void Refresh(WikiState wikiState, WikiLayoutState layout, WikiContent content, WikiPools pools, PlayerProgressState progressState) {
+        public static void Refresh(WikiState wikiState, WikiLayoutState layout, WikiContent content, WikiPools pools, WikiChipPools chipPools, PlayerProgressState progressState) {
             WikiVisualDirty dirty = wikiState.VisualsDirty;
             if (dirty == WikiVisualDirty.None) { return; }
 
@@ -57,7 +57,7 @@ namespace SpaceFab.UI {
             }
 
             if ((dirty & WikiVisualDirty.PageContent) != 0) {
-                RefreshPageContent(layout, activeTab, wikiState.ActivePageIndex);
+                RefreshPageContent(layout, chipPools, activeTab, wikiState.ActivePageIndex);
             }
 
             if ((dirty & WikiVisualDirty.Paginator) != 0) {
@@ -100,7 +100,7 @@ namespace SpaceFab.UI {
         // Pushes the header title and the active page's fields into the authored widget set.
         // Default pages show the body wrapper; material pages show the characteristics column
         // instead and source their illustration from the material asset.
-        private static void RefreshPageContent(WikiLayoutState layout, WikiTabData activeTab, int activePageIndex) {
+        private static void RefreshPageContent(WikiLayoutState layout, WikiChipPools chipPools, WikiTabData activeTab, int activePageIndex) {
             // The header shows the active tab's title, so it turns over with the page bind rather
             // than with the tab strip's icons.
             layout.Header.text = activeTab.Title;
@@ -120,9 +120,17 @@ namespace SpaceFab.UI {
 
             widgets.PlanetDetailsContainer.SetActive(activePage.isPlanet);
 
-            // Characteristics group visible only on material pages. Its chips belong to
-            // WikiCharacteristicsRefreshSystem, which fills them in the same frame this enables the
-            // group, so navigation never shows an empty column.
+            // Chips are filled before the group is shown, so navigation never renders an empty
+            // column. That used to be a cross-system phase-ordering convention; keeping the two
+            // statements adjacent makes it structural.
+            if (materialPage) {
+                WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, activePage.MaterialId);
+            } else {
+                // Return the pool to baseline so chips from a prior material page don't stay parked
+                // under the container.
+                WikiCharacteristicsLoadUtility.FreeAllCharacteristicChips(chipPools);
+            }
+
             widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
 
             // Default pages use the authored sprite; material pages pull the gem sprite off the

@@ -14,10 +14,11 @@ namespace SpaceFab.UI {
     /// free prior chips, alloc one per confirmed property, lay them
     /// out vertically, resize the group to fit.
     ///
-    /// Called by WikiCharacteristicsRefreshSystem when the active
-    /// wiki page changes to a material page, or when a new property
-    /// is confirmed (Research-side) and the wiki is open on a
-    /// material page.
+    /// Called by WikiVisualsUtility.RefreshPageContent, immediately
+    /// before it shows the characteristics group, so the column is
+    /// never rendered empty. Reached whenever the PageContent domain
+    /// is invalidated: a page change, an expand, or a Research-side
+    /// property confirmation.
     /// </summary>
     public static class WikiCharacteristicsLoadUtility {
         // Padding (px) added above and below the chip column when

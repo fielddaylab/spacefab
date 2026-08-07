@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 7865229564657403936}
   - component: {fileID: 8262575969170801495}
   - component: {fileID: 9125063957187110318}
-  - component: {fileID: 3485191984527307733}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -71,18 +70,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15020e85d7b67644aa12b539a1a01c59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3485191984527307733
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4361466151858888292}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c64b6df2feec5d643a0f16ac2666a172, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &4606464861136787296
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106,10 +93,6 @@ PrefabInstance:
     - target: {fileID: 2534755171419466831, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: Tabs.Array.size
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
       propertyPath: Tabs.Array.data[0]

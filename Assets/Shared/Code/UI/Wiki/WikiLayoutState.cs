@@ -46,6 +46,9 @@ namespace SpaceFab.UI {
         // Authored to match the prefab layout group's spacing plus cell width.
         public float PageThumbStride;
 
+        public WikiContent WikiContent;
+
+
         public void OnRegister()
         {
         }

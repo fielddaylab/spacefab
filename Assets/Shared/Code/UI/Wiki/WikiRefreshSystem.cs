@@ -9,17 +9,12 @@ namespace SpaceFab.UI {
     /// Update order 0 clears the one-frame pointer flags, after WikiSelectSystem (PreUpdate 0) has
     /// consumed them.
     ///
-    /// LateUpdate order 800 drains WikiState.VisualsDirty into WikiVisualsUtility.Refresh. 800 puts
-    /// it behind every mutation source in the frame: WikiSelectSystem, the transition routines,
-    /// the Research property-confirm path that reaches UnlockPage (LateUpdate 60), and
-    /// WikiCharacteristicsRefreshSystem (LateUpdate 700). Trailing 700 matters — chips are filled
-    /// before this pass flips the characteristics group visible, so navigation never shows an empty
-    /// column. Rendering happens after LateUpdate, so it all still lands in the same frame.
-    ///
-    /// The two passes must stay on separate phases. The Update 0 clear of ActivePageChangedThisFrame
-    /// is what keeps WikiCharacteristicsRefreshSystem's LateUpdate 700 entry scoped to the
-    /// property-confirm path; moving it to LateUpdate would expose the page-change path there as
-    /// well and rebuild the chip column twice per navigation.
+    /// LateUpdate order 800 drains the two pending-work signals in dependency order: NeedsRebuild
+    /// first, since rebuilding changes which button instances exist, then WikiState.VisualsDirty
+    /// into WikiVisualsUtility.Refresh. 800 puts it behind every mutation source in the frame —
+    /// WikiSelectSystem, the transition routines, and the Research property-confirm path that
+    /// reaches UnlockPage at LateUpdate 60. Rendering happens after LateUpdate, so it all still
+    /// lands in the same frame.
     /// </summary>
     public class WikiRefreshSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
@@ -27,17 +22,18 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadWrite<WikiButton>()
-                    .ReadWriteShared<WikiState>()
             );
 
-            ecs.Register(&DrainVisuals,
+            ecs.Register(&DrainPendingWork,
                 new SysUpdate(GameLoopPhase.LateUpdate, 800, UpdateMasks.WikiMask),
                 new SysPermissions()
+                    .ReadWrite<WikiButton>()
+                    .ReadWrite<WikiPools>()
+                    .Read<WikiContent>()
                     .ReadWriteShared<WikiState>()
                     .ReadWriteShared<WikiLayoutState>()
-                    .Read<WikiContent>()
-                    .Read<WikiPools>()
-                    .ReadShared<PlayerProgressState>()
+                    .ReadWriteShared<WikiChipPools>()
+                    .ReadWriteShared<PlayerProgressState>()
             );
         }
 
@@ -48,35 +44,39 @@ namespace SpaceFab.UI {
                 buttons[i].PointerEnterThisFrame = false;
                 buttons[i].PointerExitThisFrame = false;
             }
-
-            // Consumed by WikiCharacteristicsRefreshSystem at PreUpdate 5 on the frame it's raised;
-            // cleared here so the signal stays one-shot.
-            WikiState wikiState = Find.State<WikiState>();
-            if (wikiState != null) {
-                wikiState.ActivePageChangedThisFrame = false;
-            }
         }
 
-        // Applies whatever the frame's mutations invalidated. The whole cost when nothing changed is
-        // the enum compare below.
-        static private void DrainVisuals(float deltaTime) {
+        // Rebuilds the strips if their contents changed, then applies whatever the frame's mutations
+        // invalidated. The whole cost when nothing changed is the two compares at the top.
+        static private void DrainPendingWork(float deltaTime) {
             Find.State(
                 out WikiState wikiState,
                 out WikiLayoutState layoutState,
+                out WikiChipPools chipPools,
                 out PlayerProgressState progressState
                 );
 
-            if (wikiState.VisualsDirty == WikiVisualDirty.None) { return; }
+            bool needsRebuild = wikiState.NeedsRebuild;
+            if (!needsRebuild && wikiState.VisualsDirty == WikiVisualDirty.None) { return; }
 
             // No WikiContent means this scene doesn't ship the wiki prefab, so there's nothing to
-            // paint. Everything past this point assumes the full authoring is present.
+            // rebuild or paint. Everything past this point assumes the full authoring is present.
             var contents = Find.Components<WikiContent>();
             if (contents.Count == 0) { return; }
+            WikiContent content = contents[0];
 
             var pools = Find.Components<WikiPools>();
             Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
 
-            WikiVisualsUtility.Refresh(wikiState, layoutState, contents[0], pools[0], progressState);
+            // Structural first: a rebuild changes which instances exist, and both halves invalidate
+            // the strip domains on their own, so the paint below picks the change up.
+            if (needsRebuild) {
+                WikiPoolUtility.RebuildStrips(wikiState, content, pools[0]);
+                WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
+                wikiState.NeedsRebuild = false;
+            }
+
+            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], chipPools, progressState);
         }
     }
 }

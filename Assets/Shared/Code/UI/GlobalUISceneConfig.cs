@@ -18,5 +18,8 @@ namespace SpaceFab
         public SceneReference ReturnScene;
         public bool DisplayWiki;
         public bool DisplayHelper;
+
+        // Ordered tab set this scene's wiki exposes.
+        public WikiTabData[] WikiTabs;
     }
 }

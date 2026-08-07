@@ -38,12 +38,22 @@ namespace SpaceFab
             if (Game.SharedState.TryGet(out GlobalUISceneConfig config)) {
                 HelperButton.gameObject.SetActive(config.DisplayHelper);
                 WikiButton.gameObject.SetActive(config.DisplayWiki);
-                WikiButton.OnClick.AddListener(OnCollapsedWikiClicked);
+                if (config.DisplayWiki) {
+                    WikiButton.OnClick.AddListener(OnCollapsedWikiClicked);
+                    LoadWikiTabs(config);
+                }
                 visible = config.DisplayHelper | config.DisplayWiki;
             }
 
             Canvas.enabled = visible;
             InputLayer.SetInputOverride(visible ? null : false);
+        }
+
+        // Hands this scene's authored tab set to the shared wiki prefab. No-op when the wiki prefab
+        // isn't loaded — a scene may display the toolbar button without shipping the panel.
+        private void LoadWikiTabs(GlobalUISceneConfig config) {
+
+            WikiUtility.LoadTabs(Find.State<WikiState>(), Find.State<WikiLayoutState>().WikiContent, config.WikiTabs);
         }
 
         #region // Handlers
