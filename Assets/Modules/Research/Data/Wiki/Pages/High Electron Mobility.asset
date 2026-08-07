@@ -15,7 +15,8 @@ MonoBehaviour:
   m_isPlanet: 0
   m_Title: High Electron Mobility
   m_Icon: {fileID: 21300000, guid: c884c28c9cec4a74c8f29e7986fc2d29, type: 3}
-  m_Illustration: {fileID: 0}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
   m_Body: High Electron Mobility materials allow electrical signals to move through
     them very quickly.
   m_MaterialId:

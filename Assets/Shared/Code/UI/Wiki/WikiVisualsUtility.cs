@@ -133,22 +133,21 @@ namespace SpaceFab.UI {
 
             widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
 
-            // Default pages use the authored sprite; material pages pull the gem sprite off the
-            // referenced material asset.
-            Sprite illustration;
+            // Default pages cycle their authored frame sequence; material pages pull the gem sprite
+            // off the referenced material asset, which is a single still frame. Either way a page
+            // with no illustration is authored, not broken — the bind hides the slot for us.
+            SpriteCycler illustration = widgets.Illustration;
+            Assert.NotNullOrDestroyed(illustration, "WikiPageContentWidgets.Illustration not authored");
+
             if (materialPage) {
                 MaterialAsset material = Find.NamedAsset<MaterialAsset>(activePage.MaterialId);
                 Assert.NotNullOrDestroyed(material, "Wiki page '{0}' references unknown material '{1}'", activePage.name, activePage.MaterialId);
-                illustration = material.GemSprite;
+                SpriteCyclerUtility.SetSingleFrame(illustration, material.GemSprite);
             } else {
-                illustration = activePage.Illustration;
+                SpriteCyclerUtility.SetFrames(illustration, activePage.IllustrationFrames, activePage.IllustrationFPS);
             }
 
-            // A page with no illustration is authored, not broken — hide the slot.
-            bool hasIllustration = illustration != null;
-            widgets.IllustrationImage.sprite = hasIllustration ? illustration : null;
-            widgets.IllustrationImage.gameObject.SetActive(hasIllustration);
-            widgets.IllustrationImage.preserveAspect = true;
+            illustration.Target.preserveAspect = true;
         }
 
         #endregion // Page Content

@@ -1059,7 +1059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TitleText: {fileID: 8976627725711163196}
-  IllustrationImage: {fileID: 2760527626956818556}
+  Illustration: {fileID: 4542135557881355427}
   DefaultGroup: {fileID: 776024991008252639}
   BodyText: {fileID: 4632649332736737111}
   MaterialCharacteristicsGroup: {fileID: 4557596901533273470}
@@ -1076,6 +1076,7 @@ GameObject:
   - component: {fileID: 848096431558573249}
   - component: {fileID: 884328696137149043}
   - component: {fileID: 2760527626956818556}
+  - component: {fileID: 4542135557881355427}
   m_Layer: 5
   m_Name: Illustration
   m_TagString: Untagged
@@ -1140,6 +1141,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4542135557881355427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5267488773845142315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8a2fcdfa7496b4c9ecdb0470f67212, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 2760527626956818556}
+  Frames: []
+  FramesPerSecond: 0.5
 --- !u!1 &5324382101903763553
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Title: High Temperature Semiconductor
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
   m_Body: High Temperature Semiconductor is a semiconductor material that has been
     changed by heat. It can be used to create advanced chip components.
   m_MaterialId:

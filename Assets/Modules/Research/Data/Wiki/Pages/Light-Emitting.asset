@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Title: Light-Emitting
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
   m_Body: Light-Emitting semiconductors create light from electricity, usable for
     lights and lasers.
   m_MaterialId:

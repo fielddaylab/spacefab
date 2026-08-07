@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Gate
   m_EditorClassIdentifier: 
+  m_isPlanet: 0
   m_Title: Gate
   m_Icon: {fileID: 21300000, guid: bae00c79f962c9f4d8f100e51c9c94e4, type: 3}
-  m_Illustration: {fileID: 21300000, guid: 17a1364ead0a51a42ad2fc9a044f80f7, type: 3}
+  m_IllustrationFrames:
+  - {fileID: 21300000, guid: 1539ee6715d04c040bab6d6a6b006639, type: 3}
+  m_IllustrationFPS: 0.5
   m_Body: 'Gates flip semiconductors below them: HIGH signals flip P-Type to N-Type,
     and LOW signals flip N-Type to P-Type.'
+  m_MaterialId:
+    m_HashValue: 0
