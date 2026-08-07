@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using BeauRoutine;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Scenes;
@@ -43,6 +45,25 @@ namespace SpaceFab.UI {
         public Sprite PageThumbActiveSprite;
         public Sprite PageThumbInactiveSprite;
 
+        // Vertical gap between adjacent tab buttons. The strip places its buttons from code rather
+        // than through a layout group, since the pop-out owns each button's horizontal offset and a
+        // layout group would overwrite it on every rebuild.
+        public float TabSpacing = 10f;
+
+        // Widths a tab sits at when resting and when fully popped. Both grow leftward off the pinned
+        // right edge, so the popped tab stays tucked under the panel.
+        public float TabWidth = 75f;
+        public float TabPopWidth = 75f;
+
+        // How far the selected tab slides out of the panel. Past the strip's overlap with the panel
+        // background — 7px as authored — the popped tab's right edge starts to show.
+        public float TabPopOutDistance = 10f;
+
+        // Pop-out overshoots and settles; pop-in eases straight back, so a tab swap doesn't read as
+        // two tabs arriving at once.
+        public TweenSettings TabPopOutTween = new TweenSettings(0.15f, Curve.BackOut);
+        public TweenSettings TabPopInTween = new TweenSettings(0.12f, Curve.CubeOut);
+
         // Horizontal distance between adjacent thumb slots, in PaginatorContent's local space.
         // Authored to match the prefab layout group's spacing plus cell width.
         public float PageThumbStride;
@@ -69,8 +90,8 @@ namespace SpaceFab.UI {
     }
 
     /// <summary>
-    /// Helpers for WikiLayoutState: the steady-state visibility snap, the paginator scroll math,
-    /// and the selection highlight's placement.
+    /// Helpers for WikiLayoutState: the steady-state visibility snap, the tab strip's vertical
+    /// arrangement, the paginator scroll math, and the selection highlight's placement.
     ///
     /// Every layout reference these touch is required authoring on the wiki prefab, so a missing
     /// one asserts rather than silently skipping the work.
@@ -79,10 +100,43 @@ namespace SpaceFab.UI {
         private static Vector2 THUMB_HIGHLIGHT_MARGIN = new Vector2(-4, -4);
         private static Vector2 HIGHLIGHT_ANCHOR = new Vector2(0.5f, 0.5f);
 
+        // Tab buttons hang from the strip's top-right corner by their own top-right corner, so a
+        // width change grows leftward instead of shifting the edge the strip is aligned on.
+        private static Vector2 TAB_SLOT_ANCHOR = new Vector2(1, 1);
+
         // Snap the panel root to the visibility that matches `expanded`.
         public static void ApplyExpandedSteadyState(WikiLayoutState layoutState, bool expanded) {
             SetGroupVisible(layoutState.ExpandedRoot, expanded);
             // SetGroupVisible(layoutState.CollapsedRoot, !expanded);
+        }
+
+        // Stack the tab buttons down the strip's right edge, top-aligned and TabSpacing apart. Done
+        // from code rather than through a layout group: the pop-out animates each button's
+        // horizontal offset, and a group would overwrite that on its next rebuild — which a tab
+        // click triggers, since selecting a tab also raises NeedsRebuild.
+        //
+        // Horizontal offset and width are deliberately untouched here. Those belong to the pop-out
+        // in WikiVisualsUtility, which is their only writer, so a relayout can't jump a tab that's
+        // mid-transition. Anchors and pivot are reassigned every pass because WikiPools resets a
+        // freshly allocated instance's transform back to the prefab's centre pivot.
+        public static void LayoutTabStrip(WikiLayoutState layoutState, ReadOnlyCollection<WikiButton> tabButtons) {
+            float slotTop = 0;
+
+            for (int i = 0; i < tabButtons.Count; i++) {
+                WikiButton tab = tabButtons[i];
+
+                // A locked tab is hidden by WikiAvailabilityUtility rather than left out of the
+                // pool, so skip it instead of leaving a gap where it would have sat.
+                if (!tab.gameObject.activeSelf) { continue; }
+
+                RectTransform rect = (RectTransform) tab.transform;
+                rect.anchorMin = TAB_SLOT_ANCHOR;
+                rect.anchorMax = TAB_SLOT_ANCHOR;
+                rect.pivot = TAB_SLOT_ANCHOR;
+
+                rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, slotTop);
+                slotTop -= rect.rect.height + layoutState.TabSpacing;
+            }
         }
 
         // Slide the paginator strip so the (startIndex)th slot sits at the strip's left edge.

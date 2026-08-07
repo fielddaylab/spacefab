@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.ObjectModel;
+using BeauRoutine;
 using BeauUtil.Debugger;
 using FieldDay;
 using SpaceFab.Materials;
@@ -16,12 +19,12 @@ namespace SpaceFab.UI {
     /// Nothing recomputes per-frame — WikiRefreshSystem drains the mask on LateUpdate and early-outs
     /// when it's empty. A panel that looks stale means some mutation forgot to invalidate its
     /// domain, and the fix belongs at that mutation rather than here.
+    ///
+    /// The selected tab's pop-out is the one exception: it runs as a tween on
+    /// WikiState.TabPopRoutine, which owns the offset and width of the two tabs it's animating for as
+    /// long as it's in flight. Repaints that land mid-pop leave those two alone.
     /// </summary>
     public static class WikiVisualsUtility {
-        // Widths the active / inactive tab buttons snap to.
-        private const float TAB_WIDTH_SELECTED = 70f;
-        private const float TAB_WIDTH_UNSELECTED = 65f;
-
         #region Entry Points
 
         // Marks presentation domains stale. Called from the mutation that invalidated them, so the
@@ -53,7 +56,7 @@ namespace SpaceFab.UI {
             }
 
             if ((dirty & WikiVisualDirty.TabStrip) != 0) {
-                RefreshTabStrip(pools, content, layout, wikiState.ActiveTabIndex);
+                RefreshTabStrip(pools, content, layout, wikiState);
             }
 
             if ((dirty & WikiVisualDirty.PageContent) != 0) {
@@ -71,10 +74,17 @@ namespace SpaceFab.UI {
 
         #region Tab Strip
 
-        // Applies each pooled tab button's icon, selected/unselected sprite, and width. Locked tabs
-        // were already hidden by WikiAvailabilityUtility, so this only styles what's still active.
-        private static void RefreshTabStrip(WikiPools pools, WikiContent content, WikiLayoutState layout, int activeTabIndex) {
+        // Applies each pooled tab button's icon and selected/unselected sprite, then reconciles the
+        // pop-out. Locked tabs were already hidden by WikiAvailabilityUtility, so this only styles
+        // what's still active.
+        //
+        // Offset and width aren't written here — SyncTabPop owns both, since the pop animates them.
+        private static void RefreshTabStrip(WikiPools pools, WikiContent content, WikiLayoutState layout, WikiState wikiState) {
             var tabButtons = pools.TabButtonPool.ActiveObjects;
+            WikiLayoutUtility.LayoutTabStrip(layout, tabButtons);
+
+            WikiButton selectedTab = null;
+
             for (int i = 0; i < tabButtons.Count; i++) {
                 WikiButton tab = tabButtons[i];
                 Assert.True(tab.TabIndex >= 0 && tab.TabIndex < content.Tabs.Length,
@@ -84,13 +94,82 @@ namespace SpaceFab.UI {
                 icon.sprite = content.Tabs[tab.TabIndex].Icon;
                 icon.color = Color.white;
 
-                bool selected = tab.TabIndex == activeTabIndex;
+                bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
                 tab.DynamicButton.image.sprite = selected ? layout.TabActiveSprite : layout.TabInactiveSprite;
-                // Temporary visual highlight — the active tab's text is invisible until the page
-                // content is implemented, so width stands in for it.
-                tab.DynamicButton.image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, selected ? TAB_WIDTH_SELECTED : TAB_WIDTH_UNSELECTED);
                 tab.DynamicButton.interactable = true;
+
+                if (selected) { selectedTab = tab; }
             }
+
+            SyncTabPop(wikiState, layout, tabButtons, selectedTab);
+        }
+
+        // Brings the pop in line with the selection: selected tab popped out, every other tab resting.
+        // WikiState.PoppedTabIndex is what the selection is compared against, and names the tab to
+        // ease back in when they disagree.
+        private static void SyncTabPop(WikiState wikiState, WikiLayoutState layout, ReadOnlyCollection<WikiButton> tabButtons, WikiButton selectedTab) {
+            if (wikiState.PoppedTabIndex == wikiState.ActiveTabIndex) {
+                // A pop in flight owns its two tabs' offsets and widths until it ends; placing them
+                // here would cut the transition short. Nothing else needs placing, since the only
+                // thing that changes the button count is LoadTabs, which stops the pop.
+                if (wikiState.TabPopRoutine) { return; }
+
+                for (int i = 0; i < tabButtons.Count; i++) {
+                    ApplyTabPop(layout, tabButtons[i], tabButtons[i] == selectedTab ? 1f : 0f);
+                }
+                return;
+            }
+
+            // Place every tab against the selection the pop is leaving, so both tweens start from a
+            // known offset. This is also what puts a freshly pooled instance at the strip's width
+            // rather than the prefab's, and what returns a tab stranded by an interrupted pop.
+            WikiButton popInTab = null;
+            for (int i = 0; i < tabButtons.Count; i++) {
+                WikiButton tab = tabButtons[i];
+                bool outgoing = tab.TabIndex == wikiState.PoppedTabIndex;
+
+                ApplyTabPop(layout, tab, outgoing ? 1f : 0f);
+                if (outgoing) { popInTab = tab; }
+            }
+
+            wikiState.PoppedTabIndex = wikiState.ActiveTabIndex;
+            wikiState.TabPopRoutine.Replace(layout, PopTabsRoutine(layout, selectedTab, popInTab));
+        }
+
+        // Slides the newly-selected tab out of the panel while easing the one it replaced back in.
+        // Runs on WikiState.TabPopRoutine, hosted on the wiki prefab's own WikiLayoutState so it dies
+        // with the scene rather than outliving the buttons it writes to. Start it through SyncTabPop,
+        // never directly.
+        //
+        // Either end can be absent: the first pop of a tab set has no tab to send back in, and a
+        // selection with no button of its own has none to send out until the pending rebuild lands.
+        private static IEnumerator PopTabsRoutine(WikiLayoutState layout, WikiButton popOutTab, WikiButton popInTab) {
+            Tween popOut = popOutTab != null
+                ? Tween.ZeroToOne((pop) => ApplyTabPop(layout, popOutTab, pop), layout.TabPopOutTween)
+                : null;
+            Tween popIn = popInTab != null
+                ? Tween.OneToZero((pop) => ApplyTabPop(layout, popInTab, pop), layout.TabPopInTween)
+                : null;
+
+            if (popOut == null) {
+                yield return popIn;
+            } else if (popIn == null) {
+                yield return popOut;
+            } else {
+                yield return Routine.Combine(popOut, popIn);
+            }
+        }
+
+        // Places one tab along the pop, where 0 is resting and 1 is fully popped out. Sole writer of
+        // the two properties the pop moves, so they can't drift apart: both come off the same
+        // parameter, and both are unclamped since the pop-out curve overshoots past 1.
+        //
+        // The vertical slot LayoutTabStrip assigned is preserved — only the horizontal offset moves.
+        private static void ApplyTabPop(WikiLayoutState layout, WikiButton tab, float pop) {
+            RectTransform rect = (RectTransform) tab.transform;
+
+            rect.anchoredPosition = new Vector2(Mathf.LerpUnclamped(0f, -layout.TabPopOutDistance, pop), rect.anchoredPosition.y);
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.LerpUnclamped(layout.TabWidth, layout.TabPopWidth, pop));
         }
 
         #endregion // Tab Strip

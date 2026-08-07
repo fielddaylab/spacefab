@@ -77,6 +77,16 @@ namespace SpaceFab.UI {
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
 
+        // Tab pop-out routine handle. Owned here for the same reason TransitionRoutine is, though the
+        // routine itself is hosted on the scene's WikiLayoutState — the tab buttons it writes to die
+        // with the wiki prefab, and this state doesn't.
+        [HideInInspector] public Routine TabPopRoutine;
+
+        // Tab the pop is settling on, or -1 before the first pop of a tab set. Matches
+        // ActiveTabIndex in every steady state; a mismatch is the strip refresh's signal that the
+        // selection has moved and the pop hasn't played yet, and names the tab to ease back in.
+        [HideInInspector] public int PoppedTabIndex;
+
         // Requests a strip rebuild + unlock pass — the set of pooled button instances is wrong, as
         // opposed to VisualsDirty's "existing instances need restyling". Drained by
         // WikiRefreshSystem ahead of the visuals pass, and by OnSceneLateEnable on level load.
@@ -94,6 +104,7 @@ namespace SpaceFab.UI {
             ActiveTabIndex = 0;
             ActivePageIndex = 0;
             PageWindowStartIndex = 0;
+            PoppedTabIndex = -1;
             OpenRequestedThisFrame = false;
             CloseRequestedThisFrame = false;
             OpenToRequestedThisFrame = false;
@@ -108,6 +119,7 @@ namespace SpaceFab.UI {
 
         public void OnDeregister() {
             TransitionRoutine.Stop();
+            TabPopRoutine.Stop();
 
             Game.Scenes.OnMainSceneLateEnable.Deregister(OnSceneLateEnable);
         }
@@ -195,6 +207,12 @@ namespace SpaceFab.UI {
             wikiState.ActivePageIndex = 0;
             wikiState.PageWindowStartIndex = 0;
             wikiState.NeedsRebuild = true;
+
+            // The pooled tab buttons are about to be reassigned against a different tab set, so an
+            // in-flight pop is animating the wrong instances. Drop it, and forget which tab was
+            // popped — the index means nothing against a new tab set.
+            wikiState.TabPopRoutine.Stop();
+            wikiState.PoppedTabIndex = -1;
 
             // Every pooled instance is about to change identity, and the panel may already be
             // painted with the previous scene's content.
@@ -355,6 +373,7 @@ namespace SpaceFab.UI {
             Assert.NotNullOrDestroyed(layoutState, "Missing WikiLayoutState");
 
             wikiState.TransitionRoutine.Stop();
+            wikiState.TabPopRoutine.Stop();
             wikiState.Transitioning = false;
             wikiState.Expanded = false;
             wikiState.OpenRequestedThisFrame = false;
