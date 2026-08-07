@@ -27,6 +27,8 @@ namespace SpaceFab.Supply
         public SupplyRouteHazard[] Hazards;
 
         [NonSerialized] public SupplyRouteNode Home;
+        [NonSerialized] public int NodeCount;
+        [NonSerialized] public int HazardCount;
 
 #if UNITY_EDITOR
 
@@ -49,6 +51,10 @@ namespace SpaceFab.Supply
                 if (node.Type != SupplyRouteNodeType.Home && node.InfoPopup != null) {
                     MaterialAsset matView = Find.NamedAsset<MaterialAsset>(node.MaterialType);
                     node.InfoPopup.OutputMaterialIcon.sprite = matView.GemSprite;
+                    if (node.Type == SupplyRouteNodeType.Converter) {
+                        matView = Find.NamedAsset<MaterialAsset>(node.ConversionInputType);
+                        node.InfoPopup.InputMaterialIcon.sprite = matView.GemSprite;
+                    }
                 }
 
                 SupplyRouteUtility.InitializeTooltipReferences(node);
@@ -137,6 +143,7 @@ namespace SpaceFab.Supply
             Baking.PrepareUndo(target, "Exporting map data");
             target.Positions = nodes.ToArray();
             target.Overrides = overrides.ToArray();
+            target.Hazards = hazards.ToArray();
             target.CameraBounds = cameraBounds;
 
             Log.Msg("[SupplyChainMap] Exported map data ({0} nodes) to '{1}'", target.Positions.Length, target.name);

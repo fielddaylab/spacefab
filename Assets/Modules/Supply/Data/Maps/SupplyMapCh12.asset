@@ -68,7 +68,13 @@ MonoBehaviour:
   - Name:
       m_HashValue: 3784387721
     Position: {x: 3.83, y: 8.39}
-  Hazards: []
+  Hazards:
+  - Name:
+      m_HashValue: 3594195602
+    Position: {x: 6.02, y: -3.52}
+  - Name:
+      m_HashValue: 2170266095
+    Position: {x: -4.07, y: -0.93}
   Overrides:
   - Name:
       m_HashValue: 392540606

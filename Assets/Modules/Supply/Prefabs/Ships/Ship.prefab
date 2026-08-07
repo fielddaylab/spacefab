@@ -92,6 +92,10 @@ MonoBehaviour:
   - {fileID: 3655646739308414571}
   - {fileID: 8906741359218293736}
   - {fileID: 5378847155050176394}
+  ShipName: {fileID: 5457031574027838013}
+  LineLayer: {fileID: 0}
+  StatsLayer: {fileID: 0}
+  Style: {fileID: 9220955173543603304}
 --- !u!114 &3851546304362190295
 MonoBehaviour:
   m_ObjectHideFlags: 0

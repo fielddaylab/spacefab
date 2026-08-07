@@ -1,3 +1,5 @@
+using FieldDay.Components;
+using FieldDay.UI.Widgets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,16 +12,12 @@ namespace SpaceFab.Supply {
     /// SupplyProgressMeterUtility. Rows are authored on the prefab (one per ship slot) and
     /// toggled active by the utility.
     /// </summary>
-    public class SupplyShipBreakdownRow : MonoBehaviour {
-        // The whole row, toggled active when this ship has a route.
-        public GameObject Root;
-
-        public Image ShipIcon;
-        public TMP_Text ShipName;
-
-        // Numeric counts shown beside each section's authored icon.
-        public TMP_Text RiskText;
-        public TMP_Text CostText;
-        public TMP_Text TimeText;
+    public class SupplyShipBreakdownRow : GuiWidget {
+        public RectMask2D Mask;
+        public LayoutOffset Slide;
+        public float SlideDistance;
+        public GuiCounter Cost;
+        public GuiCounter Time;
+        public GuiCounter Risk;
     }
 }

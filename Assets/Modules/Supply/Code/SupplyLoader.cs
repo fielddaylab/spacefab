@@ -60,7 +60,13 @@ namespace SpaceFab.Supply {
                 node.gameObject.SetActive(true);
             }
 
-            foreach(var data in entry.Overrides) {
+            foreach (var data in entry.Hazards) {
+                SupplyRouteHazard hazard = SupplyRouteUtility.GetHazardForId(data.Name);
+                hazard.transform.localPosition = data.Position;
+                hazard.gameObject.SetActive(true);
+            }
+
+            foreach (var data in entry.Overrides) {
                 SupplyRouteNode node = SupplyRouteUtility.GetNodeForId(data.Name);
                 node.Time = data.Time;
                 node.Cost = data.Cost;
@@ -74,6 +80,9 @@ namespace SpaceFab.Supply {
                     map.Home = node;
                 }
             }
+
+            map.NodeCount = entry.Positions.Length;
+            map.HazardCount = entry.Hazards.Length;
 
             Assert.True(map.Home, "No home node available!");
 

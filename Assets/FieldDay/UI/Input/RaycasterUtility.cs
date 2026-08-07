@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace FieldDay.UI {
-    static public class RaycastUtility {
+    static public class RaycasterUtility {
         /// <summary>
         /// Returns if the given GameObject is interactable via raycast.
         /// </summary>

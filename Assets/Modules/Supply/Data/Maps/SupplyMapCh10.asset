@@ -34,7 +34,7 @@ MonoBehaviour:
     Position: {x: 4.12, y: -8.05}
   - Name:
       m_HashValue: 3566278674
-    Position: {x: -6.45, y: -4.55}
+    Position: {x: -8.67, y: -6.31}
   - Name:
       m_HashValue: 57385584
     Position: {x: 5.28, y: -2.63}
@@ -43,10 +43,10 @@ MonoBehaviour:
     Position: {x: 8.03, y: 0.24}
   - Name:
       m_HashValue: 593577844
-    Position: {x: 0.77, y: -4.36}
+    Position: {x: -1.13, y: -5.47}
   - Name:
       m_HashValue: 91235012
-    Position: {x: -3.91, y: 4.61}
+    Position: {x: -5.62, y: 5.91}
   - Name:
       m_HashValue: 3801165340
     Position: {x: -7.32, y: 0.65}
@@ -55,11 +55,20 @@ MonoBehaviour:
     Position: {x: 8.48, y: -6.55}
   - Name:
       m_HashValue: 241399131
-    Position: {x: -2.83, y: -6.22}
+    Position: {x: -4.27, y: -7.7}
   - Name:
       m_HashValue: 460151471
     Position: {x: 6.87, y: 3.88}
-  Hazards: []
+  Hazards:
+  - Name:
+      m_HashValue: 1445168423
+    Position: {x: -5.93, y: -3.71}
+  - Name:
+      m_HashValue: 4054517332
+    Position: {x: 2.35, y: -4.26}
+  - Name:
+      m_HashValue: 2170266095
+    Position: {x: -2.27, y: 3.19}
   Overrides:
   - Name:
       m_HashValue: 392540606
