@@ -186,6 +186,12 @@ namespace SpaceFab.Overarching
                     ScriptUtility.KillAllThreads();
                     Find.State<MinigameZonesState>().QueuedZone = zone;
                     Log.Msg("[OverarchingDebugMenu] Force-entering minigame {0}", id);
+
+                    MinigameZonesState state = Find.State<MinigameZonesState>();
+                    if (state.QueuedZone != null) {
+                        MinigameZonesUtility.AttemptStartGame(state.QueuedZone);
+                        state.QueuedZone = null;
+                    }
                     return;
                 }
             }

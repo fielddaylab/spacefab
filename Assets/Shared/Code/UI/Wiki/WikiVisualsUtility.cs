@@ -148,6 +148,7 @@ namespace SpaceFab.UI {
             bool hasIllustration = illustration != null;
             widgets.IllustrationImage.sprite = hasIllustration ? illustration : null;
             widgets.IllustrationImage.gameObject.SetActive(hasIllustration);
+            widgets.IllustrationImage.preserveAspect = true;
         }
 
         #endregion // Page Content
