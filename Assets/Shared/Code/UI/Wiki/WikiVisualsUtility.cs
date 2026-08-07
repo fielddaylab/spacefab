@@ -154,22 +154,28 @@ namespace SpaceFab.UI {
 
         #region Paginator
 
-        // The paginator as one unit: scroll offset, thumbnails, the highlight overlay parked on the
-        // selected thumb, and the arrow enable-state. These share their inputs, and the highlight
-        // needs a RectTransform only the thumbnail pass can produce, so they repaint together.
+        // The paginator as one unit: scroll offset, thumbnails, the highlight overlay placed over
+        // the selected thumb, and the arrow enable-state. These share their inputs, and the
+        // highlight needs a RectTransform only the thumbnail pass can produce, so they repaint
+        // together.
         private static void RefreshPaginator(WikiLayoutState layout, WikiPools pools, WikiContent content, WikiTabData activeTab, WikiState wikiState, PlayerProgressState progressState) {
             // Slides the strip under its UI Mask so out-of-window thumbnails clip away.
             WikiLayoutUtility.ScrollPaginator(layout, wikiState.PageWindowStartIndex);
 
             RectTransform selectedThumbRect = RefreshPaginatorStrip(pools, activeTab, content, wikiState, progressState);
+
+            // The highlight is positioned from the thumb's live rect, and the pass above changed
+            // which thumbs the strip's layout group has to place. Settle that now — the group
+            // would otherwise not run until end of frame, leaving the overlay a frame behind.
+            LayoutRebuilder.ForceRebuildLayoutImmediate(layout.PaginatorContent);
             WikiLayoutUtility.PositionPageHighlight(layout, selectedThumbRect);
 
             RefreshPaginatorArrows(layout, wikiState, content, progressState);
         }
 
         // Styles the pooled thumbnails for the active tab and returns the selected, in-window
-        // thumb's RectTransform so the caller can park the highlight overlay on it, or null if no
-        // thumb in the active tab is both selected and visible.
+        // thumb's RectTransform so the caller can place the highlight overlay over it, or null if
+        // no thumb in the active tab is both selected and visible.
         //
         // Off-window thumbs stay active — the strip's UI Mask clips them once ScrollPaginator has
         // slid the content. Only wrong-tab and locked thumbs are deactivated.
@@ -214,7 +220,7 @@ namespace SpaceFab.UI {
                 }
                 thumb.DynamicButton.image.sprite = thumbSprite;
 
-                // Record the selected in-window thumb so the highlight can be parented onto it.
+                // Record the selected in-window thumb so the highlight can be placed over it.
                 bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
                 if (inWindow && thumb.PageIndex == wikiState.ActivePageIndex) {
                     selectedThumbRect = thumb.DynamicButton.image.rectTransform;

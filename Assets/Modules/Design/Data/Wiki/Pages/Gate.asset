@@ -17,6 +17,7 @@ MonoBehaviour:
   m_Icon: {fileID: 21300000, guid: bae00c79f962c9f4d8f100e51c9c94e4, type: 3}
   m_IllustrationFrames:
   - {fileID: 21300000, guid: 1539ee6715d04c040bab6d6a6b006639, type: 3}
+  - {fileID: 21300000, guid: 7606d6e70f7230643b7336d16024e807, type: 3}
   m_IllustrationFPS: 0.5
   m_Body: 'Gates flip semiconductors below them: HIGH signals flip P-Type to N-Type,
     and LOW signals flip N-Type to P-Type.'

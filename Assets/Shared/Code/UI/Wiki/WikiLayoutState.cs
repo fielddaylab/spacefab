@@ -30,8 +30,9 @@ namespace SpaceFab.UI {
         // strip's UI Mask.
         public RectTransform PaginatorContent;
 
-        // Single highlight overlay, reparented onto the selected thumbnail on each refresh. Hidden
-        // when no page is selected.
+        // Single highlight overlay, moved over the selected thumbnail on each refresh. Authored as
+        // a sibling ahead of PaginatorContent so it draws behind the thumbs, and left at that spot
+        // in the hierarchy. Hidden when no page is selected.
         public RectTransform PageHighlight;
 
         public Button PrevPage;
@@ -75,7 +76,8 @@ namespace SpaceFab.UI {
     /// one asserts rather than silently skipping the work.
     /// </summary>
     public static class WikiLayoutUtility {
-        private static Vector2 THUMB_HIGHLIGHT_MARGIN = new Vector2(-8, -8);
+        private static Vector2 THUMB_HIGHLIGHT_MARGIN = new Vector2(-4, -4);
+        private static Vector2 HIGHLIGHT_ANCHOR = new Vector2(0.5f, 0.5f);
 
         // Snap the panel root to the visibility that matches `expanded`.
         public static void ApplyExpandedSteadyState(WikiLayoutState layoutState, bool expanded) {
@@ -92,10 +94,15 @@ namespace SpaceFab.UI {
             layoutState.PaginatorContent.anchoredPosition = anchoredPos;
         }
 
-        // Reparent the highlight overlay onto the selected thumbnail and stretch it to that
-        // thumb's rect. Parenting rather than copying coordinates means the highlight tracks the
-        // thumb as the strip slides and clips against the same UI Mask. SetAsFirstSibling pushes
-        // it behind the thumb's own content so the icon still renders on top.
+        // Move the highlight overlay onto the selected thumbnail and size it to that thumb's rect.
+        // The overlay keeps its authored parent and sibling index — it sits ahead of
+        // PaginatorContent under the same masked viewport, so it draws behind every thumb and
+        // clips with them without any reparenting.
+        //
+        // Coordinates are read off the thumb's live world rect, so the placement already accounts
+        // for whatever offset ScrollPaginator has applied to the strip. Callers must make sure the
+        // strip's layout has settled first, or the overlay lands on the previous frame's
+        // thumbnail positions.
         public static void PositionPageHighlight(WikiLayoutState layoutState, RectTransform targetThumb) {
             Assert.NotNullOrDestroyed(layoutState.PageHighlight, "WikiLayoutState.PageHighlight not authored");
 
@@ -107,16 +114,20 @@ namespace SpaceFab.UI {
             }
 
             RectTransform highlight = layoutState.PageHighlight;
-            if (highlight.parent != targetThumb) {
-                highlight.SetParent(targetThumb, false);
-                highlight.SetAsFirstSibling();
-            }
+            RectTransform highlightParent = highlight.parent as RectTransform;
+            Assert.NotNullOrDestroyed(highlightParent, "WikiLayoutState.PageHighlight must be parented under a RectTransform");
 
-            // Stretch to fill the thumb's rect exactly.
-            highlight.anchorMin = Vector2.zero;
-            highlight.anchorMax = Vector2.one;
-            highlight.offsetMin = THUMB_HIGHLIGHT_MARGIN;
-            highlight.offsetMax = -THUMB_HIGHLIGHT_MARGIN;
+            // Centered anchors make the placement a single point translation: the thumb's center,
+            // expressed in the overlay's parent space, offset from that parent's own center.
+            highlight.anchorMin = HIGHLIGHT_ANCHOR;
+            highlight.anchorMax = HIGHLIGHT_ANCHOR;
+            highlight.pivot = HIGHLIGHT_ANCHOR;
+
+            Vector3 thumbWorldCenter = targetThumb.TransformPoint(targetThumb.rect.center);
+            Vector2 thumbLocalCenter = highlightParent.InverseTransformPoint(thumbWorldCenter);
+
+            highlight.anchoredPosition = thumbLocalCenter - highlightParent.rect.center;
+            highlight.sizeDelta = targetThumb.rect.size - 2f * THUMB_HIGHLIGHT_MARGIN;
 
             highlight.gameObject.SetActive(true);
         }
