@@ -133,7 +133,7 @@ PrefabInstance:
     - target: {fileID: 1450159484287367648, guid: bd813fd98ddf25e4ebc1574ed304b9d2, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 542732375}
     - target: {fileID: 1517188196729749788, guid: bd813fd98ddf25e4ebc1574ed304b9d2, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -286,7 +286,7 @@ PrefabInstance:
     - target: {fileID: 1764511120928441038, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 542732375}
     - target: {fileID: 2071709724111944495, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -515,7 +515,7 @@ PrefabInstance:
     - target: {fileID: 3143394367997152360, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1387197098}
+      objectReference: {fileID: 1276505979}
     - target: {fileID: 3697406585824129828, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -657,6 +657,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
+--- !u!20 &542732375 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 3467204504102956007, guid: 3d915541ee8314e4393844d1f2eec9c1, type: 3}
+  m_PrefabInstance: {fileID: 542732374}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1078898987
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -668,7 +673,7 @@ PrefabInstance:
     - target: {fileID: 96700195516624590, guid: 266bf0f38fbc4c543a6f473f479f81ed, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 542732375}
     - target: {fileID: 3843249063667165745, guid: 266bf0f38fbc4c543a6f473f479f81ed, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -758,7 +763,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 266bf0f38fbc4c543a6f473f479f81ed, type: 3}
---- !u!43 &1387197098
+--- !u!43 &1276505979
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -934,7 +939,7 @@ PrefabInstance:
     - target: {fileID: 4590856612804034260, guid: e90520d1cacc618479ed8099ba3e5050, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 542732375}
     - target: {fileID: 7041302416253487210, guid: e90520d1cacc618479ed8099ba3e5050, type: 3}
       propertyPath: m_Pivot.x
       value: 0

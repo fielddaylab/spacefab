@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
@@ -9,36 +11,62 @@ using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Presentation state for the shared wiki UI. Holds expand/collapse status, the currently
-    /// selected tab+page (last-viewed within the level session), one-frame external request
-    /// flags set by WikiUtility.Open/Close/OpenTo, and the expand/collapse transition routine
-    /// handle.
+    /// The wiki's presentation domains, tracked separately so a mutation only repaints what it
+    /// actually invalidated. Each WikiUtility mutator ORs in its domains at the point of mutation;
+    /// WikiVisualsUtility.Refresh consumes and clears them.
     ///
-    /// Authoritative page/tab content lives on WikiContent + its referenced ScriptableObject
-    /// assets; authoritative unlock set lives on PlayerProgressState.UnlockedWikiPages.
+    /// The paginator's scroll offset, thumbnails, highlight overlay and arrows share one bit on
+    /// purpose: they read the same inputs, and the highlight is positioned from a RectTransform
+    /// only the thumbnail pass can produce, so they can't be driven independently.
+    /// </summary>
+    [Flags]
+    public enum WikiVisualDirty : byte {
+        None = 0,
+
+        // Expanded vs. collapsed root visibility.
+        Visibility = 1 << 0,
+
+        // Tab button icons, selected sprite, and width.
+        TabStrip = 1 << 1,
+
+        // Header title plus the active page's title / body / illustration / group toggles.
+        PageContent = 1 << 2,
+
+        // Paginator scroll offset, thumbnails, highlight overlay, and arrow enable-state.
+        Paginator = 1 << 3,
+
+        All = Visibility | TabStrip | PageContent | Paginator
+    }
+
+    /// <summary>
+    /// Presentation state for the shared wiki UI: expand/collapse status, the selected tab and
+    /// page, the paginator window offset, and the one-frame request flags external callers raise
+    /// through WikiUtility.
+    ///
+    /// Tab and page content lives on WikiContent and its referenced assets; the unlock set lives
+    /// on PlayerProgressState.UnlockedWikiPages.
     /// </summary>
     public class WikiState : SharedStateComponent, IRegistrationCallbacks {
-        // Steady-state: true when the full panel is visible; false when only the small icon
-        // button is visible.
+        // True when the full panel is visible, false when only the collapsed icon is. Assigned
+        // only by OnRegister, the two transition routines, and ForceCollapse.
         [HideInInspector] public bool Expanded;
 
-        // True while ExpandRoutine / CollapseRoutine is running. Read by Open/Close/OpenTo to
-        // avoid firing a second transition on top of an in-flight one.
+        // True while a transition routine is in flight. Re-entrancy guard only, so a second
+        // transition can't stack on an in-flight one — read by BeginExpand, BeginCollapse, and
+        // OpenTo. Presentation reads Expanded instead.
         [HideInInspector] public bool Transitioning;
 
-        // Last-viewed selection within the current level session. Persists across expand /
-        // collapse cycles; reset by the per-minigame transition system on level load.
+        // Last-viewed selection. Persists across expand/collapse cycles; reset on level load.
         [HideInInspector] public int ActiveTabIndex;
         [HideInInspector] public int ActivePageIndex;
 
-        // Paginator scroll offset. Indexes into the active tab's *unlocked* pages list — i.e.
-        // the leftmost slot of the window shows the (PageWindowStartIndex)th unlocked page.
-        // Maintained so ActivePageIndex's position-in-unlocked-list always falls within
-        // [PageWindowStartIndex, PageWindowStartIndex + PageWindowSize).
+        // Paginator scroll offset, counted in the active tab's *unlocked* pages: the window's
+        // leftmost slot shows the (PageWindowStartIndex)th unlocked page. Kept such that the
+        // selected page always falls inside [start, start + WikiContent.PageWindowSize).
         [HideInInspector] public int PageWindowStartIndex;
 
-        // One-frame external request flags. Set by WikiUtility.Open / Close / OpenTo; consumed
-        // and cleared inline by WikiSelectSystem during ProcessWork.
+        // One-frame request flags. Raised by WikiUtility.Open / Close / OpenTo; consumed and
+        // cleared inline by WikiSelectSystem.
         [HideInInspector] public bool OpenRequestedThisFrame;
         [HideInInspector] public bool CloseRequestedThisFrame;
         [HideInInspector] public bool OpenToRequestedThisFrame;
@@ -49,14 +77,18 @@ namespace SpaceFab.UI {
         // threading a MonoBehaviour owner through every call site.
         [HideInInspector] public Routine TransitionRoutine;
 
+        // Requests a strip rebuild + unlock pass. Consumed by OnSceneLateEnable.
         [HideInInspector] public bool NeedsRebuild;
 
-        // Set for one frame whenever the active page (tab/page index)
-        // just changed, or the wiki just expanded onto a page. Drives
-        // one-shot view loads (WikiCharacteristicsLoadUtility) so they
-        // rebuild only when the page actually changes. Cleared by
-        // WikiRefreshSystem at end-of-frame.
+        // Set for one frame when the active page changes, or when the wiki expands onto a page.
+        // Drives WikiCharacteristicsRefreshSystem; cleared by WikiRefreshSystem.
         [HideInInspector] public bool ActivePageChangedThisFrame;
+
+        // Which presentation domains are stale. Raised by the WikiUtility mutators at the point of
+        // mutation, consumed and cleared by WikiVisualsUtility.Refresh. Unlike the *ThisFrame
+        // flags this persists until drained, so an invalidation raised far from a refresh call
+        // site — a mid-session UnlockPage, say — still lands.
+        [HideInInspector] public WikiVisualDirty VisualsDirty;
 
         public void OnRegister() {
             Expanded = false;
@@ -69,38 +101,71 @@ namespace SpaceFab.UI {
             OpenToRequestedThisFrame = false;
             RequestedTabId = default;
             RequestedPageId = default;
+
+            // Nothing has been painted yet.
+            VisualsDirty = WikiVisualDirty.All;
+
+            Game.Scenes.OnMainSceneLateEnable.Register(OnSceneLateEnable);
         }
 
         public void OnDeregister() {
             TransitionRoutine.Stop();
+
+            Game.Scenes.OnMainSceneLateEnable.Deregister(OnSceneLateEnable);
+        }
+
+        // Rebuilds the button strips and reapplies unlocks when the scene comes up, then styles
+        // the resulting instances.
+        public void OnSceneLateEnable()
+        {
+            Find.State(
+                out WikiState wikiState,
+                out WikiLayoutState layoutState,
+                out PlayerProgressState progressState
+                );
+
+            if (!wikiState.NeedsRebuild) { return; }
+
+            // No WikiContent means this scene doesn't ship the wiki prefab. Everything past this
+            // point assumes the full authoring is present and asserts if it isn't.
+            var contents = Find.Components<WikiContent>();
+            if (contents.Count == 0) { return; }
+            WikiContent content = contents[0];
+
+            var pools = Find.Components<WikiPools>();
+            Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
+
+            WikiPoolUtility.RebuildStrips(wikiState, content, pools[0]);
+            WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
+            wikiState.NeedsRebuild = false;
+
+            // Painted here rather than left to WikiRefreshSystem's drain: waiting for the first
+            // LateUpdate would show one frame of an unstyled panel on scene load.
+            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], progressState);
         }
     }
 
     /// <summary>
-    /// Main command surface for WikiState. Declared as partial so WikiButton.cs can extend it
-    /// with the per-button pointer-event setters. Organized into regions: external API, tab
-    /// and page selection, transition routines, unlock queries.
+    /// Command surface for WikiState. Partial so WikiButton.cs can extend it with the per-button
+    /// pointer-event setters.
     /// </summary>
     public static partial class WikiUtility {
         #region External API
 
-        // Open the wiki to the last-viewed tab + page. No-op if already expanded or mid-
-        // transition. Callers: gameplay code, debug menus, the collapsed icon's click handler.
+        // Open the wiki to the last-viewed tab + page. Raises the request unconditionally;
+        // whether a transition actually starts is BeginExpand's call once WikiSelectSystem
+        // consumes the flag, since state may change in between.
         public static void Open(WikiState wikiState) {
-            if (wikiState.Expanded || wikiState.Transitioning) { return; }
             wikiState.OpenRequestedThisFrame = true;
         }
 
-        // Close the wiki. No-op if already collapsed or mid-transition.
+        // Close the wiki. Mirror of Open — the guard lives in BeginCollapse.
         public static void Close(WikiState wikiState) {
-            if (!wikiState.Expanded || wikiState.Transitioning) { return; }
             wikiState.CloseRequestedThisFrame = true;
         }
 
-        // Open the wiki to a specific tab + page. If expanded, selection changes without re-
-        // running the expand transition. If collapsed, expands and then applies the selection.
-        // Unknown IDs are dropped by the resolver (see SelectTabById / SelectPageById) — state
-        // is left unchanged if either ID doesn't match an authored asset.
+        // Open the wiki to a specific tab + page, expanding first if collapsed. Ids that match no
+        // authored asset are dropped by SelectTabById / SelectPageById, leaving selection as-is.
         public static void OpenTo(StringHash32 tabId, StringHash32 pageId) {
             WikiState wikiState = Find.State<WikiState>();
             if (wikiState.Transitioning) { return; }
@@ -109,11 +174,10 @@ namespace SpaceFab.UI {
             wikiState.RequestedPageId = pageId;
         }
 
-        // Toggles Wiki open or close
+        // Toggle the wiki open or closed. Expanded only picks the direction; whether the chosen
+        // transition runs is BeginExpand / BeginCollapse's call.
         public static void ToggleWikiOpen(WikiState wikiState)
         {
-            if (wikiState.Transitioning) { return; }
-
             if (wikiState.Expanded) {
                 Close(wikiState);
             }
@@ -126,10 +190,9 @@ namespace SpaceFab.UI {
 
         #region Material Page Lookup
 
-        // Finds the authored material page bound to materialId, returning the tab + page ids that
-        // OpenTo needs. Material pages can live under any tab, so every tab's page list is scanned.
-        // Returns false (and leaves the out params default) when no page references this material —
-        // callers should no-op rather than open an arbitrary page.
+        // Finds the page bound to materialId and returns the tab + page ids OpenTo needs. Material
+        // pages can live under any tab, so every tab's page list is scanned. Returns false with
+        // default out params when no page references the material.
         public static bool TryFindMaterialPage(WikiContent content, StringHash32 materialId, out StringHash32 tabId, out StringHash32 pageId) {
             tabId = default;
             pageId = default;
@@ -154,11 +217,8 @@ namespace SpaceFab.UI {
 
         #region Tab + Page Commands
 
-        // Switch to a specific tab by index. Clamps to valid range. Resets ActivePageIndex to
-        // the first unlocked page in the new tab (0 if none unlocked — a locked tab will show
-        // no content anyway, and the availability utility should have hidden the button).
-        // Also resets the paginator window to the leftmost position so tab-switching always
-        // shows the start of the new tab's pages.
+        // Switch to a tab by index, selecting its first unlocked page and snapping the paginator
+        // window back to the leftmost slot. Out-of-range indices are dropped.
         public static void SelectTab(WikiState wikiState, WikiContent content, PlayerProgressState progressState, int tabIndex) {
             if (content.Tabs == null || content.Tabs.Length == 0) { return; }
             if (tabIndex < 0 || tabIndex >= content.Tabs.Length) { return; }
@@ -168,30 +228,32 @@ namespace SpaceFab.UI {
             wikiState.PageWindowStartIndex = 0;
             wikiState.NeedsRebuild = true;
             wikiState.ActivePageChangedThisFrame = true;
+
+            // A tab switch moves the highlight, rebinds the page, and resets the window.
+            WikiVisualsUtility.Invalidate(wikiState,
+                WikiVisualDirty.TabStrip | WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
         }
 
-        // ID-based variant — resolves tabId → index via WikiContent.Tabs. Matches against the tab
-        // asset name first, then falls back to the authored display title, so callers may pass
-        // either. Drops the request silently if neither matches.
+        // Id-based variant. Matches the tab asset name first, then the display title, so callers
+        // may pass either. Drops the request if neither matches.
         public static void SelectTabById(WikiState wikiState, WikiContent content, PlayerProgressState progressState, StringHash32 tabId) {
             int index = FindTabIndex(content, tabId);
             if (index < 0) { return; }
             SelectTab(wikiState, content, progressState, index);
         }
 
-        // Advance to the next unlocked page in the active tab. Wraps to the first unlocked page
-        // at the end. No-op if zero pages are unlocked.
+        // Advance to the next unlocked page in the active tab, wrapping at the end.
         public static void NextPage(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             StepPage(wikiState, content, progressState, +1);
         }
 
-        // Retreat to the previous unlocked page. Wraps to the last unlocked page at the start.
+        // Step back to the previous unlocked page, wrapping at the start.
         public static void PrevPage(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             StepPage(wikiState, content, progressState, -1);
         }
 
-        // Direct page selection by index. Clamps, then snaps to the nearest unlocked page at
-        // or after the requested index (wrapping once). No-op if zero pages are unlocked.
+        // Select a page by index, snapping forward to the nearest unlocked page (wrapping once).
+        // The selection is left alone if the tab has no unlocked pages.
         public static void SelectPage(WikiState wikiState, WikiContent content, PlayerProgressState progressState, int pageIndex) {
             WikiTabData tab = ActiveTab(wikiState, content);
             if (tab == null || tab.Pages == null || tab.Pages.Length == 0) { return; }
@@ -205,11 +267,13 @@ namespace SpaceFab.UI {
 
             wikiState.NeedsRebuild = true;
             wikiState.ActivePageChangedThisFrame = true;
+
+            // A page change leaves the tab strip alone — only the bind and the strip below it.
+            WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
         }
 
-        // ID-based variant. Resolves pageId within the active tab by asset name first, then by
-        // display title (so callers may pass either). Drops the request if neither matches a page
-        // in the active tab, or if the matched page is locked.
+        // Id-based variant, scoped to the active tab. Drops the request if nothing matches or the
+        // matched page is locked.
         public static void SelectPageById(WikiState wikiState, WikiContent content, PlayerProgressState progressState, StringHash32 pageId) {
             WikiTabData tab = ActiveTab(wikiState, content);
             if (tab == null || tab.Pages == null) { return; }
@@ -217,27 +281,28 @@ namespace SpaceFab.UI {
             int index = FindPageIndexInTab(tab, pageId);
             if (index < 0) { return; }
 
-            // Unlock is tracked by asset name, so check against the resolved page's AssetId rather
-            // than the passed id (which may have been a display title). Locked pages stay hidden.
+            // Unlock is tracked by asset name, so test the resolved page's AssetId — pageId itself
+            // may have been a display title.
             WikiPageData page = tab.Pages[index];
             if (!IsPageUnlocked(progressState, page.AssetId)) { return; }
 
             wikiState.ActivePageIndex = index;
             EnsureWindowContains(wikiState, content, tab, progressState);
             wikiState.ActivePageChangedThisFrame = true;
+
+            WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
         }
 
-        // Returns the index of the page in tab whose id matches pageId, or -1 if not found. Two
-        // passes mirroring FindTabIndex: asset name first, then the authored display title.
+        // Index of the page in tab matching pageId, or -1. Two passes mirroring FindTabIndex.
         private static int FindPageIndexInTab(WikiTabData tab, StringHash32 pageId) {
-            // 1. Primary match: asset name.
+            // 1. Asset name.
             for (int i = 0; i < tab.Pages.Length; i++) {
                 if (tab.Pages[i] != null && tab.Pages[i].AssetId == pageId) {
                     return i;
                 }
             }
 
-            // 2. Fallback match: display title.
+            // 2. Display title.
             for (int i = 0; i < tab.Pages.Length; i++) {
                 WikiPageData page = tab.Pages[i];
                 if (page != null && !string.IsNullOrEmpty(page.Title) && new StringHash32(page.Title) == pageId) {
@@ -252,29 +317,74 @@ namespace SpaceFab.UI {
 
         #region Transition Routines
 
-        // Expand from collapsed → full panel. Runs on WikiState.TransitionRoutine.
-        // Scaffold body: flip the flags and yield one frame so visual systems get a chance to
-        // observe Transitioning == true. A later visuals pass will layer in a CanvasGroup
-        // alpha + scale tween via BeauRoutine.Tween, with this method's yield driving duration.
+        // The single expand guard. Every path that wants the panel open goes through here rather
+        // than testing Expanded / Transitioning itself.
+        public static void BeginExpand(WikiState wikiState) {
+            if (wikiState.Expanded || wikiState.Transitioning) { return; }
+
+            wikiState.TransitionRoutine.Replace(ExpandRoutine(wikiState));
+
+            // Opening counts as a page change so the chip column rebuilds against fresh state.
+            wikiState.ActivePageChangedThisFrame = true;
+        }
+
+        // The single collapse guard. Mirror of BeginExpand.
+        public static void BeginCollapse(WikiState wikiState) {
+            if (!wikiState.Expanded || wikiState.Transitioning) { return; }
+
+            wikiState.TransitionRoutine.Replace(CollapseRoutine(wikiState));
+        }
+
+        // Hard reset for minigame teardown. Snaps straight to collapsed, skipping CollapseRoutine
+        // and therefore the OnWikiClosed trigger — the scene is going away and nothing downstream
+        // should react to it. Applies root visibility only, since the scene's WikiContent and
+        // WikiPools are being torn down alongside this call.
+        public static void ForceCollapse(WikiState wikiState, WikiLayoutState layoutState) {
+            Assert.NotNullOrDestroyed(wikiState, "Missing WikiState");
+            Assert.NotNullOrDestroyed(layoutState, "Missing WikiLayoutState");
+
+            wikiState.TransitionRoutine.Stop();
+            wikiState.Transitioning = false;
+            wikiState.Expanded = false;
+            wikiState.OpenRequestedThisFrame = false;
+            wikiState.CloseRequestedThisFrame = false;
+            wikiState.OpenToRequestedThisFrame = false;
+
+            // Applied directly rather than through Invalidate: the scene is unloading, so there may
+            // be no later drain. Clear the bit so the pending mask doesn't outlive the teardown.
+            WikiLayoutUtility.ApplyExpandedSteadyState(layoutState, false);
+            wikiState.VisualsDirty &= ~WikiVisualDirty.Visibility;
+        }
+
+        // Expand from collapsed to full panel. Runs on WikiState.TransitionRoutine; start it via
+        // BeginExpand, never directly.
         public static IEnumerator ExpandRoutine(WikiState wikiState) {
             ScriptUtility.Trigger(ScriptTriggers.OnWikiOpened);
 
             wikiState.Transitioning = true;
             wikiState.Expanded = true;
+
+            // Everything: the panel was hidden, so any domain invalidated while collapsed was left
+            // pending, and content may have changed underneath it.
+            WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.All);
+
             yield return null;
             wikiState.Transitioning = false;
         }
 
-        // Collapse from full panel → icon. Mirror of ExpandRoutine.
+        // Collapse from full panel to icon. Mirror of ExpandRoutine; start it via BeginCollapse.
         public static IEnumerator CollapseRoutine(WikiState wikiState) {
             wikiState.Transitioning = true;
             wikiState.Expanded = false;
+
+            // Only the roots change — the contents keep whatever they were last painted with.
+            WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.Visibility);
+
             yield return null;
             wikiState.Transitioning = false;
 
-            // The panel has finished collapsing — let onboarding / scripts react to the wiki
-            // being dismissed. Firing after the transition completes means an interrupted
-            // collapse (reopened mid-transition) won't raise a spurious closed trigger.
+            // Fired at the end rather than the start so a collapse interrupted by a reopen never
+            // raises a spurious closed trigger.
             ScriptUtility.Trigger(ScriptTriggers.OnWikiClosed);
         }
 
@@ -282,13 +392,13 @@ namespace SpaceFab.UI {
 
         #region Unlock Queries
 
-        // True iff pageId appears in PlayerProgressState.UnlockedWikiPages.
+        // True when pageId appears in PlayerProgressState.UnlockedWikiPages.
         public static bool IsPageUnlocked(PlayerProgressState progressState, StringHash32 pageId) {
             if (progressState == null || progressState.UnlockedWikiPages == null) { return false; }
             return progressState.UnlockedWikiPages.Contains(pageId);
         }
 
-        // True iff at least one page in the given tab is unlocked.
+        // True when at least one page in the given tab is unlocked.
         public static bool IsTabUnlocked(PlayerProgressState progressState, WikiTabData tab) {
             if (tab == null || tab.Pages == null) { return false; }
             for (int i = 0; i < tab.Pages.Length; i++) {
@@ -300,12 +410,9 @@ namespace SpaceFab.UI {
         }
 
         // Adds pageId to the unlocked set and dispatches GameEvents.WikiPageUnlocked so UI and
-        // audio can react. Idempotent — duplicate unlocks don't re-dispatch.
+        // audio can react. Idempotent — a duplicate unlock doesn't re-dispatch.
         //
-        // Also raises WikiState.NeedsRebuild so WikiSetupSystem picks the change up on its
-        // next LateUpdate tick and reruns WikiPoolUtility.RebuildStrips + ApplyUnlocks. This
-        // lets a mid-session unlock (e.g., the Research minigame confirming a property while
-        // the wiki is open) reveal the new tab / thumbnail without the player having to
+        // Raises NeedsRebuild so the new tab / thumbnail appears without the player having to
         // close and reopen the wiki.
         public static void UnlockPage(PlayerProgressState progressState, StringHash32 pageId) {
             if (!progressState.UnlockedWikiPages.Add(pageId)) { return; }
@@ -313,6 +420,10 @@ namespace SpaceFab.UI {
             WikiState wikiState = Find.State<WikiState>();
             if (wikiState != null) {
                 wikiState.NeedsRebuild = true;
+
+                // A newly-unlocked page can reveal its whole tab, and changes which thumbnails are
+                // visible plus how far the window can scroll.
+                WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.TabStrip | WikiVisualDirty.Paginator);
             }
 
             SpacefabGame.Events.Dispatch(GameEvents.WikiPageUnlocked, pageId);
@@ -322,29 +433,26 @@ namespace SpaceFab.UI {
 
         #region Internal Helpers
 
-        // Resolves the currently-active tab asset, or null if the index is out of range /
-        // content isn't authored yet.
+        // The active tab asset, or null if the index is out of range or content isn't authored.
         private static WikiTabData ActiveTab(WikiState wikiState, WikiContent content) {
             if (content.Tabs == null) { return null; }
             if (wikiState.ActiveTabIndex < 0 || wikiState.ActiveTabIndex >= content.Tabs.Length) { return null; }
             return content.Tabs[wikiState.ActiveTabIndex];
         }
 
-        // Returns the index in content.Tabs whose id matches tabId, or -1 if not found. Two passes:
-        // asset name (AssetId) first, then the authored display title, so an OpenTo caller can pass
-        // either the file name ("Materials_Tabs") or the title shown in the UI ("Materials").
+        // Index in content.Tabs matching tabId, or -1. Two passes, so an OpenTo caller can pass
+        // either the asset file name ("Materials_Tabs") or the title shown in the UI ("Materials").
         private static int FindTabIndex(WikiContent content, StringHash32 tabId) {
             if (content.Tabs == null) { return -1; }
 
-            // 1. Primary match: asset name.
+            // 1. Asset name.
             for (int i = 0; i < content.Tabs.Length; i++) {
                 if (content.Tabs[i] != null && content.Tabs[i].AssetId == tabId) {
                     return i;
                 }
             }
 
-            // 2. Fallback match: display title. Lets designer-facing OpenTo calls use the
-            //    human-readable tab title rather than the underlying asset file name.
+            // 2. Display title.
             for (int i = 0; i < content.Tabs.Length; i++) {
                 WikiTabData tab = content.Tabs[i];
                 if (tab != null && !string.IsNullOrEmpty(tab.Title) && new StringHash32(tab.Title) == tabId) {
@@ -355,10 +463,8 @@ namespace SpaceFab.UI {
             return -1;
         }
 
-        // Page-paginator step. Walks forward or backward by `dir` (±1), skipping locked pages,
-        // wrapping at the ends. No-op if zero pages are unlocked in the active tab. After
-        // updating ActivePageIndex, slides the paginator window by one slot in `dir` if the
-        // new selection falls outside the current window (keeps the selected thumbnail visible).
+        // Steps the selection by `dir` (±1), skipping locked pages and wrapping at the ends, then
+        // slides the paginator window so the new selection stays visible.
         private static void StepPage(WikiState wikiState, WikiContent content, PlayerProgressState progressState, int dir) {
             WikiTabData tab = ActiveTab(wikiState, content);
             if (tab == null || tab.Pages == null || tab.Pages.Length == 0) { return; }
@@ -369,11 +475,13 @@ namespace SpaceFab.UI {
                 wikiState.ActivePageIndex = resolved;
                 EnsureWindowContains(wikiState, content, tab, progressState);
                 wikiState.ActivePageChangedThisFrame = true;
+
+                WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
             }
         }
 
-        // Scans the tab's pages starting at `from`, stepping by `dir`, wrapping once. Returns
-        // the first unlocked page index found, or -1 if none exist.
+        // Scans the tab's pages from `from`, stepping by `dir` and wrapping once. Returns the
+        // first unlocked page index found, or -1 if none exist.
         private static int FindNextUnlockedFrom(WikiTabData tab, PlayerProgressState progressState, int from, int dir) {
             int len = tab.Pages.Length;
             int i = from;
@@ -387,16 +495,15 @@ namespace SpaceFab.UI {
             return -1;
         }
 
-        // Returns the index of the first unlocked page in `tab`, or 0 if none are unlocked
-        // (caller is expected to hide fully-locked tabs via ApplyUnlocks).
+        // Index of the first unlocked page in `tab`, or 0 if none are — a fully-locked tab has its
+        // button hidden by ApplyUnlocks, so the index never gets used.
         private static int FirstUnlockedPageIndex(WikiTabData tab, PlayerProgressState progressState) {
             if (tab == null || tab.Pages == null) { return 0; }
             int resolved = FindNextUnlockedFrom(tab, progressState, 0, +1);
             return resolved >= 0 ? resolved : 0;
         }
 
-        // Counts unlocked pages in the given tab. Used to clamp the paginator window's right
-        // edge and to answer "can we still scroll further right?".
+        // Number of unlocked pages in the tab — the paginator window's right bound.
         private static int UnlockedCount(WikiTabData tab, PlayerProgressState progressState) {
             if (tab == null || tab.Pages == null) { return 0; }
             int count = 0;
@@ -407,9 +514,8 @@ namespace SpaceFab.UI {
             return count;
         }
 
-        // Returns the position of rawIndex within the ordered list of unlocked pages in the
-        // tab, or -1 if rawIndex itself is locked. Used to translate raw ActivePageIndex into
-        // a "slot number in the paginator strip" for window-bound checks.
+        // Position of rawIndex within the tab's unlocked pages, or -1 if that page is locked.
+        // Converts a raw page index into the paginator slot the window bounds are measured in.
         private static int UnlockedIndexOf(WikiTabData tab, PlayerProgressState progressState, int rawIndex) {
             if (tab == null || tab.Pages == null) { return -1; }
             if (rawIndex < 0 || rawIndex >= tab.Pages.Length) { return -1; }
@@ -424,11 +530,8 @@ namespace SpaceFab.UI {
             return unlockedIndex;
         }
 
-        // Adjusts PageWindowStartIndex so the selected unlocked-page falls inside
-        // [PageWindowStartIndex, PageWindowStartIndex + PageWindowSize). Shifts by the minimal
-        // amount on either side. Also clamps the window so its right edge never passes the end
-        // of the unlocked list (avoids a scrolled-past-the-end state after an unlock mutation
-        // or window-size change).
+        // Shifts PageWindowStartIndex by the minimum needed to bring the selected page inside the
+        // window, then clamps so the window's right edge can't pass the end of the unlocked list.
         private static void EnsureWindowContains(WikiState wikiState, WikiContent content, WikiTabData tab, PlayerProgressState progressState) {
             int windowSize = content.PageWindowSize;
             if (windowSize <= 0) {
@@ -450,8 +553,7 @@ namespace SpaceFab.UI {
                 start = selectedSlot;
             }
 
-            // Clamp right edge: if the list is shorter than the window, start is always 0;
-            // otherwise never let start exceed (unlockedCount - windowSize).
+            // A list shorter than the window pins start at 0.
             int maxStart = Mathf.Max(0, unlockedCount - windowSize);
             start = Mathf.Clamp(start, 0, maxStart);
 
@@ -462,24 +564,24 @@ namespace SpaceFab.UI {
 
         #region Paginator Queries
 
-        // True iff the paginator window can still scroll one slot further left. Used by
-        // WikiVisualsUpdateSystem to grey out the `<` arrow button at the leftmost state.
+        // True while the paginator window can still scroll left. Greys out the `<` arrow.
         public static bool CanScrollPageWindowLeft(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             WikiTabData tab = ActiveTab(wikiState, content);
-            return tab != null && UnlockedCount(tab, progressState) > 1;
+            return tab != null && wikiState.PageWindowStartIndex > 0;
         }
 
-        // True iff the paginator window can still scroll one slot further right. Used by
-        // WikiVisualsUpdateSystem to grey out the `>` arrow button at the rightmost state.
+        // True while the window's right edge hasn't reached the end of the unlocked list. Greys
+        // out the `>` arrow.
         public static bool CanScrollPageWindowRight(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
             WikiTabData tab = ActiveTab(wikiState, content);
-            return tab != null && UnlockedCount(tab, progressState) > 1;
+            if (tab == null) { return false; }
+
+            int windowSize = Mathf.Max(1, content.PageWindowSize);
+            return wikiState.PageWindowStartIndex + windowSize < UnlockedCount(tab, progressState);
         }
 
-        // Translates a raw page index into its unlocked-list position (or -1 if the page is
-        // locked). Exposed for WikiVisualsUpdateSystem: the visuals system walks the raw pages
-        // list to render thumbnails and needs to know each thumbnail's slot for visibility
-        // (slot in [PageWindowStartIndex, PageWindowStartIndex + PageWindowSize) is in-view).
+        // Public form of UnlockedIndexOf. WikiVisualsUtility walks the raw page list to style
+        // thumbnails and needs each one's slot to test it against the window bounds.
         public static int GetUnlockedIndex(WikiTabData tab, PlayerProgressState progressState, int rawIndex) {
             return UnlockedIndexOf(tab, progressState, rawIndex);
         }
@@ -488,53 +590,41 @@ namespace SpaceFab.UI {
     }
 
     /// <summary>
-    /// Rebuilds the dynamically-pooled tab + thumb button strips from WikiContent, then applies
-    /// per-tab and per-page-thumbnail availability (locked vs. unlocked) to every WikiButton in
-    /// the scene. Called on level-load and after any WikiUtility.UnlockPage mutation so buttons
-    /// reflect the current content + unlock set.
+    /// Hides pooled wiki buttons whose tab or page is still locked. A tab is available when any of
+    /// its pages is unlocked; a thumbnail is available when its own page is.
     ///
-    /// Rebuild comes first so the availability pass sees the newly-spawned instances (and any
-    /// formerly-active instances that were released to the free pool are already hidden).
+    /// Runs immediately after WikiPoolUtility.RebuildStrips, whose (TabIndex, PageIndex)
+    /// assignments it reads and asserts on rather than re-validating. WikiState.OnSceneLateEnable
+    /// sequences the two.
     ///
-    /// For Tab buttons: Available = IsTabUnlocked(...). Locked tabs are hidden entirely —
-    /// gameObject inactive, DynamicButton disabled — so no pointer events fire on them.
-    /// For PageThumb buttons: Available iff the referenced page is unlocked. Visibility inside
-    /// the paginator window and active-tab filtering are further runtime cuts handled by
-    /// WikiVisualsUpdateSystem.
-    /// For non-Tab/non-PageThumb buttons (arrows, exit, collapsed icon): Available stays true;
-    /// they're chrome.
-    ///
-    /// Caller: TODO — the site that invokes this on level-load lives in each minigame's
-    /// transition system; the scaffold does not yet wire it. WikiUtility.UnlockPage also needs
-    /// to call this so mid-level unlocks reveal their tab / thumbnail.
+    /// Active-tab filtering and paginator-window visibility are separate, later cuts made by
+    /// WikiVisualsUtility.
     /// </summary>
     public static class WikiAvailabilityUtility {
         public static void ApplyUnlocks(WikiContent content, WikiPools pools, PlayerProgressState progressState) {
-            WikiPoolUtility.RebuildStrips(content, pools);
-
-            var buttons = Find.Components<WikiButton>();
-            for (int i = 0; i < buttons.Count; i++) {
-                WikiButton button = buttons[i];
-
-                switch (button.Kind) {
-                    case WikiButtonKind.Tab:
-                        ApplyTabAvailability(button, content, progressState);
-                        break;
-
-                    case WikiButtonKind.PageThumb:
-                        ApplyPageThumbAvailability(button, content, progressState);
-                        break;
-
-                    default:
-                        // Chrome buttons are always available.
-                        button.Available = true;
-                        break;
-                }
+            // Walk the pools' allocated sets.
+            var tabButtons = pools.TabButtonPool.ActiveObjects;
+            for (int i = 0; i < tabButtons.Count; i++) {
+                ApplyTabAvailability(tabButtons[i], content, progressState);
             }
 
+            var thumbButtons = pools.PageThumbPool.ActiveObjects;
+            for (int i = 0; i < thumbButtons.Count; i++) {
+                ApplyPageThumbAvailability(thumbButtons[i], content, progressState);
+            }
+
+            // Chrome buttons (arrows, exit, collapsed icon) need no pass — WikiButton.Available
+            // initializes true and only the two helpers above ever clear it.
+
+            // The selection can be left pointing at a tab that has no unlocked pages, either on a
+            // fresh save or after content changed. Fall back to the first unlocked tab.
             WikiState wikiState = Find.State<WikiState>();
             if (wikiState != null && content.Tabs != null)
             {
+                // Every button just had its visibility reassigned, so both strips need restyling.
+                // SelectTab below may widen this further.
+                WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.TabStrip | WikiVisualDirty.Paginator);
+
                 bool validTab = wikiState.ActiveTabIndex >= 0
                     && wikiState.ActiveTabIndex < content.Tabs.Length
                     && WikiUtility.IsTabUnlocked(progressState, content.Tabs[wikiState.ActiveTabIndex]);
@@ -553,45 +643,39 @@ namespace SpaceFab.UI {
             }
         }
 
+        // RebuildStrips assigned TabIndex from this same content immediately before, so it is in
+        // range by construction.
         private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
-            bool available = false;
-            if (content != null && content.Tabs != null
-                && button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length) {
-                available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
-            }
+            Assert.True(button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length,
+                "Wiki tab button has out-of-range TabIndex {0}", button.TabIndex);
 
-            button.Available = available;
-            button.gameObject.SetActive(available);
-            if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
+            bool available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
+            ApplyAvailability(button, available);
         }
 
-        // Evaluates a PageThumb button's lock state against its *authoring* tab — i.e. the
-        // tab this thumbnail was prefabbed under, inferred from the nearest parent Tab button.
-        // For the scaffold, we simplify: a thumbnail is Available iff any tab it references
-        // has its page unlocked. Prefab authoring is expected to place each thumbnail set
-        // under the tab it belongs to; the visuals system then shows only the active tab's
-        // thumbnails and hides the rest.
-        //
-        // Concretely: button.PageIndex is the raw index in content.Tabs[?].Pages. We resolve
-        // "which tab?" by looking up the button's TabIndex field — prefab authoring is
-        // expected to set TabIndex on thumbnails too, so thumbs carry both (TabIndex, PageIndex).
+        // Same construction guarantee as above, for both halves of the thumb's (TabIndex,
+        // PageIndex) pair.
         private static void ApplyPageThumbAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
-            bool available = false;
-            if (content != null && content.Tabs != null
-                && button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length) {
-                WikiTabData tab = content.Tabs[button.TabIndex];
-                if (tab != null && tab.Pages != null
-                    && button.PageIndex >= 0 && button.PageIndex < tab.Pages.Length) {
-                    WikiPageData page = tab.Pages[button.PageIndex];
-                    if (page != null) {
-                        available = WikiUtility.IsPageUnlocked(progressState, page.AssetId);
-                    }
-                }
-            }
+            Assert.True(button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length,
+                "Wiki page thumb has out-of-range TabIndex {0}", button.TabIndex);
+
+            WikiTabData tab = content.Tabs[button.TabIndex];
+            Assert.True(button.PageIndex >= 0 && button.PageIndex < tab.Pages.Length,
+                "Wiki page thumb has out-of-range PageIndex {0} for tab '{1}'", button.PageIndex, tab.name);
+
+            WikiPageData page = tab.Pages[button.PageIndex];
+            Assert.NotNullOrDestroyed(page, "Wiki tab '{0}' has a null page at index {1}", tab.name, button.PageIndex);
+
+            bool available = WikiUtility.IsPageUnlocked(progressState, page.AssetId);
+            ApplyAvailability(button, available);
+        }
+
+        private static void ApplyAvailability(WikiButton button, bool available) {
+            Assert.NotNullOrDestroyed(button.DynamicButton, "Wiki button '{0}' has no DynamicButton", button.name);
 
             button.Available = available;
             button.gameObject.SetActive(available);
-            if (button.DynamicButton != null) { button.DynamicButton.enabled = available; }
+            button.DynamicButton.enabled = available;
         }
     }
 }

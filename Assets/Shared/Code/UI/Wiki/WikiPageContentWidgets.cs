@@ -4,37 +4,27 @@ using UnityEngine.UI;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Pure-data MonoBehaviour on the wiki prefab's PageArea. Holds inspector references to
-    /// the widgets that display the currently-selected WikiPageData. Consumed by
-    /// WikiVisualsUpdateSystem, which pushes page fields into these widgets each frame while
-    /// the panel is expanded.
+    /// Inspector references to the widgets that display the selected WikiPageData, authored on the
+    /// wiki prefab's PageArea. Every field is required authoring; WikiVisualsUtility asserts on
+    /// each rather than skipping the ones that aren't wired up.
     ///
-    /// Two content shapes:
-    ///   - Default page: DefaultGroup wraps the body text; MaterialCharacteristicsGroup is
-    ///     disabled. Title + IllustrationImage render as authored on WikiPageData.
-    ///   - Material page: MaterialCharacteristicsGroup wraps the chip column populated by
-    ///     WikiCharacteristicsLoadUtility; DefaultGroup is disabled. IllustrationImage's
-    ///     sprite is sourced from the material's ResearchMaterialView rather than
-    ///     WikiPageData.Illustration. Title still renders as authored.
+    /// Title and IllustrationImage render on both page kinds. The two groups are mutually
+    /// exclusive: default pages show DefaultGroup's body text, material pages show the
+    /// characteristics chip column and take their illustration from the material asset instead of
+    /// WikiPageData.Illustration.
     ///
-    /// No logic here intentionally — display-side equivalent of a pure-data component. The
-    /// write path lives in WikiVisualsUpdateSystem (toggle + content bind) and
-    /// WikiCharacteristicsLoadUtility (chip alloc + layout).
+    /// Data only — the write path is WikiVisualsUtility for the group toggle and content bind, and
+    /// WikiCharacteristicsLoadUtility for the chips.
     /// </summary>
     public class WikiPageContentWidgets : MonoBehaviour {
         public TextMeshProUGUI TitleText;
         public Image IllustrationImage;
 
-        // Default-page body wrapper. WikiVisualsUpdateSystem enables
-        // this when the active page's MaterialId is empty. The body
-        // text writes into BodyText below.
         public GameObject DefaultGroup;
         public TextMeshProUGUI BodyText;
 
-        // Material-page chip column wrapper. Enabled when MaterialId
-        // is set. WikiCharacteristicsLoadUtility pool-allocs chips
-        // under CharacteristicsContainer and resizes this group's
-        // RectTransform to fit them.
+        // Chips are pool-allocated under CharacteristicsContainer, and the group's RectTransform
+        // is resized to fit them.
         public GameObject MaterialCharacteristicsGroup;
         public RectTransform CharacteristicsContainer;
         public GameObject PlanetDetailsContainer;
