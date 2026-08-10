@@ -128,12 +128,21 @@ namespace SpaceFab.UI {
         // the resulting instances.
         public void OnSceneLateEnable()
         {
+            if (!Game.SharedState.Has<WikiState>()
+                || !Game.SharedState.Has<WikiLayoutState>()
+                || !Game.SharedState.Has<WikiChipPools>()
+                || !Game.SharedState.Has<PlayerProgressState>())
+            {
+                // not in a scene that needs wiki rebuilding
+                return;
+            }
+
             Find.State(
                 out WikiState wikiState,
                 out WikiLayoutState layoutState,
                 out WikiChipPools chipPools,
                 out PlayerProgressState progressState
-                );
+            );
 
             if (!wikiState.NeedsRebuild) { return; }
 
