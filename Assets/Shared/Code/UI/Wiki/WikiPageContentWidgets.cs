@@ -1,19 +1,12 @@
+using SpaceFab.Research;
 using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Inspector references to the widgets that display the selected WikiPageData, authored on the
-    /// wiki prefab's PageArea. Every field is required authoring; WikiVisualsUtility asserts on
-    /// each rather than skipping the ones that aren't wired up.
-    ///
-    /// Title and Illustration render on both page kinds. The two groups are mutually
-    /// exclusive: default pages show DefaultGroup's body text, material pages show the
-    /// characteristics chip column and take their illustration from the material asset — a single
-    /// still frame — instead of WikiPageData's authored frame sequence.
-    ///
     /// Data only — the write path is WikiVisualsUtility for the group toggle and content bind, and
-    /// WikiCharacteristicsLoadUtility for the chips.
+    /// WikiCharacteristicsLoadUtility / WikiObservationLoadUtility / WikiPropertyLoadUtility for
+    /// the chips.
     /// </summary>
     public class WikiPageContentWidgets : MonoBehaviour {
         public TextMeshProUGUI TitleText;
@@ -29,5 +22,18 @@ namespace SpaceFab.UI {
         public GameObject MaterialCharacteristicsGroup;
         public RectTransform CharacteristicsContainer;
         public GameObject PlanetDetailsContainer;
+
+        [Header("Observation Page")]
+        public GameObject ObservationGroup;
+        // Caption above the chip column. Bound from the page's Body when it authors one.
+        public RectTransform ObservationChipContainer;
+
+        [Header("Property Page")]
+        public GameObject PropertyGroup;
+        // Authored on the prefab rather than pool-allocated — there is exactly one per page, and
+        // it carries the property-selection click.
+        public ResearchObservationChip PropertyChip;
+        public TextMeshProUGUI PropertyBodyText;
+        public RectTransform PropertyLeafChipContainer;
     }
 }

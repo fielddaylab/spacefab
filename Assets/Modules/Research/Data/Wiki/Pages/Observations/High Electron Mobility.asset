@@ -10,15 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
-  m_Name: Doping Chamber
+  m_Name: High Electron Mobility
   m_EditorClassIdentifier: 
   m_isPlanet: 0
-  m_Title: Doping Chamber
-  m_Icon: {fileID: 21300000, guid: a21271153662ee94b9c05f99c55cfad2, type: 3}
-  m_IllustrationFrames:
-  - {fileID: 181942833539103692, guid: a6e8404536c528f4bba116dd549a0e02, type: 3}
+  m_Title: High Electron Mobility
+  m_Icon: {fileID: 21300000, guid: c884c28c9cec4a74c8f29e7986fc2d29, type: 3}
+  m_IllustrationFrames: []
   m_IllustrationFPS: 0.5
-  m_Body: The Doping Chamber adds impurities to a Semiconductor, changing it into
-    N-Type or P-Type material.
+  m_Body: High Electron Mobility materials allow electrical signals to move through
+    them very quickly.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 11400000, guid: 7ee64d40de0274399a995e2495b5cf64, type: 2}

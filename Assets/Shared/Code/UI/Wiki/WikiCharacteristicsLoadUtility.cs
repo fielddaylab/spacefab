@@ -36,10 +36,10 @@ namespace SpaceFab.UI {
         // Frees any previously-allocated characteristic chips, then
         // allocs one chip per discoverable static persistent property
         // on the material (sourced from MaterialAsset.Properties). For
-        // each, the chip renders as filled with the property's name
-        // when confirmed in the merged record (PlayerProgress +
-        // Research sandbox if loaded), or as empty with a "?" label
-        // when the player hasn't discovered it yet.
+        // each, the chip renders confirmed (green, checkmarked) with
+        // the property's name when it is set in the merged record
+        // (PlayerProgress + Research sandbox if loaded), or empty with
+        // a "?" label when the player hasn't discovered it yet.
         //
         // Dynamic labels (PDopantFor / NDopantFor) are skipped from
         // the placeholder pass because MaterialAsset.Properties has
@@ -86,7 +86,7 @@ namespace SpaceFab.UI {
                     bool confirmed = MaterialPropertyRecordUtility.Has(merged, label, StringHash32.Null);
                     AddChip(widgets, pools,
                         text: confirmed ? MaterialPropertyLabelDisplay.GetPropertyName(label) : UnknownLabelText,
-                        filled: confirmed);
+                        fillState: confirmed ? ChipFillState.Confirmed : ChipFillState.Filled);
                 }
             }
 
@@ -109,22 +109,21 @@ namespace SpaceFab.UI {
             }
         }
 
-        // Allocs one chip with the given text + filled state, parents
+        // Allocs one chip with the given text + fill state, parents
         // it under the container, registers in the active list.
         // ObservationType.ConfirmedProperty selects the dedicated
-        // sprite bucket on ResearchObservationChipAssets — same
-        // bucket is used for filled and empty so the chip's frame
-        // matches across the discoverable list. The label color is
-        // forced black after SetState — the global LabelEmptyColor
-        // is white (intended for picker / slot chips on darker
-        // backgrounds), but the wiki characteristics group sits on a
-        // light surface, so empty placeholders need black text to be
-        // legible.
-        private static void AddChip(WikiPageContentWidgets widgets, WikiChipPools pools, string text, bool filled) {
+        // sprite bucket on ResearchObservationChipAssets — the same
+        // bucket across every state so the chip's frame matches down
+        // the discoverable list. The label color is forced black after
+        // SetState — the global LabelEmptyColor is white (intended for
+        // picker / slot chips on darker backgrounds), but the wiki
+        // characteristics group sits on a light surface, so empty
+        // placeholders need black text to be legible.
+        private static void AddChip(WikiPageContentWidgets widgets, WikiChipPools pools, string text, ChipFillState fillState) {
             ResearchObservationChip chip = pools.ChipPool.Alloc();
             if (chip == null) return;
             chip.transform.SetParent(widgets.CharacteristicsContainer, false);
-            chip.SetState(text, filled, false, ObservationType.ConfirmedProperty);
+            chip.SetState(text, fillState, false, ObservationType.ConfirmedProperty);
             if (chip.LabelText != null) {
                 chip.LabelText.color = Color.black;
             }
@@ -147,7 +146,7 @@ namespace SpaceFab.UI {
                 if ((mask & (1 << bit)) == 0) continue;
                 mask &= unchecked((ushort)~(1 << bit));
                 if (bit >= orderCount) continue;
-                AddChip(widgets, pools, MaterialPropertyLabelDisplay.GetPropertyName(dynamicLabel), filled: true);
+                AddChip(widgets, pools, MaterialPropertyLabelDisplay.GetPropertyName(dynamicLabel), ChipFillState.Confirmed);
             }
         }
 

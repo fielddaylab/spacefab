@@ -76,7 +76,12 @@ namespace SpaceFab.UI {
                 wikiState.NeedsRebuild = false;
             }
 
-            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], chipPools, progressState);
+            // Research state is resolved here rather than declared in SysPermissions: it exists
+            // only in the Research scene, while this system runs under WikiMask in every minigame.
+            // Resolve returns an absent context elsewhere, and the page binds render inert.
+            WikiResearchContext researchContext = WikiResearchContextUtility.Resolve();
+
+            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], chipPools, progressState, researchContext);
         }
     }
 }

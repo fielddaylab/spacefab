@@ -28,26 +28,28 @@ namespace SpaceFab.Research {
         }
 
         // Player clicked a filled, non-locked observation slot in the
-        // sample panel. ObservationCollectSystem resolves the slot index
-        // to a (label, context) via the active hypothesis page.
+        // sample panel or a greyed wiki observation chip.
+        // ObservationCollectSystem resolves the slot index to a (label,
+        // context) via the viewmodel's slot view.
         public static void RequestRemoveObservation(ResearchUIInputState inputState, int slotIndex) {
             if (inputState == null) return;
             inputState.RemoveObservationSlotIndex = slotIndex;
             inputState.RemoveObservationClickedThisFrame = true;
         }
 
-        // Player picked a chip from the hypothesis panel.
-        // ObservationCollectSystem consumes the (label, slottedId) pair
-        // next Update.
-        public static void RequestHypothesisSelection(ResearchUIInputState inputState, int hypoIndex) {
+        // Player clicked a wiki property chip to select it as the active
+        // hypothesis. HypothesisViewModelSystem validates (dynamic
+        // context, fulfilled rejection) and applies the label on its
+        // next rebuild.
+        public static void RequestHypothesisSelection(ResearchUIInputState inputState, MaterialPropertyLabel label) {
             if (inputState == null) return;
-            inputState.AddHypothesisIndex = hypoIndex;
+            inputState.AddHypothesisLabel = label;
             inputState.HypothesisSelectedClickedThisFrame = true;
         }
 
-        // Player clicked a filled hypothesis slot in the
-        // sample panel. ObservationCollectSystem resolves the slot index
-        // to a (label, context) via the active hypothesis page.
+        // Player clicked the filled hypothesis slot in the sample panel
+        // or the greyed property chip on its wiki page.
+        // ObservationCollectSystem clears the viewmodel's selection.
         public static void RequestRemoveHypothesis(ResearchUIInputState inputState) {
             if (inputState == null) return;
             inputState.RemoveHypothesisClickedThisFrame = true;

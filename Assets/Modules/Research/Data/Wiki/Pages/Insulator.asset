@@ -21,3 +21,6 @@ MonoBehaviour:
     materials.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 11400000, guid: 48f18b58bb0e54eb399bf888debb2842, type: 2}

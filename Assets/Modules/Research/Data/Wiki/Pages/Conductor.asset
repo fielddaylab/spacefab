@@ -20,3 +20,6 @@ MonoBehaviour:
   m_Body: Conductors allow electrical signals to flow through them easily.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 11400000, guid: 6d66cd15838f54a4fb236b7a33f7ff29, type: 2}

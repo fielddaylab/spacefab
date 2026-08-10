@@ -91,41 +91,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8613714903696134691}
     m_Modifications:
-    - target: {fileID: 2534755171419466831, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2534755171419466831, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2534755171419466831, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2534755171419466831, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: Tabs.Array.data[0]
-      value: 
-      objectReference: {fileID: 11400000, guid: 812e308e485c08d44ac5bcb163158296, type: 2}
-    - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: Tabs.Array.data[1]
-      value: 
-      objectReference: {fileID: 11400000, guid: dbe70db839cba464fb55cc13eb950cf1, type: 2}
-    - target: {fileID: 3742335956658932119, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: Tabs.Array.data[2]
-      value: 
-      objectReference: {fileID: 11400000, guid: bfef98ad377237147b9574d1548ac984, type: 2}
     - target: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
       propertyPath: m_Name
       value: Wiki Root
-      objectReference: {fileID: 0}
-    - target: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4224271422505170169, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
       propertyPath: m_Pivot.x
@@ -187,45 +155,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4776983409909927309, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4776983409909927309, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4776983409909927309, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4776983409909927309, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5195867692158831392, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
       propertyPath: m_Alpha
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7286418727455944490, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7286418727455944490, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7286418727455944490, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7286418727455944490, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7751093185869554239, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

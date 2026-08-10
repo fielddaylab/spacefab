@@ -34,7 +34,9 @@ namespace SpaceFab.UI {
         }
 
         // Applies every dirty domain, then clears the mask. Systems pass the states they hold.
-        public static void Refresh(WikiState wikiState, WikiLayoutState layout, WikiContent content, WikiPools pools, WikiChipPools chipPools, PlayerProgressState progressState) {
+        // researchContext is absent outside the Research scene, where observation and property
+        // pages render plain and inert.
+        public static void Refresh(WikiState wikiState, WikiLayoutState layout, WikiContent content, WikiPools pools, WikiChipPools chipPools, PlayerProgressState progressState, in WikiResearchContext researchContext) {
             WikiVisualDirty dirty = wikiState.VisualsDirty;
             if (dirty == WikiVisualDirty.None) { return; }
 
@@ -60,7 +62,7 @@ namespace SpaceFab.UI {
             }
 
             if ((dirty & WikiVisualDirty.PageContent) != 0) {
-                RefreshPageContent(layout, chipPools, activeTab, wikiState.ActivePageIndex);
+                RefreshPageContent(layout, chipPools, activeTab, wikiState.ActivePageIndex, researchContext);
             }
 
             if ((dirty & WikiVisualDirty.Paginator) != 0) {
@@ -177,23 +179,25 @@ namespace SpaceFab.UI {
         #region Page Content
 
         // Pushes the header title and the active page's fields into the authored widget set.
-        // Default pages show the body wrapper; material pages show the characteristics column
-        // instead and source their illustration from the material asset.
-        private static void RefreshPageContent(WikiLayoutState layout, WikiChipPools chipPools, WikiTabData activeTab, int activePageIndex) {
+        // Default pages show the body wrapper; the other three kinds show their own group instead,
+        // and material pages additionally source their illustration from the material asset.
+        private static void RefreshPageContent(WikiLayoutState layout, WikiChipPools chipPools, WikiTabData activeTab, int activePageIndex, in WikiResearchContext researchContext) {
             // The header shows the active tab's title, so it turns over with the page bind rather
             // than with the tab strip's icons.
             layout.Header.text = activeTab.Title;
 
             WikiPageContentWidgets widgets = layout.PageContentWidgets;
             WikiPageData activePage = ResolveActivePage(activeTab, activePageIndex);
-            bool materialPage = activePage.IsMaterialPage;
+            bool materialPage = ResolvePageKind(widgets, activePage, out bool observationPage, out bool propertyPage);
+            bool defaultPage = !materialPage && !observationPage && !propertyPage;
 
             // Title always renders.
             widgets.TitleText.text = activePage.Title ?? " ";
 
-            // Body wrapper visible only on default pages.
-            widgets.DefaultGroup.SetActive(!materialPage);
-            if (!materialPage) {
+            // Body wrapper visible only on default pages. Observation and property pages carry
+            // their own body widget inside their group.
+            widgets.DefaultGroup.SetActive(defaultPage);
+            if (defaultPage) {
                 widgets.BodyText.text = activePage.Body ?? " ";
             }
 
@@ -201,16 +205,38 @@ namespace SpaceFab.UI {
 
             // Chips are filled before the group is shown, so navigation never renders an empty
             // column. That used to be a cross-system phase-ordering convention; keeping the two
-            // statements adjacent makes it structural.
+            // statements adjacent makes it structural. Each kind frees the other two kinds' chips
+            // so none stay parked under a hidden container with live click handlers.
             if (materialPage) {
                 WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, activePage.MaterialId);
             } else {
-                // Return the pool to baseline so chips from a prior material page don't stay parked
-                // under the container.
                 WikiCharacteristicsLoadUtility.FreeAllCharacteristicChips(chipPools);
             }
 
+            if (observationPage) {
+                WikiObservationLoadUtility.LoadFor(widgets, chipPools, activePage, researchContext);
+            } else {
+                WikiObservationLoadUtility.FreeAllObservationChips(chipPools);
+            }
+
+            if (propertyPage) {
+                WikiPropertyLoadUtility.LoadFor(widgets, chipPools, activePage, researchContext);
+            } else {
+                WikiPropertyLoadUtility.FreeAllPropertyChips(widgets, chipPools);
+            }
+
             widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
+            if (widgets.ObservationGroup != null) {
+                widgets.ObservationGroup.SetActive(observationPage);
+            }
+            if (widgets.PropertyGroup != null) {
+                widgets.PropertyGroup.SetActive(propertyPage);
+                if (propertyPage)
+                {
+                    // clear title. Chip stands in for it.
+                    widgets.TitleText.SetText(string.Empty);
+                }
+            }
 
             // Default pages cycle their authored frame sequence; material pages pull the gem sprite
             // off the referenced material asset, which is a single still frame. Either way a page
@@ -227,6 +253,35 @@ namespace SpaceFab.UI {
             }
 
             illustration.Target.preserveAspect = true;
+        }
+
+        // Resolves which kind the page renders as. Kinds are mutually exclusive by authoring, and
+        // precedence (material > observation > property) only matters for a page that mistakenly
+        // sets more than one discriminator — a content error, so it warns.
+        //
+        // An observation or property page whose widget group hasn't been authored yet falls back
+        // to default rendering, so pages authored ahead of the prefab work don't break the wiki.
+        // TODO: drop the fallback and assert on the groups once Wiki.prefab authors them.
+        private static bool ResolvePageKind(WikiPageContentWidgets widgets, WikiPageData page, out bool observationPage, out bool propertyPage) {
+            bool material = page.IsMaterialPage;
+            observationPage = !material && page.IsObservationPage;
+            propertyPage = !material && !observationPage && page.IsPropertyPage;
+
+            int authoredKinds = (page.IsMaterialPage ? 1 : 0) + (page.IsObservationPage ? 1 : 0) + (page.IsPropertyPage ? 1 : 0);
+            if (authoredKinds > 1) {
+                Log.Warn("[WikiVisualsUtility] Wiki page '{0}' authors more than one page kind; rendering as material > observation > property.", page.name);
+            }
+
+            if (observationPage && widgets.ObservationGroup == null) {
+                Log.Warn("[WikiVisualsUtility] Wiki page '{0}' is an observation page but WikiPageContentWidgets.ObservationGroup is not authored; rendering as a default page.", page.name);
+                observationPage = false;
+            }
+            if (propertyPage && widgets.PropertyGroup == null) {
+                Log.Warn("[WikiVisualsUtility] Wiki page '{0}' is a property page but WikiPageContentWidgets.PropertyGroup is not authored; rendering as a default page.", page.name);
+                propertyPage = false;
+            }
+
+            return material;
         }
 
         #endregion // Page Content

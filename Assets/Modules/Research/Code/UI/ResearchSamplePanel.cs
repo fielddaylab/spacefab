@@ -20,11 +20,11 @@ namespace SpaceFab.Research {
     /// SamplePanelInputUtility. Per-frame visual render is in
     /// SamplePanelVisualSystem.
     ///
-    /// Picker chips are not authored on this panel — they live in the
-    /// pool on ResearchPools.PickerChipPool and are sync'd in
-    /// ObservationPickerLoadUtility.LoadFor on chamber load. The panel
-    /// only owns the PickerChipContainer the alloced chips reparent
-    /// under, and the parallel labels + handlers lists.
+    /// The picker overlay is dormant: AddObservationButton now opens the
+    /// wiki to the active chamber's observation page, and nothing sets
+    /// PickerOpen. The overlay fields and the ObservationPicker* code
+    /// they drive are kept so the overlay can be restored without
+    /// rebuilding it.
     /// </summary>
     public class ResearchSamplePanel : BatchedComponent, IRegistrationCallbacks {
         public GameObject EmptyState;
@@ -155,14 +155,10 @@ namespace SpaceFab.Research {
 
         private void HandleAddObservation() {
             ResearchUIInputUtility.RequestAddObservation(Find.State<ResearchUIInputState>());
-            // Toggle: re-clicking the button while the picker is open
-            // closes it. Off-click-elsewhere dismissal lives in
-            // ObservationPickerOffClickSystem.
-            if (PickerOpen) {
-                SamplePanelInputUtility.ClosePicker(this);
-            } else {
-                SamplePanelInputUtility.OpenPicker(this);
-            }
+            // Shortcut to the wiki page listing the active chamber's
+            // observations. The player can also reach it by browsing the
+            // wiki; adds work either way.
+            ResearchWikiInputUtility.OpenObservationPageForActiveChamber(Find.State<ChamberInterfacerState>());
         }
 
         // Picker chip click. Public so ObservationPickerLoadUtility can
@@ -233,28 +229,25 @@ namespace SpaceFab.Research {
             if (panel == null || viewModel == null) {
                 return;
             }
-            if (index < 0 || index >= viewModel.ActivePageSlotCount) {
+            if (index < 0 || index >= viewModel.SlotCount) {
                 return;
             }
-            bool locked = (viewModel.ActivePageSlotLockedMask & (1u << index)) != 0;
+            bool locked = (viewModel.SlotLockedMask & (1u << index)) != 0;
             if (locked) {
                 return;
             }
             ResearchUIInputUtility.RequestRemoveObservation(inputState, index);
         }
 
-        // Hypothesis-slot click. Can be removed if the slot is filled and non-locked.
+        // Hypothesis-slot click. Removable whenever a hypothesis is
+        // selected — a fulfilled one auto-clears and never displays.
         public static void RequestHypothesisSlotRemove(ResearchSamplePanel panel, ResearchUIInputState inputState, HypothesisViewModelState viewModel) {
             if (panel == null || viewModel == null) {
                 return;
             }
-            if (viewModel.ActivePageIndex == -1) {
+            if (!viewModel.HypothesisSelected) {
                 return;
             }
-            // bool locked = (viewModel.PageFulfilledMask & (1u << viewModel.ActivePageIndex)) != 0;
-            // if (locked) {
-            //     return;
-            // }
             ResearchUIInputUtility.RequestRemoveHypothesis(inputState);
         }
 

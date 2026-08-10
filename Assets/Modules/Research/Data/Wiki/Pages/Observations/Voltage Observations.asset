@@ -10,14 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
-  m_Name: Voltage Chamber
+  m_Name: Voltage Observations
   m_EditorClassIdentifier: 
   m_isPlanet: 0
-  m_Title: Voltage Chamber
-  m_Icon: {fileID: 21300000, guid: d9fc38fd4d573894db15e9e3383e8ae6, type: 3}
-  m_IllustrationFrames:
-  - {fileID: 21300000, guid: 746b23edea7ac70478bd2dd8da93c93a, type: 3}
+  m_Title: Voltage
+  m_Icon: {fileID: 21300000, guid: 40f3b648c4eea41318e3bbbc6a82447d, type: 3}
+  m_IllustrationFrames: []
   m_IllustrationFPS: 0.5
-  m_Body: The Voltage Chamber is used to observe how materials respond to electricity.
+  m_Body: 
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 1
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

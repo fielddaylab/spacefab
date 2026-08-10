@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: High Temperature Semiconductor
   m_EditorClassIdentifier: 
+  m_isPlanet: 0
   m_Title: High Temperature Semiconductor
   m_Icon: {fileID: 0}
   m_IllustrationFrames: []
@@ -20,3 +21,6 @@ MonoBehaviour:
     changed by heat. It can be used to create advanced chip components.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 11400000, guid: cd56cd533149942f089b46bbdc77e43e, type: 2}

@@ -7,6 +7,7 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using SpaceFab.Materials;
 using UnityEngine;
 
 namespace SpaceFab.UI {
@@ -158,7 +159,8 @@ namespace SpaceFab.UI {
 
             // Painted here rather than left to WikiRefreshSystem's drain: waiting for the first
             // LateUpdate would show one frame of an unstyled panel on scene load.
-            WikiVisualsUtility.Refresh(wikiState, layoutState, layoutState.WikiContent, pools[0], chipPools, progressState);
+            WikiVisualsUtility.Refresh(wikiState, layoutState, layoutState.WikiContent, pools[0], chipPools, progressState,
+                WikiResearchContextUtility.Resolve());
         }
     }
 
@@ -246,6 +248,30 @@ namespace SpaceFab.UI {
                 for (int p = 0; p < tab.Pages.Length; p++) {
                     WikiPageData page = tab.Pages[p];
                     if (page != null && page.IsMaterialPage && page.MaterialId == materialId) {
+                        tabId = tab.AssetId;
+                        pageId = page.AssetId;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Finds the observation page covering observationType and returns the tab + page ids
+        // OpenTo needs. Mirrors TryFindMaterialPage: observation pages can live under any tab, so
+        // every tab's page list is scanned. Returns false with default out params when no page
+        // covers the type.
+        public static bool TryFindObservationPage(WikiContent content, ObservationType observationType, out StringHash32 tabId, out StringHash32 pageId) {
+            tabId = default;
+            pageId = default;
+            if (content == null || content.Tabs == null) { return false; }
+
+            for (int t = 0; t < content.Tabs.Length; t++) {
+                WikiTabData tab = content.Tabs[t];
+                if (tab == null || tab.Pages == null) { continue; }
+                for (int p = 0; p < tab.Pages.Length; p++) {
+                    WikiPageData page = tab.Pages[p];
+                    if (page != null && page.IsObservationPage && page.ObservationType == observationType) {
                         tabId = tab.AssetId;
                         pageId = page.AssetId;
                         return true;
