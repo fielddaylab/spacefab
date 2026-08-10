@@ -1,73 +1,7 @@
 ManifestFileVersion: 0
-CRC: 2099670050
+CRC: 679956747
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: ch1stream.pak
-      Dependencies: {}
-    Info_1:
-      Name: ch2stream.pak
-      Dependencies: {}
-    Info_2:
-      Name: ch3stream.pak
-      Dependencies: {}
-    Info_3:
-      Name: ch4stream.pak
-      Dependencies: {}
-    Info_4:
-      Name: ch5stream.pak
-      Dependencies: {}
-    Info_5:
-      Name: ch6stream.pak
-      Dependencies: {}
-    Info_6:
-      Name: ch7stream.pak
-      Dependencies: {}
-    Info_7:
-      Name: test_chstream.pak
-      Dependencies: {}
-    Info_8:
-      Name: ch1comicpack.pak
-      Dependencies: {}
-    Info_9:
-      Name: contract_ch1_basic_stream.pak
-      Dependencies: {}
-    Info_10:
-      Name: contract_ch2_basic_stream.pak
-      Dependencies: {}
-    Info_11:
-      Name: contract_ch3_basic_stream.pak
-      Dependencies: {}
-    Info_12:
-      Name: contract_ch4_basic_stream.pak
-      Dependencies: {}
-    Info_13:
-      Name: contract_ch5_basic_stream.pak
-      Dependencies: {}
-    Info_14:
-      Name: contract_ch5_fancymater_stream.pak
-      Dependencies: {}
-    Info_15:
-      Name: contract_ch6_basic_stream.pak
-      Dependencies: {}
-    Info_16:
-      Name: contract_ch6_fancymater_stream.pak
-      Dependencies: {}
-    Info_17:
-      Name: contract_ch6_trickypuzzle_stream.pak
-      Dependencies: {}
-    Info_18:
-      Name: contract_ch7_basic_stream.pak
-      Dependencies: {}
-    Info_19:
-      Name: contract_ch7_fancymater_stream.pak
-      Dependencies: {}
-    Info_20:
-      Name: contract_ch7_trickypuzzle_stream.pak
-      Dependencies: {}
-    Info_21:
-      Name: contract_test_stream.pak
-      Dependencies: {}
-    Info_22:
       Name: ingamestream.pak
       Dependencies: {}

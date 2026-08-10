@@ -18,13 +18,17 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 1
+      TypeCount: 2
     - AssemblyName: FieldDay.Vox, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 2
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
     - TypeName: SpaceFab.SpacefabGame
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
+    - TypeName: SpaceFab.Onboarding.ElementTagLookupUtility
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -42,6 +46,8 @@ MonoBehaviour:
       OverloadCount: 0
     Members:
     - MemberName: OnPreBoot
+      Type: 8
+    - MemberName: Create
       Type: 8
     - MemberName: Initialize
       Type: 8
