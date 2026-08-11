@@ -24,6 +24,8 @@ namespace SpaceFab.Supply {
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);
+            Log.Msg("[SupplyBug] Resuming supply mask");
+
             ScriptUtility.Trigger(SupplyScriptTriggers.OnSupplySetupCompleted);
         }
 
