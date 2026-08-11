@@ -50,11 +50,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: Id.m_Source
-      value: supply:planet1
+      value: supply:planet_ai
       objectReference: {fileID: 0}
     - target: {fileID: 6139377420993714670, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: Id.m_HashValue
-      value: 3674826365
+      value: 1536405389
       objectReference: {fileID: 0}
     - target: {fileID: 6285069881206567461, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: m_LocalPosition.x
