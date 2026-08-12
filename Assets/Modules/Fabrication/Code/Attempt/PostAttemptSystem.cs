@@ -5,6 +5,7 @@ using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
 using SpaceFab.Fabrication.StationControl;
 using SpaceFab.Fabrication.Stations;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,8 @@ namespace SpaceFab.Fabrication {
                 new SysPermissions()
                     .ReadWriteShared<ModeState>()
                     .ReadWriteShared<ResultDisplayState>()
+                    .ReadWriteShared<FabricationMinigameState>()
+                    .ReadShared<TimeState>()
             );
         }
 
@@ -28,14 +31,24 @@ namespace SpaceFab.Fabrication {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ModeState modeState,
-                out ResultDisplayState displayState,
-                out StationControlState stationState
+                out ResultDisplayState displayState
+                );
+
+            Find.State(
+                out FabricationMinigameState fabState,
+                out TimeState timeState
                 );
 
             if (modeState.CurrMode != LevelMode.PostAttempt) { return; }
 
             if (modeState.ChangedModeThisFrame)
             {
+                // save total cycles
+                float time = TimeStateUtility.GetElapsed(timeState);
+                float secondsPerCycle = 30;
+                int cycles = (int)Mathf.Ceil(time / secondsPerCycle);
+                fabState.TotalCycles = Mathf.CeilToInt(TimeStateUtility.GetElapsed(timeState) / secondsPerCycle);
+
                 // display results
                 Log.Msg("[PostAttemptSystem] displaying results");
                 displayState.DisplayRequestedThisFrame = true;
