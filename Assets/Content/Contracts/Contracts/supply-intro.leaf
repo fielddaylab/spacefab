@@ -12,14 +12,14 @@ $call   HighlightElement(supply:ship0)
 @when       temp:researchTutorialStep == 0
 $set    temp:researchTutorialStep = 1
 $call   ReleaseAllHighlights()
-$call   HighlightElement(supply:planet0)
+$call   HighlightElement(supply:planet_cu)
 {@PAL}  Hover over the planet with your mouse to see the time, cost, and risk level.
 
 
 :: FirstPlanetHovered
 @trigger    OnPlanetHovered
 @when       temp:researchTutorialStep == 1
-$if local:planet == "Planet0"
+$if local:planet == "Planet_Cu"
     $set   temp:researchTutorialStep = 2
     {@PAL}  Click on the planet to select this route segment.
 $else 
@@ -81,7 +81,7 @@ $call   ReleaseAllHighlights()
 @when       temp:researchTutorialStep == 3
 $set   temp:researchTutorialStep = 4
 $call   ReleaseAllHighlights()
-$call   HighlightElement(supply:planet1)
+$call   HighlightElement(supply:planet_si02)
 {@PAL}  Draw your new path to the planet with the Conductor.
 
 

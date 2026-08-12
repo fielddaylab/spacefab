@@ -1,5 +1,6 @@
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.Scripting;
@@ -12,7 +13,7 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    [PreloadOrder(0)]
+    [PreloadOrder(0)] // TODO: investigate why PreloadOrder not working. Set to 0, but runs after SupplyLoader with [PreloadOrder(10000)]
     public class MinigameLoaderExiter : MonoBehaviour, ISceneLoadHandler, IScenePreload {
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             Find.State(
@@ -23,6 +24,8 @@ namespace SpaceFab
 
             GameLoop.SuspendUpdates(UpdateMasks.EntireGame);
             GameLoop.ResumeUpdates(interfacer.MinigameState.DefaultUpdateMask);
+            Log.Msg("[SupplyBug] resuming default mask");
+
             using (var table = TempVarTable.Alloc()) {
                 table.Set("minigame", interfacer.Id.ToString().ToLower());
                 ScriptUtility.Trigger(ScriptTriggers.OnMinigameLoad, table);

@@ -1,5 +1,6 @@
 using BeauPools;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using SpaceFab.Materials;
 using SpaceFab.Research;
@@ -32,7 +33,11 @@ namespace SpaceFab.Supply {
         // Frees any prior rows, then builds one row per requirement in the
         // current contract. No contract => zero rows + minimum panel size.
         public static void Rebuild(ShoppingListLayoutState layout, SupplyRouteCollection routes, PlayerProgressState progressState, ContractState contractState) {
-            if (layout == null || layout.Pool == null || layout.RowsContainer == null) return;
+            if (layout == null || layout.Pool == null || layout.RowsContainer == null)
+            {
+                Log.Msg("[SupplyBug] crucial element is null");
+                return;
+            }
 
             // 1. Free prior rows.
             FreeAllRows(layout);
@@ -44,6 +49,8 @@ namespace SpaceFab.Supply {
             ContractDef contract = ResolveCurrentContract(contractState);
             if (contract == null) {
                 ResizePanel(layout, 0f);
+
+                Log.Msg("[SupplyBug] contract is null");
                 return;
             }
 
@@ -56,14 +63,33 @@ namespace SpaceFab.Supply {
             MaterialPropertyCheck[] checks = contract.RequiredMaterialProperties();
             MaterialPropertyCheck[] omitted = contract.OmitFromSupplyRequirements();
 
+            if (checks == null)
+            {
+                Log.Msg("[SupplyBug] checks is null ");
+
+            }
+            else
+            {
+                Log.Msg("[SupplyBug] checks is not null ");
+            }
+
             if (checks != null) {
                 bool success = true;
+                Log.Msg("[SupplyBug] num checks: " + checks.Length);
                 for (int i = 0; i < checks.Length; i++) {
-                    if (IsOmittedFromSupply(checks[i], omitted)) continue;
+                    if (IsOmittedFromSupply(checks[i], omitted))
+                    {
+                        Log.Msg("[SupplyBug] check at "+ i + " omitted from supply");
+                        continue;
+                    }
                     success &= AddRow(layout, progressState, checks[i]);
+                    Log.Msg("[SupplyBug] added row. Success? " + success);
+
                 }
 
-                layout.ConfirmButton.gameObject.SetActive(success && routes.TempRouteIndex < 0);
+                bool confirmActive = success && routes.TempRouteIndex < 0;
+                Log.Msg("[SupplyBug] confirm active? " + confirmActive);
+                layout.ConfirmButton.gameObject.SetActive(confirmActive);
             }
 
             // 5. Lay out + resize.
