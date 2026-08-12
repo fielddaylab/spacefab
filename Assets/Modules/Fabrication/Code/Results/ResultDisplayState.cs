@@ -154,6 +154,12 @@ namespace SpaceFab.Fabrication
             GameObject button = success ? displayState.ContinueButton.gameObject : displayState.RetryButton.gameObject;
             button.SetActive(true);
 
+            // Record the run on the live minigame state. ExportState copies this into
+            // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
+            FabricationMinigameState fabState = Find.State<FabricationMinigameState>();
+            fabState.TotalCycles = cycles;
+            fabState.Precision = accuracy;
+
             SpacefabGame.Events.Dispatch(GameEvents.FabSucceeded, EvtArgs.Create((accuracy, time, cycles)));
             yield break;
         }
