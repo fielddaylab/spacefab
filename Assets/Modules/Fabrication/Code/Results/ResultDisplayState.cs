@@ -129,14 +129,13 @@ namespace SpaceFab.Fabrication
             }
 
             // Show section
-            float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
             TimeState timeState = Find.State<TimeState>();
             float time = TimeStateUtility.GetElapsed(timeState);
             FabricationMinigameState fabState = Find.State<FabricationMinigameState>();
             float secondssPerCycle = 30;
             int cycles = (int) Mathf.Ceil(time / secondssPerCycle);
 
-            displayState.Accuracy.Text.text = $"{accuracy * 100:F2}%";
+            displayState.Accuracy.Text.text = $"{fabState.Precision * 100:F2}%";
             yield return 0.5f;
 
             displayState.Time.Text.text = $"{time:F2}s";
@@ -149,13 +148,7 @@ namespace SpaceFab.Fabrication
             GameObject button = success ? displayState.ContinueButton.gameObject : displayState.RetryButton.gameObject;
             button.SetActive(true);
 
-            // Record the run on the live minigame state. ExportState copies this into
-            // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
-            FabricationMinigameState fabState = Find.State<FabricationMinigameState>();
-            fabState.TotalCycles = cycles;
-            fabState.Precision = accuracy;
-
-            SpacefabGame.Events.Dispatch(GameEvents.FabSucceeded, EvtArgs.Create((accuracy, time, cycles)));
+            SpacefabGame.Events.Dispatch(GameEvents.FabSucceeded, EvtArgs.Create((fabState.Precision, time, cycles)));
             yield break;
         }
 

@@ -24,6 +24,7 @@ namespace SpaceFab.Fabrication {
                     .ReadWriteShared<ResultDisplayState>()
                     .ReadWriteShared<FabricationMinigameState>()
                     .ReadShared<TimeState>()
+                    .ReadShared<WaferState>()
             );
         }
 
@@ -36,7 +37,8 @@ namespace SpaceFab.Fabrication {
 
             Find.State(
                 out FabricationMinigameState fabState,
-                out TimeState timeState
+                out TimeState timeState,
+                out WaferState waferState
                 );
 
             if (modeState.CurrMode != LevelMode.PostAttempt) { return; }
@@ -47,7 +49,12 @@ namespace SpaceFab.Fabrication {
                 float time = TimeStateUtility.GetElapsed(timeState);
                 float secondsPerCycle = 30;
                 int cycles = (int)Mathf.Ceil(time / secondsPerCycle);
+                float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
+
+                // Record the run on the live minigame state. ExportState copies this into
+                // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
                 fabState.TotalCycles = Mathf.CeilToInt(TimeStateUtility.GetElapsed(timeState) / secondsPerCycle);
+                fabState.Precision = accuracy;
 
                 // display results
                 Log.Msg("[PostAttemptSystem] displaying results");

@@ -42,8 +42,6 @@ namespace SpaceFab {
                 int numPendingCycles = ProgressMeterUtility.CalculatePendingCycleCells(meterState.ActiveMeter, saveStates);
                 int fabCycles = Mathf.Max(0, saveStates.Fabrication.FinalizedTotalCycles);
                 int filledEnd = progressState.ElapsedCycles + fabCycles;
-                ProgressMeterUtility.SetCurrentDay(meterState, filledEnd);
-
                 int pendingEnd = progressState.ElapsedCycles + Mathf.Max(fabCycles, numPendingCycles);
 
                 for (int i = progressState.ElapsedCycles; i < filledEnd; i++)
