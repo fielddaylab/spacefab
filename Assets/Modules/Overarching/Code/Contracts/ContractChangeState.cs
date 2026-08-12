@@ -58,7 +58,11 @@ namespace SpaceFab.Overarching
 
             layoutState.ChangeContractButton.gameObject.SetActive(true);
 
-            //ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex]);
+            // Fill the panel with the accepted contract — it may still be showing whatever was browsed last
+            StringHash32 currContractId = ChapterUtility.GetSelectedContractId(chapterState);
+            ContractUtility.LoadContractData(layoutState.SelectionContractUI,
+                currContractId.IsEmpty ? null : ContractUtility.GetDefinition(currContractId));
+
             layoutState.SelectionContractUI.gameObject.SetActive(true);
             
             layoutState.NextContractButton.gameObject.SetActive(false);
