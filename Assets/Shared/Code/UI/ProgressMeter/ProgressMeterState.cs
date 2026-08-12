@@ -129,15 +129,12 @@ namespace SpaceFab {
         }
 
         // Writes a per-cycle cell display state and marks visuals dirty.
-        public static void SetCycleCellState(ProgressMeterState state, int idx, CycleCellState cellState, bool withRefresh = true) {
+        public static void SetCycleCellState(ProgressMeterState state, int idx, CycleCellState cellState) {
             if (idx < 0 || state.CycleStates == null || idx >= state.CycleStates.Length) {
                 return;
             }
             state.CycleStates[idx] = cellState;
-            if (withRefresh)
-            {
-                state.NeedsRefresh = true;
-            }
+            state.NeedsRefresh = true;
         }
 
         // Writes a per-funds cell display state and marks visuals dirty.
@@ -161,7 +158,7 @@ namespace SpaceFab {
         {
             for (int i = idx; i < state.CycleStates.Length; i++)
             {
-                SetCycleCellState(state, i, CycleCellState.EMPTY, false);
+                SetCycleCellState(state, i, CycleCellState.EMPTY);
             }
         }
 
