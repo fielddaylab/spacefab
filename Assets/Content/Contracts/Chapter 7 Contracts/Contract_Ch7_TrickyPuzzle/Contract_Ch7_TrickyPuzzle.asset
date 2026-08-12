@@ -18,7 +18,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 78093ac5e7fad463894f49b0b629d47c, type: 2}
   - {fileID: 11400000, guid: 08721792820144d26b307c84e32a71ae, type: 2}
   m_omitFromSupplyRequirements: []
-  m_title: Double Depletion Contract
+  m_title: Inverter
   m_description: This is where the contract is described
   m_client: '[Client Name]'
   m_payout: 14
