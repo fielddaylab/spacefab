@@ -1,0 +1,10 @@
+# basePath Chapter2
+
+:: FirstContractOpen
+@trigger    OnContractSelectOpen
+@cutscene
+@once
+$call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
+$call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the full version after first chapter 
+$call   UnlockWikiPage("Conductor")
+$call   UnlockWikiPage("Insulator")

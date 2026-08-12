@@ -62,7 +62,7 @@ namespace SpaceFab.UI {
             }
 
             if ((dirty & WikiVisualDirty.PageContent) != 0) {
-                RefreshPageContent(layout, chipPools, activeTab, wikiState.ActivePageIndex, researchContext);
+                RefreshPageContent(layout, chipPools, activeTab, progressState, wikiState.ActivePageIndex, researchContext);
             }
 
             if ((dirty & WikiVisualDirty.Paginator) != 0) {
@@ -181,7 +181,10 @@ namespace SpaceFab.UI {
         // Pushes the header title and the active page's fields into the authored widget set.
         // Default pages show the body wrapper; the other three kinds show their own group instead,
         // and material pages additionally source their illustration from the material asset.
-        private static void RefreshPageContent(WikiLayoutState layout, WikiChipPools chipPools, WikiTabData activeTab, int activePageIndex, in WikiResearchContext researchContext) {
+        //
+        // progressState is the unlock set a material page's characteristics column reads to pick
+        // between the basic and full halves of a property pair.
+        private static void RefreshPageContent(WikiLayoutState layout, WikiChipPools chipPools, WikiTabData activeTab, PlayerProgressState progressState, int activePageIndex, in WikiResearchContext researchContext) {
             // The header shows the active tab's title, so it turns over with the page bind rather
             // than with the tab strip's icons.
             layout.Header.text = activeTab.Title;
@@ -208,7 +211,7 @@ namespace SpaceFab.UI {
             // statements adjacent makes it structural. Each kind frees the other two kinds' chips
             // so none stay parked under a hidden container with live click handlers.
             if (materialPage) {
-                WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, activePage.MaterialId);
+                WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, progressState, activePage.MaterialId);
             } else {
                 WikiCharacteristicsLoadUtility.FreeAllCharacteristicChips(chipPools);
             }

@@ -12,6 +12,8 @@ $call   HighlightElement(overarching:profit-section, false, 25, true)
 {@PAL}      ...and you'll make this much money if you can deliver.
 $call   ReleaseAllHighlights()
 $call   HighlightElement(overarching:select-contract-btn)
+$call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
+$call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter 
 
 
 :: BeforeSupplyChain

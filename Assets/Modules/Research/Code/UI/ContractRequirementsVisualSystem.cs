@@ -72,9 +72,10 @@ namespace SpaceFab.Research {
                 }
 
                 // A goal is met when some material's merged (sandbox OR
-                // saved) record satisfies it. Context-exact by way of
-                // SatisfiesCheck — "P-Type dopant for sample A" is not met
-                // by a dopant confirmed for a different substrate.
+                // saved) record satisfies it. A goal that names a substrate
+                // is context-exact — "P-Type dopant for sample A" is not met
+                // by a dopant confirmed for a different one. A goal with no
+                // substrate is a wildcard; see SatisfiesCheck.
                 bool fulfilled = ContractProgressUtility.HasAnyFulfillingMaterial(progressState, researchState, goal);
 
                 // Goal labels are persistent properties, so the chamber
