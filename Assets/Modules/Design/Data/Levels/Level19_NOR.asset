@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
+  m_Name: Level19_NOR
+  m_EditorClassIdentifier: 
+  m_title: NOR
+  m_allowedTools: -1
+  m_gridConfig: {fileID: 11400000, guid: dd03b222a1f13468b9ae02db8ed748aa, type: 2}
+  m_testSuite: {fileID: 11400000, guid: d662fd293ffa06741994164a55a8771b, type: 2}
