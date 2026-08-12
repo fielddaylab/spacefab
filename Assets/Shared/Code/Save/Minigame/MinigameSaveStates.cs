@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Data;
 using FieldDay.Scenes;
@@ -62,14 +63,14 @@ namespace SpaceFab.Save
         // (e.g. MinigameId.COUNT). Canonical mapping — used by the overarching alert auto-rule too.
         public static MinigameSaveStateBase GetState(MinigameSaveStates saveStates, MinigameId mg)
         {
-            if (saveStates == null) { return null; }
+            Assert.NotNullOrDestroyed(saveStates);
             switch (mg)
             {
                 case MinigameId.Design:      return saveStates.Design;
                 case MinigameId.Research:    return saveStates.Research;
                 case MinigameId.Fabrication: return saveStates.Fabrication;
                 case MinigameId.Supply:      return saveStates.Supply;
-                default:                     return null;
+                default:                     Assert.Fail("Invalid minigame id {0}", mg); return null;
             }
         }
 
@@ -79,14 +80,13 @@ namespace SpaceFab.Save
         public static void MarkStarted(MinigameSaveStates saveStates, MinigameId mg)
         {
             MinigameSaveStateBase save = GetState(saveStates, mg);
-            if (save != null) { save.Started = true; }
+            save.Started = true;
         }
 
         // True only when every minigame has FoundValidSolution. Used to gate the submit-chapter
         // button. Returns false defensively if the save states aren't available yet.
         public static bool AllSolved(MinigameSaveStates saveStates)
         {
-            if (saveStates == null) { return false; }
             for (int i = 0; i < (int)MinigameId.COUNT; i++)
             {
                 MinigameSaveStateBase save = GetState(saveStates, (MinigameId)i);

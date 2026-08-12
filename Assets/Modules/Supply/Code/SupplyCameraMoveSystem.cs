@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Debugging;
+using FieldDay.Physics;
 using FieldDay.Rendering;
 using FieldDay.Systems;
 using UnityEngine;
@@ -61,7 +63,7 @@ namespace SpaceFab.Supply
         private static void ProcessLerp(SupplyCameraControlState cameraState, float deltaTime)
         {
             Vector2 frameSize = CameraUtility.GetFrustumSize(cameraState.Camera, 0);
-            Rect region = Geom.BoundsToRect(cameraState.Region.bounds);
+            Rect region = cameraState.Region;
 
             Vector2 currentPos = cameraState.CameraPosition.position;
             Vector2 targetPos = cameraState.TargetPosition;

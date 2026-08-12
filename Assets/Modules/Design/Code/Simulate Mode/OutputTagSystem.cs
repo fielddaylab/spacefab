@@ -1,3 +1,4 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.Systems;
@@ -67,7 +68,7 @@ namespace SpaceFab.Design
         // flat (layer, col, row) index against the grid dims so we can read the cell back.
         static private bool IsOutputCell(GridStackState gridStackState, int cellIndex)
         {
-            if (gridStackState == null || gridStackState.GridStack == null) { return false; }
+            Assert.False(gridStackState.GridStack == null, "Null GridStack");
 
             GridStack stack = gridStackState.GridStack;
             int numCols = stack.LayerDims.X;

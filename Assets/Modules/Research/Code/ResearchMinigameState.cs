@@ -98,6 +98,10 @@ namespace SpaceFab.Research
             ResearchStateUtility.ExportState(ref saveStates.Research, this);
         }
 
+        public override void MergeState() {
+            ResearchStateUtility.CommitToPlayerProgress(this, Find.State<PlayerProgressState>());
+        }
+
         #endregion // Interfaces
     }
 

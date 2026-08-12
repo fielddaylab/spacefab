@@ -9,13 +9,13 @@ namespace SpaceFab.Supply
     public class SupplyChainMapData : ScriptableObject {
         [Serializable]
         public struct NodeData {
-            public StringHash32 Name;
+            public SerializedHash32 Name;
             public Vector2 Position;
         }
 
         [Serializable]
         public struct NodeOverride {
-            public StringHash32 Name;
+            public SerializedHash32 Name;
             public int Time;
             public int Cost;
             public int Risk;
@@ -26,8 +26,9 @@ namespace SpaceFab.Supply
         // [AssetName(typeof(StreamedPack))] public StringHash32 AdditionalAssets;
 
         [AssetName(typeof(SupplyShipAsset))] public StringHash32[] ShipIds;
-        public Vector2 CameraBounds;
+        public Rect CameraBounds;
         public NodeData[] Positions;
+        public NodeData[] Hazards;
         public NodeOverride[] Overrides;
     }
 }

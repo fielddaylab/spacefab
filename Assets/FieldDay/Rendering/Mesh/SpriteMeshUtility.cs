@@ -10,13 +10,55 @@ namespace FieldDay.Rendering {
     static public class SpriteMeshUtility {
         static public SpriteRectMeshInfo ComputeRectMesh(Sprite sprite) {
             Assert.NotNullOrDestroyed(sprite);
-            Assert.True(!sprite.packed || sprite.packingMode == SpritePackingMode.Rectangle, "Tighly-packed sprites cannot be made into rect meshes");
+            Assert.True(!sprite.packed || sprite.packingMode == SpritePackingMode.Rectangle, "Tightly-packed sprites cannot be made into rect meshes");
             
             SpriteRectMeshInfo rectMesh;
             rectMesh.Texture = sprite.texture;
             rectMesh.Bounds = Geom.BoundsToRect(sprite.bounds);
             rectMesh.Texcoords = RectUVs.FromTextureRect(rectMesh.Texture, sprite.textureRect, sprite.packingRotation);
             return rectMesh;
+        }
+
+        /// <summary>
+        /// Appends a colored quad to the given mesh buffer.
+        /// </summary>
+        static public OffsetLengthU16 AppendColoredQuad(UnmanagedMeshData16<SpriteVertex> data, Vector3 pos0, Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector2 texcoord, Color color) {
+            SpriteVertex vertA, vertB, vertC, vertD;
+            vertA.Texcoord = vertB.Texcoord = vertC.Texcoord = vertD.Texcoord = texcoord;
+            vertA.Color = vertB.Color = vertC.Color = vertD.Color = color;
+            vertA.Position = pos0;
+            vertB.Position = pos1;
+            vertC.Position = pos2;
+            vertD.Position = pos3;
+            return data.AddQuad(vertA, vertB, vertC, vertD);
+        }
+
+        /// <summary>
+        /// Appends a colored quad to the given mesh buffer.
+        /// </summary>
+        static public OffsetLengthU16 AppendColoredQuad(MeshData16<SpriteVertex> data, Vector3 pos0, Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector2 texcoord, Color color) {
+            SpriteVertex vertA, vertB, vertC, vertD;
+            vertA.Texcoord = vertB.Texcoord = vertC.Texcoord = vertD.Texcoord = texcoord;
+            vertA.Color = vertB.Color = vertC.Color = vertD.Color = color;
+            vertA.Position = pos0;
+            vertB.Position = pos1;
+            vertC.Position = pos2;
+            vertD.Position = pos3;
+            return data.AddQuad(vertA, vertB, vertC, vertD);
+        }
+
+        /// <summary>
+        /// Appends a colored quad to the given mesh buffer.
+        /// </summary>
+        static public OffsetLengthU32 AppendColoredQuad(MeshData32<SpriteVertex> data, Vector3 pos0, Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector2 texcoord, Color color) {
+            SpriteVertex vertA, vertB, vertC, vertD;
+            vertA.Texcoord = vertB.Texcoord = vertC.Texcoord = vertD.Texcoord = texcoord;
+            vertA.Color = vertB.Color = vertC.Color = vertD.Color = color;
+            vertA.Position = pos0;
+            vertB.Position = pos1;
+            vertC.Position = pos2;
+            vertD.Position = pos3;
+            return data.AddQuad(vertA, vertB, vertC, vertD);
         }
     }
 
@@ -60,6 +102,11 @@ namespace FieldDay.Rendering {
         public Vector2 Min {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return new Vector2(U0, V0); }
+        }
+
+        public Vector2 Center {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return new Vector2(0.5f * (U0 + U1), 0.5f * (V0 + V1)); }
         }
 
         public Vector2 Max {

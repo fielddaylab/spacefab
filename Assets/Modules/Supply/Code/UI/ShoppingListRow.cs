@@ -22,7 +22,7 @@ namespace SpaceFab.Supply {
         // the chip shows the requirement itself, not a discovery state.
         public void SetProperty(string name, ObservationType type) {
             if (PropertyChip != null) {
-                PropertyChip.SetState(name, true, false, type);
+                PropertyChip.SetState(name, ChipFillState.Filled, false, type);
             }
         }
 

@@ -60,7 +60,7 @@ namespace SpaceFab {
                 
                 RequirementElement.SetState(
                     materialName,
-                    true,
+                    ChipFillState.Filled,
                     false,
                     Materials.MaterialObservationChamberLookup.GetChamberType(property.Label)
                 );

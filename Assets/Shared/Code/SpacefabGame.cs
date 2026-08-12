@@ -58,22 +58,26 @@ namespace SpaceFab
         }
 
         static private void OnLoadProcessStarted(SceneProcessCallbackArgs args) {
+            if (args.LoadType != SceneType.Main) {
+                return;
+            }
+
             bool inGame = args.SceneIndex > 3;
             if (s_IsInGame != inGame) {
                 s_IsInGame = inGame;
 
                 if (inGame) {
                     Assets.LoadStreamedPackage("InGameStream");
+                    Scenes.LoadPersistentScene(SceneReference.FromName("InGameUI"), "InGame");
                 } else {
                     Assets.UnloadStreamedPackage("InGameStream");
+                    Scenes.UnloadScenesByTag("InGame");
                 }
             }
 
-            if (args.LoadType == SceneType.Main) {
-                Scenes.GetQueuedLoadContext(out SceneRequestContext context);
-                if (context.Get("QueueSave").AsBool()) {
-                    Scenes.QueueOnEnable(() => SaveUtility.Save(SaveSlot.Main));
-                }
+            Scenes.GetQueuedLoadContext(out SceneRequestContext context);
+            if (context.Get("QueueSave").AsBool()) {
+                Scenes.QueueOnEnable(() => SaveUtility.Save(SaveSlot.Main));
             }
         }
 

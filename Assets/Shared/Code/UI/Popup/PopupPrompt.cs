@@ -27,9 +27,10 @@ namespace SpaceFab.UI {
 
         public override void Show() {
             base.Show();
-            Input.TryPushPriority();
-            Input.ClearInputOverride();
-            PopupUtility.PushState();
+            if (Input.TryPushPriority()) {
+                Input.ClearInputOverride();
+                PopupUtility.PushState();
+            }
             Canvas.enabled = true;
             Fader.alpha = 1;
         }
@@ -37,9 +38,10 @@ namespace SpaceFab.UI {
         public override void Hide() {
             Canvas.enabled = false;
             Fader.alpha = 0;
-            Input.TryPopPriority();
-            Input.SetInputOverride(false);
-            PopupUtility.PopState();
+            if (Input.TryPopPriority()) {
+                Input.SetInputOverride(false);
+                PopupUtility.PopState();
+            }
             base.Hide();
         }
 

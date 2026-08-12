@@ -1,5 +1,6 @@
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.Scripting;
@@ -12,18 +13,19 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    [PreloadOrder(0)]
+    [PreloadOrder(0)] // TODO: investigate why PreloadOrder not working. Set to 0, but runs after SupplyLoader with [PreloadOrder(10000)]
     public class MinigameLoaderExiter : MonoBehaviour, ISceneLoadHandler, IScenePreload {
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             Find.State(
                 out MinigameStateInterfacer interfacer,
-                out MinigameSaveStates saveStates,
-                out ReturnMenuState returnState
+                out MinigameSaveStates saveStates
                 );
             Find.State(out SaveLoadState saveOpState);
 
             GameLoop.SuspendUpdates(UpdateMasks.EntireGame);
             GameLoop.ResumeUpdates(interfacer.MinigameState.DefaultUpdateMask);
+            Log.Msg("[SupplyBug] resuming default mask");
+
             using (var table = TempVarTable.Alloc()) {
                 table.Set("minigame", interfacer.Id.ToString().ToLower());
                 ScriptUtility.Trigger(ScriptTriggers.OnMinigameLoad, table);
@@ -33,8 +35,7 @@ namespace SpaceFab
         public IEnumerator<WorkSlicer.Result?> Preload() {
             Find.State(
                 out MinigameStateInterfacer interfacer,
-                out MinigameSaveStates saveStates,
-                out ReturnMenuState returnState
+                out MinigameSaveStates saveStates
                 );
             Find.State(out SaveLoadState saveOpState);
 
@@ -63,24 +64,21 @@ namespace SpaceFab
             Find.State(
                 out MinigameStateInterfacer interfacer,
                 out MinigameSaveStates saveStates,
-                out ReturnMenuState returnState
+                out GlobalUISceneConfig globalSceneConfig
                 );
             Find.State(out SaveLoadState saveOpState);
 
             Debug.Log("[MinigameLoadExitSystem] Exporting state...");
-            WikiState wikiState = Find.State<WikiState>();
-            if (wikiState != null) {
-                wikiState.Expanded = false;
-                wikiState.Transitioning = false;
-                wikiState.TransitionRoutine.Stop();
-                wikiState.OpenRequestedThisFrame = false;
-                wikiState.OpenToRequestedThisFrame = false;
-                wikiState.CloseRequestedThisFrame = false;
-                WikiLayoutUtility.ApplyExpandedSteadyState(
-                    Find.State<WikiLayoutState>(), false
-                );
-            }
 
+            // Snap the shared wiki closed before the scene tears down, so the next minigame loads
+            // with the panel collapsed regardless of how the player left this one.
+            Find.State(
+                out WikiState wikiState,
+                out WikiLayoutState wikiLayout
+                );
+            WikiUtility.ForceCollapse(wikiState, wikiLayout);
+
+            interfacer.MinigameState.MergeState();
             interfacer.MinigameState.ExportState(ref saveStates);
             SaveUtility.Save(SaveSlot.Main);
 
@@ -104,7 +102,7 @@ namespace SpaceFab
                 Game.Scenes.QueueMainLoadContext(loadContext);
             } else {
                 Game.Events.Dispatch(GameEvents.OnMinigameExit);
-                Game.Scenes.LoadMainScene(returnState.ReturnScene);
+                Game.Scenes.LoadMainScene(globalSceneConfig.ReturnScene);
             }
         }
     }

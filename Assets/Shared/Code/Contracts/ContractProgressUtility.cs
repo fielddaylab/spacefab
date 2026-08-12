@@ -40,6 +40,13 @@ namespace SpaceFab
     ///     materials I have in hand satisfy this?" — only properties the
     ///     player has confirmed via Research count, since the query reads
     ///     from PlayerProgressState.MaterialProperties.
+    ///
+    /// Context matching, for the dynamic labels (PDopantFor / NDopantFor):
+    /// a slot that names a substrate in InComparisonTo is context-exact -
+    /// "P-Type dopant for Silicon" is not met by a dopant confirmed against
+    /// Germanium. A slot that leaves InComparisonTo empty is a wildcard and
+    /// is met by that dopant confirmed against any substrate. Every dopant
+    /// slot authored today is a wildcard.
     /// </summary>
     public static class ContractProgressUtility
     {
@@ -47,13 +54,25 @@ namespace SpaceFab
 
         /// <summary>
         /// Pure per-record predicate: does this material's record satisfy this
-        /// contract slot? One-liner over MaterialPropertyRecordUtility.Has;
+        /// contract slot? Thin dispatch over MaterialPropertyRecordUtility;
         /// exists as a named function so callers (Supply Chain route yields,
         /// future Design / Fabrication checks, ...) have one obvious entry
         /// point for "is this material's data sufficient for this requirement."
+        ///
+        /// An empty InComparisonTo on a dynamic label is a wildcard: the slot
+        /// asks for "a P-Type dopant", not "a P-Type dopant for nothing". See
+        /// the note on context matching in the class summary.
         /// </summary>
         public static bool SatisfiesCheck(in MaterialPropertyRecord record, MaterialPropertyCheck check)
         {
+            // Wildcard slot - any confirmed context counts, so read the whole
+            // dynamic mask rather than resolving a single MaterialOrderAsset bit.
+            if (check.InComparisonTo.IsEmpty)
+            {
+                return MaterialPropertyRecordUtility.HasAny(record, check.Label);
+            }
+
+            // Context-exact slot - only the named substrate's bit satisfies it.
             return MaterialPropertyRecordUtility.Has(record, check.Label, check.InComparisonTo);
         }
 

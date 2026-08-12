@@ -9,12 +9,10 @@ using UnityEngine;
 namespace SpaceFab.Research {
     /// <summary>
     /// Renders every active ResearchSamplePanel against the current
-    /// hypothesis viewmodel + the slotted material. LateUpdate order 500,
-    /// paired with HypothesisPanelVisualSystem. The panel's slot chips
-    /// read from the hypothesis viewmodel (single source of truth — both
-    /// panels share the active page's leaves); the SAMPLE header is
-    /// derived live from the slotted material's ResearchMaterialView; the
-    /// picker pulls from BatteryChamberState.AvailableObservations.
+    /// hypothesis viewmodel + the slotted material. LateUpdate order 500.
+    /// The panel's slot chips and hypothesis chip read from the
+    /// hypothesis viewmodel (single source of truth); the SAMPLE header
+    /// is derived live from the slotted material's ResearchMaterialView.
     /// </summary>
     public class SamplePanelVisualSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
@@ -22,7 +20,6 @@ namespace SpaceFab.Research {
                 new SysUpdate(GameLoopPhase.LateUpdate, 500, UpdateMasks.ResearchMask),
                 new SysPermissions()
                     .ReadShared<ChamberInterfacerState>()
-                    .ReadShared<ResearchHypothesisPagesState>()
                     .ReadShared<HypothesisViewModelState>()
                     //.ReadShared<BatteryChamberState>()
                     .ReadShared<ResearchMinigameState>()
@@ -38,13 +35,12 @@ namespace SpaceFab.Research {
         private static void ProcessWork(float deltaTime) {
             Find.State(
                 out ChamberInterfacerState interfacerState,
-                out ResearchHypothesisPagesState pagesState,
                 out HypothesisViewModelState hypoVm
             );
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
-                SamplePanelVisualUtility.Apply(panel, interfacerState, pagesState, hypoVm, researchState);
+                SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState);
             }
 
             // Onboarding hook: fire OnVerifyButtonShown the frame AFTER the verify button becomes
@@ -75,11 +71,10 @@ namespace SpaceFab.Research {
         public static void Apply(
             ResearchSamplePanel panel,
             ChamberInterfacerState interfacerState,
-            ResearchHypothesisPagesState pagesState,
             HypothesisViewModelState hypoVm,
             ResearchMinigameState researchState
         ) {
-            if (panel == null || interfacerState == null || pagesState == null || hypoVm == null) {
+            if (panel == null || interfacerState == null || hypoVm == null) {
                 return;
             }
 
@@ -195,37 +190,37 @@ namespace SpaceFab.Research {
                 }
             }
 
-            // 3. Slot chips render the viewmodel's slot view (auto-
-            // locked entries first, then player picks in insertion
-            // order). Filled slots [0..SlotCount) show the picked
-            // label + that label's per-type sprite; remaining slots
-            // up to capacity render dashed-empty.
-            int slotCount = hypoVm.ActivePageSlotCount;
+            // 3. Slot chips render the viewmodel's slot view (player
+            // picks in insertion order). Filled slots [0..SlotCount)
+            // show the picked label + that label's per-type sprite;
+            // remaining slots up to capacity render dashed-empty.
+            int slotCount = hypoVm.SlotCount;
 
             if (panel.SlotChips != null) {
                 for (int i = 0; i < panel.SlotChips.Length; i++) {
                     panel.SlotChips[i].gameObject.SetActive(true);
                     bool filled = i < slotCount;
-                    bool locked = filled && (hypoVm.ActivePageSlotLockedMask & (1u << i)) != 0;
+                    bool locked = filled && (hypoVm.SlotLockedMask & (1u << i)) != 0;
                     string label = null;
                     ObservationType type = default;
                     if (filled) {
-                        MaterialPropertyLabel slotLabel = hypoVm.ActivePageSlotLabels[i];
+                        MaterialPropertyLabel slotLabel = hypoVm.SlotLabels[i];
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
                     }
-                    panel.SlotChips[i].SetState(label, filled, locked, type, useEmptyDashedSprite: true);
+                    panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
 
-            // 3-1. Render hypothesis chip slot
+            // 3-1. Render hypothesis chip slot. Never locked — a
+            // fulfilled hypothesis is auto-cleared by the viewmodel
+            // rebuild, so it never displays in a locked state.
             panel.HypothesisChip.gameObject.SetActive(true);
-            bool hypoFilled = hypoVm.ActivePageIndex != -1;
-            bool hypoLocked = hypoFilled && (hypoVm.PageFulfilledMask & (1u << hypoVm.ActivePageIndex)) != 0;
+            bool hypoFilled = hypoVm.HypothesisSelected;
             string hypoLabel = null;
             ObservationType hypoType = default;
             if (hypoFilled) {
-                MaterialPropertyLabel hypo = pagesState.Pages[hypoVm.ActivePageIndex].Label;
+                MaterialPropertyLabel hypo = hypoVm.HypothesisLabel;
                 hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
                 hypoType = MaterialObservationChamberLookup.GetChamberType(hypo);
             }
@@ -234,7 +229,7 @@ namespace SpaceFab.Research {
                 ResearchMaterialView hypoContext = Find.NamedAsset<ResearchMaterialView>(hypoVm.HypothesisContext);
                 hypoLabel += " for " + hypoContext.SampleLabel; // TODO: show actual name for known materials
             }
-            panel.HypothesisChip.SetState(hypoLabel, hypoFilled, hypoLocked, hypoType);
+            panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
             // once on chamber load (ObservationPickerLoadUtility);

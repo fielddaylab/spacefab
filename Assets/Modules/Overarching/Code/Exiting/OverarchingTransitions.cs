@@ -16,11 +16,10 @@ namespace SpaceFab.Overarching {
             ChapterUtility.LoadNextChapter(chapterState, progressState, contractState, saveStates);
         }
         
-        static public void ToMinigame() {
-            Find.State(out MinigameZonesState zonesState);
+        static public void ToMinigame(MinigameZone zone) {
             GameLoop.SuspendUpdates(UpdateMasks.EntireGame);
             GameLoop.ResumeUpdates(ScriptUtility.RuntimeUpdateMask);
-            Game.Scenes.LoadMainScene(zonesState.Zones[zonesState.CurrSelectedIndex].MinigameScene);
+            Game.Scenes.LoadMainScene(zone.Scene);
             Game.Events.Dispatch(GameEvents.OnMinigameLoad);
         }
     }

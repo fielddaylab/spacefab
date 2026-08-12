@@ -32,6 +32,7 @@ MonoBehaviour:
   GateUnstable: {fileID: 21300000, guid: 838e634c7fee32e4281defaef0545a9d, type: 3}
   IOInner: {fileID: 0}
   IOOuter: {fileID: 0}
+  Disabled: {fileID: 21300000, guid: 7c02877072b0b4575b5ce7d341327b8b, type: 3}
   FlowHiAbove: {fileID: 21300000, guid: 6e3cb9e654e0be14881cf55eb65ff679, type: 3}
   FlowLoAbove: {fileID: 21300000, guid: f9ee1447e10cd734fa83ea8cbcb8d96b, type: 3}
   FlowUnstableAbove: {fileID: 21300000, guid: 711a3f4979bce9b4a9e10fcef9e5b84b, type: 3}

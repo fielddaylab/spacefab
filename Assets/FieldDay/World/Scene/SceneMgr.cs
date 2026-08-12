@@ -1212,7 +1212,7 @@ namespace FieldDay.Scenes {
             int count = src.Count;
             while (count-- > 0) {
                 var callback = src.PopFront();
-                if ((isMain && callback.Scene == default) || ext.Scene == scene) {
+                if ((isMain && callback.Scene == default) || scene == callback.Scene) {
                     dest.PushBack(callback.Action);
                 } else {
                     src.PushBack(callback);

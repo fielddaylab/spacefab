@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay.Mathematics;
 
 namespace FieldDay.Animation {
@@ -25,6 +26,7 @@ namespace FieldDay.Animation {
         public abstract void UpdateAnimation(T target, ref LiteAnimatorState state, float deltaTime);
 
         void ILiteAnimator.InitAnimation(object target, ref LiteAnimatorState state) {
+            Assert.NotNullOrDestroyed(target, "LiteAnimator target for '{0}' of type '{1}' is null!", GetType().FullName, typeof(T).FullName);
             InitAnimation(Unsafe.FastCast<T>(target), ref state);
         }
 
@@ -87,7 +89,7 @@ namespace FieldDay.Animation {
             float prevTime = CurrentTime;
             CurrentTime += Math.Max(0, deltaTime);
             bool isFirstFrame = prevTime <= 0 && CurrentTime > 0;
-            bool isLastFrame = prevTime < Duration && CurrentTime >= Duration;
+            bool isLastFrame = CurrentTime >= Duration;
             Events = (isFirstFrame ? LiteAnimatorStateEvents.FirstFrame : 0)
                 | (isLastFrame ? LiteAnimatorStateEvents.LastFrame : 0);
         }

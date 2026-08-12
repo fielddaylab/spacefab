@@ -1,35 +1,35 @@
-using System.Collections.Generic;
+using BeauPools;
+using BeauUtil;
 using FieldDay.Components;
+using FieldDay.Scenes;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Runtime pools for the dynamically-spawned wiki UI buttons. Lives on the wiki prefab
-    /// root alongside WikiContent. Each pool has a prefab (authored once in the base wiki
-    /// prefab) and two parent RectTransforms: ActiveParent for in-use instances, FreeParent
-    /// for parked (inactive) instances.
+    /// Pools for the dynamically-spawned wiki buttons, on the wiki prefab root alongside
+    /// WikiContent. Both strips hold WikiButton, so one nested pool type serves both.
     ///
-    /// Populated by WikiPoolUtility.RebuildStrips — called once on level-load and again after
-    /// WikiUtility.UnlockPage. Not driven per-frame.
+    /// Each pool's authored pool-root is where free instances park; its spawn-root is the strip
+    /// the allocated ones live under. Freeing never destroys, so the DynamicButton subscriptions
+    /// WikiButton wires in OnRegister survive reuse.
     ///
-    /// The lists store WikiButton components directly (not GameObjects) because every pooled
-    /// instance will be indexed / configured by its WikiButton fields at acquire time.
+    /// Populated by WikiPoolUtility.RebuildStrips.
     /// </summary>
-    public class WikiPools : BatchedComponent {
+    public class WikiPools : BatchedComponent, IScenePreload {
+        [Serializable] public sealed class WikiButtonPool : SerializablePool<WikiButton> { }
+
         [Header("Tab Strip")]
-        public WikiButton TabButtonPrefab;
-        public RectTransform TabButtonActiveParent;
-        public RectTransform TabButtonFreeParent;
+        public WikiButtonPool TabButtonPool;
 
         [Header("Page Thumb Strip")]
-        public WikiButton PageThumbPrefab;
-        public RectTransform PageThumbActiveParent;
-        public RectTransform PageThumbFreeParent;
+        public WikiButtonPool PageThumbPool;
 
-        // Runtime pool state. Not serialized — populated by WikiPoolUtility.
-        [HideInInspector] public List<WikiButton> TabActive = new List<WikiButton>();
-        [HideInInspector] public List<WikiButton> TabFree = new List<WikiButton>();
-        [HideInInspector] public List<WikiButton> PageThumbActive = new List<WikiButton>();
-        [HideInInspector] public List<WikiButton> PageThumbFree = new List<WikiButton>();
+        IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
+            TabButtonPool.Prewarm();
+            PageThumbPool.Prewarm();
+            return null;
+        }
     }
 }

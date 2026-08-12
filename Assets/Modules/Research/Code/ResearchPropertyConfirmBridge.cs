@@ -75,10 +75,7 @@ namespace SpaceFab.Research
             // wiki page being visible is part of "this material
             // exists" knowledge, not the per-property record.
             progressState = Find.State<PlayerProgressState>();
-            if (progressState != null)
-            {
-                WikiUtility.UnlockPage(progressState, materialId);
-            }
+            WikiUtility.UnlockPage(progressState, materialId);
         }
     }
 }

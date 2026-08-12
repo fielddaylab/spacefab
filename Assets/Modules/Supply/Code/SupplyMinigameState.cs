@@ -36,7 +36,7 @@ namespace SpaceFab.Supply
 
         public void OnRegister()
         {
-            DefaultUpdateMask = UpdateMasks.SetupMask | UpdateMasks.WikiMask;
+            DefaultUpdateMask = UpdateMasks.SetupMask | UpdateMasks.WikiMask | UpdateMasks.SupplyMask;
         }
 
         // IMinigameState

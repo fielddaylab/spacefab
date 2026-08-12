@@ -1,14 +1,20 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Clears per-button one-frame pointer flags at end of frame. Runs on Update order 0 under
-    /// WikiMask so every earlier consumer (WikiSelectSystem on PreUpdate 0,
-    /// WikiVisualsUpdateSystem on PreUpdate order 10) has seen the flags before they're wiped.
+    /// The wiki's frame bookkeeping, in two passes on two phases.
     ///
-    /// The state-level external request flags (OpenRequestedThisFrame etc.) are cleared inline
-    /// by WikiSelectSystem when consumed, so they are not handled here.
+    /// Update order 0 clears the one-frame pointer flags, after WikiSelectSystem (PreUpdate 0) has
+    /// consumed them.
+    ///
+    /// LateUpdate order 800 drains the two pending-work signals in dependency order: NeedsRebuild
+    /// first, since rebuilding changes which button instances exist, then WikiState.VisualsDirty
+    /// into WikiVisualsUtility.Refresh. 800 puts it behind every mutation source in the frame —
+    /// WikiSelectSystem, the transition routines, and the Research property-confirm path that
+    /// reaches UnlockPage at LateUpdate 60. Rendering happens after LateUpdate, so it all still
+    /// lands in the same frame.
     /// </summary>
     public class WikiRefreshSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
@@ -16,7 +22,18 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadWrite<WikiButton>()
+            );
+
+            ecs.Register(&DrainPendingWork,
+                new SysUpdate(GameLoopPhase.LateUpdate, 800, UpdateMasks.WikiMask),
+                new SysPermissions()
+                    .ReadWrite<WikiButton>()
+                    .ReadWrite<WikiPools>()
+                    .Read<WikiContent>()
                     .ReadWriteShared<WikiState>()
+                    .ReadWriteShared<WikiLayoutState>()
+                    .ReadWriteShared<WikiChipPools>()
+                    .ReadWriteShared<PlayerProgressState>()
             );
         }
 
@@ -27,15 +44,44 @@ namespace SpaceFab.UI {
                 buttons[i].PointerEnterThisFrame = false;
                 buttons[i].PointerExitThisFrame = false;
             }
+        }
 
-            // State-level one-frame flag. Consumed by
-            // WikiCharacteristicsRefreshSystem (PreUpdate 5) on the
-            // frame it's raised; cleared here at Update 0 so the
-            // signal is one-shot.
-            WikiState wikiState = Find.State<WikiState>();
-            if (wikiState != null) {
-                wikiState.ActivePageChangedThisFrame = false;
+        // Rebuilds the strips if their contents changed, then applies whatever the frame's mutations
+        // invalidated. The whole cost when nothing changed is the two compares at the top.
+        static private void DrainPendingWork(float deltaTime) {
+            Find.State(
+                out WikiState wikiState,
+                out WikiLayoutState layoutState,
+                out WikiChipPools chipPools,
+                out PlayerProgressState progressState
+                );
+
+            bool needsRebuild = wikiState.NeedsRebuild;
+            if (!needsRebuild && wikiState.VisualsDirty == WikiVisualDirty.None) { return; }
+
+            // No WikiContent means this scene doesn't ship the wiki prefab, so there's nothing to
+            // rebuild or paint. Everything past this point assumes the full authoring is present.
+            var contents = Find.Components<WikiContent>();
+            if (contents.Count == 0) { return; }
+            WikiContent content = contents[0];
+
+            var pools = Find.Components<WikiPools>();
+            Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
+
+            // Structural first: a rebuild changes which instances exist, and both halves invalidate
+            // the strip domains on their own, so the paint below picks the change up.
+            if (needsRebuild) {
+                WikiPoolUtility.RebuildStrips(wikiState, content, pools[0]);
+                WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
+                wikiState.NeedsRebuild = false;
             }
+
+            // Research state is resolved here rather than declared in SysPermissions: it exists
+            // only in the Research scene, while this system runs under WikiMask in every minigame.
+            // Resolve returns an absent context elsewhere, and the page binds render inert.
+            WikiResearchContext researchContext = WikiResearchContextUtility.Resolve();
+
+            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], chipPools, progressState, researchContext);
         }
     }
 }

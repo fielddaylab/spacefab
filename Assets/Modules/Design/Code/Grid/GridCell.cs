@@ -58,7 +58,8 @@ namespace SpaceFab.Design
         Metal,
         NTransistor,
         PTransistor,
-        Output
+        Output,
+        Disabled
     }
 
     #endregion // Enums & Structs

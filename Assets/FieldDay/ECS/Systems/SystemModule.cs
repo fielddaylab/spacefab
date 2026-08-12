@@ -17,7 +17,9 @@ namespace FieldDay.Systems {
 
         private void Awake() {
             GetComponentsInChildren(true, s_Components);
-            for(int i = 0; i < s_Components.Count; i++) {
+            Log.Msg("[SupplyBug] Awake. registering systems " + s_Components.Count);
+
+            for (int i = 0; i < s_Components.Count; i++) {
                 s_Components[i].RegisterSystems(ref m_RegisteredModules);
             }
             s_Components.Clear();
@@ -27,6 +29,8 @@ namespace FieldDay.Systems {
             if (Game.IsShuttingDown) {
                 return;
             }
+
+            Log.Msg("[SupplyBug] OnDestroy resetting modules");
 
             m_RegisteredModules.Reset();
         }

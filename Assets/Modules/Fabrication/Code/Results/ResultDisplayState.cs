@@ -1,17 +1,11 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
-using FieldDay.Systems;
-using SpaceFab.Fabrication.Movement;
-using SpaceFab.Fabrication.Stations;
 using SpaceFab.UI;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 using SpaceFab.Fabrication.Sequence;
-using System.Linq;
 
 namespace SpaceFab.Fabrication
 {
@@ -138,6 +132,7 @@ namespace SpaceFab.Fabrication
             float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
             TimeState timeState = Find.State<TimeState>();
             float time = TimeStateUtility.GetElapsed(timeState);
+            FabricationMinigameState fabState = Find.State<FabricationMinigameState>();
             float secondssPerCycle = 30;
             int cycles = (int) Mathf.Ceil(time / secondssPerCycle);
 
@@ -147,7 +142,7 @@ namespace SpaceFab.Fabrication
             displayState.Time.Text.text = $"{time:F2}s";
             yield return 0.5f;
 
-            displayState.ProductionTime.Text.text = $"{Mathf.Ceil(TimeStateUtility.GetElapsed(timeState) / secondssPerCycle)} cycles";
+            displayState.ProductionTime.Text.text = $"{fabState.TotalCycles} cycles";
             yield return 0.5f;
 
             // Show button
