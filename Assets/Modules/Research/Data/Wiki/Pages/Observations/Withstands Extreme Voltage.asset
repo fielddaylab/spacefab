@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Withstands Extreme Voltage
   m_EditorClassIdentifier: 
   m_isPlanet: 0
-  m_Title: Withstands Extreme Voltage
-  m_Icon: {fileID: 21300000, guid: c884c28c9cec4a74c8f29e7986fc2d29, type: 3}
+  m_Title: High Voltage Semiconductor
+  m_Icon: {fileID: 21300000, guid: 7f8c4225642ce3c45b2dbefc054a3571, type: 3}
   m_IllustrationFrames: []
   m_IllustrationFPS: 0.5
   m_Body: Materials that withstand extreme voltage can carry powerful signals without
