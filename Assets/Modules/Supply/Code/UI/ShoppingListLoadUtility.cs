@@ -131,8 +131,13 @@ namespace SpaceFab.Supply {
             // the comparison element appended ("N-TYPE DOPANT for <NAME>").
             string label = MaterialPropertyLabelDisplay.GetPropertyName(check.Label);
             if (MaterialPropertyLabelUtility.IsDynamic(check.Label)) {
-                MaterialAsset context = Find.NamedAsset<MaterialAsset>(check.InComparisonTo);
-                if (context != null) {
+                if (check.InComparisonTo.IsEmpty)
+                {
+                    // do nothing
+                }
+                else
+                {
+                    MaterialAsset context = Find.NamedAsset<MaterialAsset>(check.InComparisonTo);
                     label = label + " for " + context.DisplayName;
                 }
             }
