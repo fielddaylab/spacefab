@@ -54,10 +54,11 @@ namespace SpaceFab.Overarching
             yield break;
         }
 
-        public static void PopulateContractUI(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState)
+        // Fills the completed-contract card from the contract currently in play — the same one
+        // EvaluatePreviousRoutine credits to the player's completed list.
+        public static void PopulateContractUI(ContractCompletionState completionState, ContractLayoutState layoutState, ContractState contractState)
         {
-            //ContractDef contractDef = chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex];
-            //ContractUtility.LoadContractData(layoutState.CompletedContractUI, contractDef);
+            ContractUtility.LoadContractData(layoutState.CompletedContractUI, contractState.ContractDefinition);
         }
 
         public static IEnumerator EnterPreviousRoutine(ContractLayoutState layoutState)

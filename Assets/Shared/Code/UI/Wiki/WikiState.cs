@@ -7,6 +7,7 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using Leaf.Runtime;
 using SpaceFab.Materials;
 using UnityEngine;
 
@@ -48,6 +49,9 @@ namespace SpaceFab.UI {
     /// on PlayerProgressState.UnlockedWikiPages.
     /// </summary>
     public class WikiState : SharedStateComponent, IRegistrationCallbacks {
+        // Entry in LastPageIndexByTab for a tab the player hasn't opened yet.
+        public const int NoRememberedPage = -1;
+
         // True when the full panel is visible, false when only the collapsed icon is. Assigned
         // only by OnRegister, the two transition routines, and ForceCollapse.
         [HideInInspector] public bool Expanded;
@@ -60,6 +64,17 @@ namespace SpaceFab.UI {
         // Last-viewed selection. Persists across expand/collapse cycles; reset on level load.
         [HideInInspector] public int ActiveTabIndex;
         [HideInInspector] public int ActivePageIndex;
+
+        // Last-viewed raw page index per tab, parallel to WikiContent.Tabs. Switching tabs restores
+        // the page the player left that tab on rather than snapping back to its first. Entries stay
+        // NoRememberedPage until a tab has been viewed, and are validated against the unlock set on
+        // use, so a remembered page that has since been locked falls back to the first unlocked one.
+        //
+        // Runtime-only and sized to the authored tab set, so it's held like WikiContent.Tabs rather
+        // than serialized with the fields above: WikiUtility.EnsureTabPageMemory resizes it during
+        // WikiPoolUtility.RebuildStrips, and LoadTabs drops it, since indices carry no meaning
+        // against a different tab set.
+        [NonSerialized] public int[] LastPageIndexByTab = Array.Empty<int>();
 
         // Paginator scroll offset, counted in the active tab's *unlocked* pages: the window's
         // leftmost slot shows the (PageWindowStartIndex)th unlocked page. Kept such that the
@@ -104,6 +119,7 @@ namespace SpaceFab.UI {
             Transitioning = false;
             ActiveTabIndex = 0;
             ActivePageIndex = 0;
+            LastPageIndexByTab = Array.Empty<int>();
             PageWindowStartIndex = 0;
             PoppedTabIndex = -1;
             OpenRequestedThisFrame = false;
@@ -219,6 +235,10 @@ namespace SpaceFab.UI {
             wikiState.PageWindowStartIndex = 0;
             wikiState.NeedsRebuild = true;
 
+            // The per-tab page memory is indexed against the tab set being replaced, so it means
+            // nothing now. RebuildStrips sizes a fresh one against the incoming tabs.
+            wikiState.LastPageIndexByTab = Array.Empty<int>();
+
             // The pooled tab buttons are about to be reassigned against a different tab set, so an
             // in-flight pop is animating the wrong instances. Drop it, and forget which tab was
             // popped — the index means nothing against a new tab set.
@@ -285,18 +305,26 @@ namespace SpaceFab.UI {
 
         #region Tab + Page Commands
 
-        // Switch to a tab by index, selecting its first unlocked page and snapping the paginator
-        // window back to the leftmost slot. Out-of-range indices are dropped.
+        // Switch to a tab by index, restoring the page the player last viewed under it — its first
+        // unlocked page when the tab hasn't been viewed yet. Out-of-range indices are dropped.
         public static void SelectTab(WikiState wikiState, WikiContent content, PlayerProgressState progressState, int tabIndex) {
             if (content.Tabs == null || content.Tabs.Length == 0) { return; }
             if (tabIndex < 0 || tabIndex >= content.Tabs.Length) { return; }
 
+            WikiTabData tab = content.Tabs[tabIndex];
+
+            // The outgoing tab needs no save step — its page was recorded when it was selected.
             wikiState.ActiveTabIndex = tabIndex;
-            wikiState.ActivePageIndex = FirstUnlockedPageIndex(content.Tabs[tabIndex], progressState);
+
+            // Rebuilt from the leftmost slot rather than carried over: the offset is counted in the
+            // outgoing tab's unlocked pages and means nothing here. ApplyPageSelection then slides
+            // it just far enough to bring the restored page into the window.
             wikiState.PageWindowStartIndex = 0;
+            ApplyPageSelection(wikiState, content, tab, progressState, RememberedPageIndex(wikiState, tab, progressState, tabIndex));
+
             wikiState.NeedsRebuild = true;
 
-            // A tab switch moves the highlight, rebinds the page, and resets the window.
+            // A tab switch moves the highlight, rebinds the page, and re-derives the window.
             WikiVisualsUtility.Invalidate(wikiState,
                 WikiVisualDirty.TabStrip | WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
         }
@@ -328,8 +356,7 @@ namespace SpaceFab.UI {
             int clamped = Mathf.Clamp(pageIndex, 0, tab.Pages.Length - 1);
             int resolved = FindNextUnlockedFrom(tab, progressState, clamped, +1);
             if (resolved >= 0) {
-                wikiState.ActivePageIndex = resolved;
-                EnsureWindowContains(wikiState, content, tab, progressState);
+                ApplyPageSelection(wikiState, content, tab, progressState, resolved);
             }
 
             wikiState.NeedsRebuild = true;
@@ -352,8 +379,7 @@ namespace SpaceFab.UI {
             WikiPageData page = tab.Pages[index];
             if (!IsPageUnlocked(progressState, page.AssetId)) { return; }
 
-            wikiState.ActivePageIndex = index;
-            EnsureWindowContains(wikiState, content, tab, progressState);
+            ApplyPageSelection(wikiState, content, tab, progressState, index);
 
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
         }
@@ -379,6 +405,74 @@ namespace SpaceFab.UI {
         }
 
         #endregion // Tab + Page Commands
+
+        #region Per-Tab Page Memory
+
+        // Resizes WikiState.LastPageIndexByTab to the authored tab count, carrying the entries that
+        // survive. Called by WikiPoolUtility.RebuildStrips alongside the strip syncs, since the
+        // memory is indexed the same way the strips are — by position in WikiContent.Tabs.
+        //
+        // Slots past the old length start at NoRememberedPage, so a tab nobody has opened resolves
+        // to its first unlocked page. Nothing is allocated when the count is unchanged, which is
+        // every rebuild but the first after a tab load.
+        public static void EnsureTabPageMemory(WikiState wikiState, int tabCount) {
+            int[] memory = wikiState.LastPageIndexByTab;
+            if (memory != null && memory.Length == tabCount) { return; }
+
+            int[] resized = new int[tabCount];
+            int carried = memory == null ? 0 : Math.Min(memory.Length, tabCount);
+
+            for (int i = 0; i < carried; i++) {
+                resized[i] = memory[i];
+            }
+            for (int i = carried; i < tabCount; i++) {
+                resized[i] = WikiState.NoRememberedPage;
+            }
+
+            wikiState.LastPageIndexByTab = resized;
+        }
+
+        // The single write path for a resolved page selection: records the page as the active tab's
+        // last-viewed one, then slides the paginator window to keep it visible. Every command that
+        // moves the selection routes through here, so leaving a tab needs no save step of its own —
+        // the entry was written when the page was picked.
+        //
+        // Callers resolve `pageIndex` to an unlocked page first; nothing is validated here.
+        private static void ApplyPageSelection(WikiState wikiState, WikiContent content, WikiTabData tab, PlayerProgressState progressState, int pageIndex) {
+            wikiState.ActivePageIndex = pageIndex;
+
+            EnsureTabPageMemory(wikiState, content.Tabs == null ? 0 : content.Tabs.Length);
+            if (wikiState.ActiveTabIndex >= 0 && wikiState.ActiveTabIndex < wikiState.LastPageIndexByTab.Length) {
+                wikiState.LastPageIndexByTab[wikiState.ActiveTabIndex] = pageIndex;
+            }
+
+            EnsureWindowContains(wikiState, content, tab, progressState);
+        }
+
+        // The page to open `tab` on. Falls back to its first unlocked page when the tab has no entry
+        // yet, when the entry is out of range for the tab's page list, or when the page it names has
+        // since been locked — a lock only repairs the selection on the active tab, so a stale entry
+        // is expected here rather than exceptional.
+        private static int RememberedPageIndex(WikiState wikiState, WikiTabData tab, PlayerProgressState progressState, int tabIndex) {
+            int[] memory = wikiState.LastPageIndexByTab;
+            if (memory == null || tabIndex < 0 || tabIndex >= memory.Length) {
+                return FirstUnlockedPageIndex(tab, progressState);
+            }
+
+            int remembered = memory[tabIndex];
+            if (remembered < 0 || tab.Pages == null || remembered >= tab.Pages.Length) {
+                return FirstUnlockedPageIndex(tab, progressState);
+            }
+
+            WikiPageData page = tab.Pages[remembered];
+            if (page == null || !IsPageUnlocked(progressState, page.AssetId)) {
+                return FirstUnlockedPageIndex(tab, progressState);
+            }
+
+            return remembered;
+        }
+
+        #endregion // Per-Tab Page Memory
 
         #region Transition Routines
 
@@ -487,11 +581,53 @@ namespace SpaceFab.UI {
                 wikiState.NeedsRebuild = true;
 
                 // A newly-unlocked page can reveal its whole tab, and changes which thumbnails are
-                // visible plus how far the window can scroll.
-                WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.TabStrip | WikiVisualDirty.Paginator);
+                // visible plus how far the window can scroll. PageContent comes along because a
+                // material page's characteristics column reads the unlock set too — unlocking one
+                // half of a property pair swaps which half it chips.
+                WikiVisualsUtility.Invalidate(wikiState,
+                    WikiVisualDirty.TabStrip | WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
             }
 
             SpacefabGame.Events.Dispatch(GameEvents.WikiPageUnlocked, pageId);
+        }
+
+        [LeafMember("UnlockWikiPage")]
+        public static void Leaf_UnlockWikiPage(string pageId)
+        {
+            if (!Game.SharedState.Has<PlayerProgressState>()) { return; }
+            UnlockPage(Find.State<PlayerProgressState>(), new StringHash32(pageId));
+        }
+
+        // Removes pageId from the unlocked set, hiding its thumbnail — and its whole tab, if it was
+        // the last unlocked page under it. Mirror of UnlockPage, and idempotent for the same
+        // reason: a page that isn't in the set has nothing to remove.
+        //
+        // Raises NeedsRebuild so the thumbnail disappears without the player having to close and
+        // reopen the wiki. Nothing is dispatched — WikiPageUnlocked has no lock counterpart.
+        public static void LockPage(PlayerProgressState progressState, StringHash32 pageId) {
+            if (!progressState.UnlockedWikiPages.Remove(pageId)) { return; }
+
+            if (!Game.SharedState.Has<WikiState>()) { return; }
+
+            WikiState wikiState = Find.State<WikiState>();
+            wikiState.NeedsRebuild = true;
+
+            // Losing a page can hide its whole tab, and changes which thumbnails are visible plus
+            // how far the window can scroll. PageContent for the same reason UnlockPage raises it —
+            // locking one half of a property pair hands the characteristics chip to the other.
+            WikiVisualsUtility.Invalidate(wikiState,
+                WikiVisualDirty.TabStrip | WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
+
+            MoveSelectionOffLockedPage(wikiState, progressState, pageId);
+        }
+
+        // Leaf-callable lock. The id is the page asset name, case-sensitive — the same id
+        // UnlockPage and WikiInitialUnlocksConfig are keyed by, so display titles won't resolve
+        // here the way they do for OpenWikiTo. Unknown and already-locked ids are no-ops.
+        [LeafMember("LockWikiPage")]
+        public static void Leaf_LockWikiPage(string pageId) {
+            if (!Game.SharedState.Has<PlayerProgressState>()) { return; }
+            LockPage(Find.State<PlayerProgressState>(), new StringHash32(pageId));
         }
 
         #endregion // Unlock Queries
@@ -537,11 +673,38 @@ namespace SpaceFab.UI {
             int startIndex = (wikiState.ActivePageIndex + dir + tab.Pages.Length) % tab.Pages.Length;
             int resolved = FindNextUnlockedFrom(tab, progressState, startIndex, dir);
             if (resolved >= 0) {
-                wikiState.ActivePageIndex = resolved;
-                EnsureWindowContains(wikiState, content, tab, progressState);
+                ApplyPageSelection(wikiState, content, tab, progressState, resolved);
 
                 WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.PageContent | WikiVisualDirty.Paginator);
             }
+        }
+
+        // Steps the selection forward when the page it points at was the one just locked. Nothing
+        // downstream repairs this: the paginator drops the locked thumbnail, but the page bind
+        // would keep rendering a page the player can no longer reach.
+        //
+        // A tab left with no unlocked pages is deliberately not handled here — SelectPage leaves
+        // the selection alone, and ApplyUnlocks falls back to another tab during the rebuild.
+        private static void MoveSelectionOffLockedPage(WikiState wikiState, PlayerProgressState progressState, StringHash32 pageId) {
+            // No WikiContent means this scene doesn't ship the wiki prefab, so there's no
+            // selection to repair — the unlock set was still updated above.
+            var contents = Find.Components<WikiContent>();
+            if (contents.Count == 0) { return; }
+
+            WikiContent content = contents[0];
+            WikiTabData tab = ActiveTab(wikiState, content);
+            if (tab == null || tab.Pages == null) { return; }
+
+            int activeIndex = wikiState.ActivePageIndex;
+            if (activeIndex < 0 || activeIndex >= tab.Pages.Length) { return; }
+
+            // The locked page may well live under a tab that isn't the active one.
+            WikiPageData activePage = tab.Pages[activeIndex];
+            if (activePage == null || activePage.AssetId != pageId) { return; }
+
+            // Starts its scan at the now-locked index, so it resolves to the next page still
+            // unlocked, wrapping at the end.
+            SelectPage(wikiState, content, progressState, activeIndex);
         }
 
         // Scans the tab's pages from `from`, stepping by `dir` and wrapping once. Returns the

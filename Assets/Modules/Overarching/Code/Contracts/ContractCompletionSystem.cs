@@ -21,6 +21,7 @@ namespace SpaceFab.Overarching {
                     .ReadWriteShared<ContractLayoutState>()
                     .ReadWriteShared<ChapterState>()
                     .ReadWriteShared<PlayerProgressState>()
+                    .ReadShared<ContractState>()
             );
         }
 
@@ -42,7 +43,7 @@ namespace SpaceFab.Overarching {
                     ProcessBeginLoadFromPrevChapter(completionState, layoutState, chapterState);
                     break;
                 case ContractCompletionPhase.LoadFromPrevChapter:
-                    ProcessLoadFromPrevChapter(completionState, layoutState, chapterState);
+                    ProcessLoadFromPrevChapter(completionState, layoutState, contractState);
                     break;
                 case ContractCompletionPhase.EnterPreviousContract:
                     ProcessEnterPrevContract(completionState, layoutState, progressState, contractState);
@@ -68,9 +69,9 @@ namespace SpaceFab.Overarching {
         }
 
         // Once loaded, populates and animates in the completed-contract UI.
-        static private void ProcessLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ChapterState chapterState) {
+        static private void ProcessLoadFromPrevChapter(ContractCompletionState completionState, ContractLayoutState layoutState, ContractState contractState) {
             if (!layoutState.CompletionRoutine.Exists()) {
-                ContractCompletionUtility.PopulateContractUI(completionState, layoutState, chapterState);
+                ContractCompletionUtility.PopulateContractUI(completionState, layoutState, contractState);
                 layoutState.CompletionRoutine.Replace(ContractCompletionUtility.EnterPreviousRoutine(layoutState));
                 completionState.Phase = ContractCompletionPhase.EnterPreviousContract;
             }

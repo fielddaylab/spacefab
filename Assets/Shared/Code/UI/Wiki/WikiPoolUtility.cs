@@ -13,13 +13,18 @@ namespace SpaceFab.UI {
     /// after, and visual state from WikiVisualsUtility.
     /// </summary>
     public static class WikiPoolUtility {
-        // Syncs both strips to the authored content. Thumbs for non-active tabs are spawned too —
-        // WikiVisualsUtility hides them by TabIndex, so tab-switching needs no rebuild.
+        // Syncs both strips — and the per-tab page memory they're indexed alongside — to the
+        // authored content. Thumbs for non-active tabs are spawned too; WikiVisualsUtility hides
+        // them by TabIndex, so tab-switching needs no rebuild.
         public static void RebuildStrips(WikiState wikiState, WikiContent content, WikiPools pools) {
             Assert.NotNullOrDestroyed(wikiState, "Missing WikiState");
             Assert.NotNullOrDestroyed(content, "Missing WikiContent");
             Assert.NotNullOrDestroyed(pools, "Missing WikiPools");
             Assert.True(content.Tabs != null, "WikiContent has no authored tabs");
+
+            // Ahead of the strips, so the selection repair ApplyUnlocks may run against a
+            // fully-locked tab restores that tab's remembered page rather than dropping it.
+            WikiUtility.EnsureTabPageMemory(wikiState, content.Tabs.Length);
 
             SyncTabStrip(content, pools);
             SyncPageThumbStrip(content, pools);

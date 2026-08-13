@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c78611cb5392e640a73962df854e6da, type: 3}
+  m_Name: Chapter 10 Def
+  m_EditorClassIdentifier: 
+  AvailableContracts:
+  - m_HashValue: 2446741915
+  - m_HashValue: 895079257
+  - m_HashValue: 4220770417
+  AvailableMaterials:
+  - m_HashValue: 3821421172
+  - m_HashValue: 1821685427
+  - m_HashValue: 2571817723
+  - m_HashValue: 2929137943
+  - m_HashValue: 1163381446
+  - m_HashValue: 466928580
+  - m_HashValue: 541320182
+  - m_HashValue: 336354447
+  - m_HashValue: 3317014541
+  ExcludeFromResearch:
+  - m_HashValue: 1163381446
+  Script: {fileID: -1942890987711236906, guid: f27f33d6226cbb348947e4ffdd6436b1, type: 3}

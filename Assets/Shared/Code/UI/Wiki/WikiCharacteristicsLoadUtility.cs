@@ -17,8 +17,13 @@ namespace SpaceFab.UI {
     /// Called by WikiVisualsUtility.RefreshPageContent, immediately
     /// before it shows the characteristics group, so the column is
     /// never rendered empty. Reached whenever the PageContent domain
-    /// is invalidated: a page change, an expand, or a Research-side
-    /// property confirmation.
+    /// is invalidated: a page change, an expand, a Research-side
+    /// property confirmation, or a page lock / unlock.
+    ///
+    /// Conductivity and insulation are each authored twice — an
+    /// introductory framing and a full one — and a material may carry
+    /// both. Those pairs collapse to a single chip, picked from the
+    /// wiki's current unlock set rather than from the material.
     /// </summary>
     public static class WikiCharacteristicsLoadUtility {
         // Padding (px) added above and below the chip column when
@@ -47,9 +52,14 @@ namespace SpaceFab.UI {
         // merged record are still appended afterward so they show up
         // once the player has discovered them.
         //
+        // A material authoring both halves of an exclusive pair
+        // (ConductorNaive + Conductor, InsulatorNaive + Insulator)
+        // contributes one chip for the pair, not two — see
+        // IsRetiredPairHalf.
+        //
         // materialId == Null or no MaterialAsset registered => zero
         // chips + minimum group size (just padding).
-        public static void LoadFor(WikiPageContentWidgets widgets, WikiChipPools pools, StringHash32 materialId) {
+        public static void LoadFor(WikiPageContentWidgets widgets, WikiChipPools pools, PlayerProgressState progressState, StringHash32 materialId) {
             if (widgets == null || pools == null || pools.ChipPool == null) return;
             if (widgets.CharacteristicsContainer == null) return;
 
@@ -60,9 +70,8 @@ namespace SpaceFab.UI {
             //    PlayerProgressState; OR-merge ResearchMinigameState
             //    sandbox if Research is currently loaded.
             MaterialPropertyRecord merged = default;
-            PlayerProgressState progress = Find.State<PlayerProgressState>();
-            if (progress != null && progress.MaterialProperties != null
-                && progress.MaterialProperties.TryGetValue(materialId, out var canonicalRecord)) {
+            if (progressState != null && progressState.MaterialProperties != null
+                && progressState.MaterialProperties.TryGetValue(materialId, out var canonicalRecord)) {
                 merged = canonicalRecord;
             }
             if (Game.SharedState.Has<ResearchMinigameState>()) {
@@ -82,6 +91,7 @@ namespace SpaceFab.UI {
                     MaterialPropertyLabel label = material.Properties[i];
                     if (!MaterialPropertyLabelUtility.IsPersistent(label)) continue;
                     if (MaterialPropertyLabelUtility.IsDynamic(label)) continue;
+                    if (IsRetiredPairHalf(material.Properties, label, progressState)) continue;
 
                     bool confirmed = MaterialPropertyRecordUtility.Has(merged, label, StringHash32.Null);
                     AddChip(widgets, pools,
@@ -107,6 +117,66 @@ namespace SpaceFab.UI {
                     groupRect.sizeDelta = size;
                 }
             }
+        }
+
+        // True when `label` is the half of an exclusive pair the wiki
+        // isn't presenting right now, so the placeholder pass should
+        // skip it and let the other half stand for the characteristic.
+        //
+        // Only applies to a material authoring both halves. One half on
+        // its own always chips: the pair rule picks between two chips
+        // that would otherwise render the same name twice, it doesn't
+        // gate a characteristic on a page being unlocked.
+        private static bool IsRetiredPairHalf(MaterialPropertyLabel[] properties, MaterialPropertyLabel label, PlayerProgressState progressState) {
+            if (!TryGetExclusivePair(label, out MaterialPropertyLabel basic, out MaterialPropertyLabel full, out StringHash32 basicPageId)) {
+                return false;
+            }
+            if (!ContainsLabel(properties, basic) || !ContainsLabel(properties, full)) { return false; }
+
+            // The basic half holds the slot for as long as its page is
+            // unlocked. That covers the opening state, where both pages
+            // are unlocked and chapter 1 hasn't locked the full one yet —
+            // the chapter the basic pages belong to. Once content retires
+            // the basic page, the full half takes over, and it also
+            // stands in should neither page be unlocked, so the
+            // characteristic never drops off the column entirely.
+            MaterialPropertyLabel visible = WikiUtility.IsPageUnlocked(progressState, basicPageId) ? basic : full;
+            return label != visible;
+        }
+
+        // The exclusive pair `label` belongs to, plus the wiki page id
+        // that decides which half of it renders. False for every label
+        // outside the two pairs, which is all but four of them.
+        private static bool TryGetExclusivePair(MaterialPropertyLabel label, out MaterialPropertyLabel basic, out MaterialPropertyLabel full, out StringHash32 basicPageId) {
+            switch (label) {
+                case MaterialPropertyLabel.ConductorNaive:
+                case MaterialPropertyLabel.Conductor:
+                    basic = MaterialPropertyLabel.ConductorNaive;
+                    full = MaterialPropertyLabel.Conductor;
+                    basicPageId = WikiConsts.BasicConductorPageId;
+                    return true;
+
+                case MaterialPropertyLabel.InsulatorNaive:
+                case MaterialPropertyLabel.Insulator:
+                    basic = MaterialPropertyLabel.InsulatorNaive;
+                    full = MaterialPropertyLabel.Insulator;
+                    basicPageId = WikiConsts.BasicInsulatorPageId;
+                    return true;
+
+                default:
+                    basic = default;
+                    full = default;
+                    basicPageId = default;
+                    return false;
+            }
+        }
+
+        // Whether the material authors the given property at all.
+        private static bool ContainsLabel(MaterialPropertyLabel[] properties, MaterialPropertyLabel label) {
+            for (int i = 0; i < properties.Length; i++) {
+                if (properties[i] == label) { return true; }
+            }
+            return false;
         }
 
         // Allocs one chip with the given text + fill state, parents
