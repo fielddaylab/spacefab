@@ -48,7 +48,7 @@ $call   AddObsBtn->SetActive(false)
 $call   ReleaseAllHighlights()
 //$call   ReleaseHighlight(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(true)
-$call   HighlightElement(research:add-observation-btn)
+$call   HighlightElement(research:add-observation-btn, false, -1, true)
 {@PAL}  Now add your observation.
 
 
