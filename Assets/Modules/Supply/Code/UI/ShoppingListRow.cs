@@ -1,5 +1,6 @@
 using SpaceFab.Materials;
 using SpaceFab.Research;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,23 +17,45 @@ namespace SpaceFab.Supply {
         public ResearchObservationChip PropertyChip;
 
         // Slot icon, shown over the background only when satisfied.
-        public Image SlotIcon;
+        //public Image SlotIcon;
+        public Image Fill;
+        public Image MaterialIcon;
+        public Image Checkmark;
+        public TMP_Text MaterialLabel;
+
+        public Color UncheckedUIColor;
+        public Sprite DefaultIcon;
+
+        public void Start()
+        {
+            SetChecked(false);
+        }
+
+        public void SetChecked(bool isChecked)
+        {
+            MaterialIcon.color = isChecked ? Color.white : UncheckedUIColor;
+            MaterialLabel.color = isChecked ? Color.white : UncheckedUIColor;
+            Checkmark.enabled = isChecked;
+            Fill.enabled = isChecked;
+        }
 
         // Renders the property chip for this requirement. Always filled —
         // the chip shows the requirement itself, not a discovery state.
         public void SetProperty(string name, ObservationType type) {
-            if (PropertyChip != null) {
-                PropertyChip.SetState(name, ChipFillState.Filled, false, type);
-            }
+            // if (PropertyChip != null) {
+            //     PropertyChip.SetState(name, ChipFillState.Filled, false, type);
+            // }
+
+            MaterialLabel.text = name;
         }
 
         // Sets the slot to a gathered material's icon, or clears it. The
         // background stays visible either way; only the overlaid icon toggles.
         public void SetSlot(Sprite icon) {
-            if (SlotIcon != null) {
-                SlotIcon.sprite = icon;
-                SlotIcon.enabled = icon != null;
-            }
+            
+            MaterialIcon.sprite = icon == null ? DefaultIcon : icon;
+
+            SetChecked(icon != null);
         }
     }
 }

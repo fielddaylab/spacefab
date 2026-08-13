@@ -75,6 +75,8 @@ namespace SpaceFab.Supply {
 
             if (checks != null) {
                 bool success = true;
+                int totalSuccess = 0;
+                int totalChecks = 0;
                 Log.Msg("[SupplyBug] num checks: " + checks.Length);
                 for (int i = 0; i < checks.Length; i++) {
                     if (IsOmittedFromSupply(checks[i], omitted))
@@ -83,10 +85,12 @@ namespace SpaceFab.Supply {
                         continue;
                     }
                     success &= AddRow(layout, progressState, checks[i]);
+                    if (success) totalSuccess++;
+                    totalChecks++;
                     Log.Msg("[SupplyBug] added row. Success? " + success);
 
                 }
-
+                layout.ShoppingListLabel.text = $"Material Requirements {totalSuccess}/{totalChecks}";
                 bool confirmActive = success && routes.TempRouteIndex < 0;
                 Log.Msg("[SupplyBug] confirm active? " + confirmActive);
                 layout.ConfirmButton.gameObject.SetActive(confirmActive);
@@ -207,10 +211,10 @@ namespace SpaceFab.Supply {
 
         // Resizes the panel's height to fit the row column plus padding.
         private static void ResizePanel(ShoppingListLayoutState layout, float contentHeight) {
-            if (layout.PanelRect == null) return;
-            Vector2 size = layout.PanelRect.sizeDelta;
-            size.y = contentHeight + 2f * OverlayPadding;
-            layout.PanelRect.sizeDelta = size;
+            // if (layout.PanelRect == null) return;
+            // Vector2 size = layout.PanelRect.sizeDelta;
+            // size.y = contentHeight + 2f * OverlayPadding;
+            // layout.PanelRect.sizeDelta = size;
         }
 
         // Returns every pooled row to the pool and clears the active list.

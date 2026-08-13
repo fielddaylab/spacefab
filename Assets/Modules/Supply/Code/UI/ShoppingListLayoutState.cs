@@ -1,4 +1,5 @@
 using BeauPools;
+using BeauRoutine;
 using BeauUtil;
 using BeauUtil.UI;
 using FieldDay;
@@ -8,7 +9,9 @@ using FieldDay.UI.Widgets;
 using SpaceFab.UI;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Supply {
     /// <summary>
@@ -28,6 +31,15 @@ namespace SpaceFab.Supply {
         // Panel rect resized vertically to fit the generated rows.
         public RectTransform PanelRect;
 
+        public TMP_Text ShoppingListLabel;
+
+        public Transform CollapseTransform;
+        public Button CollapseButton;
+        public Image CollapseImage;
+        public Sprite ExpandIcon, CollapseIcon;
+        public bool ListExpanded = true;
+        public float CollapseYValue = -185;
+
         // confirm button
         public GuiButton ConfirmButton;
 
@@ -37,6 +49,8 @@ namespace SpaceFab.Supply {
         // utility iterates this to know what to free before re-loading.
         [NonSerialized] public List<ShoppingListRow> ActiveRows;
 
+        [NonSerialized] public Routine ToggleRoutine;
+
         // Contract the rows were last built for; lets a rebuild detect a
         // contract change without re-reading every requirement each frame.
         [NonSerialized] public StringHash32 LastContractId;
@@ -45,8 +59,15 @@ namespace SpaceFab.Supply {
             Pool.Prewarm();
             ActiveRows = new List<ShoppingListRow>(4);
 
+            CollapseButton.onClick.AddListener(() =>
+            {
+                ListExpanded = !ListExpanded;
+                CollapseImage.sprite = ListExpanded ? CollapseIcon : ExpandIcon;
+            });
+
             ConfirmButton.OnClick.AddListener(() => {
                 Find.Panel<SupplyResultPanel>().Show();
+
             });
 
             return null;
