@@ -61,6 +61,10 @@ namespace SpaceFab.UI {
                     && researchContext.ViewModel.HypothesisLabel == check.Label;
                 widgets.PropertyChip.SetPickerChipDisabledVisual(isActiveHypothesis);
 
+                // Addressable from Leaf as "wiki:property-conductor" for as long as this page is
+                // bound. Re-stamped per page because the authored chip is reused across all of them.
+                WikiElementTagUtility.Stamp(widgets.PropertyChip, WikiElementTagUtility.PropertyChipId(check.Label));
+
                 if (researchContext.Present && widgets.PropertyChip.Click != null) {
                     MaterialPropertyLabel captured = check.Label;
                     pools.PropertyChipClickHandler = () => ResearchWikiInputUtility.HandlePropertyChipClick(captured);
@@ -92,6 +96,11 @@ namespace SpaceFab.UI {
                         : MaterialPropertyLabelDisplay.GetObservationName(leaf.Label);
                     chip.SetState(text, ChipFillState.Filled, false, leaf.ObservationType);
                     chip.SetPickerChipDisabledVisual(false);
+
+                    // Addressable from Leaf as "wiki:property-conductor-conductive". Keyed by
+                    // (property, observation) rather than by column position, so a script keeps
+                    // naming the same chip when the decomposition gains or loses a leaf.
+                    WikiElementTagUtility.Stamp(chip, WikiElementTagUtility.PropertyObservationId(check.Label, leaf.Label));
 
                     Action handler = null;
                     if (leafChipsClickable && chip.Click != null) {
@@ -144,15 +153,17 @@ namespace SpaceFab.UI {
         }
 
         // Returns every pool-held leaf chip to the pool and unbinds the
-        // authored property chip, deregistering handlers in lockstep.
-        // Called as the first step of LoadFor (clean slate), and directly
-        // when navigating away from a property page.
+        // authored property chip, deregistering handlers and onboarding tag
+        // ids in lockstep. Called as the first step of LoadFor (clean slate),
+        // and directly when navigating away from a property page.
         public static void FreeAllPropertyChips(WikiPageContentWidgets widgets, WikiChipPools pools) {
             if (pools == null) return;
 
-            if (widgets != null && widgets.PropertyChip != null && widgets.PropertyChip.Click != null
-                && pools.PropertyChipClickHandler != null) {
-                widgets.PropertyChip.Click.onClick.Deregister(pools.PropertyChipClickHandler);
+            if (widgets != null && widgets.PropertyChip != null) {
+                if (widgets.PropertyChip.Click != null && pools.PropertyChipClickHandler != null) {
+                    widgets.PropertyChip.Click.onClick.Deregister(pools.PropertyChipClickHandler);
+                }
+                WikiElementTagUtility.Clear(widgets.PropertyChip);
             }
             pools.PropertyChipClickHandler = null;
 
@@ -167,6 +178,7 @@ namespace SpaceFab.UI {
                     chip.Click.onClick.Deregister(handler);
                 }
                 if (chip != null) {
+                    WikiElementTagUtility.Clear(chip);
                     Pool.TryFree(chip);
                 }
             }

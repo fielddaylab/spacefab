@@ -108,6 +108,16 @@ namespace SpaceFab.UI {
         // WikiRefreshSystem ahead of the visuals pass, and by OnSceneLateEnable on level load.
         [HideInInspector] public bool NeedsRebuild;
 
+        // Tab and page last reported to Leaf through OnWikiTabOpened / OnWikiPageOpened. Compared
+        // against the live selection by WikiUtility.AnnounceSelection, so a frame that moves the
+        // selection more than once — OpenTo picks a tab, then a page under it — announces only
+        // where it landed rather than every step on the way.
+        //
+        // Runtime-only for the same reason LastPageIndexByTab is: the ids mean nothing against a
+        // different scene's tab set, and LoadTabs drops them.
+        [NonSerialized] public StringHash32 AnnouncedTabId;
+        [NonSerialized] public StringHash32 AnnouncedPageId;
+
         // Which presentation domains are stale. Raised by the WikiUtility mutators at the point of
         // mutation, consumed and cleared by WikiVisualsUtility.Refresh. Unlike the *ThisFrame
         // flags this persists until drained, so an invalidation raised far from a refresh call
@@ -127,6 +137,8 @@ namespace SpaceFab.UI {
             OpenToRequestedThisFrame = false;
             RequestedTabId = default;
             RequestedPageId = default;
+            AnnouncedTabId = default;
+            AnnouncedPageId = default;
 
             // Nothing has been painted yet.
             VisualsDirty = WikiVisualDirty.All;
@@ -245,12 +257,65 @@ namespace SpaceFab.UI {
             wikiState.TabPopRoutine.Stop();
             wikiState.PoppedTabIndex = -1;
 
+            // The announced ids name assets from the outgoing tab set, so they can't gate the
+            // incoming one's first announcement.
+            ClearAnnouncedSelection(wikiState);
+
             // Every pooled instance is about to change identity, and the panel may already be
             // painted with the previous scene's content.
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.All);
         }
 
         #endregion // External API
+
+        #region Script Triggers
+
+        // Reports the tab and page the player is currently looking at to Leaf, once per change.
+        // Drained by WikiRefreshSystem after the frame's paint rather than fired at the point of
+        // mutation, so a frame that moves the selection several times — OpenTo picks a tab, then a
+        // page under it — announces where it landed instead of every intermediate step.
+        //
+        // Nothing is announced while the panel is collapsed: a selection made behind a closed wiki
+        // isn't something the player has opened. The announcement is dropped on collapse instead,
+        // so reopening on that selection announces it then.
+        public static void AnnounceSelection(WikiState wikiState, WikiContent content) {
+            if (!wikiState.Expanded) { return; }
+
+            WikiTabData tab = ActiveTab(wikiState, content);
+            if (tab == null) { return; }
+
+            // Tab first, so a tab switch reads as "this tab opened, and here's the page under it".
+            if (wikiState.AnnouncedTabId != tab.AssetId) {
+                wikiState.AnnouncedTabId = tab.AssetId;
+
+                using (TempVarTable table = TempVarTable.Alloc()) {
+                    table.Set("tabId", tab.AssetId);
+                    ScriptUtility.Trigger(ScriptTriggers.OnWikiTabOpened, table);
+                }
+            }
+
+            WikiPageData page = ActivePage(wikiState, content);
+            if (page == null) { return; }
+
+            if (wikiState.AnnouncedPageId != page.AssetId) {
+                wikiState.AnnouncedPageId = page.AssetId;
+
+                using (TempVarTable table = TempVarTable.Alloc()) {
+                    table.Set("pageId", page.AssetId);
+                    ScriptUtility.Trigger(ScriptTriggers.OnWikiPageOpened, table);
+                }
+            }
+        }
+
+        // Forgets what was last announced, so the next AnnounceSelection reports the selection even
+        // if it hasn't moved since. Raised wherever the player stops looking at the current
+        // selection — a collapse — or where the ids stop meaning anything — a tab load.
+        private static void ClearAnnouncedSelection(WikiState wikiState) {
+            wikiState.AnnouncedTabId = default;
+            wikiState.AnnouncedPageId = default;
+        }
+
+        #endregion // Script Triggers
 
         #region Material Page Lookup
 
@@ -508,6 +573,7 @@ namespace SpaceFab.UI {
             wikiState.OpenRequestedThisFrame = false;
             wikiState.CloseRequestedThisFrame = false;
             wikiState.OpenToRequestedThisFrame = false;
+            ClearAnnouncedSelection(wikiState);
 
             // Applied directly rather than through Invalidate: the scene is unloading, so there may
             // be no later drain. Clear the bit so the pending mask doesn't outlive the teardown.
@@ -535,6 +601,10 @@ namespace SpaceFab.UI {
         public static IEnumerator CollapseRoutine(WikiState wikiState) {
             wikiState.Transitioning = true;
             wikiState.Expanded = false;
+
+            // The player is no longer looking at the selection, so reopening on it should announce
+            // it again rather than treat it as already reported.
+            ClearAnnouncedSelection(wikiState);
 
             // Only the roots change — the contents keep whatever they were last painted with.
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.Visibility);
@@ -639,6 +709,14 @@ namespace SpaceFab.UI {
             if (content.Tabs == null) { return null; }
             if (wikiState.ActiveTabIndex < 0 || wikiState.ActiveTabIndex >= content.Tabs.Length) { return null; }
             return content.Tabs[wikiState.ActiveTabIndex];
+        }
+
+        // The active page asset, or null if either index is out of range or content isn't authored.
+        private static WikiPageData ActivePage(WikiState wikiState, WikiContent content) {
+            WikiTabData tab = ActiveTab(wikiState, content);
+            if (tab == null || tab.Pages == null) { return null; }
+            if (wikiState.ActivePageIndex < 0 || wikiState.ActivePageIndex >= tab.Pages.Length) { return null; }
+            return tab.Pages[wikiState.ActivePageIndex];
         }
 
         // Index in content.Tabs matching tabId, or -1. Two passes, so an OpenTo caller can pass

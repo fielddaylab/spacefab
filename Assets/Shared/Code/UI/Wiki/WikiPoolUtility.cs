@@ -64,6 +64,11 @@ namespace SpaceFab.UI {
                 WikiTabData tab = content.Tabs[tabIndex];
                 for (int pageIndex = 0; pageIndex < tab.Pages.Length; pageIndex++) {
                     Configure(active[slot], WikiButtonKind.PageThumb, tabIndex, pageIndex);
+
+                    // give page thumbnails tags so they can be highlighted in tutorial
+                    if (active[slot].Kind == WikiButtonKind.PageThumb && active[slot].ElementTag != null) {
+                        active[slot].ElementTag.SetId(WikiElementTagUtility.PageThumbId(tab.Pages[pageIndex].name));
+                    }
                     slot++;
                 }
             }

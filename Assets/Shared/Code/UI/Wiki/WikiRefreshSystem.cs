@@ -82,6 +82,12 @@ namespace SpaceFab.UI {
             WikiResearchContext researchContext = WikiResearchContextUtility.Resolve();
 
             WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], chipPools, progressState, researchContext);
+
+            // Announced after the paint, so OnWikiTabOpened / OnWikiPageOpened fire against what is
+            // actually on screen, once for wherever the frame's mutations left the selection. Safe
+            // to sit behind the early return above: every path that moves the selection invalidates
+            // a domain, so a frame with nothing dirty has nothing new to announce either.
+            WikiUtility.AnnounceSelection(wikiState, content);
         }
     }
 }

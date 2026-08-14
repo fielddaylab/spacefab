@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.HID;
 using FieldDay.UI;
 using SpaceFab.Materials;
+using SpaceFab.Onboarding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,6 +26,15 @@ namespace SpaceFab.Research {
 
         public GameObject LockedOverlay;
         public CursorHint Click;
+
+        // Onboarding highlight handle, left unassigned on the prefab. Chips are pool-allocated
+        // and reused across pages, so neither the tag nor its id can be baked in: the wiki's
+        // page-load utilities attach one on demand via WikiElementTagUtility, stamp a per-page
+        // id, and clear it again on free. Allocators that don't tutorialize their chips (the
+        // Research picker and sample panel) never touch this, so those chips stay untagged and
+        // out of ElementTagLookup entirely. Assign it in the inspector to point the highlight at
+        // a different host than the chip root.
+        public ElementTag Tag;
 
         // Label color applied by the most recent SetState, so the
         // disabled visual can restore it when re-enabled.

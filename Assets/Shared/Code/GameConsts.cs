@@ -118,6 +118,11 @@ namespace SpaceFab
         public static readonly StringHash32 OnMinigameLoad =        "OnMinigameLoad";
         public static readonly StringHash32 OnWikiOpened =          "OnWikiOpened";
         public static readonly StringHash32 OnWikiClosed =          "OnWikiClosed";
+        // Fired when a wiki tab becomes the one on screen. Passes `tabId` — the tab asset's name.
+        public static readonly StringHash32 OnWikiTabOpened =       "OnWikiTabOpened";
+        // Fired when a wiki page becomes the one on screen. Passes `pageId` — the page asset's
+        // name, the same id UnlockWikiPage is keyed by.
+        public static readonly StringHash32 OnWikiPageOpened =      "OnWikiPageOpened";
         public static readonly StringHash32 OnOverarchingLoaded =   "OnOverarchingLoaded";
     }
 

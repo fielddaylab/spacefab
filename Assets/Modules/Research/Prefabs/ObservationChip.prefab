@@ -345,6 +345,7 @@ MonoBehaviour:
   LabelText: {fileID: 5024851448177858497}
   LockedOverlay: {fileID: 2689975953947801647}
   Click: {fileID: 9152314213503323257}
+  Tag: {fileID: 0}
 --- !u!114 &9152314213503323257
 MonoBehaviour:
   m_ObjectHideFlags: 0

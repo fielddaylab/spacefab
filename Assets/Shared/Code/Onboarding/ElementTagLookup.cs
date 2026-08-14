@@ -47,6 +47,13 @@ namespace SpaceFab.Onboarding {
 
             StringHash32 id = tag.Id.Hash();
             if (lookup.ById.TryGetValue(id, out ElementTag existing)) {
+                // Already registered under this id by this same tag — idempotent, not a collision.
+                // Happens when a tag is given its id before its GameObject first activates: SetId
+                // registers immediately, then the deferred Awake registers the same id again.
+                if (existing == tag) {
+                    return;
+                }
+
                 // Duplicate id — treat as authoring error: warn and skip. The first tag stays
                 // addressable; the second tag is simply not registered (its lookup queries will miss).
                 Log.Warn("[Onboarding] Duplicate ElementTag id '{0}' (existing on '{1}', rejected on '{2}')",

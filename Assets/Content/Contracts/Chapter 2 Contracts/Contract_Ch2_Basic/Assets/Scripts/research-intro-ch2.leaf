@@ -6,6 +6,8 @@ $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else
     $set temp:needsToOpenWikiFirstTime = true
+    $call   SetTabById("Material Properties_Tab")
+    $call   SetPageById("Semiconductor")
     $call   ShowPrimaryPALButton("OpenProperties")
     {@PAL}  This contract specifies that we need to research a semiconductor. I recommend you open up the ships database to learn properties a semiconductor component has.
 $endif
@@ -28,12 +30,58 @@ $set temp:needsToOpenWikiFirstTime = false
 @trigger    OnVoltageIncreased
 @when       !MinigameHasValidSolution()
 $call   ShowPrimaryPALButton("OpenObservations")
+$set    temp:needsToSelectObs = true
 {@PAL}      It looks like this sample allows voltage to pass. Open your database to the Observations tab and click on the observation to record it.
 
 
-::OnLastWikiClosed
-@trigger    OnWikiClosed
-@when       MinigameHasValidSolution()
-$call       ReleaseAllHighlights()
-$call       HighlightElement(return-button)
-{@PAL}      You've completed all research tasks. Press the back button to return to the ship.
+::OnVoltageObsPageOpened
+@trigger    OnWikiPageOpened
+@when   temp:needsToSelectObs == true, pageId == "Voltage Observations"
+$call   HighlightElement(wiki:observations-electrical-conductive, false, -1, true)
+
+::OnNonVoltageObsPageOpened
+@trigger    OnWikiPageOpened
+@when   temp:needsToSelectObs == true, pageId != "Voltage Observations"
+$call   ReleaseAllHighlights()
+
+::OnAllowsCurrentSelected
+@trigger    OnObservationAdded // todo: add this trigger
+@when       observationId == "conductive" // todo: pass in this val
+$call   HighlightElement(research:thermal-chamber-btn)
+{@PAL} You’ll need the thermal chamber to add the next observation. Remember to reference the semiconductor component in your database. 
+
+
+::OnThermalChamberSelected
+@trigger    OnChamberSwitched   // todo: add this trigger
+@when       chamberId == "thermal"  // todo: pass in this val
+$call   HighlightElement(research:increase-heat-btn) // todo: add this tag
+{@PAL} Now you’ll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
+
+::OnHeatIncreased
+@trigger    OnHeatIncreased     // todo: add this trigger
+$call   ShowPrimaryPALButton("OpenObservations")
+{@PAL}  That looks like increased current to me! Use your database to submit your observation.
+$set temp:needsToSelectThermal = true
+
+
+::OnFirstObsTabOpened
+@trigger    OnWikiTabOpened
+@when       temp:needsToSelectThermal
+$if tabId == "Observations_Tab" // not resolving?
+    $call   HighlightElement(wiki:page-thermal-observations, false, -1, true)
+$else
+    $call   ReleaseAllHighlights()
+$endif
+
+::OnThermalObsPageOpened
+@trigger    OnWikiPageOpened
+@when       temp:needsToSelectThermal == true, pageId == "Thermal"
+$call   ReleaseAllHighlights()
+$set temp:needsToSelectThermal = false
+
+// todo: select component to verify obs against
+
+// highlight semiconductor property
+
+// force close wiki, tell to click verify and highlight it
+
