@@ -113,8 +113,7 @@ namespace SpaceFab.Design
             for (int i = 0; i < resultState.VerticalLayoutToCopy.childCount; i++)
             {
                 GameObject originalRow = resultState.VerticalLayoutToCopy.GetChild(i).gameObject;
-                GameObject rowCopy = GameObject.Instantiate(originalRow, resultState.VerticalLayoutCopy);
-
+                GameObject.Instantiate(originalRow, resultState.VerticalLayoutCopy);
             }
         }
 

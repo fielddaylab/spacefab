@@ -13,6 +13,9 @@ namespace SpaceFab.Supply {
         public DynamicButton NextButton;
         public SceneReference NextScene;
 
+        public Transform ShoppingListParent; // to copy the visuals from the shopping list to this
+        public Transform ListParent;
+
         [Header("Ships")]
         public SupplyProgressMeterView MeterView;
         public SupplyShipBreakdownRow[] ShipRows;
@@ -78,10 +81,21 @@ namespace SpaceFab.Supply {
             SupplyStateUtility.ExportState(ref saveState, minigameState);
 
             Populate(minigameState);
+
+            CopyShoppingList();
         }
 
         private void Populate(SupplyMinigameState minigameState) {
 
+        }
+
+        private void CopyShoppingList()
+        {
+            for (int i = 0; i < ShoppingListParent.childCount; i++)
+            {
+                GameObject requirement = ShoppingListParent.GetChild(i).gameObject;
+                Instantiate(requirement, ListParent);
+            }
         }
 
         public override void Hide() {
