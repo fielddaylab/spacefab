@@ -25,7 +25,7 @@ namespace SpaceFab.Narrative {
         // Arms the minigame dialogue box's primary button for the NEXT line it prints, with the
         // given action's label and behavior. The button clears as soon as a later line prints, or
         // when the box is dismissed. actionId is a DialogueButtonAction enum name (e.g.
-        // "OpenDatabase"), case-insensitive; unknown names warn and no-op. printerId defaults to
+        // "OpenProperties"), case-insensitive; unknown names warn and no-op. printerId defaults to
         // the scene's default printer id.
         //
         // Addressed through the printer registry rather than the calling thread: at $call time the

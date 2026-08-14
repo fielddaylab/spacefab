@@ -1,0 +1,39 @@
+# basePath ResearchIntroCh2
+
+::IntroSelectTrace
+@trigger    OnSetupComplete
+$if MinigameHasValidSolution()
+    {@PAL}  You've already researched everything you need to!
+$else
+    $set temp:needsToOpenWikiFirstTime = true
+    $call   ShowPrimaryPALButton("OpenProperties")
+    {@PAL}  This contract specifies that we need to research a semiconductor. I recommend you open up the ships database to learn properties a semiconductor component has.
+$endif
+
+
+::OnWikiClosed
+@trigger    OnWikiClosed
+@when       !MinigameHasValidSolution(), temp:needsToOpenWikiFirstTime
+$set temp:needsToOpenWikiFirstTime = false
+{@PAL}      Interesting. Semiconductors allow current to pass, and current increases when heat is applied. \n\nI recommend you add a material to the voltage chamber to begin testing.
+
+
+::OnPlaceIntoSlot
+@trigger    OnSlotFilled
+@when       slotType == "primary", !MinigameHasValidSolution()
+{@PAL}      Now apply voltage to to test the sample’s electrical properties
+
+
+::OnVoltageIncreased
+@trigger    OnVoltageIncreased
+@when       !MinigameHasValidSolution()
+$call   ShowPrimaryPALButton("OpenObservations")
+{@PAL}      It looks like this sample allows voltage to pass. Open your database to the Observations tab and click on the observation to record it.
+
+
+::OnLastWikiClosed
+@trigger    OnWikiClosed
+@when       MinigameHasValidSolution()
+$call       ReleaseAllHighlights()
+$call       HighlightElement(return-button)
+{@PAL}      You've completed all research tasks. Press the back button to return to the ship.
