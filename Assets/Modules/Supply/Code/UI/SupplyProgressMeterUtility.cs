@@ -128,7 +128,7 @@ namespace SpaceFab.Supply {
                 if (i < yellowCount) {
                     ApplyCell(cells[i], true, sprites.CostBar, sprites.CostRemainingColor);
                 } else if (i < yellowCount + redCount) {
-                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor);
+                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor, true);
                 } else {
                     ApplyCell(cells[i], false, null, default);
                 }
@@ -158,7 +158,7 @@ namespace SpaceFab.Supply {
         }
 
         // Drives one cell's overlay: enabled with sprite+color when filled, hidden otherwise.
-        private static void ApplyCell(ProgressMeterCell cell, bool filled, Sprite sprite, Color color) {
+        private static void ApplyCell(ProgressMeterCell cell, bool filled, Sprite sprite, Color color, bool xMark = false) {
             if (cell == null || cell.OverlayImage == null) {
                 return;
             }
@@ -166,6 +166,11 @@ namespace SpaceFab.Supply {
                 cell.OverlayImage.sprite = sprite;
                 cell.OverlayImage.color = color;
                 cell.OverlayImage.enabled = true;
+
+                if (xMark && cell.xMarkImage != null)
+                {
+                    cell.xMarkImage.enabled = true;
+                }
             } else {
                 cell.OverlayImage.enabled = false;
             }

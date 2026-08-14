@@ -8,13 +8,34 @@ namespace SpaceFab.Supply {
     /// fills a prefix of each and clears the rest. Reuses ProgressMeterCell (base + overlay).
     /// </summary>
     public class SupplyProgressMeterView : MonoBehaviour {
+        public Transform CostCellParent, RiskCellParent, TimeCellParent;
+
         // Summed risk across ships, rendered as filled diamond cells.
-        public ProgressMeterCell[] RiskCells;
-
+        [HideInInspector] public ProgressMeterCell[] RiskCells;
+ 
         // Contract funds, rendered as remaining (yellow) then spent (red) bars.
-        public ProgressMeterCell[] CostCells;
-
+        [HideInInspector] public ProgressMeterCell[] CostCells;
+        
         // Max time across ships, rendered as filled dot cells.
-        public ProgressMeterCell[] TimeCells;
+        [HideInInspector] public ProgressMeterCell[] TimeCells;
+
+        public void Start()
+        {
+            TimeCells = new ProgressMeterCell[TimeCellParent.childCount];
+            CostCells = new ProgressMeterCell[CostCellParent.childCount];
+            RiskCells = new ProgressMeterCell[RiskCellParent.childCount];
+
+            Populate(TimeCells, TimeCellParent);
+            Populate(CostCells, CostCellParent);
+            Populate(RiskCells, RiskCellParent);
+        }
+
+        private void Populate(ProgressMeterCell[] cells, Transform parent)
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i] = parent.GetChild(i).GetComponent<ProgressMeterCell>();
+            }
+        }
     }
 }
