@@ -1,10 +1,54 @@
 # basePath Chapter2
 
-:: FirstContractOpen
+:: FirstContractOpenCh2
 @trigger    OnContractSelectOpen
 @cutscene
 @once
+
+//NOTE - should dialogue/tutorializing be prompted in mini-games? 
+
+{@Dorian}   Alright my friend, or "employee", looks you'll need a conductor and semi-conductor. 
+{@Dorian}   With semi-conductors you will be working on doping. 
+{@Dorian}   Essentially, adding impurities to the semi-conductor make it, well, conductive. 
+{@Player}   Okay, great, so, when I go about doing it--
+{@Dorian}   Oh shoot, sorry Locke, I'm getting a halo, I have to go. 
+{@Dorian}   P.A.L. should be able to help you out though!
+{@Player}   Yea, no worries. 
+{@Dorian}   Chat soon. 
+
+{@PAL}      Sounded like you had a question Captain, can I be of assitance? 
+{@Player}   Uh... I forgot it...       
+{@PAL}      Alrighty then, Captian! 
+
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
 $call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the full version after first chapter 
 $call   UnlockWikiPage("Conductor")
 $call   UnlockWikiPage("Insulator")
+
+::BeforeSupplyChainCh2
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene
+@once
+
+//region Suppliers 
+//NOTE - under context of being in mini-game 
+{@Player}   Hey P.A.L., why are there two sources of Phosphorus? 
+{@PAL}      Looks like both the Forsch and Kalvis sectors are offering that material. 
+{@Player}   What's the difference? 
+{@PAL}      Depending on which one they may have different costs and time sinks.
+{@PAL}      I highly recommend going with the Forsch sector. 
+{@Player}   Are you seriously recommending that? 
+{@Player}   Or are you saying that because that's a Frontier sector? 
+{@PAL}      A Froniter Robotics deal is always a good deal! 
+{@Player}   I'll have to weigh my options. 
+
+{@Taryn}    Hiya Locke! The Kalvis sector is offering Phosphorus at Auseklis Station.
+{@Taryn}    It'll take some time, but I can offer you a decent price. 
+{@Taryn}    Just a heads up, our Phosphorus will only be offered for a limited time with us! 
+
+{@Ovill}    Do I have an offer for you! Our Phosphorus at Hennig Station comes with rapid production! 
+{@Ovill}    Just a reminder that there is the labor fee, the shipping fee, the buying fee...
+{@Ovill}    All additional fees will be listed on the invoice. 
+
+{@PAL}      Which one will you pick, Captain? 

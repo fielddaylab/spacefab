@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b909cc64f4cfb1b4993be2af5cdfc0f2, type: 3}
-  m_Name: PAL
+  m_Name: Xavier
   m_EditorClassIdentifier: 
-  DisplayName: P.A.L.
+  DisplayName: Xavier
   DialogueTint:
     serializedVersion: 2
-    rgba: 4294639360
-  NonMinigamePortrait: {fileID: 21300000, guid: a1b23a1c26d49074da1d0f1443baede9, type: 3}
-  MinigamePortrait: {fileID: 21300000, guid: 9b5352b068673a14a9f6d8650f416e76, type: 3}
+    rgba: 56575
+  NonMinigamePortrait: {fileID: 21300000, guid: 933d4b0b17109a84cab406ec6f0c192b, type: 3}
+  MinigamePortrait: {fileID: 0}
   CharacterTypeEvent:
     m_HashValue: 2289341433
   DefaultQuip:
-    m_HashValue: 3063412975
+    m_HashValue: 0

@@ -4,13 +4,20 @@
 @trigger    OnContractSelectOpen
 @cutscene
 @once
-{@PAL}      You only have one contract to choose from.
+
+{@PAL}      Welcome to employee Orientation! 
+{@Player}   Wait... don't I own the ship-
+{@PAL}      Irrelevant! To get you strated, we have Frontier Robotics contract for you. 
+{@PAL}      You'll have more in the future, but for now, we will start off with just one. 
 $call   HighlightElement(overarching:costs-section, false, 25, true)
 {@PAL}      It looks like it will take this many days to complete.
 $call   ReleaseAllHighlights()
 $call   HighlightElement(overarching:profit-section, false, 25, true)
 {@PAL}      ...and you'll make this much money if you can deliver.
 $call   ReleaseAllHighlights()
+{@PAL}      Once signed, you're ready to get started!
+{@PAL}      Feel free to go to Research or Design! 
+{@Player}   Guess it's time to get started... 
 $call   HighlightElement(overarching:select-contract-btn)
 $call   UnlockWikiPage("Basic Conductor")
 $call   UnlockWikiPage("Basic Insulator")
@@ -33,3 +40,84 @@ $call   ReleaseAllHighlights()
 {@PAL}       Your station is too slow for supply runs, so you can hire faster ships.
 {@PAL}       The ship fee and materials cost come out of the contract payment.
 {@Player}    Wait, I don’t keep all the money? Better keep costs low.
+
+
+//region Supply Chain - Suppliers
+// NOTE - ask if putting dialogue in Supply Chain interface (incorporating the intro tutorial with suppliers)
+// NOTE - supply dialogue currently sitting on main navigation screen. 
+
+{@PAL}      The next stage is supply chain. This is where you will coordinate with suppliers to purchase materials for fabrication. 
+{@PAL}      We'll go over how to do that in a second, but first, you should meet some of the suppliers.
+
+{@Taryn}    Howdy, I'm Taryn! I'm the head supplier for Kalvis sector! 
+{@Taryn}    Or as you Frontier...iers say CU-652...5... uh...
+{@Taryn}    Whatever million numbers come after that. 
+{@Taryn}    It's a pleasure to meet you! 
+
+{@Player}   Nice to meet you too, Taryn.
+
+{@PAL}      Taryn's one of the independent suppliers in the Ausrine System.
+
+{@Ovill}    Hello!
+{@Ovill}    I'm supplier representative #32-A548 of the Forsch Sector with Frontier Robotics. 
+{@Ovill}    But you can call me Ovill. 
+{@Ovill}    We at Frontier try to bring the most outstanding service to all of our clients!
+{@Ovill}    We offer an exclusive deal on Silicon Oxide shipments I can give you 50% off if you buy two, count em' two full shipments with us! 
+
+{@Player}   Oh... uh I'll let you know if I need that. 
+
+{@PAL}      Ovill is one of our esteemed Frontier Robotics suppliers! When given a chance, I highly encourage working with him. 
+{@PAL}      It does look like the contract asks for a conductor, meaning we should be sourcing copper for this run. 
+{@PAL}      Let's go ahead and show you the ropes! 
+
+// end region
+//region Supply Chain Haulers
+// NOTE - dialogue runs under pre-text that this is in mini-game screen. ]
+// NOTE - Hauler ship is stand-in, subject to change. 
+
+
+{@PAL}      This is the supply chain screen! 
+{@Quinn}    Is... is this thing on?
+{@Player}   Uh... P.A.L? Who's that?
+{@PAL}      Oh! That's your hauler, Quinn! 
+{@Quinn}    Cap', pleasure to make you acquaintance. 
+{@PAL}      Quinn here will be the on piloting your supply ship, The Sphere.
+{@PAL}      They'll be the one following your routes. 
+{@Quinn}    "Follow", more like guide. I never follow the beaten-path. 
+{@Player}   Isn't that... dangerous? 
+{@Quinn}    Wait? Space? Dangerous? Who would've known. 
+{@Quinn}    Don't worry Cap' I'm well verse in hauling. 
+{@Player}   Whatever you say...
+{@PAL}      Now, let's draw some routes. 
+
+//#region - After Supply Chain 
+
+::AfterSupplyChain 
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply)
+@cutscene
+@once
+
+{@PAL}      Great, with the materials arriving, now we can get to work!
+{@Player}   Have we not been working this entire time?
+{@PAL}      We have, but this is where the fun begins!
+
+//#region - Fabrication 
+::AfterFabrication 
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply) IsSolutionFoundFor(Fabrication)
+@cutscene
+@once
+
+{@PAL}      You did it, Captain! Congratulations! 
+{@Player}   Okay... I think I am getting the hang of it. 
+{@PAL}      Positive.Affirmation.exe! 
+{@Player}   What-
+{@PAL}      Now it's time to submit the contract, and then you can do it all over again!
+
+//endregion 
+            
+
+
+
+

@@ -1,0 +1,100 @@
+# basePath Chapter3
+
+:: FirstContractOpenCh3
+@trigger    OnContractSelectOpen
+@cutscene
+@once
+
+{@PAL}      Okey-dokey Captain. 
+{@PAL}      Now, you're going to be working with Diodes! 
+{@Player}   ...
+{@PAL}      Now, diodes can enforce unidirectional current flow and they-
+{@Player}   ... 
+{@PAL}      Uh... Captain? 
+{@Player}   Huh? 
+{@PAL}      I'm talking about the diodes capacity to attenuate high signals and you seem...
+{@PAL}      Unenthused. 
+{@Player}   Sorry, P.A.L., my mind was somewhere else. 
+{@PAL}      Perhaps, it has something to do with your call with your former crew-mate?
+{@Player}   Doesn't matter, anyways, let's just do the contract. 
+{@PAL}      Sounds good Captain! 
+
+//endregion
+
+//region Supply Chain - Hauler
+
+
+::BeforeSupplyChainCh3
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene
+@once 
+
+{@PAL}      Ooooooh Captain! 
+{@Player}   What is it P.A.L.? 
+{@PAL}      I have a suprise for yoouuuu!
+{@Player}   Please don't tell me fabrication is on the fritz again. 
+{@PAL}      No silly! It's a good suprise. 
+{@Joel}     Do I come with in a box and a bow? 
+{@PAL}      Meet our new hauler on the team! Some would even say, a new crewmate! 
+{@Player}   Oh! Nice to meet you... uh.. 
+{@Joel}     Joel's the name! Don't wear it thin like a proto-ship's Interim Cyrogenic Propulsion Stage! 
+{@Player}   Wha- 
+{@PAL}      Hilarious! 
+{@PAL}      Joel's a seasoned veteran, one of the best! And the most comical.  
+{@Quinn}    And so happens to be my Uncle. 
+{@Joel}     Awe, is that my Quinnie?
+{@Quinn}    Uncle Joel! 
+{@Joel}     Hehe, anyways Captain, I'm ready when you are. 
+{@Player}   Glad to have you on the team Joel. 
+{@PAL}      Time to draw some routes!
+
+//region end 
+
+//region SC - Xavier 
+
+{@PAL}      Hey Captain, looks like there's a new supplier available! I'll patch him through. 
+{@Xavier}   ... 
+{@Player}   Uh... hi. 
+{@Xavier}   Hm? Oh. Hello. 
+{@Player}   ...
+{@Xavier}   ...
+{@Player}   So... are you the supplier or-- 
+{@Xavier}   Of course I'm the suppplier. Isn't that obvious? 
+{@Player}   Oh, uh it's just... who are you...?
+{@Xavier}   I sent a memo. Instructions are in there. 
+{@Player}   A... wha- 
+{@Xavier}   Oh Dear Sol. I'm Xavier. Supplier contact for the Ralston sector.
+{@Xavier}   Planet of Gold and Golden Opportunities. 
+{@Xavier}   Any and all materials within this sector goes through me. Capiche? 
+{@Player}   Capiche...
+{@Xavier}   Now. Let's talk business. You need material. I have it. You let me know what you want, I'll have it stat. 
+{@Player}   Uh... well... I'll let you know. 
+{@Xavier}   Hmph. Fine. Call me back when you grow a brain and are ready to beat that debt. 
+
+//endregion 
+
+//#region SC - Callie 
+
+{@Callie}   A'hoy! I see a Frontier ship is interested in business... how scandalous. 
+{@Player}   Uh... you're the one who called me. 
+{@Callie}   Oh... regardless, be blessed in my presence mere corpo-lackey! Or as I like to call ye, Clackey!
+{@Callie}   For it is, I, Callie Lee!
+{@Player}   ...
+{@Callie}   The Boron Space Pirate Queen of Velos Station! 
+{@Player}   Is... is that supposed to mean something? 
+{@Callie}   Seriously? You... you've never heard of me? 
+{@Callie}   The great revolt of the Velos Penal Station...
+{@Callie}   The biggest forms of revolt ever seen in all of Ausrine...? 
+{@Callie}   We control the Velos sector. 
+{@Player}   ... I haven't left the ship in a while. 
+{@Callie}   I see... well listen mate, this space if filled with opportunity.
+{@Callie}   Opportunity that Frontier continues to squander. 
+{@Player}   Do you have a problem with Frontier?
+{@Callie}   Everyone does! Or everyone should. Regardless, any Frontier ships are marked for pillaging!
+{@Callie}   However, if you do continued business with us... 
+{@Callie}   We may... avert our attention elsewhere. 
+{@Player}   That sounds illegal. 
+{@Callie}   Illegal schmegal, sometimes bending rules is the only rules you can follow. 
+{@Callie}   Holler if you need some goods, Clackey. 
+{@Player}   Don't call me that- aaaand she hung up. 

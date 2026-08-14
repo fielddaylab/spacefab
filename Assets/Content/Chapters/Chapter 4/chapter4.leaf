@@ -1,0 +1,36 @@
+# basePath Chapter4
+
+::FirstContractOpenCh4 
+@trigger    OnContractSelectOpen
+@cutscene
+@once 
+
+{@PAL}      What a fun game of cards! 
+{@PAL}      As they say: Work Hard, Play when contractually convenient to your employer!
+{@Player}   That's not the saying. 
+{@PAL}      Moving on! Captain, I have another suprise for you! 
+{@Player}   Another crew-mate, wait... finally someone else on the ship??
+{@PAL}      No! 
+{@Player}   Oh.
+{@PAL}      Instead of one contract, you now have... two!
+{@PAL}      Congratulations on achieving agency Captain! 
+{@Player}   ...thanks P.A.L. 
+{@PAL}      One that is simple, the other contract is a bit more complex. 
+{@PAL}      They also have different contractors. One is an independent contract, the other is a Frontier contract. 
+{@PAL}      You decide, but remember, Frontier Robotics is your best friend! 
+
+
+:: BeforeSupplyChainCh4
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene
+@once 
+
+{@PAL}      It appears you have a message Captain from the Cu-6529
+{@Taryn}    *Automated Message* Hi Locke! 
+{@Taryn}    Just a heads up that our Phosphorus production has shut-down for the next few cycles. 
+{@Taryn}    We're taking time to celebrate the Kalvis Festival! 
+{@Taryn}    All other materials in our sector will be available, but they may take some time. 
+{@Taryn}    See you soon, and if you can, you should come planet-side and check the festival out! 
+{@Player}   Festival? Is that what Blaze was talking about? 
+{@PAL}      
