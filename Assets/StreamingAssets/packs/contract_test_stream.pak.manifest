@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3026638891
+CRC: 1978208469
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 4a456f3ccde61e30d50da51ad40573b5
+    Hash: d455f7f63c9e60fe0f3c391d265c1334
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 28507015773b4453a7d141382055e40b
+    Hash: 9e1fd58ea84b843212e464c3c5849a91
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 4a456f3ccde61e30d50da51ad40573b5
+    Hash: d455f7f63c9e60fe0f3c391d265c1334
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -20,8 +20,6 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 2613736b2e35237448e4a0f57709855d, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d7de82cf62335d041bae34db3ff1041f, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: bb0260a7392db7742baaf91a4a9be63b, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
 - Class: 114
@@ -41,10 +39,6 @@ SerializeReferenceClassIdentifiers:
   ClassName: SpaceFab.Design.TestData
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.TestEntry
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Fabrication.Sequence.FabricationStep
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Fabrication.WaferSnapshot
 Assets:
-- Assets/Content/Contracts/Test Chapter Contracts/Contract_Test/Assets/Contract_Test_Stream.asset
+- Assets/Content/Contracts/Test Contract/Assets/Contract_Test_Stream.asset
 Dependencies: []
