@@ -18,14 +18,14 @@ MonoBehaviour:
   - m_HashValue: 4220770417
   AvailableMaterials:
   - m_HashValue: 3821421172
+  - m_HashValue: 541320182
   - m_HashValue: 1821685427
-  - m_HashValue: 2571817723
-  - m_HashValue: 2929137943
+  - m_HashValue: 3317014541
   - m_HashValue: 1163381446
   - m_HashValue: 466928580
-  - m_HashValue: 541320182
   - m_HashValue: 336354447
-  - m_HashValue: 3317014541
+  - m_HashValue: 2571817723
+  - m_HashValue: 2929137943
   ExcludeFromResearch:
   - m_HashValue: 1163381446
   Script: {fileID: -1942890987711236906, guid: f27f33d6226cbb348947e4ffdd6436b1, type: 3}
