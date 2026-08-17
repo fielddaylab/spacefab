@@ -1542,7 +1542,6 @@ GameObject:
   - component: {fileID: 1076508057}
   - component: {fileID: 1076508056}
   - component: {fileID: 1076508058}
-  - component: {fileID: 1076508059}
   m_Layer: 0
   m_Name: Design Assets
   m_TagString: Untagged
@@ -1596,18 +1595,6 @@ MonoBehaviour:
     m_HashValue: 1636449966
   PlaylistId:
     m_HashValue: 0
---- !u!114 &1076508059
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1076508055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cb87c5005e77d041b90371cabfaea95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!43 &1209063521
 Mesh:
   m_ObjectHideFlags: 0
@@ -1837,7 +1824,7 @@ Transform:
   - {fileID: 881779355}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &1425640489
+--- !u!43 &1357578486
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
