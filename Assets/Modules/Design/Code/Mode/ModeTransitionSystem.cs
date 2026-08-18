@@ -1,6 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
+using UnityEngine;
 
 namespace SpaceFab.Design
 {
@@ -143,6 +144,7 @@ namespace SpaceFab.Design
         // it next frame, which selects the clicked tool with no extra click routing.
         static private void ExitSimulateMode(ModeTransitionState modeState, SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, DesignMinigameState designState)
         {
+            Debug.Log("<color=red>Exit simulate mode</color>");
             // Shared sim-state wipe: bump flow stamp, clear node transients, mark visuals dirty,
             // park Phase at Idle, flag run-button repaint. In toggle-input mode, verdicts persist
             // through this path (only grid edits clear them) — designState gates that.

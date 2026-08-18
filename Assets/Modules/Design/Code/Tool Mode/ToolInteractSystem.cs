@@ -308,6 +308,7 @@ namespace SpaceFab.Design {
                     // only relevant if the occupied cell is a p-transistor and not pre-assigned
                     if (cell.CellType == CellType.PTransistor && cell.NodeEraseable) {
                         cell.CellType = CellType.NTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                         // note: preserves edge connections
                     }
                     break;
@@ -315,6 +316,7 @@ namespace SpaceFab.Design {
                     // only relevant if the occupied cell is a n-transistor and not pre-assigned
                     if (cell.CellType == CellType.NTransistor && cell.NodeEraseable) {
                         cell.CellType = CellType.PTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                         // note: preserves edge connections
                     }
                     break;

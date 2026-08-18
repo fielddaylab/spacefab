@@ -27,15 +27,13 @@ namespace SpaceFab.Design
         // update: also increments a fill bar and replaces outputs once complete
         static private void ProcessWork(float deltaTime)
         {
-            
             Find.State(
                 out ContractState contractState
                 );
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            
-            
+
             Find.State(out SimulateUIState uiState, out ResultState resultState);
 
             if (!uiState.VerdictsNeedRefreshing) { return; }
