@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Variants;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
@@ -84,6 +85,7 @@ namespace SpaceFab.Research {
                     viewModelDirty = true;
                     ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
                 }
+                ScriptUtility.WriteVariable(new TableKeyPair("research", "observationId"), inputState.ChipPickerSelectionLabel.ToString());
             }
 
             // Remove path: slot index → (label, context) via the

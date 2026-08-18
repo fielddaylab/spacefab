@@ -1,6 +1,7 @@
+using BeauUtil.Variants;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
-using UnityEngine;
 
 namespace SpaceFab.Research
 {
@@ -71,6 +72,9 @@ namespace SpaceFab.Research
             ResearchSlotUtility.FillInSlot(interfacer, ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
+
+            ScriptUtility.WriteVariable(new TableKeyPair("research", "chamberId"), activeChamber.ToString());
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnChamberSwitched);
 
             interfacer.ActiveChamberChangedThisFrame = false;
         }
