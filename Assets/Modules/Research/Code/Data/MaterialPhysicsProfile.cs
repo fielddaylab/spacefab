@@ -63,10 +63,11 @@ namespace SpaceFab.Research
             {
                 conduction *= 1.5f;
             }
+
             float thermal = 1f + temperature * (profile.ThermalMultiplier - 1f);
 
-            Debug.Log($"GetCurrent: voltage={voltage}, temperature={temperature}, conduction={conduction}, current={voltage * thermal * conduction}");
-            return voltage * thermal * conduction;
+            Debug.Log($"GetCurrent: conduction multiplier={conduction}, thermal multiplier={thermal}, current={voltage * thermal * thermal * conduction}");
+            return voltage * thermal * thermal * conduction;
         }
 
         // True if the material is stable at the given voltage. Battery
