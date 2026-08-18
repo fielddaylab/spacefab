@@ -78,12 +78,20 @@ namespace SpaceFab.Research {
 
                     if (ResearchInventoryUtility.AddObservation(researchState, secondarySlottedId, inputState.ChipPickerSelectionLabel, slottedId)) {
                         viewModelDirty = true;
-                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                        using (var table = TempVarTable.Alloc())
+                        {
+                            table.Set("observationId", inputState.ChipPickerSelectionLabel.ToString().ToLower());
+                            ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
+                        }
                     }
                 }
                 else if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
                     viewModelDirty = true;
-                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                    using (var table = TempVarTable.Alloc())
+                    {
+                        table.Set("observationId", inputState.ChipPickerSelectionLabel.ToString().ToLower());
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
+                    }
                 }
                 ScriptUtility.WriteVariable(new TableKeyPair("research", "observationId"), inputState.ChipPickerSelectionLabel.ToString());
             }

@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
@@ -121,6 +122,12 @@ namespace SpaceFab.Research {
                     viewModelState.HypothesisSelected = true;
                     viewModelState.HypothesisLabel = label;
                     viewModelState.HypothesisContext = context;
+
+                    using (var table = TempVarTable.Alloc())
+                    {
+                        table.Set("propertyId", label.ToString().ToLower());
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyAdded, table);
+                    }
                 }
             }
 
