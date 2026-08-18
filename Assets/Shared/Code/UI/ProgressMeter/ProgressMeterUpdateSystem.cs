@@ -36,21 +36,14 @@ namespace SpaceFab {
 
             // Drain the dirty flag by pushing state into the view.
             if (meterState.NeedsRefresh) {
-                ProgressMeterUtility.SetCurrentDay(meterState, progressState.ElapsedCycles);
-
                 // Update pending cycles
                 int numPendingCycles = ProgressMeterUtility.CalculatePendingCycleCells(meterState.ActiveMeter, saveStates);
                 int fabCycles = Mathf.Max(0, saveStates.Fabrication.FinalizedTotalCycles);
                 int filledEnd = progressState.ElapsedCycles + fabCycles;
+
                 int pendingEnd = progressState.ElapsedCycles + Mathf.Max(fabCycles, numPendingCycles);
 
-                for (int i = progressState.ElapsedCycles; i < filledEnd; i++)
-                {
-                    ProgressMeterUtility.SetCycleCellState(meterState, i, CycleCellState.FILLED);
-                }
-
-                // 
-                for (int i = filledEnd; i < pendingEnd; i++)
+                for (int i = progressState.ElapsedCycles; i < pendingEnd; i++)
                 {
                     ProgressMeterUtility.SetCycleCellState(meterState, i, CycleCellState.PENDING);
                 }
@@ -80,6 +73,7 @@ namespace SpaceFab {
                 }
 
                 // apply visual refresh
+                ProgressMeterUtility.EnsureCellsBound(meterState.ActiveMeter);
                 ProgressMeterUtility.RefreshVisuals(meterState.ActiveMeter, meterState);
                 meterState.NeedsRefresh = false;
             }
