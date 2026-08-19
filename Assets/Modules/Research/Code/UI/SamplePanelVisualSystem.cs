@@ -218,7 +218,7 @@ namespace SpaceFab.Research {
             panel.HypothesisChip.gameObject.SetActive(true);
             bool hypoFilled = hypoVm.HypothesisSelected;
             string hypoLabel = null;
-            ObservationType hypoType = default;
+            ObservationType hypoType = ObservationType.Component;
             if (hypoFilled) {
                 MaterialPropertyLabel hypo = hypoVm.HypothesisLabel;
                 hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
