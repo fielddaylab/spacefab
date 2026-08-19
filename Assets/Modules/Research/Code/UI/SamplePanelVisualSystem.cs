@@ -169,9 +169,11 @@ namespace SpaceFab.Research {
                 panel.SampleSprite.sprite = targetMaterial.GemSprite;
                 if (known) {
                     panel.SampleLabel.text = targetMaterial.ShortName;
+                    panel.SampleLabelBG.color = Color.black;
                 } else {
                     //int sampleNumber = view != null ? view.SampleNumber : 0;
-                    panel.SampleLabel.text = view != null ? view.SampleLabel : "Z"; // z as fallback
+                    panel.SampleLabel.text = view != null ? view.SampleLabel : "0"; // 0 as fallback
+                    panel.SampleLabelBG.color = Color.gray; // gray out unknown sample label
                 }
 
                 // Set the substrate label and sprite if currently on doping chamber
