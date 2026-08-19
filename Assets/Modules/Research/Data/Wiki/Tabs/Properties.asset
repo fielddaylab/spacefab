@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 36fabafaf51e5ce47abdfc28005f7b8b, type: 3}
-  m_Name: Material Properties_Tab
+  m_Name: Properties
   m_EditorClassIdentifier: 
-  m_Title: Material Properties
+  m_Title: Properties
   m_Icon: {fileID: 21300000, guid: d64bd05b2970ab041a992fe16a4eca82, type: 3}
   m_Pages:
   - {fileID: 11400000, guid: 3c1f8a4e26b04d1f9a7c5e08d4b21f60, type: 2}
