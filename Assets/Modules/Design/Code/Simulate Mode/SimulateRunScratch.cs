@@ -28,14 +28,14 @@ namespace SpaceFab.Design
         // Indexed by crucialIdx (0..graphState.NodeCount). Cleared to Empty at the top of each
         // test via Array.Clear — NodeCount is small (tens), so the clear is cheap.
 
-        [HideInInspector] public FlowState[] NodeFlow;
+        [NonSerialized] public FlowState[] NodeFlow;
 
         // ---- Per-crucial-node transient P↔N inversion (replaces CrucialGraphNode.TempTransformedType) ----
         //
         // Indexed by crucialIdx. Only meaningful for cells whose CellType is NTransistor or
         // PTransistor; reads for other types are benign (return CellType.NONE).
 
-        [HideInInspector] public CellType[] NodeTempTransform;
+        [NonSerialized] public CellType[] NodeTempTransform;
 
         // ---- Per-crucial-node input values for the current test (replaces per-edge GetTestValBySubType) ----
         //
@@ -43,7 +43,7 @@ namespace SpaceFab.Design
         // looking up their expected value from TestData. Read by DepthStepSystem at Input-origin
         // edges. Non-Input entries are unused.
 
-        [HideInInspector] public FlowState[] InputFlowByNode;
+        [NonSerialized] public FlowState[] InputFlowByNode;
 
         // ---- Per-cell flow (replaces GridCell.FlowState writes) ----
         //
@@ -56,9 +56,9 @@ namespace SpaceFab.Design
         // Reads go through SimulateRunScratchUtility.GetCellFlow which compares the per-cell
         // stamp against CurrentFlowStamp and returns Empty on mismatch.
 
-        [HideInInspector] public FlowState[] CellFlow;
-        [HideInInspector] public int[] CellFlowStamps;
-        [HideInInspector] public int CurrentFlowStamp;
+        [NonSerialized] public FlowState[] CellFlow;
+        [NonSerialized] public int[] CellFlowStamps;
+        [NonSerialized] public int CurrentFlowStamp;
 
         // ---- Per-cell temp-transform (replaces GridCell.TempTransformation writes) ----
         //
@@ -67,8 +67,8 @@ namespace SpaceFab.Design
         // be on any path, so it shouldn't validate that cell's flow stamp. With separate
         // stamp arrays, writing temp-transform only validates temp-transform reads.
 
-        [HideInInspector] public CellType[] CellTempTransform;
-        [HideInInspector] public int[] CellTempTransformStamps;
+        [NonSerialized] public CellType[] CellTempTransform;
+        [NonSerialized] public int[] CellTempTransformStamps;
 
         // ---- Output flow buffer (pooled, reused across all rows) ----
         //
@@ -77,8 +77,8 @@ namespace SpaceFab.Design
         // Simulate-mode entry and never resized — the output set is a property of the level,
         // not the row.
 
-        [HideInInspector] public FlowState[] OutputFlowBuffer;
-        [HideInInspector] public int OutputCount;
+        [NonSerialized] public FlowState[] OutputFlowBuffer;
+        [NonSerialized] public int OutputCount;
 
         // ---- Per-test flag set by DepthStepSystem, consumed by ProcessResolvingTest ----
         //
@@ -86,7 +86,7 @@ namespace SpaceFab.Design
         // has SimulateRunScratch in its permissions and this avoids broadening to RunState just
         // to flip one bool.
 
-        [HideInInspector] public bool IsUnstable;
+        [NonSerialized] public bool IsUnstable;
 
         public void OnRegister()
         {
