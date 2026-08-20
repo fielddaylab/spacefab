@@ -37,6 +37,8 @@ namespace SpaceFab.Design.Visuals
         [Header("IO")]
         public Sprite IOInner;
         public Sprite IOOuter;
+        public Sprite InputConstantHigh;
+        public Sprite InputConstantLow;
 
         [Header("Flow")]
         public Sprite FlowHiAbove;

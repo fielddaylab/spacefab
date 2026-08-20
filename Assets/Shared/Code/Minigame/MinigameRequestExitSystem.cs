@@ -53,11 +53,11 @@ namespace SpaceFab {
 
         static private bool DisplayLeavePopup(MinigameId minigame) {
             PopupRequestContent request = default;
-            request.Header = "Leave Game?";
+            request.Header = "Return to Ship?";
             request.Callback = OnLeavePopupSelected;
 
             request.ButtonA = new PopupRequestButton() {
-                Label = "Leave Game",
+                Label = "Return to Ship",
                 ResponseId = "Yes",
                 Tint = new ColorPalette2(Color.black, new Color32(255, 137, 137, 255))
             };

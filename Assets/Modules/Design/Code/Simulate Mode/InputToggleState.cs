@@ -383,13 +383,19 @@ namespace SpaceFab.Design
                         // top layer, but we don't override here to keep the asset side authoritative.
                         overlay.transform.position = visualCell.transform.position;
 
-                        ApplyOverlayCommonVisuals(overlay, spriteDB);
-                        ApplyOverlaySubtypeLabel(overlay, cell.SubtypeLabel);
+                        // Exclude constant hi/lo inputs visual renders as their visuals are updated in
+                        // VisualGridCell with different visual designs.
+                        if (cell.SubtypeLabel != InputOutputNodeTypeFlags.VPLUS && cell.SubtypeLabel != InputOutputNodeTypeFlags.VMINUS)
+                        {
+                            ApplyOverlayCommonVisuals(overlay, spriteDB);
+                            ApplyOverlaySubtypeLabel(overlay, cell.SubtypeLabel);
 
-                        overlay.CellIndex = SimulateRunScratchUtility.CellIndex(layer, col, row, numCols, cellsPerLayer);
-                        overlay.CellIndexStamped = true;
 
-                        pools.ActiveInputToggleOverlays.Add(overlay);
+                            overlay.CellIndex = SimulateRunScratchUtility.CellIndex(layer, col, row, numCols, cellsPerLayer);
+                            overlay.CellIndexStamped = true;
+
+                            pools.ActiveInputToggleOverlays.Add(overlay);
+                        }
                     }
                 }
             }
