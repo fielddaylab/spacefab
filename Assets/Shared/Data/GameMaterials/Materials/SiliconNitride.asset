@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: Silicon Nitride
   ShortName: Si3N4
-  GemSprite: {fileID: 21300000, guid: bfc7d0965e7fd4d97aef1a80a5abd58e, type: 3}
+  GemSprite: {fileID: 21300000, guid: 2334a30d642b8734d9a1e61169ea4ca6, type: 3}
   ConstituentElementNames:
   - Si
   - N

@@ -171,6 +171,20 @@ namespace SpaceFab.Design
                     break;
             }
 
+            switch (cellData.SubtypeLabel)
+            {
+                case InputOutputNodeTypeFlags.VPLUS:
+                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                    visualCell.SubRenderer.sprite = spriteDB.InputConstantHigh;
+                    break;
+                case InputOutputNodeTypeFlags.VMINUS:
+                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                    visualCell.SubRenderer.sprite = spriteDB.InputConstantLow;
+                    break;
+                default:
+                    break;
+            }
+
             // Reset
             visualCell.TransferRenderer.sprite = null;
             visualCell.SecondaryTransferRenderer.sprite = null;
