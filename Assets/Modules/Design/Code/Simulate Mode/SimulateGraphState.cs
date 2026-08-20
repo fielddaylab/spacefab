@@ -984,7 +984,10 @@ namespace SpaceFab.Design
             else
             {
                 // Normal crucial-to-crucial hop. No gate dependency.
-                EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
+                if (reachedCell.CellType != CellType.Output)
+                {
+                    EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
+                }
                 AppendEdge(scratch, edge);
             }
         }
