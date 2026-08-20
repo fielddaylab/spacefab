@@ -46,12 +46,19 @@ namespace SpaceFab.Design
         [HideInInspector] public int WorkHead;
         [HideInInspector] public int WorkTail;
 
-        // ---- DFS visit stamps (O(1) reset replacement for a bool[] + ResetAllVisited) ----
+        // ---- DFS visit stamps (O(1) reset replacement for a bool[]) ----
         //
         // Instead of clearing a bool[cellCount] between DFS runs, we bump CurrentVisitStamp and
         // consider a cell visited iff VisitStamps[cellIdx] == CurrentVisitStamp. Clearing is a
         // single int increment, not a loop over every cell. Wraparound is a theoretical concern
         // but would require running billions of DFS passes in one Build — not a real risk here.
+        //
+        // The stamp is bumped once per crucial node DEQUEUED in Pass 2, so visited is scoped to
+        // a single origin's sweep. It is deliberately NOT shared across a depth layer: sharing
+        // lets whichever node is dequeued first claim a shared metal region, and every other
+        // crucial node on that region then finds its first neighbour stamped and emits no edge
+        // into it at all. Per-origin scoping is also what makes CrucialNode.EvalDepth come out
+        // as the exact hop distance from the Input set.
 
         [HideInInspector] public int[] VisitStamps;
         [HideInInspector] public int CurrentVisitStamp;
@@ -87,6 +94,11 @@ namespace SpaceFab.Design
         // we defer emitting that edge until the dependency is satisfied. Each postponement
         // records (dependentOriginCrucialIdx, dependencyGateBelowCrucialIdx) — two ints per
         // pair, packed into a single array to avoid allocating a 2-int struct.
+        //
+        // BOTH slots are read when a postponement resolves. Slot 0 (the origin) is what gets
+        // re-enqueued a depth deeper, because only the origin's sweep can emit the edge it
+        // deferred. Slot 1 (the gate-below) is what carries AwaitingDependency /
+        // DisallowAdditionalDep and locates the matching gate-above.
         //
         // PostponedCount is the number of PAIRS, not the number of ints. Total ints = 2 * count.
 

@@ -1,6 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
+using UnityEngine;
 
 namespace SpaceFab.Design
 {
@@ -9,7 +10,8 @@ namespace SpaceFab.Design
     /// PaintDepthThisFrame = true and the phase is Propagating. Walks the edges in OrderedEdges
     /// at runState.CurrentDepth, computes flow per edge (diode gating, gate-above inversion,
     /// cycle handling), and writes FlowState / TempTransformation onto GridCells along each
-    /// edge's path. Does not tick time or manage phase.
+    /// edge's path. On the final depth it also settles the whole edge list to a fixed point
+    /// before the row is scored. Does not tick time or manage phase.
     /// Runs on Update at order 2 under SimulateModeMask.
     /// </summary>
     public class DepthStepSystem : SystemComponent
@@ -43,6 +45,10 @@ namespace SpaceFab.Design
         //      is marked CycleDetected by the graph-build cycle-detection pass.
         //   5. Apply. Write the resulting flow into runScratch.NodeFlow[OtherIndex] and paint
         //      every path cell via SimulateRunScratchUtility.SetCellFlow.
+        //
+        // On the last depth, RunConvergenceSweeps then drives the full edge list to a fixed
+        // point so a driver that arrived late still propagates. That settling is instantaneous —
+        // it shares this frame with the final depth's paint rather than adding a phase.
         //
         // One VisualsNeedRefreshing write at the end covers the whole depth's worth of paints;
         // GridVisualsUpdateSystem handles the actual renderer update in LateUpdate.
@@ -80,6 +86,14 @@ namespace SpaceFab.Design
                 ProcessEdge(graphState.OrderedEdges[e], runState, runScratch, graphState, gridStackState, numCols, cellsPerLayer);
             }
 
+            // The depth walk has now visited every edge exactly once, in depth order. Settle the
+            // result before the row is scored — see RunConvergenceSweeps for why one ordered pass
+            // isn't enough.
+            if (currDepth == graphState.MaxDepth)
+            {
+                RunConvergenceSweeps(runState, runScratch, graphState, gridStackState, numCols, cellsPerLayer);
+            }
+
             // Paint connected cells that lie on no crucial-to-crucial path (dead-end "stub"
             // branches). Each such cell mirrors the resolved flow of its representative crucial
             // cell (assigned in SimulateGraphUtility Pass 6, never crossing a P-N boundary). A
@@ -101,10 +115,51 @@ namespace SpaceFab.Design
             visualState.VisualsNeedRefreshing = true;
         }
 
+        // Re-runs every edge until no per-node value changes, then leaves the graph settled.
+        //
+        // Why one depth-ordered pass isn't enough: a node's outgoing edges are stamped with the
+        // depth at which the node was DISCOVERED. A second driver that reaches that node later
+        // writes its flow after those outgoing edges have already been evaluated, so the
+        // contribution stops dead. Iterating to a fixed point makes the settled result
+        // independent of both depth assignment and edge order within a depth: two drivers on one
+        // region either agree or resolve Unstable, no matter which branch is shorter.
+        //
+        // Terminates because NodeFlow only ever moves Empty → value → Unstable and
+        // NodeTempTransform only NONE → the one polarity its physical cell type admits: three
+        // state advances per node at worst, and a sweep that changes nothing ends the loop. That
+        // monotonicity is load-bearing — it is why step 4 of ProcessEdge compares against the
+        // incoming flowState rather than NodeFlow[OriginIndex]. In practice one sweep over the
+        // whole edge list settles most of the graph, so the realistic count is one or two; the
+        // cap exists to catch a future rule change that breaks monotonicity rather than hang.
+        static private void RunConvergenceSweeps(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, GridStackState gridStackState, int numCols, int cellsPerLayer)
+        {
+            int maxSweeps = 3 * graphState.NodeCount + 1;
+
+            for (int sweep = 0; sweep < maxSweeps; sweep++)
+            {
+                bool changed = false;
+                for (int e = 0; e < graphState.EdgeCount; e++)
+                {
+                    // Deliberately not short-circuiting: every edge must run every sweep.
+                    changed |= ProcessEdge(graphState.OrderedEdges[e], runState, runScratch, graphState, gridStackState, numCols, cellsPerLayer);
+                }
+
+                if (!changed) { return; }
+            }
+
+            Debug.LogWarning("[DepthStepSystem] convergence sweeps hit the " + maxSweeps + " iteration cap; flow may not be settled");
+        }
+
         // Process a single crucial edge. Splits out from ProcessWork so the inner branches can
         // be read top-to-bottom without the surrounding loop noise.
-        static private void ProcessEdge(CrucialEdge edge, SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, GridStackState gridStackState, int numCols, int cellsPerLayer)
+        //
+        // Returns true if it changed any per-node value (NodeFlow or NodeTempTransform). That's
+        // what RunConvergenceSweeps tests for a fixed point; per-cell paints are derived from
+        // those values, so they settle once the node values do.
+        static private bool ProcessEdge(CrucialEdge edge, SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, GridStackState gridStackState, int numCols, int cellsPerLayer)
         {
+            bool changed = false;
+
             CrucialNode originNode = graphState.CrucialNodes[edge.OriginIndex];
             CrucialNode destNode = graphState.CrucialNodes[edge.OtherIndex];
             GridCell originCell = GridStackUtility.GetCellDirect(gridStackState, originNode.Coord);
@@ -171,9 +226,10 @@ namespace SpaceFab.Design
 
                 if (newTransform != CellType.NONE)
                 {
-                    if (belowCrucialIdx >= 0)
+                    if (belowCrucialIdx >= 0 && runScratch.NodeTempTransform[belowCrucialIdx] != newTransform)
                     {
                         runScratch.NodeTempTransform[belowCrucialIdx] = newTransform;
+                        changed = true;
                     }
                     SimulateRunScratchUtility.SetCellTempTransform(runScratch, belowCellIdx, newTransform);
                 }
@@ -184,30 +240,50 @@ namespace SpaceFab.Design
             // If the destination already has a non-empty flow from a prior edge this test AND
             // the incoming flow is also non-empty, the two must match. Mismatch = unstable.
             // Additionally flag as unstable if the edge is part of a detected cycle.
+            //
+            // Compares the incoming flowState, not NodeFlow[OriginIndex]. For a non-Input origin
+            // the two are the same value. For an Input origin NodeFlow is never written, so
+            // reading it would skip this check entirely — an Input could then overwrite a
+            // destination another driver had already resolved, letting two conflicting drivers
+            // trade the same node back and forth on every convergence sweep instead of settling
+            // on Unstable. Making the comparison against flowState is also what lets two Inputs
+            // shorted to one node register as unstable at all.
             if (runScratch.NodeFlow[edge.OtherIndex] != FlowState.Empty
-                && runScratch.NodeFlow[edge.OriginIndex] != FlowState.Empty)
+                && flowState != FlowState.Empty)
             {
-                stable = runScratch.NodeFlow[edge.OriginIndex] == runScratch.NodeFlow[edge.OtherIndex];
+                stable = flowState == runScratch.NodeFlow[edge.OtherIndex];
             }
             if (edge.CycleDetected) { stable = false; }
 
             // --- Step 5: apply flow + path paint --------------------------------------------
-            if (!flowThrough) { return; }
+            if (!flowThrough) { return changed; }
 
             if (!stable)
             {
-                runScratch.NodeFlow[edge.OriginIndex] = FlowState.Unstable;
-                runScratch.NodeFlow[edge.OtherIndex] = FlowState.Unstable;
+                if (runScratch.NodeFlow[edge.OriginIndex] != FlowState.Unstable)
+                {
+                    runScratch.NodeFlow[edge.OriginIndex] = FlowState.Unstable;
+                    changed = true;
+                }
+                if (runScratch.NodeFlow[edge.OtherIndex] != FlowState.Unstable)
+                {
+                    runScratch.NodeFlow[edge.OtherIndex] = FlowState.Unstable;
+                    changed = true;
+                }
                 flowState = FlowState.Unstable;
                 runState.IsUnstable = true;
                 runScratch.IsUnstable = true;
             }
 
-            if (flowState == FlowState.Empty) { return; }
+            if (flowState == FlowState.Empty) { return changed; }
 
             // Write dest node's flow. Origin node's flow stays as-is — only writes when
             // stability forced Unstable above (handled by the `if (!stable)` branch).
-            runScratch.NodeFlow[edge.OtherIndex] = flowState;
+            if (runScratch.NodeFlow[edge.OtherIndex] != flowState)
+            {
+                runScratch.NodeFlow[edge.OtherIndex] = flowState;
+                changed = true;
+            }
 
             // Paint every path cell with this flow. Path cells span origin → dest (inclusive).
             int pathStart = edge.PathStart;
@@ -217,6 +293,8 @@ namespace SpaceFab.Design
                 int cellIdx = graphState.PathPool[p];
                 SimulateRunScratchUtility.SetCellFlow(runScratch, cellIdx, flowState);
             }
+
+            return changed;
         }
 
         // True if the cell type is one of the two transistor polarities.

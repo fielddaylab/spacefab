@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using System;
+using System.Text;
 using UnityEngine;
 
 namespace SpaceFab.Design
@@ -57,6 +58,9 @@ namespace SpaceFab.Design
     /// </summary>
     public class SimulateGraphState : SharedStateComponent, IRegistrationCallbacks
     {
+        // Tick in the inspector to have Build dump the node + edge table to the console.
+        public bool LogGraphOnBuild;
+
         [HideInInspector] public bool IsBuilt;
 
         // Node table: 0..NodeCount-1 are valid. Array is sized to an upper bound (cellCount) and
@@ -127,8 +131,12 @@ namespace SpaceFab.Design
         // Initial capacity heuristics. Grids with more cells or more complex routing may grow
         // these at runtime — each growth emits a Debug.LogWarning so we can tune capacities
         // once representative levels exist.
-        private const int InitialEdgesPerCell = 4;
-        private const int InitialPathEntriesPerCell = 4;
+        //
+        // Sized for the per-origin sweep in Pass 2: a region carrying k crucial nodes produces
+        // up to k(k-1)/2 edges rather than k-1, and each of those carries a path slice that can
+        // span the region.
+        private const int InitialEdgesPerCell = 8;
+        private const int InitialPathEntriesPerCell = 16;
 
         // Invalidates the cached graph. Called by ModeTransitionSystem on Simulate-mode exit.
         // Does NOT touch the arrays — keeping them alive is the whole reason this system is
@@ -172,6 +180,48 @@ namespace SpaceFab.Design
             Pass4_DetectCycles(graphState, scratch);
             Pass6_AssignFlowRepresentatives(graphState, scratch, gridStackState, numCols, cellsPerLayer, cellCount);
             Pass5_Finalize(graphState, maxDepth);
+
+            if (graphState.LogGraphOnBuild)
+            {
+                LogGraph(graphState, gridStackState);
+            }
+        }
+
+        // Dumps the built graph to the console. Each edge prints as origin → dest with the depth
+        // it will be evaluated at, so a cell that never lights can be traced to either a missing
+        // edge or an edge whose origin never carried flow.
+        private static void LogGraph(SimulateGraphState graphState, GridStackState gridStackState)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[SimulateGraphUtility] nodes=").Append(graphState.NodeCount)
+                .Append(" edges=").Append(graphState.EdgeCount)
+                .Append(" maxDepth=").Append(graphState.MaxDepth)
+                .Append(" pathPoolUsed=").Append(graphState.PathPoolUsed);
+
+            for (int e = 0; e < graphState.EdgeCount; e++)
+            {
+                CrucialEdge edge = graphState.OrderedEdges[e];
+                sb.AppendLine();
+                AppendNodeLabel(sb, graphState, gridStackState, edge.OriginIndex);
+                sb.Append(" -> ");
+                AppendNodeLabel(sb, graphState, gridStackState, edge.OtherIndex);
+                sb.Append("  depth=").Append(edge.EvalDepth)
+                    .Append(" pathLen=").Append(edge.PathLength);
+                if (edge.CycleDetected) { sb.Append(" CYCLE"); }
+            }
+
+            Debug.Log(sb.ToString());
+        }
+
+        // "L0C3R1(Metal/Via)" — enough to find the cell on the grid and tell why it's crucial.
+        private static void AppendNodeLabel(StringBuilder sb, SimulateGraphState graphState, GridStackState gridStackState, int crucialIdx)
+        {
+            GridCoord coord = graphState.CrucialNodes[crucialIdx].Coord;
+            GridCell cell = GridStackUtility.GetCellDirect(gridStackState, coord);
+            sb.Append('L').Append(coord.Layer)
+                .Append('C').Append(coord.Col)
+                .Append('R').Append(coord.Row)
+                .Append('(').Append(cell.CellType).Append('/').Append(cell.TransferType).Append(')');
         }
 
         #region Pass 0
@@ -345,7 +395,7 @@ namespace SpaceFab.Design
                             // and gets its real EvalDepth assigned at discovery time.
                             if (cell.CellType == CellType.Input)
                             {
-                                scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+                                PushWork(scratch, crucialIdx);
                             }
                         }
 
@@ -401,18 +451,24 @@ namespace SpaceFab.Design
         //
         //   outer BFS loop:
         //     dequeue currCrucialIdx from WorkQueue
-        //     if its EvalDepth differs from prior depth, bump CurrentVisitStamp (new layer)
+        //     bump CurrentVisitStamp so this origin sweeps a clean visited set
         //     for each outgoing neighbor of currCellIdx:
         //        DFS through non-crucial cells to find reachable crucial nodes
         //        for each reached crucial: emit a CrucialEdge (with path slice copied into
         //            PathPool) unless the reciprocal edge already exists (NoReturn) or
         //            gate-dependency rules defer it
         //
+        // Visited is scoped to one origin's sweep (CurrentVisitStamp is bumped per dequeue), so
+        // every crucial node reaches every crucial node it can reach through non-crucial cells,
+        // regardless of who else was processed at the same depth. That makes discovery
+        // order-independent and makes EvalDepth exactly the hop distance from the Input set:
+        // each node dequeued at depth d assigns d+1 to all of its crucial neighbours.
+        //
         // Reciprocal suppression (NoReturn): once an edge O→C is recorded we must never record
-        // C→O — the prototype's per-node NoReturnList rule, here a cumulative pair buffer (see
-        // SimulateGraphBuildScratch.NoReturnPairs). This is what bounds the BFS: each ordered
-        // crucial pair is emitted at most once, and Processed stops re-enqueuing nodes, so the
-        // work queue strictly drains.
+        // C→O — a cumulative pair buffer (see SimulateGraphBuildScratch.NoReturnPairs). A ban
+        // never blocks a FIRST reach (it only exists once the reverse edge was recorded, which
+        // means the target already holds a depth), so it cannot delay a depth assignment.
+        // Processed stops re-enqueuing nodes, so the work queue strictly drains.
         //
         // The key subtlety is the gate-dependency mechanic. A GateBelow (underside of a gate)
         // can only be correctly evaluated AFTER its matching GateAbove (metal connector) has
@@ -462,14 +518,12 @@ namespace SpaceFab.Design
                 // won't re-enqueue it — that's what bounds the BFS on mutually-cell-reachable crucials.
                 scratch.Processed[currCrucialIdx] = true;
 
-                // Depth boundary: bump the visit stamp so DFS state from the previous layer
-                // doesn't leak into this one. The prototype did a full ResetAllVisited here;
-                // the stamp bump is O(1).
-                if (nodeDepth != currDepth)
-                {
-                    scratch.CurrentVisitStamp++;
-                    currDepth = nodeDepth;
-                }
+                // Give this origin a clean visited set. Visited is scoped to ONE crucial node's
+                // sweep, not to a depth layer — sharing it across a layer lets whichever node is
+                // dequeued first claim a shared region, leaving every other node on that region
+                // unable to emit an edge into it. The stamp bump is O(1).
+                scratch.CurrentVisitStamp++;
+                currDepth = nodeDepth;
 
                 int adjStart = scratch.CellAdjStart[currCellIdx];
                 int adjEnd = adjStart + scratch.CellAdjCount[currCellIdx];
@@ -551,6 +605,14 @@ namespace SpaceFab.Design
         // black = 2 = fully explored). A back-edge is any edge whose target is gray. When
         // we find a back-edge, we mark its edge.CycleDetected = true and continue — we do
         // not abort because we want to find ALL back-edges, not just the first.
+        //
+        // KNOWN GAP: with Pass 2 sweeping per origin, every edge runs from an earlier-dequeued
+        // node to a later-dequeued one — if the target had been dequeued first, its own complete
+        // sweep would already have recorded the reverse and banned this direction. That ordering
+        // is a topological order, so this pass finds no back-edges outside the postponement
+        // re-enqueues that bypass Processed, and real feedback loops go unreported. Detecting
+        // them properly belongs with the segment work, where a feedback loop is a segment driven
+        // by something downstream of itself; leaving this pass in place until then.
         // ====================================================================================
         private static void Pass4_DetectCycles(SimulateGraphState graphState, SimulateGraphBuildScratch scratch)
         {
@@ -937,17 +999,20 @@ namespace SpaceFab.Design
                 else if (aboveCrucial >= 0)
                 {
                     // Defer: stash the (origin, reached) pair. DO NOT emit the edge now. The
-                    // reached node will be re-enqueued with EvalDepth = currDepth + 1 when the
-                    // above-gate resolves, and this same DFS will re-run to re-emit the edge
-                    // at the correct depth.
+                    // ORIGIN gets re-enqueued at EvalDepth = currDepth + 1 once the above-gate
+                    // resolves, and its re-run sweep re-reaches this node and emits the edge at
+                    // the correct depth.
                     scratch.AwaitingDependency[reachedCrucialIdx] = true;
-                    scratch.PostponedPairs[scratch.PostponedCount * 2] = originCrucialIdx;
-                    scratch.PostponedPairs[scratch.PostponedCount * 2 + 1] = reachedCrucialIdx;
-                    scratch.PostponedCount++;
-                    // Note: TryRecordReachedCrucial already reserved the path slice; on a
-                    // defer we hold that PathPool slot without using it. Wasteful in rare
-                    // pathological layouts; consider pool-rewind-on-defer if profiling shows
-                    // the pool bloating.
+                    PushPostponement(scratch, originCrucialIdx, reachedCrucialIdx);
+
+                    // TryRecordReachedCrucial already reserved a path slice for an edge we're
+                    // not emitting. Hand it back when it's still the tail of the pool — the
+                    // re-run reserves a fresh one. A non-tail slice can't be reclaimed without
+                    // compacting, so leave it; the check makes that case a no-op.
+                    if (pathStart + pathLength == graphState.PathPoolUsed)
+                    {
+                        graphState.PathPoolUsed = pathStart;
+                    }
                 }
                 else
                 {
@@ -971,7 +1036,7 @@ namespace SpaceFab.Design
 
                 if (belowCrucial >= 0 && scratch.AwaitingDependency[belowCrucial])
                 {
-                    ResolvePostponementsForBelow(graphState, scratch, belowCrucial, belowCellIdx, currDepth);
+                    ResolvePostponementsForBelow(graphState, scratch, belowCrucial, currDepth);
                     scratch.AwaitingDependency[belowCrucial] = false;
                 }
                 else if (belowCrucial >= 0 && scratch.DisallowAdditionalDep[belowCrucial])
@@ -992,9 +1057,13 @@ namespace SpaceFab.Design
             }
         }
 
-        // Re-enqueue postponed dependents at one depth deeper, reset the below-cell's visit
-        // stamp so DFS can hit it again next depth layer, and remove the resolved pairs.
-        private static void ResolvePostponementsForBelow(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int belowCrucialIdx, int belowCellIdx, int currDepth)
+        // Re-enqueue the ORIGIN of each pair postponed on this below-gate, one depth deeper, and
+        // remove the resolved pairs. It is the origin's sweep that has to run again: the edge it
+        // deferred is only emitted when that sweep re-reaches the below-gate and finds the
+        // matching above-gate now marked EvaluatedForDependency. Re-enqueuing the below-gate
+        // instead would drop the deferred edge entirely, leaving the gated transistor with no
+        // edge from its driver.
+        private static void ResolvePostponementsForBelow(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int belowCrucialIdx, int currDepth)
         {
             for (int p = 0; p < scratch.PostponedCount; )
             {
@@ -1002,13 +1071,14 @@ namespace SpaceFab.Design
 
                 if (dependencyReached == belowCrucialIdx)
                 {
-                    // Bump the reached node's depth, enqueue it, reset the below cell's visit
-                    // stamp to allow DFS to re-find the path on the next layer.
-                    CrucialNode dep = graphState.CrucialNodes[dependencyReached];
+                    // Bump the origin's depth and enqueue it so its sweep re-runs one layer
+                    // deeper. Bypasses EnqueueIfUnprocessed on purpose — the origin has already
+                    // been processed, and running it again is the whole point.
+                    int postponedOrigin = scratch.PostponedPairs[p * 2];
+                    CrucialNode dep = graphState.CrucialNodes[postponedOrigin];
                     dep.EvalDepth = currDepth + 1;
-                    graphState.CrucialNodes[dependencyReached] = dep;
-                    scratch.WorkQueue[scratch.WorkTail++] = dependencyReached;
-                    scratch.VisitStamps[belowCellIdx] = 0;
+                    graphState.CrucialNodes[postponedOrigin] = dep;
+                    PushWork(scratch, postponedOrigin);
 
                     // Swap-remove this pair from PostponedPairs.
                     int lastP = scratch.PostponedCount - 1;
@@ -1028,23 +1098,22 @@ namespace SpaceFab.Design
         }
 
         // Called when BFS is out of pending work but PostponedPairs isn't empty — their
-        // dependencies will never satisfy. For each remaining pair: push dependent at
-        // currDepth + 1, mark below cell DisallowAdditionalDep, mark above cell
-        // EvaluatedForDependency. Mirrors prototype lines 1230–1259.
+        // dependencies will never satisfy. For each remaining pair: re-enqueue the ORIGIN at
+        // currDepth + 1 so its sweep runs again and emits the edge it deferred, then mark the
+        // below-gate DisallowAdditionalDep and its above-gate EvaluatedForDependency so that
+        // re-run isn't deferred a second time.
         private static void FlushUnresolvedPostponements(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int currDepth, int numCols, int cellsPerLayer)
         {
             for (int p = 0; p < scratch.PostponedCount; p++)
             {
+                int postponedOrigin = scratch.PostponedPairs[p * 2];
                 int dependencyReached = scratch.PostponedPairs[p * 2 + 1];
 
-                // Bump the dependent to the next depth + re-enqueue.
-                CrucialNode dep = graphState.CrucialNodes[dependencyReached];
+                // Bump the origin to the next depth + re-enqueue.
+                CrucialNode dep = graphState.CrucialNodes[postponedOrigin];
                 dep.EvalDepth = currDepth + 1;
-                graphState.CrucialNodes[dependencyReached] = dep;
-                scratch.WorkQueue[scratch.WorkTail++] = dependencyReached;
-
-                int belowCellIdx = graphState.CrucialNodes[dependencyReached].CellIndex;
-                scratch.VisitStamps[belowCellIdx] = 0;
+                graphState.CrucialNodes[postponedOrigin] = dep;
+                PushWork(scratch, postponedOrigin);
 
                 scratch.AwaitingDependency[dependencyReached] = false;
                 scratch.DisallowAdditionalDep[dependencyReached] = true;
@@ -1063,6 +1132,38 @@ namespace SpaceFab.Design
             scratch.PostponedCount = 0;
         }
 
+        // Append a crucial index to the BFS work queue, growing if needed. WorkTail only ever
+        // moves forward (the queue never wraps), and postponement re-queues push nodes that were
+        // already processed, so total pushes are not bounded by NodeCount — the growth check is
+        // load-bearing, not defensive.
+        private static void PushWork(SimulateGraphBuildScratch scratch, int crucialIdx)
+        {
+            if (scratch.WorkTail >= scratch.WorkQueue.Length)
+            {
+                int newSize = Mathf.Max(scratch.WorkQueue.Length * 2, scratch.WorkTail + 1);
+                Debug.LogWarning("[SimulateGraphUtility] WorkQueue grew from " + scratch.WorkQueue.Length + " to " + newSize + " — initial capacity heuristic undersized");
+                Array.Resize(ref scratch.WorkQueue, newSize);
+            }
+            scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+        }
+
+        // Append an (origin, gateBelow) postponement pair, growing if needed. One pair per
+        // deferred edge, and several origins can defer on the same gate before its above-gate is
+        // reached, so this is not bounded by NodeCount either.
+        private static void PushPostponement(SimulateGraphBuildScratch scratch, int originCrucialIdx, int belowCrucialIdx)
+        {
+            int neededInts = (scratch.PostponedCount + 1) * 2;
+            if (neededInts > scratch.PostponedPairs.Length)
+            {
+                int newSize = Mathf.Max(scratch.PostponedPairs.Length * 2, neededInts);
+                Debug.LogWarning("[SimulateGraphUtility] PostponedPairs grew from " + scratch.PostponedPairs.Length + " to " + newSize + " — initial capacity heuristic undersized");
+                Array.Resize(ref scratch.PostponedPairs, newSize);
+            }
+            scratch.PostponedPairs[scratch.PostponedCount * 2] = originCrucialIdx;
+            scratch.PostponedPairs[scratch.PostponedCount * 2 + 1] = belowCrucialIdx;
+            scratch.PostponedCount++;
+        }
+
         // Enqueue a crucial node for BFS processing unless it has already been processed.
         // Re-enqueuing a processed node is what would let the BFS loop forever on mutually-
         // cell-reachable crucials; the edge into it is still emitted by the caller — only the
@@ -1071,7 +1172,7 @@ namespace SpaceFab.Design
         private static void EnqueueIfUnprocessed(SimulateGraphBuildScratch scratch, int crucialIdx)
         {
             if (scratch.Processed[crucialIdx]) { return; }
-            scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+            PushWork(scratch, crucialIdx);
         }
 
         // True if ownerCrucialIdx's no-return list already contains memberCrucialIdx. Linear scan
