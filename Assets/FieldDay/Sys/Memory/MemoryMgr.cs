@@ -46,6 +46,8 @@ namespace FieldDay.Memory {
 
         private Unsafe.ArenaHandle m_BudgetCategoryAllocator;
 
+        private PerformanceBudget m_PerformanceBudget;
+
 #if MEMORY_LEAK_DETECTION
         private RingBuffer<Unsafe.ArenaHandle> m_ArenaTracker;
 #endif // MEMORY_LEAK_DETECTION
@@ -234,7 +236,7 @@ namespace FieldDay.Memory {
             Mem.Mgr = this;
         }
 
-        internal void Initialize(MemoryPoolConfiguration configuration) {
+        internal void Initialize(MemoryPoolConfiguration configuration, PerformanceBudget budget) {
             int genCount = GC.MaxGeneration + 1;
             m_GCCollectCounts = new int[genCount];
             m_GCCollectTimestamps = new long[genCount];
@@ -265,13 +267,16 @@ namespace FieldDay.Memory {
             GameObject.DontDestroyOnLoad(prefabPoolGO);
             prefabPoolGO.SetActive(false);
             m_PersistentPoolRoot = prefabPoolGO.transform;
+
+            m_PerformanceBudget = budget;
         }
 
         internal void Update() {
 #if DEVELOPMENT
             if (DebugFlags.IsFlagSet(DebuggingFlags.DisplayBasicStats)) {
                 long gcMem = GC.GetTotalMemory(false);
-                ulong textureMem = Texture.currentTextureMemory;
+                ulong textureMem = PerfUtility.GetTotalAllocatedTextureMemory();
+                long gpuMem = PerfUtility.GetTotalAllocatedGPUMemory();
 
                 long monoHeapUsed = Profiler.GetMonoUsedSizeLong();
                 long monoHeapSize = Profiler.GetMonoHeapSizeLong();
@@ -286,6 +291,8 @@ namespace FieldDay.Memory {
                     Unsafe.FormatBytes(monoHeapSize, psb);
                     psb.Builder.Append("\nTexture Memory: ");
                     Unsafe.FormatBytes((long)textureMem, psb);
+                    psb.Builder.Append("\nGPU Memory: ");
+                    Unsafe.FormatBytes(gpuMem, psb);
                     psb.Builder.Append("\nSeconds Since Last GC: ").AppendNoAlloc(SecondsSinceLastGC(), 2);
 #if UNITY_WEBGL && !UNITY_EDITOR
                     psb.Builder.Append("\nWASM Heap: ");
@@ -299,7 +306,7 @@ namespace FieldDay.Memory {
                 }
             }
 #endif // DEVELOPMENT
-                }
+        }
 
         internal void Shutdown() {
             m_MeshPool.Dispose();
@@ -318,6 +325,7 @@ namespace FieldDay.Memory {
 
             PooledObjectWorkList.Shutdown();
             Mem.Mgr = null;
+            m_PerformanceBudget = null;
         }
 
         #endregion // Events
@@ -326,7 +334,8 @@ namespace FieldDay.Memory {
 
         private enum DebuggingFlags {
             LogGCState,
-            DisplayBasicStats
+            DisplayBasicStats,
+            DisplayMemoryMeters,
         }
 
 #if DEVELOPMENT
