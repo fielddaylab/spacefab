@@ -86,19 +86,22 @@ namespace SpaceFab.Design
 
         // ---- Electrical segments (Pass 6) ----
         //
-        // A segment is a maximal connected run of participating cells that never crosses a P↔N
-        // transistor adjacency — one conductor at one potential. It is the unit flow is stored and
-        // painted on: SimulateRunScratch.SegmentFlow is indexed by segmentId, so every cell in a
-        // segment necessarily shows the same value.
+        // A segment is a maximal connected run of participating cells that never crosses a junction
+        // (see IsSwitchableJunction) — one conductor at one potential. It is the unit flow is
+        // stored and painted on: SimulateRunScratch.SegmentFlow is indexed by segmentId, so every
+        // cell in a segment necessarily shows the same value.
         //
-        // Gates need no special handling here: DrawGate leaves the vertical edge disconnected, so
-        // a gate never joins the metal above to the transistor below. Vias do connect, so a via
-        // correctly keeps both of its cells inside one segment.
+        // The metal above a gate is never joined to the transistor below it — DrawGate leaves that
+        // vertical edge disconnected. Vias do connect, so a via correctly keeps both of its cells
+        // inside one segment.
         //
-        // Segments are keyed on PHYSICAL polarity and never rebuilt mid-test. A gate inversion can
-        // make a junction conduct freely at run time; that shows up as flow crossing the junction
-        // edge and both segments settling on the same value, which looks identical to a merged
-        // region without needing a dynamic partition.
+        // Segments are built once per Build and never rebuilt mid-test, so the partition has to
+        // anticipate what a gate can do rather than describe the grid as drawn. A gate-controlled
+        // transistor is therefore cut from its transistor neighbours even when they currently share
+        // a polarity: the moment the gate inverts it, that adjacency IS a junction, and a segment
+        // spanning it would carry flow straight through the block. The reverse case needs nothing —
+        // a gate that OPENS a channel shows up as flow crossing the junction edge and both segments
+        // settling on the same value.
 
         // cellIndex → segmentId, or -1 for cells that participate in nothing.
         [HideInInspector] public int[] CellSegment;
@@ -679,16 +682,19 @@ namespace SpaceFab.Design
         // ====================================================================================
         // PASS 6 — Partition every participating cell into electrical segments
         // ------------------------------------------------------------------------------------
-        // A segment is a maximal connected run of participating cells that never crosses a P↔N
-        // transistor adjacency — one conductor at one potential. Flow is stored per segment and
-        // painted per segment, so this partition is what guarantees a wire can never display two
-        // colours at once and what makes a late conflicting driver recolour the whole region.
+        // A segment is a maximal connected run of participating cells that never crosses a
+        // junction — one conductor at one potential. Flow is stored per segment and painted per
+        // segment, so this partition is what guarantees a wire can never display two colours at
+        // once and what makes a late conflicting driver recolour the whole region.
         //
         // Flood fill over the same cell adjacency Pass 1 built (CellAdjStart/Count/Dest, which
-        // covers EVERY participating cell), refusing hops where IsDiodeBoundaryHop is true. The
-        // boundary is PHYSICAL polarity: gate inversion changes whether a junction passes flow,
-        // not where the junction sits, and two segments joined by an open channel simply settle on
-        // the same value.
+        // covers EVERY participating cell), refusing hops where IsSwitchableJunction is true —
+        // physical P-N pairs, plus same-type pairs under a gate, whose effective polarity can flip
+        // mid-run. A conductor that a gate can split has to be partitioned as though it were
+        // already split, since segment flow is instantaneous and would otherwise carry straight
+        // through the cell the gate just inverted. Two conductors joined by a channel the gate
+        // OPENS need no special handling — flow crosses the junction edge and both settle on the
+        // same value.
         //
         // Sweeps all cellCount cells rather than seeding from crucial nodes, so a region holding
         // no crucial node at all (a closed metal ring) still gets an id and stays uniform.
@@ -729,8 +735,10 @@ namespace SpaceFab.Design
 
                         GridCell nbrCell = GetCellByIndex(gridStackState, nbrIdx, numCols, cellsPerLayer);
 
-                        // A diode separates two segments that can hold different values.
-                        if (IsDiodeBoundaryHop(cell, nbrCell)) { continue; }
+                        // A junction separates two conductors that can hold different values —
+                        // including a same-type pair under a gate, which becomes a real junction
+                        // the moment the gate inverts one side.
+                        if (IsSwitchableJunction(cell, nbrCell)) { continue; }
 
                         graphState.CellSegment[nbrIdx] = segmentId;
                         PushWork(scratch, nbrIdx);
@@ -805,10 +813,11 @@ namespace SpaceFab.Design
 
         #region Pass 1 helpers
 
-        // True if this P/N transistor cell borders a transistor of the opposite type via any
-        // connected edge. Mirrors prototype's IsTransistorTransition (lines 1010–1039) but
-        // takes the cell as a parameter instead of doing a second lookup, and takes explicit
-        // layer/dim args instead of reading GridStack.Instance.
+        // True if this P/N transistor cell borders a junction via any connected edge — either a
+        // transistor of the opposite type, or a gate-controlled transistor whose polarity can flip
+        // mid-run. Both sides of a junction have to be crucial so the junction exists as an edge:
+        // DepthStepSystem only applies its diode rule when both of an edge's ENDPOINTS are
+        // transistors, so a junction buried in the middle of an edge's path is never evaluated.
         private static bool IsTransistorTransition(GridStackState gridStackState, int layer, int col, int row, GridCell cell, int numLayers, int numCols, int numRows)
         {
             // Metal layer can't host transistors; skip.
@@ -829,22 +838,35 @@ namespace SpaceFab.Design
                 if (adjRow < 0 || adjRow >= numRows) { continue; }
 
                 GridCell adjCell = GridStackUtility.GetCellDirect(gridStackState, adjLayer, adjCol, adjRow);
-                if (cell.CellType == CellType.NTransistor && adjCell.CellType == CellType.PTransistor) { return true; }
-                if (cell.CellType == CellType.PTransistor && adjCell.CellType == CellType.NTransistor) { return true; }
+                if (IsSwitchableJunction(cell, adjCell)) { return true; }
             }
 
             return false;
         }
 
-        // True if a hop between two adjacent cells crosses a P-N transistor boundary (a diode):
-        // both cells are transistors of opposite physical polarity. Pass 6 uses this to stop a
-        // flow representative from spreading across a diode, since the two sides are separate
-        // electrical segments that can carry different values.
-        private static bool IsDiodeBoundaryHop(GridCell a, GridCell b)
+        // True if a hop between two adjacent cells is a junction the simulation may have to gate.
+        // Two cases, and the second is why this is not just a physical-polarity test:
+        //
+        //   - A physical P-N pair. A diode; the two sides are separate conductors that can carry
+        //     different values.
+        //   - A same-type pair where one side sits under a gate. A gate flips its cell's EFFECTIVE
+        //     polarity mid-run, turning a uniform chain into P-N-P (or N-P-N), so the boundary has
+        //     to mean "could ever be a junction" rather than "is one right now". Deciding this from
+        //     physical polarity alone leaves the inversion with no edge and no segment boundary to
+        //     act on, and the chain conducts as though the gate were not there.
+        //
+        // Both cells must be transistors, so a via from a gate cell up to metal is not a junction
+        // and stays one conductor.
+        private static bool IsSwitchableJunction(GridCell a, GridCell b)
         {
-            if (a.CellType == CellType.PTransistor && b.CellType == CellType.NTransistor) { return true; }
-            if (a.CellType == CellType.NTransistor && b.CellType == CellType.PTransistor) { return true; }
-            return false;
+            if (!IsTransistorCell(a) || !IsTransistorCell(b)) { return false; }
+            if (a.CellType != b.CellType) { return true; }
+            return a.TransferType == TransferType.GateBelow || b.TransferType == TransferType.GateBelow;
+        }
+
+        private static bool IsTransistorCell(GridCell cell)
+        {
+            return cell.CellType == CellType.PTransistor || cell.CellType == CellType.NTransistor;
         }
 
         #endregion // Pass 1 helpers
@@ -966,15 +988,14 @@ namespace SpaceFab.Design
         // that's handled in TryEmitEdge.
         private static void TryRecordReachedCrucial(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int originCrucialIdx, int reachedCrucialIdx, int currDepth)
         {
-            // A P↔N pair is exempt from reciprocal suppression: the junction has to exist in both
-            // directions, because a gate inversion can make it same-type and freely conducting,
-            // and which direction got discovered first is an accident of BFS order. Conduction
-            // stays governed at run time by DepthStepSystem.EvaluateFlowThroughDiode, so emitting
-            // both is safe. Keyed on endpoint cell types rather than adjacency to match the rule
-            // that check applies.
+            // A junction is exempt from reciprocal suppression: it has to exist in both directions,
+            // because a gate inversion can create or remove it mid-run and which direction got
+            // discovered first is an accident of BFS order. Conduction stays governed at run time
+            // by DepthStepSystem.EvaluateFlowThroughDiode, so emitting both is safe. Keyed on
+            // endpoint cell types rather than adjacency to match the rule that check applies.
             GridCell originCell = GridStackUtility.GetCellDirect(gridStackState, graphState.CrucialNodes[originCrucialIdx].Coord);
             GridCell reachedCell = GridStackUtility.GetCellDirect(gridStackState, graphState.CrucialNodes[reachedCrucialIdx].Coord);
-            bool isJunction = IsDiodeBoundaryHop(originCell, reachedCell);
+            bool isJunction = IsSwitchableJunction(originCell, reachedCell);
 
             // Reciprocal suppression: if reached -> origin was already recorded earlier in the
             // build, do not record origin -> reached now. Cumulative across the whole build.
