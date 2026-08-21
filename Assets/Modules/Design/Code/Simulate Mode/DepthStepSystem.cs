@@ -32,19 +32,16 @@ namespace SpaceFab.Design
         // Paints the current depth's edges when signalled by SimulateModeSystem.
         //
         // Per-edge algorithm:
-        //   1. Determine the flow entering this edge. For Input origins, read from the per-test
-        //      InputFlowByNode array primed in ProcessPreparingTest. For non-Input origins, read
-        //      the origin's current NodeFlow.
+        //   1. Read the flow entering this edge from the origin's SEGMENT. Inputs are not a
+        //      special case — ProcessPreparingTest seeds their segments before propagation.
         //   2. Diode gating. If both endpoints are transistor cells of opposite polarity (taking
         //      temp-transform inversions into account), flow only passes P→N for HI signals.
         //   3. GateAbove inversion. If the destination is a GateAbove, the incoming signal can
         //      flip the transistor type on the matching below-cell: HI inverts P→N, LO inverts
         //      N→P, Unstable leaves it alone.
-        //   4. Stability check. If the destination already has a non-empty flow from a prior
-        //      edge this test, the two must match — else unstable. Also unstable if the edge
-        //      is marked CycleDetected by the graph-build cycle-detection pass.
-        //   5. Apply. Write the resulting flow into runScratch.NodeFlow[OtherIndex] and paint
-        //      every path cell via SimulateRunScratchUtility.SetCellFlow.
+        //   4. Merge into the destination segment via AssignSegmentFlow, which resolves a
+        //      conflicting second driver to Unstable, and re-sync that segment's revealed cells.
+        //   5. Reveal the path: each path cell takes its own segment's colour.
         //
         // On the last depth, RunConvergenceSweeps then drives the full edge list to a fixed
         // point so a driver that arrived late still propagates. That settling is instantaneous —
@@ -88,34 +85,19 @@ namespace SpaceFab.Design
 
             // The depth walk has now visited every edge exactly once, in depth order. Settle the
             // result before the row is scored — see RunConvergenceSweeps for why one ordered pass
-            // isn't enough.
+            // isn't enough — then fill in every cell the walk never happened to reveal, so each
+            // live segment finishes uniform rather than showing only the cells edges passed over.
             if (currDepth == graphState.MaxDepth)
             {
                 RunConvergenceSweeps(runState, runScratch, graphState, gridStackState, numCols, cellsPerLayer);
-            }
-
-            // Paint connected cells that lie on no crucial-to-crucial path (dead-end "stub"
-            // branches). Each such cell mirrors the resolved flow of its representative crucial
-            // cell (assigned in SimulateGraphUtility Pass 6, never crossing a P-N boundary). A
-            // representative still reading Empty this depth leaves its stub unpainted — so a stub
-            // lights up the same depth its segment does, and a stub off an undriven/diode-blocked
-            // segment stays grey. Pure visual coverage: NodeFlow / output values are untouched.
-            for (int i = 0; i < graphState.RepresentedCellCount; i++)
-            {
-                int cellIdx = graphState.RepresentedCells[i];
-                int repCellIdx = graphState.CellFlowRepresentative[cellIdx];
-                FlowState repFlow = SimulateRunScratchUtility.GetCellFlow(runScratch, repCellIdx);
-                if (repFlow != FlowState.Empty)
-                {
-                    SimulateRunScratchUtility.SetCellFlow(runScratch, cellIdx, repFlow);
-                }
+                FillLiveSegments(runScratch, graphState);
             }
 
             // One visual refresh per depth boundary, covering every cell painted this frame.
             visualState.VisualsNeedRefreshing = true;
         }
 
-        // Re-runs every edge until no per-node value changes, then leaves the graph settled.
+        // Re-runs every edge until no segment or node value changes, leaving the graph settled.
         //
         // Why one depth-ordered pass isn't enough: a node's outgoing edges are stamped with the
         // depth at which the node was DISCOVERED. A second driver that reaches that node later
@@ -124,16 +106,15 @@ namespace SpaceFab.Design
         // independent of both depth assignment and edge order within a depth: two drivers on one
         // region either agree or resolve Unstable, no matter which branch is shorter.
         //
-        // Terminates because NodeFlow only ever moves Empty → value → Unstable and
-        // NodeTempTransform only NONE → the one polarity its physical cell type admits: three
-        // state advances per node at worst, and a sweep that changes nothing ends the loop. That
-        // monotonicity is load-bearing — it is why step 4 of ProcessEdge compares against the
-        // incoming flowState rather than NodeFlow[OriginIndex]. In practice one sweep over the
-        // whole edge list settles most of the graph, so the realistic count is one or two; the
-        // cap exists to catch a future rule change that breaks monotonicity rather than hang.
+        // Terminates because SegmentFlow only ever moves Empty → value → Unstable (two advances
+        // per segment) and NodeTempTransform only NONE → the one polarity its physical cell type
+        // admits (one per node), and a sweep that changes nothing ends the loop. In practice one
+        // sweep over the whole edge list settles most of the graph, so the realistic count is one
+        // or two; the cap exists to catch a future rule change that breaks that monotonicity
+        // rather than hang the frame.
         static private void RunConvergenceSweeps(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, GridStackState gridStackState, int numCols, int cellsPerLayer)
         {
-            int maxSweeps = 3 * graphState.NodeCount + 1;
+            int maxSweeps = 2 * graphState.SegmentCount + graphState.NodeCount + 1;
 
             for (int sweep = 0; sweep < maxSweeps; sweep++)
             {
@@ -150,12 +131,51 @@ namespace SpaceFab.Design
             Debug.LogWarning("[DepthStepSystem] convergence sweeps hit the " + maxSweeps + " iteration cap; flow may not be settled");
         }
 
+        // Paints every cell of every segment holding a value. The walk only reveals cells that
+        // happen to lie on a crucial-to-crucial path, which leaves stubs and far branches dark
+        // even though they are the same conductor; this is what makes a region finish uniform.
+        // Segments still reading Empty are left alone so undriven and diode-blocked wire stays grey.
+        static private void FillLiveSegments(SimulateRunScratch runScratch, SimulateGraphState graphState)
+        {
+            for (int s = 0; s < graphState.SegmentCount; s++)
+            {
+                FlowState flow = runScratch.SegmentFlow[s];
+                if (flow == FlowState.Empty) { continue; }
+
+                int start = graphState.SegmentCellStart[s];
+                int end = graphState.SegmentCellStart[s + 1];
+                for (int i = start; i < end; i++)
+                {
+                    SimulateRunScratchUtility.SetCellFlow(runScratch, graphState.SegmentCells[i], flow);
+                }
+            }
+        }
+
+        // Recolours the cells of one conductor that the walk has ALREADY revealed this test,
+        // leaving cells it has not reached yet dark so the crawl can keep advancing into them.
+        // Called the step two painted fronts touch: a short is a whole-conductor event, so both
+        // arms behind the meeting point recolour together rather than only the cell they met on.
+        //
+        // "Revealed" needs no extra bookkeeping: a matching CellFlowStamps entry already means the
+        // cell was painted this test.
+        static private void FloodRevealedCells(SimulateRunScratch runScratch, SimulateGraphState graphState, int segmentId, FlowState flow)
+        {
+            int start = graphState.SegmentCellStart[segmentId];
+            int end = graphState.SegmentCellStart[segmentId + 1];
+            for (int i = start; i < end; i++)
+            {
+                int cellIdx = graphState.SegmentCells[i];
+                if (runScratch.CellFlowStamps[cellIdx] != runScratch.CurrentFlowStamp) { continue; }
+                SimulateRunScratchUtility.SetCellFlow(runScratch, cellIdx, flow);
+            }
+        }
+
         // Process a single crucial edge. Splits out from ProcessWork so the inner branches can
         // be read top-to-bottom without the surrounding loop noise.
         //
-        // Returns true if it changed any per-node value (NodeFlow or NodeTempTransform). That's
-        // what RunConvergenceSweeps tests for a fixed point; per-cell paints are derived from
-        // those values, so they settle once the node values do.
+        // Returns true if it moved any segment or node value. That's what RunConvergenceSweeps
+        // tests for a fixed point; per-cell paints are derived from those values, so they settle
+        // once the segment values do.
         static private bool ProcessEdge(CrucialEdge edge, SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, GridStackState gridStackState, int numCols, int cellsPerLayer)
         {
             bool changed = false;
@@ -165,19 +185,16 @@ namespace SpaceFab.Design
             GridCell originCell = GridStackUtility.GetCellDirect(gridStackState, originNode.Coord);
             GridCell destCell = GridStackUtility.GetCellDirect(gridStackState, destNode.Coord);
 
+            int originSegment = graphState.CrucialSegment[edge.OriginIndex];
+            int destSegment = graphState.CrucialSegment[edge.OtherIndex];
+
             // --- Step 1: determine flow entering this edge ----------------------------------
-            FlowState flowState;
-            if (originCell.CellType == CellType.Input)
-            {
-                flowState = runScratch.InputFlowByNode[edge.OriginIndex];
-            }
-            else
-            {
-                flowState = runScratch.NodeFlow[edge.OriginIndex];
-            }
+            //
+            // Always the origin's segment. Inputs need no special case: ProcessPreparingTest seeds
+            // each Input's segment with the row's value before propagation starts.
+            FlowState flowState = runScratch.SegmentFlow[originSegment];
 
             bool flowThrough = true;
-            bool stable = flowState != FlowState.Unstable;
 
             // --- Step 2: diode gating (both endpoints are transistor cells) -----------------
             //
@@ -222,7 +239,7 @@ namespace SpaceFab.Design
                 {
                     newTransform = CellType.PTransistor;
                 }
-                // Unstable: no inversion, matches prototype behavior.
+                // An Unstable gate signal inverts nothing — there is no defined polarity to apply.
 
                 if (newTransform != CellType.NONE)
                 {
@@ -235,63 +252,62 @@ namespace SpaceFab.Design
                 }
             }
 
-            // --- Step 4: stability check ----------------------------------------------------
+            // --- Step 4: apply flow to the destination segment ------------------------------
             //
-            // If the destination already has a non-empty flow from a prior edge this test AND
-            // the incoming flow is also non-empty, the two must match. Mismatch = unstable.
-            // Additionally flag as unstable if the edge is part of a detected cycle.
+            // AssignSegmentFlow carries the whole conflict rule: Empty takes the value, a matching
+            // value is a no-op, a differing value resolves Unstable, and Unstable absorbs. Two
+            // drivers on one conductor therefore agree or go Unstable regardless of the order
+            // their edges happen to run in.
             //
-            // Compares the incoming flowState, not NodeFlow[OriginIndex]. For a non-Input origin
-            // the two are the same value. For an Input origin NodeFlow is never written, so
-            // reading it would skip this check entirely — an Input could then overwrite a
-            // destination another driver had already resolved, letting two conflicting drivers
-            // trade the same node back and forth on every convergence sweep instead of settling
-            // on Unstable. Making the comparison against flowState is also what lets two Inputs
-            // shorted to one node register as unstable at all.
-            if (runScratch.NodeFlow[edge.OtherIndex] != FlowState.Empty
-                && flowState != FlowState.Empty)
-            {
-                stable = flowState == runScratch.NodeFlow[edge.OtherIndex];
-            }
-            if (edge.CycleDetected) { stable = false; }
-
-            // --- Step 5: apply flow + path paint --------------------------------------------
+            // An edge into a gate whose dependency never resolved is unstable by construction.
             if (!flowThrough) { return changed; }
+            if (edge.CycleDetected) { flowState = FlowState.Unstable; }
+            if (flowState == FlowState.Empty) { return changed; }
 
-            if (!stable)
+            changed |= SimulateRunScratchUtility.AssignSegmentFlow(runScratch, destSegment, flowState);
+
+            if (runScratch.SegmentFlow[destSegment] == FlowState.Unstable)
             {
-                if (runScratch.NodeFlow[edge.OriginIndex] != FlowState.Unstable)
-                {
-                    runScratch.NodeFlow[edge.OriginIndex] = FlowState.Unstable;
-                    changed = true;
-                }
-                if (runScratch.NodeFlow[edge.OtherIndex] != FlowState.Unstable)
-                {
-                    runScratch.NodeFlow[edge.OtherIndex] = FlowState.Unstable;
-                    changed = true;
-                }
-                flowState = FlowState.Unstable;
                 runState.IsUnstable = true;
                 runScratch.IsUnstable = true;
             }
 
-            if (flowState == FlowState.Empty) { return changed; }
+            // --- Step 5: advance the crawl --------------------------------------------------
+            //
+            // Deliberately NOT reading SegmentFlow. A conductor resolves Unstable the instant a
+            // conflicting driver crosses into it, but at that moment the two PAINTED fronts can
+            // still be several unrevealed cells apart — colouring from the segment would turn the
+            // region red while the currents are visibly nowhere near each other.
+            //
+            // Instead the crawl carries the colour already on the origin CELL, so a front keeps
+            // advancing in its own colour until it physically runs into another one. An unpainted
+            // origin means no current has visibly arrived there yet, so there is nothing to
+            // advance; the electrical work above still happened.
+            FlowState crawlFlow = SimulateRunScratchUtility.GetCellFlow(runScratch, originNode.CellIndex);
+            if (crawlFlow == FlowState.Empty) { return changed; }
 
-            // Write dest node's flow. Origin node's flow stays as-is — only writes when
-            // stability forced Unstable above (handled by the `if (!stable)` branch).
-            if (runScratch.NodeFlow[edge.OtherIndex] != flowState)
-            {
-                runScratch.NodeFlow[edge.OtherIndex] = flowState;
-                changed = true;
-            }
-
-            // Paint every path cell with this flow. Path cells span origin → dest (inclusive).
             int pathStart = edge.PathStart;
             int pathEnd = pathStart + edge.PathLength;
             for (int p = pathStart; p < pathEnd; p++)
             {
                 int cellIdx = graphState.PathPool[p];
-                SimulateRunScratchUtility.SetCellFlow(runScratch, cellIdx, flowState);
+
+                // A cell already holding a DIFFERENT colour is where two fronts just touched —
+                // the moment the currents actually meet, which lands later than the electrical
+                // conflict AssignSegmentFlow recorded. Recolour everything revealed on that
+                // conductor; the far arm behind a junction is a different conductor and keeps
+                // its own colour.
+                FlowState existing = SimulateRunScratchUtility.GetCellFlow(runScratch, cellIdx);
+                if (existing != FlowState.Empty && existing != crawlFlow)
+                {
+                    FloodRevealedCells(runScratch, graphState, graphState.CellSegment[cellIdx], FlowState.Unstable);
+
+                    // Past the meeting point this front IS the fault, so the rest of the path
+                    // continues in Unstable rather than reverting to the colour that arrived.
+                    crawlFlow = FlowState.Unstable;
+                }
+
+                SimulateRunScratchUtility.SetCellFlow(runScratch, cellIdx, crawlFlow);
             }
 
             return changed;

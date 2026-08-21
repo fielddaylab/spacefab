@@ -149,6 +149,15 @@ namespace SpaceFab.Design
         [HideInInspector] public CrucialEdge[] UnsortedEdges;
         [HideInInspector] public int UnsortedEdgeCount;
 
+        // ---- Per-segment write cursors (Pass 6) ----
+        //
+        // Scratch for the counting sort that groups cell indices into SimulateGraphState.
+        // SegmentCells. Kept separate from SegmentCellStart so that table keeps holding each
+        // segment's START offset, which the run-time paint walk reads every time a segment's
+        // flow changes.
+
+        [HideInInspector] public int[] SegmentCursor;
+
         public void OnRegister()
         {
             // Arrays stay null until first Build — Build will lazy-allocate everything to the right

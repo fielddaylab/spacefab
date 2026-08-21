@@ -109,7 +109,7 @@ namespace SpaceFab.Design
             // Per-test scratch sized to the freshly-built graph + grid.
             Dimensions dims = gridStackState.GridStack.LayerDims;
             int cellCount = gridStackState.GridStack.GridLayers.Length * dims.X * dims.Y;
-            SimulateRunScratchUtility.EnsureCapacity(runScratch, graphState.NodeCount, cellCount);
+            SimulateRunScratchUtility.EnsureCapacity(runScratch, graphState.NodeCount, graphState.SegmentCount, cellCount);
 
             // Output buffer sized to the count of Output crucial nodes in graph order — matches
             // the iteration order ProcessResolvingTest uses to write into OutputFlowBuffer.
