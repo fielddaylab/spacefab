@@ -58,7 +58,7 @@ namespace SpaceFab.Design
             // Interactable iff we have a row to run AND the phase machine will accept a Play.
             bool matched = toggleState != null && toggleState.LastMatchedRowIndex >= 0;
             bool canPlay = SimulateControlUtility.CanAcceptPlay(runState);
-            uiState.SuiteTestButton.interactable = matched && canPlay;
+            uiState.SuiteTestButton.Interactable = matched && canPlay;
         }
 
         // Sets gameObject active state only when it actually needs to change so the loop stays

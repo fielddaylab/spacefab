@@ -7,7 +7,6 @@ namespace SpaceFab.Design
 {
     public class SuiteRow : MonoBehaviour
     {
-        public SuiteRunRowButton RunButton;
         public HorizontalLayoutGroup HorizontalLayout;
         public Image RowBGBar;
         [HideInInspector] public SuiteCol[] Cols;

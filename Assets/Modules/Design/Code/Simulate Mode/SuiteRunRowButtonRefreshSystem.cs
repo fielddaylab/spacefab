@@ -35,17 +35,17 @@ namespace SpaceFab.Design
             // so a runtime mode flip via inspector takes effect without re-running BuildTable.
             if (designState != null && designState.UseToggleInputMode)
             {
-                if (uiState.Rows != null)
-                {
-                    for (int r = 0; r < uiState.Rows.Length; r++)
-                    {
-                        SuiteRow row = uiState.Rows[r];
-                        if (row != null && row.RunButton != null && row.RunButton.gameObject.activeSelf)
-                        {
-                            row.RunButton.gameObject.SetActive(false);
-                        }
-                    }
-                }
+                //if (uiState.Rows != null)
+                //{
+                //    for (int r = 0; r < uiState.Rows.Length; r++)
+                //    {
+                //        SuiteRow row = uiState.Rows[r];
+                //        if (row != null && row.RunButton != null && row.RunButton.gameObject.activeSelf)
+                //        {
+                //            row.RunButton.gameObject.SetActive(false);
+                //        }
+                //    }
+                //}
                 uiState.RunButtonsNeedRefreshing = false;
                 return;
             }
@@ -64,7 +64,7 @@ namespace SpaceFab.Design
                     else if (runState.Phase == SimulatePhase.Paused) { state = SuiteRunButtonState.Resume; }
                 }
 
-                uiState.Rows[row].RunButton.Icon.sprite = SuiteVisualsDBUtility.LookupRunButtonSprite(suiteDB, state);
+                //uiState.Rows[row].RunButton.Icon.sprite = SuiteVisualsDBUtility.LookupRunButtonSprite(suiteDB, state);
             }
 
             uiState.RunButtonsNeedRefreshing = false;

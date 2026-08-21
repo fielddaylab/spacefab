@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Design.Visuals;
 using BeauRoutine;
+using FieldDay.UI.Widgets;
 
 namespace SpaceFab.Design
 {
@@ -22,17 +23,10 @@ namespace SpaceFab.Design
         public RectTransform TableRect;
         public VerticalLayoutGroup VertLayout;
 
-        // Suite-level run controls. Positioning in the SimTable hierarchy is TBD; the refs here
-        // are wired in inspector once the prefab layout is finalized. Until then refs may be null —
-        // the suite refresh systems guard against that.
-        public SuiteRunButton SuiteRunButton;
-        public DynamicButton SuiteRestartButton;
-        public DynamicButton SuiteCancelButton;
-
         // Toggle-input mode "Test" button. Visible only when DesignMinigameState.UseToggleInputMode
         // is true; replaces the per-row + suite-run buttons. SuiteTestButtonRefreshSystem owns its
         // interactable state and hides it otherwise.
-        public SuiteTestButton SuiteTestButton;
+        public GuiButton SuiteTestButton;
 
         #endregion // Inspector
 
@@ -128,18 +122,13 @@ namespace SpaceFab.Design
 
             if (uiState.Rows != null)
             {
-                for (int r = 0; r < uiState.Rows.Length; r++)
-                {
-                    SuiteRow row = uiState.Rows[r];
-                    if (row == null || row.RunButton == null) { continue; }
-                    row.RunButton.gameObject.SetActive(!toggleMode);
-                }
+                //for (int r = 0; r < uiState.Rows.Length; r++)
+                //{
+                //    SuiteRow row = uiState.Rows[r];
+                //    if (row == null || row.RunButton == null) { continue; }
+                //    row.RunButton.gameObject.SetActive(!toggleMode);
+                //}
             }
-
-            if (uiState.SuiteRunButton != null) { uiState.SuiteRunButton.gameObject.SetActive(!toggleMode); }
-            if (uiState.SuiteRestartButton != null) { uiState.SuiteRestartButton.gameObject.SetActive(!toggleMode); }
-            if (uiState.SuiteCancelButton != null) { uiState.SuiteCancelButton.gameObject.SetActive(!toggleMode); }
-            if (uiState.SuiteTestButton != null) { uiState.SuiteTestButton.gameObject.SetActive(toggleMode); }
         }
 
         // Raises both the per-row and suite-level run-button dirty flags. Use this anywhere
@@ -299,8 +288,8 @@ namespace SpaceFab.Design
 
             // headers. Two passes (inputs, arrow, outputs) so the header order matches the column
             // order produced by CreateRowsAndCols, independent of the bundle's internal ordering.
-            SuiteRow currRow = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
-            currRow.RunButton.gameObject.SetActive(false);
+            SuiteRow currRow = null;// GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
+            //currRow.RunButton.gameObject.SetActive(false);
 
             // Pass 1: input headers.
             for (int i = 0; i < numCols; i++)
@@ -312,9 +301,9 @@ namespace SpaceFab.Design
             // Arrow divider (image hidden on the header row, matching the original behavior).
             if (FirstOutputColumn(bundle) >= 0)
             {
-                var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
-                arrowCol.FlowImg.enabled = false;
-                arrowCol.Label.enabled = false;
+                //var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
+                //arrowCol.FlowImg.enabled = false;
+                //arrowCol.Label.enabled = false;
 
 
             }
@@ -327,7 +316,7 @@ namespace SpaceFab.Design
             }
 
             // add width for arrow col
-            tableWidth += suiteDB.ArrowColPrefab.GetComponent<RectTransform>().sizeDelta.x;
+            //tableWidth += suiteDB.ArrowColPrefab.GetComponent<RectTransform>().sizeDelta.x;
 
             int numRows = suite.Tests.Length;
 
@@ -349,10 +338,10 @@ namespace SpaceFab.Design
                 var bundle = suite.Tests[row].Bundle;
 
                 // instantiate row
-                uiState.Rows[row] = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
+                // uiState.Rows[row] = GameObject.Instantiate(suiteDB.RowPrefab, uiState.VertLayout.transform).GetComponent<SuiteRow>();
                 uiState.Rows[row].Cols = new SuiteCol[bundle.Length];
                 uiState.Rows[row].Verdicts = new VerdictVisualizer[bundle.Length];
-                uiState.Rows[row].RunButton.RowIndex = row;
+                //uiState.Rows[row].RunButton.RowIndex = row;
                 uiState.Rows[row].RowBGBar.enabled = false;
                 uiState.CellVerdicts[row] = new CellVerdict[bundle.Length];
 
@@ -367,7 +356,7 @@ namespace SpaceFab.Design
                 {
                     if (bundle[col].Id >= InputOutputNodeTypeFlags.OUT) { continue; }
 
-                    SuiteCol newCol = GameObject.Instantiate(suiteDB.InputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    SuiteCol newCol = null;// GameObject.Instantiate(suiteDB.InputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State);
                     newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
@@ -379,7 +368,7 @@ namespace SpaceFab.Design
                 int firstOutputCol = FirstOutputColumn(bundle);
                 if (firstOutputCol >= 0)
                 {
-                    var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    SuiteCol arrowCol = null;// GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[firstOutputCol].State, isArrow: true);
                     arrowCol.Label.enabled = false;
                     uiState.Rows[row].ArrowCol = arrowCol;
@@ -390,7 +379,7 @@ namespace SpaceFab.Design
                 {
                     if (bundle[col].Id < InputOutputNodeTypeFlags.OUT) { continue; }
 
-                    SuiteCol newCol = GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
+                    SuiteCol newCol = null;// GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
                     newCol.Label.color = Color.black;
                     newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
@@ -419,13 +408,15 @@ namespace SpaceFab.Design
         // the input-column width, and returns the width it contributes (column width + spacing).
         private static float InstantiateHeader(SuiteRow headerRow, SuiteVisualsDB suiteDB, InputOutputNodeTypeFlags id)
         {
-            SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, headerRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
-            headerRow.RowBGBar.enabled = false;
-            currHeader.Label.SetText(GetLocTextForId(id));
-            var size = currHeader.Rect.sizeDelta;
-            size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;
-            currHeader.Rect.sizeDelta = size;
-            return currHeader.Rect.sizeDelta.x + headerRow.HorizontalLayout.spacing;
+            //SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, headerRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
+            //headerRow.RowBGBar.enabled = false;
+            //currHeader.Label.SetText(GetLocTextForId(id));
+            //var size = currHeader.Rect.sizeDelta;
+            //size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;
+            //currHeader.Rect.sizeDelta = size;
+            //return currHeader.Rect.sizeDelta.x + headerRow.HorizontalLayout.spacing;
+            // TODO: Implement
+            return 0;
         }
 
         // Wires every content row's run button to HandleRunButtonClick. RowIndex was stamped
@@ -433,11 +424,11 @@ namespace SpaceFab.Design
         // rather than from the captured loop variable.
         private static void AssignRunListeners(SimulateUIState uiState, TestSuiteData suite, SimulateRunState runState)
         {
-            for (int row = 0; row < suite.Tests.Length; row++)
-            {
-                SuiteRunRowButton btn = uiState.Rows[row].RunButton;
-                btn.onClick.AddListener(() => HandleRunButtonClick(runState, uiState, btn.RowIndex));
-            }
+            //for (int row = 0; row < suite.Tests.Length; row++)
+            //{
+            //    SuiteRunRowButton btn = uiState.Rows[row].RunButton;
+            //    btn.onClick.AddListener(() => HandleRunButtonClick(runState, uiState, btn.RowIndex));
+            //}
         }
 
         // Per-row click dispatch. Translates the player's intent (given current Phase /
@@ -482,22 +473,10 @@ namespace SpaceFab.Design
         // layout for the suite-level toolbar is finalized; skip wiring any null slot rather than failing.
         private static void AssignSuiteListeners(SimulateUIState uiState, SimulateRunState runState)
         {
-            if (uiState.SuiteRunButton != null)
-            {
-                uiState.SuiteRunButton.onClick.AddListener(() => HandleSuiteRunButtonClick(runState, uiState));
-            }
-            if (uiState.SuiteRestartButton != null)
-            {
-                uiState.SuiteRestartButton.onClick.AddListener(() => HandleSuiteRestartButtonClick(runState, uiState));
-            }
-            if (uiState.SuiteCancelButton != null)
-            {
-                uiState.SuiteCancelButton.onClick.AddListener(() => HandleSuiteCancelButtonClick(runState, uiState));
-            }
-            if (uiState.SuiteTestButton != null)
-            {
-                uiState.SuiteTestButton.onClick.AddListener(() => HandleSuiteTestButtonClick(runState, uiState));
-            }
+            //if (uiState.SuiteTestButton != null)
+            //{
+            //    uiState.SuiteTestButton.onClick.AddListener(() => HandleSuiteTestButtonClick(runState, uiState));
+            //}
         }
 
         // Suite-level Play/Pause/Resume click. Mirrors HandleRunButtonClick but without an

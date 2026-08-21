@@ -32,13 +32,6 @@ namespace SpaceFab.Design.Visuals
     [CreateAssetMenu(menuName = "SpaceFab/Design/SuiteVisuals DB")]
     public class SuiteVisualsDB : GlobalAsset
     {
-        [Header("Suite Prefabs")]
-        public GameObject RowPrefab;
-        public GameObject HeaderPrefab;
-        public GameObject InputColPrefab;
-        public GameObject OutputColPrefab;
-        public GameObject ArrowColPrefab;
-
         [Header("SuiteCols")]
         public Sprite SuiteFlowHi;
         public Sprite SuiteFlowLo;

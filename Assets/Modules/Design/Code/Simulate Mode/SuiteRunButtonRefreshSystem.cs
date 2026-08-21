@@ -36,24 +36,17 @@ namespace SpaceFab.Design
             // SuiteSecondaryButtonRefreshSystem (order 3) still clears SuiteButtonsNeedRefreshing.
             if (designState != null && designState.UseToggleInputMode)
             {
-                if (uiState.SuiteRunButton != null && uiState.SuiteRunButton.gameObject.activeSelf)
-                {
-                    uiState.SuiteRunButton.gameObject.SetActive(false);
-                }
                 return;
             }
 
             if (!uiState.SuiteButtonsNeedRefreshing) { return; }
             if (!uiState.TableBuilt) { return; }
-            if (uiState.SuiteRunButton == null || uiState.SuiteRunButton.Icon == null) { return; }
 
             var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
 
             SuiteRunButtonState state = SuiteRunButtonState.Play;
             if (runState.Phase == SimulatePhase.Propagating) { state = SuiteRunButtonState.Pause; }
             else if (runState.Phase == SimulatePhase.Paused) { state = SuiteRunButtonState.Resume; }
-
-            uiState.SuiteRunButton.Icon.sprite = SuiteVisualsDBUtility.LookupRunButtonSprite(suiteDB, state);
         }
     }
 }

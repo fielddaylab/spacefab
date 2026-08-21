@@ -40,14 +40,6 @@ namespace SpaceFab.Design
             // signal lifecycle stays consistent.
             if (designState != null && designState.UseToggleInputMode)
             {
-                if (uiState.SuiteRestartButton != null && uiState.SuiteRestartButton.gameObject.activeSelf)
-                {
-                    uiState.SuiteRestartButton.gameObject.SetActive(false);
-                }
-                if (uiState.SuiteCancelButton != null && uiState.SuiteCancelButton.gameObject.activeSelf)
-                {
-                    uiState.SuiteCancelButton.gameObject.SetActive(false);
-                }
                 uiState.SuiteButtonsNeedRefreshing = false;
                 return;
             }
@@ -69,9 +61,6 @@ namespace SpaceFab.Design
             // nothing left to cancel.
             bool cancelLegal = runState.Phase != SimulatePhase.Idle
                             || HasAnyResolvedVerdict(runState.RowVerdicts);
-
-            if (uiState.SuiteRestartButton != null) { uiState.SuiteRestartButton.gameObject.SetActive(restartLegal); }
-            if (uiState.SuiteCancelButton != null) { uiState.SuiteCancelButton.gameObject.SetActive(cancelLegal); }
 
             uiState.SuiteButtonsNeedRefreshing = false;
         }

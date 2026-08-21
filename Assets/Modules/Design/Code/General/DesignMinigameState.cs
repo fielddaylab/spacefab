@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Save;
 using System;
@@ -12,7 +13,7 @@ namespace SpaceFab.Design
     /// Holds minigame-specific data for the Design minigame.
     /// Central hub for import/export minigame state.
     /// </summary>
-    public class DesignMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
+    public class DesignMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState, IEditorOnlyData
     {
         #region Saved State
 
@@ -32,6 +33,9 @@ namespace SpaceFab.Design
         [NonSerialized] public int ActiveLevelIndex;
 
         #endregion // Session State
+
+        [Header("-- DEBUGGING --")]
+        public LevelData DebugLevelData;
 
         #region Interfaces
 
@@ -58,7 +62,15 @@ namespace SpaceFab.Design
             DesignStateUtility.ExportState(ref saveStates.Design, this);
         }
 
-        #endregion // Interfaces
+#if UNITY_EDITOR
+
+        void IEditorOnlyData.ClearEditorData(bool isDevelopmentBuild) {
+            DebugLevelData = null;
+        }
+
+#endif // UNITY_EDITOR
+
+#endregion // Interfaces
     }
 
     public static class DesignStateUtility
