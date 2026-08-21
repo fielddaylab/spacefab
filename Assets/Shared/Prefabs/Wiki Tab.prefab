@@ -140,6 +140,7 @@ MonoBehaviour:
   TabIndex: 0
   PageIndex: -1
   DynamicButton: {fileID: 7372704610343129771}
+  ElementTag: {fileID: 0}
   ClickedThisFrame: 0
   PointerEnterThisFrame: 0
   PointerExitThisFrame: 0

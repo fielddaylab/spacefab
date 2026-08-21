@@ -1,0 +1,37 @@
+# basePath Chapter5
+
+::FirstContractOpenCh5 
+@trigger    OnContractSelectOpen
+@cutscene
+@once 
+
+{@PAL}      Captain, I have another suprise for you! 
+{@Player}   Another crew-mate, wait... finally someone else on the ship??
+{@PAL}      No! 
+{@Player}   Oh.
+{@PAL}      Instead of one contract, you now have... two!
+{@PAL}      Congratulations on achieving agency Captain! 
+{@Player}   ...thanks P.A.L. 
+{@PAL}      One that is simple, the other contract is a bit more complex. 
+{@PAL}      They also have different contractors. One is an independent contract, the other is a Frontier contract. 
+{@PAL}      You decide, but remember, Frontier Robotics is your best friend! 
+{@Player}   Right. 
+
+::BeforeSupplyChainCh5
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene 
+@once 
+
+{@Ovill}    Hi Locke.
+{@Ovill}    I got a thrilling new update for the Forsch Sector!
+{@Ovill}    As you may know the Ausrine System has been dealing with some pesky pirates, specifically when sourcing Boron. 
+{@Ovill}    We at Frontier Robotics have officially established a Boron system. 
+{@Ovill}    It is advised that all Frontier Robotics ships source from this new location. 
+{@Callie}   Oil spit! Lies I hear. 
+{@Ovill}    How-how did you get this frequency?! This is an encrypted channel? 
+{@Callie}   Frontier? Having proper firewall protections? 
+{@Player}   
+
+//#region 
+   

@@ -42,53 +42,88 @@ $call   ReleaseAllHighlights()
 {@Player}    Wait, I don’t keep all the money? Better keep costs low.
 
 
-//region Supply Chain - Suppliers
-// NOTE - ask if putting dialogue in Supply Chain interface (incorporating the intro tutorial with suppliers)
-// NOTE - supply dialogue currently sitting on main navigation screen. 
-
-{@PAL}      The next stage is supply chain. This is where you will coordinate with suppliers to purchase materials for fabrication. 
-{@PAL}      We'll go over how to do that in a second, but first, you should meet some of the suppliers.
-
-{@Taryn}    Howdy, I'm Taryn! I'm the head supplier for Kalvis sector! 
-{@Taryn}    Or as you Frontier...iers say CU-652...5... uh...
-{@Taryn}    Whatever million numbers come after that. 
-{@Taryn}    It's a pleasure to meet you! 
-
-{@Player}   Nice to meet you too, Taryn.
-
-{@PAL}      Taryn's one of the independent suppliers in the Ausrine System.
-
-{@Ovill}    Hello!
-{@Ovill}    I'm supplier representative #32-A548 of the Forsch Sector with Frontier Robotics. 
-{@Ovill}    But you can call me Ovill. 
-{@Ovill}    We at Frontier try to bring the most outstanding service to all of our clients!
-{@Ovill}    We offer an exclusive deal on Silicon Oxide shipments I can give you 50% off if you buy two, count em' two full shipments with us! 
-
-{@Player}   Oh... uh I'll let you know if I need that. 
-
-{@PAL}      Ovill is one of our esteemed Frontier Robotics suppliers! When given a chance, I highly encourage working with him. 
-{@PAL}      It does look like the contract asks for a conductor, meaning we should be sourcing copper for this run. 
-{@PAL}      Let's go ahead and show you the ropes! 
-
-// end region
 //region Supply Chain Haulers
-// NOTE - dialogue runs under pre-text that this is in mini-game screen. ]
-// NOTE - Hauler ship is stand-in, subject to change. 
 
-
-{@PAL}      This is the supply chain screen! 
 {@Quinn}    Is... is this thing on?
 {@Player}   Uh... P.A.L? Who's that?
-{@PAL}      Oh! That's your hauler, Quinn! 
-{@Quinn}    Cap', pleasure to make you acquaintance. 
-{@PAL}      Quinn here will be the on piloting your supply ship, The Sphere.
-{@PAL}      They'll be the one following your routes. 
-{@Quinn}    "Follow", more like guide. I never follow the beaten-path. 
+{@PAL}      That's your hauler, Quinn! 
+{@Player}   Wait, another human?
+{@Quinn}    Wow! You sure got some good eyes on you. Very observant.
+{@Player}   Uh huh... 
+{@PAL}      I believe Quinn is participating the human verbal condition called: 
+{@PAL}      Sarcasm. 
+{@PAL}      Quinn will follow the routes you draw for material pick-up. 
+{@Quinn}    "Follow", more like "guide." I never follow the beaten-path. 
 {@Player}   Isn't that... dangerous? 
-{@Quinn}    Wait? Space? Dangerous? Who would've known. 
-{@Quinn}    Don't worry Cap' I'm well verse in hauling. 
+{@Quinn}    Wait? Space is dangerous? Why didn't you tell me?!
+{@Quinn}    Stop leaking cyro fluid Cap', promise I'll be timely and efficient, Hauler's Honor. 
 {@Player}   Whatever you say...
-{@PAL}      Now, let's draw some routes. 
+
+//#region - After Supply Chain 
+
+//region Supply Chain - Taryn Intro 
+
+{@Player}   Guess I should call one of the supplier contacts... Cu-6533etc. 
+//phone dial character??
+{@Taryn}    Oh Universe above. I swear, for the last time, P.A.L. I don't want to do work with you-
+{@Player}   Uh... 
+{@Taryn}    I'm already at my wits end with Frontier, we all are. 
+{@Taryn}    We won't work for you unless you have a human on board, 
+{@Taryn}    AND ANOTHER THING-... Oh my stars you're a human. 
+{@Player}   Uh. Last time I checked, yeah. 
+{@Taryn}    Shoot, uh, sorry! I...
+{@Taryn}    I'm Kalvis Sector wait uh no, in the-supplier... uh-
+{@Player}   What?
+{@Taryn}    Ack-... Sorry. This isn't the first time your ship has contacted me. 
+{@Taryn}    Let's just say, P.A.L. left a bad taste in my mouth. 
+{@Player}   I see.
+{@Taryn}    How about we start over and forget about the embarassing yelling and the word vomit that just happened? 
+{@Taryn}    Name's Taryn. I'm the supplier contact for the Kalvis sector. 
+{@Player}   Nice to meet you Taryn. I'm Locke. 
+{@Taryn}    ...Locke... why does that sound familiar? 
+{@Taryn}    Anyways, pleasure to meet you Locke!
+{@Taryn}    If you want any materials in our sector, I'm the one to call! 
+{@Player}   I'll keep that in mind, thanks! 
+//hang up dial.
+
+//end region
+
+//#region Supplier - Ovill
+
+//dial
+{@Player}   Oh, a call. 
+//pick up tone
+{@Ovill}    Boy oh boy do I have a deal for you! 
+{@Player}   What?
+{@Ovill}    We at Frontier Robotics value our loyal customers. 
+{@Ovill}    So much so that we have a super duper exclusive deal just for members like you! 
+{@Ovill}    Source with us today, and we'll throw in a complimentary Frontier Robotics swag bag! 
+{@Ovill}    This includes a hat, several Robo-Bros trading cards, and an all exclusive poster signed by the CEO himself. Mr. Grayson! 
+{@Ovill}    All you need to do is source with us within the next 24 hours, or the deal is gone, Locke, GONE! 
+{@Player}   How do you know my name? 
+{@Ovill}    Unimportant! So, what do you say, you ready to make a deal?  
+{@Player}   Uh... that's neat and all, but I think I only want to source the materials...
+{@Ovill}    ...what. 
+{@Player}   I just want to source materials. 
+{@Ovill}    Did I do the pitch wrong? 
+{@Player}   Uh... no- 
+{@Ovill}    Oh my stars I came on too strong. 
+{@Ovill}    Or was it not strong enough? Maybe if I raise my voice and bring more "pazaaz". Let me start over.
+{@Player}   That's not necessary-
+{@Ovill}    LOCKE, DO I HAVE A DEAL FOR YOU, IF YOU SOURCE WITH US TODAY- 
+{@Player}   I'M NOT INTERESTED!
+{@Player}   Not because you did a bad pitch. I just... want to pay off this debt. 
+{@Ovill}    So... it wasn't my fault? 
+{@Player}   Yes. I guess. 
+{@Ovill}    Fantastic!  I can put that in my daily report. Perfect marks.  
+{@Ovill}    Though it's odd that you don't want free stuff... I'll write it off as a customer fluke. 
+{@Ovill}    Anyways. I'm Representative 32-A345. But you can just call me Ovill. 
+{@Ovill}    If you need anything from the Forsch sector, you let me know! I am always open for business! 
+{@Player}   Thanks, Ovill. 
+
+// end region
+
+
 
 //#region - After Supply Chain 
 
@@ -105,7 +140,7 @@ $call   ReleaseAllHighlights()
 //#region - Fabrication 
 ::AfterFabrication 
 @trigger    OnOverarchingLoaded
-@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply) IsSolutionFoundFor(Fabrication)
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
 @cutscene
 @once
 

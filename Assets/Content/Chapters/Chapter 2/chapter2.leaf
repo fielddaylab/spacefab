@@ -41,14 +41,38 @@ $call   UnlockWikiPage("Insulator")
 {@Player}   Are you seriously recommending that? 
 {@Player}   Or are you saying that because that's a Frontier sector? 
 {@PAL}      A Froniter Robotics deal is always a good deal! 
-{@Player}   I'll have to weigh my options. 
+{@Player}   Let me call each, then I'll decide. 
 
-{@Taryn}    Hiya Locke! The Kalvis sector is offering Phosphorus at Auseklis Station.
-{@Taryn}    It'll take some time, but I can offer you a decent price. 
-{@Taryn}    Just a heads up, our Phosphorus will only be offered for a limited time with us! 
+//#region - Kalvis & Forsch Sector 
 
-{@Ovill}    Do I have an offer for you! Our Phosphorus at Hennig Station comes with rapid production! 
-{@Ovill}    Just a reminder that there is the labor fee, the shipping fee, the buying fee...
-{@Ovill}    All additional fees will be listed on the invoice. 
+{@Player}   Hi Taryn.
+{@Taryn}    Locke, hiya!
+{@Player}   Listen I saw... your face, you got uh... dirt all over it. 
+{@Taryn}    Oh! I was in my garden earlier, got a bit lost in the weeds!  
+{@Taryn}    Anywhosies. Let me guess, you're calling about the new Phosphorus station? 
+{@PAL}      Seems like a conference call can speed up your decision. Let me patch you to the Forsch Sector! 
+{@Player}   Wait no, P.A.L.
+{@PAL}      Call connected! 
+{@Ovill}    Hello Locke! I got another deal for you. Our new Phosphorus station will blow your noodle!
+{@Taryn}    Ovill.
+{@Ovill}    Taryn.
+{@Taryn}    So, trying to steal my client? 
+{@Ovill}    Rich, coming from a deserter. 
+{@Player}   ...Do you guys know each other? 
+{@Taryn}    I... worked at Frontier Robotics once upon a time.
+{@Taryn}    But I left. 
+{@Ovill}    Taryn here decided that working with traitors was a better option. 
+{@Taryn}    At least I didn't sell my soul to a mega-corp.
+{@Ovill}    And to think you were a rising star. 
+{@Taryn}    Whatever. Frontier has a gazillion rising stars. I wasn't special.
+{@Taryn}    Neither are you, or anyone trying to climb Frontier's ladder. 
+{@Ovill}    I'll have you know I have the highest marks out of my entire department. 
+{@Player}   Hey guys... the Phosphorus...
+{@Ovill}    Hm? Oh yes! We have a Phosphorus station available to you in rapid speed! 
+{@Ovill}    Just to remind you that there will be a sourcing fee, a labor fee, a buying fee-
+{@Taryn}    Oh, don't forget the breathing fee.
+{@Ovill}    -_-
+{@Taryn}    Or you can source from us! It'll take a bit longer but you'll have genunine product at a fair price. 
+{@Player}   I'll think about it. Thanks guys. 
 
-{@PAL}      Which one will you pick, Captain? 
+
