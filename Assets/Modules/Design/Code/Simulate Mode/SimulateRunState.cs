@@ -40,7 +40,10 @@ namespace SpaceFab.Design
         // Cleared by SimulateControlRefreshSystem in LateUpdate.
         [HideInInspector] public bool PaintDepthThisFrame;
 
-        // Set during Propagating if the current row produced an unstable flow anywhere.
+        // Set during Propagating if the current row produced an unstable flow ANYWHERE on the
+        // board. Diagnostic only — it does not decide the verdict, because a region that reaches
+        // no output has no bearing on whether the row passes. ProcessResolvingTest scopes the
+        // Unstable verdict to the output segments instead.
         [HideInInspector] public bool IsUnstable;
 
         // ---- Inspector-editable pacing (matches prototype timeBetweenSteps / timeBetweenTests) ----
@@ -249,7 +252,7 @@ namespace SpaceFab.Design
         }
 
         // Resets the active simulation back to a clean Idle state — wipes per-cell flow,
-        // clears per-node transients, clears all row verdicts (model + UI), marks visuals dirty,
+        // clears per-segment and per-node transients, clears all row verdicts (model + UI), marks visuals dirty,
         // parks Phase at Idle, and flags the run-button icons for repaint. Shared by
         // SimulateModeSystem.ProcessCancelling and ModeTransitionSystem.ExitSimulateMode.
         // Intentionally does NOT touch PendingPlayRowIndex so callers can decide whether to
@@ -261,7 +264,7 @@ namespace SpaceFab.Design
         public static void WipeRunState(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, DesignMinigameState designState)
         {
             SimulateRunScratchUtility.BumpFlowStamp(runScratch);
-            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+            SimulateRunScratchUtility.ClearRunTransients(runScratch, graphState.NodeCount, graphState.SegmentCount);
             visualState.VisualsNeedRefreshing = true;
 
             if (designState == null || !designState.UseToggleInputMode)

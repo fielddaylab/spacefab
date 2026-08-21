@@ -32,7 +32,7 @@ namespace SpaceFab {
 
             for (int i = 0; i < MaxChapterSlots; i++) {
                 int index = i; // capture per-iteration for the closures
-                menu.AddButton("Skip to chapter #" + i, () => DebugSkipToChapter(index), () => index < ChapterCount() && CanSkip());
+                menu.AddButton("Skip to chapter #" + (i + 1), () => DebugSkipToChapter(index), () => index < ChapterCount() && CanSkip());
             }
 
             return menu;

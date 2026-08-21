@@ -7,14 +7,16 @@ using UnityEngine;
 namespace SpaceFab.Design
 {
     /// <summary>
-    /// Per-run transient state for Simulate mode. Replaces the prototype's ambient flow state,
-    /// which was scattered across CrucialGraphNode.CurrFlowState, CrucialGraphNode.TempTransformedType,
-    /// GridCell.FlowState, and GridCell.TempTransformation — all accessed via dictionary lookups
-    /// with silent boxing.
+    /// Per-run transient state for Simulate mode.
+    ///
+    /// Flow is stored per SEGMENT, not per crucial node: a segment is one conductor at one
+    /// potential, so storing a value per node would let one wire hold two of them. Per-cell flow
+    /// still exists, but only as the render target — it is always a copy of the owning segment's
+    /// value, written as the propagation walk reveals cells.
     ///
     /// All state here is per-test: it gets reset at the start of each row (via stamp bump + small
-    /// Array.Clear on the node arrays) and is consumed by DepthStepSystem during propagation and
-    /// by ProcessResolvingTest at row end. Visuals read the cell-level flow via
+    /// Array.Clear on the segment and node arrays) and is consumed by DepthStepSystem during
+    /// propagation and by ProcessResolvingTest at row end. Visuals read the cell-level flow via
     /// SimulateRunScratchUtility on every refresh.
     ///
     /// Lifetime: arrays are lazy-allocated on first Simulate-mode entry via
@@ -23,27 +25,23 @@ namespace SpaceFab.Design
     /// </summary>
     public class SimulateRunScratch : SharedStateComponent, IRegistrationCallbacks
     {
-        // ---- Per-crucial-node transient flow state (replaces CrucialGraphNode.CurrFlowState) ----
+        // ---- Per-segment flow state ----
         //
-        // Indexed by crucialIdx (0..graphState.NodeCount). Cleared to Empty at the top of each
-        // test via Array.Clear — NodeCount is small (tens), so the clear is cheap.
+        // Indexed by segmentId (0..graphState.SegmentCount). THE unit of flow: a segment is one
+        // conductor at one potential, so every cell in it necessarily displays the same value and
+        // two drivers feeding one segment must agree or the segment resolves Unstable.
+        //
+        // Only ever moves Empty → value → Unstable (see AssignSegmentFlow). DepthStepSystem's
+        // convergence sweeps rely on that monotonicity to terminate.
 
-        [NonSerialized] public FlowState[] NodeFlow;
+        [HideInInspector] public FlowState[] SegmentFlow;
 
         // ---- Per-crucial-node transient P↔N inversion (replaces CrucialGraphNode.TempTransformedType) ----
         //
         // Indexed by crucialIdx. Only meaningful for cells whose CellType is NTransistor or
         // PTransistor; reads for other types are benign (return CellType.NONE).
 
-        [NonSerialized] public CellType[] NodeTempTransform;
-
-        // ---- Per-crucial-node input values for the current test (replaces per-edge GetTestValBySubType) ----
-        //
-        // Populated once per test in ProcessPreparingTest by walking Input crucial nodes and
-        // looking up their expected value from TestData. Read by DepthStepSystem at Input-origin
-        // edges. Non-Input entries are unused.
-
-        [NonSerialized] public FlowState[] InputFlowByNode;
+        [HideInInspector] public CellType[] NodeTempTransform;
 
         // ---- Per-cell flow (replaces GridCell.FlowState writes) ----
         //
@@ -56,9 +54,9 @@ namespace SpaceFab.Design
         // Reads go through SimulateRunScratchUtility.GetCellFlow which compares the per-cell
         // stamp against CurrentFlowStamp and returns Empty on mismatch.
 
-        [NonSerialized] public FlowState[] CellFlow;
-        [NonSerialized] public int[] CellFlowStamps;
-        [NonSerialized] public int CurrentFlowStamp;
+        [HideInInspector] public FlowState[] CellFlow;
+        [HideInInspector] public int[] CellFlowStamps;
+        [HideInInspector] public int CurrentFlowStamp;
 
         // ---- Per-cell temp-transform (replaces GridCell.TempTransformation writes) ----
         //
@@ -67,8 +65,8 @@ namespace SpaceFab.Design
         // be on any path, so it shouldn't validate that cell's flow stamp. With separate
         // stamp arrays, writing temp-transform only validates temp-transform reads.
 
-        [NonSerialized] public CellType[] CellTempTransform;
-        [NonSerialized] public int[] CellTempTransformStamps;
+        [HideInInspector] public CellType[] CellTempTransform;
+        [HideInInspector] public int[] CellTempTransformStamps;
 
         // ---- Output flow buffer (pooled, reused across all rows) ----
         //
@@ -77,16 +75,16 @@ namespace SpaceFab.Design
         // Simulate-mode entry and never resized — the output set is a property of the level,
         // not the row.
 
-        [NonSerialized] public FlowState[] OutputFlowBuffer;
-        [NonSerialized] public int OutputCount;
+        [HideInInspector] public FlowState[] OutputFlowBuffer;
+        [HideInInspector] public int OutputCount;
 
-        // ---- Per-test flag set by DepthStepSystem, consumed by ProcessResolvingTest ----
+        // ---- Per-test diagnostic flag set by DepthStepSystem ----
         //
-        // Mirrors SimulateRunState.IsUnstable. Duplicated here because DepthStepSystem already
-        // has SimulateRunScratch in its permissions and this avoids broadening to RunState just
-        // to flip one bool.
+        // Mirrors SimulateRunState.IsUnstable, and like it, does NOT decide the verdict — see the
+        // note there. Duplicated here because DepthStepSystem already has SimulateRunScratch in
+        // its permissions and this avoids broadening to RunState just to flip one bool.
 
-        [NonSerialized] public bool IsUnstable;
+        [HideInInspector] public bool IsUnstable;
 
         public void OnRegister()
         {
@@ -111,11 +109,10 @@ namespace SpaceFab.Design
         //
         // Growth is loud (Debug.LogWarning) so undersized initial heuristics become visible
         // during playtesting — same pattern as SimulateGraphUtility.EnsureCapacity.
-        public static void EnsureCapacity(SimulateRunScratch scratch, int nodeCount, int cellCount)
+        public static void EnsureCapacity(SimulateRunScratch scratch, int nodeCount, int segmentCount, int cellCount)
         {
-            EnsureArray(ref scratch.NodeFlow, nodeCount, nameof(scratch.NodeFlow));
+            EnsureArray(ref scratch.SegmentFlow, segmentCount, nameof(scratch.SegmentFlow));
             EnsureArray(ref scratch.NodeTempTransform, nodeCount, nameof(scratch.NodeTempTransform));
-            EnsureArray(ref scratch.InputFlowByNode, nodeCount, nameof(scratch.InputFlowByNode));
 
             EnsureArray(ref scratch.CellFlow, cellCount, nameof(scratch.CellFlow));
             EnsureArray(ref scratch.CellFlowStamps, cellCount, nameof(scratch.CellFlowStamps));
@@ -131,12 +128,29 @@ namespace SpaceFab.Design
             EnsureArray(ref scratch.OutputFlowBuffer, outputCount, nameof(scratch.OutputFlowBuffer));
         }
 
-        // Clears per-node transient state for a new test. Small O(NodeCount) pass — NodeCount
-        // is tens at most.
-        public static void ClearNodeTransients(SimulateRunScratch scratch, int nodeCount)
+        // Clears per-segment and per-node transient state for a new test. Small pass — both counts
+        // are tens at most.
+        public static void ClearRunTransients(SimulateRunScratch scratch, int nodeCount, int segmentCount)
         {
-            if (scratch.NodeFlow != null) { Array.Clear(scratch.NodeFlow, 0, nodeCount); }
+            if (scratch.SegmentFlow != null) { Array.Clear(scratch.SegmentFlow, 0, segmentCount); }
             if (scratch.NodeTempTransform != null) { Array.Clear(scratch.NodeTempTransform, 0, nodeCount); }
+        }
+
+        // Merges an incoming value into a segment and reports whether the stored value moved.
+        //
+        // Empty → value, same value → no-op, conflicting value → Unstable, and Unstable absorbs
+        // everything after. That lattice is what makes two drivers on one conductor either agree
+        // or resolve Unstable no matter which order their edges run in, and its monotonicity is
+        // what lets DepthStepSystem's convergence sweeps terminate.
+        public static bool AssignSegmentFlow(SimulateRunScratch scratch, int segmentId, FlowState incoming)
+        {
+            if (segmentId < 0 || incoming == FlowState.Empty) { return false; }
+
+            FlowState current = scratch.SegmentFlow[segmentId];
+            if (current == incoming || current == FlowState.Unstable) { return false; }
+
+            scratch.SegmentFlow[segmentId] = current == FlowState.Empty ? incoming : FlowState.Unstable;
+            return true;
         }
 
         // Invalidates all per-cell flow + temp-transform marks in O(1). The next GetCellFlow

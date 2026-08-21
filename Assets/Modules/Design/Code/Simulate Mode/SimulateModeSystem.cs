@@ -143,28 +143,29 @@ namespace SpaceFab.Design
             }
         }
 
-        // PreparingTest: reset per-row sim state, prime input flows, advance to Propagating.
+        // PreparingTest: reset per-row sim state, seed the input segments, advance to Propagating.
         // Runs exactly once per test-row start.
         //
         // Reset strategy:
-        //   - Per-node transient arrays (NodeFlow / NodeTempTransform): Array.Clear on 0..NodeCount.
-        //     NodeCount is tens at most — effectively free.
+        //   - Transient arrays (SegmentFlow / NodeTempTransform): Array.Clear over the live counts.
+        //     Both are tens at most — effectively free.
         //   - Per-cell transient state (CellFlow / CellTempTransform): BumpFlowStamp. Single int
         //     increment invalidates every per-cell mark from the prior test.
-        //   - Edge state: none to reset. Cycle-detection flags are durable on CrucialEdge and
-        //     computed at Build time, not per test.
+        //   - Edge state: none to reset. CycleDetected is durable on CrucialEdge and computed at
+        //     Build time, not per test.
         static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, PlayerProgressState progressState, ContractState contractState, GridStackState gridStackState, DesignMinigameState designState)
         {
-            // Per-node transient reset. Cheap: NodeCount is small.
-            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+            // Per-segment and per-node transient reset.
+            SimulateRunScratchUtility.ClearRunTransients(runScratch, graphState.NodeCount, graphState.SegmentCount);
 
             // Per-cell transient reset. O(1) — stamp bump invalidates all prior flow + temp-
             // transform writes without touching the arrays themselves.
             SimulateRunScratchUtility.BumpFlowStamp(runScratch);
 
-            // Prime InputFlowByNode for this row. Walk Input crucial nodes and materialize their
-            // test-row value once; DepthStepSystem reads from the array per edge, avoiding a
-            // per-edge TestData scan.
+            // Seed each Input's segment with this row's value. An Input drives its whole conductor
+            // the moment the row starts, so this belongs on the segment rather than being read
+            // back per edge — which is also what removes the Input special case from ProcessEdge.
+            // Two Inputs wired to one segment resolve Unstable here, before propagation begins.
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
             TestData currTest = suite.Tests[runState.CurrentRow];
@@ -177,7 +178,13 @@ namespace SpaceFab.Design
                 GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
                 if (cell.CellType == CellType.Input)
                 {
-                    runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                    FlowState inputFlow = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                    SimulateRunScratchUtility.AssignSegmentFlow(runScratch, graphState.CrucialSegment[i], inputFlow);
+
+                    // Paint the Input's own cell too. DepthStepSystem's crawl carries the colour
+                    // already on an edge's origin cell, so without this every depth-0 edge would
+                    // start from an unpainted origin and nothing would ever advance.
+                    SimulateRunScratchUtility.SetCellFlow(runScratch, node.CellIndex, inputFlow);
                     inputs.Add(node.Coord);
                 }
                 else if (cell.CellType == CellType.Output)
@@ -317,7 +324,8 @@ namespace SpaceFab.Design
 
         // ResolvingTest: score outputs for CurrentRow, write verdict, advance to next row or finish.
         //
-        // Reads per-output flow from runScratch.NodeFlow, fills runScratch.OutputFlowBuffer in
+        // Reads each Output's flow from its SEGMENT — the same value the output tag shows via
+        // GetCellFlow, so the two cannot disagree — fills runScratch.OutputFlowBuffer in
         // CrucialNodes-Output order, and compares each value to the expected one from the current
         // row's TestData. The verdict gets recorded on runState.RowVerdicts via SetVerdict and
         // pushed to the UI via WriteRowVerdict (currently a stub — UI not yet implemented).
@@ -341,6 +349,7 @@ namespace SpaceFab.Design
             // per-output verdicts without re-walking the graph.
             FlowState[] actualPerCol = new FlowState[currTest.Bundle.Length];
             bool allCorrect = true;
+            bool anyOutputUnstable = false;
             int outputIdx = 0;
             for (int i = 0; i < graphState.NodeCount; i++)
             {
@@ -348,10 +357,11 @@ namespace SpaceFab.Design
                 GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
                 if (cell.CellType != CellType.Output) { continue; }
 
-                FlowState actual = runScratch.NodeFlow[i];
+                FlowState actual = runScratch.SegmentFlow[graphState.CrucialSegment[i]];
                 FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
                 runScratch.OutputFlowBuffer[outputIdx++] = actual;
                 if (actual != expected) { allCorrect = false; }
+                if (actual == FlowState.Unstable) { anyOutputUnstable = true; }
 
                 // Map this graph-output back to its bundle column by SubtypeLabel match so the
                 // UI's verdict visualizers (indexed by bundle col) can read the actual flow.
@@ -365,9 +375,12 @@ namespace SpaceFab.Design
                 }
             }
 
-            // Unstable beats Correct/Incorrect: any unstable flow this row, even if all outputs
-            // happened to match expectations, is a fail-by-instability per the prototype.
-            TestRowVerdict verdict = runState.IsUnstable
+            // Unstable beats Correct/Incorrect, but only when the instability actually reaches an
+            // output. Scoping it to the output segments rather than a board-wide flag means a
+            // conflicting pair of drivers off in a region that connects to nothing still paints
+            // Unstable — it is unstable, and the player should see that — without deciding a row
+            // it has no electrical bearing on.
+            TestRowVerdict verdict = anyOutputUnstable
                 ? TestRowVerdict.Unstable
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
             SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
