@@ -3,6 +3,7 @@ using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Design {
     /// <summary>
@@ -14,6 +15,8 @@ namespace SpaceFab.Design {
     /// (LateUpdate). One-frame flags cleared by ToolbarRefreshSystem (LateUpdate, order 100).
     /// </summary>
     public class ToolbarState : SharedStateComponent, IRegistrationCallbacks {
+        public Image SelectedToolPtr;
+
         // Which row the visuals layer should focus this frame. Normally aligned with the row of
         // the selected tool; temporarily flips when the player hovers over the opposite row.
         [HideInInspector] public StackLayer FocusedRow;
