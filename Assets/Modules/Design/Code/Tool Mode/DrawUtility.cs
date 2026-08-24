@@ -22,6 +22,9 @@ namespace SpaceFab.Design
 
             if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) { return; }
 
+            // ensure any data from existing transfer type gets (i.e. via) gets erased
+            EraseUtility.EraseTransferData(toolModeState, gridState, cell, gridPos, (int)toolModeState.ActiveLayer);
+
             cell.TransferType = TransferType.Via;
 
             int cellEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.DESCEND : (int)EdgeDir.ASCEND;
@@ -40,15 +43,11 @@ namespace SpaceFab.Design
 
             if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) { return; }
 
+            // ensure any data from existing transfer type gets (i.e. via) gets erased
+            EraseUtility.EraseTransferData(toolModeState, gridState, cell, gridPos, (int)toolModeState.ActiveLayer);
+
             cell.TransferType = toolModeState.ActiveLayer == StackLayer.Metal ? TransferType.GateAbove : TransferType.GateBelow;
             linkedCell.TransferType = toolModeState.ActiveLayer == StackLayer.Metal ? TransferType.GateBelow : TransferType.GateAbove;
-
-            /*
-            int cellEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.DESCEND : (int)EdgeDir.ASCEND;
-            int linkedEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.ASCEND : (int)EdgeDir.DESCEND;
-            cell.Edges[cellEdgeIndex] = EdgeState.Connected;
-            linkedCell.Edges[linkedEdgeIndex] = EdgeState.Connected;
-            */
         }
 
         public static void DragDrawNodeOfType(ToolModeState toolModeState, GridStackState gridState, VisualGridStackState visualState, CellType type, Vector2Int gridPos)
