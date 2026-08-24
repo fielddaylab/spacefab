@@ -74,7 +74,7 @@ namespace SpaceFab.Research {
             HypothesisViewModelState hypoVm,
             ResearchMinigameState researchState
         ) {
-            if (panel == null || interfacerState == null || hypoVm == null) {
+            if (panel == null) {
                 return;
             }
 
@@ -120,7 +120,7 @@ namespace SpaceFab.Research {
             // 1. Empty-state path: no material slotted
             bool isDopingChamber = interfacerState.ActiveChamber == ActiveChamberKind.Doping;
             bool isSlotFilled = isDopingChamber ?
-                secondaryMaterial != null : primaryMaterial != null;
+                primaryMaterial != null && secondaryMaterial != null : primaryMaterial != null;
 
             if (!isSlotFilled) {
                 if (panel.EmptyState != null) {
@@ -179,9 +179,8 @@ namespace SpaceFab.Research {
                 // Set the substrate label and sprite if currently on doping chamber
                 if (isDopingChamber)
                 {
-                    bool substrateKnown = researchState != null
-                        && researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
-                        && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
+                    bool substrateKnown = researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
+                    && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
                     ResearchMaterialView substrateView = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
                     panel.SubstrateSprite.sprite = primaryMaterial.GemSprite;
                     if (substrateKnown) {
