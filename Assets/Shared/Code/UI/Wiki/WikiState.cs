@@ -646,7 +646,6 @@ namespace SpaceFab.UI {
         // close and reopen the wiki.
         public static void UnlockPage(PlayerProgressState progressState, StringHash32 pageId) {
             if (!progressState.UnlockedWikiPages.Add(pageId)) { return; }
-            Log.Msg("WikiState] Continuing to unlock page...");
 
             WikiState wikiState = Find.State<WikiState>();
             if (wikiState != null) {
@@ -666,7 +665,6 @@ namespace SpaceFab.UI {
         [LeafMember("UnlockWikiPage")]
         public static void Leaf_UnlockWikiPage(string pageId)
         {
-            Log.Msg("WikiState] Trying to unlock page...");
             if (!Game.SharedState.Has<PlayerProgressState>()) { return; }
             UnlockPage(Find.State<PlayerProgressState>(), new StringHash32(pageId));
         }
@@ -681,8 +679,6 @@ namespace SpaceFab.UI {
             if (!progressState.UnlockedWikiPages.Remove(pageId)) { return; }
 
             if (!Game.SharedState.Has<WikiState>()) { return; }
-
-            Log.Msg("WikiState] Continuing to lock page...");
 
             WikiState wikiState = Find.State<WikiState>();
             wikiState.NeedsRebuild = true;
@@ -701,7 +697,6 @@ namespace SpaceFab.UI {
         // here the way they do for OpenWikiTo. Unknown and already-locked ids are no-ops.
         [LeafMember("LockWikiPage")]
         public static void Leaf_LockWikiPage(string pageId) {
-            Log.Msg("WikiState] Trying to lock page...");
             if (!Game.SharedState.Has<PlayerProgressState>()) { return; }
             LockPage(Find.State<PlayerProgressState>(), new StringHash32(pageId));
         }
