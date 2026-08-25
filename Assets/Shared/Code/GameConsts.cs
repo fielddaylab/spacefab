@@ -9,6 +9,7 @@ namespace SpaceFab
     public static class GameConsts
     {
         public static int StartGameSceneIndex = 0; // index of the first scene -- usually Boot
+        public static string OverarchingSceneName = "Overarching";
     }
 
     public static class GameEvents
