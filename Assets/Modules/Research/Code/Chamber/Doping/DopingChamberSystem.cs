@@ -83,14 +83,14 @@ namespace SpaceFab.Research
             MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary);
             MaterialPhysicsProfile profile = material == null ? null : Find.NamedAsset<MaterialPhysicsProfile>(material.AssetId);
 
+            // Clear dopant
+            ResearchSlotUtility.FillInSlot(interfacerState, ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
+
             if (material == null || profile == null) {
                 CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
                 CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
                 return;
             }
-
-            // Clear dopant
-            ResearchSlotUtility.FillInSlot(interfacerState, ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
 
             // Show toggle for polyelemental substrates
             ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);

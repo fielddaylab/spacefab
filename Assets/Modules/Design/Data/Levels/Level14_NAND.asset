@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
   m_Name: Level14_NAND
   m_EditorClassIdentifier: 
-  m_title: AND
+  m_title: NAND
   m_allowedTools: -1
   m_gridConfig: {fileID: 11400000, guid: 38ee69962e556433387ecf53db54dc00, type: 2}
   m_testSuite: {fileID: 11400000, guid: 14b76ae1edcf54f4c9a6b9efda3a0d16, type: 2}

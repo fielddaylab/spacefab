@@ -12,11 +12,6 @@ namespace SpaceFab.Supply {
         // Forces a rebuild on the next visuals tick regardless of the diff (set on load).
         public bool NeedsRefresh;
 
-        // Expand/collapse steady state and the in-flight transition.
-        public bool Expanded;
-        public bool Transitioning;
-        public Routine TransitionRoutine;
-
         // Last-applied aggregate values; the visuals system rebuilds only when these change.
         public int LastRisk;
         public int LastCost;
@@ -25,11 +20,9 @@ namespace SpaceFab.Supply {
 
         public void OnRegister() {
             NeedsRefresh = true;
-            Expanded = false;
         }
 
         public void OnDeregister() {
-            TransitionRoutine.Stop();
         }
     }
 }

@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b1824e4a94bb4848a25eda22c4ac45f, type: 3}
+  m_Name: SupplyMapCh7
+  m_EditorClassIdentifier: 
+  ShipIds:
+  - m_HashValue: 4036650106
+  - m_HashValue: 4019872487
+  CameraBounds:
+    serializedVersion: 2
+    x: -16
+    y: -12
+    width: 32
+    height: 24
+  Positions:
+  - Name:
+      m_HashValue: 1391791790
+    Position: {x: -0.37, y: 0.01}
+  - Name:
+      m_HashValue: 392540606
+    Position: {x: 4.66, y: -0.73}
+  - Name:
+      m_HashValue: 3566278674
+    Position: {x: -6.26, y: -4.56}
+  - Name:
+      m_HashValue: 1181591482
+    Position: {x: 5.63, y: -6.29}
+  - Name:
+      m_HashValue: 57385584
+    Position: {x: 4.5, y: 4.85}
+  - Name:
+      m_HashValue: 593577844
+    Position: {x: -4.54, y: 3.4}
+  - Name:
+      m_HashValue: 3801165340
+    Position: {x: 9.29, y: -2.88}
+  - Name:
+      m_HashValue: 1161631464
+    Position: {x: -6.92, y: 6.4}
+  - Name:
+      m_HashValue: 1798506261
+    Position: {x: 0.09, y: 6.5}
+  - Name:
+      m_HashValue: 1616771497
+    Position: {x: 5.55, y: 1.32}
+  - Name:
+      m_HashValue: 241399131
+    Position: {x: -1.19, y: -7.06}
+  - Name:
+      m_HashValue: 3784387721
+    Position: {x: -7.17, y: 0.63}
+  Hazards:
+  - Name:
+      m_HashValue: 3227802397
+    Position: {x: 1.6, y: -3.65}
+  Overrides:
+  - Name:
+      m_HashValue: 57385584
+    Time: 2
+    Cost: 2
+    Risk: 1

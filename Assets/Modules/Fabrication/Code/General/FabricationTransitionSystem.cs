@@ -20,7 +20,6 @@ namespace SpaceFab.Fabrication {
                     .ReadWriteShared<FabricationTransitionState>()
                     .ReadShared<ContractState>()
                     .ReadWriteShared<SequenceState>()
-                    .ReadWriteShared<ProgressMeterState>()
             );
         }
 
@@ -33,10 +32,6 @@ namespace SpaceFab.Fabrication {
                 out SequenceState sequenceState
                 );
 
-            Find.State(
-                out ProgressMeterState meterState
-                );
-
             Log.Msg("[FabricationTransitionSystem] Setting up level...");
             // setup
             if (contractState.ContractAssets) {
@@ -45,8 +40,6 @@ namespace SpaceFab.Fabrication {
             else {
                 Log.Warn("FabricationTransistionSystem] Tried to load contract assets but returned null!");
             }
-            // hide progress meter
-            ProgressMeterUtility.Hide(meterState.ActiveMeter);
 
             Log.Msg("[FabricationTransitionSystem] Setup complete!");
 

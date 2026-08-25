@@ -1,5 +1,7 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
+using UnityEngine;
 
 namespace SpaceFab.Supply
 {
@@ -37,6 +39,8 @@ namespace SpaceFab.Supply
                 );
 
             if (!shoppingState.Dirty) { return; }
+            Log.Msg("[SupplyBug] shopping list dirty");
+
 
             // ShoppingListLoadUtility scans the finalized routes' gathered
             // materials and, for each contract requirement, fills the slot via

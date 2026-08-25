@@ -56,11 +56,23 @@ namespace SpaceFab.Overarching
             layoutState.FaderGroup.alpha = 1;
             layoutState.FaderGroup.blocksRaycasts = true;
 
-            layoutState.ChangeContractButton.gameObject.SetActive(true);
+            // Fill the panel with the accepted contract — it may still be showing whatever was browsed last
+            StringHash32 currContractId = ChapterUtility.GetSelectedContractId(chapterState);
+            ContractUtility.LoadContractData(layoutState.SelectionContractUI,
+                currContractId.IsEmpty ? null : ContractUtility.GetDefinition(currContractId));
 
-            //ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[chapterState.LastSelectedContractIndex]);
             layoutState.SelectionContractUI.gameObject.SetActive(true);
-            
+
+            // only enable change contract btn when there is alternative contract
+            if (chapterState.ChapterDefinition.AvailableContracts.Length > 1)
+            {
+                layoutState.ChangeContractButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                // disable select button if only one contract is available
+                layoutState.SelectionContractUI.SelectContractButton.enabled = false;
+            }
             layoutState.NextContractButton.gameObject.SetActive(false);
             layoutState.PrevContractButton.gameObject.SetActive(false);
 

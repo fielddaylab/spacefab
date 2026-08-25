@@ -3,11 +3,9 @@ using SpaceFab.Materials;
 namespace SpaceFab.Research {
     /// <summary>
     /// Maps MaterialPropertyLabel enum values to human-readable strings for
-    /// the hypothesis / observation UI. Two flavors: short observation
-    /// phrasing (sentence-style, chip-sized) and uppercase property phrasing
-    /// (used in the hypothesis header). Authoring is intentionally a switch
-    /// for now — a NamedAsset / localization table can replace this once
-    /// the label vocabulary stabilizes.
+    /// the hypothesis / observation UI. Authoring is intentionally
+    /// a switch for now — a NamedAsset / localization table can replace
+    /// this once the label vocabulary stabilizes.
     /// </summary>
     public static class MaterialPropertyLabelDisplay {
         // Chip label for an observation. Falls back to the enum name when
@@ -18,7 +16,7 @@ namespace SpaceFab.Research {
                 case MaterialPropertyLabel.NonConductive: return "Prevents current flow";
                 case MaterialPropertyLabel.HeatActivated: return "Heat increases current";
                 case MaterialPropertyLabel.HeatDeactivated: return "Heat decreases current";
-                case MaterialPropertyLabel.HeatUnaffected: return "Heat does not affect current";
+                case MaterialPropertyLabel.HeatUnaffected: return "Current unchanged by heat";
                 case MaterialPropertyLabel.HeatVulnerable: return "Heat causes breakdown";
                 case MaterialPropertyLabel.HeatResistant: return "Resists high temperatures";
                 case MaterialPropertyLabel.AtomicRadiusCompliant: return "Smaller atomic radius";

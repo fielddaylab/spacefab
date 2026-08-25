@@ -79,32 +79,6 @@ namespace SpaceFab.Supply {
                 FillUniform(layout.AggregateView.TimeCells, time, sprites.TimeBase, sprites.TimeFilled, sprites.TimeColor);
                 FillAggregateCost(layout.AggregateView.CostCells, funds, cost, sprites);
             }
-
-            // Per-ship breakdown rows.
-            if (layout.ShipRows != null) {
-                for (int i = 0; i < layout.ShipRows.Length; i++) {
-                    SupplyShipBreakdownRow row = layout.ShipRows[i];
-                    if (row == null) {
-                        continue;
-                    }
-                    bool active = i < SupplyRouteData.MaxShips && (activeMask & (1 << i)) != 0;
-                    if (row.Root != null) {
-                        row.Root.SetActive(active);
-                    }
-                    if (!active) {
-                        continue;
-                    }
-
-                    SupplyRouteStats stats = GetEffectiveStats(routes, drawing, i, out _);
-                    // Per-ship sections are numeric counts beside their authored icons.
-                    SetCount(row.RiskText, stats.Risk);
-                    SetCount(row.CostText, stats.Cost);
-                    SetCount(row.TimeText, stats.Time);
-
-                    row.ShipIcon.sprite = ships.ShipAssets[i].Icon;
-                    row.ShipName.SetText(ships.ShipAssets[i].DisplayName);
-                }
-            }
         }
 
         // Reads the active contract's payout via its asset wrapper (the funds the cost meter
@@ -154,7 +128,7 @@ namespace SpaceFab.Supply {
                 if (i < yellowCount) {
                     ApplyCell(cells[i], true, sprites.CostBar, sprites.CostRemainingColor);
                 } else if (i < yellowCount + redCount) {
-                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor);
+                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor, true);
                 } else {
                     ApplyCell(cells[i], false, null, default);
                 }
@@ -184,7 +158,7 @@ namespace SpaceFab.Supply {
         }
 
         // Drives one cell's overlay: enabled with sprite+color when filled, hidden otherwise.
-        private static void ApplyCell(ProgressMeterCell cell, bool filled, Sprite sprite, Color color) {
+        private static void ApplyCell(ProgressMeterCell cell, bool filled, Sprite sprite, Color color, bool xMark = false) {
             if (cell == null || cell.OverlayImage == null) {
                 return;
             }
@@ -192,46 +166,16 @@ namespace SpaceFab.Supply {
                 cell.OverlayImage.sprite = sprite;
                 cell.OverlayImage.color = color;
                 cell.OverlayImage.enabled = true;
+
+                if (xMark && cell.xMarkImage != null)
+                {
+                    cell.xMarkImage.enabled = true;
+                }
             } else {
                 cell.OverlayImage.enabled = false;
             }
         }
 
         #endregion // Cell rendering
-
-        #region Expand / collapse
-
-        // Fades the per-ship section to match state.Expanded. Toggles interactivity up-front
-        // when expanding and after the fade conceptually when collapsing (set immediately here
-        // since the group is non-interactive throughout the collapse anyway).
-        public static IEnumerator ToggleRoutine(SupplyProgressMeterState state, SupplyProgressMeterLayoutState layout) {
-            state.Transitioning = true;
-            CanvasGroup group = layout != null ? layout.ExpandedSection : null;
-            if (group != null) {
-                if (state.Expanded) {
-                    group.blocksRaycasts = true;
-                    group.interactable = true;
-                    yield return group.FadeTo(1f, TransitionDuration);
-                } else {
-                    group.interactable = false;
-                    group.blocksRaycasts = false;
-                    yield return group.FadeTo(0f, TransitionDuration);
-                }
-            }
-            state.Transitioning = false;
-        }
-
-        // Snaps the per-ship section to the steady-state visibility for `expanded`.
-        public static void ApplySteadyState(SupplyProgressMeterLayoutState layout, bool expanded) {
-            CanvasGroup group = layout != null ? layout.ExpandedSection : null;
-            if (group == null) {
-                return;
-            }
-            group.alpha = expanded ? 1f : 0f;
-            group.blocksRaycasts = expanded;
-            group.interactable = expanded;
-        }
-
-        #endregion // Expand / collapse
     }
 }

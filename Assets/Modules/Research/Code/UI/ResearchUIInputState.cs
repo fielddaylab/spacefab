@@ -18,21 +18,26 @@ namespace SpaceFab.Research {
         // so the refresh system clears it.
         [NonSerialized] public bool AddObservationClickedThisFrame;
 
-        // Set when the chip picker emits a selection. ObservationCollectSystem
-        // consumes the pair and calls ResearchInventoryUtility.AddObservation
-        // against the slotted material.
+        // Set when an observation chip emits an add request (wiki
+        // observation / property pages, or the dormant picker overlay).
+        // ObservationCollectSystem consumes the pair and calls
+        // ResearchInventoryUtility.AddObservation against the slotted
+        // material.
         [NonSerialized] public MaterialPropertyLabel ChipPickerSelectionLabel;
         [NonSerialized] public bool ChipPickerSelectedThisFrame;
 
         // Set when the player clicks a non-locked filled slot in the
-        // observations panel. The index points into the active hypothesis
-        // page's DecomposedObservations array; ObservationCollectSystem
-        // resolves it to (label, context) and removes that entry from the
-        // slotted material's observation list.
+        // observations panel, or a greyed (already-selected) wiki
+        // observation chip. The index points into the viewmodel's slot
+        // view; ObservationCollectSystem resolves it to (label, context)
+        // and removes that entry from the slotted material's observation
+        // list.
         [NonSerialized] public int RemoveObservationSlotIndex;
         [NonSerialized] public bool RemoveObservationClickedThisFrame;
 
-        [NonSerialized] public int AddHypothesisIndex;
+        // Set when a wiki property chip requests hypothesis selection.
+        // HypothesisViewModelSystem validates and applies the label.
+        [NonSerialized] public MaterialPropertyLabel AddHypothesisLabel;
         [NonSerialized] public bool HypothesisSelectedClickedThisFrame;
         [NonSerialized] public bool RemoveHypothesisClickedThisFrame;
 

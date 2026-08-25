@@ -15,7 +15,8 @@ MonoBehaviour:
   m_isPlanet: 1
   m_Title: Orvane
   m_Icon: {fileID: 21300000, guid: c3471649122738246beb2154f88e3232, type: 3}
-  m_Illustration: {fileID: 0}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
   m_Body: A rocky industrial planet near Korbus, shaped by quarry fields, freight
     yards, and heavy factories. It has been a reliable stop for materials used across
     the trade alliance.

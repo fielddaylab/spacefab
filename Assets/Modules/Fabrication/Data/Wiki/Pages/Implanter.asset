@@ -15,7 +15,9 @@ MonoBehaviour:
   m_isPlanet: 0
   m_Title: Implanter
   m_Icon: {fileID: 21300000, guid: 1f87f57ecfc1d5249a0d19af5da9f8d6, type: 3}
-  m_Illustration: {fileID: 21300000, guid: 761385517424d89409078ed3a54cb1b3, type: 3}
+  m_IllustrationFrames:
+  - {fileID: 21300000, guid: 761385517424d89409078ed3a54cb1b3, type: 3}
+  m_IllustrationFPS: 0.5
   m_Body: The Ion Implanter shoots tiny charged particles into the chip to change
     how selected areas behave.
   m_MaterialId:

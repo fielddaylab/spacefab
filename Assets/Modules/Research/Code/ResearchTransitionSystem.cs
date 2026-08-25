@@ -26,7 +26,6 @@ namespace SpaceFab.Research {
                     .ReadWriteShared<ChamberInterfacerState>()
                     .ReadWriteShared<BatteryChamberState>()
                     .ReadWriteShared<ThermalChamberState>()
-                    .ReadWriteShared<ResearchHypothesisPagesState>()
                     .ReadWriteShared<HypothesisViewModelState>()
                     .ReadWriteShared<ResearchPools>()
                     .ReadWrite<ResearchSamplePanel>()
@@ -46,7 +45,6 @@ namespace SpaceFab.Research {
                 out ThermalChamberState thermalChamberState
                 );
             Find.State(
-                out ResearchHypothesisPagesState hypothesisPagesState,
                 out HypothesisViewModelState hypothesisViewModelState,
                 out ContractState contractState
                 );
@@ -78,10 +76,11 @@ namespace SpaceFab.Research {
             // previously-spawned gems before refilling.
             ResearchSampleTrayUtility.SpawnTray(trayState, researchState);
 
-            // Build the hypothesis page list for the contract's required
-            // research goals. One page per (goal × registered definition).
-            // Resets the viewmodel's active page index to 0.
-            ResearchHypothesisUtility.BuildPages(researchState, hypothesisPagesState, hypothesisViewModelState);
+            // Seed the hypothesis viewmodel: no hypothesis selected on
+            // entry, first rebuild on the next LateUpdate pass.
+            hypothesisViewModelState.HypothesisSelected = false;
+            hypothesisViewModelState.HypothesisContext = StringHash32.Null;
+            HypothesisViewModelUtility.RequestRebuild(hypothesisViewModelState);
 
             // Init Battery Chamber. Instantiate the meter rig variant for
             // this save's unlock state under BatteryContainer, then prime

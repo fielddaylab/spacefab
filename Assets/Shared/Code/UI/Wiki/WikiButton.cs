@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Components;
+using SpaceFab.Onboarding;
 using UnityEngine;
 
 namespace SpaceFab.UI {
@@ -37,6 +38,8 @@ namespace SpaceFab.UI {
         // DynamicButton on this GameObject. Assigned in inspector. Its three UnityEvents drive
         // the one-frame flags below via the handlers at the bottom of this file.
         public DynamicButton DynamicButton;
+
+        public ElementTag ElementTag;
 
         [HideInInspector] public bool ClickedThisFrame;
         [HideInInspector] public bool PointerEnterThisFrame;

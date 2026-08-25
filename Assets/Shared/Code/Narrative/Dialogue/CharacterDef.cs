@@ -34,7 +34,9 @@ namespace SpaceFab.Narrative {
         /// both fields are unset.
         /// </summary>
         public static Sprite ResolvePortrait(CharacterDef def) {
-            if (def == null) { return null; }
+            if (def == null) {
+                return null;
+            }
 
             // MinigameStateInterfacer lives on the Minigame Common prefab which is only
             // instantiated inside minigame scenes — its presence is the in-minigame signal.

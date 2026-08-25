@@ -192,7 +192,7 @@ namespace SpaceFab.Fabrication.Sequence
         public static void RollGlitches(SequenceState sequenceState, FabricationLevel level)
         {
             for (int i = 0; i < sequenceState.StepRuntime.Length; i++) {
-                sequenceState.StepRuntime[i].IsGlitched = UnityEngine.Random.value < level.GlitchChance;
+                sequenceState.StepRuntime[i].IsGlitched = Random.value < level.GlitchChance;
             }
         }
     }

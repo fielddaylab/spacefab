@@ -110,7 +110,7 @@ namespace SpaceFab.Fabrication.StationControl {
         [HideInInspector] public bool ExitTimerExternalHold;
 
         public void OnRegister() {
-            Phase = StationControlPhase.Traveling;
+            Phase = StationControlPhase.AtStation;
             ActiveInterfacer = null;
             PhaseTimer = 0f;
             MicrogameCompletedThisFrame = false;

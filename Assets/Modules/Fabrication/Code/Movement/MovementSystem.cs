@@ -19,7 +19,7 @@ namespace SpaceFab.Fabrication.Movement {
 
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhaseMask.Update, 0, UpdateMasks.PreAttemptMask | UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),
+                new SysUpdate(GameLoopPhaseMask.Update, 0, UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),
                 new SysPermissions()
                     .ReadWriteShared<MovementState>()
                     .ReadWriteShared<LayoutState>()

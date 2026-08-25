@@ -53,7 +53,7 @@ namespace SpaceFab.UI {
                 LiteAnimatorState animState = default;
                 animState.ResetTime((1 - fader.CurrentAlpha) * fader.TransitionDuration);
                 animState.Registers.A.Float() = 1;
-                fader.CurrentAnim = Game.Animation.AddLiteAnimator(PopupFaderControl.FadeAnim.Instance, fader, animState);
+                fader.CurrentAnim = Game.Animation.AddLiteAnimator(PopupFaderControl.FadeAnim.Instance, fader, animState, GameLoopPhase.UnscaledUpdate);
             }
         }
 
@@ -66,7 +66,7 @@ namespace SpaceFab.UI {
                 LiteAnimatorState animState = default;
                 animState.ResetTime(fader.CurrentAlpha * fader.TransitionDuration);
                 animState.Registers.A.Float() = 0;
-                fader.CurrentAnim = Game.Animation.AddLiteAnimator(PopupFaderControl.FadeAnim.Instance, fader, animState);
+                fader.CurrentAnim = Game.Animation.AddLiteAnimator(PopupFaderControl.FadeAnim.Instance, fader, animState, GameLoopPhase.UnscaledUpdate);
             }
         }
     }

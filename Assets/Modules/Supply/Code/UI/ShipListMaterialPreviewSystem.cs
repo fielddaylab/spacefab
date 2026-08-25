@@ -42,6 +42,10 @@ namespace SpaceFab.Supply {
                 for(int i = routeStats.MaterialCount; i < row.SlotMaterials.Length; i++) {
                     row.SlotMaterials[i].enabled = false;
                 }
+
+                row.StatsLayer.Cost.SetValue(routeStats.Cost);
+                row.StatsLayer.Time.SetValue(routeStats.Time);
+                row.StatsLayer.Risk.SetValue(routeStats.Risk);
             }
 
             if (draw.RouteIndex >= 0 && draw.PreviewDirty) {
@@ -78,6 +82,10 @@ namespace SpaceFab.Supply {
                 for(int i = totalMaterials; i < row.SlotMaterials.Length; i++) {
                     row.SlotMaterials[i].enabled = false;
                 }
+
+                row.StatsLayer.Cost.SetValue(previewStats.Cost);
+                row.StatsLayer.Time.SetValue(previewStats.Time);
+                row.StatsLayer.Risk.SetValue(previewStats.Risk);
             }
         }
     }

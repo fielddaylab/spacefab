@@ -8,15 +8,21 @@ using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
+using BeauPools;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif // UNITY_EDITOR
 
 namespace SpaceFab.Supply {
     public sealed class SupplyRouteNode : BatchedComponent, IRegistrationCallbacks {
         public SupplyRouteNodeType Type;
 
         [Header("Stats")]
-        [Range(0, 5)] public int Time;
         [Range(0, 5)] public int Cost;
         [Range(0, 3)] public int Risk;
+        [Range(0, 5)] public int Time;
 
         [Header("Materials")]
         [AssetName(typeof(MaterialAsset), true)] public StringHash32 MaterialType;
@@ -54,6 +60,28 @@ namespace SpaceFab.Supply {
                 Cursor.onClick.Deregister(SupplyRouteUtility.HandleNodeClicked);
             }
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos() {
+            using(PooledStringBuilder psb = PooledStringBuilder.Create()) {
+                psb.Builder.Append(name);
+                switch (Type) {
+                    case SupplyRouteNodeType.Producer: {
+                        psb.Builder.Append("\n").Append(MaterialType.ToDebugString());
+                        break;
+                    }
+                    case SupplyRouteNodeType.Converter: {
+                        psb.Builder.Append("\n").Append(ConversionInputType.ToDebugString()).Append(" -> ").Append(MaterialType.ToDebugString());
+                        break;
+                    }
+                }
+                if (Type != SupplyRouteNodeType.Home) {
+                    psb.Builder.Append("\n - Cost ").AppendNoAlloc(Cost).Append("\n - Risk ").AppendNoAlloc(Risk).Append("\n - Time ").AppendNoAlloc(Time);
+                }
+                Handles.Label(transform.position, psb.Builder.ToString());
+            }
+        }
+#endif // UNITY_EDITOR
     }
 
     public enum SupplyRouteNodeType : byte {

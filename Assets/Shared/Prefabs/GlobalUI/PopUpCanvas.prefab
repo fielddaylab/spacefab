@@ -337,10 +337,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8472764919086675852}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -60}
-  m_SizeDelta: {x: -80, y: 50}
+  m_SizeDelta: {x: 220, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &5208972864667616355
 CanvasRenderer:
@@ -436,7 +436,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_maxLineWidth: 0
+  m_maxLineWidth: 450
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
@@ -476,10 +476,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8472764919086675852}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -130}
-  m_SizeDelta: {x: -32, y: 125}
+  m_SizeDelta: {x: 268, y: 125}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &6487481842442469820
 CanvasRenderer:
@@ -575,7 +575,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_maxLineWidth: 500
+  m_maxLineWidth: 450
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_roundUpCalculatedPreferredValues: 1
   m_isUsingLegacyAnimationComponent: 0
@@ -822,7 +822,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2943192689760791763, guid: 46df936f41574694087f27b7d3fc0778, type: 3}
       propertyPath: m_text
-      value: leave game
+      value: "Return to Ship\r"
+      objectReference: {fileID: 0}
+    - target: {fileID: 2943192689760791763, guid: 46df936f41574694087f27b7d3fc0778, type: 3}
+      propertyPath: m_fontSize
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2943192689760791763, guid: 46df936f41574694087f27b7d3fc0778, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 4876061022524100863, guid: 46df936f41574694087f27b7d3fc0778, type: 3}
       propertyPath: m_Pivot.x

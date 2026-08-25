@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Variants;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
@@ -8,9 +9,14 @@ namespace SpaceFab.Research {
     /// <summary>
     /// Handles the player's add/remove observation gestures. Reads the
     /// slotted material via ChamberInterfacerState.PrimarySlot. Add comes
-    /// from the chip picker's selection emit; remove comes from clicking a
-    /// non-locked filled slot in the observations panel. Both fan out into
-    /// the existing ResearchInventoryUtility add/remove helpers.
+    /// from a wiki observation chip; remove comes from clicking a
+    /// non-locked filled slot in the sample panel, or the same wiki chip
+    /// again. Both fan out into the existing ResearchInventoryUtility
+    /// add/remove helpers.
+    ///
+    /// Observations only — hypothesis selection and removal are applied by
+    /// HypothesisViewModelSystem, which owns those fields and has to write
+    /// them after it snapshots the previous values for change detection.
     ///
     /// Runs on LateUpdate at order 50 so it sits *after* Unity's
     /// EventSystem has dispatched any same-frame click (CursorHint's
@@ -40,8 +46,7 @@ namespace SpaceFab.Research {
                 out ChamberInterfacerState interfacerState
             );
 
-            if (!inputState.ChipPickerSelectedThisFrame && !inputState.RemoveObservationClickedThisFrame
-                && !inputState.HypothesisSelectedClickedThisFrame && !inputState.RemoveHypothesisClickedThisFrame) {
+            if (!inputState.ChipPickerSelectedThisFrame && !inputState.RemoveObservationClickedThisFrame) {
                 return;
             }
 
@@ -73,31 +78,39 @@ namespace SpaceFab.Research {
 
                     if (ResearchInventoryUtility.AddObservation(researchState, secondarySlottedId, inputState.ChipPickerSelectionLabel, slottedId)) {
                         viewModelDirty = true;
-                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                        using (var table = TempVarTable.Alloc())
+                        {
+                            table.Set("observationId", inputState.ChipPickerSelectionLabel.ToString().ToLower());
+                            ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
+                        }
                     }
                 }
                 else if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
                     viewModelDirty = true;
-                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                    using (var table = TempVarTable.Alloc())
+                    {
+                        table.Set("observationId", inputState.ChipPickerSelectionLabel.ToString().ToLower());
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
+                    }
                 }
+                ScriptUtility.WriteVariable(new TableKeyPair("research", "observationId"), inputState.ChipPickerSelectionLabel.ToString());
             }
 
             // Remove path: slot index → (label, context) via the
-            // viewmodel's slot buffer. Slot buffer entries may differ
-            // from the active page's leaves (player picks not matching
-            // any leaf still occupy slots). Locked slots are filtered
-            // client-side by SamplePanelInputUtility before the click
-            // fires; the server-side guard here is the slot-index range
-            // check + the locked-mask test.
+            // viewmodel's slot buffer, which holds whatever the player
+            // picked — including observations that support no part of the
+            // selected hypothesis. Locked slots are filtered client-side
+            // by the click sites before the request fires; the guard here
+            // is the slot-index range check + the locked-mask test.
             HypothesisViewModelState viewModelState = Find.State<HypothesisViewModelState>();
 
             if (inputState.RemoveObservationClickedThisFrame) {
                 int idx = inputState.RemoveObservationSlotIndex;
-                if (viewModelState != null && idx >= 0 && idx < viewModelState.ActivePageSlotCount) {
-                    bool locked = (viewModelState.ActivePageSlotLockedMask & (1u << idx)) != 0;
+                if (viewModelState != null && idx >= 0 && idx < viewModelState.SlotCount) {
+                    bool locked = (viewModelState.SlotLockedMask & (1u << idx)) != 0;
                     if (!locked) {
-                        MaterialPropertyLabel label = viewModelState.ActivePageSlotLabels[idx];
-                        StringHash32 context = viewModelState.ActivePageSlotContexts[idx];
+                        MaterialPropertyLabel label = viewModelState.SlotLabels[idx];
+                        StringHash32 context = viewModelState.SlotContexts[idx];
                         if (isDopingChamber)
                         {
                             if (ResearchInventoryUtility.RemoveObservation(researchState, secondarySlottedId, label, context)) {
@@ -108,25 +121,6 @@ namespace SpaceFab.Research {
                             viewModelDirty = true;
                         }
                     }
-                }
-            }
-
-            // Add hypothesis chip
-            if (inputState.HypothesisSelectedClickedThisFrame) {
-                if (viewModelState != null) {
-                    bool locked = (viewModelState.PageFulfilledMask & (1u << viewModelState.ActivePageIndex)) != 0;
-                    if (!locked) {
-                        viewModelDirty = true;
-                    }
-                }
-            }
-
-            // Remove hypothesis chip
-            if (inputState.RemoveHypothesisClickedThisFrame) {
-                if (viewModelState != null) {
-                    viewModelState.ActivePageIndex = -1;
-                    viewModelState.HypothesisContext = StringHash32.Null;
-                    viewModelDirty = true;
                 }
             }
 

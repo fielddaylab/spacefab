@@ -18,13 +18,17 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 1
+      TypeCount: 2
     - AssemblyName: FieldDay.Vox, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 2
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     Types:
     - TypeName: SpaceFab.SpacefabGame
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
+    - TypeName: SpaceFab.Onboarding.ElementTagLookupUtility
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -42,6 +46,8 @@ MonoBehaviour:
       OverloadCount: 0
     Members:
     - MemberName: OnPreBoot
+      Type: 8
+    - MemberName: Create
       Type: 8
     - MemberName: Initialize
       Type: 8
@@ -97,7 +103,7 @@ MonoBehaviour:
     LookupInherit: 0
     Assemblies:
     - AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      TypeCount: 6
+      TypeCount: 7
     - AssemblyName: FieldDay.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       TypeCount: 1
     - AssemblyName: FieldDay.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -108,6 +114,10 @@ MonoBehaviour:
       MemberCount: 1
       OverloadCount: 0
     - TypeName: SpaceFab.MinigameDebugMenu
+      Self: 0
+      MemberCount: 1
+      OverloadCount: 0
+    - TypeName: SpaceFab.ChapterDebugMenu
       Self: 0
       MemberCount: 1
       OverloadCount: 0
@@ -139,6 +149,8 @@ MonoBehaviour:
     - MemberName: CreateMaterialKnowledgeDebugMenu
       Type: 8
     - MemberName: CreateMinigameDebugMenu
+      Type: 8
+    - MemberName: CreateChapterDebugMenu
       Type: 8
     - MemberName: SaveDebugMenu
       Type: 8

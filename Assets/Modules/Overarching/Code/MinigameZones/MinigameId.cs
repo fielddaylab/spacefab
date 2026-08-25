@@ -25,29 +25,28 @@ namespace SpaceFab.Overarching
     /// </summary>
     public static class MinigameIdUtility
     {
-        // Hashed enum names, indexed by (int)MinigameId. Hashed once at static init (StringHash32
-        // is computed from the literal), so TryResolve does a tiny allocation-free scan rather than
-        // ToString()-ing and re-hashing the enum on every call. Order must match the enum.
-        private static readonly StringHash32[] Names = {
-            "Design",
-            "Research",
-            "Fabrication",
-            "Supply",
-        };
-
         // Resolves a minigame's enum name (hashed) to its MinigameId. Returns true and sets id on
         // a match; returns false (id left as COUNT) for an unknown name. Used by Leaf queries that
         // take a minigame by name so script authors aren't coupled to enum ordering.
         public static bool TryResolve(StringHash32 name, out MinigameId id)
         {
-            for (int i = 0; i < Names.Length; i++)
-            {
-                if (Names[i] == name)
-                {
-                    id = (MinigameId)i;
-                    return true;
-                }
+            if (name == "Design") {
+                id = MinigameId.Design;
+                return true;
             }
+            if (name == "Research") {
+                id = MinigameId.Research;
+                return true;
+            }
+            if (name == "Fabrication") {
+                id = MinigameId.Fabrication;
+                return true;
+            }
+            if (name == "Supply") {
+                id = MinigameId.Supply;
+                return true;
+            }
+
             id = MinigameId.COUNT;
             return false;
         }

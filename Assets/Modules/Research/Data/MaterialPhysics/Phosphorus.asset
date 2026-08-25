@@ -15,7 +15,7 @@ MonoBehaviour:
   MaterialId:
     m_Source: Phosphorus
     m_HashValue: 541320182
-  ConductionMultiplier: 0.8
+  ConductionMultiplier: 0.725
   ThermalMultiplier: 0.5
   MaxTemperature: 0.33
   MaxVoltage: 0.66

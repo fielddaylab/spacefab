@@ -38,13 +38,16 @@ namespace SpaceFab {
             if (meterState.NeedsRefresh) {
                 // Update pending cycles
                 int numPendingCycles = ProgressMeterUtility.CalculatePendingCycleCells(meterState.ActiveMeter, saveStates);
+                int fabCycles = Mathf.Max(0, saveStates.Fabrication.FinalizedTotalCycles);
+                int filledEnd = progressState.ElapsedCycles + fabCycles;
 
-                // 
-                for (int i = progressState.ElapsedCycles; i < progressState.ElapsedCycles + numPendingCycles; i++)
+                int pendingEnd = progressState.ElapsedCycles + Mathf.Max(fabCycles, numPendingCycles);
+
+                for (int i = progressState.ElapsedCycles; i < pendingEnd; i++)
                 {
                     ProgressMeterUtility.SetCycleCellState(meterState, i, CycleCellState.PENDING);
                 }
-                ProgressMeterUtility.ClearCycleStateFrom(meterState, progressState.ElapsedCycles + numPendingCycles);
+                ProgressMeterUtility.ClearCycleStateFrom(meterState, pendingEnd);
 
                 // Update pending funds
 
@@ -70,6 +73,7 @@ namespace SpaceFab {
                 }
 
                 // apply visual refresh
+                ProgressMeterUtility.EnsureCellsBound(meterState.ActiveMeter);
                 ProgressMeterUtility.RefreshVisuals(meterState.ActiveMeter, meterState);
                 meterState.NeedsRefresh = false;
             }

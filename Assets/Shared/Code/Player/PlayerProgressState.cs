@@ -182,6 +182,24 @@ namespace SpaceFab
         }
 
         /// <summary>
+        /// OR-merges a whole record of confirmed properties onto the material. Used to
+        /// apply a pre-built property set - a baked knowledge snapshot, a restored save -
+        /// in one step instead of replaying Confirm per label. Additive: bits already
+        /// confirmed are never cleared. Returns true if anything new was confirmed.
+        /// </summary>
+        public static bool ConfirmAll(PlayerProgressState state, StringHash32 materialId, in MaterialPropertyRecord properties) {
+            state.MaterialProperties.TryGetValue(materialId, out var record);
+            MaterialPropertyRecord merged = record;
+            MaterialPropertyRecordUtility.Merge(ref merged, properties);
+            if (MaterialPropertyRecordUtility.AreEqual(record, merged)) {
+                return false;
+            }
+
+            state.MaterialProperties[materialId] = merged;
+            return true;
+        }
+
+        /// <summary>
         /// Stages MaterialProperties into MaterialPropertyBuffer (in MaterialOrderAsset order)
         /// and writes the buffer to the save stream.
         /// </summary>

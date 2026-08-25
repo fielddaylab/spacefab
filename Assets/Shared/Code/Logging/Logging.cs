@@ -14,6 +14,7 @@ using FieldDay.Analytics;
 using System.Linq;
 using SpaceFab.Design;
 using Debug = UnityEngine.Debug;
+using SpaceFab.Overarching;
 
 
 namespace SpaceFab.Logging
@@ -294,8 +295,8 @@ namespace SpaceFab.Logging
                 .Register<string>(GameEvents.StartSelectContract, LogStartSelectContract)
                 .Register<string>(GameEvents.ConfirmSelectContract, LogConfirmSelectContract)
                 .Register<string>(GameEvents.CancelSelectContract, LogCancelSelectContract)
-                .Register<int>(GameEvents.SelectMinigame, HandleMinigameSelect)
-                .Register<int>(GameEvents.StartMinigame, HandleMinigameStart)
+                .Register<MinigameId>(GameEvents.SelectMinigame, HandleMinigameSelect)
+                .Register<MinigameId>(GameEvents.StartMinigame, HandleMinigameStart)
                 .Register(GameEvents.OnMinigameExit, HandleMinigameExit);
 
             // Design
@@ -463,21 +464,21 @@ namespace SpaceFab.Logging
             }
         }
 
-        private void HandleMinigameSelect(int zoneIndex)
+        private void HandleMinigameSelect(MinigameId zoneIndex)
         {
             switch(zoneIndex)
             {
-                case 0:
+                case MinigameId.Supply:
                     LogSelectSupplyChain();
                     break;
-                case 1:
+                case MinigameId.Design:
                     Debug.Log("Design selected");
                     LogSelectDesign();
                     break;
-                case 2:
+                case MinigameId.Fabrication:
                     LogSelectFabrication();
                     break;
-                case 3:
+                case MinigameId.Research:
                     LogSelectResearch();
                     break;
                 default:
@@ -487,21 +488,21 @@ namespace SpaceFab.Logging
         }
 
         // Ensure the indices, which is different from minigame zone select
-        public void HandleMinigameStart(int zoneIndex)
+        public void HandleMinigameStart(MinigameId zoneIndex)
         {
             switch(zoneIndex)
             {
-                case 0:
+                case MinigameId.Research:
                     LogStartResearch();
                     break;
-                case 1:
+                case MinigameId.Design:
                     Debug.Log("Design started");
                     LogStartDesign();
                     break;
-                case 2:
+                case MinigameId.Supply:
                     LogStartSupplyChain();
                     break;
-                case 3:
+                case MinigameId.Fabrication:
                     LogStartFabrication();
                     break;
                 default:

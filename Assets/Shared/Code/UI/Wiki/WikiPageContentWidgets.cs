@@ -1,42 +1,39 @@
+using SpaceFab.Research;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Pure-data MonoBehaviour on the wiki prefab's PageArea. Holds inspector references to
-    /// the widgets that display the currently-selected WikiPageData. Consumed by
-    /// WikiVisualsUpdateSystem, which pushes page fields into these widgets each frame while
-    /// the panel is expanded.
-    ///
-    /// Two content shapes:
-    ///   - Default page: DefaultGroup wraps the body text; MaterialCharacteristicsGroup is
-    ///     disabled. Title + IllustrationImage render as authored on WikiPageData.
-    ///   - Material page: MaterialCharacteristicsGroup wraps the chip column populated by
-    ///     WikiCharacteristicsLoadUtility; DefaultGroup is disabled. IllustrationImage's
-    ///     sprite is sourced from the material's ResearchMaterialView rather than
-    ///     WikiPageData.Illustration. Title still renders as authored.
-    ///
-    /// No logic here intentionally — display-side equivalent of a pure-data component. The
-    /// write path lives in WikiVisualsUpdateSystem (toggle + content bind) and
-    /// WikiCharacteristicsLoadUtility (chip alloc + layout).
+    /// Data only — the write path is WikiVisualsUtility for the group toggle and content bind, and
+    /// WikiCharacteristicsLoadUtility / WikiObservationLoadUtility / WikiPropertyLoadUtility for
+    /// the chips.
     /// </summary>
     public class WikiPageContentWidgets : MonoBehaviour {
         public TextMeshProUGUI TitleText;
-        public Image IllustrationImage;
+        // Wraps the illustration Image so a page can author an animated sequence. Still pages bind
+        // through it too, as a one-frame cycle.
+        public SpriteCycler Illustration;
 
-        // Default-page body wrapper. WikiVisualsUpdateSystem enables
-        // this when the active page's MaterialId is empty. The body
-        // text writes into BodyText below.
         public GameObject DefaultGroup;
         public TextMeshProUGUI BodyText;
 
-        // Material-page chip column wrapper. Enabled when MaterialId
-        // is set. WikiCharacteristicsLoadUtility pool-allocs chips
-        // under CharacteristicsContainer and resizes this group's
-        // RectTransform to fit them.
+        // Chips are pool-allocated under CharacteristicsContainer, and the group's RectTransform
+        // is resized to fit them.
         public GameObject MaterialCharacteristicsGroup;
         public RectTransform CharacteristicsContainer;
         public GameObject PlanetDetailsContainer;
+
+        [Header("Observation Page")]
+        public GameObject ObservationGroup;
+        // Caption above the chip column. Bound from the page's Body when it authors one.
+        public RectTransform ObservationChipContainer;
+
+        [Header("Property Page")]
+        public GameObject PropertyGroup;
+        // Authored on the prefab rather than pool-allocated — there is exactly one per page, and
+        // it carries the property-selection click.
+        public ResearchObservationChip PropertyChip;
+        public TextMeshProUGUI PropertyBodyText;
+        public RectTransform PropertyLeafChipContainer;
     }
 }

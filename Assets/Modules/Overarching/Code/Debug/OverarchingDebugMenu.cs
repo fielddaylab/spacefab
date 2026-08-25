@@ -180,18 +180,18 @@ namespace SpaceFab.Overarching
                 return;
             }
 
-            MinigameZonesState zonesState = Find.State<MinigameZonesState>();
-            for (int i = 0; i < zonesState.Zones.Length; i++)
-            {
-                if (zonesState.Zones[i].Minigame == id)
-                {
-                    // Stop any running script threads (e.g. a dialogue line) before unloading the hub. They
-                    // are hosted on the persistent GameLoop.Host, so they'd otherwise keep ticking after the
-                    // scene unloads and touch the destroyed dialogue printer (ScriptPlugin line completion),
-                    // which throws. Killing here halts them cleanly while their printer is still valid.
+            var zones = Find.Components<MinigameZone>();
+            foreach(var zone in zones) {
+                if (zone.Minigame == id) {
                     ScriptUtility.KillAllThreads();
-                    MinigameZonesUtility.ClickZone(zonesState, i);
-                    Log.Msg("[OverarchingDebugMenu] Force-entering minigame {0} (zone {1})", id, i);
+                    Find.State<MinigameZonesState>().QueuedZone = zone;
+                    Log.Msg("[OverarchingDebugMenu] Force-entering minigame {0}", id);
+
+                    MinigameZonesState state = Find.State<MinigameZonesState>();
+                    if (state.QueuedZone != null) {
+                        MinigameZonesUtility.AttemptStartGame(state.QueuedZone);
+                        state.QueuedZone = null;
+                    }
                     return;
                 }
             }

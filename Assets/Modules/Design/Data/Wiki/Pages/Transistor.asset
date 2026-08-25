@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Title: Transistor
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
   m_Body: A Transistor is formed by PNP or NPN with a Gate in the middle.

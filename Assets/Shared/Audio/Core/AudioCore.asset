@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AudioCore
   m_EditorClassIdentifier: 
   m_IncludeMode: 0
+  m_FilterSearch: 
   m_GlobalAssets: []
   m_NamedAssets:
   - {fileID: 11400000, guid: 76e70da6eb8ce0e4bb1bfcacaf794949, type: 2}
@@ -20,9 +21,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 78c788d69f9e9544782061657e5873c5, type: 2}
   - {fileID: 11400000, guid: 3d59b022ba633f04580df38823bf6f71, type: 2}
   - {fileID: 11400000, guid: 13775044d591a5647a537a82cafc3b08, type: 2}
+  - {fileID: 11400000, guid: db1cd68ddf912f649b113a5510f7e71e, type: 2}
   - {fileID: 11400000, guid: 01c52f9e50fe9d747859006868924f25, type: 2}
   - {fileID: 11400000, guid: ff66be8a7c6a49b488c7abe366edc394, type: 2}
   - {fileID: 11400000, guid: f417073fe5bdbb54ca46e06621015a49, type: 2}
   - {fileID: 11400000, guid: ab5262d60ce03f94c87d9e8c7b9e7ad8, type: 2}
   - {fileID: 11400000, guid: 45eaee1eb8bac224a9b4628deb165826, type: 2}
+  - {fileID: 11400000, guid: 71c19966ebd482d469ca1ff4979ea130, type: 2}
   m_LiteAssets: []

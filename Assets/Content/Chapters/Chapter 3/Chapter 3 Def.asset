@@ -15,12 +15,11 @@ MonoBehaviour:
   AvailableContracts:
   - m_HashValue: 4208252601
   AvailableMaterials:
-  - m_HashValue: 3821421172
-  - m_HashValue: 1163381446
   - m_HashValue: 1571298950
+  - m_HashValue: 3821421172
   - m_HashValue: 541320182
   - m_HashValue: 1821685427
   - m_HashValue: 3317014541
-  ExcludeFromResearch:
   - m_HashValue: 1163381446
+  ExcludeFromResearch: []
   Script: {fileID: -1942890987711236906, guid: 7d6e04e5fde00432bbb44ea8a6be827b, type: 3}

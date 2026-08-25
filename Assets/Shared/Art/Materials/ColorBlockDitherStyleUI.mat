@@ -30,7 +30,7 @@ Material:
     - _ColorMask: 15
     - _CullMode: 0
     - _DestBlend: 10
-    - _DitherScale: 3
+    - _DitherScale: 2
     - _PremultiplyAlpha: 1
     - _SrcBlend: 1
     - _Stencil: 0

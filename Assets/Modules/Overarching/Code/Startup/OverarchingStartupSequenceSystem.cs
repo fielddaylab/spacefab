@@ -4,6 +4,7 @@ using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using FieldDay.UI;
+using SpaceFab.Save;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +34,8 @@ namespace SpaceFab.Overarching {
                     .ReadShared<SharedUIState>()
                     .ReadWriteShared<PlayerProgressState>()
                     .ReadWriteShared<ProgressMeterState>()
+                    .ReadWriteShared<ContractLayoutState>()
+                    .ReadShared<ContractState>()
             );
         }
 
@@ -51,7 +54,8 @@ namespace SpaceFab.Overarching {
             Find.State(
                 out PlayerProgressState progressState,
                 out ProgressMeterState meterState,
-                out ContractState contractState
+                out ContractState contractState,
+                out ContractLayoutState layoutState
                 );
 
             // Apply initial wiki unlocks if first time ever entering the scene
@@ -80,7 +84,7 @@ namespace SpaceFab.Overarching {
                     ProcessContractConfirmSystem(startupState, confirmState);
                     break;
                 case OverarchingStartupSequencePhase.LoadSelectedContract:
-                    ProcessLoadSelectedContract(startupState, meterState, contractState, chapterState);
+                    ProcessLoadSelectedContract(startupState, meterState, contractState, chapterState, layoutState);
                     break;
                 default:
                     break;
@@ -169,24 +173,32 @@ namespace SpaceFab.Overarching {
         }
 
         // Coordinates with ContractLoadSystem: trigger, wait for completion, then finalize startup.
-        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ProgressMeterState meterState, ContractState contractState, ChapterState chapterState) {
+        static private void ProcessLoadSelectedContract(OverarchingStartupSequenceState startupState, ProgressMeterState meterState, ContractState contractState, ChapterState chapterState, ContractLayoutState layoutState) {
             ContractUtility.LoadContractData(contractState, ChapterUtility.GetSelectedContractId(chapterState));
             if (!chapterState.LoadRoutine) {
                 // refresh progress meter to update funds and cycles
                 meterState.NeedsRefresh = true;
-                Complete(startupState);
+                Complete(startupState, contractState, layoutState);
                 GameLoop.SuspendUpdates(UpdateMasks.ContractSystemsMask);
             }
         }
 
         // Marks startup complete and resumes the overarching scene's normal update mask.
-        static private void Complete(OverarchingStartupSequenceState startupState) {
+        static private void Complete(OverarchingStartupSequenceState startupState, ContractState contractState, ContractLayoutState layoutState) {
             startupState.Phase = OverarchingStartupSequencePhase.Completed;
             SpacefabGame.Events.Dispatch(GameEvents.ShipMenuDisplayed);
             GameLoop.ResumeUpdates(UpdateMasks.OverarchingMask);
+
+            // Reveal the view-contract button now that an active contract is settled — either just
+            // selected or carried over from the last visit. This phase is only reached after any
+            // previous-chapter completion sequence has finished, so the button never appears
+            // alongside the completed-contract presentation.
+            layoutState.ViewCurrContractButton.gameObject.SetActive(!contractState.ContractId.IsEmpty);
+
             // Fire the Leaf trigger now that the overarching scene is fully loaded and interactive,
             // letting narrative scripts respond to entering the scene (e.g. gating a node on
             // IsSolutionFoundFor for completed minigames).
+            OverarchingSubmitButtonUtility.Refresh(Find.State<OverarchingSubmitChapterSequenceState>(), Find.State<MinigameSaveStates>());
             ScriptUtility.Trigger(ScriptTriggers.OnOverarchingLoaded);
             Debug.Log("[OverarchingStartupSequenceSystem] Overarching Startup Sequence Completed");
         }

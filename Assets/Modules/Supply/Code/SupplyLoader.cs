@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Debugging;
 using FieldDay.Music;
 using FieldDay.Scenes;
 using FieldDay.Scripting;
@@ -17,9 +18,14 @@ namespace SpaceFab.Supply {
     /// </summary>
     [PreloadOrder(10000)]
     public class SupplyLoader : MonoBehaviour, IScenePreload, ISceneLoadHandler {
+        [Header("-- DEBUG --")]
+        [Range(0, 12)] public int DebugChapterIndex;
+
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);
+            Log.Msg("[SupplyBug] Resuming supply mask");
+
             ScriptUtility.Trigger(SupplyScriptTriggers.OnSupplySetupCompleted);
         }
 
@@ -27,6 +33,9 @@ namespace SpaceFab.Supply {
             Find.State(out SupplyChainMap map, out ChapterState chapterState, out SupplyMinigameState supplyState);
 
             int chapterIndex = chapterState.ChapterIndex;
+            if (DebugFlags.LaunchedFromThisScene) {
+                chapterIndex = DebugChapterIndex;
+            }
 
             var entry = map.Entries[chapterIndex];
 
@@ -53,7 +62,18 @@ namespace SpaceFab.Supply {
                 node.gameObject.SetActive(true);
             }
 
-            // TODO: apply overrides
+            foreach (var data in entry.Hazards) {
+                SupplyRouteHazard hazard = SupplyRouteUtility.GetHazardForId(data.Name);
+                hazard.transform.localPosition = data.Position;
+                hazard.gameObject.SetActive(true);
+            }
+
+            foreach (var data in entry.Overrides) {
+                SupplyRouteNode node = SupplyRouteUtility.GetNodeForId(data.Name);
+                node.Time = data.Time;
+                node.Cost = data.Cost;
+                node.Risk = data.Risk;
+            }
 
             foreach (var node in map.Nodes) {
                 node.Position = node.transform.localPosition;
@@ -63,15 +83,17 @@ namespace SpaceFab.Supply {
                 }
             }
 
+            map.NodeCount = entry.Positions.Length;
+            map.HazardCount = entry.Hazards.Length;
+
             Assert.True(map.Home, "No home node available!");
 
             supplyState.CurrSupplyChainMap = entry;
             yield return null;
 
-
             // set up camera bounding region
             Find.State(out SupplyCameraControlState cameraState);
-            cameraState.Region.size = map.Entries[chapterIndex].CameraBounds;
+            cameraState.Region = entry.CameraBounds;
 
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);

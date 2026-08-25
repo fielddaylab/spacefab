@@ -16,18 +16,35 @@ MonoBehaviour:
   - ObservationType: 0
     EmptyChip: {fileID: 21300000, guid: 498bc0e2ff8c3b24ebf4d37f66077e0a, type: 3}
     FilledChip: {fileID: 21300000, guid: 9a8efb5610039524a90a7a089b4aca1e, type: 3}
+    ConfirmedChip: {fileID: 0}
+    ChipIcon: {fileID: 21300000, guid: 71b46c7fb7750e741b6f85aedc5edbd2, type: 3}
   - ObservationType: 1
     EmptyChip: {fileID: 21300000, guid: 717fc0b0465560744b70b21738e8a358, type: 3}
     FilledChip: {fileID: 21300000, guid: 9864b985e94286a40b4f4e8f1598ba6a, type: 3}
+    ConfirmedChip: {fileID: 0}
+    ChipIcon: {fileID: 21300000, guid: bebde9c7118c9254a914fb282430fd73, type: 3}
   - ObservationType: 2
     EmptyChip: {fileID: 21300000, guid: 498bc0e2ff8c3b24ebf4d37f66077e0a, type: 3}
     FilledChip: {fileID: 21300000, guid: 8213528dea6b54422ae20da9de5acb7b, type: 3}
+    ConfirmedChip: {fileID: 0}
+    ChipIcon: {fileID: 21300000, guid: 7b8304c21f933a940bd61bb604c08a89, type: 3}
   - ObservationType: 3
     EmptyChip: {fileID: 21300000, guid: 1a192e4a973ffdb4a977503dcc09dd65, type: 3}
     FilledChip: {fileID: 21300000, guid: e8c495b22bc7f324fb5f1316eb315e9d, type: 3}
+    ConfirmedChip: {fileID: 0}
+    ChipIcon: {fileID: 21300000, guid: 57fde6a9b978df245926b1ec784875d2, type: 3}
   - ObservationType: 4
-    EmptyChip: {fileID: 21300000, guid: 466660b262a14460a9ac54f774365c47, type: 3}
-    FilledChip: {fileID: 21300000, guid: 815823b3556d04877a9a9bd300e541f7, type: 3}
+    EmptyChip: {fileID: 0}
+    FilledChip: {fileID: 21300000, guid: 2afa2a4e8ca5f8d439a4a0e5eaea948c, type: 3}
+    ConfirmedChip: {fileID: 21300000, guid: 392a505f446c3974b8f8651a5563dc43, type: 3}
+    ChipIcon: {fileID: 0}
+  - ObservationType: 5
+    EmptyChip: {fileID: 21300000, guid: efe473d8347de7c4eb9dfd62099b6b74, type: 3}
+    FilledChip: {fileID: 21300000, guid: 2afa2a4e8ca5f8d439a4a0e5eaea948c, type: 3}
+    ConfirmedChip: {fileID: 21300000, guid: 392a505f446c3974b8f8651a5563dc43, type: 3}
+    ChipIcon: {fileID: 0}
   m_LabelFilledColor: {r: 0, g: 0, b: 0, a: 1}
   m_LabelEmptyColor: {r: 1, g: 1, b: 1, a: 1}
+  m_ChipDisabledTint: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  m_LabelDisabledColor: {r: 0, g: 0, b: 0, a: 0.4}
   m_EmptySlotSprite: {fileID: 21300000, guid: 717fc0b0465560744b70b21738e8a358, type: 3}

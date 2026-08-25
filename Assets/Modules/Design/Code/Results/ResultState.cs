@@ -113,8 +113,7 @@ namespace SpaceFab.Design
             for (int i = 0; i < resultState.VerticalLayoutToCopy.childCount; i++)
             {
                 GameObject originalRow = resultState.VerticalLayoutToCopy.GetChild(i).gameObject;
-                GameObject rowCopy = GameObject.Instantiate(originalRow, resultState.VerticalLayoutCopy);
-
+                GameObject.Instantiate(originalRow, resultState.VerticalLayoutCopy);
             }
         }
 
@@ -122,8 +121,8 @@ namespace SpaceFab.Design
         {
             if (resultState.TitleText != null)
             {
-                resultState.TitleText.SetText(allCorrect ? "Success" : "Failure");
-                resultState.TitleText.color = allCorrect ? Color.green : Color.red;
+                resultState.TitleText.SetText(allCorrect ? "Design complete" : "Failure");
+                resultState.TitleText.color = allCorrect ? Color.white : Color.red;
             }
 
             if (resultState.SummaryText != null)

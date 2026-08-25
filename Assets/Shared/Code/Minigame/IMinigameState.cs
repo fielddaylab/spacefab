@@ -10,5 +10,7 @@ namespace SpaceFab
         public void ImportState(MinigameSaveStates saveStates);
 
         public void ExportState(ref MinigameSaveStates saveStates);
+
+        public void MergeState();
     }
 }

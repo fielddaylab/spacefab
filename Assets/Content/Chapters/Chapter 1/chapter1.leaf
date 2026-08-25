@@ -5,6 +5,7 @@
 @cutscene
 @once
 {@PAL}      You only have one contract to choose from.
+{@PAL}      NEW LINE!
 $call   HighlightElement(overarching:costs-section, false, 25, true)
 {@PAL}      It looks like it will take this many days to complete.
 $call   ReleaseAllHighlights()
@@ -13,6 +14,11 @@ $call   HighlightElement(overarching:profit-section, false, 25, true)
 $call   ReleaseAllHighlights()
 $call   HighlightElement(overarching:select-contract-btn)
 
+:: FirstContractAccept
+@trigger    OnContractAccept
+@cutscene
+@once
+$call   ReleaseAllHighlights()
 
 :: BeforeSupplyChain
 @trigger    OnOverarchingLoaded

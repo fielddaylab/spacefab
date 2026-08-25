@@ -44,5 +44,34 @@ namespace SpaceFab.Design
                 visuals.VisualsNeedRefreshing = true;
             }
         }
+
+        public static void EraseTransferData(ToolModeState toolModeState, GridStackState gridState, GridCell cell, Vector2Int gridPos, int currLayer)
+        {
+            StackLayer linkedLayerType = toolModeState.ActiveLayer == StackLayer.Metal ? StackLayer.Transistor : StackLayer.Metal;
+            var linkedLayer = gridState.GridStack.GridLayers[(int)linkedLayerType];
+            var linkedCell = GridLayerUtility.GetCell(linkedLayer, gridPos);
+
+            if (cell.TransferEraseable)
+            {
+                if (cell.TransferType != TransferType.Implicit)
+                {
+                    cell.TransferType = TransferType.NONE;
+                }
+
+                int cellEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.DESCEND : (int)EdgeDir.ASCEND;
+                cell.Edges[cellEdgeIndex].EdgeState = EdgeState.Disconnected;
+            }
+
+            if (linkedCell.TransferEraseable)
+            {
+                if (linkedCell.TransferType != TransferType.Implicit)
+                {
+                    linkedCell.TransferType = TransferType.NONE;
+                }
+
+                int linkedEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.ASCEND : (int)EdgeDir.DESCEND;
+                linkedCell.Edges[linkedEdgeIndex].EdgeState = EdgeState.Disconnected;
+            }
+        }
     }
 }

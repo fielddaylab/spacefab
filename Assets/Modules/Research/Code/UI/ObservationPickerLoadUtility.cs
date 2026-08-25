@@ -1,5 +1,3 @@
-using BeauUtil;
-using FieldDay;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
@@ -7,15 +5,18 @@ using UnityEngine;
 namespace SpaceFab.Research {
     /// <summary>
     /// Builds the observation picker chip set for the currently-active
-    /// chamber. Called by ResearchTransitionSystem on minigame setup
-    /// (and, eventually, by the station-transition flow whenever the
-    /// active chamber changes). Available observations are constant per
-    /// chamber, so the pool sync + layout + overlay resize happen once
-    /// at this point — not per Add-Observation click.
+    /// chamber. Available observations are constant per chamber, so the
+    /// pool sync + layout + overlay resize happen once on chamber load —
+    /// not per Add-Observation click.
     ///
     /// Per-chip disabled state (greyed-out because the label is already
     /// in a sample slot) is owned by ObservationPickerRefreshSystem and
     /// updates whenever the hypothesis viewmodel changes.
+    ///
+    /// Dormant: observation selection now happens on the wiki's
+    /// observation pages, and nothing opens the picker overlay anymore.
+    /// Kept compiling so the overlay can be brought back without
+    /// rebuilding it.
     /// </summary>
     public static class ObservationPickerLoadUtility {
         // Padding (px) added above and below the chip column when
@@ -66,16 +67,8 @@ namespace SpaceFab.Research {
                 // read as "ready to take" rather than "empty slot."
                 // ResearchObservationChipAssets supplies the filled
                 // sprite per ObservationType.
-                string text = MaterialPropertyLabelDisplay.GetObservationName(label);
-                if (interfacerState.ActiveChamber == ActiveChamberKind.Doping && interfacerState != null) {
-                    MaterialAsset context = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary);
-                    // TODO: show element name if element name has been found
-                    if (context != null) {
-                        ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(context.AssetId);
-                        text = $"{text} than sample {view.SampleLabel}";
-                    }
-                }
-                chip.SetState(text, true, false, observationType);
+                string text = ResearchWikiInputUtility.GetObservationChipText(label, interfacerState);
+                chip.SetState(text, ChipFillState.Filled, false, observationType);
                 chip.SetPickerChipDisabledVisual(false);
 
                 pools.ActivePickerChips.Add(chip);

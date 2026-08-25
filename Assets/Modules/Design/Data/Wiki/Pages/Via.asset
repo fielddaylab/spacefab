@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Title: Via
   m_Icon: {fileID: 21300000, guid: cda69e771631a8e41aed7713dd8e98a2, type: 3}
-  m_Illustration: {fileID: 21300000, guid: 556888cad35a04f4faa75580480d44cf, type: 3}
+  m_IllustrationFrames:
+  - {fileID: 21300000, guid: 556888cad35a04f4faa75580480d44cf, type: 3}
+  m_IllustrationFPS: 0.5
   m_Body: Vias connect the Metal layer to the Semiconductor layer, passing signals
     between them.

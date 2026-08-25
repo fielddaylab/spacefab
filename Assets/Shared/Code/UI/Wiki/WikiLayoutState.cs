@@ -1,44 +1,40 @@
+using System.Collections.ObjectModel;
+using BeauRoutine;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
-using FieldDay.Systems;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SpaceFab.UI {
     /// <summary>
-    /// Scene-authored layout references for the shared wiki UI. Holds the two sibling
-    /// CanvasGroups whose alpha distinguishes expanded vs. collapsed steady state, the
-    /// paginator strip's content RectTransform and per-icon stride used to slide the strip
-    /// under its mask, and a pointer to the WikiPageContentWidgets that the visuals system
-    /// pushes page fields into.
+    /// Scene-authored layout references for the shared wiki UI: the panel root, the paginator
+    /// strip and its scroll geometry, the selection highlight, and the widget set page content
+    /// binds into.
     ///
-    /// Authored once on the wiki prefab root alongside WikiContent and WikiPools. Mutated by
-    /// the visuals system each frame; the transition routines (WikiUtility.ExpandRoutine /
-    /// CollapseRoutine) tween the CanvasGroup alphas while Transitioning is true.
+    /// Authored once on the wiki prefab root alongside WikiContent and WikiPools, and written by
+    /// WikiVisualsUtility when wiki state changes rather than on a per-frame poll.
     /// </summary>
     public class WikiLayoutState : SharedStateComponent, IRegistrationCallbacks, ISceneLateInitialize {
-        // Full-panel root. Fully visible (alpha == 1, blocksRaycasts == true) in the expanded
-        // steady state; faded out and non-interactive when collapsed.
+        // Full-panel root. Opaque and interactive when expanded, faded out and raycast-transparent
+        // when collapsed.
         public CanvasGroup ExpandedRoot;
-
-        // Small icon-button root. Mirror of ExpandedRoot: visible when collapsed, faded out
-        // when expanded.
-        public CanvasGroup CollapsedRoot;
 
         public TextMeshProUGUI Header;
 
-        // Page-text + illustration widgets the visuals system writes into each frame while
-        // the panel is expanded.
+        // Page text + illustration widgets. Written whenever the active page changes while the
+        // panel is expanded.
         public WikiPageContentWidgets PageContentWidgets;
 
-        // Paginator scroll surface. Slid horizontally by anchoredPosition.x = -StartIndex *
-        // PageThumbStride so off-window icons clip against the strip's UI Mask.
+        // Paginator scroll surface. Slid horizontally so off-window thumbs clip against the
+        // strip's UI Mask.
         public RectTransform PaginatorContent;
 
-        // Single highlight overlay reparented + sized onto the selected page thumbnail each
-        // frame (see WikiLayoutUtility.PositionPageHighlight). Hidden when no page is selected.
+        // Single highlight overlay, moved over the selected thumbnail on each refresh. Authored as
+        // a sibling ahead of PaginatorContent so it draws behind the thumbs, and left at that spot
+        // in the hierarchy. Hidden when no page is selected.
         public RectTransform PageHighlight;
 
         public Button PrevPage;
@@ -49,9 +45,31 @@ namespace SpaceFab.UI {
         public Sprite PageThumbActiveSprite;
         public Sprite PageThumbInactiveSprite;
 
-        // Horizontal distance (in PaginatorContent's local space) between adjacent page-thumb
-        // slots. Authored to match the prefab's thumb layout group spacing + cell width.
+        // Vertical gap between adjacent tab buttons. The strip places its buttons from code rather
+        // than through a layout group, since the pop-out owns each button's horizontal offset and a
+        // layout group would overwrite it on every rebuild.
+        public float TabSpacing = 10f;
+
+        // Widths a tab sits at when resting and when fully popped. Both grow leftward off the pinned
+        // right edge, so the popped tab stays tucked under the panel.
+        public float TabWidth = 75f;
+        public float TabPopWidth = 75f;
+
+        // How far the selected tab slides out of the panel. Past the strip's overlap with the panel
+        // background — 7px as authored — the popped tab's right edge starts to show.
+        public float TabPopOutDistance = 10f;
+
+        // Pop-out overshoots and settles; pop-in eases straight back, so a tab swap doesn't read as
+        // two tabs arriving at once.
+        public TweenSettings TabPopOutTween = new TweenSettings(0.15f, Curve.BackOut);
+        public TweenSettings TabPopInTween = new TweenSettings(0.12f, Curve.CubeOut);
+
+        // Horizontal distance between adjacent thumb slots, in PaginatorContent's local space.
+        // Authored to match the prefab layout group's spacing plus cell width.
         public float PageThumbStride;
+
+        public WikiContent WikiContent;
+
 
         public void OnRegister()
         {
@@ -60,9 +78,10 @@ namespace SpaceFab.UI {
         public void OnDeregister() {
         }
 
+        // Snaps the authored prefab to whatever steady state WikiState starts in, then queues the
+        // first strip rebuild.
         public void LateInitialize()
         {
-            // Enforce the initial steady state based on the default WikiState.Expanded value.
             Find.State(out WikiState wikiState);
             WikiLayoutUtility.ApplyExpandedSteadyState(this, wikiState.Expanded);
             WikiLayoutUtility.ScrollPaginator(this, 0);
@@ -71,71 +90,110 @@ namespace SpaceFab.UI {
     }
 
     /// <summary>
-    /// Helpers for WikiLayoutState. Holds the steady-state CanvasGroup assertion used by
-    /// WikiVisualsUpdateSystem when no transition is in flight, and the paginator-strip
-    /// scroll math.
+    /// Helpers for WikiLayoutState: the steady-state visibility snap, the tab strip's vertical
+    /// arrangement, the paginator scroll math, and the selection highlight's placement.
+    ///
+    /// Every layout reference these touch is required authoring on the wiki prefab, so a missing
+    /// one asserts rather than silently skipping the work.
     /// </summary>
     public static class WikiLayoutUtility {
-        private static Vector2 THUMB_HIGHLIGHT_MARGIN = new Vector2(-8, -8);
+        private static Vector2 THUMB_HIGHLIGHT_MARGIN = new Vector2(-4, -4);
+        private static Vector2 HIGHLIGHT_ANCHOR = new Vector2(0.5f, 0.5f);
 
-        // Snap the two roots to the steady-state alpha that matches `expanded`. Called by the
-        // visuals system while WikiState.Transitioning is false; the transition routines own
-        // the in-between alpha values.
+        // Tab buttons hang from the strip's top-right corner by their own top-right corner, so a
+        // width change grows leftward instead of shifting the edge the strip is aligned on.
+        private static Vector2 TAB_SLOT_ANCHOR = new Vector2(1, 1);
+
+        // Snap the panel root to the visibility that matches `expanded`.
         public static void ApplyExpandedSteadyState(WikiLayoutState layoutState, bool expanded) {
             SetGroupVisible(layoutState.ExpandedRoot, expanded);
-            SetGroupVisible(layoutState.CollapsedRoot, !expanded);
+            // SetGroupVisible(layoutState.CollapsedRoot, !expanded);
+        }
+
+        // Stack the tab buttons down the strip's right edge, top-aligned and TabSpacing apart. Done
+        // from code rather than through a layout group: the pop-out animates each button's
+        // horizontal offset, and a group would overwrite that on its next rebuild — which a tab
+        // click triggers, since selecting a tab also raises NeedsRebuild.
+        //
+        // Horizontal offset and width are deliberately untouched here. Those belong to the pop-out
+        // in WikiVisualsUtility, which is their only writer, so a relayout can't jump a tab that's
+        // mid-transition. Anchors and pivot are reassigned every pass because WikiPools resets a
+        // freshly allocated instance's transform back to the prefab's centre pivot.
+        public static void LayoutTabStrip(WikiLayoutState layoutState, ReadOnlyCollection<WikiButton> tabButtons) {
+            float slotTop = 0;
+
+            for (int i = 0; i < tabButtons.Count; i++) {
+                WikiButton tab = tabButtons[i];
+
+                // A locked tab is hidden by WikiAvailabilityUtility rather than left out of the
+                // pool, so skip it instead of leaving a gap where it would have sat.
+                if (!tab.gameObject.activeSelf) { continue; }
+
+                RectTransform rect = (RectTransform) tab.transform;
+                rect.anchorMin = TAB_SLOT_ANCHOR;
+                rect.anchorMax = TAB_SLOT_ANCHOR;
+                rect.pivot = TAB_SLOT_ANCHOR;
+
+                rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, slotTop);
+                slotTop -= rect.rect.height + layoutState.TabSpacing;
+            }
         }
 
         // Slide the paginator strip so the (startIndex)th slot sits at the strip's left edge.
-        // No-op if PaginatorContent or PageThumbStride aren't authored.
         public static void ScrollPaginator(WikiLayoutState layoutState, int startIndex) {
-            if (layoutState.PaginatorContent == null) { return; }
+            Assert.NotNullOrDestroyed(layoutState.PaginatorContent, "WikiLayoutState.PaginatorContent not authored");
 
             Vector2 anchoredPos = layoutState.PaginatorContent.anchoredPosition;
             anchoredPos.x = -startIndex * layoutState.PageThumbStride;
             layoutState.PaginatorContent.anchoredPosition = anchoredPos;
         }
 
-        // Reparent the single highlight overlay onto the selected thumbnail and stretch it to
-        // fill that thumb's rect. Parenting (rather than copying coordinates) means the
-        // highlight tracks the thumb automatically as the paginator strip slides and clips it
-        // against the same UI Mask. The overlay is pushed behind the thumb's own content
-        // (SetAsFirstSibling) so the icon still renders on top of it.
+        // Move the highlight overlay onto the selected thumbnail and size it to that thumb's rect.
+        // The overlay keeps its authored parent and sibling index — it sits ahead of
+        // PaginatorContent under the same masked viewport, so it draws behind every thumb and
+        // clips with them without any reparenting.
+        //
+        // Coordinates are read off the thumb's live world rect, so the placement already accounts
+        // for whatever offset ScrollPaginator has applied to the strip. Callers must make sure the
+        // strip's layout has settled first, or the overlay lands on the previous frame's
+        // thumbnail positions.
         public static void PositionPageHighlight(WikiLayoutState layoutState, RectTransform targetThumb) {
-            if (layoutState.PageHighlight == null) { return; }
+            Assert.NotNullOrDestroyed(layoutState.PageHighlight, "WikiLayoutState.PageHighlight not authored");
 
+            // No selected thumb is a real state — the active page's thumbnail may be locked or
+            // belong to another tab.
             if (targetThumb == null) {
                 HidePageHighlight(layoutState);
                 return;
             }
 
             RectTransform highlight = layoutState.PageHighlight;
-            if (highlight.parent != targetThumb) {
-                highlight.SetParent(targetThumb, false);
-                highlight.SetAsFirstSibling();
-            }
+            RectTransform highlightParent = highlight.parent as RectTransform;
+            Assert.NotNullOrDestroyed(highlightParent, "WikiLayoutState.PageHighlight must be parented under a RectTransform");
 
-            // Stretch to fill the thumb's rect exactly.
-            highlight.anchorMin = Vector2.zero;
-            highlight.anchorMax = Vector2.one;
-            highlight.offsetMin = THUMB_HIGHLIGHT_MARGIN;
-            highlight.offsetMax = -THUMB_HIGHLIGHT_MARGIN;
+            // Centered anchors make the placement a single point translation: the thumb's center,
+            // expressed in the overlay's parent space, offset from that parent's own center.
+            highlight.anchorMin = HIGHLIGHT_ANCHOR;
+            highlight.anchorMax = HIGHLIGHT_ANCHOR;
+            highlight.pivot = HIGHLIGHT_ANCHOR;
+
+            Vector3 thumbWorldCenter = targetThumb.TransformPoint(targetThumb.rect.center);
+            Vector2 thumbLocalCenter = highlightParent.InverseTransformPoint(thumbWorldCenter);
+
+            highlight.anchoredPosition = thumbLocalCenter - highlightParent.rect.center;
+            highlight.sizeDelta = targetThumb.rect.size - 2f * THUMB_HIGHLIGHT_MARGIN;
 
             highlight.gameObject.SetActive(true);
         }
 
-        // Hide the highlight overlay. Called when no page thumbnail is currently selected /
-        // visible in the active tab.
+        // Hide the highlight overlay, for when no thumbnail in the active tab is selected.
         public static void HidePageHighlight(WikiLayoutState layoutState) {
-            if (layoutState.PageHighlight == null) { return; }
             layoutState.PageHighlight.gameObject.SetActive(false);
         }
 
-        // Drive a CanvasGroup to a fully-visible or fully-hidden steady state. Used by
-        // ApplyExpandedSteadyState; pulled out so the alpha + blocksRaycasts + interactable
-        // toggle stays consistent across both roots.
+        // Drive a CanvasGroup to fully visible or fully hidden. Pulled out so the alpha +
+        // blocksRaycasts + interactable toggle stays in one place as more roots are added.
         private static void SetGroupVisible(CanvasGroup group, bool visible) {
-            if (group == null) { return; }
             group.alpha = visible ? 1f : 0f;
             group.blocksRaycasts = visible;
             group.interactable = visible;

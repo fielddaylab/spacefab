@@ -25,5 +25,12 @@ namespace SpaceFab.Research {
         [Header ("Atomic View Toggle")]
         public Sprite ButtonUp;
         public Sprite ButtonDown;
+
+        [Header("Wiki Property Pages")]
+        // When true, the decomposed-observation chips on wiki property
+        // pages are clickable in the Research scene (same add/remove
+        // routing as observation pages, minus the grey styling). When
+        // false they are display-only.
+        public bool PropertyPageObservationChipsClickable;
     }
 }

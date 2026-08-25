@@ -172,6 +172,7 @@ MonoBehaviour:
   ShadowRenderer: {fileID: 0}
   ShadowPosition: {fileID: 0}
   Label: {fileID: 5585567937148795608}
+  LabelBG: {fileID: 8901383016482266259}
   Highlight: {fileID: 0}
 --- !u!1 &5701757055239453547
 GameObject:

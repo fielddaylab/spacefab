@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Research;
 using FieldDay;
+using SpaceFab.UI;
 
 namespace SpaceFab {
     public class ContractUI : MonoBehaviour
@@ -15,6 +16,7 @@ namespace SpaceFab {
         public Image[] TimeIndicators;
         public Image[] RevenueIndicators;
 
+        public DynamicButton SelectContractButton;
         public GameObject ApprovedStamp;
         public Image SignatureImage;
 
@@ -60,7 +62,7 @@ namespace SpaceFab {
                 
                 RequirementElement.SetState(
                     materialName,
-                    true,
+                    ChipFillState.Filled,
                     false,
                     Materials.MaterialObservationChamberLookup.GetChamberType(property.Label)
                 );
