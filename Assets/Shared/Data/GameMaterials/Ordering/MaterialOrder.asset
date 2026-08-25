@@ -29,3 +29,52 @@ MonoBehaviour:
   - m_HashValue: 4101603807
   - m_HashValue: 665289792
   - m_HashValue: 527899933
+  m_BakedKnowledge:
+  - StaticMask: 8
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 4
+    DynamicMask_PDopant: 3144
+    DynamicMask_NDopant: 0
+  - StaticMask: 9
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 816
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 400
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 432
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 528
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 8
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 8
+    DynamicMask_PDopant: 48
+    DynamicMask_NDopant: 0
+  - StaticMask: 8
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 3144
+  - StaticMask: 16
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 48
+  - StaticMask: 336
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 6
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 4
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 8
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
+  - StaticMask: 48
+    DynamicMask_PDopant: 0
+    DynamicMask_NDopant: 0
