@@ -78,3 +78,20 @@ MonoBehaviour:
   - StaticMask: 48
     DynamicMask_PDopant: 0
     DynamicMask_NDopant: 0
+  m_BakedNames:
+  - Aluminum
+  - Boron
+  - Copper
+  - Diamond
+  - GalliumArsenide
+  - GalliumNitride
+  - Germanium
+  - Gold
+  - Magnesium
+  - Phosphorus
+  - Silicon
+  - Silicon Carbide
+  - Silicon Dioxide
+  - Silicon Nitride
+  - Silver
+  - Tungsten

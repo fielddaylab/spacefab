@@ -16,10 +16,11 @@ namespace SpaceFab
     /// Defines the canonical ordering of all materials for save serialization.
     /// The array index of each entry is its bit position in the researched-materials bitmask.
     ///
-    /// Also carries a baked snapshot of each material's discoverable properties, gathered from
-    /// every MaterialAsset in the project rather than from whichever ones are mounted. The
-    /// MaterialAsset pack only streams in for in-game scenes, so callers that need the
-    /// fully-researched picture read it from here instead of walking the asset registry.
+    /// Also carries a baked snapshot of each material's discoverable properties and display
+    /// name, gathered from every MaterialAsset in the project rather than from whichever ones
+    /// are mounted. The MaterialAsset pack only streams in for in-game scenes, so callers that
+    /// need the fully-researched picture - or a readable material name outside gameplay - read
+    /// it from here instead of walking the asset registry.
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Game Materials/Material Order")]
     public class MaterialOrderAsset : GlobalAsset, IBaked
@@ -31,6 +32,11 @@ namespace SpaceFab
         // material at index i. Rebuilt at build time and by SpaceFab -> Materials -> Rebake
         // Material Knowledge.
         [SerializeField] private MaterialPropertyRecord[] m_BakedKnowledge;
+
+        // Parallel to m_MaterialIds: the material's DisplayName, falling back to its asset
+        // name. Baked alongside the knowledge so debug tooling can label a material before the
+        // MaterialAsset pack is mounted.
+        [SerializeField] private string[] m_BakedNames;
 
         private Dictionary<StringHash32, int> m_IndexLookup;
 
@@ -71,7 +77,8 @@ namespace SpaceFab
         /// True once the baked snapshot covers every material in the ordering. False means the
         /// bake has never run, or materials were added to the ordering afterwards.
         /// </summary>
-        public bool HasBakedKnowledge => m_BakedKnowledge != null && m_BakedKnowledge.Length == m_MaterialIds.Length;
+        public bool HasBakedKnowledge => m_BakedKnowledge != null && m_BakedKnowledge.Length == m_MaterialIds.Length
+            && m_BakedNames != null && m_BakedNames.Length == m_MaterialIds.Length;
 
         /// <summary>
         /// Returns the baked discoverable-property set for the material at the given index.
@@ -83,6 +90,19 @@ namespace SpaceFab
             }
 
             return m_BakedKnowledge[index];
+        }
+
+        /// <summary>
+        /// Returns the baked display name for the material at the given index, or a positional
+        /// placeholder when the snapshot doesn't cover it. Never null - callers label UI with
+        /// this, so an unbaked entry still has to read as something.
+        /// </summary>
+        public string GetBakedName(int index) {
+            if (m_BakedNames == null || index < 0 || index >= m_BakedNames.Length || string.IsNullOrEmpty(m_BakedNames[index])) {
+                return "Material #" + index;
+            }
+
+            return m_BakedNames[index];
         }
 
 #if UNITY_EDITOR
@@ -114,18 +134,21 @@ namespace SpaceFab
         }
 
         // Rebuilds the snapshot from every MaterialAsset in the project, mounted or not. A
-        // material contributes only the properties authored on it - the rest aren't
+        // material contributes only the properties authored on it - the rest are not
         // discoverable and must never be confirmed. Dynamic labels (PDopantFor / NDopantFor)
         // are crossed with that material's authored Contexts, the same pairing the hypothesis
         // ground-truth check uses. Returns true if the snapshot actually changed.
         private bool BakeKnowledge() {
             MaterialPropertyRecord[] baked = new MaterialPropertyRecord[m_MaterialIds.Length];
+            string[] names = new string[m_MaterialIds.Length];
 
             foreach (MaterialAsset material in Baking.FindAssets<MaterialAsset>()) {
                 if (!TryGetIndex(material.AssetId, out int materialIdx)) {
                     // Authored but outside the canonical ordering: no save bit, nowhere to record.
                     continue;
                 }
+
+                names[materialIdx] = string.IsNullOrEmpty(material.DisplayName) ? material.name : material.DisplayName;
 
                 if (material.Properties == null) {
                     continue;
@@ -160,19 +183,30 @@ namespace SpaceFab
                 }
             }
 
-            if (m_BakedKnowledge != null && m_BakedKnowledge.Length == baked.Length) {
-                bool changed = false;
-                for (int i = 0; i < baked.Length && !changed; i++) {
-                    changed = !MaterialPropertyRecordUtility.AreEqual(m_BakedKnowledge[i], baked[i]);
-                }
-
-                if (!changed) {
-                    return false;
-                }
+            if (!IsSnapshotChanged(baked, names)) {
+                return false;
             }
 
             m_BakedKnowledge = baked;
+            m_BakedNames = names;
             return true;
+        }
+
+        // True when the freshly-gathered snapshot differs from the stored one. Keeps the bake
+        // from dirtying the asset on every build when nothing was re-authored.
+        private bool IsSnapshotChanged(MaterialPropertyRecord[] baked, string[] names) {
+            if (m_BakedKnowledge == null || m_BakedKnowledge.Length != baked.Length
+                || m_BakedNames == null || m_BakedNames.Length != names.Length) {
+                return true;
+            }
+
+            for (int i = 0; i < baked.Length; i++) {
+                if (!MaterialPropertyRecordUtility.AreEqual(m_BakedKnowledge[i], baked[i]) || m_BakedNames[i] != names[i]) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 #endif // UNITY_EDITOR
