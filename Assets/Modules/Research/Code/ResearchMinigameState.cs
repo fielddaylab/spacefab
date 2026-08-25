@@ -193,6 +193,44 @@ namespace SpaceFab.Research
             }
         }
 
+        // Mid-session re-sync: additively folds PlayerProgressState back into the sandbox
+        // for every material in scope. Unlike LoadFromPlayerProgress this preserves the
+        // observations and LastDiscovery already collected this session, so it is safe to
+        // call while the minigame is running. It exists for progress written outside the
+        // confirm flow - the Unlock All Knowledge debug menu - to become visible without
+        // re-entering the minigame.
+        //
+        // Raises PropertyConfirmedThisFrame when anything changed: there is no
+        // ResearchPropertyConfirmBridge on this path, and the view systems gated on that
+        // flag (tray rigs, contract requirements panel) are what make the change show up
+        // the same frame. Returns true if any sandbox record changed.
+        public static bool MergeFromPlayerProgress(ResearchMinigameState researchState, PlayerProgressState progressState) {
+            bool anyChanged = false;
+
+            foreach (StringHash32 materialId in researchState.AvailableMaterials) {
+                if (!progressState.MaterialProperties.TryGetValue(materialId, out var progressRecord)) {
+                    continue;
+                }
+
+                researchState.SandboxProperties.TryGetValue(materialId, out var sandboxRecord);
+                MaterialPropertyRecord merged = sandboxRecord;
+                MaterialPropertyRecordUtility.Merge(ref merged, progressRecord);
+                if (MaterialPropertyRecordUtility.AreEqual(sandboxRecord, merged)) {
+                    continue;
+                }
+
+                researchState.SandboxProperties[materialId] = merged;
+                researchState.SandboxDirty.Add(materialId);
+                anyChanged = true;
+            }
+
+            if (anyChanged) {
+                researchState.PropertyConfirmedThisFrame = true;
+            }
+
+            return anyChanged;
+        }
+
         // Minigame exit: merges the sandbox into PlayerProgressState. OR-mask is
         // additive and idempotent: re-running with the same sandbox is a no-op,
         // and the sandbox can never un-confirm a property the player already had.
