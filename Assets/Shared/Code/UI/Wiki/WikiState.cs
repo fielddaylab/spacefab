@@ -7,6 +7,7 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using FieldDay.UI;
 using Leaf.Runtime;
 using SpaceFab.Materials;
 using UnityEngine;
@@ -955,6 +956,9 @@ namespace SpaceFab.UI {
                 "Wiki tab button has out-of-range TabIndex {0}", button.TabIndex);
 
             bool available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
+            CursorHint hintHeader = button.GetComponent<CursorHint>();
+            hintHeader.TooltipHeader = content.Tabs[button.TabIndex].Title;
+
             ApplyAvailability(button, available);
         }
 
@@ -972,6 +976,9 @@ namespace SpaceFab.UI {
             Assert.NotNullOrDestroyed(page, "Wiki tab '{0}' has a null page at index {1}", tab.name, button.PageIndex);
 
             bool available = WikiUtility.IsPageUnlocked(progressState, page.AssetId);
+            CursorHint hintHeader = button.GetComponent<CursorHint>();
+            hintHeader.TooltipHeader = page.Title;
+
             ApplyAvailability(button, available);
         }
 

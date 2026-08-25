@@ -176,10 +176,12 @@ namespace SpaceFab.Design
                 case InputOutputNodeTypeFlags.VPLUS:
                     visualCell.PathRenderer.sprite = spriteDB.IOOuter;
                     visualCell.SubRenderer.sprite = spriteDB.InputConstantHigh;
+                    visualCell.SubRenderer.transform.localScale = Vector3.one * 0.75f;
                     break;
                 case InputOutputNodeTypeFlags.VMINUS:
                     visualCell.PathRenderer.sprite = spriteDB.IOOuter;
                     visualCell.SubRenderer.sprite = spriteDB.InputConstantLow;
+                    visualCell.SubRenderer.transform.localScale = Vector3.one * 0.75f;
                     break;
                 default:
                     break;
