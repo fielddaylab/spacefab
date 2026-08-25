@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 568859424960568193}
   - component: {fileID: 7687530588830565046}
   - component: {fileID: 4936668618918178319}
+  - component: {fileID: 4673306683996144519}
   m_Layer: 5
   m_Name: Wiki Page Thumb
   m_TagString: Untagged
@@ -170,3 +171,23 @@ MonoBehaviour:
   RectTransform: {fileID: 2533435817408525176}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 0}
+--- !u!114 &4673306683996144519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437054748629689750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: page header
+  Tooltip: 
+  TooltipFooter: 
