@@ -121,8 +121,8 @@ namespace SpaceFab.Design
         {
             if (resultState.TitleText != null)
             {
-                resultState.TitleText.SetText(allCorrect ? "Success" : "Failure");
-                resultState.TitleText.color = allCorrect ? Color.green : Color.red;
+                resultState.TitleText.SetText(allCorrect ? "Design complete" : "Failure");
+                resultState.TitleText.color = allCorrect ? Color.white : Color.red;
             }
 
             if (resultState.SummaryText != null)
