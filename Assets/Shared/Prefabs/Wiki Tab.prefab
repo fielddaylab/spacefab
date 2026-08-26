@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 800089541568973724}
   - component: {fileID: 7372704610343129771}
   - component: {fileID: 4286031107442425289}
+  - component: {fileID: 1014428398480083938}
   m_Layer: 5
   m_Name: Wiki Tab
   m_TagString: Untagged
@@ -141,7 +142,7 @@ MonoBehaviour:
   TabIndex: 0
   PageIndex: -1
   DynamicButton: {fileID: 7372704610343129771}
-  ElementTag: {fileID: 0}
+  ElementTag: {fileID: 1014428398480083938}
   ClickedThisFrame: 0
   PointerEnterThisFrame: 0
   PointerExitThisFrame: 0
@@ -262,3 +263,21 @@ MonoBehaviour:
   TooltipHeader: tab header
   Tooltip: 
   TooltipFooter: 
+--- !u!114 &1014428398480083938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2543509618474448267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: 
+    m_HashValue: 0
+  RectTransform: {fileID: 6188291971191392406}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}

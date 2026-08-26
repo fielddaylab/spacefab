@@ -92,6 +92,15 @@ namespace SpaceFab.UI {
         }
 
         /// <summary>
+        /// Id for one tab button keyed by the tab asset's name.
+        /// </summary>
+        public static string TabId(string tabName) {
+            string slug = Slug(tabName);
+            if (slug.Length == 0) { return null; }
+            return "wiki:tab-" + slug;
+        }
+
+        /// <summary>
         /// Id for one page thumbnail in the paginator strip, keyed by the page asset's name —
         /// the same string content scripts already pass to LockWikiPage / UnlockWikiPage, so a
         /// tutorial names a thumbnail the way it names the page ("Voltage Chamber" becomes

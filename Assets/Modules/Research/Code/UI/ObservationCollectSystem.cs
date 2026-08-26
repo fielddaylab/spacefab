@@ -93,7 +93,6 @@ namespace SpaceFab.Research {
                         ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
                     }
                 }
-                ScriptUtility.WriteVariable(new TableKeyPair("research", "observationId"), inputState.ChipPickerSelectionLabel.ToString());
             }
 
             // Remove path: slot index → (label, context) via the
@@ -115,10 +114,18 @@ namespace SpaceFab.Research {
                         {
                             if (ResearchInventoryUtility.RemoveObservation(researchState, secondarySlottedId, label, context)) {
                                 viewModelDirty = true;
+                                using (var table = TempVarTable.Alloc()) {
+                                    table.Set("observationId", label.ToString().ToLower());
+                                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationRemoved, table);
+                                }
                             }
                         }
                         else if (ResearchInventoryUtility.RemoveObservation(researchState, slottedId, label, context)) {
                             viewModelDirty = true;
+                            using (var table = TempVarTable.Alloc()) {
+                                table.Set("observationId", label.ToString().ToLower());
+                                ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationRemoved, table);
+                            }
                         }
                     }
                 }

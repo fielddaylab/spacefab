@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Variants;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
@@ -100,6 +101,9 @@ namespace SpaceFab.Research {
             if (slotChanged || inputState.RemoveHypothesisClickedThisFrame) {
                 viewModelState.HypothesisSelected = false;
                 viewModelState.HypothesisContext = StringHash32.Null;
+
+                ScriptUtility.WriteVariable(new TableKeyPair("research", "propertyId"), "null");
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyRemoved);
             }
 
             // Dynamic labels need a substrate context, which only the
@@ -123,11 +127,8 @@ namespace SpaceFab.Research {
                     viewModelState.HypothesisLabel = label;
                     viewModelState.HypothesisContext = context;
 
-                    using (var table = TempVarTable.Alloc())
-                    {
-                        table.Set("propertyId", label.ToString().ToLower());
-                        ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyAdded, table);
-                    }
+                    ScriptUtility.WriteVariable(new TableKeyPair("research", "propertyId"), label.ToString().ToLower());
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyAdded);
                 }
             }
 
