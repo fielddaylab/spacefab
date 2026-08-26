@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Copper
     m_HashValue: 3821421172
-  ConductionMultiplier: 0.9
-  ThermalMultiplier: 0.5
+  BaseConduction: 0.9
+  HeatedConduction: 0.225
   MaxTemperature: 0.6
   MaxVoltage: 1
   IsHighMobility: 0
