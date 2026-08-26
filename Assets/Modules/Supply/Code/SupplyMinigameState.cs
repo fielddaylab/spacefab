@@ -16,7 +16,12 @@ namespace SpaceFab.Supply
         [NonSerialized] public int TotalCycles;
         [NonSerialized] public int Cost;
 
-        // TODO: layout, paths
+        // Mirror of the drawn routes, and the hand-off between the save chunk and the live
+        // SupplyRouteCollection in both directions. ImportState fills it from save (the map does
+        // not exist yet at that point); SupplyLoader applies it once the map is built. On exit
+        // SupplyRouteSaveUtility.Capture refills it and ExportState writes it back out.
+        [NonSerialized] public int SavedRouteCount;
+        [NonSerialized] public SupplyRouteSaveData[] SavedRoutes = new SupplyRouteSaveData[SupplyRouteData.MaxShips];
 
         #endregion // Saved State
 
@@ -48,6 +53,12 @@ namespace SpaceFab.Supply
 
         public override void ExportState(ref MinigameSaveStates saveStates)
         {
+            // Snapshot the live routes into the mirror before writing it out. Export runs from
+            // MinigameUtility.ExecuteExit with the scene still up, so the collection is available
+            // here - unlike at import time, when the map has not been built yet.
+            Find.State(out SupplyRouteCollection routes, out SupplyRouteDrawingState draw, out SupplyShipIndex ships);
+            SupplyRouteSaveUtility.Capture(routes, draw, ships, this);
+
             SupplyStateUtility.ExportState(ref saveStates.Supply, this);
         }
 
@@ -63,6 +74,9 @@ namespace SpaceFab.Supply
             supplyState.Cost = saveState.FinalizedCost;
 
             supplyState.FoundValidSolution = saveState.FoundValidSolution;
+
+            supplyState.SavedRouteCount = saveState.RouteCount;
+            Array.Copy(saveState.Routes, supplyState.SavedRoutes, SupplyRouteData.MaxShips);
         }
 
         public static void ExportState(ref SupplySaveState saveState, SupplyMinigameState supplyState)
@@ -72,6 +86,21 @@ namespace SpaceFab.Supply
             saveState.FinalizedCost = supplyState.Cost;
 
             saveState.FoundValidSolution = supplyState.FoundValidSolution;
+
+            saveState.RouteCount = supplyState.SavedRouteCount;
+            Array.Copy(supplyState.SavedRoutes, saveState.Routes, SupplyRouteData.MaxShips);
+        }
+
+        // Drops a previously confirmed result. Editing a route after confirming leaves the stored
+        // cost/cycles/risk describing routes that no longer exist, so the player has to re-confirm
+        // rather than submit the chapter on stale numbers.
+        public static void InvalidateFinalizedSolution(SupplyMinigameState supplyState)
+        {
+            supplyState.Reliability = -1;
+            supplyState.TotalCycles = -1;
+            supplyState.Cost = -1;
+
+            supplyState.FoundValidSolution = false;
         }
     }
 }
