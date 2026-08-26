@@ -16,8 +16,8 @@ namespace SpaceFab.Overarching
     public class OverarchingRenderPlane : MonoBehaviour, IBaked {
         public float Distance;
 
-        [HideInInspector] public Transform[] Children;
-        [HideInInspector] public StreamingQuadTexture[] Streamed;
+        [NonSerialized] public Transform[] Children;
+        [NonSerialized] public StreamingQuadTexture[] Streamed;
 
 #if UNITY_EDITOR
 

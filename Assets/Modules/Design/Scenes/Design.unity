@@ -171,30 +171,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d86367b908812ea4c80c833e8d0983df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CellAdjStart: 
-  CellAdjCount: 
-  CellAdjDest: 
-  CellAdjDestUsed: 0
-  WorkQueue: 
-  WorkHead: 0
-  WorkTail: 0
-  VisitStamps: 
-  CurrentVisitStamp: 0
-  DfsPathBuffer: 
-  DfsPathDepth: 0
-  DfsReachedCrucial: 
-  DfsReachedPathStart: 
-  DfsReachedPathLength: 
-  DfsReachedCrucialCount: 0
-  PostponedPairs: 
-  PostponedCount: 0
-  AwaitingDependency: 
-  EvaluatedForDependency: 
-  DisallowAdditionalDep: 
-  Processed: 
-  NoReturnPairs: 
-  NoReturnPairCount: 0
-  UnsortedEdgeCount: 0
 --- !u!114 &33255856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,17 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9202cdbb1b972d447afd574b6552c272, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsBuilt: 0
-  NodeCount: 0
-  EdgeCount: 0
-  MaxDepth: 0
-  PathPool: 
-  PathPoolUsed: 0
-  CellToCrucial: 
-  CellFlowRepresentative: 
-  RepresentedCells: 
-  RepresentedCellCount: 0
-  DepthEdgeStart: 
+  LogGraphOnBuild: 0
 --- !u!114 &33255857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230,27 +196,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fbc6c0398f3f90428df5d8b61d9c462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Phase: 0
-  Scope: 0
-  CurrentRow: 0
-  RequestedRowIndex: 0
-  PendingPlayRowIndex: 0
-  CurrentDepth: 0
-  PhaseTimer: 0
-  PaintDepthThisFrame: 0
-  IsUnstable: 0
   InterDepthDelay: 0.5
   InterTestDelay: 2
-  PlayFullSuiteRequested: 0
-  PlaySingleTestRequested: 0
-  PauseRequested: 0
-  ResumeRequested: 0
-  RestartTestRequested: 0
-  RestartSuiteRequested: 0
-  CancelRequested: 0
-  DismissResultsRequested: 0
-  PlayCurrentToggleComboRequested: 0
-  RowVerdicts: 
 --- !u!114 &33255858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,17 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8339c3c477904834591d962f5f627680, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TableRect: {fileID: 0}
-  VertLayout: {fileID: 0}
-  SuiteTestButton: {fileID: 0}
-  TableBuilt: 0
-  ResultsPanelVisible: 0
-  HighlightedRowIndex: 0
-  UnstableBannerVisible: 0
-  RunButtonsNeedRefreshing: 0
-  SuiteButtonsNeedRefreshing: 0
-  Rows: []
-  VerdictsNeedRefreshing: 0
+  TableLayout: {fileID: 66654152}
 --- !u!114 &33255859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -399,6 +336,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3ff843d762a43c468353c65e057671b, type: 3}
+--- !u!114 &66654152 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8649862502748724614, guid: d3ff843d762a43c468353c65e057671b, type: 3}
+  m_PrefabInstance: {fileID: 58374656}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb436267233ada643b9e2ec51512bd00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &88790687
 GameObject:
   m_ObjectHideFlags: 0
@@ -853,10 +801,8 @@ GameObject:
   - component: {fileID: 311447647}
   - component: {fileID: 311447646}
   - component: {fileID: 311447649}
-  - component: {fileID: 311447650}
   - component: {fileID: 311447651}
   - component: {fileID: 311447653}
-  - component: {fileID: 311447652}
   m_Layer: 0
   m_Name: Simulate Systems
   m_TagString: Untagged
@@ -927,18 +873,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 991cfb15763e4d9489254e322d9bca94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &311447650
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 311447644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3eff8607673bc5947b2debe241ebcff3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &311447651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -949,18 +883,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 647d4132988c50f489a43c5c979e25ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &311447652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 311447644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e518530d03cd02046abdd3fd3faac090, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &311447653
@@ -975,6 +897,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79b1ee33350c9c47add67a21b338294, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &369989334
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 369989335}
+  - component: {fileID: 369989336}
+  m_Layer: 0
+  m_Name: Top
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &369989335
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369989334}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 4.68, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 689680481}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &369989336
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369989334}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 6fc5f3d87bc791941b9edc3e0866e2bb, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -146
+  m_Sprite: {fileID: 21300000, guid: 0052c54c41ae91b4488486c75feeb7b2, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.97, y: 3.5}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &531065751
 GameObject:
   m_ObjectHideFlags: 0
@@ -1181,6 +1187,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 369989335}
   - {fileID: 531065752}
   m_Father: {fileID: 88790688}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1331,7 +1338,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ab3f46d9823d945949d00017e1b3ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Mode: 0
 --- !u!114 &709705236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1347,7 +1353,6 @@ MonoBehaviour:
   GridRenderer: {fileID: 306378645}
   CellVisualsPrefab: {fileID: 7491586742496098000, guid: 5e63d36db710719419baa63678ee62a5, type: 3}
   CellVisualsContainer: {fileID: 881779355}
-  VisualsNeedRefreshing: 0
 --- !u!114 &709705237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1360,10 +1365,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ce71579a80c5ad4391313a8302bb2ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FocusedRow: 0
-  HoverOverrideActive: 0
-  ClearRequestedThisFrame: 0
-  CurrentArrowAnchor: {fileID: 0}
 --- !u!114 &709705238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1376,10 +1377,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85e822fb43c21c949a97ab8a430250fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Inputs: []
-  InputCount: 0
-  LastMatchedRowIndex: 0
-  MatchDirty: 0
 --- !u!114 &709705239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1794,8 +1791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FoundValidSolution: 0
-  UseToggleInputMode: 1
-  DebugLevelData: {fileID: 11400000, guid: 2812dfe2319494182ba916e32d02231e, type: 2}
+  DebugLevelData: {fileID: 11400000, guid: 63d636cdb7cff44dfbfb3e4cb805f4be, type: 2}
 --- !u!4 &1033873616
 Transform:
   m_ObjectHideFlags: 0

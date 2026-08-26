@@ -35,27 +35,27 @@ namespace SpaceFab.Research
 
         #region Runtime State
 
-        [HideInInspector] public HashSet<StringHash32> AvailableMaterials = new HashSet<StringHash32>();
-        [HideInInspector] public MaterialPropertyCheck[] RequiredResearchGoals = new MaterialPropertyCheck[0];
+        [NonSerialized] public HashSet<StringHash32> AvailableMaterials = new HashSet<StringHash32>();
+        [NonSerialized] public MaterialPropertyCheck[] RequiredResearchGoals = new MaterialPropertyCheck[0];
 
         // Sandbox property store. In-session confirmations stay isolated to the
         // minigame; PlayerProgressState is touched only on minigame exit (via
         // ResearchStateUtility.CommitToPlayerProgress). Same vocabulary and shape
         // as PlayerProgressState.MaterialProperties so the export step is a
         // straight bitwise OR-merge with no further translation.
-        [HideInInspector] public Dictionary<StringHash32, MaterialPropertyRecord> SandboxProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
+        [NonSerialized] public Dictionary<StringHash32, MaterialPropertyRecord> SandboxProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
 
         // Materials whose sandbox record changed during this session. Kept as a
         // hint for delta-merge / debug; export iterates SandboxProperties directly,
         // so this is non-load-bearing for correctness.
-        [HideInInspector] public HashSet<StringHash32> SandboxDirty = new HashSet<StringHash32>();
+        [NonSerialized] public HashSet<StringHash32> SandboxDirty = new HashSet<StringHash32>();
 
         // Per-material observation lists. Tentative evidence the player has
         // collected this session. Not persisted; cleared on minigame entry by
         // ResearchStateUtility.LoadFromPlayerProgress. Keyed by the material
         // the observation is being made about (the dynamic context material,
         // when relevant, lives inside each observation entry).
-        [HideInInspector] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
+        [NonSerialized] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
 
         // Set for one frame after ResearchPropertyConfirmBridge writes a
         // newly-confirmed property into SandboxProperties. Drives the

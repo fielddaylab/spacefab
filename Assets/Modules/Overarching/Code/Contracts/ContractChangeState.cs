@@ -6,6 +6,7 @@ using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab.Design;
 using SpaceFab.Save;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,8 +30,8 @@ namespace SpaceFab.Overarching
     public class ContractChangeState : SharedStateComponent, IRegistrationCallbacks
     {
         public ContractChangePhase Phase;
-        [HideInInspector] public int StashedSelectedContractIndex;
-        [HideInInspector] public bool ChangeDoubleConfirmed;
+        [NonSerialized] public int StashedSelectedContractIndex;
+        [NonSerialized] public bool ChangeDoubleConfirmed;
 
         public Routine TransitionRoutine;
 

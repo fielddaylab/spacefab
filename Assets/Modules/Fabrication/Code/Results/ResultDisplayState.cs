@@ -6,12 +6,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Fabrication.Sequence;
+using System;
 
 namespace SpaceFab.Fabrication
 {
     public class ResultDisplayState : SharedStateComponent, IRegistrationCallbacks
     {
-        [HideInInspector] public bool DisplayRequestedThisFrame;
+        [NonSerialized] public bool DisplayRequestedThisFrame;
 
         public CanvasGroup ResultsGroup;
         public Image Background;

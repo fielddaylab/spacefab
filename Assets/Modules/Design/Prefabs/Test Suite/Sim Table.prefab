@@ -106,10 +106,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb436267233ada643b9e2ec51512bd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Inputs:
+  InputHeaders:
   - {fileID: 400835994356448111}
   - {fileID: 5811781038543119355}
-  Outputs:
+  OutputHeaders:
   - {fileID: 1842476827091067799}
   - {fileID: 9079227707974692776}
   Rows:
@@ -118,6 +118,10 @@ MonoBehaviour:
   - {fileID: 1590959285668955662}
   - {fileID: 3109833540088437353}
   TestButton: {fileID: 0}
+  DefaultRowIconSize: {x: 16, y: 16}
+  LargeRowIconSize: {x: 24, y: 24}
+  SingleColumnMarkerX: 48
+  DoubleColumnMarkerX: 104
 --- !u!1 &3674899324378659425
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,6 +582,14 @@ PrefabInstance:
     - target: {fileID: 6458271010551377595, guid: e72af163695d1644a8b7c18229851dba, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7477476426107901715, guid: e72af163695d1644a8b7c18229851dba, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 7477476426107901715, guid: e72af163695d1644a8b7c18229851dba, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 9051750651431907310, guid: e72af163695d1644a8b7c18229851dba, type: 3}
       propertyPath: m_Name

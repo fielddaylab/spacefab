@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,8 +26,8 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // SputterMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
-        [HideInInspector] public bool InputAccepted;
+        [NonSerialized] public bool IsActive;
+        [NonSerialized] public bool InputAccepted;
         public GameObject SputterUI;
         public SputterMicrogamePhase Phase;
 
@@ -36,7 +37,7 @@ namespace SpaceFab.Fabrication.Microgames
         public LineRenderer TrajectoryPreview;
 
         public SputterMicrogameProjectile ProjectilePrefab;
-        [HideInInspector] public SputterPatternData SputterPattern;
+        [NonSerialized] public SputterPatternData SputterPattern;
 
         public void OnRegister()
         {

@@ -41,14 +41,10 @@ namespace SpaceFab.Design
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             InputToggleState toggleState = Find.State<InputToggleState>();
 
-            if (!uiState.TableBuilt || uiState.SuiteTestButton == null) { return; }
-
-            bool toggleMode = designState != null && designState.UseToggleInputMode;
-            ApplyVisibility(uiState, toggleMode);
-            if (!toggleMode) { return; }
-
+            if (!uiState.TableBuilt) { return; }
+            
             // Refresh the matched test-row index on demand.
-            if (toggleState != null && toggleState.MatchDirty)
+            if (toggleState.MatchDirty)
             {
                 TestSuiteData suite = ResolveSuite(contractState, designState);
                 toggleState.LastMatchedRowIndex = InputToggleUtility.FindMatchingTestRow(toggleState, suite);
@@ -58,17 +54,7 @@ namespace SpaceFab.Design
             // Interactable iff we have a row to run AND the phase machine will accept a Play.
             bool matched = toggleState != null && toggleState.LastMatchedRowIndex >= 0;
             bool canPlay = SimulateControlUtility.CanAcceptPlay(runState);
-            uiState.SuiteTestButton.Interactable = matched && canPlay;
-        }
-
-        // Sets gameObject active state only when it actually needs to change so the loop stays
-        // cheap on a steady frame.
-        static private void ApplyVisibility(SimulateUIState uiState, bool toggleMode)
-        {
-            if (uiState.SuiteTestButton.gameObject.activeSelf != toggleMode)
-            {
-                uiState.SuiteTestButton.gameObject.SetActive(toggleMode);
-            }
+            uiState.TableLayout.TestButton.Interactable = matched && canPlay;
         }
 
         // Pulls the TestSuiteData off the active Design level; returns null on a missing chain so

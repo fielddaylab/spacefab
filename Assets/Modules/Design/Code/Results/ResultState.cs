@@ -1,5 +1,7 @@
-﻿using FieldDay;
+﻿using System;
+using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Design.Visuals;
 using SpaceFab.UI;
 using TMPro;
 using UnityEngine;
@@ -16,15 +18,13 @@ namespace SpaceFab.Design
         public TextMeshProUGUI SummaryText;
         public DynamicButton DismissButton;
         public DynamicButton RetryButton;
-        public RectTransform VerticalLayoutToCopy;
-        public RectTransform VerticalLayoutCopy;
+        public SimTableLayout Table;
 
         // One-frame intent flag: the player clicked "Continue" on a passing results panel. Consumed
         // by DesignContinueSystem, which decides whether to advance to the next level (reload the
         // Design scene) or return to overarching (last level). Mirrors the PlayFullSuiteRequested
         // hand-off OnRetryClicked uses, keeping scene-loading out of this UI click handler.
-        public bool ContinueRequested;
-        public bool CopyRequested;
+        [NonSerialized] public bool ContinueRequested;
 
         public void OnRegister()
         {
@@ -87,6 +87,34 @@ namespace SpaceFab.Design
 
     public static class ResultStateUtility
     {
+        public static void BuildResultsTable(ResultState resultState, TestSuiteData suite, SuiteVisualConfig suiteDB) {
+            SimTableUtility.ConstructTable(resultState.Table, suite, suiteDB);
+        }
+
+        public static void PopulateResultsTable() {
+            Find.State(
+                out ContractState contractState
+                );
+            DesignMinigameState designState = Find.State<DesignMinigameState>();
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
+            TestSuiteData suite = levelData.GetTestSuite();
+
+            Find.State(out SimulateUIState uiState, out ResultState resultState, out SimulateRunState simState);
+
+            var suiteDB = Find.GlobalAsset<SuiteVisualConfig>();
+
+            for (int row = 0; row < uiState.Rows.Length; row++) {
+                RowVerdictSet verdicts = uiState.CellVerdicts[row];
+                TestData currentResult = simState.RowValues[row];
+                TestRowVerdict sumVerdict = simState.RowVerdicts[row];
+
+                SuiteRowV2 rowLayout = resultState.Table.Rows[row];
+
+                SimTableUtility.UpdateRowOutputs(resultState.Table, rowLayout, suiteDB, verdicts, currentResult);
+                SimTableUtility.SetRowAppearance(resultState.Table, rowLayout, suiteDB, sumVerdict);
+            }
+        }
+
         public static void SetEnabledResultsGroup(ResultState resultState, bool isEnabled)
         {
             if (resultState.ResultsGroup == null)
@@ -99,22 +127,6 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
             //resultState.CopyRequested = true;
-        }
-
-        public static void CopySimTable(ResultState resultState)
-        {
-            // first clear
-            for (int i = 0; i < resultState.VerticalLayoutCopy.childCount; i++)
-            {
-                GameObject.Destroy(resultState.VerticalLayoutCopy.GetChild(i).gameObject);
-            }
-
-            // copy image graphics to result display
-            for (int i = 0; i < resultState.VerticalLayoutToCopy.childCount; i++)
-            {
-                GameObject originalRow = resultState.VerticalLayoutToCopy.GetChild(i).gameObject;
-                GameObject.Instantiate(originalRow, resultState.VerticalLayoutCopy);
-            }
         }
 
         public static void ShowResults(ResultState resultState, bool allCorrect)

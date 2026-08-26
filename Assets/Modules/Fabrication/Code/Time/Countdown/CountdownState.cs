@@ -4,6 +4,7 @@ using FieldDay.SharedState;
 using FieldDay.Systems;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Stations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,12 +14,12 @@ namespace SpaceFab.Fabrication
 {
     public class CountdownState : SharedStateComponent, IRegistrationCallbacks
     {
-        [HideInInspector] public bool CountdownRequestedThisFrame;
-        [HideInInspector] public bool CountdownCompletedThisFrame;
+        [NonSerialized] public bool CountdownRequestedThisFrame;
+        [NonSerialized] public bool CountdownCompletedThisFrame;
         public TextMeshProUGUI CountDownText;
         public CanvasGroup CountDownCanvasGroup;
-        [HideInInspector] public float AccruedTime;
-        [HideInInspector] public bool IsCountingDown;
+        [NonSerialized] public float AccruedTime;
+        [NonSerialized] public bool IsCountingDown;
 
         public Routine CountdownRoutine;
 
