@@ -1,3 +1,4 @@
+using System;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
@@ -19,21 +20,21 @@ namespace SpaceFab.Design {
 
         // Which row the visuals layer should focus this frame. Normally aligned with the row of
         // the selected tool; temporarily flips when the player hovers over the opposite row.
-        [HideInInspector] public StackLayer FocusedRow;
+        [NonSerialized] public StackLayer FocusedRow;
 
         // True iff FocusedRow is currently driven by a hover rather than the selected tool's
         // row. ToolbarSelectSystem sets this on BeginHover and clears it on EndHover.
-        [HideInInspector] public bool HoverOverrideActive;
+        [NonSerialized] public bool HoverOverrideActive;
 
         // One-frame request set when the Clear button is clicked. Cleared by
         // ToolbarRefreshSystem at end-of-frame. Consumer is the confirmation-modal pipeline
         // (deferred — not yet implemented).
-        [HideInInspector] public bool ClearRequestedThisFrame;
+        [NonSerialized] public bool ClearRequestedThisFrame;
 
         // RectTransform the selection arrow should snap to. Populated by ToolbarSelectSystem
         // from the selected button's ArrowAnchor whenever the selected tool changes. Consumed
         // by ToolbarVisualsUpdateSystem (stubbed this pass).
-        [HideInInspector] public RectTransform CurrentArrowAnchor;
+        [NonSerialized] public RectTransform CurrentArrowAnchor;
 
         public void OnRegister() {
             // Default focus to the Metal row. First frame of ToolbarSelectSystem runs no logic

@@ -33,13 +33,6 @@ Shader "SpaceFab/Sprite Dither"
 		[Header(Depth)] [Space]
 		[Enum(Off,0,On,1)] _ZWriteMode("ZWrite", Int) = 0
 		[Enum(UnityEngine.Rendering.CompareFunction)] _ZTestMode("ZTest Mode", Int) = 4
-
-		[Header(ColorMod)] [Space]
-		[Toggle(FD_COLORMOD_LERP)] _ApplyLerpColor("Apply Lerp Color", Float) = 0
-		[Toggle(FD_COLORMOD_ADDITIVE)] _ApplyAdditiveColor("Apply Additive Color", Float) = 0
-
-        [Header(Effects)] [Space]
-        [Toggle(FD_ENABLE_FOG)] _EnableFog("Enable Fog", Int) = 0
     }
 
     SubShader
@@ -72,8 +65,6 @@ Shader "SpaceFab/Sprite Dither"
 			#pragma shader_feature_local_fragment _ FD_SPRITE_ALPHACLIP
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
             #pragma shader_feature_local _ FD_ENABLE_FOG
-			#pragma multi_compile_local_fragment _ FD_COLORMOD_LERP
-			#pragma multi_compile_local_fragment _ FD_COLORMOD_ADDITIVE
 
             #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/Sprites.cginc"
 			#include "Assets/FieldDay/_Assets/Shaders/CGIncludes/Dithering.cginc"
@@ -86,9 +77,6 @@ Shader "SpaceFab/Sprite Dither"
 				fixed4 color = SampleSpriteTexture(v.texcoord) * v.color;
 				color.a = invstep(GetBayerThreshold8(screenPos.xy / _DitherScale), color.a);
 				SpriteAlphaClip(color);
-				LayerApplyLerpColor(color);
-				LayerApplyAdditiveColor(color);
-				FogApply(color, v);
 				PremultiplyAlpha(color);
 				return color;
 			}

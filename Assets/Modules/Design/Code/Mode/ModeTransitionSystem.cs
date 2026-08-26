@@ -125,9 +125,9 @@ namespace SpaceFab.Design
             // length already matches, otherwise allocate fresh (default TestRowVerdict.Untested).
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            if (runState.RowVerdicts == null || runState.RowVerdicts.Length != suite.Tests.Length)
+            if (runState.RowVerdicts == null || runState.RowVerdicts.Length != suite.Rows.Length)
             {
-                runState.RowVerdicts = new TestRowVerdict[suite.Tests.Length];
+                runState.RowVerdicts = new TestRowVerdict[suite.Rows.Length];
             }
 
             // Flip masks. Both calls are idempotent in GameLoop, so no harm if a future

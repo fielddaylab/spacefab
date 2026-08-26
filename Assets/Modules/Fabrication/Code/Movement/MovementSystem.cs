@@ -15,8 +15,6 @@ namespace SpaceFab.Fabrication.Movement {
     public class MovementSystem : SystemComponent {
 
 
-        [SerializeField] private Transform cameraTransform;
-
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
                 new SysUpdate(GameLoopPhaseMask.Update, 0, UpdateMasks.AttemptMask | UpdateMasks.PostAttemptMask),

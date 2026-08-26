@@ -23,5 +23,7 @@ namespace SpaceFab
 
         [Header("Assets")]
         public LeafAsset Script;
+        public Material SkyboxMaterial;
+        public float SkyboxRotation;
     }
 }

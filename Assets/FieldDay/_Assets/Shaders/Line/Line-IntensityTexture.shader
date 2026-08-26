@@ -16,6 +16,10 @@ Shader "FieldDay/Lines/Intensity Texture"
 		[Header(Colors)] [Space]
         _Color ("Tint", Color) = (1,1,1,1)
 
+		[Header(Dithering)] [Space]
+		[KeywordEnum(OFF,TWO,FOUR,EIGHT)] FD_DITHER ("Dithered Alpha Mode", Int) = 0
+		_DitherAlphaScale("Dithered Alpha Pixel Scale", Float) = 1
+
 		[Header(Blending)] [Space]
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend Mode", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DestBlend("Destination Blend Mode", Int) = 10
@@ -63,6 +67,7 @@ Shader "FieldDay/Lines/Intensity Texture"
             #pragma multi_compile_fog
             #pragma shader_feature_local_fragment _ FD_SPRITE_ALPHACLIP
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
+			#pragma shader_feature_local_fragment _ FD_DITHER_TWO FD_DITHER_FOUR FD_DITHER_EIGHT
             #pragma shader_feature_local_fragment FD_SAMPLE_R FD_SAMPLE_G FD_SAMPLE_B FD_SAMPLE_A
             #pragma shader_feature_local _ FD_ENABLE_FOG
 			#pragma shader_feature_local_fragment FD_INTENSITY_COLOR FD_INTENSITY_ALPHA FD_INTENSITY_COLOR_ALPHA
@@ -70,16 +75,12 @@ Shader "FieldDay/Lines/Intensity Texture"
             #include "../CGIncludes/Lines.cginc"
 			#include "../CGIncludes/Intensity.cginc"
 
-            fixed4 LineFragIntensity(Varyings_Line v) : SV_Target
+            fixed4 LineFragIntensity(Varyings_Line v, float_vpos fragPos : VPOS) : SV_Target
             {
 				InstancingInitialize(v);
 
 				half4 color = LayerIntensityTexture(_MainTex, v.texcoord, v.color);
-                SpriteAlphaClip(color);
-
-                FogApply(color, v);
-
-				PremultiplyAlpha(color);
+				LineFragCommonFooter(v, color, fragPos);
                 return color;
             }
         ENDCG

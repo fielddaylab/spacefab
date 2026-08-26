@@ -72,7 +72,7 @@ namespace SpaceFab.Design {
             }
 
             toolbarState.CurrentArrowAnchor = anchor;
-            RectTransform ptr = toolbarState.SelectedToolPtr.GetComponent<RectTransform>();
+            RectTransform ptr = toolbarState.SelectedToolPtr ? toolbarState.SelectedToolPtr.rectTransform : null;
             if (ptr != null)
             {
                 bool show = anchor != null;

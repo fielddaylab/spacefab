@@ -12,18 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be2b5b6395503174db99560628ec866b, type: 3}
   m_Name: TestSuite_Lv3
   m_EditorClassIdentifier: 
-  Tests:
-  - Bundle:
-    - Id: 8
-      State: 1
-    - Id: 128
-      State: 1
-    - Id: 256
-      State: 1
-  - Bundle:
-    - Id: 8
-      State: 2
-    - Id: 128
-      State: 2
-    - Id: 256
-      State: 1
+  ColumnMask: 13
+  Rows:
+  - InputA: 1
+    InputB: 0
+    OutputX: 1
+    OutputY: 1
+  - InputA: 2
+    InputB: 0
+    OutputX: 2
+    OutputY: 1
+  Tests: []

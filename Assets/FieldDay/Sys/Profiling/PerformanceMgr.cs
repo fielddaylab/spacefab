@@ -9,6 +9,7 @@ using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay.Debugging;
+using FieldDay.HID;
 using Unity.Profiling;
 using Unity.Profiling.LowLevel.Unsafe;
 using UnityEngine;
@@ -44,11 +45,18 @@ namespace FieldDay.Perf {
                 Buffer = new RingBuffer<long>(MeterBufferSize, RingBufferMode.Overwrite);
             }
 
-            public void Tick(long value) {
+            public void Tick(long value, bool adjustHighWatermark) {
                 Buffer.PushBack(value);
-                if (value > HighWatermark) {
+                if (adjustHighWatermark && value > HighWatermark) {
                     HighWatermark = value;
                 }
+            }
+
+            public long Current() {
+                if (Buffer.Count > 0) {
+                    return Buffer.PeekBack();
+                }
+                return 0;
             }
         }
 
@@ -63,8 +71,13 @@ namespace FieldDay.Perf {
         private readonly RingBuffer<ActiveMetric> m_ResidentMetrics;
 
         private ResourceUsageMeter m_MemoryMeter;
+        private ResourceUsageMeter m_TexMemoryMeter;
+        private ResourceUsageMeter m_GPUMemoryMeter;
         private ResourceUsageMeter m_FrameTimeMeter;
         private long m_LastFrameTS;
+        private PerfBoostMode m_BoostMode;
+
+        private PerformanceBudget m_PerformanceBudget;
 
         internal PerformanceMgr() {
             PerfMetric.Initialize();
@@ -76,6 +89,8 @@ namespace FieldDay.Perf {
 #if DEVELOPMENT
             m_MemoryMeter.Create();
             m_FrameTimeMeter.Create();
+            m_GPUMemoryMeter.Create();
+            m_TexMemoryMeter.Create();
             GameLoop.OnDebugUpdate.Register(OnDebugUpdate);
             GameLoop.OnFrameAdvance.Register(OnFrameAdvance);
 #endif // DEVELOPMENT
@@ -87,6 +102,10 @@ namespace FieldDay.Perf {
             }
 
             m_LastFrameTS = Stopwatch.GetTimestamp();
+        }
+
+        internal void Initialize(PerformanceBudget budget) {
+            m_PerformanceBudget = budget;
         }
 
         internal void Shutdown() {
@@ -103,6 +122,7 @@ namespace FieldDay.Perf {
             m_TimingBuffer.Clear();
 
             PerfMetric.Shutdown();
+            m_PerformanceBudget = null;
         }
 
 #if DEVELOPMENT
@@ -110,10 +130,16 @@ namespace FieldDay.Perf {
             long nowTS = Stopwatch.GetTimestamp();
             long ticksPassed = nowTS - m_LastFrameTS;
             m_LastFrameTS = nowTS;
-            m_FrameTimeMeter.Tick(ticksPassed);
+            m_FrameTimeMeter.Tick(ticksPassed, m_BoostMode == PerfBoostMode.Off && Time.frameCount > 5);
 
             long allocated = PerfUtility.GetTotalAllocatedMemory();
-            m_MemoryMeter.Tick(allocated);
+            m_MemoryMeter.Tick(allocated, true);
+
+            ulong texMemory = PerfUtility.GetTotalAllocatedTextureMemory();
+            m_TexMemoryMeter.Tick((long) texMemory, true);
+
+            long gpuMemory = PerfUtility.GetTotalAllocatedGPUMemory();
+            m_GPUMemoryMeter.Tick(gpuMemory, true);
         }
 #endif // DEVELOPMENT
 
@@ -166,6 +192,71 @@ namespace FieldDay.Perf {
                     DebugDraw.AddLogText("Frame INVALID", Color.red);
                 }
             }
+
+            if (DebugInput.IsPressed(InputModifierKeys.Shift, KeyCode.L)) {
+                DebugFlags.ToggleFlag(DebuggingFlags.DisplayAlerts);
+                if (!DebugDraw.IsRenderingEnabled()) {
+                    DebugDraw.EnableRendering();
+                }
+            }
+
+            if (DebugFlags.IsFlagSet(DebuggingFlags.DisplayAlerts)) {
+#if !UNITY_EDITOR
+                long texMemory = (long)PerfUtility.GetTotalAllocatedTextureMemory();
+                long gpuMemory = (long)PerfUtility.GetTotalAllocatedGPUMemory();
+                long cpuMemory = (long)PerfUtility.GetTotalAllocatedMemory();
+#if !UNITY_EDITOR && UNITY_WEBGL
+                long heapSize = SystemInfo.systemMemorySize * (long)Unsafe.MiB;
+#endif // !UNITY_EDITOR && UNITY_WEBGL
+
+                if (m_PerformanceBudget != null) {
+                    long maxTexMemory = m_PerformanceBudget.MaxTextureMemoryMB * (long)Unsafe.MiB;
+                    long maxGPUMemory = m_PerformanceBudget.MaxGPUMemoryMB * (long)Unsafe.MiB;
+                    long maxCPUMemory = m_PerformanceBudget.MaxCPUMemoryMB * (long)Unsafe.MiB;
+
+                    using (PooledStringBuilder psb = PooledStringBuilder.CreateLarge()) {
+                        double texPercent = (double)texMemory / maxTexMemory;
+                        double gpuPercent = (double)gpuMemory / maxGPUMemory;
+                        double cpuPercent = (double)cpuMemory / maxCPUMemory;
+
+#if !UNITY_EDITOR && UNITY_WEBGL
+                        double heapPercent = (double)heapSize / maxCPUMemory;
+
+                        if (heapPercent > 1) {
+                            psb.Builder.Append("WASM Heap size exceeds budget by ");
+                            Unsafe.FormatBytes(heapSize - maxCPUMemory, psb);
+                            psb.Builder.Append(" !!\n");
+                        }
+#endif // !UNITY_EDITOR && UNITY_WEBGL
+
+                        if (texPercent > 1) {
+                            psb.Builder.Append("Texture memory exceeds budget by ");
+                            Unsafe.FormatBytes(texMemory - maxTexMemory, psb);
+                            psb.Builder.Append(" !!\n");
+                        }
+
+                        if (gpuPercent > 1) {
+                            psb.Builder.Append("GPU memory exceeds budget by ");
+                            Unsafe.FormatBytes(gpuMemory - maxGPUMemory, psb);
+                            psb.Builder.Append(" !!\n");
+                        }
+
+                        if (cpuPercent > 1) {
+                            psb.Builder.Append("CPU memory exceeds budget by ");
+                            Unsafe.FormatBytes(cpuMemory - maxCPUMemory, psb);
+                            psb.Builder.Append(" !!\n");
+                        }
+
+                        if (psb.Builder.Length > 0) {
+                            psb.Builder.TrimEnd(StringUtils.DefaultNewLineChars);
+                            DebugDraw.AddViewportText(new Vector2(1, 1), new Vector2(-8, -160), psb, Color.red, 0, TextAnchor.UpperRight, DebugTextStyle.BackgroundDarkOpaque);
+                        }
+                    }
+                }
+#else
+                
+#endif // UNITY_EDITOR
+            }
         }
 #endif // DEVELOPMENT
 
@@ -183,12 +274,29 @@ namespace FieldDay.Perf {
 
         #endregion // Timing
 
+        #region Boost
+
+        public PerfBoostMode GetBoostMode() {
+            return m_BoostMode;
+        }
+
+        public void SetBoostMode(PerfBoostMode boostMode) {
+            if (boostMode != m_BoostMode) {
+                m_BoostMode = boostMode;
+                Log.Msg("[PerformanceMgr] Boost mode set to {0}", boostMode == PerfBoostMode.Boost ? "ON" : "OFF");
+                // TODO: adjust settings to speed up loading time
+            }
+        }
+
+        #endregion // Boost
+
         #region Debugging
 
         public enum DebuggingFlags {
             DisplayLastFrameStats,
             DisplayMemoryGraph,
-            DisplayFrameGraph
+            DisplayFrameGraph,
+            DisplayAlerts
         }
 
 #if DEVELOPMENT
@@ -251,6 +359,7 @@ namespace FieldDay.Perf {
 
             info.AddDivider();
 
+            DebugFlags.Menu.AddFlagToggle(info, "Display Alerts", DebuggingFlags.DisplayAlerts);
             DebugFlags.Menu.AddFlagToggle(info, "Display Memory Usage Graph", DebuggingFlags.DisplayMemoryGraph);
             DebugFlags.Menu.AddFlagToggle(info, "Display Frame Time Graph", DebuggingFlags.DisplayFrameGraph);
 
@@ -308,6 +417,11 @@ namespace FieldDay.Perf {
     public unsafe struct PhaseTimingData {
         public fixed uint Duration[PhaseBuckets.MaxBuckets];
         public uint TotalDuration;
+    }
+
+    public enum PerfBoostMode : byte {
+        Off,
+        Boost
     }
 
     public partial struct PerfMetric {

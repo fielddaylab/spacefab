@@ -59,6 +59,6 @@ namespace SpaceFab.Design
     public class GridStack
     {
         public Dimensions LayerDims; // x and y dims of each layer
-        [HideInInspector] public GridLayer[] GridLayers; // layers ordered from highest to lowest
+        [NonSerialized] public GridLayer[] GridLayers; // layers ordered from highest to lowest
     }
 }

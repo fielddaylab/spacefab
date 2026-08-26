@@ -42,13 +42,7 @@ namespace SpaceFab.Design
             {
                 bool allCorrect = ResultStateUtility.IsAllCorrect(runState);
                 ResultStateUtility.ShowResults(resultState, allCorrect);
-            }
-
-            // consumes a flag to show panel, otherwise sim table takes too long to copy over
-            if (resultState.CopyRequested)
-            {
-                resultState.CopyRequested = false;
-                ResultStateUtility.CopySimTable(resultState);
+                ResultStateUtility.PopulateResultsTable();
             }
 
             s_wasVisible = isVisible;
