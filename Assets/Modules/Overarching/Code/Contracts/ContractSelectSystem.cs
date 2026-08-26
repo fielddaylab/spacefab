@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 namespace SpaceFab.Overarching {
     /// <summary>
@@ -81,6 +82,9 @@ namespace SpaceFab.Overarching {
                 SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, selectState.SelectedContractIndex.ToString());
                 ScriptUtility.Trigger("OnContractAccept");
                 selectState.Phase = ContractSelectPhase.Completed;
+
+                var def = ContractUtility.GetDefinition(chapterState.ChapterDefinition.AvailableContracts[selectState.SelectedContractIndex]);
+                layoutState.SetViewCurrContractLabel(chapterState.ChapterDefinition.AvailableContracts[selectState.SelectedContractIndex]);
             }
         }
     }

@@ -249,6 +249,16 @@ namespace FieldDay {
 
         #region Size Delta
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetSizeDelta(RectTransform rect, Vector2 sizeDelta) {
+            rect.sizeDelta = sizeDelta;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetSizeDelta(RectTransform rect, float widthDelta, float heightDelta) {
+            rect.sizeDelta = new Vector2(widthDelta, heightDelta);
+        }
+
         static public void SetWidthDelta(RectTransform rect, float widthDelta) {
             Vector2 sizeDelta = rect.sizeDelta;
             sizeDelta.x = widthDelta;

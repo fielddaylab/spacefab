@@ -55,16 +55,16 @@ namespace SpaceFab.UI {
 
         // True when the full panel is visible, false when only the collapsed icon is. Assigned
         // only by OnRegister, the two transition routines, and ForceCollapse.
-        [HideInInspector] public bool Expanded;
+        [NonSerialized] public bool Expanded;
 
         // True while a transition routine is in flight. Re-entrancy guard only, so a second
         // transition can't stack on an in-flight one — read by BeginExpand, BeginCollapse, and
         // OpenTo. Presentation reads Expanded instead.
-        [HideInInspector] public bool Transitioning;
+        [NonSerialized] public bool Transitioning;
 
         // Last-viewed selection. Persists across expand/collapse cycles; reset on level load.
-        [HideInInspector] public int ActiveTabIndex;
-        [HideInInspector] public int ActivePageIndex;
+        [NonSerialized] public int ActiveTabIndex;
+        [NonSerialized] public int ActivePageIndex;
 
         // Last-viewed raw page index per tab, parallel to WikiContent.Tabs. Switching tabs restores
         // the page the player left that tab on rather than snapping back to its first. Entries stay
@@ -80,34 +80,34 @@ namespace SpaceFab.UI {
         // Paginator scroll offset, counted in the active tab's *unlocked* pages: the window's
         // leftmost slot shows the (PageWindowStartIndex)th unlocked page. Kept such that the
         // selected page always falls inside [start, start + WikiContent.PageWindowSize).
-        [HideInInspector] public int PageWindowStartIndex;
+        [NonSerialized] public int PageWindowStartIndex;
 
         // One-frame request flags. Raised by WikiUtility.Open / Close / OpenTo; consumed and
         // cleared inline by WikiSelectSystem.
-        [HideInInspector] public bool OpenRequestedThisFrame;
-        [HideInInspector] public bool CloseRequestedThisFrame;
-        [HideInInspector] public bool OpenToRequestedThisFrame;
-        [HideInInspector] public StringHash32 RequestedTabId;
-        [HideInInspector] public StringHash32 RequestedPageId;
+        [NonSerialized] public bool OpenRequestedThisFrame;
+        [NonSerialized] public bool CloseRequestedThisFrame;
+        [NonSerialized] public bool OpenToRequestedThisFrame;
+        [NonSerialized] public StringHash32 RequestedTabId;
+        [NonSerialized] public StringHash32 RequestedPageId;
 
         // Expand/collapse routine handle. Owned here so WikiUtility can Replace() it without
         // threading a MonoBehaviour owner through every call site.
-        [HideInInspector] public Routine TransitionRoutine;
+        [NonSerialized] public Routine TransitionRoutine;
 
         // Tab pop-out routine handle. Owned here for the same reason TransitionRoutine is, though the
         // routine itself is hosted on the scene's WikiLayoutState — the tab buttons it writes to die
         // with the wiki prefab, and this state doesn't.
-        [HideInInspector] public Routine TabPopRoutine;
+        [NonSerialized] public Routine TabPopRoutine;
 
         // Tab the pop is settling on, or -1 before the first pop of a tab set. Matches
         // ActiveTabIndex in every steady state; a mismatch is the strip refresh's signal that the
         // selection has moved and the pop hasn't played yet, and names the tab to ease back in.
-        [HideInInspector] public int PoppedTabIndex;
+        [NonSerialized] public int PoppedTabIndex;
 
         // Requests a strip rebuild + unlock pass — the set of pooled button instances is wrong, as
         // opposed to VisualsDirty's "existing instances need restyling". Drained by
         // WikiRefreshSystem ahead of the visuals pass, and by OnSceneLateEnable on level load.
-        [HideInInspector] public bool NeedsRebuild;
+        [NonSerialized] public bool NeedsRebuild;
 
         // Tab and page last reported to Leaf through OnWikiTabOpened / OnWikiPageOpened. Compared
         // against the live selection by WikiUtility.AnnounceSelection, so a frame that moves the
@@ -123,7 +123,7 @@ namespace SpaceFab.UI {
         // mutation, consumed and cleared by WikiVisualsUtility.Refresh. Unlike the *ThisFrame
         // flags this persists until drained, so an invalidation raised far from a refresh call
         // site — a mid-session UnlockPage, say — still lands.
-        [HideInInspector] public WikiVisualDirty VisualsDirty;
+        [NonSerialized] public WikiVisualDirty VisualsDirty;
 
         public void OnRegister() {
             Expanded = false;
@@ -646,7 +646,6 @@ namespace SpaceFab.UI {
         // close and reopen the wiki.
         public static void UnlockPage(PlayerProgressState progressState, StringHash32 pageId) {
             if (!progressState.UnlockedWikiPages.Add(pageId)) { return; }
-            Log.Msg("WikiState] Continuing to unlock page...");
 
             WikiState wikiState = Find.State<WikiState>();
             if (wikiState != null) {
@@ -666,7 +665,6 @@ namespace SpaceFab.UI {
         [LeafMember("UnlockWikiPage")]
         public static void Leaf_UnlockWikiPage(string pageId)
         {
-            Log.Msg("WikiState] Trying to unlock page...");
             if (!Game.SharedState.Has<PlayerProgressState>()) { return; }
             UnlockPage(Find.State<PlayerProgressState>(), new StringHash32(pageId));
         }
@@ -681,8 +679,6 @@ namespace SpaceFab.UI {
             if (!progressState.UnlockedWikiPages.Remove(pageId)) { return; }
 
             if (!Game.SharedState.Has<WikiState>()) { return; }
-
-            Log.Msg("WikiState] Continuing to lock page...");
 
             WikiState wikiState = Find.State<WikiState>();
             wikiState.NeedsRebuild = true;
@@ -701,7 +697,6 @@ namespace SpaceFab.UI {
         // here the way they do for OpenWikiTo. Unknown and already-locked ids are no-ops.
         [LeafMember("LockWikiPage")]
         public static void Leaf_LockWikiPage(string pageId) {
-            Log.Msg("WikiState] Trying to lock page...");
             if (!Game.SharedState.Has<PlayerProgressState>()) { return; }
             LockPage(Find.State<PlayerProgressState>(), new StringHash32(pageId));
         }

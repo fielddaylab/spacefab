@@ -1,4 +1,4 @@
-using System.Linq;
+using System;
 using BeauRoutine;
 using FieldDay;
 using FieldDay.Audio;
@@ -130,7 +130,7 @@ namespace SpaceFab.Research
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary);
             
             // Substrates must be semiconductors.
-            if (!substrate.Properties.Contains(MaterialPropertyLabel.Semiconductor)) {
+            if (Array.IndexOf(substrate.Properties, MaterialPropertyLabel.Semiconductor) < 0) {
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
                 ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed

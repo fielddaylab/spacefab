@@ -20,6 +20,7 @@ using FieldDay.Rendering;
 using FieldDay.Assets;
 using FieldDay.Debugging;
 using FieldDay.Threading;
+using FieldDay.Perf;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -1789,6 +1790,8 @@ namespace FieldDay.Scenes {
                     }
 
                     OnMainSceneUnloaded.Invoke();
+
+                    Game.Perf.SetBoostMode(Perf.PerfBoostMode.Boost);
                 }
 
                 // load main scene and traverse graph
@@ -1940,13 +1943,17 @@ namespace FieldDay.Scenes {
 
                 // main scene pre-ready
 
-                if (args.Type == SceneType.Main && m_MainTransitionPreReady != null) {
-                    Log.Msg("[SceneMgr] Scene '{0}' is almost ready, executing pre-ready animation handler", args.Path);
+                if (args.Type == SceneType.Main) {
+                    Game.Perf.SetBoostMode(PerfBoostMode.Off);
 
-                    Scene targetScene = SafeGetSceneByPath(args.Path);
-                    IEnumerator wait = m_MainTransitionPreReady(targetScene, args.Tag, m_QueuedMainTransitionArgs);
-                    if (wait != null) {
-                        yield return wait;
+                    if (m_MainTransitionPreReady != null) {
+                        Log.Msg("[SceneMgr] Scene '{0}' is almost ready, executing pre-ready animation handler", args.Path);
+
+                        Scene targetScene = SafeGetSceneByPath(args.Path);
+                        IEnumerator wait = m_MainTransitionPreReady(targetScene, args.Tag, m_QueuedMainTransitionArgs);
+                        if (wait != null) {
+                            yield return wait;
+                        }
                     }
                 }
 

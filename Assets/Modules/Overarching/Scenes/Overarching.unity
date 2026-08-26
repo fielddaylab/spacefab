@@ -1819,7 +1819,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Camera: {fileID: 1977627645}
   Root: {fileID: 716112803}
+  Effects: {fileID: 1977627646}
   DefaultPose: {fileID: 7796938538312880647}
+  DriftX:
+    Offset: 13.75
+    Scale: 0.005
+  DriftY:
+    Offset: 17.217
+    Scale: 0.007
+  DriftZ:
+    Offset: 231
+    Scale: 0.0008
 --- !u!1 &828298041
 GameObject:
   m_ObjectHideFlags: 0
@@ -3086,8 +3096,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Phase: 0
-  StashedSelectedContractIndex: 0
-  ChangeDoubleConfirmed: 0
 --- !u!114 &2025114830
 MonoBehaviour:
   m_ObjectHideFlags: 0

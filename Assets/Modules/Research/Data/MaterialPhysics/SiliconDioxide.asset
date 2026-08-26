@@ -15,7 +15,7 @@ MonoBehaviour:
   MaterialId:
     m_Source: SiliconDioxide
     m_HashValue: 1571298950
-  ConductionMultiplier: 0.1
+  ConductionMultiplier: 0.001
   ThermalMultiplier: 1
   MaxTemperature: 0.66
   MaxVoltage: 0.66
