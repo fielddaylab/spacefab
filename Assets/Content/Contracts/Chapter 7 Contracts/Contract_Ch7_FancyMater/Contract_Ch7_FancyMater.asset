@@ -24,6 +24,7 @@ MonoBehaviour:
   m_payout: 15
   m_expectedDuration: 6
   m_expectedProfit: 4
+  m_useBigBattery: 1
   StreamedPack:
     m_HashValue: 3046525764
   AssetSet:

@@ -110,6 +110,12 @@ namespace SpaceFab.Overarching
                 minigameSaveState.Research.FoundValidSolution = true;
             }
 
+            // If the selected contract unlocks the big battery, unlock the battery.
+            if (contractState.ContractDefinition.UnlocksBigBattery())
+            {
+                playerProgress.BigBatteryUnlocked = true;
+            } 
+
             SaveUtility.Save(SaveSlot.Main);
         }
     }
