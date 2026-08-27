@@ -126,7 +126,7 @@ namespace SpaceFab.Supply {
             for (int i = 0; i < cells.Length; i++) {
                 ApplyBase(cells[i], sprites.CostBase);
                 if (i < yellowCount) {
-                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostRemainingColor);
+                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostRemainingColor, false);
                 } else if (i < yellowCount + redCount) {
                     ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor, true);
                 } else {
@@ -167,12 +167,16 @@ namespace SpaceFab.Supply {
                 cell.OverlayImage.color = color;
                 cell.OverlayImage.enabled = true;
 
-                if (xMark && cell.xMarkImage != null)
+                if (cell.xMarkImage != null)
                 {
-                    cell.xMarkImage.enabled = true;
+                    cell.xMarkImage.enabled = xMark;
                 }
             } else {
                 cell.OverlayImage.enabled = false;
+                if (cell.xMarkImage != null)
+                {
+                    cell.xMarkImage.enabled = false;
+                }
             }
         }
 
