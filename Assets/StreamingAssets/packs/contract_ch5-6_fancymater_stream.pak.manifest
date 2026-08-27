@@ -3,13 +3,13 @@ CRC: 2542069187
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: de8b2c0125808589d96cfa3b2aeac834
+    Hash: e19404acf9f2896b175e592c3a17a803
   TypeTreeHash:
     serializedVersion: 2
     Hash: 69e0630b4927b6d1d89be8eb51c2d752
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: de8b2c0125808589d96cfa3b2aeac834
+    Hash: e19404acf9f2896b175e592c3a17a803
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -42,5 +42,5 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Fabrication.WaferSnapshot
 Assets:
-- Assets/Content/Contracts/Chapters 5-6 Contracts/Contract_Ch5-6_FancyMater/Assets/Contract_Ch5-6_FancyMater_Stream.asset
+- Assets/Content/Contracts/Chapter 5-6 Contracts/Contract_Ch5-6_FancyMater/Assets/Contract_Ch5-6_FancyMater_Stream.asset
 Dependencies: []
