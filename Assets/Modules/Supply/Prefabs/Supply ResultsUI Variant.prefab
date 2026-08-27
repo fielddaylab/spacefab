@@ -478,7 +478,8 @@ PrefabInstance:
       value: Supply ResultsUI Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1789452169174819127, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 7173146612041189541, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
       insertIndex: 2
@@ -522,6 +523,8 @@ MonoBehaviour:
   NextScene:
     m_ScenePath: Assets/Modules/Overarching/Scenes/Overarching.unity
     m_GUID: e7f14cd189ad9e747a51a3c21ee45e32
+  ShoppingListParent: {fileID: 0}
+  ListParent: {fileID: 0}
   MeterView: {fileID: 0}
   ShipRows: []
 --- !u!224 &6342799388400865676 stripped

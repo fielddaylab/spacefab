@@ -847,7 +847,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67655570e5bad50419593494a31e563d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 1414748287}
 --- !u!114 &392984980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2249,8 +2248,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7111dbde4730b134fae0ae152eb8c4d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StepPrecisions: []
-  RecordedStepCount: 0
 --- !u!114 &879438732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2264,8 +2261,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TimerText: {fileID: 161329652}
-  IsPaused: 0
-  ElapsedTime: 0
 --- !u!114 &879438733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2278,20 +2273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6bdca2f240bbeb41927dea61c63eead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Status: 0
-  Level: {fileID: 0}
-  CurrentStepIndex: 0
-  StepRuntime: []
-  HasCheckpoint: 0
-  Checkpoint:
-    StepIndex: 0
-    TimeElapsed: 0
-    WaferSnapshot:
-      PlaceholderVersion: 0
-      StepPrecisions: []
-      RecordedStepCount: 0
-    SlotIndex: 0
-  MisalignmentThisFrame: 0
 --- !u!114 &879438735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2305,8 +2286,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrSlotPosition: 0
-  MoveEnabled: 0
-  SlotChangedThisFrame: 0
 --- !u!114 &879438736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2333,7 +2312,6 @@ MonoBehaviour:
   - {fileID: 850206791}
   - {fileID: 878151947}
   - {fileID: 1032335341}
-  NeedsReshuffling: 0
 --- !u!114 &879438737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2372,7 +2350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56664028c93fdbb42b238393b99dbdfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WorldInteractEnabled: 0
 --- !u!114 &879438740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2400,21 +2377,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7339842ac2eed9f4da0f4fabdf54d4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Phase: 0
-  ActiveInterfacer: {fileID: 0}
   PhaseTimer: 0
   EnterMicrogameDuration: 0.5
   ExitMicrogameDuration: 0.5
   StunDuration: 1.5
-  MicrogameCompletedThisFrame: 0
-  CancelRequestedThisFrame: 0
-  MicrogamePassedThisFrame: 0
-  LastMicrogamePrecision: 0
-  LastRawMicrogamePrecision: 0
-  CompletionVerdict: 0
-  ProcessAnimationInProgress: 0
-  PostStunPhase: 0
-  ExitTimerExternalHold: 0
 --- !u!114 &879438742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2468,12 +2434,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 329a84ed84958734dbd93256763d3308, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CountdownRequestedThisFrame: 0
-  CountdownCompletedThisFrame: 0
   CountDownText: {fileID: 1789784826}
   CountDownCanvasGroup: {fileID: 1753212872}
-  AccruedTime: 0
-  IsCountingDown: 0
 --- !u!114 &879438746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2486,9 +2448,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3e059297da5c047945a1e3c1a953e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResetRequestedThisFrame: 0
-  RestoreCheckpointRequestedThisFrame: 0
-  FinalizeAttemptRequestedThisFrame: 0
 --- !u!114 &879438747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2506,12 +2465,6 @@ MonoBehaviour:
   CardSlotB: {fileID: 5429475297052697719}
   TransitionDurationSeconds: 0.4
   PanelTransitionDurationSeconds: 0.2
-  FrontCard: {fileID: 0}
-  BackCard: {fileID: 0}
-  ResetRequested: 0
-  AdvanceRequested: 0
-  MoveAwayRequested: 0
-  CompletionRequested: 0
 --- !u!114 &879438748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2564,9 +2517,6 @@ MonoBehaviour:
   LabelFadeInSeconds: 0.15
   HoldSeconds: 1.2
   FadeOutSeconds: 0.3
-  RecapRequested: 0
-  RecapJustCompletedIndex: 0
-  RecapInProgress: 0
 --- !u!114 &879438750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2584,9 +2534,6 @@ MonoBehaviour:
   GenerateButton: {fileID: 1584816632}
   LeftArrowButton: {fileID: 2069701061}
   RightArrowButton: {fileID: 179505135}
-  IsGeneratePressed: 0
-  IsLeftArrowPressed: 0
-  IsRightArrowPressed: 0
 --- !u!114 &879438751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2599,9 +2546,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aebd279a3fc5b145b339943f75aed4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TutorialInterruptRequested: 0
-  RestartButtonPressedThisFrame: 0
-  ListenerRegistered: 0
 --- !u!1 &923494915 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4511311559296299947, guid: 165d3522f9fd3e446a7ff9a07d6bf4cc, type: 3}
@@ -3420,7 +3364,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f703cef0b06b5744bfe2aaaa8e7229e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsStunned: 0
   Status: 0
 --- !u!114 &1487015769
 MonoBehaviour:
@@ -3884,17 +3827,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebc7942d1c2ffa542add67b2cbe57605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActive: 0
-  InputAccepted: 0
   EtchUI: {fileID: 516946605}
   Phase: 0
-  Pattern: {fileID: 0}
   PlayerBeam: {fileID: 1938538705}
-  PlayerPoints: []
-  CachedPreviewPoints: []
-  Direction: {x: 1, y: 0}
-  PreviewVisibleCount: 0
-  PreviewProgress: 0
 --- !u!114 &1858924069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3907,7 +3842,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adc71e48e93647d41a8ceb001c1f3fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActive: 0
   PhotolithographyUI: {fileID: 251229412}
   Phase: 0
   Photomask: {fileID: 659472203}
@@ -3916,7 +3850,6 @@ MonoBehaviour:
   PhotomaskAngle: 0
   PhotomaskY: 2.75
   FallSpeed: 0.5
-  InputAccepted: 0
 --- !u!114 &1858924070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3929,13 +3862,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ed9c592a8988ba43b9441c5debc898a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActive: 0
-  SweeperX: 0
-  DropX: 0
   CenterX: 0
   MaxOffset: 2.5
   SweepSpeed: 2
-  InputAccepted: 0
   ResistUI: {fileID: 699037345}
   SweeperAnchor: {fileID: 699037344}
   SpreadingGraphic: {fileID: 543510071}
@@ -3953,16 +3882,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e26817a640dc4c4b9351a1e8d44438e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActive: 0
   TargetRange: 5
   TargetHalfWidth: 1
   MaxRange: 10
   Sensitivity: 6
-  CurrentValue: 0
-  FinalHeat: 0
-  InputAccepted: 0
-  isSpacebarHeld: 0
-  IncreasingHeat: 0
   FurnaceUI: {fileID: 683430573}
   TargetRangeAnchor: {fileID: 177737468}
   TargetArrowAnchor: {fileID: 535970272}
@@ -3980,14 +3903,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcf7e030d405a6644ab7e976d8289470, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActive: 0
-  InputAccepted: 0
   IonUI: {fileID: 1118988153}
   PatternParent: {fileID: 1040195617}
   DropperAnchor: {fileID: 2021643481}
   PointDensity: 10
   FillRadius: 0.2
-  IonPattern: {fileID: 0}
   Phase: 0
 --- !u!114 &1858924073
 MonoBehaviour:
@@ -4001,8 +3921,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d91ca1b6838f2e64896a508d2bccfb87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsActive: 0
-  InputAccepted: 0
   SputterUI: {fileID: 1562685134}
   Phase: 0
   SputterHeadAnchor: {fileID: 1676710854}
@@ -4010,7 +3928,6 @@ MonoBehaviour:
   ProjectileParent: {fileID: 1815336502}
   TrajectoryPreview: {fileID: 1623754861}
   ProjectilePrefab: {fileID: 2698297420162295257, guid: c61174905d0f142a188512153c41f42a, type: 3}
-  SputterPattern: {fileID: 0}
 --- !u!1 &1899582895
 GameObject:
   m_ObjectHideFlags: 0
@@ -4197,8 +4114,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FoundValidSolution: 0
-  TotalCycles: 0
-  Precision: 0
 --- !u!4 &2010947692
 Transform:
   m_ObjectHideFlags: 0
@@ -4273,8 +4188,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: space
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b846c34a56e87cf4f87eb6aad17bc47a, type: 2}
+  m_sharedMaterial: {fileID: -2490679286961177235, guid: b846c34a56e87cf4f87eb6aad17bc47a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
