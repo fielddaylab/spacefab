@@ -48,8 +48,11 @@ namespace SpaceFab.Overarching
 
     public static class ContractChangeUtility
     {
-        public static IEnumerator ViewCurrentRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState)
+        public static IEnumerator ViewCurrentRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, PlayerProgressState playerProgress)
         {
+            // This runs before ContractSelectSystem's own rebuild, so refresh the list here rather
+            // than reading a stale one - the change-contract button is gated on its count below.
+            ContractSelectUtility.RebuildAvailableContracts(selectState, chapterState, playerProgress);
 
             layoutState.ViewCurrContractButton.gameObject.SetActive(false);
             layoutState.HideCurrContractButton.gameObject.SetActive(true);
@@ -65,7 +68,7 @@ namespace SpaceFab.Overarching
             layoutState.SelectionContractUI.gameObject.SetActive(true);
 
             // only enable change contract btn when there is alternative contract
-            if (chapterState.ChapterDefinition.AvailableContracts.Length > 1)
+            if (ContractSelectUtility.AvailableCount(selectState) > 1)
             {
                 layoutState.ChangeContractButton.gameObject.SetActive(true);
             }

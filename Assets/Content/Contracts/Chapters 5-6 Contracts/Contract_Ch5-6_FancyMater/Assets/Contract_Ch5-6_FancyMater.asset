@@ -9,8 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
-  m_Name: Contract_Ch6_FancyMater_Stream
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: Contract_Ch5-6_FancyMater
   m_EditorClassIdentifier: 
-  m_Packages:
-  - {fileID: 11400000, guid: 974e9f4aeede641d3b779d2cf02ece83, type: 2}
+  m_IncludeMode: 0
+  m_FilterSearch: 
+  m_GlobalAssets: []
+  m_NamedAssets:
+  - {fileID: 11400000, guid: 61f8065c8612adf40ae7d466210c5a78, type: 2}
+  m_LiteAssets: []

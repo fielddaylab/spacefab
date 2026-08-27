@@ -1,25 +1,21 @@
 ManifestFileVersion: 0
-CRC: 2609875357
+CRC: 2542069187
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 675c698abb2fc315020a6d62f16267fa
+    Hash: de8b2c0125808589d96cfa3b2aeac834
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 89e1b594e34830a6bd1db22be90936c5
+    Hash: 69e0630b4927b6d1d89be8eb51c2d752
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 675c698abb2fc315020a6d62f16267fa
+    Hash: de8b2c0125808589d96cfa3b2aeac834
 HashAppended: 0
 ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 0e92568ecc7a7614c9937680232609b9, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 2613736b2e35237448e4a0f57709855d, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d7de82cf62335d041bae34db3ff1041f, type: 3}
 - Class: 114
@@ -38,8 +34,6 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.Dimensions
 - AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Design.EdgeStateData
-- AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.GridCellConfig
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.TestData
@@ -47,8 +41,6 @@ SerializeReferenceClassIdentifiers:
   ClassName: SpaceFab.Fabrication.Sequence.FabricationStep
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Fabrication.WaferSnapshot
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.ScopedScriptsAsset/Binding
 Assets:
-- Assets/Content/Contracts/Chapter 2 Contracts/Contract_Ch2_Basic/Assets/Contract_Ch2_Basic_Stream.asset
+- Assets/Content/Contracts/Chapters 5-6 Contracts/Contract_Ch5-6_FancyMater/Assets/Contract_Ch5-6_FancyMater_Stream.asset
 Dependencies: []

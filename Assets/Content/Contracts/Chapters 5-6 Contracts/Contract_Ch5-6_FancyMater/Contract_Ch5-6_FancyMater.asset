@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 318cdd041ad469e4dae79dcc4f242e18, type: 3}
-  m_Name: Contract_Ch5_FancyMater
+  m_Name: Contract_Ch5-6_FancyMater
   m_EditorClassIdentifier: 
   m_requiredMaterialProperties:
   - {fileID: 11400000, guid: 6d66cd15838f54a4fb236b7a33f7ff29, type: 2}
@@ -26,6 +26,6 @@ MonoBehaviour:
   m_expectedProfit: 4
   m_unlocksBigBattery: 1
   StreamedPack:
-    m_HashValue: 3406231434
+    m_HashValue: 3946860021
   AssetSet:
-    m_HashValue: 2775286815
+    m_HashValue: 3351498600
