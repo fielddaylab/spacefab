@@ -16,9 +16,10 @@ namespace FieldDay.Rendering {
         private const int InitialIndexCount = InitialVertexCount * 6 / 4;
 
         static private MeshData16<SpriteVertex> s_SpriteVertexBuilder;
+        static private MeshData16<PositionVertex> s_PositionVertexBuilder;
 
         /// <summary>
-        /// Retrieves the sprite buffer.
+        /// Retrieves the empty sprite buffer.
         /// </summary>
         static public MeshData16<SpriteVertex> GetSpriteBuffer() {
             if (s_SpriteVertexBuilder == null) {
@@ -29,5 +30,26 @@ namespace FieldDay.Rendering {
 
             return s_SpriteVertexBuilder;
         }
+
+        /// <summary>
+        /// Retrieves the empty position buffer.
+        /// </summary>
+        static public MeshData16<PositionVertex> GetPositionBuffer() {
+            if (s_PositionVertexBuilder == null) {
+                s_PositionVertexBuilder = new MeshData16<PositionVertex>(InitialVertexCount, InitialIndexCount, MeshTopology.Triangles, true);
+            } else {
+                s_PositionVertexBuilder.Clear();
+            }
+
+            return s_PositionVertexBuilder;
+        }
+    }
+
+    /// <summary>
+    /// Vertex with only a position.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct PositionVertex {
+        [VertexAttr(VertexAttribute.Position)] public Vector4 Position;
     }
 }

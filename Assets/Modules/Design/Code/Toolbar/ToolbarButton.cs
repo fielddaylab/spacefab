@@ -46,6 +46,8 @@ namespace SpaceFab.Design {
         // RectTransform the selection arrow should snap to when this button is selected.
         // Read by ToolbarVisualsUpdateSystem (stubbed this pass).
         public RectTransform ArrowAnchor;
+        public string ToolName;
+        public bool AnchorBelow;
 
         // One-frame input flags. Set by the pointer handlers below; consumed by
         // ToolbarSelectSystem; cleared by ToolbarRefreshSystem at end of frame.

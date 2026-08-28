@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1683349872946723301, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: TooltipHeader
+      value: Menuo Station
+      objectReference: {fileID: 0}
     - target: {fileID: 2809890985908838907, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: HoverMaterial
       value: 

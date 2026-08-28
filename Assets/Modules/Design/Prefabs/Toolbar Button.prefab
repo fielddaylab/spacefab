@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2314374948128066603}
   - component: {fileID: 6010582894322947803}
   - component: {fileID: 2021557499889212529}
+  - component: {fileID: 1700431962520481786}
   m_Layer: 5
   m_Name: Toolbar Button
   m_TagString: Untagged
@@ -56,10 +57,6 @@ MonoBehaviour:
   Row: 0
   DynamicButton: {fileID: 3644676811125273431}
   ArrowAnchor: {fileID: 7677189899892040995}
-  ClickedThisFrame: 0
-  PointerEnterThisFrame: 0
-  PointerExitThisFrame: 0
-  Available: 1
 --- !u!222 &6010582894322947803
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -98,6 +95,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1700431962520481786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3877037620776690958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 0
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!1 &6943733970903632867
 GameObject:
   m_ObjectHideFlags: 0
@@ -125,8 +142,8 @@ RectTransform:
   m_GameObject: {fileID: 6943733970903632867}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.999936, y: 0.999936, z: 0.999936}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6772066799013248024}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

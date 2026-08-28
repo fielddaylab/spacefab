@@ -7,6 +7,10 @@ Shader "FieldDay/Misc/Depth Decal"
 
 		[Header(Depth)] [Space]
 		[Enum(UnityEngine.Rendering.CompareFunction)] _ZTestMode("ZTest Mode", Int) = 4
+
+        [Header(Z Offset)] [Space]
+        _ZOffsetFactor("Z Offset Factor", Range(-1, 1)) = -1
+        _ZOffsetUnits("Z Offset Units", Range(-1, 1)) = 1
     }
 
     SubShader
@@ -20,9 +24,11 @@ Shader "FieldDay/Misc/Depth Decal"
 
         Cull [_CullMode]
         Lighting Off
+        Blend Off
         ZWrite On
 		ZTest [_ZTestMode]
 		ColorMask 0
+        Offset [_ZOffsetFactor], [_ZOffsetUnits]
 
         Pass
         {

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DepthDecal
+  m_Name: DepthDecal-Near
   m_Shader: {fileID: 4800000, guid: 218328ae83ddef24a85bb2689ec9d5e6, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 995
+  m_CustomRenderQueue: 100
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -26,6 +26,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _CullMode: 2
-    - _ZTestMode: 4
+    - _ZOffsetFactor: -1
+    - _ZOffsetUnits: -1
+    - _ZTestMode: 2
     m_Colors: []
   m_BuildTextureStacks: []
