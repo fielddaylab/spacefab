@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 3541358738
+CRC: 1688116376
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -90,26 +90,23 @@ AssetBundleManifest:
       Name: contract_ch10_fancymater_stream.pak
       Dependencies: {}
     Info_29:
-      Name: contract_ch11_basic_stream.pak
-      Dependencies: {}
-    Info_30:
       Name: contract_ch11_fancymater_stream.pak
       Dependencies: {}
-    Info_31:
+    Info_30:
       Name: contract_ch11_trickypuzzle_stream.pak
       Dependencies: {}
-    Info_32:
-      Name: contract_ch12_basic_stream.pak
+    Info_31:
+      Name: contract_ch11-12_basic_stream.pak
       Dependencies: {}
-    Info_33:
+    Info_32:
       Name: contract_ch12_fancymater_stream.pak
       Dependencies: {}
-    Info_34:
+    Info_33:
       Name: contract_ch12_trickypuzzle_stream.pak
       Dependencies: {}
-    Info_35:
+    Info_34:
       Name: contract_test_stream.pak
       Dependencies: {}
-    Info_36:
+    Info_35:
       Name: ingamestream.pak
       Dependencies: {}
