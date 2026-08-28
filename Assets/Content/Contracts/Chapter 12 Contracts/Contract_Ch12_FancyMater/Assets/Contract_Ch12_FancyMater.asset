@@ -9,15 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8067a736fe4dae141b37f7765f8ed15b, type: 3}
-  m_Name: Diamond
+  m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+  m_Name: Contract_Ch12_FancyMater
   m_EditorClassIdentifier: 
-  MaterialId:
-    m_Source: Diamond
-    m_HashValue: 3747167047
-  BaseConduction: 0.4
-  HeatedConduction: 1.6
-  MaxTemperature: 0.66
-  MaxVoltage: 1
-  IsHighMobility: 1
-  IsLightEmitting: 0
+  m_IncludeMode: 0
+  m_FilterSearch: 
+  m_GlobalAssets: []
+  m_NamedAssets:
+  - {fileID: 11400000, guid: aa0668bffc78189449822aa0898d34d9, type: 2}
+  m_LiteAssets: []
