@@ -13,25 +13,64 @@ namespace SpaceFab.Research
     /// </summary>
     public class CircuitRenderer : BatchedComponent
     {
-        public SpriteRenderer CircuitFlow;
-        public Sprite[] CircuitSpriteSequence;
+        [System.Serializable]
+        public class FlowSegment
+        {
+            public float Length;
+            public Vector2[] Points;
+        }
+
+        public Electron[] Electrons;
+        public FlowSegment[] FlowSegments;
+        public float TotalLength; // total length of circuit loop
 
         public SpriteRenderer Bulb;
         public Sprite BulbOffSprite;
         public Sprite BulbOnSprite;
 
         public SpriteRenderer[] BulbShines;
-        public float AnimSpeedMultiplier = 4f;
+        public float AnimSpeedMultiplier = 1f;
 
-        // Sign controls flow direction; magnitude drives animation speed and
-        // flow sprite alpha. Set by CircuitUtility.SetFlowSpeed.
-        [NonSerialized] public float CircuitSpriteSpeed;
+        // Magnitude drives flow speed. Set by CircuitUtility.SetFlowStrength.
+        [NonSerialized] public float CircuitCurrent;
 
-        // Accumulator for the animation system; drives frame advance.
-        [NonSerialized] public float CircuitSpriteTimer;
+        private void Awake() {
+            // if (!GameLoop.IsBooted()) {
+            //     GameLoop.QueueOnBoot(Init);
+            // } else {
+                InitCircuitFlow();
+            //}
+        }
 
-        // Current flow-sprite frame index. Driven by the animation system.
-        [NonSerialized] public int CircuitSpriteIndex;
+        // Initializes the circuit flow by calculating path lengths and evenly
+        // distributing electrons.
+        private void InitCircuitFlow()
+        {
+            TotalLength = 0f;
+            // Calculate individual segment lengths and total path length
+            foreach (FlowSegment segment in FlowSegments)
+            {
+                float segmentLength = 0f;
+                for (int i = 1; i < segment.Points.Length; i++)
+                {
+                    segmentLength += Vector2.Distance(segment.Points[i-1], segment.Points[i]);
+                }
+                segment.Length = segmentLength;
+                TotalLength += segmentLength;
+            }
+
+            // Evenly distribute electrons along the calculated path
+            for (int i = 0; i < Electrons.Length; i++)
+            {
+                Electrons[i].TravelDistance = i * TotalLength / Electrons.Length;
+                for (int j = 0; j < Electrons[i].FlowSegmentIndex; j++)
+                    Electrons[i].TravelDistance -= FlowSegments[j].Length;
+
+                Electrons[i].transform.position = CircuitUtility.GetPositionOnSegment(this, Electrons[i]);
+            }
+
+            CircuitCurrent = 0f;
+        }
     }
 
     /// <summary>
@@ -69,25 +108,33 @@ namespace SpaceFab.Research
             }
         }
 
-        // Sets the flow tube's alpha and the per-frame advance speed. The
-        // animation system reads CircuitSpriteSpeed each frame.
-        public static void SetFlowSpeed(CircuitRenderer circuit, float speed)
+        // Sets the flow tube's density. The animation system reads CircuitSpriteSpeed each frame.
+        public static void SetFlowStrength(CircuitRenderer circuit, float strength)
         {
             if (circuit == null) return;
+            circuit.CircuitCurrent = strength;
 
-            float magnitude = Mathf.Abs(speed);
-            if (circuit.CircuitFlow != null)
+            foreach (Electron electron in circuit.Electrons)
             {
-                Color c = circuit.CircuitFlow.color;
-                c.a = magnitude;
-                circuit.CircuitFlow.color = c;
+                electron.gameObject.SetActive(strength > 0);
             }
+        }
 
-            circuit.CircuitSpriteSpeed = speed;
-            if (speed == 0f)
+        public static Vector2 GetPositionOnSegment(CircuitRenderer circuit, Electron electron)
+        {
+            var segment = circuit.FlowSegments[electron.FlowSegmentIndex];
+            float travelDistance = electron.TravelDistance;
+            for (int i = 1; i < segment.Points.Length; i++)
             {
-                circuit.CircuitSpriteTimer = 0f;
+                float length = Vector2.Distance(segment.Points[i-1], segment.Points[i]);
+
+                if (travelDistance <= length)
+                    return Vector2.Lerp(segment.Points[i-1], segment.Points[i], travelDistance / length);
+                
+                travelDistance -= length;
             }
+            
+            return segment.Points[^1]; // safety fallback; unreachable in correct flow
         }
     }
 }

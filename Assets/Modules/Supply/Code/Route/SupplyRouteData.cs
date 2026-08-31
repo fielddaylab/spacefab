@@ -1,24 +1,26 @@
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Physics;
+using FieldDay.UI;
 using System;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
     public struct SupplyRouteData {
         public const int MaxNodeIndices = 32;
-        public const int MaxNodes = 16;
+        public const int MaxHazardIndices = 8;
+
+        public const int MaxNodes = 8;
         public const int MaxNonTerminalNodes = MaxNodes - 1;
-        public const int MaxHazards = 3;
-        public const int MaxShips = 5;
+        public const int MaxHazards = 8;
+        public const int MaxShips = 3;
         public const int MaxCapacity = 3;
 
         public int NodeCount;
         public SupplyRouteNode[] Nodes;
         public BitSet32 NodeMask;
         public SupplyRouteFlags Flags;
-
-        // TODO: Implement hazards
 
         public void Create() {
             Nodes = new SupplyRouteNode[MaxNodes];
@@ -74,6 +76,10 @@ namespace SpaceFab.Supply {
         public fixed uint MaterialHashes[SupplyRouteData.MaxCapacity];
     }
 
+    public unsafe struct SupplyRouteRenderInfo {
+        
+    }
+
     [Flags]
     public enum SupplyRouteResultFlags : byte {
         TooManyResources = 0x01,
@@ -108,8 +114,10 @@ namespace SpaceFab.Supply {
                 return false;
             }
 
+            SupplyChainMap map = Find.State<SupplyChainMap>();
             SupplyRouteConfig config = Find.GlobalAsset<SupplyRouteConfig>();
             SupplyRouteResultFlags resultFlags = 0;
+            int hazardMask = 0;
 
             int cost = 0;
             int risk = 0;
@@ -130,7 +138,35 @@ namespace SpaceFab.Supply {
                 distance += segmentDist;
             }
 
-            // TODO: Hazards
+            // HAZARDS
+
+            if (map.HazardCount > 0) {
+                ContactFilter2D hazardFilter = default;
+                hazardFilter.SetLayerMask(global::LayerMasks.SupplyChainHazard_Mask);
+
+                // TODO: Determine if we allow multiple passes through a given region to affect the route multiple times
+
+                for (int i = 1; i < maxNodesToRead; i++) {
+                    SupplyRouteNode nodeA = route.Nodes[i - 1];
+                    SupplyRouteNode nodeB = route.Nodes[i % route.NodeCount];
+
+                    Vector2 nodeAPos = nodeA.Position;
+                    Vector2 nodeBPos = nodeB.Position;
+
+                    int intersectionCount = RaycastUtility.LinecastIntersections2D(nodeAPos, nodeBPos, hazardFilter, s_HazardIntersectionBuffer, s_HazardRaycastBuffers);
+                    for(int intersectionIndex = 0; intersectionIndex < intersectionCount; intersectionIndex++) {
+                        RaycastIntersection2D intersection = s_HazardIntersectionBuffer[intersectionIndex];
+                        Collider2D collider = Find.FromId<Collider2D>(intersection.ColliderId);
+                        SupplyRouteHazard hazard = collider.GetComponentInParent<SupplyRouteHazard>();
+                        if (!Bits.Contains(hazardMask, hazard.Index)) {
+                            Bits.Add(ref hazardMask, hazard.Index);
+                            cost += hazard.Cost;
+                            time += hazard.Time;
+                            risk += hazard.Risk;
+                        }
+                    }
+                }
+            }
 
             int travelTime = (int)(distance / config.ShipSpeeds[ship.Speed] + (1.0f - float.Epsilon));
 
@@ -200,9 +236,7 @@ namespace SpaceFab.Supply {
             stats.Cost = (byte)cost;
             stats.Flags = resultFlags;
             stats.MaterialCount = (byte) materialCount;
-
-            // TODO: Hazards
-            stats.HazardMask = 0;
+            stats.HazardMask = (byte) hazardMask;
 
             for(int i = 0; i < materialCount; i++) {
                 stats.MaterialHashes[i] = materials[i].HashValue;
@@ -213,5 +247,8 @@ namespace SpaceFab.Supply {
 
             return true;
         }
+
+        static private readonly Raycast2DBuffers s_HazardRaycastBuffers = new Raycast2DBuffers(8);
+        static private readonly RaycastIntersection2D[] s_HazardIntersectionBuffer = new RaycastIntersection2D[8];
     }
 }

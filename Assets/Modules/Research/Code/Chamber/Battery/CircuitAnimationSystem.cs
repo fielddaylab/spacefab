@@ -1,3 +1,4 @@
+using System;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
@@ -11,7 +12,7 @@ namespace SpaceFab.Research
     /// angular velocities. Runs every frame the chamber mask is active; the
     /// chamber system itself only writes CircuitSpriteSpeed when state changes.
     /// </summary>
-    public class CircuitAnimationSystem : SystemComponent
+    public class CircuitAnimationSystem : SystemComponent, IRegistrationCallbacks
     {
         // Per-shine rotation rates (degrees per second), applied to the
         // BulbShines array on each renderer. Three shines per bulb is the
@@ -24,6 +25,14 @@ namespace SpaceFab.Research
                 new SysUpdate(GameLoopPhase.Update, 0, UpdateMasks.ResearchChamberMask),
                 new SysPermissions().ReadWrite<CircuitRenderer>());
         }
+        public void OnRegister()
+        {
+            
+        }
+        public void OnDeregister()
+        {
+            
+        }
 
         private static void ProcessWork(float deltaTime)
         {
@@ -34,25 +43,37 @@ namespace SpaceFab.Research
             }
         }
 
-        // Advances the flow-frame index based on CircuitSpriteSpeed. Idle
-        // when speed is zero so a stopped circuit doesn't tick.
+        // Advances the positions of electrons over time and updates visual effects.
         private static void AdvanceFlow(CircuitRenderer circuit, float deltaTime)
         {
-            if (circuit.CircuitSpriteSpeed == 0f) return;
-            if (circuit.CircuitSpriteSequence == null || circuit.CircuitSpriteSequence.Length == 0) return;
-            if (circuit.CircuitFlow == null) return;
+            if (circuit.CircuitCurrent == 0f) return;
+            if (circuit.Electrons == null) return;
 
-            float advance = deltaTime * Mathf.Abs(circuit.CircuitSpriteSpeed) * circuit.AnimSpeedMultiplier;
-            circuit.CircuitSpriteTimer += advance;
-
-            int framesAdvanced = (int)circuit.CircuitSpriteTimer;
-            if (framesAdvanced > 0)
+            foreach (Electron electron in circuit.Electrons)
             {
-                circuit.CircuitSpriteTimer -= framesAdvanced;
-                int len = circuit.CircuitSpriteSequence.Length;
-                int direction = circuit.CircuitSpriteSpeed > 0f ? 1 : -1;
-                circuit.CircuitSpriteIndex = ((circuit.CircuitSpriteIndex + framesAdvanced * direction) % len + len) % len;
-                circuit.CircuitFlow.sprite = circuit.CircuitSpriteSequence[circuit.CircuitSpriteIndex];
+                var segment = circuit.FlowSegments[electron.FlowSegmentIndex];
+                electron.TravelDistance += deltaTime * circuit.AnimSpeedMultiplier * circuit.CircuitCurrent;
+
+                // Handle segment transition and wrapping
+                if (electron.TravelDistance >= segment.Length)
+                {
+                    electron.FlowSegmentIndex++;
+                    electron.TravelDistance -= segment.Length;
+                    if (electron.FlowSegmentIndex >= circuit.FlowSegments.Length)
+                        electron.FlowSegmentIndex = 0;
+                }
+                
+                electron.transform.position = CircuitUtility.GetPositionOnSegment(circuit, electron);
+                segment = circuit.FlowSegments[electron.FlowSegmentIndex];
+
+                // Fade near endpoints
+                float threshold = 0.1f;
+                float multiplier = 1f / threshold;
+                float distanceToEndpoint = Math.Min(electron.TravelDistance, segment.Length - electron.TravelDistance);
+                if (distanceToEndpoint <= threshold)
+                    electron.Sprite.color = new Color(1f, 1f, 1f, distanceToEndpoint * multiplier);
+                else
+                    electron.Sprite.color = Color.white;
             }
         }
 

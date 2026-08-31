@@ -168,27 +168,23 @@ namespace FieldDay.Collections {
 
 #if UNITY_EDITOR
 
-        [InitializeOnLoadMethod]
+        [EditorStaticResource]
         static private void EditorInitialize() {
-            EditorApplication.playModeStateChanged += (state) => {
-                if (state == PlayModeStateChange.ExitingEditMode) {
-                    Shutdown();
-                } else if (state == PlayModeStateChange.EnteredEditMode) {
-                    if (s_SmallWorkLists == null) {
-                        Initialize();
-                    }
-                }
-            };
-
-            EditorApplication.quitting += Shutdown;
-            AppDomain.CurrentDomain.DomainUnload += (_, __) => Shutdown();
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode) {
-                return;
+            EditorStaticResource.SetupLifetime(EditorInit, EditorDestroy);
+            if (EditorStaticResource.IsEditor()) {
+                EditorInit();
             }
+        }
 
+        static private void EditorInit() {
             if (s_SmallWorkLists == null) {
                 Initialize();
+            }
+        }
+
+        static private void EditorDestroy() {
+            if (s_SmallWorkLists != null) {
+                Shutdown();
             }
         }
 

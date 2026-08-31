@@ -236,8 +236,13 @@ namespace FieldDay.Editor {
             }
         }
 
-        private class RefreshCOnfigAfterAssetImport : AssetPostprocessor {
+        private class RefreshConfigAfterAssetImport : AssetPostprocessor {
             static private void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromAssets, bool domainReload) {
+                if (SessionState.GetBool("FD-BuildConfigurations-AutoLocate", false)) {
+                    return;
+                }
+
+                SessionState.SetBool("FD-BuildConfigurations-AutoLocate", true);
                 RetrieveAndApplyConfig(false);
             }
         }

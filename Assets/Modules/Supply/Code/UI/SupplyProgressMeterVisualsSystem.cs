@@ -28,7 +28,7 @@ namespace SpaceFab.Supply {
                 out SupplyRouteCollection routes,
                 out SupplyRouteDrawingState drawing
                 );
-            PlayerProgressState progress = Find.State<PlayerProgressState>();
+            ContractState contract = Find.State<ContractState>();
             SupplyShipIndex ships = Find.State<SupplyShipIndex>();
 
             // Diff the aggregate against the last-applied values; skip the rebuild if unchanged.
@@ -42,7 +42,7 @@ namespace SpaceFab.Supply {
                 return;
             }
 
-            SupplyProgressMeterUtility.Refresh(layoutState, routes, drawing, ships, progress);
+            SupplyProgressMeterUtility.Refresh(layoutState, routes, drawing, ships, contract);
 
             meterState.LastRisk = risk;
             meterState.LastCost = cost;

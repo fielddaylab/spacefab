@@ -11,8 +11,8 @@ namespace SpaceFab.Fabrication.Microgames
 {
     public enum SputterMicrogamePhase
     {
-        Entering,
         Idle,
+        Entering,
         Active,
         Exiting
     }
@@ -30,16 +30,17 @@ namespace SpaceFab.Fabrication.Microgames
         public GameObject SputterUI;
         public SputterMicrogamePhase Phase;
 
-        public LineRenderer IncidentBeam;
-        public LineRenderer[] ReflectedBeam;
-        public Transform SputterSprites;
-        public SpriteRenderer PatternRenderer;
+        public Transform SputterHeadAnchor;
+        public Transform FirePoint;
+        public Transform ProjectileParent;
+        public LineRenderer TrajectoryPreview;
 
-        public float MaxSputterDistance = 1.75f;
+        public SputterMicrogameProjectile ProjectilePrefab;
+        [HideInInspector] public SputterPatternData SputterPattern;
 
         public void OnRegister()
         {
-
+            
         }
 
         public void OnDeregister()
@@ -63,12 +64,19 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out SputterMicrogameState state);
+            Find.State(out SputterMicrogameState state, out SequenceState sequence);
+
+            state.SputterUI.SetActive(true);
+
+            // Set pattern
+            int patternIndex = sequence.Level.PatternIndex;
+            Find.GlobalAsset(out MicrogameStationConfig config);
+            state.SputterPattern = GameObject.Instantiate(config.SputterPatterns[patternIndex], state.SputterUI.transform).GetComponent<SputterPatternData>();
+            state.SputterPattern.SetPatternData(state.ProjectilePrefab.Sprite.bounds.size.x);
 
             state.Phase = SputterMicrogamePhase.Entering;
             state.IsActive = true;
             state.InputAccepted = false;
-            state.SputterUI.SetActive(true);
         }
 
         public static void EnterComplete()
@@ -83,9 +91,18 @@ namespace SpaceFab.Fabrication.Microgames
         // On cancel, nothing is recorded.
         public static void ExitBegin(bool completedNormally)
         {
-            Find.State(out SputterMicrogameState state);
+            Find.State(
+                out SputterMicrogameState state,
+                out MicrogameCanvasState canvasState
+            );
+            
             state.Phase = SputterMicrogamePhase.Exiting;
             if (!completedNormally) { return; }
+
+            GameObject.Destroy(state.SputterPattern.gameObject);
+
+            state.SputterUI.SetActive(false);
+            MicrogameCanvasUtility.HideStationInstructions(canvasState);
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
         }
@@ -105,16 +122,10 @@ namespace SpaceFab.Fabrication.Microgames
             state.IsActive = false;
             state.Phase = SputterMicrogamePhase.Idle;
 
-            // Reset graphics
-            state.SputterSprites.localPosition = Vector3.zero;
-            state.PatternRenderer.size = new Vector2(0, state.PatternRenderer.size.y);
-            state.PatternRenderer.transform.localPosition = new Vector3(-1.35f, 0, 0);
-
-
-            state.SputterUI.SetActive(false);
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
-            // TODO: tear down sputter UI; return to idle.
+            for (int i = 0; i < state.ProjectileParent.childCount; i++)
+            {
+                GameObject.Destroy(state.ProjectileParent.GetChild(i).gameObject);
+            }
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
@@ -135,7 +146,9 @@ namespace SpaceFab.Fabrication.Microgames
         {
             Find.State(out SputterMicrogameState state);
 
-            float precision = 1 - (state.MaxSputterDistance - state.SputterSprites.localPosition.x) / state.MaxSputterDistance;
+            if (state.SputterPattern.m_TotalSlots == 0) { return 0f; }
+
+            float precision = state.SputterPattern.m_FilledSlots / state.SputterPattern.m_TotalSlots;
             return Mathf.Clamp01(precision);
         }
     }

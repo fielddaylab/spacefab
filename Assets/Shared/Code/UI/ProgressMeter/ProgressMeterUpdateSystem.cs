@@ -30,28 +30,30 @@ namespace SpaceFab {
             Find.State(
                 out ProgressMeterState meterState,
                 out PlayerProgressState progressState,
-                out MinigameSaveStates saveStates
+                out MinigameSaveStates saveStates,
+                out ContractState contractState
                 );
 
             // Drain the dirty flag by pushing state into the view.
             if (meterState.NeedsRefresh) {
                 // Update pending cycles
                 int numPendingCycles = ProgressMeterUtility.CalculatePendingCycleCells(meterState.ActiveMeter, saveStates);
+                int fabCycles = Mathf.Max(0, saveStates.Fabrication.FinalizedTotalCycles);
+                int filledEnd = progressState.ElapsedCycles + fabCycles;
 
-                // 
-                for (int i = progressState.ElapsedCycles; i < progressState.ElapsedCycles + numPendingCycles; i++)
+                int pendingEnd = progressState.ElapsedCycles + Mathf.Max(fabCycles, numPendingCycles);
+
+                for (int i = progressState.ElapsedCycles; i < pendingEnd; i++)
                 {
                     ProgressMeterUtility.SetCycleCellState(meterState, i, CycleCellState.PENDING);
                 }
-                ProgressMeterUtility.ClearCycleStateFrom(meterState, progressState.ElapsedCycles + numPendingCycles);
+                ProgressMeterUtility.ClearCycleStateFrom(meterState, pendingEnd);
 
                 // Update pending funds
 
-                if (Game.Assets.HasNamed<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId))
+                if (contractState.ContractDefinition)
                 {
-                    var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(progressState.ContractAssetsWrapperId);
-
-                    int contractPayout = contractAssets.ContractDef.Payout();
+                    int contractPayout = contractState.ContractDefinition.Payout();
                     ProgressMeterUtility.CalculatePendingFundsCells(meterState.ActiveMeter, saveStates, contractPayout, out int pendingReceivedCount, out int pendingSpentCount);
 
                     int spentThreshold = progressState.Funds + contractPayout - pendingSpentCount;
@@ -71,6 +73,7 @@ namespace SpaceFab {
                 }
 
                 // apply visual refresh
+                ProgressMeterUtility.EnsureCellsBound(meterState.ActiveMeter);
                 ProgressMeterUtility.RefreshVisuals(meterState.ActiveMeter, meterState);
                 meterState.NeedsRefresh = false;
             }

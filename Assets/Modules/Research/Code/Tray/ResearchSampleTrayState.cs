@@ -106,7 +106,8 @@ namespace SpaceFab.Research {
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
-                sampleObj.transform.localPosition = new Vector3(0f, -index * trayState.Spacing, 0f);
+                float startY = 2.5f;
+                sampleObj.transform.localPosition = new Vector3(0f, startY - index * trayState.Spacing, 0f);
                 index++;
             }
         }

@@ -80,6 +80,23 @@ namespace SpaceFab.Design
                 ProcessEdge(graphState.OrderedEdges[e], runState, runScratch, graphState, gridStackState, numCols, cellsPerLayer);
             }
 
+            // Paint connected cells that lie on no crucial-to-crucial path (dead-end "stub"
+            // branches). Each such cell mirrors the resolved flow of its representative crucial
+            // cell (assigned in SimulateGraphUtility Pass 6, never crossing a P-N boundary). A
+            // representative still reading Empty this depth leaves its stub unpainted — so a stub
+            // lights up the same depth its segment does, and a stub off an undriven/diode-blocked
+            // segment stays grey. Pure visual coverage: NodeFlow / output values are untouched.
+            for (int i = 0; i < graphState.RepresentedCellCount; i++)
+            {
+                int cellIdx = graphState.RepresentedCells[i];
+                int repCellIdx = graphState.CellFlowRepresentative[cellIdx];
+                FlowState repFlow = SimulateRunScratchUtility.GetCellFlow(runScratch, repCellIdx);
+                if (repFlow != FlowState.Empty)
+                {
+                    SimulateRunScratchUtility.SetCellFlow(runScratch, cellIdx, repFlow);
+                }
+            }
+
             // One visual refresh per depth boundary, covering every cell painted this frame.
             visualState.VisualsNeedRefreshing = true;
         }

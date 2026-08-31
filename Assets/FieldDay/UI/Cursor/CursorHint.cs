@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using System.Text;
 using FieldDay.Localization;
 using FieldDay.Data;
+using FieldDay.UI.Widgets;
 
 namespace FieldDay.UI {
     [DisallowMultipleComponent]
@@ -17,6 +18,7 @@ namespace FieldDay.UI {
         public enum BehaviorFlags {
             HideTooltipWhenLocked = 0x01,
             ExtendedTooltipDelay = 0x02,
+            ForceDefaultCursor = 0x04
         }
 
         #region Inspector
@@ -39,6 +41,8 @@ namespace FieldDay.UI {
         [NonSerialized] public CursorTooltipContentDelegate DynamicBuilder;
 
         [NonSerialized] public long LastUpdatedTimestamp = 0;
+
+        [NonSerialized] public object Owner;
 
         /// <summary>
         /// Invoked when hovering starts or ends.
@@ -66,7 +70,8 @@ namespace FieldDay.UI {
             return !string.IsNullOrEmpty(hint.Tooltip) || !string.IsNullOrEmpty(hint.TooltipHeader) || !string.IsNullOrEmpty(hint.TooltipFooter)
                 || (hint.DynamicHeader != null && hint.DynamicHeader.Length > 0)
                 || (hint.DynamicContent != null && hint.DynamicContent.Length > 0)
-                || (hint.DynamicFooter != null && hint.DynamicContent.Length > 0);
+                || (hint.DynamicFooter != null && hint.DynamicContent.Length > 0)
+                || (hint.DynamicBuilder != null);
         }
 
         /// <summary>

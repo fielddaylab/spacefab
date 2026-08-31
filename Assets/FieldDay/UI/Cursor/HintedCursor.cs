@@ -106,7 +106,7 @@ namespace FieldDay.UI {
 
             if (hintIsInteractable) {
                 if (type == null) {
-                    icon = hoverSprite;
+                    icon = (hint.Flags & CursorHint.BehaviorFlags.ForceDefaultCursor) != 0 ? defaultSprite : hoverSprite;
                 } else {
                     if ((isButtonHeld || hintIsLocked) && type.HeldImage != null) {
                         scaleDown = type.HeldScaleOverride > 0;

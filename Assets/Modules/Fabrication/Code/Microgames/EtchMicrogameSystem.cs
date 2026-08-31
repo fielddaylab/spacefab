@@ -45,27 +45,27 @@ namespace SpaceFab.Fabrication.Microgames
 
         static private void ProcessEntering(EtchMicrogameState state, float deltaTime)
         {
-            if (state.PreviewPoints.Count == 0)
+            if (state.CachedPreviewPoints.Count == 0)
                 return;
 
-            float beamSpeed = 20f;
-            state.PreviewProgress += deltaTime * beamSpeed;
+            float progressSpeed = 25f; // 20f;
+            state.PreviewProgress += deltaTime * progressSpeed;
 
             int visibleCount = Mathf.Clamp(Mathf.FloorToInt(state.PreviewProgress),
-                0, state.PreviewPoints.Count);
+                0, state.CachedPreviewPoints.Count);
             
             if (visibleCount != state.PreviewVisibleCount)
             {
                 state.PreviewVisibleCount = visibleCount;
-                state.PreviewBeam.positionCount = visibleCount;
+                state.Pattern.PreviewBeam.positionCount = visibleCount;
 
                 for (int i = 0; i < visibleCount; i++)
                 {
-                    state.PreviewBeam.SetPosition(i, state.PreviewPoints[i]);
+                    state.Pattern.PreviewBeam.SetPosition(i, state.CachedPreviewPoints[i]);
                 }
             }
 
-            if (state.PreviewVisibleCount >= state.PreviewPoints.Count)
+            if (state.PreviewVisibleCount >= state.CachedPreviewPoints.Count)
             {
                 state.Phase = EtchMicrogamePhase.Active;
             }
@@ -85,7 +85,7 @@ namespace SpaceFab.Fabrication.Microgames
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
                 state.Direction = Vector2.right;
 
-            float beamSpeed = 2f;
+            float beamSpeed = 1.875f; //1.5f;
             Vector2 current = state.PlayerPoints[state.PlayerPoints.Count - 1];
             Vector2 next = current + (Vector2)(state.Direction * beamSpeed * deltaTime);
 

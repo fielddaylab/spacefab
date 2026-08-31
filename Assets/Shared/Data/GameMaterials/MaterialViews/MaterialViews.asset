@@ -12,9 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: MaterialViews
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
+  m_FilterSearch: 
   m_GlobalAssets: []
   m_NamedAssets:
+  - {fileID: 11400000, guid: 4d62a8e89ac8d470498f2be4c3aba1e2, type: 2}
+  - {fileID: 11400000, guid: 1ab87a52e51254fff8d29ce4eb49ccdd, type: 2}
   - {fileID: 11400000, guid: fc4bfa74dea8b5643b98afa3a2263ec7, type: 2}
+  - {fileID: 11400000, guid: 97b9132a3be2a4a12b8f4c5b24d3ede4, type: 2}
+  - {fileID: 11400000, guid: 604a4ee2fa556490da65332788f3958f, type: 2}
+  - {fileID: 11400000, guid: d2f8e1ce6ea6e4fd8bcb37b21ad03119, type: 2}
+  - {fileID: 11400000, guid: c2f23213fb78e43469091908b41629c4, type: 2}
+  - {fileID: 11400000, guid: 1166f5239d70247ff9f14865bcc82a08, type: 2}
+  - {fileID: 11400000, guid: c4eb5d31ff7c94c8d80f6552814dee05, type: 2}
+  - {fileID: 11400000, guid: bd0752e1222a248259942471dbabb30a, type: 2}
   - {fileID: 11400000, guid: bf4477bb83a6c474ba3b1d3cdd4f852d, type: 2}
+  - {fileID: 11400000, guid: 7c259f4b833aa4a818fcf73b25880ce5, type: 2}
   - {fileID: 11400000, guid: f33228c50275aa449a061151cabafd15, type: 2}
+  - {fileID: 11400000, guid: 46eedceaf3d8a44bfbc386719ae649dc, type: 2}
   m_LiteAssets: []

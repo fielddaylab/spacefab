@@ -1,14 +1,11 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
-using FieldDay.Systems;
-using SpaceFab.Fabrication.Movement;
-using SpaceFab.Fabrication.Stations;
 using SpaceFab.UI;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
+using SpaceFab.Fabrication.Sequence;
 
 namespace SpaceFab.Fabrication
 {
@@ -17,19 +14,23 @@ namespace SpaceFab.Fabrication
         [HideInInspector] public bool DisplayRequestedThisFrame;
 
         public CanvasGroup ResultsGroup;
-        public DynamicButton RetryButton;
-        public DynamicButton FinalizeButton;
+        public Image Background;
+        public DynamicButton RetryButton, ContinueButton;
 
-        public TMP_Text AccuracyText, TimeText, ProductionTimeText;
+        public ResultDisplaySection Heading, Accuracy, Time, ProductionTime;
+        public StationResultDisplay[] StationResults;
 
         public Routine ResultsTransitionRoutine;
+
+        public Sprite[] BackgroundSprites;
+        public Sprite[] HeadingSprites;
 
         public void OnDeregister()
         {
             ResultsTransitionRoutine.Stop();
 
             RetryButton.onClick.RemoveAllListeners();
-            FinalizeButton.onClick.RemoveAllListeners();
+            ContinueButton.onClick.RemoveAllListeners();
         }
 
         public void OnRegister()
@@ -37,7 +38,7 @@ namespace SpaceFab.Fabrication
             ResultDisplayStateUtility.SetEnabledResultsGroup(this, false);
 
             RetryButton.onClick.AddListener(OnRetryClicked);
-            FinalizeButton.onClick.AddListener(OnFinalizeClicked);
+            ContinueButton.onClick.AddListener(OnFinalizeClicked);
         }
 
         public void OnRetryClicked()
@@ -66,7 +67,7 @@ namespace SpaceFab.Fabrication
 
         public static void ShowResults(ResultDisplayState displayState)
         {
-            displayState.ResultsTransitionRoutine.Replace(ShowResultsRoutine(displayState));
+            displayState.ResultsTransitionRoutine.Replace(ShowResultsRoutine(displayState));            
         }
 
         public static void HideResults(ResultDisplayState displayState)
@@ -76,29 +77,78 @@ namespace SpaceFab.Fabrication
 
         private static IEnumerator ShowResultsRoutine(ResultDisplayState displayState)
         {
-            displayState.AccuracyText.text = "";
-            displayState.TimeText.text = "";
-            displayState.ProductionTimeText.text = "";
+            displayState.Accuracy.Text.text = "";
+            displayState.Time.Text.text = "";
+            displayState.ProductionTime.Text.text = "";
+            foreach(StationResultDisplay station in displayState.StationResults)
+                station.gameObject.SetActive(false);
+            displayState.RetryButton.gameObject.SetActive(false);
+            displayState.ContinueButton.gameObject.SetActive(false);
+
+            // TODO: determine success/failure
+            // Set display color
+            WaferState waferState = Find.State<WaferState>();
+            bool success = WaferStateUtility.GetAggregatedPrecision(waferState) > 0.8f;
+            displayState.Heading.Text.text = success ? "WAFER COMPLETE" : "WAFER FAILED";
+            displayState.Background.sprite = displayState.BackgroundSprites[success ? 0 : 1];
+            displayState.Heading.Background.sprite = displayState.HeadingSprites[success ? 0 : 1];
+            Color sectionColor = success ? new Color(127f / 255f, 205f / 255f, 154f / 255f) :
+                new Color(244f / 255f, 150f / 255f, 121f / 255f);
+            displayState.Accuracy.Background.color = sectionColor;
+            displayState.Time.Background.color = sectionColor;
+            displayState.ProductionTime.Background.color = sectionColor;
 
             yield return 1f;
 
             SetEnabledResultsGroup(displayState, true);
-
+            
             yield return 0.5f;
 
-            WaferState waferState = Find.State<WaferState>();
-            displayState.AccuracyText.text = $"{WaferStateUtility.GetAggregatedPrecision(waferState) * 100:F2}%";
+            // Show ratings for each station
+            Find.State(out SequenceState sequence);
+            FabricationStep[] steps = sequence.Level.Sequence.Steps;
+            float[] stationPrecisions = new float[displayState.StationResults.Length];
+            float[] stationCount = new float[displayState.StationResults.Length];
+            for (int i = 0; i < steps.Length; i++)
+            {
+                stationPrecisions[(int)steps[i].StepId] += waferState.StepPrecisions[i];
+                stationCount[(int)steps[i].StepId]++;
+            }
 
-            yield return 0.5f;
+            for (int i = 0; i < displayState.StationResults.Length; i++)
+            {
+                if (stationCount[i] == 0) {
+                    displayState.StationResults[i].gameObject.SetActive(false);
+                    continue;
+                }
 
+                float average = stationPrecisions[i] / stationCount[i];
+                displayState.StationResults[i].SetRating(average);
+                displayState.StationResults[i].gameObject.SetActive(true);
+                yield return 0.25f;
+            }
+
+            // Show section
             TimeState timeState = Find.State<TimeState>();
-            displayState.TimeText.text = $"{TimeStateUtility.GetElapsed(timeState):F2}s";
+            float time = TimeStateUtility.GetElapsed(timeState);
+            FabricationMinigameState fabState = Find.State<FabricationMinigameState>();
+            float secondssPerCycle = 30;
+            int cycles = (int) Mathf.Ceil(time / secondssPerCycle);
 
+            displayState.Accuracy.Text.text = $"{fabState.Precision * 100:F2}%";
             yield return 0.5f;
 
-            float secondssPerCycle = 30;
-            displayState.ProductionTimeText.text = $"{Mathf.Ceil(TimeStateUtility.GetElapsed(timeState) / secondssPerCycle)} cycles";
+            displayState.Time.Text.text = $"{time:F2}s";
+            yield return 0.5f;
 
+            displayState.ProductionTime.Text.text = $"{fabState.TotalCycles} cycles";
+            yield return 0.5f;
+
+            // Show button
+            GameObject button = success ? displayState.ContinueButton.gameObject : displayState.RetryButton.gameObject;
+            button.SetActive(true);
+
+            SpacefabGame.Events.Dispatch(GameEvents.FabSucceeded, EvtArgs.Create((fabState.Precision, time, cycles)));
             yield break;
         }
 

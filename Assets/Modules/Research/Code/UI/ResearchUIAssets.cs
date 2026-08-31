@@ -12,5 +12,25 @@ namespace SpaceFab.Research {
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Research/UI Assets")]
     public class ResearchUIAssets : GlobalAsset {
+        // TODO: Replace chamber button sprites to the shared ButtonUp/ButtonDown sprites
+        // with separate icon overlays to reduce the number of sprite assets.
+        [Header("Chamber Button Sprites")]
+        public Sprite VoltageNormal;
+        public Sprite VoltagePressed;
+        public Sprite ThermalNormal;
+        public Sprite ThermalPressed;
+        public Sprite DopingNormal;
+        public Sprite DopingPressed;
+
+        [Header ("Atomic View Toggle")]
+        public Sprite ButtonUp;
+        public Sprite ButtonDown;
+
+        [Header("Wiki Property Pages")]
+        // When true, the decomposed-observation chips on wiki property
+        // pages are clickable in the Research scene (same add/remove
+        // routing as observation pages, minus the grey styling). When
+        // false they are display-only.
+        public bool PropertyPageObservationChipsClickable;
     }
 }

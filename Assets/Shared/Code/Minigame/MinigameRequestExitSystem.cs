@@ -2,6 +2,8 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using SpaceFab.Overarching;
+using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,7 +20,6 @@ namespace SpaceFab {
                 new SysUpdate(GameLoopPhaseMask.Update, 10),
                 new SysPermissions()
                     .ReadWriteShared<MinigameRequestExitState>()
-                    .ReadWriteShared<MinigameLoadExitState>()
             );
         }
 
@@ -26,24 +27,80 @@ namespace SpaceFab {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out MinigameRequestExitState requestExitState,
-                out MinigameLoadExitState loadExitState
+                out MinigameStateInterfacer minigameInterfacer
                 );
 
             switch (requestExitState.ExitRequestState) {
                 case RequestState.Requested:
+                    if (DisplayLeavePopup(minigameInterfacer.Id)) {
+                        requestExitState.ExitRequestState = RequestState.Pending;
+                    } else {
+                        goto case RequestState.Confirmed;
+                    }
                     break;
                 case RequestState.Pending:
                     break;
                 case RequestState.Confirmed:
                     // begin exit system
-                    loadExitState.Phase = MinigameLoadExitPhase.Exiting;
-                    GameLoop.SuspendUpdates(Bits.All32);
-                    GameLoop.ResumeUpdates(UpdateMasks.MinigameTransitionMask);
+                    MinigameUtility.Exit();
                     requestExitState.ExitRequestState = RequestState.None;
                     break;
                 case RequestState.None:
                 default:
                     break;
+            }
+        }
+
+        static private bool DisplayLeavePopup(MinigameId minigame) {
+            PopupRequestContent request = default;
+            request.Header = "Leave Game?";
+            request.Callback = OnLeavePopupSelected;
+
+            request.ButtonA = new PopupRequestButton() {
+                Label = "Leave Game",
+                ResponseId = "Yes",
+                Tint = new ColorPalette2(Color.black, new Color32(255, 137, 137, 255))
+            };
+            request.ButtonB = new PopupRequestButton() {
+                Label = "Cancel",
+                ResponseId = "No",
+                Tint = new ColorPalette2(Color.black, new Color32(255, 255, 255, 255))
+            };
+
+            switch (minigame) {
+                case MinigameId.Research: {
+                    return false;
+                }
+
+                case MinigameId.Design: {
+                    request.Text = "Progress on this level will be saved.";
+                    break;
+                }
+
+                case MinigameId.Fabrication: {
+                    request.Text = "Progress will be lost.";
+                    break;
+                }
+
+                case MinigameId.Supply: {
+                    request.Text = "Progress on this level will be saved.";
+                    break;
+                }
+            }
+
+            PopupPrompt popup = Find.Panel<PopupPrompt>();
+            popup.Populate(request);
+            popup.Show();
+            return true;
+        }
+
+        static private void OnLeavePopupSelected(StringHash32 option) {
+            Find.State(out MinigameRequestExitState requestExitState);
+
+            if (option == "Yes") {
+                requestExitState.ExitRequestState = RequestState.Confirmed;
+            } else {
+                requestExitState.ExitRequestState = RequestState.None;
             }
         }
     }

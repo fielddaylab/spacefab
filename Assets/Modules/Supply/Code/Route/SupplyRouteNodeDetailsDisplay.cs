@@ -2,18 +2,23 @@ using BeauUtil;
 using FieldDay;
 using FieldDay.Assets;
 using FieldDay.Components;
+using FieldDay.Scenes;
 using FieldDay.UI.Widgets;
 using SpaceFab.Materials;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
-    public sealed class SupplyRouteNodeDetailsDisplay : BatchedComponent {
+    public sealed class SupplyRouteNodeDetailsDisplay : BatchedComponent, IScenePreload {
         public float RadiusPadding = 0.25f;
 
         [Header("Underlay")]
         public LineRenderer Underlay;
+        public LineRenderer TopUnderlay;
+        public Transform TopDot;
+        public Transform LeftDot;
         
         [Header("Time")]
         public GuiCounter TimeCounter;
@@ -28,6 +33,11 @@ namespace SpaceFab.Supply {
         public float RiskPosition = -0.45f;
 
         [NonSerialized] public float LastKnownRadius;
+
+        IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
+            gameObject.SetActive(false);
+            return null;
+        }
     }
 
     static public partial class SupplyRouteUtility {
@@ -44,21 +54,27 @@ namespace SpaceFab.Supply {
             PositionNodeDetailsComponent(display.TimeCounter.Rect, display.TimePosition * Mathf.PI, radius);
             PositionNodeDetailsComponent(display.CostCounter.Rect, display.CostPosition * Mathf.PI, radius);
             PositionNodeDetailsComponent(display.RiskCounter.Rect, display.RiskPosition * Mathf.PI, radius);
+            PositionNodeDetailsComponent(display.TopDot, 0.5f * Mathf.PI, radius);
+            PositionNodeDetailsComponent(display.LeftDot, Mathf.PI, radius);
 
             // precision
-            float minLineRadians = display.TimePosition * Mathf.PI;
-            float maxLineRadians = display.RiskPosition * Mathf.PI;
-            float lineRadians = maxLineRadians - minLineRadians;
-            int precision = display.Underlay.positionCount - 1;
+            const int pointCount = 20;
+            Vector3* positions = stackalloc Vector3[pointCount];
+            GenerateCoordinates(positions, pointCount, radius, display.CostPosition * Mathf.PI, display.RiskPosition * Mathf.PI);
+            display.Underlay.SetPositions(Unsafe.NativeArray(positions, pointCount));
+            GenerateCoordinates(positions, pointCount, radius, 0.5f * Mathf.PI, Mathf.PI);
+            display.TopUnderlay.SetPositions(Unsafe.NativeArray(positions, pointCount));
+        }
+
+        static private unsafe void GenerateCoordinates(Vector3* positions, int dstCount, float radius, float minRadians, float maxRadians) {
+            float lineRadians = maxRadians - minRadians;
+            int precision = dstCount - 1;
             float radianIncrement = lineRadians / precision;
 
-            Vector3* positions = stackalloc Vector3[precision + 1];
             for(int i = 0; i <= precision; i++) {
-                float radians = minLineRadians + radianIncrement * i;
+                float radians = minRadians + radianIncrement * i;
                 positions[i] = new Vector3(Mathf.Cos(radians) * radius, Mathf.Sin(radians) * radius, 0);
             }
-
-            display.Underlay.SetPositions(Unsafe.NativeArray(positions, precision + 1));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

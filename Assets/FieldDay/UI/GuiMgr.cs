@@ -303,11 +303,11 @@ namespace FieldDay.UI {
         /// Returns the shared panel object of the given type.
         /// This will assert if none is found.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ISharedGuiPanel GetShared(Type type) {
             int index = PanelIndex.Get(type);
             ISharedGuiPanel panel = m_SharedPanelMap[index];
             if (panel == null) {
+                Log.Warn("[GuiMgr] Performing expensive shared panel lookup for type '{0}'", type.FullName);
                 panel = (ISharedGuiPanel) GameObject.FindAnyObjectByType(type, FindObjectsInactive.Include);
                 if (panel != null) {
                     RegisterPanel(panel);
@@ -325,11 +325,11 @@ namespace FieldDay.UI {
         /// Returns the shared panel object for the given type.
         /// This will assert if none is found.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetShared<T>() where T : class, ISharedGuiPanel {
             int index = PanelIndex.Get<T>();
             ISharedGuiPanel panel = m_SharedPanelMap[index];
             if (panel == null) {
+                Log.Warn("[GuiMgr] Performing expensive shared panel lookup for type '{0}'", typeof(T).FullName);
                 panel = (ISharedGuiPanel) GameObject.FindAnyObjectByType(typeof(T), FindObjectsInactive.Include);
                 if (panel != null) {
                     RegisterPanel(panel);
@@ -671,8 +671,12 @@ namespace FieldDay.UI {
 
         internal void ProcessShortcuts() {
             bool isPaused = Game.Input.AreDevicesPaused() || Game.Input.AreRaycastsPaused();
+            bool isEditingText = Game.Input.WasEditingTextField();
             if (!isPaused) {
                 foreach(var c in Find.Components<KeyboardShortcut>()) {
+                    if (isEditingText && (c.Settings & KeyboardShortcut.Flags.AllowDuringTextEdit) == 0) {
+                        continue;
+                    }
                     if (Game.Input.IsKeyComboPressed(c.Modifiers, c.KeyCode)) {
                         GuiCommands.TryClick(c.gameObject);
                     }
@@ -719,6 +723,8 @@ namespace FieldDay.UI {
             Assert.False(m_InputLayers.Contains(inputLayer), "Already registered");
             m_InputLayers.PushBack(inputLayer);
             ForceUpdate(inputLayer);
+
+            Log.Msg("[GuiMgr] Registered input layer '{0}' with priority {1}", AssetUtility.NameOf(inputLayer), inputLayer.InputMask.SortKey);
         }
 
         public void DeregisterInputLayer(IInputLayer inputLayer) {
@@ -726,6 +732,8 @@ namespace FieldDay.UI {
             Assert.True(m_InputLayers.Contains(inputLayer), "Already deregistered");
             m_InputLayers.FastRemove(inputLayer);
             inputLayer.UpdateInputEnabled(false);
+
+            Log.Msg("[GuiMgr] Deregistered input layer '{0}' with priority {1}", AssetUtility.NameOf(inputLayer), inputLayer.InputMask.SortKey);
         }
 
         private void UpdateInputLayers() {
@@ -778,6 +786,8 @@ namespace FieldDay.UI {
                 ContextId = UnityHelper.Id(layer as UnityEngine.Object)
             });
 
+            Log.Msg("[GuiMgr] Pushed input layer '{0}' to stack with priority {1}", AssetUtility.NameOf(layer), sortKey);
+
             if (sortKey.RawValue > m_CurrentInputPriority.RawValue) {
                 m_CurrentInputPriority = sortKey;
                 m_InputLayersDirty = true;
@@ -806,6 +816,8 @@ namespace FieldDay.UI {
             if (!found) {
                 return;
             }
+
+            Log.Msg("[GuiMgr] Popped input layer '{0}' from stack with priority {1}", AssetUtility.NameOf(layer), sortKey);
 
             CanvasSortKey largestSortKey = default;
             for (int i = m_InputPriorityStack.Count; i-- > 0;) {

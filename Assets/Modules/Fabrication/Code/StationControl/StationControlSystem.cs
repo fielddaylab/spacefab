@@ -6,6 +6,7 @@ using Leaf.Runtime;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
+using SpaceFab.Fabrication.Sequence;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace SpaceFab.Fabrication.StationControl {
                     .ReadWriteShared<RobotState>()
                     .ReadShared<LayoutState>()
                     .ReadWriteShared<RobotVisualsState>()
+                    .ReadWriteShared<WaferState>()
             );
         }
 
@@ -41,6 +43,7 @@ namespace SpaceFab.Fabrication.StationControl {
                 out LayoutState layoutState
                 );
             Find.State(out RobotVisualsState visualsState);
+            Find.State(out SequenceVisualsState sequenceState); 
 
             switch (stationState.Phase) {
                 case StationControlPhase.Traveling:
@@ -50,7 +53,7 @@ namespace SpaceFab.Fabrication.StationControl {
                     ProcessAtStation(stationState, movementState);
                     break;
                 case StationControlPhase.EnteringMicrogame:
-                    ProcessEnteringMicrogame(stationState, deltaTime);
+                    ProcessEnteringMicrogame(stationState, sequenceState, deltaTime);
                     break;
                 case StationControlPhase.InMicrogame:
                     ProcessInMicrogame(stationState);
@@ -118,7 +121,7 @@ namespace SpaceFab.Fabrication.StationControl {
 
         // Accumulates PhaseTimer; at EnterMicrogameDuration, calls EnterComplete on the interfacer,
         // resumes MicrogameMask, dispatches FabMicrogameEntered, and transitions to InMicrogame.
-        static private void ProcessEnteringMicrogame(StationControlState stationState, float deltaTime) {
+        static private void ProcessEnteringMicrogame(StationControlState stationState, SequenceVisualsState sequenceState, float deltaTime) {
             stationState.PhaseTimer += deltaTime;
             if (stationState.PhaseTimer >= stationState.EnterMicrogameDuration) {
                 MicrogameStationInterfacerUtility.EnterComplete(stationState.ActiveInterfacer);
@@ -127,6 +130,8 @@ namespace SpaceFab.Fabrication.StationControl {
                 Game.Events.Dispatch(GameEvents.FabMicrogameEntered);
                 stationState.Phase = StationControlPhase.InMicrogame;
                 stationState.PhaseTimer = 0f;
+
+                sequenceState.MoveAwayRequested = true;
             }
         }
 
@@ -209,7 +214,7 @@ namespace SpaceFab.Fabrication.StationControl {
             MicrogameStationInterfacerUtility.BeginExit(stationState.ActiveInterfacer, stationState, true);
             stationState.MicrogamePassedThisFrame = true;
             Log.Msg("[StationControlSystem] microgame accepted; -> ExitingMicrogame");
-            Game.Events.Dispatch(GameEvents.FabMicrogameCompleted);
+            //Game.Events.Dispatch(GameEvents.FabMicrogameCompleted);
             stationState.Phase = StationControlPhase.ExitingMicrogame;
             stationState.PhaseTimer = 0f;
         }

@@ -7,7 +7,9 @@ using Leaf.Runtime;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Movement;
 using SpaceFab.Fabrication.Robot;
+using SpaceFab.Fabrication.Sequence;
 using SpaceFab.Fabrication.Stations;
+using SpaceFab.Narrative;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -164,15 +166,17 @@ namespace SpaceFab.Fabrication.StationControl {
 
         // Called by WorldInteractSystem when the player presses Activate at a station.
         // Routes to either EnteringMicrogame (if CanActivateNow) or Stunned (otherwise).
-        public static void RequestActivate(StationControlState stationState, RobotState robotState, RobotVisualsState visualsState, MicrogameStationInterfacer interfacer) {
+        public static void RequestActivate(SequenceState sequenceState, StationControlState stationState, RobotState robotState, RobotVisualsState visualsState, MicrogameStationInterfacer interfacer) {
             if (stationState.Phase != StationControlPhase.AtStation) {
                 Log.Msg("[StationControlUtility] RequestActivate ignored; Phase is {0}, not AtStation", stationState.Phase);
                 return;
             }
             // Bad-target branch: no interfacer, no microgame component, or the microgame refuses activation right now.
             if (interfacer == null || interfacer.Microgame == null || !interfacer.Microgame.CanActivateNow()) {
-                Log.Msg("[StationControlUtility] RequestActivate: wrong-station attempt; routing to stun");
-                Game.Events.Dispatch(GameEvents.FabWrongStationAttempt);
+                //Game.Events.Dispatch(GameEvents.FabWrongStationAttempt);
+                
+                SpacefabGame.Events.Dispatch(GameEvents.FabWrongStationAttempt, EvtArgs.Box((interfacer.Id.Source(), sequenceState.Level.Sequence.Steps[sequenceState.CurrentStepIndex].StepId.ToString())));
+
                 TriggerStun(stationState, robotState, visualsState, StationControlPhase.AtStation);
                 return;
             }
@@ -181,7 +185,7 @@ namespace SpaceFab.Fabrication.StationControl {
             stationState.PhaseTimer = 0f;
             stationState.Phase = StationControlPhase.EnteringMicrogame;
             Log.Msg("[StationControlUtility] RequestActivate accepted; AtStation -> EnteringMicrogame");
-            Game.Events.Dispatch(GameEvents.FabStationEnterBegin);
+            SpacefabGame.Events.Dispatch(GameEvents.FabStationEnterBegin, EvtArgs.Create(sequenceState.Level.Sequence.Steps[sequenceState.CurrentStepIndex].StepId.ToString()));
         }
 
         // Called by WorldInteractSystem when the player presses Cancel. Sets the one-frame flag;

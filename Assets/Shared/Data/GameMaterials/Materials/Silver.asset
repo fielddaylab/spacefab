@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Silver
   m_EditorClassIdentifier: 
   DisplayName: Silver
-  ShortName: 
+  ShortName: Ag
+  GemSprite: {fileID: 21300000, guid: d3ea5e04abacf4ccb9b1881aa7399ff8, type: 3}
+  ConstituentElementNames: []
   ValenceElectronCounts: 01000000
   AtomicRadii: a5000000
-  Properties: 
+  Properties: 10
+  Contexts: []

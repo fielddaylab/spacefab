@@ -23,7 +23,7 @@ namespace SpaceFab {
 
             if (meterState.CurrentDayIdx == -1)
             {
-                ProgressMeterUtility.SetCurrentDay(meterState, progressState.ElapsedCycles - 1);
+                ProgressMeterUtility.SetCurrentDay(meterState, progressState.ElapsedCycles);
 
                 // fill locked-in cycles up to current
                 for (int i = 0; i < progressState.ElapsedCycles; i++)

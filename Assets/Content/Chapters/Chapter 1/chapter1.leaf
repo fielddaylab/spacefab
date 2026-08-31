@@ -1,0 +1,35 @@
+# basePath Chapter1
+
+:: FirstContractOpen
+@trigger    OnContractSelectOpen
+@cutscene
+@once
+{@PAL}      You only have one contract to choose from.
+$call   HighlightElement(overarching:costs-section, false, 25, true)
+{@PAL}      It looks like it will take this many days to complete.
+$call   ReleaseAllHighlights()
+$call   HighlightElement(overarching:profit-section, false, 25, true)
+{@PAL}      ...and you'll make this much money if you can deliver.
+$call   ReleaseAllHighlights()
+$call   HighlightElement(overarching:select-contract-btn)
+$call   UnlockWikiPage("Basic Conductor")
+$call   UnlockWikiPage("Basic Insulator")
+$call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
+$call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter 
+
+:: FirstContractAccept
+@trigger    OnContractAccept
+@cutscene
+@once
+$call   ReleaseAllHighlights()
+
+:: BeforeSupplyChain
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene
+@once
+{@Player}    P.A.L., why can’t I build the chip yet?
+{@PAL}       We are short on conductor materials.
+{@PAL}       Your station is too slow for supply runs, so you can hire faster ships.
+{@PAL}       The ship fee and materials cost come out of the contract payment.
+{@Player}    Wait, I don’t keep all the money? Better keep costs low.

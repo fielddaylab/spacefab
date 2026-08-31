@@ -16,12 +16,15 @@ namespace SpaceFab.Design
         public TextMeshProUGUI SummaryText;
         public DynamicButton DismissButton;
         public DynamicButton RetryButton;
+        public RectTransform VerticalLayoutToCopy;
+        public RectTransform VerticalLayoutCopy;
 
         // One-frame intent flag: the player clicked "Continue" on a passing results panel. Consumed
         // by DesignContinueSystem, which decides whether to advance to the next level (reload the
         // Design scene) or return to overarching (last level). Mirrors the PlayFullSuiteRequested
         // hand-off OnRetryClicked uses, keeping scene-loading out of this UI click handler.
         public bool ContinueRequested;
+        public bool CopyRequested;
 
         public void OnRegister()
         {
@@ -95,7 +98,25 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
+            //resultState.CopyRequested = true;
         }
+
+        public static void CopySimTable(ResultState resultState)
+        {
+            // first clear
+            for (int i = 0; i < resultState.VerticalLayoutCopy.childCount; i++)
+            {
+                GameObject.Destroy(resultState.VerticalLayoutCopy.GetChild(i).gameObject);
+            }
+
+            // copy image graphics to result display
+            for (int i = 0; i < resultState.VerticalLayoutToCopy.childCount; i++)
+            {
+                GameObject originalRow = resultState.VerticalLayoutToCopy.GetChild(i).gameObject;
+                GameObject.Instantiate(originalRow, resultState.VerticalLayoutCopy);
+            }
+        }
+
         public static void ShowResults(ResultState resultState, bool allCorrect)
         {
             if (resultState.TitleText != null)
@@ -111,6 +132,7 @@ namespace SpaceFab.Design
                         ? "All outputs matched the expected values."
                         : "Some outputs were incorrect or unstable.");
             }
+
             SetEnabledResultsGroup(resultState, true);
         }
 

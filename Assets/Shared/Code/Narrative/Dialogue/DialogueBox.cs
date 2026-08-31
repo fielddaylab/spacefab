@@ -4,9 +4,11 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.UI;
 using FieldDay.UI.Animation;
+using FieldDay.UI.Widgets;
 using SpaceFab.UI;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,7 +23,7 @@ namespace SpaceFab.Narrative {
         #region Inspector
 
         [Header("Next")]
-        [SerializeField] private AutoSizedButton m_NextButton;
+        [SerializeField] private GuiButton m_NextButton;
 
         [Header("Animation")]
         [SerializeField] private CanvasGroup m_VisiblityGroup;
@@ -51,7 +53,7 @@ namespace SpaceFab.Narrative {
         // left with a stale PriorityRecord that disables every layer below it.
         protected override void OnDisable() {
             if (m_PriorityPushed && m_InputLayer != null) {
-                Game.Gui.PopPriority(m_InputLayer);
+                Game.Gui?.PopPriority(m_InputLayer);
                 m_PriorityPushed = false;
             }
             base.OnDisable();
@@ -63,14 +65,16 @@ namespace SpaceFab.Narrative {
                 yield break;
             }
 
+            TMP_Text label = m_NextButton.LayoutSizeGroup.Root.GetComponent<TMP_Text>();
+
             m_NextButton.gameObject.SetActive(true);
             if ((m_CurrentLineFlags & LineFlags.IsEnd) != 0) {
-                m_NextButton.TextContent.SetText("END CALL");
+                label.SetText("END CALL");
             } else {
-                m_NextButton.TextContent.SetText("NEXT");
+                label.SetText("NEXT");
             }
 
-            m_NextButton.Layout.Sync();
+            m_NextButton.LayoutSizeGroup.Sync();
 
             m_NextButton.ConsumeClick();
             while (!m_NextButton.ConsumeClick()) {

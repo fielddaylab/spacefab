@@ -15,6 +15,7 @@ namespace SpaceFab.Fabrication.Layout
         Space,
         LRArrows,
         FullArrows,
+        FullArrowsMinusMiddle,
         Mouse,
         ADKeys
     }
@@ -33,6 +34,21 @@ namespace SpaceFab.Fabrication.Layout
         public InstructionSet IonInstructions;
 
         public InstructionSet SputterInstructions;
+
+        [Space(5)]
+        [Header("Key Images")]
+        public KeyImageEntry[] KeyImages;
+    }
+
+    /// <summary>
+    /// Pairs a KeyImage with the sprite shown when an InstructionSet selects that key.
+    /// Authored on InstructionLookup; resolved at runtime via InstructionLookupUtility.
+    /// </summary>
+    [System.Serializable]
+    public struct KeyImageEntry
+    {
+        public KeyImage Key;
+        public Sprite Sprite;
     }
 
     /// <summary>
@@ -63,6 +79,19 @@ namespace SpaceFab.Fabrication.Layout
             else if (stationID == FabricationConsts.ION_STATION_ID) return lookup.IonInstructions;
             else if (stationID == FabricationConsts.SPUTTER_STATION_ID) return lookup.SputterInstructions;
             else return null;
+        }
+
+        /// <summary>
+        /// Returns the sprite authored for the given key image, or null if the lookup has no entry.
+        /// </summary>
+        public static Sprite LookupKeyImage(KeyImage key, InstructionLookup lookup)
+        {
+            if (lookup == null || lookup.KeyImages == null) return null;
+            for (int i = 0; i < lookup.KeyImages.Length; i++)
+            {
+                if (lookup.KeyImages[i].Key == key) return lookup.KeyImages[i].Sprite;
+            }
+            return null;
         }
     }
 }

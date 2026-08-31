@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using BeauUtil;
 using FieldDay.Assets;
@@ -17,6 +18,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the global asset of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -26,6 +28,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the global asset of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -36,6 +39,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the global assets of the given types.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -48,6 +52,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the global assets of the given types.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -62,6 +67,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the named asset of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -70,7 +76,17 @@ namespace FieldDay {
         }
 
         /// <summary>
+        /// Looks up the set of named assets of the given type.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Il2CppSetOption(Option.NullChecks, false)]
+        static public NamedAssetIterator<T> NamedAssets<T>() where T : class, INamedAsset {
+            return Game.Assets.GetAllNamed<T>();
+        }
+
+        /// <summary>
         /// Looks up the lite asset with the given id.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -84,6 +100,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the shared state of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -93,6 +110,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the shared state of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -102,6 +120,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the shared states of the given types.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -114,6 +133,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the shared states of the given types.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -128,6 +148,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the shared states of the given types.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -148,6 +169,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the shared gui panel of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
@@ -157,6 +179,7 @@ namespace FieldDay {
 
         /// <summary>
         /// Looks up the gui module of the given type.
+        /// Will assert if not found.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]

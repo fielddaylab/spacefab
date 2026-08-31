@@ -105,7 +105,7 @@ namespace FieldDay.Memory {
             long lastMemSize = m_LastKnownSystemMemorySize;
             if (memSize != lastMemSize) {
                 m_LastKnownSystemMemorySize = memSize;
-                Log.Warn("[MemoryMgr] Memory size expanded from {0}MiB to {1}MiB!", Unsafe.FormatBytes(lastMemSize), Unsafe.FormatBytes(memSize));
+                Log.Warn("[MemoryMgr] Memory size expanded from {0} to {1}!", Unsafe.FormatBytes(lastMemSize), Unsafe.FormatBytes(memSize));
                 Mem.InvokeHeapSizeChanged(memSize);
             }
         }

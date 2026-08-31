@@ -10,11 +10,6 @@ using UnityEngine;
 
 namespace SpaceFab.Supply {
     public sealed class SupplyRouteNodeRenderer : BatchedComponent, IBaked {
-        [Header("Renderer")]
-        public Renderer DefaultRenderer;
-        public Material DefaultMaterial;
-        public Material HoverMaterial;
-
         [Header("Hover Objects")]
         public ActiveGroup HoverState;
 
@@ -22,7 +17,6 @@ namespace SpaceFab.Supply {
         int IBaked.Order { get { return 100; } }
 
         bool IBaked.Bake(BakeFlags flags, BakeContext context) {
-            DefaultRenderer.sharedMaterial = DefaultMaterial;
             HoverState.SetActive(false);
             return true;
         }
@@ -31,7 +25,6 @@ namespace SpaceFab.Supply {
 
     static public partial class SupplyRouteUtility {
         static public void SetHovering(SupplyRouteNodeRenderer renderer, bool hovering) {
-            renderer.DefaultRenderer.sharedMaterial = hovering ? renderer.HoverMaterial : renderer.DefaultMaterial;
             renderer.HoverState.SetActive(hovering);
         }
     }

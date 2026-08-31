@@ -12,9 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: MaterialPhysics
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
   m_GlobalAssets: []
   m_NamedAssets:
+  - {fileID: 11400000, guid: 3d621c05fe1b940fdbc3111fc549b9ad, type: 2}
+  - {fileID: 11400000, guid: 4aee768e99a1149458d863b97e8031a9, type: 2}
   - {fileID: 11400000, guid: 81a632dd977a8eb46a8d30f378078df7, type: 2}
+  - {fileID: 11400000, guid: 78c57a85122b44177ae3b8f2e203c233, type: 2}
+  - {fileID: 11400000, guid: 95d1273db9dd94817810e6d86e214b9e, type: 2}
+  - {fileID: 11400000, guid: 2bc00abe4bb454f1786ea3805b5cdc26, type: 2}
+  - {fileID: 11400000, guid: 0b1b7d72827324cfe81b7b1317e3dce2, type: 2}
+  - {fileID: 11400000, guid: c1661d2dd81d24fe0be9324876c9dea1, type: 2}
+  - {fileID: 11400000, guid: 7a8890b36272b4cccbb6ee7253c757dc, type: 2}
+  - {fileID: 11400000, guid: a9668a0fa1d3e436ebe625b3467e010d, type: 2}
   - {fileID: 11400000, guid: d1ea0f23ea241f74ba799d7736509085, type: 2}
+  - {fileID: 11400000, guid: 0c135866e66cb4812a59d8e5e15f62f4, type: 2}
   - {fileID: 11400000, guid: e9aed8ab305b7c34987e1231e13493ec, type: 2}
+  - {fileID: 11400000, guid: 22f89f548e84f418d81c135ce326600b, type: 2}
+  - {fileID: 11400000, guid: 5385c0ba4b79a470eb4c5a9634b4ea1a, type: 2}
+  - {fileID: 11400000, guid: e9cce95b16cde4d049e9731d1dbc6767, type: 2}
   m_LiteAssets: []

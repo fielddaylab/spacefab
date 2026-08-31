@@ -78,7 +78,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 7341015
+    m_Bits: 40895447
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_EventMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   m_MaxRayIntersections: 4
 --- !u!114 &6133775430227167483
 MonoBehaviour:
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_EventMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   m_MaxRayIntersections: 4
 --- !u!114 &1931829976919413448
 MonoBehaviour:

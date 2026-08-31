@@ -309,29 +309,23 @@ namespace FieldDay {
 
         #if UNITY_EDITOR
 
-        [InitializeOnLoadMethod]
+        [EditorStaticResource]
         static private void EditorInitialize() {
             EditorApplication.update -= EditorAdvance;
-
-            EditorApplication.playModeStateChanged += (state) => {
-                if (state == PlayModeStateChange.ExitingEditMode) {
-                    DestroyAllocator();
-                    EditorApplication.update -= EditorAdvance;
-                } else if (state == PlayModeStateChange.EnteredEditMode) {
-                    CreateAllocator();
-                    EditorApplication.update += EditorAdvance;
-                }
-            };
-
-            EditorApplication.quitting += DestroyAllocator;
-            AppDomain.CurrentDomain.DomainUnload += (_, __) => DestroyAllocator();
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode) {
-                return;
+            EditorStaticResource.SetupLifetime(EditorCreate, EditorDestroy);
+            if (EditorStaticResource.IsEditor()) {
+                EditorCreate();
             }
+        }
 
+        static private void EditorCreate() {
             EditorApplication.update += EditorAdvance;
             CreateAllocator();
+        }
+
+        static private void EditorDestroy() {
+            EditorApplication.update -= EditorAdvance;
+            DestroyAllocator();
         }
 
         static private void EditorAdvance() {

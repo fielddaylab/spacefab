@@ -1,9 +1,11 @@
 using FieldDay;
 using FieldDay.Components;
+using FieldDay.Audio;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using System;
 using UnityEngine;
+using BeauUtil;
 
 namespace SpaceFab.Research
 {
@@ -31,6 +33,9 @@ namespace SpaceFab.Research
 
         public GameObject SampleHolder;
 
+        // Root of battery chamber's GameObject hierarchy; used to toggle visibility on activation/deactivation.
+        public GameObject Root;
+
         // Runtime ref to the instantiated meter rig's ChamberBattery.
         // Assigned by ResearchTransitionSystem after Instantiate; null
         // until then. VoltageUtility reads VoltageLevelSlots.Length off
@@ -56,6 +61,12 @@ namespace SpaceFab.Research
         // BatteryChamberSystem.
         [NonSerialized] public bool VoltageChangedThisFrame;
 
+        // Sound played when no current
+        [AudioEvent] public StringHash32 NoCurrentSFX;
+
+        // Track whether warning sound played
+        [NonSerialized] public bool NoCurrentWarningPlayed;
+
         public void OnRegister()
         {
             // Hide the sample holder until the player drops a material into
@@ -65,6 +76,8 @@ namespace SpaceFab.Research
             {
                 SampleHolder.SetActive(false);
             }
+            NoCurrentWarningPlayed = false;
+            Root.SetActive(true);
         }
 
         public void OnDeregister()
@@ -87,6 +100,7 @@ namespace SpaceFab.Research
                 return;
             }
             VoltageUtility.Reset(state.VoltageControl, Find.GlobalAsset<ResearchVoltageConfig>());
+            state.Root.SetActive(true);
         }
     }
 }

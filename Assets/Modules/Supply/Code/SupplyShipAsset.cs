@@ -6,7 +6,15 @@ namespace SpaceFab.Supply {
     [CreateAssetMenu(menuName = "SpaceFab/Supply/Ship Asset")]
     public sealed class SupplyShipAsset : NamedAsset {
         public string DisplayName;
+
+        [Header("Display")]
+        public Sprite BodyImage;
+
+        [Header("Icon")]
         public Sprite Icon;
+        public Color32 IconColor;
+
+        [Header("Colors")]
         public ColorPalette2 Colors;
         public Color32 LineColor;
 

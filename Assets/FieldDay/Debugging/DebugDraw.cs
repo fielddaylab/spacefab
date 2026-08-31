@@ -448,7 +448,6 @@ namespace FieldDay.Debugging {
         static private Mesh CreateVolatileMesh(string name) {
             Mesh m = new Mesh();
             m.name = name;
-            m.hideFlags = HideFlags.DontSave;
             m.MarkDynamic();
             return m;
         }

@@ -13,5 +13,6 @@ namespace SpaceFab {
         public RectTransform Rect;
         public Image BaseImage;
         public Image OverlayImage;
+        public Image xMarkImage;
     }
 }

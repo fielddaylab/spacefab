@@ -15,7 +15,6 @@ struct Attributes_Comic
 
 struct Varyings_Comic
 {
-    float4 vertex   : SV_POSITION;
     fixed4 color    : COLOR;
     float4 texcoord : TEXCOORD0;
 };
@@ -32,11 +31,12 @@ sampler2D _MainTex;
 
 /// Programs
 
-Varyings_Comic DefaultComicVert(Attributes_Comic v)
+Varyings_Comic DefaultComicVert(Attributes_Comic v, out float4 vertex : SV_Position)
 {
     Varyings_Comic output;
 
-    output.vertex = UnityObjectToClipPos(float4(v.vertex, 0, 0));
+    vertex = UnityObjectToClipPos(float4(v.vertex, 0, 0));
+    
     output.texcoord = v.texcoord;
     output.color = _Color;
 

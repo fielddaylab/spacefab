@@ -1,37 +1,20 @@
 using SpaceFab.Design.Visuals;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static BeauRoutine.Future;
 
 namespace SpaceFab.Design
 {
     public static class DrawUtility
     {
-        public static void DrawMetal(GridStackState gridState, ref GridCell cell, Vector2Int gridPos)
+        public static void DrawMetal(ref GridCell cell)
         {
+            if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) return;
+
             cell.CellType = CellType.Metal;
-
-            // if an input or output is below, connect edge
-            StackLayer linkedLayerType = StackLayer.Transistor;
-            var linkedLayer = gridState.GridStack.GridLayers[(int)linkedLayerType];
-            var linkedCell = GridLayerUtility.GetCell(linkedLayer, gridPos);
-
-            if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output)
-            {
-                cell.TransferType = TransferType.Implicit;
-                linkedCell.TransferType = TransferType.Implicit;
-
-                int cellEdgeIndex = (int)EdgeDir.DESCEND;
-                int linkedEdgeIndex = (int)EdgeDir.ASCEND;
-                cell.Edges[cellEdgeIndex].EdgeState = EdgeState.Connected;
-                linkedCell.Edges[linkedEdgeIndex].EdgeState = EdgeState.Connected;
-            }
         }
 
         public static void DrawVia(ToolModeState toolModeState, GridStackState gridState, ref GridCell cell, Vector2Int gridPos)
         {
-            if (cell.CellType == CellType.Input || cell.CellType == CellType.Output || !cell.TransferEraseable) { return; }
+            if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) { return; }
 
             StackLayer linkedLayerType = toolModeState.ActiveLayer == StackLayer.Metal ? StackLayer.Transistor : StackLayer.Metal;
             var linkedLayer = gridState.GridStack.GridLayers[(int)linkedLayerType];
@@ -40,7 +23,6 @@ namespace SpaceFab.Design
             if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) { return; }
 
             cell.TransferType = TransferType.Via;
-            linkedCell.TransferType = TransferType.Via;
 
             int cellEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.DESCEND : (int)EdgeDir.ASCEND;
             int linkedEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.ASCEND : (int)EdgeDir.DESCEND;
@@ -67,25 +49,6 @@ namespace SpaceFab.Design
             cell.Edges[cellEdgeIndex] = EdgeState.Connected;
             linkedCell.Edges[linkedEdgeIndex] = EdgeState.Connected;
             */
-        }
-
-        public static void ConnectToMetalLayer(GridStackState gridState, ref GridCell cell, Vector2Int gridPos)
-        {
-            // in there's metal above, connect edge
-            StackLayer linkedLayerType = StackLayer.Metal;
-            var linkedLayer = gridState.GridStack.GridLayers[(int)linkedLayerType];
-            var linkedCell = GridLayerUtility.GetCell(linkedLayer, gridPos);
-
-            if (linkedCell.CellType == CellType.Metal)
-            {
-                cell.TransferType = TransferType.Implicit;
-                linkedCell.TransferType = TransferType.Implicit;
-
-                int cellEdgeIndex = (int)EdgeDir.ASCEND;
-                int linkedEdgeIndex = (int)EdgeDir.DESCEND;
-                cell.Edges[cellEdgeIndex].EdgeState = EdgeState.Connected;
-                linkedCell.Edges[linkedEdgeIndex].EdgeState = EdgeState.Connected;
-            }
         }
 
         public static void DragDrawNodeOfType(ToolModeState toolModeState, GridStackState gridState, VisualGridStackState visualState, CellType type, Vector2Int gridPos)
@@ -117,15 +80,13 @@ namespace SpaceFab.Design
             toCell.Edges[(int)reverseDir].EdgeState = EdgeState.Connected;
 
             // set properties
-            toCell.CellType = type;
-
             if (type == CellType.Metal)
             {
-                DrawMetal(gridState, ref toCell, gridPos);
+                DrawMetal(ref toCell);
             }
-            else if (type == CellType.Input || type == CellType.Output)
+            else
             {
-                ConnectToMetalLayer(gridState, ref toCell, gridPos);
+                toCell.CellType = type;
             }
 
             // save changes

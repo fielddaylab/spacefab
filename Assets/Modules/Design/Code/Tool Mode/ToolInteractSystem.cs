@@ -1,11 +1,8 @@
 using BeauUtil.Debugger;
 using FieldDay;
-using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -45,16 +42,27 @@ namespace SpaceFab.Design {
 
         // Dispatches the current frame's left-mouse state to down/drag/up handlers.
         static private void ProcessInputs(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
-            if (EventSystem.current.IsPointerOverGameObject()) { return; }
-            // if (!InteractInputsEnabled) { return; }
+            // The pointer is over UI / an overlay collider (e.g. an output visual). New
+            // interactions must not begin here, but a mouse-up still has to close out a drag
+            // that is already in progress — otherwise releasing over an overlay would strand
+            // the drag and OnDragReleased would never fire. So when the pointer is over a
+            // GameObject we skip down/drag but still let an active drag terminate.
+            bool pointerOverUI = EventSystem.current.IsPointerOverGameObject();
+            // A drag is active once mouse-down seeds StartingDragCoord; TerminateDrag resets it
+            // to the empty sentinel.
+            bool dragActive = toolModeState.StartingDragCoord != DesignConsts.EMPTY_DRAG_COORD;
 
-            if (Input.GetMouseButtonDown(0)) {
-                HandleLeftMouseDown(toolModeState, gridStackState, visualState);
+            if (!pointerOverUI) {
+                if (Input.GetMouseButtonDown(0)) {
+                    HandleLeftMouseDown(toolModeState, gridStackState, visualState);
+                }
+                if (Input.GetMouseButton(0)) {
+                    HandleLeftMouseDrag(toolModeState, gridStackState, visualState);
+                }
             }
-            if (Input.GetMouseButton(0)) {
-                HandleLeftMouseDrag(toolModeState, gridStackState, visualState);
-            }
-            if (Input.GetMouseButtonUp(0)) {
+
+            // Always honor the release of an in-progress drag, even over UI / an overlay.
+            if (Input.GetMouseButtonUp(0) && (!pointerOverUI || dragActive)) {
                 HandleLeftMouseUp(toolModeState);
             }
         }
@@ -62,8 +70,12 @@ namespace SpaceFab.Design {
         // On mouse-down: convert the cursor to a grid coord and invoke the click handler for the cell's layer and occupancy.
         static private void HandleLeftMouseDown(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
             // get mouse position in world space
+            // var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
+            // var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+
+            // this needs to be relative to the grid
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
-            var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+            var gridPos = GridStackUtility.ConvertToGridSpace(worldPos, gridStackState, visualState);
 
             // if grid cell is out of bounds:
             if (!GridStackUtility.InBounds(gridStackState, gridPos.x, gridPos.y)) {
@@ -104,7 +116,7 @@ namespace SpaceFab.Design {
         // On mouse-held: compute a new grid coord, bail on redundant/too-fast/out-of-bounds moves, and invoke the drag handler for the cell.
         static private void HandleLeftMouseDrag(ToolModeState toolModeState, GridStackState gridStackState, VisualGridStackState visualState) {
             var worldPos = Game.Rendering.PrimaryCamera.ScreenToWorldPoint(Input.mousePosition);
-            var gridPos = new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+            var gridPos = GridStackUtility.ConvertToGridSpace(worldPos, gridStackState, visualState);
 
             if (gridPos == toolModeState.LastKnownDragCoord) {
                 // no change in drag position
@@ -191,7 +203,7 @@ namespace SpaceFab.Design {
                     SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawMetal:
-                    DrawUtility.DrawMetal(gridStackState, ref cell, gridPos);
+                    DrawUtility.DrawMetal(ref cell);
                     SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Metal")));
                     break;
                 case ToolType.DrawVia:
@@ -299,16 +311,18 @@ namespace SpaceFab.Design {
                     SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
-                    // only relevant if the occupied cell is a transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
+                    // only relevant if the occupied cell is a p-transistor and not pre-assigned
+                    if (cell.CellType == CellType.PTransistor && cell.NodeEraseable) {
                         cell.CellType = CellType.NTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                         // note: preserves edge connections
                     }
                     break;
                 case ToolType.DrawPNodes:
-                    // only relevant if the occupied cell is a transistor
-                    if (cell.CellType == CellType.NTransistor || cell.CellType == CellType.PTransistor) {
+                    // only relevant if the occupied cell is a n-transistor and not pre-assigned
+                    if (cell.CellType == CellType.NTransistor && cell.NodeEraseable) {
                         cell.CellType = CellType.PTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                         // note: preserves edge connections
                     }
                     break;

@@ -26,9 +26,13 @@ namespace SpaceFab.Materials
         public string DisplayName;
         public string ShortName;
 
+        public Sprite GemSprite;
+
+        public string[] ConstituentElementNames;
         public int[] ValenceElectronCounts;
         public int[] AtomicRadii;
 
         public MaterialPropertyLabel[] Properties;
+        public MaterialAsset[] Contexts;
     }
 }

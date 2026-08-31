@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be94885d8ce25d34c9838739426a2847, type: 3}
   m_Name: Insulator
   m_EditorClassIdentifier: 
-  Label: 16
+  Label: 15
   Dependencies: 0104

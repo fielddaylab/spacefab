@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BeauUtil;
+using FieldDay.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -77,6 +78,11 @@ namespace FieldDay.Scenes {
         /// Request context.
         /// </summary>
         [NonSerialized] public SceneRequestContext Context;
+
+        /// <summary>
+        /// Developer-facing loading counter.
+        /// </summary>
+        [NonSerialized] public CounterHandle LoadingCounter;
 
         /// <summary>
         /// Whether or not this has been visited.

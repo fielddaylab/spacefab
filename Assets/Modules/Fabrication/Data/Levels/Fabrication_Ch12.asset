@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0706af4c126b34f88b210125a2c875b9, type: 3}
+  m_Name: Fabrication_Ch12
+  m_EditorClassIdentifier: 
+  m_sequence: {fileID: 11400000, guid: 27fcaf7c2c8b34daea4736e6cfacb51e, type: 2}
+  m_GlitchChance: 0.6
+  m_PatternIndex: 2

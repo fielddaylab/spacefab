@@ -10,23 +10,26 @@ using EasyAssetStreaming;
 using FieldDay;
 using FieldDay.Scenes;
 using UnityEngine.SceneManagement;
+using FieldDay.Debugging;
 
 namespace SpaceFab.Title
 {
-    public class FastBootController : MonoBehaviour
+    public class FastBootController : SceneController
     {
         private enum ReadyPhase
         {
+            Loading,
             AudioClick,
             Ready
         }
 
         [Header("Ready")]
+        public Transform TitleTransform;
         public TMP_Text PromptText;
 
         [Header("Run")]
         public AudioSource BootAudio;
-        public CanvasGroup FadeGroup;
+        public SceneReference NextScene;
 
         [NonSerialized] private ReadyPhase m_ReadyPhase = 0;
 
@@ -38,25 +41,50 @@ namespace SpaceFab.Title
             NativeInput.OnKeyDown += OnNativeKeyDown;
         }
 
-        private void Start()
-        {
-            m_PhaseRoutine.Replace(SwapToPrompt());
-        }
-
         private void OnDestroy()
         {
             NativeInput.OnMouseDown -= OnNativeMouseDown;
             NativeInput.OnKeyDown -= OnNativeKeyDown;
         }
 
+        private IEnumerator PreloadNextScene() {
+            Game.Scenes.QueueSceneFilePreload(NextScene);
+            while(!Game.Scenes.AreQueuedSceneFilesReady()) {
+                yield return null;
+            }
+
+            m_ReadyPhase = ReadyPhase.AudioClick;
+            yield return SwapToPrompt();
+        }
+
         private IEnumerator SwapToPrompt()
         {
             PromptText.gameObject.SetActive(true);
             PromptText.alpha = 0;
+            
             yield return Routine.Combine(
-                PromptText.FadeTo(1, 0.2f)
+                PromptText.FadeTo(1, 0.5f),
+                TitleTransform.MoveTo(1.6f, 0.5f, Axis.Y, Space.Self).Ease(Curve.CubeOut),
+                PromptText.transform.MoveTo(-2.5f, 0.5f, Axis.Y, Space.Self).Ease(Curve.CubeOut)
             );
         }
+
+        private IEnumerator OnReady()
+        {
+            if (BootAudio != null) {
+                BootAudio.Play();
+                yield return BootAudio.WaitToComplete();
+            }
+
+            LoadNextScene();
+        }
+
+        protected override void OnSceneReady()
+        {
+            Routine.Start(this, PreloadNextScene());
+        }
+
+        #region Mouse Handler
 
         private void OnNativeMouseDown(float x, float y)
         {
@@ -70,7 +98,7 @@ namespace SpaceFab.Title
 
         private void OnNativeDownCommon()
         {
-            if (m_ReadyPhase != ReadyPhase.AudioClick) {
+            if (m_ReadyPhase != ReadyPhase.AudioClick || DebugFlags.IsConsoleOpen) {
                 return;
             }
 
@@ -79,28 +107,14 @@ namespace SpaceFab.Title
             }
 
             m_ReadyPhase = ReadyPhase.Ready;
-            m_PhaseRoutine.Replace(OnReady())
-                .OnComplete(LoadNextScene);
+            m_PhaseRoutine.Replace(this, OnReady());
         }
 
-        private IEnumerator OnReady()
-        {
-            if (BootAudio != null) {
-                yield return Routine.Combine(
-                    BootAudio.WaitToComplete(),
-                    FadeGroup.FadeTo(0, 1)
-                    );
-            }
-            else {
-                yield return FadeGroup.FadeTo(0, 1);
-            }
-        }
+        #endregion // Mouse Handler
 
         private void LoadNextScene()
         {
-            int buildIdx = SceneHelper.ActiveScene().BuildIndex + 1;
-            SceneBinding nextScene = SceneHelper.FindSceneByIndex(buildIdx);
-            Game.Scenes.LoadMainScene(nextScene);
+            Game.Scenes.LoadMainScene(NextScene);
         }
     }
 }

@@ -1,5 +1,6 @@
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Music;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
@@ -24,6 +25,7 @@ namespace SpaceFab.Design
                     .ReadWriteShared<SimulateUIState>()
                     .ReadWriteShared<SimulateRunState>()
                     .ReadShared<DesignMinigameState>()
+                    .ReadShared<ContractState>()
             );
         }
 
@@ -36,9 +38,12 @@ namespace SpaceFab.Design
                 out SimulateRunState simRunState,
                 out PlayerProgressState progressState
                 );
+            Find.State(
+                out ContractState contractState
+                );
             DesignMinigameState designState = Find.State<DesignMinigameState>();
 
-            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suiteData = levelData.GetTestSuite();
             var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
 

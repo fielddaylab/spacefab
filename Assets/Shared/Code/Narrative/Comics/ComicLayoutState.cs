@@ -236,6 +236,7 @@ namespace SpaceFab.Comic
             renderElement.Type = ComicRenderElementType.Mask;
             renderElement.ElementIndex = maskIndex;
             renderElement.Id = MaskElementId;
+            renderElement.MeshId = meshId;
             renderElement.BaseMaterial = resourcePool.TextureMaterials[0];
             renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
 
@@ -276,8 +277,10 @@ namespace SpaceFab.Comic
             if (layerData.MeshIndex != ComicMesh.NullIndex) {
                 ushort meshId = ComicsUtility.PackMeshId(layerData.MeshIndex, StreamedMeshType.Layer);
                 renderElement.MeshFilter.sharedMesh = resourcePool.ActiveMeshes[meshId];
+                renderElement.MeshId = meshId;
             } else {
                 renderElement.MeshFilter.sharedMesh = null;
+                renderElement.MeshId = ComicMesh.NullIndex;
             }
 
             resourcePool.SharedPropertyBlock.Clear();

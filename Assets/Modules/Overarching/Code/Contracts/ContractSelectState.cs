@@ -37,10 +37,15 @@ namespace SpaceFab.Overarching
         {
             layoutState.FaderGroup.alpha = 1;
             layoutState.FaderGroup.blocksRaycasts = true;
+            layoutState.ConfirmContractButton.gameObject.SetActive(false);
 
             yield return 0.5f;
 
-            selectState.SelectedContractIndex = 0;
+            // Reopen on the contract the player last accepted so the selection index and the
+            // panel agree — the change-contract flow compares the two to detect an actual swap.
+            int index = chapterState.LastSelectedContractIndex < 0 ? 0 : chapterState.LastSelectedContractIndex;
+
+            selectState.SelectedContractIndex = index;
             selectState.SelectionConfirmed = false;
             selectState.SelectedContractIndexChanged = true;
 
@@ -48,7 +53,9 @@ namespace SpaceFab.Overarching
 
             layoutState.SelectionCanvasGroup.alpha = 0;
 
-            ContractUtility.LoadContractData(layoutState.SelectionContractUI, null);
+            ContractDef contract = ContractUtility.GetDefinition(chapterState.ChapterDefinition.AvailableContracts[index]);
+            ContractUtility.LoadContractData(layoutState.SelectionContractUI, contract);
+            
             layoutState.SelectionContractUI.gameObject.SetActive(true);
             layoutState.SelectionCanvasGroup.blocksRaycasts = true;
 

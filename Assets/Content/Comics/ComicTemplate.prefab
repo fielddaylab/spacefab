@@ -205,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06034148321711a41828bef9167b7a45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Image: {fileID: 21300000, guid: 5acf43c660c5c0c40a9d8bd715702d02, type: 3}
+  Image: {fileID: 0}
   Sibling: {fileID: 0}
 --- !u!1 &3512889897402255466
 GameObject:
@@ -418,6 +418,11 @@ MonoBehaviour:
   Manifest: {fileID: 0}
   SlicingTileSize: 10
   TilePadding: 1
+  m_ExportHashes:
+    LastExportLayerCount: 0
+    LastExportSpriteGuids: []
+    LastExportSpriteTextureHashes: []
+    LastWrittenSettingsHash: 0
 --- !u!114 &6023858251418436729
 MonoBehaviour:
   m_ObjectHideFlags: 0

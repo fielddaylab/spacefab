@@ -12,8 +12,7 @@ namespace SpaceFab.Fabrication.Microgames
     {
         Idle,       // awaiting start
         Entering,   // entering microgame
-        Fueling,   // waiting for player to hold button
-        Burning,  // animating meter moving into place
+        Active,     // accepting input, simulating heat
         Exiting     // cleanup
     }
     
@@ -36,14 +35,13 @@ namespace SpaceFab.Fabrication.Microgames
         [HideInInspector] public float FinalHeat;
 
         [HideInInspector] public bool InputAccepted;
+        [HideInInspector] public bool isSpacebarHeld;
+        [HideInInspector] public bool IncreasingHeat;
 
         // 2d sprites
         public GameObject FurnaceUI;
         // indicators for internal values, rotate to show along meter
         public Transform TargetRangeAnchor, TargetArrowAnchor, MeterArrowAnchor;
-
-        // Time to smooth meter moving to final heat value, lower is faster
-        public float MeterSmoothing = 0.1f;
 
         public FurnaceMicrogamePhase Phase;
 
@@ -73,12 +71,26 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out FurnaceMicrogameState state);
+            Find.State(out FurnaceMicrogameState state, out SequenceState sequence);
             state.IsActive = true;
             
             // TODO: play intro (station name flash, spawn heat dial UI).
             
             // Set up range position
+            // TODO: set value for different wafer types
+            switch (sequence.Level.Sequence.Steps[sequence.CurrentStepIndex].Chunk)
+            {
+                case SequenceChunk.Metal:
+                    state.TargetRange = 5;
+                    break;
+                case SequenceChunk.P:
+                    state.TargetRange = 3;
+                    break;
+                case SequenceChunk.N:
+                    state.TargetRange = 9;
+                    break;
+            }
+
             float targetPercentage = state.TargetRange / state.MaxRange;
             float targetZRotation = -targetPercentage * 180;
             Vector3 targetRotation = new Vector3(0, 0, targetZRotation);
@@ -88,6 +100,8 @@ namespace SpaceFab.Fabrication.Microgames
 
             // reset value
             state.CurrentValue = 0;
+            state.IncreasingHeat = true;
+            state.isSpacebarHeld = false;
             
             state.FurnaceUI.SetActive(true);
             state.Phase = FurnaceMicrogamePhase.Entering;
@@ -99,7 +113,7 @@ namespace SpaceFab.Fabrication.Microgames
             
             // start accepting Activate-hold input; begin heat simulation.
             state.InputAccepted = true;
-            state.Phase = FurnaceMicrogamePhase.Burning;
+            state.Phase = FurnaceMicrogamePhase.Active;
         }
 
         // On normal completion, compute precision and commit it to the wafer at the current step.
@@ -131,18 +145,10 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(
-               out FurnaceMicrogameState state,
-               out MicrogameCanvasState canvasState // use for enabling/disabling fader and popups
-               );
+            Find.State(out FurnaceMicrogameState state);
             state.IsActive = false;
-            
-            // tear down heat dial UI; return to idle.
-            state.FurnaceUI.SetActive(false);
             state.MeterArrowAnchor.rotation = Quaternion.identity;
             state.Phase = FurnaceMicrogamePhase.Idle;
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
@@ -166,7 +172,7 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out FurnaceMicrogameState state);
 
             float precision = 1f - (Mathf.Abs(state.FinalHeat - state.TargetRange) / state.MaxRange);
-            precision = Mathf.Clamp(precision, 0f, 1f);   
+            precision = Mathf.Clamp(precision, 0f, 1f);
 
             return precision;
         }

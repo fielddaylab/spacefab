@@ -1,3 +1,4 @@
+using BeauRoutine;
 using FieldDay.Components;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +11,6 @@ namespace SpaceFab
     public class LoadIcon : BatchedComponent
     {
         public CanvasGroup Group;
-        public Image Icon;
         public TMP_Text LoadingText;
     }
 }

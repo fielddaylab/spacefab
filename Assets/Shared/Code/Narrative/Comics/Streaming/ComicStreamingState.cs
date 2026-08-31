@@ -17,8 +17,8 @@ namespace SpaceFab.Comic {
         public Unsafe.ArenaHandle MeshBufferArena;
         public MeshDecompressionState Decompressor;
 
-        bool ISceneLoadDependency.IsLoaded(SceneLoadPhase loadPhase) {
-            if (loadPhase == SceneLoadPhase.BeforeReady) {
+        bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
+            if (loadPhase == SceneLoadFence.BeforeReady) {
                 return MeshRequestQueue.Count == 0 && Decompressor.Phase == MeshDecompressionPhase.Done;
             } else {
                 return true;

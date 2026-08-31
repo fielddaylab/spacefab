@@ -11,19 +11,19 @@ namespace SpaceFab.Onboarding {
     public static class OnboardingScripting {
         // Summon a highlight on the ElementTag with id `id`. lockFocus=true also gates
         // input until the highlight (or all locked highlights) is released. margin defaults
-        // to OnboardingHighlightState.DefaultMargin when left at -1.
+        // to OnboardingHighlightState.DefaultMargin when left at -1. attachToCanvas=true groups
+        // the highlight under OnboardingHighlightState.HighlightCanvas (so it draws above the
+        // target's siblings) instead of parenting it beside the target; UI targets only.
         [LeafMember("HighlightElement")]
-        public static void Leaf_HighlightElement(string id, bool lockFocus = false, float margin = -1f) {
+        public static void Leaf_HighlightElement(string id, bool lockFocus = false, float margin = -1f, bool attachToCanvas = false) {
             OnboardingHighlightState highlightState = Find.State<OnboardingHighlightState>();
-            if (highlightState == null) { return; }
-            OnboardingHighlightUtility.Show(highlightState, NormalizeId(id), lockFocus, margin);
+            OnboardingHighlightUtility.Show(highlightState, NormalizeId(id), lockFocus, margin, attachToCanvas);
         }
 
         // Release a single highlight by id. No-op if no highlight is active for that id.
         [LeafMember("ReleaseHighlight")]
         public static void Leaf_ReleaseHighlight(string id) {
             OnboardingHighlightState highlightState = Find.State<OnboardingHighlightState>();
-            if (highlightState == null) { return; }
             OnboardingHighlightUtility.Release(highlightState, NormalizeId(id));
         }
 
@@ -31,7 +31,6 @@ namespace SpaceFab.Onboarding {
         [LeafMember("ReleaseAllHighlights")]
         public static void Leaf_ReleaseAllHighlights() {
             OnboardingHighlightState highlightState = Find.State<OnboardingHighlightState>();
-            if (highlightState == null) { return; }
             OnboardingHighlightUtility.ReleaseAll(highlightState);
         }
 

@@ -65,6 +65,11 @@ namespace SpaceFab.Fabrication
             saveState.FinalizedPrecision = fabState.Precision;
 
             saveState.FoundValidSolution = fabState.FoundValidSolution;
+
+            if (Game.SharedState.Has<ProgressMeterState>())
+            {
+                Find.State<ProgressMeterState>().NeedsRefresh = true;
+            }
         }
     }
 }

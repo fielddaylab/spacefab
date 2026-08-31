@@ -3,6 +3,8 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab.Design.Visuals;
 using SpaceFab.Save;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace SpaceFab.Design
 {
@@ -46,6 +48,9 @@ namespace SpaceFab.Design
                 out PlayerProgressState progressState,
                 out DesignMinigameState designState
                 );
+            Find.State(
+                out ContractState contractState
+            );
 
             // Universal high-priority request: Cancel beats everything except Cancelling itself.
             if (runState.Phase != SimulatePhase.Cancelling && runState.CancelRequested)
@@ -60,7 +65,7 @@ namespace SpaceFab.Design
                     ProcessIdle(runState, uiState, designState);
                     break;
                 case SimulatePhase.PreparingTest:
-                    ProcessPreparingTest(runState, runScratch, graphState, uiState, visualState, progressState, gridStackState, designState);
+                    ProcessPreparingTest(runState, runScratch, graphState, uiState, visualState, progressState, contractState, gridStackState, designState);
                     break;
                 case SimulatePhase.Propagating:
                     ProcessPropagating(runState, graphState, uiState, designState, deltaTime);
@@ -69,7 +74,7 @@ namespace SpaceFab.Design
                     ProcessPaused(runState, uiState, designState);
                     break;
                 case SimulatePhase.ResolvingTest:
-                    ProcessResolvingTest(runState, runScratch, graphState, uiState, progressState, gridStackState, designState);
+                    ProcessResolvingTest(runState, runScratch, graphState, uiState, progressState, contractState, gridStackState, designState);
                     break;
                 case SimulatePhase.SuiteComplete:
                     ProcessSuiteComplete(runState, uiState, designState);
@@ -134,7 +139,6 @@ namespace SpaceFab.Design
                 runState.CurrentRow = runState.RequestedRowIndex;
                 SimulateControlUtility.WipeVerdictsForNewRun(runState, uiState, designState);
                 runState.Phase = SimulatePhase.PreparingTest;
-                SpacefabGame.Events.Dispatch(GameEvents.DesignSimPlayStarted);
                 return;
             }
         }
@@ -149,7 +153,7 @@ namespace SpaceFab.Design
         //     increment invalidates every per-cell mark from the prior test.
         //   - Edge state: none to reset. Cycle-detection flags are durable on CrucialEdge and
         //     computed at Build time, not per test.
-        static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, PlayerProgressState progressState, GridStackState gridStackState, DesignMinigameState designState)
+        static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, PlayerProgressState progressState, ContractState contractState, GridStackState gridStackState, DesignMinigameState designState)
         {
             // Per-node transient reset. Cheap: NodeCount is small.
             SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
@@ -161,9 +165,12 @@ namespace SpaceFab.Design
             // Prime InputFlowByNode for this row. Walk Input crucial nodes and materialize their
             // test-row value once; DepthStepSystem reads from the array per edge, avoiding a
             // per-edge TestData scan.
-            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
             TestData currTest = suite.Tests[runState.CurrentRow];
+            List<GridCoord> inputs = new List<GridCoord>();
+            List<GridCoord> outputs = new List<GridCoord>();
+
             for (int i = 0; i < graphState.NodeCount; i++)
             {
                 CrucialNode node = graphState.CrucialNodes[i];
@@ -171,8 +178,17 @@ namespace SpaceFab.Design
                 if (cell.CellType == CellType.Input)
                 {
                     runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                    inputs.Add(node.Coord);
+                }
+                else if (cell.CellType == CellType.Output)
+                {
+                    outputs.Add(node.Coord);
                 }
             }
+
+            Debug.Log($"{inputs} \n {outputs}");
+
+            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, EvtArgs.Box((inputs, outputs, runState.CurrentRow)));
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
 
             // Wipe any leftover verdict marks from this row's previous run — the new propagation
@@ -198,7 +214,7 @@ namespace SpaceFab.Design
             // CurrentRow / Phase just changed; the active row's button needs to flip to Pause.
             SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
 
-            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
+            //SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, runState.CurrentRow);
         }
 
         // Propagating: per-depth paint rhythm.
@@ -310,9 +326,9 @@ namespace SpaceFab.Design
         //   SingleTest scope                       → SuiteComplete (whole run is just this row).
         //   FullSuite, more rows remain            → next row via PreparingTest.
         //   FullSuite, last row resolved           → SuiteComplete with aggregate-correct flag.
-        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, PlayerProgressState progressState, GridStackState gridStackState, DesignMinigameState designState)
+        static private void ProcessResolvingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, PlayerProgressState progressState, ContractState contractState, GridStackState gridStackState, DesignMinigameState designState)
         {
-            LevelData levelData = DesignLevelUtility.GetActiveLevelData(progressState, designState);
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
             TestData currTest = suite.Tests[runState.CurrentRow];
 
@@ -362,8 +378,8 @@ namespace SpaceFab.Design
                 if (verdict == TestRowVerdict.Correct) { resultStr = "success"; }
                 table.Set("result", resultStr);
                 ScriptUtility.Trigger(DesignScriptTriggers.OnSingleTestComplete, table);
+                SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, EvtArgs.Box((resultStr, runState.CurrentRow)));
             }
-            SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowResolved, runState.CurrentRow);
 
             // Toggle-input mode: every Test click resolves a single row. Show the results panel
             // only when every row in the suite has been resolved Correct (the "level complete"
@@ -375,10 +391,11 @@ namespace SpaceFab.Design
                 bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
                 if (suiteAllCorrect)
                 {
-                    SimulateUIUtility.ShowResultsPanel(uiState, true);
                     ScriptUtility.Trigger(DesignScriptTriggers.OnAllTestsComplete);
-
+                    SimulateUIUtility.ShowResultsPanel(uiState, true); // called too early relative to sim table
+                    
                     DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
+                    SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteSucceeded);
                 }
                 SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
                 SimulateUIUtility.MarkAllRunButtonsDirty(uiState);

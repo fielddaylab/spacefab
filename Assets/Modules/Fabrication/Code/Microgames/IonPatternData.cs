@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
@@ -29,8 +27,6 @@ namespace SpaceFab.Fabrication.Microgames
             {
                 m_FilledPoints += i.ProcessWork();
             }
-
-            Debug.Log("Total points:" + m_TotalPoints + "Filled points: " + m_FilledPoints);
         }
 
         // decouple from process work as this must be called during exit

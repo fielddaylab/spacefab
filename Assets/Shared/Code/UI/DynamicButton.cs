@@ -49,9 +49,10 @@ namespace SpaceFab.UI
 
         private bool PassesFilter()
         {
-            var input = Find.State<InputState>();
-            if ((input.AppliedLayerMask & (1 << this.gameObject.layer)) == 0) { return false; }
-            else { return true; }
+            //var input = Find.State<InputState>();
+            //if ((input.AppliedLayerMask & (1 << this.gameObject.layer)) == 0) { return false; }
+            // else { return true; }
+            return true;
         }
     }
 }

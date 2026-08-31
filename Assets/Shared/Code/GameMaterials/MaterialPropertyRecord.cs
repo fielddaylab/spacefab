@@ -74,6 +74,35 @@ namespace SpaceFab.Materials
         }
 
         /// <summary>
+        /// Returns true if the record has the given persistent property
+        /// confirmed. For dynamic labels, returns true if the property has
+        /// been confirmed for any context material. Observation-only labels
+        /// always return false. Used to check fulfilled requirements.
+        /// </summary>
+        public static bool HasAny(in MaterialPropertyRecord record, MaterialPropertyLabel label)
+        {
+            if (!MaterialPropertyLabelUtility.IsPersistent(label))
+            {
+                return false;
+            }
+
+            if (MaterialPropertyLabelUtility.IsDynamic(label))
+            {
+                ushort mask = label == MaterialPropertyLabel.PDopantFor
+                    ? record.DynamicMask_PDopant
+                    : record.DynamicMask_NDopant;
+
+                return mask != 0;
+            }
+            else
+            {
+                int bitIndex = MaterialPropertyLabelUtility.GetStaticBitIndex(label);
+                if (bitIndex < 0) return false;
+                return (record.StaticMask & (1 << bitIndex)) != 0;
+            }
+        }
+
+        /// <summary>
         /// Sets the bit for the given persistent property on the record.
         /// Returns true iff the record actually changed (lets callers track
         /// dirty deltas without an outer comparison). Idempotent: re-setting

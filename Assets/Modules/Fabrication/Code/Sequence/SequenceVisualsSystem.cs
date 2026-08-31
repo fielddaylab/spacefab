@@ -52,6 +52,12 @@ namespace SpaceFab.Fabrication.Sequence
                 visualsState.AdvanceRequested = false;
             }
 
+            if (visualsState.MoveAwayRequested)
+            {
+                visualsState.TransitionRoutine.Replace(SequenceVisualsUtility.MoveOffscreenRoutine(visualsState));
+                visualsState.MoveAwayRequested = false;
+            }
+
             // Final step completion: stamp + swipe, no promotion.
             if (visualsState.CompletionRequested) {
                 visualsState.TransitionRoutine.Replace(SequenceVisualsUtility.CompletionRoutine(visualsState));

@@ -7,6 +7,14 @@ namespace OGD {
         static private Core.Request<Core.DefaultResponse> s_CurrentClaimIdRequest;
 
         /// <summary>
+        /// Cancels ongoing requests.
+        /// </summary>
+        static public void CancelRequests() {
+            Core.CancelRequest(ref s_CurrentNewIdRequest);
+            Core.CancelRequest(ref s_CurrentClaimIdRequest);
+        }
+
+        /// <summary>
         /// Generates a new id.
         /// </summary>
         static public IDisposable NewId(Action<string> onNewId, Core.DefaultErrorHandlerDelegate onError) {
@@ -56,6 +64,13 @@ namespace OGD {
 
                 onError?.Invoke(error);
             }, null);
+        }
+
+        /// <summary>
+        /// Returns if the given id is a valid.
+        /// </summary>
+        static public bool IsValidPotentialId(string id) {
+            return !string.IsNullOrEmpty(id) && id.Length > 1;
         }
     }
 }

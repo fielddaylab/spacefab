@@ -1,7 +1,9 @@
 using FieldDay;
 using FieldDay.SharedState;
+using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Research {
@@ -24,7 +26,9 @@ namespace SpaceFab.Research {
     /// </summary>
     public enum ActiveChamberKind : byte {
         None,
-        Battery,
+        Voltage,
+        Thermal,
+        Doping
     }
 
     /// <summary>
@@ -56,9 +60,12 @@ namespace SpaceFab.Research {
         // Currently-active chamber discriminator. Default None; activation flow
         // sets it when the player navigates into a chamber. Chamber systems
         // short-circuit when this is not their own kind.
+        [NonSerialized] public bool ActiveChamberChangedThisFrame;
         [NonSerialized] public ActiveChamberKind ActiveChamber;
 
-        public void OnRegister() {
+        public void OnRegister()
+        {
+            
         }
 
         public void OnDeregister() {
@@ -112,7 +119,10 @@ namespace SpaceFab.Research {
         // Sets the currently-active chamber. Activation flow is the only
         // caller; chamber systems read via GetActiveChamber.
         public static void SetActiveChamber(ChamberInterfacerState interfacerState, ActiveChamberKind kind) {
+            if (interfacerState.ActiveChamber == kind) { return; }
+
             interfacerState.ActiveChamber = kind;
+            interfacerState.ActiveChamberChangedThisFrame = true;
         }
 
         // Returns the currently-active chamber kind.

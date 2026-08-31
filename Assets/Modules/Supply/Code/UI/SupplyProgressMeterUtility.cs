@@ -61,7 +61,7 @@ namespace SpaceFab.Supply {
 
         // Rebuilds the aggregate panel cells and the per-ship breakdown rows from the current
         // (pending-aware) route state.
-        public static void Refresh(SupplyProgressMeterLayoutState layout, SupplyRouteCollection routes, SupplyRouteDrawingState drawing, SupplyShipIndex ships, PlayerProgressState progress) {
+        public static void Refresh(SupplyProgressMeterLayoutState layout, SupplyRouteCollection routes, SupplyRouteDrawingState drawing, SupplyShipIndex ships, ContractState contract) {
             if (layout == null) {
                 return;
             }
@@ -71,7 +71,7 @@ namespace SpaceFab.Supply {
             }
 
             ComputeAggregate(routes, drawing, out int risk, out int cost, out int time, out int activeMask);
-            int funds = ResolvePayout(progress);
+            int funds = ResolvePayout(contract);
 
             // Aggregate "Result" panel.
             if (layout.AggregateView != null) {
@@ -79,48 +79,15 @@ namespace SpaceFab.Supply {
                 FillUniform(layout.AggregateView.TimeCells, time, sprites.TimeBase, sprites.TimeFilled, sprites.TimeColor);
                 FillAggregateCost(layout.AggregateView.CostCells, funds, cost, sprites);
             }
-
-            // Per-ship breakdown rows.
-            if (layout.ShipRows != null) {
-                for (int i = 0; i < layout.ShipRows.Length; i++) {
-                    SupplyShipBreakdownRow row = layout.ShipRows[i];
-                    if (row == null) {
-                        continue;
-                    }
-                    bool active = i < SupplyRouteData.MaxShips && (activeMask & (1 << i)) != 0;
-                    if (row.Root != null) {
-                        row.Root.SetActive(active);
-                    }
-                    if (!active) {
-                        continue;
-                    }
-
-                    SupplyRouteStats stats = GetEffectiveStats(routes, drawing, i, out _);
-                    // Per-ship sections are numeric counts beside their authored icons.
-                    SetCount(row.RiskText, stats.Risk);
-                    SetCount(row.CostText, stats.Cost);
-                    SetCount(row.TimeText, stats.Time);
-
-                    row.ShipIcon.sprite = ships.ShipAssets[i].Icon;
-                    row.ShipName.SetText(ships.ShipAssets[i].DisplayName);
-                }
-            }
         }
 
         // Reads the active contract's payout via its asset wrapper (the funds the cost meter
         // counts down from). 0 when no contract is loaded.
-        private static int ResolvePayout(PlayerProgressState progress) {
-            if (progress == null) {
+        private static int ResolvePayout(ContractState contractState) {
+            if (!contractState.ContractDefinition) {
                 return 0;
             }
-            if (!Game.Assets.HasNamed<ContractAssetsWrapper>(progress.ContractAssetsWrapperId)) {
-                return 0;
-            }
-            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(progress.ContractAssetsWrapperId);
-            if (wrapper == null || wrapper.ContractDef == null) {
-                return 0;
-            }
-            return wrapper.ContractDef.Payout();
+            return contractState.ContractDefinition.Payout();
         }
 
         #endregion // Refresh
@@ -161,7 +128,7 @@ namespace SpaceFab.Supply {
                 if (i < yellowCount) {
                     ApplyCell(cells[i], true, sprites.CostBar, sprites.CostRemainingColor);
                 } else if (i < yellowCount + redCount) {
-                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor);
+                    ApplyCell(cells[i], true, sprites.CostBar, sprites.CostSpentColor, true);
                 } else {
                     ApplyCell(cells[i], false, null, default);
                 }
@@ -176,9 +143,14 @@ namespace SpaceFab.Supply {
             text.text = count.ToString();
         }
 
-        // Sets a cell's always-visible base sprite (the empty-cell look).
+        // Sets a cell's always-visible base sprite (the empty-cell look). A null base sprite
+        // means this section has no authored empty-cell look, so the base image is hidden.
         private static void ApplyBase(ProgressMeterCell cell, Sprite baseSprite) {
-            if (cell == null || cell.BaseImage == null || baseSprite == null) {
+            if (cell == null || cell.BaseImage == null) {
+                return;
+            }
+            if (baseSprite == null) {
+                cell.BaseImage.enabled = false;
                 return;
             }
             cell.BaseImage.sprite = baseSprite;
@@ -186,7 +158,7 @@ namespace SpaceFab.Supply {
         }
 
         // Drives one cell's overlay: enabled with sprite+color when filled, hidden otherwise.
-        private static void ApplyCell(ProgressMeterCell cell, bool filled, Sprite sprite, Color color) {
+        private static void ApplyCell(ProgressMeterCell cell, bool filled, Sprite sprite, Color color, bool xMark = false) {
             if (cell == null || cell.OverlayImage == null) {
                 return;
             }
@@ -194,46 +166,16 @@ namespace SpaceFab.Supply {
                 cell.OverlayImage.sprite = sprite;
                 cell.OverlayImage.color = color;
                 cell.OverlayImage.enabled = true;
+
+                if (xMark && cell.xMarkImage != null)
+                {
+                    cell.xMarkImage.enabled = true;
+                }
             } else {
                 cell.OverlayImage.enabled = false;
             }
         }
 
         #endregion // Cell rendering
-
-        #region Expand / collapse
-
-        // Fades the per-ship section to match state.Expanded. Toggles interactivity up-front
-        // when expanding and after the fade conceptually when collapsing (set immediately here
-        // since the group is non-interactive throughout the collapse anyway).
-        public static IEnumerator ToggleRoutine(SupplyProgressMeterState state, SupplyProgressMeterLayoutState layout) {
-            state.Transitioning = true;
-            CanvasGroup group = layout != null ? layout.ExpandedSection : null;
-            if (group != null) {
-                if (state.Expanded) {
-                    group.blocksRaycasts = true;
-                    group.interactable = true;
-                    yield return group.FadeTo(1f, TransitionDuration);
-                } else {
-                    group.interactable = false;
-                    group.blocksRaycasts = false;
-                    yield return group.FadeTo(0f, TransitionDuration);
-                }
-            }
-            state.Transitioning = false;
-        }
-
-        // Snaps the per-ship section to the steady-state visibility for `expanded`.
-        public static void ApplySteadyState(SupplyProgressMeterLayoutState layout, bool expanded) {
-            CanvasGroup group = layout != null ? layout.ExpandedSection : null;
-            if (group == null) {
-                return;
-            }
-            group.alpha = expanded ? 1f : 0f;
-            group.blocksRaycasts = expanded;
-            group.interactable = expanded;
-        }
-
-        #endregion // Expand / collapse
     }
 }

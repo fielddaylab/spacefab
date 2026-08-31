@@ -264,9 +264,12 @@ namespace FieldDay.Audio {
         }
 
         private unsafe void UpdateVoices(float deltaTime, double currentTime) {
+            bool hasAudioFocus = AudioUtility.IsActive() && !AudioListener.pause;
+            
             AudioPropertyBlock* busValues = stackalloc AudioPropertyBlock[m_BusCount];
             for(int i = 0; i < m_BusCount; i++) {
                 busValues[i] = m_WorkingBusProperties[i];
+                busValues[i].Pause |= !hasAudioFocus;
             }
 
             for(int i = m_ActiveVoices.Count - 1; i >= 0; i--) {
@@ -287,7 +290,7 @@ namespace FieldDay.Audio {
                             break;
                         }
 
-                        if (voice.PlaybackDelay > 0) {
+                        if (voice.PlaybackDelay > 0 && hasAudioFocus) {
                             voice.PlaybackDelay -= deltaTime;
                         }
 
@@ -336,12 +339,10 @@ namespace FieldDay.Audio {
                                     voice.Components.Source.timeSamples -= voice.SampleLoopLength;
                                 }
                             }
-                        } else {
-                            if (voice.Components.Source.loop) {
-                                voice.State = VoiceState.PlayRequested;
-                            } else if (voice.FrameEnded == Frame.InvalidIndex) {
+                        } else if (hasAudioFocus) {
+                            if (voice.FrameEnded == Frame.InvalidIndex) {
                                 voice.FrameEnded = Frame.Index;
-                            } else if (Frame.Age(voice.FrameEnded) >= 8) {
+                            } else if (Frame.Age(voice.FrameEnded) >= 5) {
                                 voice.Components.Source.Stop();
                                 voice.State = VoiceState.Stopped;
                                 UpdatePlayingInstanceCount(voice.Handle, voice.BusIndex, false);
@@ -587,7 +588,6 @@ namespace FieldDay.Audio {
         private AudioVoiceComponents ConstructNewSource(IPool<AudioVoiceComponents> p) {
             GameObject go = new GameObject("unused audio voice");
             go.transform.SetParent(m_AudioSourceRoot.transform);
-            go.hideFlags = HideFlags.DontSave;
 
             AudioSource source = go.AddComponent<AudioSource>();
             source.enabled = false;

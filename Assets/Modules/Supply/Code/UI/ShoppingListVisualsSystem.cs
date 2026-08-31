@@ -1,5 +1,7 @@
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Systems;
+using UnityEngine;
 
 namespace SpaceFab.Supply
 {
@@ -32,15 +34,20 @@ namespace SpaceFab.Supply
                 out SupplyRouteCollection routes,
                 out PlayerProgressState progressState
                 );
+            Find.State(
+                out ContractState contractState
+                );
 
             if (!shoppingState.Dirty) { return; }
+            Log.Msg("[SupplyBug] shopping list dirty");
+
 
             // ShoppingListLoadUtility scans the finalized routes' gathered
             // materials and, for each contract requirement, fills the slot via
             // ContractProgressUtility.FindFulfillingMaterials — player-confirmed
             // knowledge, so only materials the player has researched enough to
             // satisfy the check count.
-            ShoppingListLoadUtility.Rebuild(layoutState, routes, progressState);
+            ShoppingListLoadUtility.Rebuild(layoutState, routes, progressState, contractState);
         }
     }
 }

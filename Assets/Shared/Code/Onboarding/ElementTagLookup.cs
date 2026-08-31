@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scenes;
 using FieldDay.SharedState;
 
 namespace SpaceFab.Onboarding {
@@ -14,7 +15,7 @@ namespace SpaceFab.Onboarding {
     /// error rather than a fatal failure so dynamically-tagged pooled objects (e.g.
     /// the design-mode input overlays) survive a level with bad data.
     /// </summary>
-    public class ElementTagLookup : SharedStateComponent, IRegistrationCallbacks {
+    public class ElementTagLookup : ISharedState, IRegistrationCallbacks {
         [System.NonSerialized] public Dictionary<StringHash32, ElementTag> ById;
 
         public void OnRegister() {
@@ -35,11 +36,24 @@ namespace SpaceFab.Onboarding {
     /// utility uses TryGet to resolve Leaf-supplied ids.
     /// </summary>
     public static class ElementTagLookupUtility {
+        [InvokePreBoot]
+        static private void Create() {
+            Game.SharedState.Register(new ElementTagLookup());
+        }
+        
         public static void Register(ElementTagLookup lookup, ElementTag tag) {
-            if (lookup.ById == null || tag == null) { return; }
+            Assert.NotNullOrDestroyed(lookup);
+            Assert.NotNullOrDestroyed(tag);
 
             StringHash32 id = tag.Id.Hash();
             if (lookup.ById.TryGetValue(id, out ElementTag existing)) {
+                // Already registered under this id by this same tag — idempotent, not a collision.
+                // Happens when a tag is given its id before its GameObject first activates: SetId
+                // registers immediately, then the deferred Awake registers the same id again.
+                if (existing == tag) {
+                    return;
+                }
+
                 // Duplicate id — treat as authoring error: warn and skip. The first tag stays
                 // addressable; the second tag is simply not registered (its lookup queries will miss).
                 Log.Warn("[Onboarding] Duplicate ElementTag id '{0}' (existing on '{1}', rejected on '{2}')",
@@ -51,7 +65,8 @@ namespace SpaceFab.Onboarding {
         }
 
         public static void Deregister(ElementTagLookup lookup, ElementTag tag) {
-            if (lookup.ById == null || tag == null) { return; }
+            Assert.NotNullOrDestroyed(lookup);
+            Assert.NotNullOrDestroyed(tag);
 
             StringHash32 id = tag.Id.Hash();
             if (lookup.ById.TryGetValue(id, out ElementTag existing) && existing == tag) {
@@ -60,10 +75,6 @@ namespace SpaceFab.Onboarding {
         }
 
         public static bool TryGet(ElementTagLookup lookup, StringHash32 id, out ElementTag tag) {
-            if (lookup.ById == null) {
-                tag = null;
-                return false;
-            }
             return lookup.ById.TryGetValue(id, out tag);
         }
     }

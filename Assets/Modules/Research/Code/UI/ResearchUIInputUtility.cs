@@ -1,4 +1,6 @@
+using BeauUtil;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -9,13 +11,6 @@ namespace SpaceFab.Research {
     /// guard every site.
     /// </summary>
     public static class ResearchUIInputUtility {
-        // Hypothesis paginator step. Delta accumulates within a frame so a
-        // double-click composes; HypothesisViewModelSystem consumes the sum.
-        public static void RequestHypothesisCycle(ResearchUIInputState inputState, int delta) {
-            if (inputState == null) return;
-            inputState.HypothesisCycleDelta += delta;
-        }
-
         // Sample panel's ADD OBSERVATION + button. The view tracks the
         // picker-open state itself; this flag is for telemetry / refresh.
         public static void RequestAddObservation(ResearchUIInputState inputState) {
@@ -33,31 +28,51 @@ namespace SpaceFab.Research {
         }
 
         // Player clicked a filled, non-locked observation slot in the
-        // sample panel. ObservationCollectSystem resolves the slot index
-        // to a (label, context) via the active hypothesis page.
+        // sample panel or a greyed wiki observation chip.
+        // ObservationCollectSystem resolves the slot index to a (label,
+        // context) via the viewmodel's slot view.
         public static void RequestRemoveObservation(ResearchUIInputState inputState, int slotIndex) {
             if (inputState == null) return;
             inputState.RemoveObservationSlotIndex = slotIndex;
             inputState.RemoveObservationClickedThisFrame = true;
         }
 
+        // Player clicked a wiki property chip to select it as the active
+        // hypothesis. HypothesisViewModelSystem validates (dynamic
+        // context, fulfilled rejection) and applies the label on its
+        // next rebuild.
+        public static void RequestHypothesisSelection(ResearchUIInputState inputState, MaterialPropertyLabel label) {
+            if (inputState == null) return;
+            inputState.AddHypothesisLabel = label;
+            inputState.HypothesisSelectedClickedThisFrame = true;
+        }
+
+        // Player clicked the filled hypothesis slot in the sample panel
+        // or the greyed property chip on its wiki page.
+        // ObservationCollectSystem clears the viewmodel's selection.
+        public static void RequestRemoveHypothesis(ResearchUIInputState inputState) {
+            if (inputState == null) return;
+            inputState.RemoveHypothesisClickedThisFrame = true;
+        }
+
         // Player clicked the hypothesis-panel submit button.
         // HypothesisSubmitSystem consumes the flag next Update.
         public static void RequestSubmit(ResearchUIInputState inputState) {
             if (inputState == null) return;
-            inputState.SubmitHypothesisClickedThisFrame = true;
+            inputState.VerifyHypothesisClickedThisFrame = true;
         }
 
         // End-of-frame clear. ResearchUIInputRefreshSystem calls this from
         // its ProcessWork.
         public static void ClearFrameFlags(ResearchUIInputState inputState) {
             if (inputState == null) return;
-            inputState.HypothesisCycleDelta = 0;
             inputState.AddObservationClickedThisFrame = false;
             inputState.ChipPickerSelectedThisFrame = false;
             inputState.RemoveObservationClickedThisFrame = false;
             inputState.RemoveObservationSlotIndex = -1;
-            inputState.SubmitHypothesisClickedThisFrame = false;
+            inputState.VerifyHypothesisClickedThisFrame = false;
+            inputState.RemoveHypothesisClickedThisFrame = false;
+            inputState.HypothesisSelectedClickedThisFrame = false;
         }
     }
 }

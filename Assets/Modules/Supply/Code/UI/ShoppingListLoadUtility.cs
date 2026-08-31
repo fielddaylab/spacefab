@@ -1,5 +1,6 @@
 using BeauPools;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using SpaceFab.Materials;
 using SpaceFab.Research;
@@ -31,8 +32,12 @@ namespace SpaceFab.Supply {
 
         // Frees any prior rows, then builds one row per requirement in the
         // current contract. No contract => zero rows + minimum panel size.
-        public static void Rebuild(ShoppingListLayoutState layout, SupplyRouteCollection routes, PlayerProgressState progressState) {
-            if (layout == null || layout.Pool == null || layout.RowsContainer == null) return;
+        public static void Rebuild(ShoppingListLayoutState layout, SupplyRouteCollection routes, PlayerProgressState progressState, ContractState contractState) {
+            if (layout == null || layout.Pool == null || layout.RowsContainer == null)
+            {
+                Log.Msg("[SupplyBug] crucial element is null");
+                return;
+            }
 
             // 1. Free prior rows.
             FreeAllRows(layout);
@@ -40,10 +45,12 @@ namespace SpaceFab.Supply {
             // 2. Resolve the current contract via the active contract-assets
             //    wrapper — the same path Research / Design / Fabrication use, so
             //    it resolves regardless of which contracts bundle is loaded.
-            layout.LastContractId = progressState != null ? progressState.CurrContractId : StringHash32.Null;
-            ContractDef contract = ResolveCurrentContract(progressState);
+            layout.LastContractId = contractState.ContractId;
+            ContractDef contract = ResolveCurrentContract(contractState);
             if (contract == null) {
                 ResizePanel(layout, 0f);
+
+                Log.Msg("[SupplyBug] contract is null");
                 return;
             }
 
@@ -56,14 +63,37 @@ namespace SpaceFab.Supply {
             MaterialPropertyCheck[] checks = contract.RequiredMaterialProperties();
             MaterialPropertyCheck[] omitted = contract.OmitFromSupplyRequirements();
 
+            if (checks == null)
+            {
+                Log.Msg("[SupplyBug] checks is null ");
+
+            }
+            else
+            {
+                Log.Msg("[SupplyBug] checks is not null ");
+            }
+
             if (checks != null) {
                 bool success = true;
+                int totalSuccess = 0;
+                int totalChecks = 0;
+                Log.Msg("[SupplyBug] num checks: " + checks.Length);
                 for (int i = 0; i < checks.Length; i++) {
-                    if (IsOmittedFromSupply(checks[i], omitted)) continue;
+                    if (IsOmittedFromSupply(checks[i], omitted))
+                    {
+                        Log.Msg("[SupplyBug] check at "+ i + " omitted from supply");
+                        continue;
+                    }
                     success &= AddRow(layout, progressState, checks[i]);
-                }
+                    if (success) totalSuccess++;
+                    totalChecks++;
+                    Log.Msg("[SupplyBug] added row. Success? " + success);
 
-                layout.ConfirmButton.gameObject.SetActive(success && routes.TempRouteIndex < 0);
+                }
+                layout.ShoppingListLabel.text = $"Material Requirements {totalSuccess}/{totalChecks}";
+                bool confirmActive = success && routes.TempRouteIndex < 0;
+                Log.Msg("[SupplyBug] confirm active? " + confirmActive);
+                layout.ConfirmButton.gameObject.SetActive(confirmActive);
             }
 
             // 5. Lay out + resize.
@@ -74,11 +104,8 @@ namespace SpaceFab.Supply {
 
         // Resolves the player's active contract through its contract-assets
         // wrapper. Null when no contract is loaded.
-        private static ContractDef ResolveCurrentContract(PlayerProgressState progress) {
-            if (progress == null) return null;
-            if (!Game.Assets.HasNamed<ContractAssetsWrapper>(progress.ContractAssetsWrapperId)) return null;
-            ContractAssetsWrapper wrapper = Find.NamedAsset<ContractAssetsWrapper>(progress.ContractAssetsWrapperId);
-            return wrapper != null ? wrapper.ContractDef : null;
+        private static ContractDef ResolveCurrentContract(ContractState contractState) {
+            return contractState.ContractDefinition;
         }
 
         // True if this requirement is in the contract's Supply omit list,
@@ -104,8 +131,13 @@ namespace SpaceFab.Supply {
             // the comparison element appended ("N-TYPE DOPANT for <NAME>").
             string label = MaterialPropertyLabelDisplay.GetPropertyName(check.Label);
             if (MaterialPropertyLabelUtility.IsDynamic(check.Label)) {
-                MaterialAsset context = Find.NamedAsset<MaterialAsset>(check.InComparisonTo);
-                if (context != null) {
+                if (check.InComparisonTo.IsEmpty)
+                {
+                    // do nothing
+                }
+                else
+                {
+                    MaterialAsset context = Find.NamedAsset<MaterialAsset>(check.InComparisonTo);
                     label = label + " for " + context.DisplayName;
                 }
             }
@@ -124,9 +156,9 @@ namespace SpaceFab.Supply {
         // material's ResearchMaterialView (same source Supply uses for node
         // icons). Null if no view is registered.
         private static Sprite ResolveMaterialIcon(StringHash32 materialId) {
-            ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(materialId);
-            if (view == null) return null;
-            return view.IsMultiAtom ? view.MultiAtomSprite : view.SingleAtomSprite;
+            MaterialAsset material = Find.NamedAsset<MaterialAsset>(materialId);
+            if (material == null) return null;
+            return material.GemSprite;
         }
 
         // Collects every non-empty material hash across all finalized routes
@@ -184,10 +216,10 @@ namespace SpaceFab.Supply {
 
         // Resizes the panel's height to fit the row column plus padding.
         private static void ResizePanel(ShoppingListLayoutState layout, float contentHeight) {
-            if (layout.PanelRect == null) return;
-            Vector2 size = layout.PanelRect.sizeDelta;
-            size.y = contentHeight + 2f * OverlayPadding;
-            layout.PanelRect.sizeDelta = size;
+            // if (layout.PanelRect == null) return;
+            // Vector2 size = layout.PanelRect.sizeDelta;
+            // size.y = contentHeight + 2f * OverlayPadding;
+            // layout.PanelRect.sizeDelta = size;
         }
 
         // Returns every pooled row to the pool and clears the active list.

@@ -5,6 +5,7 @@ using SpaceFab.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Design.Visuals;
+using BeauRoutine;
 
 namespace SpaceFab.Design
 {
@@ -163,6 +164,10 @@ namespace SpaceFab.Design
         {
             // TODO: for each non-output column in row rowIndex, look up the value in test.Bundle
             //       by its InputOutputNodeTypeFlags and set the contents cell's FlowImg sprite.
+            var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
+
+            uiState.Rows[rowIndex].RowBGBar.enabled = true;
+            uiState.Rows[rowIndex].RowBGBar.color = suiteDB.SuiteInProgressColor;
         }
 
         // Records per-output verdict outcomes for a row into uiState.CellVerdicts and flags the
@@ -310,6 +315,8 @@ namespace SpaceFab.Design
                 var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, currRow.HorizontalLayout.transform).GetComponent<SuiteCol>();
                 arrowCol.FlowImg.enabled = false;
                 arrowCol.Label.enabled = false;
+
+
             }
 
             // Pass 2: output headers.
@@ -346,6 +353,7 @@ namespace SpaceFab.Design
                 uiState.Rows[row].Cols = new SuiteCol[bundle.Length];
                 uiState.Rows[row].Verdicts = new VerdictVisualizer[bundle.Length];
                 uiState.Rows[row].RunButton.RowIndex = row;
+                uiState.Rows[row].RowBGBar.enabled = false;
                 uiState.CellVerdicts[row] = new CellVerdict[bundle.Length];
 
                 // Two passes so all inputs render left of the arrow and all outputs right of it,
@@ -374,6 +382,7 @@ namespace SpaceFab.Design
                     var arrowCol = GameObject.Instantiate(suiteDB.ArrowColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     arrowCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[firstOutputCol].State, isArrow: true);
                     arrowCol.Label.enabled = false;
+                    uiState.Rows[row].ArrowCol = arrowCol;
                 }
 
                 // Pass 2: outputs.
@@ -383,6 +392,7 @@ namespace SpaceFab.Design
 
                     SuiteCol newCol = GameObject.Instantiate(suiteDB.OutputColPrefab, uiState.Rows[row].HorizontalLayout.transform).GetComponent<SuiteCol>();
                     newCol.FlowImg.sprite = SuiteVisualsDBUtility.LookupSuiteColSprite(suiteDB, bundle[col].State, isOutput: true);
+                    newCol.Label.color = Color.black;
                     newCol.Label.SetText(GetLocTextForFlow(bundle[col].State));
 
                     uiState.Rows[row].Cols[col] = newCol;
@@ -410,6 +420,7 @@ namespace SpaceFab.Design
         private static float InstantiateHeader(SuiteRow headerRow, SuiteVisualsDB suiteDB, InputOutputNodeTypeFlags id)
         {
             SuiteHeader currHeader = GameObject.Instantiate(suiteDB.HeaderPrefab, headerRow.HorizontalLayout.transform).GetComponent<SuiteHeader>();
+            headerRow.RowBGBar.enabled = false;
             currHeader.Label.SetText(GetLocTextForId(id));
             var size = currHeader.Rect.sizeDelta;
             size.x = suiteDB.InputColPrefab.GetComponent<RectTransform>().sizeDelta.x;

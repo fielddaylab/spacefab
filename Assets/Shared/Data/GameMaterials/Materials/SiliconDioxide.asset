@@ -13,7 +13,12 @@ MonoBehaviour:
   m_Name: SiliconDioxide
   m_EditorClassIdentifier: 
   DisplayName: Silicon Dioxide
-  ShortName: Si02
+  ShortName: SiO2
+  GemSprite: {fileID: 21300000, guid: 70b6be176a1374957abb6ace02a3a835, type: 3}
+  ConstituentElementNames:
+  - Si
+  - O
   ValenceElectronCounts: 0400000002000000
   AtomicRadii: 6f0000003c000000
-  Properties: 0f10
+  Properties: 0e0f
+  Contexts: []

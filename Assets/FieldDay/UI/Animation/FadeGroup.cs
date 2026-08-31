@@ -104,25 +104,21 @@ namespace FieldDay.UI.Animation {
                 }
 
                 target.CurrentState = true;
-                state.InitParamA.Float = target.Group.alpha;
-                state.ResetTime(target.ToOnTween.Time * (1 - state.InitParamA.Float));
+                state.Registers.A.Float() = target.Group.alpha;
+                state.ResetTime(target.ToOnTween.Time * (1 - state.Registers.A.Float()));
             }
 
             public override void ResetAnimation(FadeGroup target, ref LiteAnimatorState state) {
             }
 
-            public override bool UpdateAnimation(FadeGroup target, ref LiteAnimatorState state, float deltaTime) {
-                state.TimeRemaining -= deltaTime;
-                float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
+            public override void UpdateAnimation(FadeGroup target, ref LiteAnimatorState state, float deltaTime) {
+                float percent = 1 - Math.Max(0, state.CurrentTime / state.Duration);
 
-                target.Group.alpha = Mathf.LerpUnclamped(state.InitParamA.Float, 1, percent);
-                if (state.TimeRemaining > 0) {
-                    return true;
-                } else {
+                target.Group.alpha = Mathf.LerpUnclamped(state.Registers.A.Float(), 1, state.PercentProgress);
+                if (state.IsLastFrame()) {
                     if (target.SyncBlocksRaycasts) {
                         target.Group.blocksRaycasts = true;
                     }
-                    return false;
                 }
             }
         }
@@ -130,8 +126,8 @@ namespace FieldDay.UI.Animation {
         private sealed class FadeOutAnim : LiteAnimator<FadeGroup> {
             public override void InitAnimation(FadeGroup target, ref LiteAnimatorState state) {
                 target.CurrentState = false;
-                state.InitParamA.Float = target.Group.alpha;
-                state.ResetTime(target.ToOffTween.Time * (state.InitParamA.Float));
+                state.Registers.A.Float() = target.Group.alpha;
+                state.ResetTime(target.ToOffTween.Time * (state.Registers.A.Float()));
                 if (target.SyncBlocksRaycasts) {
                     target.Group.blocksRaycasts = false;
                 }
@@ -140,16 +136,10 @@ namespace FieldDay.UI.Animation {
             public override void ResetAnimation(FadeGroup target, ref LiteAnimatorState state) {
             }
 
-            public override bool UpdateAnimation(FadeGroup target, ref LiteAnimatorState state, float deltaTime) {
-                state.TimeRemaining -= deltaTime;
-                float percent = 1 - Math.Max(0, state.TimeRemaining / state.Duration);
-
-                target.Group.alpha = Mathf.LerpUnclamped(state.InitParamA.Float, 0, percent);
-                if (state.TimeRemaining > 0) {
-                    return true;
-                } else {
+            public override void UpdateAnimation(FadeGroup target, ref LiteAnimatorState state, float deltaTime) {
+                target.Group.alpha = Mathf.LerpUnclamped(state.Registers.A.Float(), 0, state.PercentProgress);
+                if (state.IsLastFrame()) {
                     GuiCommands.SetActive(target.Group.gameObject, false);
-                    return false;
                 }
             }
         }

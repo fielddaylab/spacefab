@@ -133,6 +133,7 @@ namespace SpaceFab {
             if (idx < 0 || state.CycleStates == null || idx >= state.CycleStates.Length) {
                 return;
             }
+            if (state.CycleStates[idx] == cellState) { return; }
             state.CycleStates[idx] = cellState;
             state.NeedsRefresh = true;
         }

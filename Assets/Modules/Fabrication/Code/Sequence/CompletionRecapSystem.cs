@@ -72,7 +72,7 @@ namespace SpaceFab.Fabrication.Sequence
         // SequenceVisualsSystem in LateUpdate consumes whichever flag is set.
         static private void HandOffToTopPanel(CompletionRecapState recapState, SequenceState sequenceState, SequenceVisualsState visualsState)
         {
-            int stepsLength = sequenceState.Level != null && sequenceState.Level.Steps != null ? sequenceState.Level.Steps.Length : 0;
+            int stepsLength = sequenceState.Level != null && sequenceState.Level.Sequence.Steps != null ? sequenceState.Level.Sequence.Steps.Length : 0;
             if (recapState.RecapJustCompletedIndex + 1 >= stepsLength)
             {
                 visualsState.CompletionRequested = true;

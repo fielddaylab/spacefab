@@ -1,4 +1,5 @@
 using BeauUtil;
+using FieldDay;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,8 +49,8 @@ namespace SpaceFab
 
         // Fabrication: Station Control
         public static readonly StringHash32 FabStationArrived = "fab:station-arrived";
-        public static readonly StringHash32 FabActivateStation = "fab:Activate-station"; // Check conflicts with other consts
-        public static readonly StringHash32 FabInvalidActivateStation = "fab:invalid-activate-station";
+        public static readonly StringHash32 FabActivateStation = "fab:activate-station"; // Check conflicts with other consts
+        public static readonly StringHash32 FabInstructionUpdated = "fab:instruction-updated";
         public static readonly StringHash32 FabStationLeft = "fab:station-left";
         public static readonly StringHash32 FabStationEnterBegin = "fab:station-enter-begin";
         public static readonly StringHash32 FabMicrogameEntered = "fab:microgame-entered";
@@ -64,6 +65,9 @@ namespace SpaceFab
         public static readonly StringHash32 FabWrongStationAttempt = "fab:wrong-station-attempt";
         public static readonly StringHash32 FabStunBegin = "fab:stun-begin";
         public static readonly StringHash32 FabStunEnd = "fab:stun-end";
+
+        public static readonly StringHash32 FabCompleted = "fab:completed";
+        public static readonly StringHash32 FabSucceeded = "fab:succeeded";
 
         // Fabrication: Sequence
         public static readonly StringHash32 FabGenerateWafer = "fab:generate-wafer";
@@ -84,6 +88,7 @@ namespace SpaceFab
         public static readonly StringHash32 DesignSimResumed = "design-sim:resumed";
         public static readonly StringHash32 DesignSimRowResolved = "design-sim:row-resolved";
         public static readonly StringHash32 DesignSimSuiteComplete = "design-sim:suite-complete";
+        public static readonly StringHash32 DesignSimSuiteSucceeded = "design-sim:suite-succeeded";
         public static readonly StringHash32 DesignSimCancelled = "design-sim:cancelled";
 
         // Design: Grid
@@ -110,15 +115,20 @@ namespace SpaceFab
 
     public static class ScriptTriggers
     {
-        public static readonly StringHash32 OnMinigameLoad =    "OnMinigameLoad";
-        public static readonly StringHash32 OnWikiOpened =      "OnWikiOpened";
-        public static readonly StringHash32 OnWikiClosed =      "OnWikiClosed";
+        public static readonly StringHash32 OnMinigameLoad =        "OnMinigameLoad";
+        public static readonly StringHash32 OnWikiOpened =          "OnWikiOpened";
+        public static readonly StringHash32 OnWikiClosed =          "OnWikiClosed";
+        // Fired when a wiki tab becomes the one on screen. Passes `tabId` — the tab asset's name.
+        public static readonly StringHash32 OnWikiTabOpened =       "OnWikiTabOpened";
+        // Fired when a wiki page becomes the one on screen. Passes `pageId` — the page asset's
+        // name, the same id UnlockWikiPage is keyed by.
+        public static readonly StringHash32 OnWikiPageOpened =      "OnWikiPageOpened";
+        public static readonly StringHash32 OnOverarchingLoaded =   "OnOverarchingLoaded";
     }
 
     public static class UpdateMasks
     {
         public const int PauseUpdateMask = 1 << 0;
-        public const int MinigameTransitionMask = 1 << 1;
 
         public const int ResearchMask = 1 << 2;
         public const int DesignMask = 1 << 3;
@@ -128,9 +138,7 @@ namespace SpaceFab
         // overarching
         public const int OverarchingMask = 1 << 6;
         public const int ContractSystemsMask = 1 << 7;
-        public const int ChapterMask = 1 << 8;
         public const int SetupMask = 1 << 9;
-        public const int ShutdownMask = 1 << 10;
 
         // fab
         public const int PreAttemptMask = 1 << 11;
@@ -153,6 +161,35 @@ namespace SpaceFab
 
         // shared UI
         public const int WikiMask = 1 << 20;
+
+        // entire game mask
+        public const int EntireGame = (1 << 24) - 1;
+
+        static public void RegisterDebugNames() {
+            GameLoop.SetDebugUpdateBitName(0, "Pause");
+            GameLoop.SetDebugUpdateBitName(2, "Research");
+            GameLoop.SetDebugUpdateBitName(3, "Design");
+            GameLoop.SetDebugUpdateBitName(4, "Supply");
+            GameLoop.SetDebugUpdateBitName(5, "Fabrication");
+
+            GameLoop.SetDebugUpdateBitName(6, "Overarching");
+            GameLoop.SetDebugUpdateBitName(7, "Contract Systems");
+            GameLoop.SetDebugUpdateBitName(9, "Setup");
+
+            GameLoop.SetDebugUpdateBitName(11, "Fab: Pre-Attempt");
+            GameLoop.SetDebugUpdateBitName(12, "Fab: Attempt");
+            GameLoop.SetDebugUpdateBitName(13, "Fab: Attempt Lead-In");
+            GameLoop.SetDebugUpdateBitName(14, "Fab: Post-Attempt");
+
+            GameLoop.SetDebugUpdateBitName(15, "Design: Tool Mode");
+            GameLoop.SetDebugUpdateBitName(16, "Design: Simulate Mode");
+
+            GameLoop.SetDebugUpdateBitName(17, "Fab: Microgame");
+            GameLoop.SetDebugUpdateBitName(18, "Research: Chambers");
+
+            GameLoop.SetDebugUpdateBitName(19, "Tutorial");
+            GameLoop.SetDebugUpdateBitName(20, "Wiki");
+        }
     }
 
     static public class LayerMasks

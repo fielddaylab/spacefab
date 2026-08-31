@@ -17,6 +17,8 @@ namespace SpaceFab.Onboarding {
     public class OnboardingHighlightState : SharedStateComponent, IRegistrationCallbacks, IScenePreload {
         [Serializable] public sealed class HighlightPool : SerializablePool<Highlight> { }
 
+        public Canvas HighlightCanvas;
+
         [Header("Pool")]
         public HighlightPool Pool;
 
@@ -44,12 +46,20 @@ namespace SpaceFab.Onboarding {
             ActiveById = new Dictionary<StringHash32, Highlight>(8);
             LockedTagIds = new HashSet<StringHash32>();
             SavedLayersByInstanceId = new Dictionary<int, int>(32);
+
+            Game.Scenes.OnMainSceneUnloading.Register(OnSceneUnloading);
         }
 
         public void OnDeregister() {
             ActiveById?.Clear();
             LockedTagIds?.Clear();
             SavedLayersByInstanceId?.Clear();
+
+            Game.Scenes.OnMainSceneUnloading.Deregister(OnSceneUnloading);
+        }
+
+        private void OnSceneUnloading() {
+            OnboardingHighlightUtility.ReleaseAll(this);
         }
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {

@@ -69,12 +69,12 @@ namespace FieldDay.Vox {
 
         #region ISceneLoadDependency
 
-        bool ISceneLoadDependency.IsLoaded(SceneLoadPhase loadPhase) {
+        bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
             switch (loadPhase) {
-                case SceneLoadPhase.BeforeLateEnable: {
+                case SceneLoadFence.BeforeLateEnable: {
                     return FileUnloadQueue.Count == 0 && LineCodeUnloadQueue.Count == 0;
                 }
-                case SceneLoadPhase.BeforeReady:
+                case SceneLoadFence.BeforeReady:
                 default: {
                     return LineCodeLoadQueue.Count == 0;
                 }

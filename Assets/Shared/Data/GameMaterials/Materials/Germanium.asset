@@ -13,5 +13,10 @@ MonoBehaviour:
   m_Name: Germanium
   m_EditorClassIdentifier: 
   DisplayName: Germanium
+  ShortName: Ge
+  GemSprite: {fileID: 21300000, guid: 47699a89e7ce24041abe6161309fd5cc, type: 3}
+  ConstituentElementNames: []
   ValenceElectronCounts: 04000000
   AtomicRadii: 7d000000
+  Properties: 1118
+  Contexts: []

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Title: PNP
   m_Icon: {fileID: 0}
-  m_Illustration: {fileID: 0}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
   m_Body: If the gate on N receives a LO signal, a signal can pass from P to P.
   m_MaterialId:
     m_HashValue: 0

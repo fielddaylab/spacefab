@@ -30,12 +30,11 @@ namespace SpaceFab.Fabrication.Microgames
         public GameObject EtchUI;
         public EtchMicrogamePhase Phase;
 
-        public LineRenderer PreviewBeam;
-        public LineRenderer PlayerBeam;
+        [HideInInspector] public EtchPatternData Pattern;
 
-        [HideInInspector] public readonly List<Vector2> PreviewPoints = new();
-        [HideInInspector] public readonly List<Vector2> PlayerPoints = new();
-        [HideInInspector] public Vector2[] CachedPreviewPoints;
+        public LineRenderer PlayerBeam;
+        [HideInInspector] public List<Vector2> PlayerPoints = new();
+        [HideInInspector] public List<Vector2> CachedPreviewPoints;
         [HideInInspector] public Vector2 Direction;
 
         [HideInInspector] public int PreviewVisibleCount;
@@ -57,7 +56,19 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void EnterBegin()
         {
-            Find.State(out EtchMicrogameState state);
+            Find.State(out EtchMicrogameState state, out SequenceState sequence);
+
+            // Setup pattern
+            int patternIndex = sequence.Level.PatternIndex;
+            Find.GlobalAsset(out MicrogameStationConfig config);
+            state.Pattern = GameObject.Instantiate(config.EtchPatterns[patternIndex], state.EtchUI.transform).GetComponent<EtchPatternData>();
+            
+            // Cache preview points
+            state.CachedPreviewPoints = new();
+            for (int i = 0; i < state.Pattern.PreviewBeam.positionCount; i++)
+            {
+                state.CachedPreviewPoints.Add(state.Pattern.PreviewBeam.GetPosition(i));
+            }
 
             state.Phase = EtchMicrogamePhase.Entering;
             state.IsActive = true;
@@ -65,19 +76,10 @@ namespace SpaceFab.Fabrication.Microgames
             state.EtchUI.SetActive(true);
 
             state.Direction = Vector2.right;
-
-            if (state.PreviewPoints.Count == 0)
-            {
-                int previewCount = state.PreviewBeam.positionCount;
-                for (int i = 0; i < previewCount; i++)
-                {
-                    state.PreviewPoints.Add(state.PreviewBeam.GetPosition(i));
-                }
-            }
   
             state.PreviewProgress = 0f;
             state.PreviewVisibleCount = 0;
-            state.PreviewBeam.positionCount = 0;
+            state.Pattern.PreviewBeam.positionCount = 0;
             
             state.PlayerPoints.Clear();
             state.PlayerBeam.positionCount = 0;
@@ -90,7 +92,7 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = EtchMicrogamePhase.Active;
             state.InputAccepted = true;
 
-            Vector2 start = state.PreviewPoints[0];
+            Vector2 start = state.CachedPreviewPoints[0];
             state.PlayerPoints.Add(start);
             state.PlayerBeam.positionCount = 1;
             state.PlayerBeam.SetPosition(0, start);
@@ -103,8 +105,11 @@ namespace SpaceFab.Fabrication.Microgames
         public static void ExitBegin(bool completedNormally)
         {
             Find.State(out EtchMicrogameState state, out MicrogameCanvasState canvasState);
+
             state.Phase = EtchMicrogamePhase.Exiting;
             if (!completedNormally) { return; }
+
+            GameObject.Destroy(state.Pattern.gameObject);
 
             MicrogameUtility.CommitStepPrecision(ComputePrecision());
 
@@ -122,16 +127,12 @@ namespace SpaceFab.Fabrication.Microgames
 
         public static void ExitComplete()
         {
-            Find.State(out EtchMicrogameState state, out MicrogameCanvasState canvasState);
-
+            Find.State(out EtchMicrogameState state);
             state.IsActive = false;
             state.Phase = EtchMicrogamePhase.Idle;
-            state.EtchUI.SetActive(false);
 
             state.PlayerPoints.Clear();
             state.PlayerBeam.positionCount = 0;
-
-            MicrogameCanvasUtility.HideStationInstructions(canvasState);
         }
 
         // Side-effect-free precision query for the precision gate, read before ExitBegin commits.
@@ -143,7 +144,15 @@ namespace SpaceFab.Fabrication.Microgames
         // Etch error is unsigned (distance from the target path), so raw equals the gate precision.
         public static float GetRawResultPrecision()
         {
-            return ComputePrecision();
+            Find.State(out EtchMicrogameState state);
+
+            if (state.PlayerPoints.Count == 0) { return 0f; }
+
+            float playerToPreview = AverageDistance(state.PlayerPoints, state.Pattern.PreviewBeam);
+            float previewToPlayer = AverageDistance(state.CachedPreviewPoints, state.PlayerBeam);
+            float previewToPlayerWeight = 0.7f; // weight on missing target points is higher than extra points off-target
+
+            return playerToPreview * (1 - previewToPlayerWeight) + previewToPlayer * previewToPlayerWeight;
         }
 
         // Etch-a-sketch-specific precision math: fraction of target-pattern cells the beam
@@ -154,15 +163,15 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (state.PlayerPoints.Count == 0) { return 0f; }
 
-            float playerToPreview = AverageDistance(state.PlayerPoints, state.PreviewBeam);
-            float previewToPlayer = AverageDistance(state.PreviewPoints, state.PlayerBeam);
+            float playerToPreview = AverageDistance(state.PlayerPoints, state.Pattern.PreviewBeam);
+            float previewToPlayer = AverageDistance(state.CachedPreviewPoints, state.PlayerBeam);
             float previewToPlayerWeight = 0.7f; // weight on missing target points is higher than extra points off-target
 
             float totalError = (playerToPreview * (1 - previewToPlayerWeight) + previewToPlayer * previewToPlayerWeight) * 0.5f;
             float precision = 1f - totalError;
 
             return Mathf.Clamp01(precision);
-            }
+        }
 
         private static float AverageDistance(List<Vector2> points, LineRenderer targetLine)
         {

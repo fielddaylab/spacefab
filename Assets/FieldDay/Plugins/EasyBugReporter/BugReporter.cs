@@ -80,7 +80,7 @@ namespace EasyBugReporter {
 
             if (!s_HookGO) {
                 s_HookGO = new GameObject("[BugReporter]");
-                s_HookGO.hideFlags = HideFlags.DontSave;
+                s_HookGO.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
                 GameObject.DontDestroyOnLoad(s_HookGO);
                 s_HookGO.AddComponent<HostComponent>();
             }

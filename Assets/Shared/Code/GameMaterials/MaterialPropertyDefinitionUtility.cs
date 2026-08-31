@@ -207,7 +207,7 @@ namespace SpaceFab.Materials
         /// </summary>
         public static void DecomposeToObservations(
             MaterialPropertyDefinition definition,
-            StringHash32 inheritedContext,
+            StringHash32[] inheritedContext,
             List<MaterialObservationEntry> output)
         {
             if (definition == null || definition.Dependencies == null)
@@ -223,14 +223,17 @@ namespace SpaceFab.Materials
 
                 if (!MaterialPropertyLabelUtility.IsPersistent(dep))
                 {
-                    // Direct observation dependency — no ancestor sub-property.
-                    output.Add(new MaterialObservationEntry
+                    foreach (StringHash32 context in inheritedContext)
                     {
-                        Label = dep,
-                        Context = inheritedContext,
-                        ObservationType = MaterialObservationChamberLookup.GetChamberType(dep),
-                        HasAncestorProperty = false,
-                    });
+                        // Direct observation dependency — no ancestor sub-property.
+                        output.Add(new MaterialObservationEntry
+                        {
+                            Label = dep,
+                            Context = context,
+                            ObservationType = MaterialObservationChamberLookup.GetChamberType(dep),
+                            HasAncestorProperty = false,
+                        });
+                    }
                     continue;
                 }
 
@@ -265,7 +268,8 @@ namespace SpaceFab.Materials
         public static bool IsObservationTrueForProperties(
             MaterialPropertyLabel[] materialProperties,
             MaterialPropertyLabel observationLabel,
-            StringHash32 observationContext)
+            StringHash32 observationContext,
+            StringHash32[] availableContexts)
         {
             if (materialProperties == null || materialProperties.Length == 0) return false;
 
@@ -283,11 +287,8 @@ namespace SpaceFab.Materials
                 MaterialPropertyDefinition[] defs = registry.GetDefinitions(prop);
                 for (int d = 0; d < defs.Length; d++) {
                     scratch.Clear();
-                    // inheritedContext: Null at the top — material
-                    // properties don't carry per-material context here
-                    // (dynamic properties like PDopantFor would, but
-                    // those aren't part of the Battery scope today).
-                    DecomposeToObservations(defs[d], StringHash32.Null, scratch);
+                    // inheritedContext: use all available contexts
+                    DecomposeToObservations(defs[d], availableContexts, scratch);
                     for (int s = 0; s < scratch.Count; s++) {
                         if (scratch[s].Label == observationLabel && scratch[s].Context == observationContext) {
                             return true;
@@ -303,7 +304,7 @@ namespace SpaceFab.Materials
         // outermost matters for auto-population.
         private static void DecomposeUnderAncestor(
             MaterialPropertyDefinition definition,
-            StringHash32 inheritedContext,
+            StringHash32[] inheritedContext,
             MaterialPropertyLabel outermostAncestor,
             List<MaterialObservationEntry> output,
             MaterialPropertyDefinitionAsset registry)
@@ -319,14 +320,17 @@ namespace SpaceFab.Materials
 
                 if (!MaterialPropertyLabelUtility.IsPersistent(dep))
                 {
-                    output.Add(new MaterialObservationEntry
+                    foreach (StringHash32 context in inheritedContext)
                     {
-                        Label = dep,
-                        Context = inheritedContext,
-                        ObservationType = MaterialObservationChamberLookup.GetChamberType(dep),
-                        AncestorProperty = outermostAncestor,
-                        HasAncestorProperty = true,
-                    });
+                        output.Add(new MaterialObservationEntry
+                        {
+                            Label = dep,
+                            Context = context,
+                            ObservationType = MaterialObservationChamberLookup.GetChamberType(dep),
+                            AncestorProperty = outermostAncestor,
+                            HasAncestorProperty = true,
+                        });
+                    }
                     continue;
                 }
 

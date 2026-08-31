@@ -19,25 +19,16 @@ namespace SpaceFab.Research {
         [AssetName(typeof(MaterialAsset), true)]
         public SerializedHash32 MaterialId;
 
-        // Sprite used when the material has a single atom in its structure.
-        public Sprite SingleAtomSprite;
-
-        // Sprite used when the material has multiple atoms in its structure.
-        public Sprite MultiAtomSprite;
-
-        // Gem renderer color.
-        public Color GemColor = Color.white;
+        // Gem color for atomic view
+        public Color[] AtomColor = new Color[] { Color.white };
 
         // Uniform scale applied to the gem renderer's transform.
         public float GemScale = 1f;
 
-        // Whether the material's gem uses the multi-atom sprite path.
-        public bool IsMultiAtom;
-
         // Human-readable per-material identifier shown in UI ("SAMPLE 13").
         // Authored per asset; independent of asset id, ordering, or runtime
         // indexing so artists can place numbers freely.
-        public int SampleNumber;
+        public int SampleOrder;
 
         // Alternativel switch to strings for letter labels (A, B, C)
         // retain sample number in case change later

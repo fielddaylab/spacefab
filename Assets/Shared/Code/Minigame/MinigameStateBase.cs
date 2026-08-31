@@ -18,6 +18,8 @@ namespace SpaceFab
 
         public abstract void ImportState(MinigameSaveStates saveStates);
 
+        public virtual void MergeState() { }
+
         public void MarkFoundValidSolution()
         {
             FoundValidSolution = true;

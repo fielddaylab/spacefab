@@ -21,8 +21,7 @@ namespace SpaceFab.Materials
         HeatVulnerable,
         HeatResistant,
 
-        AtomicRadiusLessThan,
-        AtomicRadiusGreaterThan,
+        AtomicRadiusCompliant,
         ValenceOneLessThan,
         ValenceOneMoreThan,
         //FormsDiodeWithKnownNIn,
@@ -92,7 +91,7 @@ namespace SpaceFab.Materials
             {
                 return ObservationType.Electrical;
             }
-            else if (label < MaterialPropertyLabel.AtomicRadiusLessThan)
+            else if (label < MaterialPropertyLabel.AtomicRadiusCompliant)
             {
                 return ObservationType.Thermal;
             }

@@ -10,11 +10,16 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using static Unity.Mathematics.math;
 
 namespace SpaceFab.Fabrication.Layout
 {
     /// <summary>
+    /// Holds the shared Fabrication microgame canvas UI: the fader, the restart popup group, and
+    /// the instructions group (instruction/subtitle text plus a single key-image display). Owned by
+    /// the Fabrication minigame; written by the per-microgame systems and the tutorial-interrupt
+    /// system through MicrogameCanvasUtility.
     /// </summary>
     public class MicrogameCanvasState : SharedStateComponent, IRegistrationCallbacks
     {
@@ -30,7 +35,7 @@ namespace SpaceFab.Fabrication.Layout
         [Space(5)]
         public CanvasGroup InstructionsGroup;
         public InstructionLookup InstructionsLookup;
-        public GameObject SpaceImage, LRArrowImage, FullArrowImage, MouseImage, ADArrowImage;
+        public Image KeyImageDisplay;
         public TextMeshProUGUI m_InstructionTMP, m_SubtitleTMP;
 
         public void OnDeregister()
@@ -48,11 +53,7 @@ namespace SpaceFab.Fabrication.Layout
             InstructionsGroup.alpha = 0;
             InstructionsGroup.blocksRaycasts = false;
 
-            SpaceImage.SetActive(false);
-            LRArrowImage.SetActive(false);
-            FullArrowImage.SetActive(false);
-            MouseImage.SetActive(false);
-            ADArrowImage.SetActive(false);
+            KeyImageDisplay.enabled = false;
         }
     }
 
@@ -68,23 +69,17 @@ namespace SpaceFab.Fabrication.Layout
 
             InstructionSet uiInstructions = InstructionLookupUtility.LookupInstructions(stationID, state.InstructionsLookup);
 
-            switch (uiInstructions.UIKey)
+            // Resolve the station's key image to a single shared Image, instead of toggling
+            // a dedicated GameObject per key type.
+            Sprite keyImage = InstructionLookupUtility.LookupKeyImage(uiInstructions.UIKey, state.InstructionsLookup);
+            state.KeyImageDisplay.sprite = keyImage;
+            state.KeyImageDisplay.enabled = keyImage != null;
+
+            // Resize the shared Image to the swapped sprite's native dimensions so key images of
+            // differing sizes aren't stretched to a single fixed rect.
+            if (keyImage != null)
             {
-                case KeyImage.Space:
-                    state.SpaceImage.SetActive(true);
-                    break;
-                case KeyImage.LRArrows:
-                    state.LRArrowImage.SetActive(true);
-                    break;
-                case KeyImage.FullArrows:
-                    state.FullArrowImage.SetActive(true);
-                    break;
-                case KeyImage.Mouse:
-                    state.MouseImage.SetActive(true);
-                    break;
-                case KeyImage.ADKeys:
-                    state.ADArrowImage.SetActive(true);
-                    break;
+                state.KeyImageDisplay.SetNativeSize();
             }
 
             state.m_InstructionTMP.text = uiInstructions.Instruction;
@@ -99,11 +94,7 @@ namespace SpaceFab.Fabrication.Layout
             state.InstructionsGroup.alpha = 0f;
             state.InstructionsGroup.blocksRaycasts = false;
 
-            state.SpaceImage.SetActive(false);
-            state.LRArrowImage.SetActive(false);
-            state.FullArrowImage.SetActive(false);
-            state.MouseImage.SetActive(false);
-            state.ADArrowImage.SetActive(false);
+            state.KeyImageDisplay.enabled = false;
         }
     }
 }

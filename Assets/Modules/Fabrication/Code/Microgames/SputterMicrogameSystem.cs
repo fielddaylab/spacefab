@@ -34,55 +34,63 @@ namespace SpaceFab.Fabrication.Microgames
             {
                 case SputterMicrogamePhase.Entering:
                     MicrogameCanvasUtility.ShowStationInstructions(canvasState, FabricationConsts.SPUTTER_STATION_ID);
-                    ProcessBeamAnimation(state, deltaTime);
                     break;
                 case SputterMicrogamePhase.Active:
-                    ProcessBeamAnimation(state, deltaTime);
                     ProcessActive(state, deltaTime);
                     break;
             }
         }
 
-        static private void ProcessBeamAnimation(SputterMicrogameState state, float deltaTime)
-        {
-            Vector2 offset = state.IncidentBeam.material.mainTextureOffset;
-            offset.x -= Time.deltaTime;
-            state.IncidentBeam.material.mainTextureOffset = offset;
-
-            float scale = 1.5f;
-            foreach (LineRenderer lr in state.ReflectedBeam)
-            {
-                lr.material.mainTextureOffset = offset * scale;
-            }
-        }
-
+        private static float spawnTimer = 0f;
         static private void ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;
+            
+            float angle = state.SputterHeadAnchor.eulerAngles.z;
+            float rotationSpeed = 15f;
 
-            Vector3 delta = Vector2.zero;
             if (Game.Input.IsKeyDown(FabricationConsts.Left0) || Game.Input.IsKeyDown(FabricationConsts.Left1))
             {
-                if (state.SputterSprites.localPosition.x > 0f)
-                    delta = Vector2.left * Time.deltaTime;
+                angle = Mathf.Min(90f, angle + deltaTime * rotationSpeed);
             }
             else if (Game.Input.IsKeyDown(FabricationConsts.Right0) || Game.Input.IsKeyDown(FabricationConsts.Right1))
             {
-                delta = Vector2.right * Time.deltaTime;
+                angle = Mathf.Max(0f, angle - deltaTime * rotationSpeed);
+            }
+            state.SputterHeadAnchor.rotation = Quaternion.Euler(0, 0, angle);
+
+            // Spawn projectile
+            Vector2 startPosition = state.FirePoint.position;
+            spawnTimer -= deltaTime;
+            if (spawnTimer <= 0f)
+            {
+                spawnTimer = 0.2f;
+                SputterMicrogameProjectile projectile = Instantiate(state.ProjectilePrefab, state.ProjectileParent);
+                projectile.transform.position = startPosition;
+                // direction
+                projectile.SetDirection(angle);
             }
 
-            state.SputterSprites.localPosition += delta;
+            // Update line renderer (trajectory preview)
+            Vector2 direction = Quaternion.Euler(0, 0, angle) * Vector2.right;
+            RaycastHit2D hit = Physics2D.Raycast(startPosition, direction, 100f, ~(1 << 2));
+            state.TrajectoryPreview.SetPosition(0, startPosition);
 
-            float scale = 1.5f;
-            state.PatternRenderer.size = new Vector2(state.PatternRenderer.size.x + delta.x * scale, state.PatternRenderer.size.y);
-            state.PatternRenderer.transform.localPosition += new Vector3(delta.x * scale / 2, 0f, 0f);
+            state.TrajectoryPreview.positionCount = 2;
+            state.TrajectoryPreview.SetPosition(1, hit.point);
+            if (hit.collider.name == "Mirror")
+            {
+                state.TrajectoryPreview.positionCount++;
+                direction = Quaternion.Euler(0, 0, -angle) * Vector2.right;
+                hit = Physics2D.Raycast(hit.point + direction * 0.01f, direction, 100f, ~(1 << 2));
+                state.TrajectoryPreview.SetPosition(2, hit.point);
+            }
 
-            if (state.SputterSprites.localPosition.x > state.MaxSputterDistance)
+            if (state.SputterPattern.CompletelyFilled)
             {
                 Find.State(out StationControlState stationState);
                 MicrogameStationInterfacerUtility.SignalCompleted(stationState.ActiveInterfacer);
-                return;
             }
         }
     }

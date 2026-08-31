@@ -1,6 +1,129 @@
 {
     "Assets": {
+        "__buildInfo.txt": {
+            "Type": "Unknown",
+            "Size": 40
+        },
+        "music/Astral threads.mp3": {
+            "Type": "Audio",
+            "Size": 905056
+        },
+        "music/blackhole fabricator V2.mp3": {
+            "Type": "Audio",
+            "Size": 3924736
+        },
+        "music/blackhole fabricator V3.mp3": {
+            "Type": "Audio",
+            "Size": 3924736
+        },
+        "music/circuituitous ambient(no beat).mp3": {
+            "Type": "Audio",
+            "Size": 3885376
+        },
+        "music/circuituitous.mp3": {
+            "Type": "Audio",
+            "Size": 3885376
+        },
+        "music/fabricate.mp3": {
+            "Type": "Audio",
+            "Size": 4165216
+        },
+        "music/home among stars V2.mp3": {
+            "Type": "Audio",
+            "Size": 4290976
+        },
+        "music/robots don't need unions.mp3": {
+            "Type": "Audio",
+            "Size": 3464896
+        },
+        "music/sentient process(3m).mp3": {
+            "Type": "Audio",
+            "Size": 3685216
+        },
+        "music/sonderstar.mp3": {
+            "Type": "Audio",
+            "Size": 3485056
+        },
+        "music/supernovic(beatbreak).mp3": {
+            "Type": "Audio",
+            "Size": 3077056
+        },
+        "music/the slave's other beat.mp3": {
+            "Type": "Audio",
+            "Size": 4152256
+        },
+        "music/the slave's other name.mp3": {
+            "Type": "Audio",
+            "Size": 3230656
+        },
+        "music/universal basic income.mp3": {
+            "Type": "Audio",
+            "Size": 5338816
+        },
+        "music/velvet gravity.mp3": {
+            "Type": "Audio",
+            "Size": 1925056
+        },
+        "packs/ch1comicpack.pak": {
+            "Type": "Unknown",
+            "Size": 1714747
+        },
+        "packs/ch1comicpack.pak.manifest": {
+            "Type": "Unknown",
+            "Size": 1350
+        },
+        "packs/ch1stream.pak": {
+            "Type": "Unknown",
+            "Size": 3331
+        },
+        "packs/ch1stream.pak.manifest": {
+            "Type": "Unknown",
+            "Size": 911
+        },
+        "packs/contract_intro_stream.pak": {
+            "Type": "Unknown",
+            "Size": 8969
+        },
+        "packs/contract_intro_stream.pak.manifest": {
+            "Type": "Unknown",
+            "Size": 1967
+        },
+        "packs/ingamestream.pak": {
+            "Type": "Unknown",
+            "Size": 151123
+        },
+        "packs/ingamestream.pak.manifest": {
+            "Type": "Unknown",
+            "Size": 2051
+        },
+        "packs/manifest.toc": {
+            "Type": "Unknown",
+            "Size": 120
+        },
+        "packs/packs.manifest": {
+            "Type": "Unknown",
+            "Size": 342
+        },
+        "textures/backgrounds/Title-Planet.png": {
+            "Type": "Texture",
+            "Size": 2191637,
+            "Texture": {
+                "Width": 1440,
+                "Height": 1440,
+                "Alpha": true
+            }
+        },
+        "textures/backgrounds/Title-Stars.png": {
+            "Type": "Texture",
+            "Size": 3738246,
+            "Texture": {
+                "Width": 2360,
+                "Height": 1528,
+                "Alpha": false
+            }
+        }
     },
     "TextureDefaults": {
+		"Compression": "High"
     }
 }

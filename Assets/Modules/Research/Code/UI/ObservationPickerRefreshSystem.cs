@@ -9,8 +9,7 @@ namespace SpaceFab.Research {
     /// hypothesis viewmodel changes. Gated on
     /// HypothesisViewModelState.HypothesisChangedThisFrame so the per-
     /// chip pass only runs on the same frame an observation was added /
-    /// removed / the page cycled (the same trigger
-    /// HypothesisPanelVisualSystem uses). Runs on LateUpdate order 600
+    /// removed / the hypothesis changed. Runs on LateUpdate order 600
     /// — after the viewmodel rebuild (100) and the hypothesis-panel
     /// render (500), before the input-refresh sweep (1000) clears the
     /// frame-flag. ResearchMask, not ResearchChamberMask: disabled
@@ -41,8 +40,7 @@ namespace SpaceFab.Research {
             if (viewModel == null || !viewModel.HypothesisChangedThisFrame) return;
             if (pools == null || pools.ActivePickerChips == null) return;
 
-            bool slotsFull = viewModel.ActivePageSlotCount >= viewModel.ActivePageObservationCount
-                && viewModel.ActivePageObservationCount > 0;
+            bool slotsFull = viewModel.SlotCount >= HypothesisViewModelState.MaxObservationSlots;
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                 if (panel == null || panel.PickerLabels == null) continue;
@@ -60,9 +58,9 @@ namespace SpaceFab.Research {
         // observations) appears in the viewmodel's slot view (auto-locked
         // or player-picked).
         private static bool IsLabelInSlots(HypothesisViewModelState viewModel, MaterialPropertyLabel label) {
-            int count = viewModel.ActivePageSlotCount;
+            int count = viewModel.SlotCount;
             for (int i = 0; i < count; i++) {
-                if (viewModel.ActivePageSlotLabels[i] == label && viewModel.ActivePageSlotContexts[i] == StringHash32.Null) {
+                if (viewModel.SlotLabels[i] == label && viewModel.SlotContexts[i] == StringHash32.Null) {
                     return true;
                 }
             }

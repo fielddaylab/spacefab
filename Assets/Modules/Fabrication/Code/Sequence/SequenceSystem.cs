@@ -8,7 +8,6 @@ using SpaceFab.Fabrication.StationControl;
 using SpaceFab.Fabrication.Stations;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Sequence
@@ -103,18 +102,25 @@ namespace SpaceFab.Fabrication.Sequence
             if (step == null) {
                 return;
             }
+
             SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
             StringHash32 expectedStation = lookup.GetStationForStep(step.Value.StepId);
             StringHash32 actualStation = interfacer.Id;
             if (actualStation != expectedStation) {
                 SerializedHash32 actual = new SerializedHash32(actualStation);
                 SerializedHash32 expected = new SerializedHash32(expectedStation);
-                SpacefabGame.Events.Dispatch(GameEvents.FabInvalidActivateStation, EvtArgs.Box((actual.Source(), expected.Source())));
+                //SpacefabGame.Events.Dispatch(GameEvents.FabWrongStationAttempt, EvtArgs.Box((actual.Source(), expected.Source())));
                 Log.Msg($"Activated station {actual} did not match expected station {expected} for step {step.Value.StepId}");
                 SequenceUtility.FlagMisalignment(sequenceState);
                 Log.Msg($"Misalignment! Expected: {expectedStation.ToDebugString()}, got {actualStation.ToDebugString()}");
                 return;
             }
+
+            string stationID = sequenceState.Level.Sequence.Steps[sequenceState.CurrentStepIndex].StepId.ToString();
+            float accuracy = waferState.StepPrecisions[sequenceState.CurrentStepIndex];
+            bool isAutomated = false;
+            // TODO: Dispatch isAutomated
+            SpacefabGame.Events.Dispatch(GameEvents.FabMicrogameCompleted, EvtArgs.Box((stationID, accuracy, isAutomated)));
 
             // 4. Verify the wafer ended in the step's expected postcondition snapshot. While the
             //    wafer model is scaffold-only, MatchesSnapshot returns true by default so the

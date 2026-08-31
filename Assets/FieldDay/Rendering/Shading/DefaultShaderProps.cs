@@ -25,6 +25,9 @@ namespace FieldDay.Rendering {
 
         static public int Cull { get; private set; }
 
+        #if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        #endif // UNITY_EDITOR
         static internal void Initialize() {
             MainTex = Shader.PropertyToID("_MainTex");
             MainTexScaleOffset = Shader.PropertyToID("_MainTex_ST");

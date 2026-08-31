@@ -39,7 +39,7 @@ namespace SpaceFab.Design
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             GridSpriteDB spriteDB = Find.GlobalAsset<GridSpriteDB>();
 
-            bool modeOn = designState != null && designState.UseToggleInputMode;
+            bool modeOn = designState.UseToggleInputMode;
 
             var visuals = Find.Components<InputToggleVisual>();
             for (int i = 0; i < visuals.Count; i++)
@@ -90,11 +90,12 @@ namespace SpaceFab.Design
         {
             if (visual.BackgroundRenderer != null)
             {
-                Color tint = GridSpriteDBUtility.LookupInputToggleColor(spriteDB, state);
-                if (visual.BackgroundRenderer.color != tint)
-                {
-                    visual.BackgroundRenderer.color = tint;
-                }
+                //Color tint = GridSpriteDBUtility.LookupInputToggleColor(spriteDB, state);
+                visual.BackgroundRenderer.sprite = GridSpriteDBUtility.LookupInputBackground(spriteDB, state);
+                // if (visual.BackgroundRenderer.color != tint)
+                // {
+                //     visual.BackgroundRenderer.color = tint;
+                // }
             }
 
             if (visual.StateText != null)

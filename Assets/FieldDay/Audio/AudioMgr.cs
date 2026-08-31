@@ -121,7 +121,6 @@ namespace FieldDay.Audio {
 #endif // DEVELOPMENT
 
             m_AudioSourceRoot = new GameObject("AudioMgr");
-            m_AudioSourceRoot.hideFlags |= HideFlags.NotEditable | HideFlags.DontSave;
             GameObject.DontDestroyOnLoad(m_AudioSourceRoot);
 
             m_VoiceComponentPool = new FixedPool<AudioVoiceComponents>(MaxVoices, ConstructNewSource);

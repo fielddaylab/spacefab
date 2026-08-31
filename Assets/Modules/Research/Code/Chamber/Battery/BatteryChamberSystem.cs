@@ -1,4 +1,5 @@
 using FieldDay;
+using FieldDay.Audio;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
@@ -31,9 +32,9 @@ namespace SpaceFab.Research
         }
 
         private static void ProcessWork(float deltaTime)
-        {
+        {            
             ChamberInterfacerState interfacerState = Find.State<ChamberInterfacerState>();
-            if (ChamberInterfacerUtility.GetActiveChamber(interfacerState) != ActiveChamberKind.Battery)
+            if (ChamberInterfacerUtility.GetActiveChamber(interfacerState) != ActiveChamberKind.Voltage)
             {
                 return;
             }
@@ -53,12 +54,11 @@ namespace SpaceFab.Research
             if (dirty)
             {
                 UpdateBattery(interfacerState, batteryChamberState, explosionState, vfxPool);
+                batteryChamberState.VoltageChangedThisFrame = false;
             }
 
-            batteryChamberState.VoltageChangedThisFrame = false;
-
-            if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
-            if (interfacerState.LastUpdatedKind != batteryChamberState.SlotKind) return;
+            // if (!interfacerState.SlotMaterialUpdatedThisFrame) return;
+            // if (interfacerState.LastUpdatedKind != batteryChamberState.SlotKind) return;
             if (batteryChamberState.SampleHolder == null) return;
 
             bool filled = ChamberInterfacerUtility.GetCurrent(interfacerState, batteryChamberState.SlotKind) != null;
@@ -68,40 +68,41 @@ namespace SpaceFab.Research
 
         // Single-Battery update: read material + voltage, run stability, drive
         // visuals. Splits out of ProcessWork so the loop body stays linear.
-        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState battery, ResearchExplosionState explosionState, ResearchPools vfxPool)
+        private static void UpdateBattery(ChamberInterfacerState interfacerState, BatteryChamberState batteryChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)
         {
-            MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, battery.SlotKind);
-            float voltage = battery.VoltageControl != null ? battery.VoltageControl.CurrentVoltage : 0f;
+            MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, batteryChamber.SlotKind);
+            float voltage = batteryChamber.VoltageControl != null ? batteryChamber.Battery.CurrentVoltage : 0f;
 
             if (material == null)
             {
-                CircuitUtility.SetLightStrength(battery.Circuit, 0f);
-                CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
+                CircuitUtility.SetLightStrength(batteryChamber.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(batteryChamber.Circuit, 0f);
                 return;
             }
 
             MaterialPhysicsProfile profile = Find.NamedAsset<MaterialPhysicsProfile>(material.AssetId);
             if (profile == null)
             {
-                CircuitUtility.SetLightStrength(battery.Circuit, 0f);
-                CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
+                CircuitUtility.SetLightStrength(batteryChamber.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(batteryChamber.Circuit, 0f);
                 return;
             }
 
             if (!MaterialPhysicsUtility.IsStableAtVoltage(profile, voltage))
             {
-                ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, battery.SlotKind);
+                ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, batteryChamber.SlotKind);
                 ResearchExplosionUtility.ExplodeSlot(
-                    explosionState, vfxPool, interfacerState, slot, battery.SlotKind,
+                    explosionState, vfxPool, interfacerState, slot, batteryChamber.SlotKind,
                     ExplosionStyle.VoltageBreakdown, delay: 1f);
-                CircuitUtility.SetLightStrength(battery.Circuit, 0f);
-                CircuitUtility.SetFlowSpeed(battery.Circuit, 0f);
+                CircuitUtility.SetLightStrength(batteryChamber.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(batteryChamber.Circuit, 0f);
                 return;
             }
 
-            float current = MaterialPhysicsUtility.GetCurrent(profile, voltage, battery.Temperature);
-            CircuitUtility.SetLightStrength(battery.Circuit, current);
-            CircuitUtility.SetFlowSpeed(battery.Circuit, current);
+            float current = MaterialPhysicsUtility.GetCurrent(profile, voltage, batteryChamber.Temperature);
+            if (current == 0 && voltage != 0) Sfx.Play(Find.State<BatteryChamberState>().NoCurrentSFX);
+            CircuitUtility.SetLightStrength(batteryChamber.Circuit, current);
+            CircuitUtility.SetFlowStrength(batteryChamber.Circuit, current);
         }
     }
 }

@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e65d41defac0b94a8f1a377f5f47cd9, type: 3}
+  m_Name: ChapterList
+  m_EditorClassIdentifier: 
+  Chapters:
+  - ChapterId:
+      m_HashValue: 3266730720
+    PackageId:
+      m_HashValue: 1396134493
+  - ChapterId:
+      m_HashValue: 2767860759
+    PackageId:
+      m_HashValue: 731900332
+  - ChapterId:
+      m_HashValue: 1710280900
+    PackageId:
+      m_HashValue: 3649837047
+  - ChapterId:
+      m_HashValue: 3695527577
+    PackageId:
+      m_HashValue: 3452462158
+  - ChapterId:
+      m_HashValue: 2700152154
+    PackageId:
+      m_HashValue: 1766687545
+  - ChapterId:
+      m_HashValue: 389371159
+    PackageId:
+      m_HashValue: 3145024056
+  - ChapterId:
+      m_HashValue: 3194832688
+    PackageId:
+      m_HashValue: 3351745971
+  - ChapterId:
+      m_HashValue: 3240446197
+    PackageId:
+      m_HashValue: 1583022362
+  - ChapterId:
+      m_HashValue: 3843594006
+    PackageId:
+      m_HashValue: 966449877
+  - ChapterId:
+      m_HashValue: 3731704660
+    PackageId:
+      m_HashValue: 2349448791
+  - ChapterId:
+      m_HashValue: 280726603
+    PackageId:
+      m_HashValue: 198824076
+  - ChapterId:
+      m_HashValue: 703635534
+    PackageId:
+      m_HashValue: 2927225661

@@ -7,14 +7,25 @@ using FieldDay.Scenes;
 using FieldDay.Scripting;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
+using FieldDay.World;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SpaceFab.Supply {
     public sealed class ShipListPanel : SharedPanel, IRegistrationCallbacks {
-        public ShipListRow[] Rows;
+        [Serializable]
+        public struct SpeedIconConfig {
+            public Sprite Image;
+            public Vector2 Size;
+        }
+
         public LayoutSizeGroup Layout;
         public LayoutOptions VerticalLayoutOptions;
+        public float SelectedRowOffset;
+
+        [Header("Row Config")]
+        public ShipListRow[] Rows;
+        public SpeedIconConfig[] SpeedIcons;
 
         [NonSerialized] public ShipListRow SelectedRow;
 
@@ -29,31 +40,57 @@ namespace SpaceFab.Supply {
 
         private void OnRouteStarted(SupplyRouteEventArgs evtArgs) {
             SelectedRow = Rows[evtArgs.RouteIndex];
-            SelectedRow.LayoutOffset.Offset0 = new Vector2(40, 0);
+            SelectedRow.LayoutOffset.Offset0 = new Vector2(SelectedRowOffset, 0);
+            SelectedRow.CursorHint.TooltipFooter = "<sprite name=\"MouseLeft\"> Cancel";
+            SelectedRow.CursorHint.MarkDirty();
+            SupplyChainUtility.SetShipRowStatsActive(SelectedRow, true);
+            SupplyChainUtility.SyncShipRowPositions(SelectedRow);
+            SupplyChainUtility.ReflowShipList(this, true);
         }
 
         private void OnRouteEnded(SupplyRouteEventArgs evtArgs) {
+            SelectedRow.CursorHint.TooltipFooter = "<sprite name=\"MouseLeft\"> Draw Route";
+            SelectedRow.CursorHint.MarkDirty();
             SelectedRow.LayoutOffset.Offset0 = default;
+            SupplyChainUtility.SetShipRowStatsActive(SelectedRow, evtArgs.Stats.Time > 0);
+            SupplyChainUtility.SyncShipRowPositions(SelectedRow);
             SelectedRow = null;
+            SupplyChainUtility.ReflowShipList(this, true);
         }
     }
 
     static public partial class SupplyChainUtility {
-        static public void PopulateShipList(ShipListPanel panel, SupplyShipIndex ships, SupplyRouteConfig config) {
+        static public void PopulateShipList(ShipListPanel panel, SupplyShipIndex ships) {
             for(int i = 0; i < ships.ShipCount; i++) {
                 ShipListRow row = panel.Rows[i];
-                PopulateShipInformation(row, ships.ShipAssets[i], config);
-                row.Click.UserData = row;
+                PopulateShipInformation(row, ships.ShipAssets[i], panel);
+                row.CursorHint.Owner = row.CursorHint.UserData = row;
                 row.ShipIndex = i;
-                row.Click.onClick.Register(HandleShipClicked);
+                row.CursorHint.onClick.Register(HandleShipClicked);
                 row.gameObject.SetActive(true);
+                SetShipRowStatsActive(row, false);
             }
 
             for(int i = ships.ShipCount; i < panel.Rows.Length; i++) {
                 panel.Rows[i].gameObject.SetActive(false);
             }
 
-            panel.Layout.VerticalLayout(panel.VerticalLayoutOptions);
+            ReflowShipList(panel, true);
+        }
+
+        static public void ReflowShipList(ShipListPanel panel, bool snap) {
+            using (var children = panel.Layout.Root.QueryLayoutChildren()) {
+                var yBuffer = Frame.AllocSpan<float>(children.Count);
+                Positioning.DeferredVerticalLayout(children, panel.VerticalLayoutOptions, 0, yBuffer);
+                for(int i = 0; i < children.Count; i++) {
+                    var row = panel.Rows[i];
+                    row.TargetPos.y = yBuffer[i];
+                    if (snap) {
+                        Positioning.SetOffsetY(row.Rect, row.TargetPos.y);
+                        SyncShipRowPositions(row);
+                    }
+                }
+            }
         }
 
         static public void HandleShipClicked(PointerListener.EventData evtData) {

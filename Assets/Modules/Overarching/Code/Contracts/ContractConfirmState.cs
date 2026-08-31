@@ -36,10 +36,10 @@ namespace SpaceFab.Overarching
 
     public static class ContractConfirmUtility
     {
-        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, ContractAssetsLookup lookup, SharedUIState sharedUIState, PlayerProgressState playerProgress)
+        public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, SharedUIState sharedUIState, PlayerProgressState playerProgress, ContractState contractState)
         {
             // Apply the selected contract's data (active contract id, loaded assets, seeded minigame save).
-            yield return ApplyContractByIndex(chapterState, playerProgress, lookup, selectState.SelectedContractIndex);
+            yield return ApplyContractByIndex(chapterState, playerProgress, contractState, selectState.SelectedContractIndex);
 
             float fillAmount = 0;
             while (fillAmount < 1)
@@ -69,21 +69,22 @@ namespace SpaceFab.Overarching
         // as the active contract, loads its asset scene, and seeds the minigame save state from the
         // contract's assets. This is the data core shared by ConfirmContractRoutine and the debug
         // "set contract" tool — no UI, no phase transition.
-        public static IEnumerator ApplyContractByIndex(ChapterState chapterState, PlayerProgressState playerProgress, ContractAssetsLookup lookup, int contractIndex)
+        public static IEnumerator ApplyContractByIndex(ChapterState chapterState, PlayerProgressState playerProgress, ContractState contractState, int contractIndex)
         {
             chapterState.LastSelectedContractIndex = contractIndex;
-            StringHash32 contractId = chapterState.CurrAvailableContractsBundle.AvailableContracts[contractIndex].AssetId;
+            StringHash32 contractId = chapterState.ChapterDefinition.AvailableContracts[contractIndex];
 
-            playerProgress.CurrContractId = contractId;
-
-            yield return ContractsLookupUtility.LoadContract(lookup, playerProgress, contractId);
-            ContractsLookupUtility.Lookup(lookup, contractId, out SceneReference contractAssetsScene, out StringHash32 assetsWrapperId);
+            ContractUtility.LoadContractData(contractState, contractId);
+            while(contractState.LoadRoutine) {
+                yield return null;
+            }
 
             // Extract assets into game states
-            var contractAssets = Find.NamedAsset<ContractAssetsWrapper>(assetsWrapperId);
+            var contractAssets = contractState.ContractAssets;
             // design level starts as initial config by default
             var minigameSaveState = Find.State<MinigameSaveStates>();
             MinigameSaveUtility.ClearMinigameState(minigameSaveState);
+            MinigameZonesUtility.UpdateStatusFromSave(Find.State<MinigameZonesState>(), minigameSaveState, Find.GlobalAsset<MinigameDependencyGraph>());
 
             // Seed every Design level under the contract. Each level gets its own grid + input
             // toggle defaults, all marked unsolved. The player works through them in order; the
@@ -104,7 +105,7 @@ namespace SpaceFab.Overarching
             // Fabrication, Research's "valid solution" is purely a knowledge-coverage check, so
             // it can be satisfied before the minigame is ever entered. The flag is read from
             // save by ResearchStateUtility.ImportState when the Research scene loads.
-            if (ContractProgressUtility.IsContractSatisfied(playerProgress, contractAssets.ContractDef))
+            if (ContractProgressUtility.IsContractSatisfied(playerProgress, contractState.ContractDefinition))
             {
                 minigameSaveState.Research.FoundValidSolution = true;
             }

@@ -30,7 +30,7 @@ TagManager:
   - TutorialFocus
   - 
   - InterruptUI
-  - 
+  - OverarchingClickBox
   - 
   - 
   - 
@@ -38,6 +38,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 1656163371
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

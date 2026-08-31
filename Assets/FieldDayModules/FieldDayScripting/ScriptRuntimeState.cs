@@ -174,8 +174,8 @@ namespace FieldDay.Scripting {
 
         #region ISceneLoadDependency
 
-        bool ISceneLoadDependency.IsLoaded(SceneLoadPhase loadPhase) {
-            return loadPhase != SceneLoadPhase.BeforeLateEnable || !m_BootRoutine;
+        bool ISceneLoadDependency.IsLoaded(SceneLoadFence loadPhase) {
+            return loadPhase != SceneLoadFence.BeforeLateEnable || !m_BootRoutine;
         }
 
         #endregion // ISceneLoadDependency
@@ -219,7 +219,7 @@ namespace FieldDay.Scripting {
     }
 
     static public partial class ScriptUtility {
-        public const int RuntimeUpdateMask = 0x7FFFFFFF;
+        public const int RuntimeUpdateMask = 1 << 31;
 
         [SharedStateReference] static public ScriptRuntimeState Runtime { get; private set; }
         [SharedStateReference] static public ScriptDatabase DB { get; private set; }
@@ -230,6 +230,8 @@ namespace FieldDay.Scripting {
             Game.SharedState.Register(new ScriptRuntimeState());
             ScriptLoadingSystem.RegisterModule();
             ScriptRuntimeTickSystem.RegisterModule();
+
+            GameLoop.SetDebugUpdateBitName(31, "ScriptRuntime");
         }
 
         #region Replace
@@ -716,7 +718,7 @@ namespace FieldDay.Scripting {
             ScriptNode node = ScriptDBUtility.FindRandomTrigger(DB, triggerId, lookup);
             if (node != null) {
                 Log.Msg("[ScriptUtility] Triggered '{0}', found response '{1}'", triggerId.ToDebugString(), node.FullName);
-                return Runtime.Plugin.Run(node, targetId, actor, vars, "Trigger Invokation", true);
+                return Runtime.Plugin.Run(node, targetId, actor, vars, "Trigger Invocation", true);
             }
 
             Log.Msg("[ScriptUtility] Triggered '{0}', no response", triggerId.ToDebugString());

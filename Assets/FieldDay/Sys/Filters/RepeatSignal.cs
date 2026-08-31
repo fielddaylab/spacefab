@@ -15,7 +15,6 @@ namespace FieldDay.Filters {
         /// <summary>
         /// Processes an input signal.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public bool Process(ref RepeatSignal signal, bool input, float deltaTime, in RepeatSignalEnvelope envelope) {
             if (!input) {
                 signal.Digital = false;

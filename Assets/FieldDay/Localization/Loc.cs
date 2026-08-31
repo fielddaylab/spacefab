@@ -33,6 +33,13 @@ namespace FieldDay.Localization {
             get { return s_CurrentLang; }
         }
 
+        /// <summary>
+        /// Returns if the current language has all the given features.
+        /// </summary>
+        static public bool LanguageHasFeatures(LanguageFeatures features) {
+            return (s_CurrentLangFeatures & features) == features;
+        }
+
         #endregion // Current Language
 
         #region Defaults
@@ -332,5 +339,17 @@ namespace FieldDay.Localization {
         }
 
         #endregion // File Paths
+
+        #region Loading
+
+        static internal void MarkLoading() {
+            s_IsLoaded = false;
+        }
+
+        static internal void MarkLoaded() {
+            s_IsLoaded = true;
+        }
+
+        #endregion // Loading
     }
 }

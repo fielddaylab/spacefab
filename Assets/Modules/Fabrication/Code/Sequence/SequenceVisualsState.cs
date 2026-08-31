@@ -16,12 +16,14 @@ namespace SpaceFab.Fabrication.Sequence
     {
         // Authored on the Sequence Panel Group prefab — both cards live there at the same local
         // position. Which one is "in front" is controlled by sibling order, not by translation.
+        public RectTransform SequencePanelGroup;
         public SequenceCard CardSlotA;
         public SequenceCard CardSlotB;
 
         // Placeholder transition timing. The current animation just toggles CanvasGroup alpha on
         // the two cards across this duration; replace with a real tween when the visual is final.
         public float TransitionDurationSeconds = 0.4f;
+        public float PanelTransitionDurationSeconds = 0.2f;
 
         // Runtime pointers tracking which authored slot is currently in front vs. behind. Swapped
         // by SequenceVisualsUtility.AdvanceRoutine. Initialized in OnRegister and on every Reset.
@@ -39,6 +41,9 @@ namespace SpaceFab.Fabrication.Sequence
         // transition.
         [HideInInspector] public bool AdvanceRequested;
 
+        // for use in moving the top panel off frame
+        [HideInInspector] public bool MoveAwayRequested;
+
         // Set by SequenceUtility.AdvanceStep on the final advance. Hides both cards permanently
         // until the next reset.
         [HideInInspector] public bool CompletionRequested;
@@ -50,6 +55,8 @@ namespace SpaceFab.Fabrication.Sequence
             ResetRequested = false;
             AdvanceRequested = false;
             CompletionRequested = false;
+            
+            SequencePanelGroup.anchoredPosition = new Vector2(0, 250);
 
             // Start hidden. Cards only become visible once ModeTransitionSystem transitions into
             // AttemptLeadIn and sets ResetRequested (consumed by SequenceVisualsSystem).
@@ -83,7 +90,7 @@ namespace SpaceFab.Fabrication.Sequence
             BringToFront(visualsState.FrontCard);
 
             // 3. Bail with both cards hidden if there is nothing to display.
-            if (sequenceState.Level == null || sequenceState.Level.Steps == null || sequenceState.Level.Steps.Length == 0) {
+            if (sequenceState.Level == null || sequenceState.Level.Sequence.Steps == null || sequenceState.Level.Sequence.Steps.Length == 0) {
                 SetCardVisible(visualsState.FrontCard, false);
                 SetCardVisible(visualsState.BackCard, false);
                 return;
@@ -93,11 +100,12 @@ namespace SpaceFab.Fabrication.Sequence
             WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
 
             int currentIndex = sequenceState.CurrentStepIndex;
-            FabricationStep[] steps = sequenceState.Level.Steps;
+            FabricationStep[] steps = sequenceState.Level.Sequence.Steps;
 
             // 4. Populate and show the front card with the current step (if in range).
             if (currentIndex >= 0 && currentIndex < steps.Length) {
                 PopulateCard(visualsState.FrontCard, steps[currentIndex], GetRuntime(sequenceState, currentIndex), lookup, waferLookup);
+                SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
                 SetCardVisible(visualsState.FrontCard, true);
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
@@ -110,6 +118,13 @@ namespace SpaceFab.Fabrication.Sequence
                 PopulateCard(visualsState.BackCard, steps[nextIndex], GetRuntime(sequenceState, nextIndex), lookup, waferLookup);
             }
             SetCardVisible(visualsState.BackCard, false);
+
+            visualsState.TransitionRoutine.Replace(InitialMoveIntoFrame(visualsState));
+        }
+
+        public static IEnumerator InitialMoveIntoFrame(SequenceVisualsState visualsState)
+        {
+            yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
         }
 
         // Non-final step advance. Reveals the pre-loaded back card (which already holds the
@@ -123,7 +138,7 @@ namespace SpaceFab.Fabrication.Sequence
             SetCardVisible(visualsState.BackCard, true);
             SetCardVisible(visualsState.FrontCard, false);
 
-            yield return visualsState.TransitionDurationSeconds;
+            yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
 
             // 2. Swap which authored slot is front vs. back. The newly-visible card becomes the
             //    front; the just-hidden card becomes the back and will be re-used for step N+2.
@@ -137,14 +152,21 @@ namespace SpaceFab.Fabrication.Sequence
             //    but keep it hidden — it only becomes visible at the next advance. AdvanceStep has
             //    already incremented CurrentStepIndex, so the new upcoming "next" step is
             //    CurrentStepIndex + 1 == justCompletedIndex + 2.
-            FabricationStep[] steps = sequenceState.Level != null ? sequenceState.Level.Steps : null;
+            FabricationStep[] steps = sequenceState.Level != null ? sequenceState.Level.Sequence.Steps : null;
             int newBackIndex = justCompletedIndex + 2;
             if (steps != null && newBackIndex < steps.Length) {
                 SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
                 WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
                 PopulateCard(newBack, steps[newBackIndex], GetRuntime(sequenceState, newBackIndex), lookup, waferLookup);
             }
+            SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[justCompletedIndex + 1].StepId.ToString(), false)));
             SetCardVisible(newBack, false);
+
+        }
+
+        public static IEnumerator MoveOffscreenRoutine(SequenceVisualsState visualsState)
+        {
+            yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 250), visualsState.TransitionDurationSeconds);
         }
 
         // Final-step completion. Hides both cards and leaves them hidden until the next reset.
@@ -152,6 +174,7 @@ namespace SpaceFab.Fabrication.Sequence
         {
             SetCardVisible(visualsState.FrontCard, false);
             SetCardVisible(visualsState.BackCard, false);
+
             yield return visualsState.TransitionDurationSeconds;
         }
 

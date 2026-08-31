@@ -609,7 +609,6 @@ namespace EasyAssetStreaming {
 
             if (s_UpdateHookGO == null) {
                 s_UpdateHookGO = new GameObject("[StreamingTick]");
-                s_UpdateHookGO.hideFlags = HideFlags.DontSave;
                 GameObject.DontDestroyOnLoad(s_UpdateHookGO);
                 s_UpdateHookGO.AddComponent<UpdateHook>();
             }

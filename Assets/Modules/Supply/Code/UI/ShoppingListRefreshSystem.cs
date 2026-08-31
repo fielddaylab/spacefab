@@ -1,5 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
+using BeauRoutine;
+using UnityEngine;
 
 namespace SpaceFab.Supply
 {
@@ -23,6 +25,27 @@ namespace SpaceFab.Supply
         {
             ShoppingListState shoppingState = Find.State<ShoppingListState>();
             shoppingState.Dirty = false;
+
+            ShoppingListLayoutState layoutState = Find.State<ShoppingListLayoutState>();
+
+            if (layoutState.ListExpanded && layoutState.CollapseTransform.position.y != 0)
+            {
+                MoveToPosition(layoutState, 0f);
+            }
+            else if (!layoutState.ListExpanded && layoutState.CollapseTransform.position.y != layoutState.CollapseYValue)
+            {
+                MoveToPosition(layoutState, layoutState.CollapseYValue);
+            }
+        }
+
+        private static void MoveToPosition(ShoppingListLayoutState layoutState, float targetY)
+        {
+            float currentY = layoutState.CollapseTransform.position.y;
+            if (Mathf.Abs(currentY - targetY) < 0.001f) return;
+
+            layoutState.ToggleRoutine.Replace(GameLoop.Host,
+                layoutState.CollapseTransform.MoveTo(targetY, 0.25f, Axis.Y, Space.Self).Ease(Curve.CubeOut)
+            );
         }
     }
 }

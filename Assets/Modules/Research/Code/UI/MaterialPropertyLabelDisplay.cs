@@ -3,11 +3,9 @@ using SpaceFab.Materials;
 namespace SpaceFab.Research {
     /// <summary>
     /// Maps MaterialPropertyLabel enum values to human-readable strings for
-    /// the hypothesis / observation UI. Two flavors: short observation
-    /// phrasing (sentence-style, chip-sized) and uppercase property phrasing
-    /// (used in the hypothesis header). Authoring is intentionally a switch
-    /// for now — a NamedAsset / localization table can replace this once
-    /// the label vocabulary stabilizes.
+    /// the hypothesis / observation UI. Authoring is intentionally
+    /// a switch for now — a NamedAsset / localization table can replace
+    /// this once the label vocabulary stabilizes.
     /// </summary>
     public static class MaterialPropertyLabelDisplay {
         // Chip label for an observation. Falls back to the enum name when
@@ -21,13 +19,12 @@ namespace SpaceFab.Research {
                 case MaterialPropertyLabel.HeatUnaffected: return "Heat does not affect current";
                 case MaterialPropertyLabel.HeatVulnerable: return "Heat causes breakdown";
                 case MaterialPropertyLabel.HeatResistant: return "Resists high temperatures";
-                case MaterialPropertyLabel.AtomicRadiusLessThan: return "Smaller atomic radius";
-                case MaterialPropertyLabel.AtomicRadiusGreaterThan: return "Larger atomic radius";
+                case MaterialPropertyLabel.AtomicRadiusCompliant: return "Smaller atomic radius";
                 case MaterialPropertyLabel.LightEmitting: return "Emits light when active";
                 case MaterialPropertyLabel.HighMobility: return "High electron mobility";
                 case MaterialPropertyLabel.VoltageResistant: return "Withstands extreme voltage";
-                case MaterialPropertyLabel.ValenceOneLessThan: return "Valence is one less";
-                case MaterialPropertyLabel.ValenceOneMoreThan: return "Valence is one more";
+                case MaterialPropertyLabel.ValenceOneLessThan: return "1 less valence electron";
+                case MaterialPropertyLabel.ValenceOneMoreThan: return "1 more valence electron";
                 default: return label.ToString();
             }
         }

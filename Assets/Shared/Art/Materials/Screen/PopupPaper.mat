@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PopupPaper
+  m_Shader: {fileID: 4800000, guid: a8d73b42d727c164ea4c52628d4a5750, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - FD_INTENSITY_ALPHA
+  - FD_SAMPLE_R
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 6744bca838400774dbcdd2dd26c279c9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - FD_INTENSITY: 1
+    - FD_SAMPLE: 0
+    - _ApplyAdditiveColor: 0
+    - _ApplyLerpColor: 0
+    - _BlendOp: 0
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _DestBlend: 1
+    - _DitherScale: 1
+    - _IntensityAlphaMinThreshold: 0.281
+    - _IntensityAlphaThreshold: 0.538
+    - _IntensityColorMinThreshold: 1
+    - _IntensityColorThreshold: 1
+    - _PremultiplyAlpha: 0
+    - _SrcBlend: 5
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _Tiling: 307
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _Color: {r: 0.39622632, g: 0.39622632, b: 0.39622632, a: 1}
+    - _Pivot: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []

@@ -67,10 +67,11 @@ namespace SpaceFab.Overarching {
             // When the selected contract changes, refresh its detail UI
             if (selectState.SelectedContractIndexChanged) {
                 layoutState.PrevContractButton.gameObject.SetActive(selectState.SelectedContractIndex > 0);
-                layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < chapterState.CurrAvailableContractsBundle.AvailableContracts.Length - 1);
+                layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < chapterState.ChapterDefinition.AvailableContracts.Length - 1);
                 layoutState.SelectionContractUI.SignatureImage.fillAmount = chapterState.LastSelectedContractIndex == selectState.SelectedContractIndex ? 1 : 0;
 
-                ContractUtility.LoadContractData(layoutState.SelectionContractUI, chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex]);
+                ContractUtility.LoadContractData(layoutState.SelectionContractUI,
+                    ContractUtility.GetDefinition(chapterState.ChapterDefinition.AvailableContracts[selectState.SelectedContractIndex]));
                 selectState.SelectedContractIndexChanged = false;
             }
 
@@ -78,8 +79,8 @@ namespace SpaceFab.Overarching {
             if (selectState.SelectionConfirmed) {
                 Debug.Log("Confirm selection");
                 SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, selectState.SelectedContractIndex.ToString());
+                ScriptUtility.Trigger("OnContractAccept");
                 selectState.Phase = ContractSelectPhase.Completed;
-                selectState.ContractTitleText.text = chapterState.CurrAvailableContractsBundle.AvailableContracts[selectState.SelectedContractIndex].Title();
             }
         }
     }
