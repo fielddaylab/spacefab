@@ -17,7 +17,7 @@ MonoBehaviour:
     m_HashValue: 2571817723
   BaseConduction: 0.7
   HeatedConduction: 0.175
-  MaxTemperature: 0.33
+  MaxTemperature: 0.66
   MaxVoltage: 1
   IsHighMobility: 0
   IsLightEmitting: 0
