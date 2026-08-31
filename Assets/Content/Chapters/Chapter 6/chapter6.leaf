@@ -1,6 +1,6 @@
-#basePath Chapter6
+# basePath Chapter6
 
-::FirstContractOpenCh5 
+::FirstContractOpenCh6
 @trigger    OnContractSelectOpen
 @cutscene
 @once 
@@ -14,11 +14,13 @@
 {@PAL}      Did you know that 92.7% of Independent contractors failed the Frontier Robotics Honesty Test? 
 {@PAL}      A true shame that is. 
 {@Player}   ...
-{@PAL}      Shall we get to work Captian?
+{@PAL}      Shall we get back to work Captian?
 {@Player}   Yeah... sure. 
 {@PAL}      Great! As you can see, another contract has been added. 
 {@PAL}      This contract requires more advanced materials. 
 {@PAL}      It'll require more work, but it'll have a larger payout! 
+{@Player}   Good to know. 
+{@PAL}      Let's get productive Captain!
 
 
 ::BeforeSupplyChainCh6
@@ -39,4 +41,14 @@
 {@Xavier}   And we will be expecting your business.
 {@Player}   Wait, so what happened to the workers? 
 {@Xavier}   What? The humans? Oh. 
-{@Xavier}   We've... 
+{@Xavier}   We've... reassigned them. 
+{@Xavier}   Telling you, the only people needed will be people like us. 
+{@Player}   Like us? 
+{@Xavier}   Yeah, managers of autonomous workforces. 
+{@Xavier}   Corporate's expecting us to up our cooperation percentage. 
+{@Xavier}   So don't dissapoint. Expect your business soon. 
+//hang up tone
+{@Player}   ...does Frontier want to make all fabrication autonomous? 
+
+
+//TEST
