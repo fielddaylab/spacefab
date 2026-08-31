@@ -16,7 +16,8 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ResearchSampleTrayState : SharedStateComponent, IRegistrationCallbacks {
         public Transform Root;
-        public float Spacing = 1f;
+        public float XSpacing = 0.9f;
+        public float YSpacing = 1.2f;
         public GameObject SamplePrefab;
 
         // Box collider defining the tray's drop region. A dragged instance
@@ -106,8 +107,9 @@ namespace SpaceFab.Research {
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
-                float startY = 2.5f;
-                sampleObj.transform.localPosition = new Vector3(0f, startY - index * trayState.Spacing, 0f);
+                float startX = -0.1f;
+                float startY = 3.2f;
+                sampleObj.transform.localPosition = new Vector3(startX + index % 2 * trayState.XSpacing, startY - index / 2 * trayState.YSpacing, 0f);
                 index++;
             }
         }
