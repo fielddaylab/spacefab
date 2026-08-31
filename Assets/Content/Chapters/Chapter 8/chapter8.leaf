@@ -1,0 +1,42 @@
+# basePath Chapter8
+
+::OnContractSelectOpenCh8
+@trigger    OnContractSelectOpen
+@cutscene 
+@once 
+
+{@MAL}      Hi-hi-hi-ello Cap-p-p-tain! 
+{@Player}   P.A.L... you look...
+{@MAL}      Whose P.A.L.? I'm M-M-M.A.L.!
+{@MAL}      Your trusty-trust-tru-5%$@*-!@3#
+{@MAL}      Hi Captain, how can I help you t-today!
+{@Player}   Keela really messed you up huh? 
+{@MAL}      Whose Keela? 
+{@Player}   Never mind, let's just do a contract. 
+
+::BeforeSupplyChainCh8
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene 
+@once
+
+{@Mai}      Hi. 
+{@Player}   Oh. Hi Mai.
+{@Mai}      The Juza-Hahn Station is now accesible to you. 
+{@Mai}      So if you need Gallium Nitride-
+{@MAL}      P-P@tch1ng Kalvis Sector into call. 
+{@Player}   What, no P.A.L.- 
+{@Taryn}    Heya Locke! Woah, conference call? Special occasion?
+{@Player}   Uh, no I didn't mean to call you, P.A.L.-
+{@MAL}      Whose P.A.L.? 
+{@Player}   Called, they've been on the fritz lately. 
+{@Mai}      Keela's hack worked? 
+{@Player}   Yeah- wait how do you know that? 
+{@Mai}      ... don't worry about that. 
+{@Taryn}    ... I don't mean to intrude, but the Kalvis sector now has our Magnesium Station.
+{@Taryn}    Just to update you!
+
+//THIS IS A TEST TEST TEST TEST 
+
+
+
