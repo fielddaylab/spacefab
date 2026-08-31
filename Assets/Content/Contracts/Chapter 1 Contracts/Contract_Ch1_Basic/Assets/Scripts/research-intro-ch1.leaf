@@ -9,7 +9,6 @@ $else
     $call   UnlockWikiPage("Basic Insulator")
     $call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
     $call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter 
-    $set temp:designTutorialStep = 0
     $call   ReleaseAllHighlights()
     $call   HighlightElement(research:sample-copper)
     $call   HighlightElement(research:sample-SiliconDioxide)
@@ -44,12 +43,13 @@ $call   ReleaseAllHighlights()
 $call   HighlightElement(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(false)
 $set    temp:addObsBtnActive = false
+$set    temp:slotFilled = true
 {@PAL}  Now add voltage and observe if anything happens.
 
 
 ::OnVoltageIncreased
 @trigger    OnVoltageIncreased
-@when       !MinigameHasValidSolution()
+@when       !MinigameHasValidSolution(), temp:slotFilled
 $call   ReleaseAllHighlights()
 //$call   ReleaseHighlight(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(true)
@@ -146,7 +146,6 @@ $elseif     research:propertyId == "null"
     $call   ReleaseHighlight(wiki:tab-properties)
     $call   HighlightElement(research:add-observation-btn)
 $endif
-
 
 
 ::OnVerifyButtonShown

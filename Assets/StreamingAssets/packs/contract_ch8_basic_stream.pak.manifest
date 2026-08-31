@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 148720879
+CRC: 3257824113
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7564da1701d59250113688e8850a03e8
+    Hash: 3bfefad58d9137d4abdfab7d9a8c9278
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 1d7e517ff9248809148458aa39ae80b4
+    Hash: 69e0630b4927b6d1d89be8eb51c2d752
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 7564da1701d59250113688e8850a03e8
+    Hash: 3bfefad58d9137d4abdfab7d9a8c9278
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -37,8 +37,6 @@ SerializeReferenceClassIdentifiers:
   ClassName: SpaceFab.Design.GridCellConfig
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.TestData
-- AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Design.TestEntry
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Fabrication.Sequence.FabricationStep
 - AssemblyName: Assembly-CSharp

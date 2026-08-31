@@ -106,7 +106,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9196513017525529098, guid: cf652b02f9277e44d90256fa3eb6ed51, type: 3}
       propertyPath: m_Name
-      value: WikiTab Variant
+      value: WikiTab
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

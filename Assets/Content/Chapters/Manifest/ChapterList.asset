@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Chapters:
   - ChapterId:
-      m_HashValue: 570083838
-    PackageId:
-      m_HashValue: 1396134493
-  - ChapterId:
       m_HashValue: 1645296827
     PackageId:
       m_HashValue: 731900332
+  - ChapterId:
+      m_HashValue: 570083838
+    PackageId:
+      m_HashValue: 1396134493
   - ChapterId:
       m_HashValue: 1710280900
     PackageId:
