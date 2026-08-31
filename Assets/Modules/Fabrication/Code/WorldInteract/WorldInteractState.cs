@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.StationControl;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace SpaceFab.Fabrication.Movement {
     /// for world-interact input; the station-control machine is the inner gate.
     /// </summary>
     public class WorldInteractState : SharedStateComponent, IRegistrationCallbacks {
-        [HideInInspector] public bool WorldInteractEnabled;
+        [NonSerialized] public bool WorldInteractEnabled;
 
         public void OnDeregister() {
         }

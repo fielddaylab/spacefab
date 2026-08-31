@@ -20,14 +20,15 @@ namespace SpaceFab.Research
         [AssetName(typeof(MaterialAsset), true)]
         public SerializedHash32 MaterialId;
 
-        // Base conductivity. 0 = perfect insulator, 1 = baseline conductor,
-        // up to 2 for highly conductive materials. Multiplied into current.
-        [Range(0f, 2f)] public float ConductionMultiplier = 1f;
+        // Conductivity with no heat applied. 0 = perfect insulator,
+        // 1 = baseline conductor, up to 2 for highly conductive materials.
+        [Range(0f, 2f)] public float BaseConduction = 1f;
 
-        // Temperature sensitivity. Current scales as
-        // (1 + temperature * (ThermalMultiplier - 1)). Values > 1 boost
-        // current with heat (semiconductor-like); values < 1 reduce it.
-        [Range(0f, 2f)] public float ThermalMultiplier = 1f;
+        // Conductivity at maximum temperature. Greater than BaseConduction for
+        // semiconductor-like materials that only conduct once heated; less for
+        // metals that lose conductivity with heat; equal for heat-insensitive
+        // materials. Conduction interpolates between the two on an eased ramp.
+        [Range(0f, 2f)] public float HeatedConduction = 1f;
 
         // Maximum temperature before the material is unstable. Used by the
         // future Thermal chamber.
@@ -53,20 +54,30 @@ namespace SpaceFab.Research
     public static class MaterialPhysicsUtility
     {
         // Returns the current that flows through the material at the given
-        // voltage and temperature. Linear in voltage, scaled by a temperature-
-        // dependent factor and the material's conductivity.
+        // voltage and temperature. Linear in voltage; conductivity interpolates
+        // between the material's cold and hot values on an eased temperature
+        // ramp, so a near-zero BaseConduction can still reach a discernible
+        // current when heated.
         public static float GetCurrent(MaterialPhysicsProfile profile, float voltage, float temperature)
         {
             if (profile == null) return 0f;
-            float conduction = profile.ConductionMultiplier;
+
+            // Squared ramp: conduction hugs its cold value through the first
+            // heat step, then climbs sharply. Reads to the player as a
+            // threshold effect rather than a gradual fade.
+            float t = Mathf.Clamp01(temperature);
+            t *= t;
+
+            float conduction = Mathf.Lerp(profile.BaseConduction, profile.HeatedConduction, t);
             if (profile.IsHighMobility)
             {
                 conduction *= 1.5f;
             }
-            float thermal = 1f + temperature * (profile.ThermalMultiplier - 1f);
 
-            Debug.Log($"GetCurrent: voltage={voltage}, temperature={temperature}, conduction={conduction}, current={voltage * thermal * conduction}");
-            return voltage * thermal * conduction;
+            // Clamped so downstream consumers can treat current as a normalized
+            // magnitude; the high-mobility boost and a 2.0 HeatedConduction can
+            // otherwise push the raw product well past 1.
+            return Mathf.Clamp(voltage * conduction, -1f, 1f);
         }
 
         // True if the material is stable at the given voltage. Battery

@@ -109,7 +109,7 @@ namespace SpaceFab.Design
             // Per-test scratch sized to the freshly-built graph + grid.
             Dimensions dims = gridStackState.GridStack.LayerDims;
             int cellCount = gridStackState.GridStack.GridLayers.Length * dims.X * dims.Y;
-            SimulateRunScratchUtility.EnsureCapacity(runScratch, graphState.NodeCount, cellCount);
+            SimulateRunScratchUtility.EnsureCapacity(runScratch, graphState.NodeCount, graphState.SegmentCount, cellCount);
 
             // Output buffer sized to the count of Output crucial nodes in graph order — matches
             // the iteration order ProcessResolvingTest uses to write into OutputFlowBuffer.
@@ -125,9 +125,9 @@ namespace SpaceFab.Design
             // length already matches, otherwise allocate fresh (default TestRowVerdict.Untested).
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            if (runState.RowVerdicts == null || runState.RowVerdicts.Length != suite.Tests.Length)
+            if (runState.RowVerdicts == null || runState.RowVerdicts.Length != suite.Rows.Length)
             {
-                runState.RowVerdicts = new TestRowVerdict[suite.Tests.Length];
+                runState.RowVerdicts = new TestRowVerdict[suite.Rows.Length];
             }
 
             // Flip masks. Both calls are idempotent in GameLoop, so no harm if a future

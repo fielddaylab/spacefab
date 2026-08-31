@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Silver
     m_HashValue: 665289792
-  ConductionMultiplier: 0.8
-  ThermalMultiplier: 0.5
+  BaseConduction: 0.8
+  HeatedConduction: 0.2
   MaxTemperature: 0.66
   MaxVoltage: 1
   IsHighMobility: 0

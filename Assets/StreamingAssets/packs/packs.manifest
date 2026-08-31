@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 908797221
+CRC: 1688116376
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -60,74 +60,53 @@ AssetBundleManifest:
       Name: contract_ch5_basic_stream.pak
       Dependencies: {}
     Info_19:
-      Name: contract_ch5_fancymater_stream.pak
+      Name: contract_ch5-6_fancymater_stream.pak
       Dependencies: {}
     Info_20:
       Name: contract_ch6_basic_stream.pak
       Dependencies: {}
     Info_21:
-      Name: contract_ch6_fancymater_stream.pak
-      Dependencies: {}
-    Info_22:
       Name: contract_ch6_trickypuzzle_stream.pak
       Dependencies: {}
+    Info_22:
+      Name: contract_ch7-8_basic_stream.pak
+      Dependencies: {}
     Info_23:
-      Name: contract_ch7_basic_stream.pak
+      Name: contract_ch7-8_fancymater_stream.pak
       Dependencies: {}
     Info_24:
-      Name: contract_ch7_fancymater_stream.pak
+      Name: contract_ch7-8_trickypuzzle_stream.pak
       Dependencies: {}
     Info_25:
-      Name: contract_ch7_trickypuzzle_stream.pak
-      Dependencies: {}
-    Info_26:
-      Name: contract_ch8_basic_stream.pak
-      Dependencies: {}
-    Info_27:
-      Name: contract_ch8_fancymater_stream.pak
-      Dependencies: {}
-    Info_28:
-      Name: contract_ch8_trickypuzzle_stream.pak
-      Dependencies: {}
-    Info_29:
-      Name: contract_ch9_basic_stream.pak
-      Dependencies: {}
-    Info_30:
       Name: contract_ch9_fancymater_stream.pak
       Dependencies: {}
-    Info_31:
-      Name: contract_ch9_trickypuzzle_stream.pak
+    Info_26:
+      Name: contract_ch9-10_basic_stream.pak
       Dependencies: {}
-    Info_32:
-      Name: contract_ch10_basic_stream.pak
+    Info_27:
+      Name: contract_ch9-10_trickypuzzle_stream.pak
       Dependencies: {}
-    Info_33:
+    Info_28:
       Name: contract_ch10_fancymater_stream.pak
       Dependencies: {}
-    Info_34:
-      Name: contract_ch10_trickypuzzle_stream.pak
-      Dependencies: {}
-    Info_35:
-      Name: contract_ch11_basic_stream.pak
-      Dependencies: {}
-    Info_36:
+    Info_29:
       Name: contract_ch11_fancymater_stream.pak
       Dependencies: {}
-    Info_37:
+    Info_30:
       Name: contract_ch11_trickypuzzle_stream.pak
       Dependencies: {}
-    Info_38:
-      Name: contract_ch12_basic_stream.pak
+    Info_31:
+      Name: contract_ch11-12_basic_stream.pak
       Dependencies: {}
-    Info_39:
+    Info_32:
       Name: contract_ch12_fancymater_stream.pak
       Dependencies: {}
-    Info_40:
+    Info_33:
       Name: contract_ch12_trickypuzzle_stream.pak
       Dependencies: {}
-    Info_41:
+    Info_34:
       Name: contract_test_stream.pak
       Dependencies: {}
-    Info_42:
+    Info_35:
       Name: ingamestream.pak
       Dependencies: {}

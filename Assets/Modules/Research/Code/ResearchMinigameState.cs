@@ -35,27 +35,27 @@ namespace SpaceFab.Research
 
         #region Runtime State
 
-        [HideInInspector] public HashSet<StringHash32> AvailableMaterials = new HashSet<StringHash32>();
-        [HideInInspector] public MaterialPropertyCheck[] RequiredResearchGoals = new MaterialPropertyCheck[0];
+        [NonSerialized] public HashSet<StringHash32> AvailableMaterials = new HashSet<StringHash32>();
+        [NonSerialized] public MaterialPropertyCheck[] RequiredResearchGoals = new MaterialPropertyCheck[0];
 
         // Sandbox property store. In-session confirmations stay isolated to the
         // minigame; PlayerProgressState is touched only on minigame exit (via
         // ResearchStateUtility.CommitToPlayerProgress). Same vocabulary and shape
         // as PlayerProgressState.MaterialProperties so the export step is a
         // straight bitwise OR-merge with no further translation.
-        [HideInInspector] public Dictionary<StringHash32, MaterialPropertyRecord> SandboxProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
+        [NonSerialized] public Dictionary<StringHash32, MaterialPropertyRecord> SandboxProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
 
         // Materials whose sandbox record changed during this session. Kept as a
         // hint for delta-merge / debug; export iterates SandboxProperties directly,
         // so this is non-load-bearing for correctness.
-        [HideInInspector] public HashSet<StringHash32> SandboxDirty = new HashSet<StringHash32>();
+        [NonSerialized] public HashSet<StringHash32> SandboxDirty = new HashSet<StringHash32>();
 
         // Per-material observation lists. Tentative evidence the player has
         // collected this session. Not persisted; cleared on minigame entry by
         // ResearchStateUtility.LoadFromPlayerProgress. Keyed by the material
         // the observation is being made about (the dynamic context material,
         // when relevant, lives inside each observation entry).
-        [HideInInspector] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
+        [NonSerialized] public Dictionary<StringHash32, MaterialObservationList> Observations = new Dictionary<StringHash32, MaterialObservationList>();
 
         // Set for one frame after ResearchPropertyConfirmBridge writes a
         // newly-confirmed property into SandboxProperties. Drives the
@@ -191,6 +191,44 @@ namespace SpaceFab.Research
                     researchState.SandboxProperties[materialId] = record;
                 }
             }
+        }
+
+        // Mid-session re-sync: additively folds PlayerProgressState back into the sandbox
+        // for every material in scope. Unlike LoadFromPlayerProgress this preserves the
+        // observations and LastDiscovery already collected this session, so it is safe to
+        // call while the minigame is running. It exists for progress written outside the
+        // confirm flow - the Unlock All Knowledge debug menu - to become visible without
+        // re-entering the minigame.
+        //
+        // Raises PropertyConfirmedThisFrame when anything changed: there is no
+        // ResearchPropertyConfirmBridge on this path, and the view systems gated on that
+        // flag (tray rigs, contract requirements panel) are what make the change show up
+        // the same frame. Returns true if any sandbox record changed.
+        public static bool MergeFromPlayerProgress(ResearchMinigameState researchState, PlayerProgressState progressState) {
+            bool anyChanged = false;
+
+            foreach (StringHash32 materialId in researchState.AvailableMaterials) {
+                if (!progressState.MaterialProperties.TryGetValue(materialId, out var progressRecord)) {
+                    continue;
+                }
+
+                researchState.SandboxProperties.TryGetValue(materialId, out var sandboxRecord);
+                MaterialPropertyRecord merged = sandboxRecord;
+                MaterialPropertyRecordUtility.Merge(ref merged, progressRecord);
+                if (MaterialPropertyRecordUtility.AreEqual(sandboxRecord, merged)) {
+                    continue;
+                }
+
+                researchState.SandboxProperties[materialId] = merged;
+                researchState.SandboxDirty.Add(materialId);
+                anyChanged = true;
+            }
+
+            if (anyChanged) {
+                researchState.PropertyConfirmedThisFrame = true;
+            }
+
+            return anyChanged;
         }
 
         // Minigame exit: merges the sandbox into PlayerProgressState. OR-mask is

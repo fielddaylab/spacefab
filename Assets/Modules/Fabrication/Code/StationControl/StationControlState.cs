@@ -10,6 +10,7 @@ using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.Sequence;
 using SpaceFab.Fabrication.Stations;
 using SpaceFab.Narrative;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,11 +49,11 @@ namespace SpaceFab.Fabrication.StationControl {
     /// consumers read MovementState directly.
     /// </summary>
     public class StationControlState : SharedStateComponent, IRegistrationCallbacks {
-        [HideInInspector] public StationControlPhase Phase;
+        [NonSerialized] public StationControlPhase Phase;
 
         // The station currently being interacted with. Non-null in AtStation / EnteringMicrogame /
         // InMicrogame / ExitingMicrogame; null otherwise.
-        [HideInInspector] public MicrogameStationInterfacer ActiveInterfacer;
+        [NonSerialized] public MicrogameStationInterfacer ActiveInterfacer;
 
         // Accumulates wall time within timed phases (EnteringMicrogame, ExitingMicrogame, Stunned).
         public float PhaseTimer;
@@ -63,30 +64,30 @@ namespace SpaceFab.Fabrication.StationControl {
         public float StunDuration = 1.5f;
 
         // One-frame flags, cleared by StationControlFlagRefreshSystem in LateUpdate.
-        [HideInInspector] public bool MicrogameCompletedThisFrame;
-        [HideInInspector] public bool CancelRequestedThisFrame;
+        [NonSerialized] public bool MicrogameCompletedThisFrame;
+        [NonSerialized] public bool CancelRequestedThisFrame;
 
         // One-frame flag raised when a completion is accepted (verdict Proceed) and the machine commits to
         // exiting. SequenceSystem advances on this rather than raw completion, so a failed precision gate
         // does not advance the sequence. Cleared by StationControlFlagRefreshSystem in LateUpdate.
-        [HideInInspector] public bool MicrogamePassedThisFrame;
+        [NonSerialized] public bool MicrogamePassedThisFrame;
 
         // Result precision [0,1] of the just-completed microgame, cached the frame it signals completion
         // (read from IMicrogame.GetResultPrecision before OnExitBegin). Read by the Leaf precision gate.
-        [HideInInspector] public float LastMicrogamePrecision;
+        [NonSerialized] public float LastMicrogamePrecision;
 
         // Signed precision of the just-completed microgame (IMicrogame.GetRawResultPrecision): 1 = perfect,
         // < 1 = overshoot (above target), > 1 = undershoot (below target). Used to pick a direction-specific
         // retry-popup message.
-        [HideInInspector] public float LastRawMicrogamePrecision;
+        [NonSerialized] public float LastRawMicrogamePrecision;
 
         // Verdict of the post-completion precision gate. Reset to Pending each completion, set by the Leaf
         // RequireMicrogamePrecision member (or the no-gate fallback), consumed when resolving the exit.
-        [HideInInspector] public MicrogameExitVerdict CompletionVerdict;
+        [NonSerialized] public MicrogameExitVerdict CompletionVerdict;
 
         // Handle to the OnFabMicrogameCompleted trigger thread, kept so ResolvingCompletion can tell a
         // still-running gate node from one that finished (or never existed) without setting a verdict.
-        [HideInInspector] public LeafThreadHandle CompletionScriptHandle;
+        [NonSerialized] public LeafThreadHandle CompletionScriptHandle;
 
         // True while a post-microgame process animation is playing. Raised either by the
         // microgame itself via MicrogameStationInterfacerUtility.SignalProcessAnimationStarted
@@ -97,20 +98,20 @@ namespace SpaceFab.Fabrication.StationControl {
         // during ExitingMicrogame, PhaseTimer does NOT advance — the exit timer waits behind the
         // animation. During InMicrogame the flag is informational only; the microgame still owns
         // input.
-        [HideInInspector] public bool ProcessAnimationInProgress;
+        [NonSerialized] public bool ProcessAnimationInProgress;
 
         // Phase to resume after Stunned clears. Set when TriggerStun is invoked.
-        [HideInInspector] public StationControlPhase PostStunPhase;
+        [NonSerialized] public StationControlPhase PostStunPhase;
 
         // External "park the exit timer" flag, re-armed each frame by systems that need to hold
         // ExitingMicrogame open beyond the microgame's own ProcessAnimationInProgress contract
         // (e.g., CompletionRecapSystem while the step-completion recap is playing). Independent
         // of ProcessAnimationInProgress so StationControlSystem's clearing logic for that flag
         // doesn't fight with external holds.
-        [HideInInspector] public bool ExitTimerExternalHold;
+        [NonSerialized] public bool ExitTimerExternalHold;
 
         public void OnRegister() {
-            Phase = StationControlPhase.Traveling;
+            Phase = StationControlPhase.AtStation;
             ActiveInterfacer = null;
             PhaseTimer = 0f;
             MicrogameCompletedThisFrame = false;

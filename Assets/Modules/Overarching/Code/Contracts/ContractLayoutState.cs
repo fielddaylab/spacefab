@@ -1,9 +1,11 @@
 using BeauRoutine;
+using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -112,6 +114,11 @@ namespace SpaceFab.Overarching
             DoubleCancelContractButton.onClick.AddListener(() => {
                 Find.State<ContractChangeState>().Phase = ContractChangePhase.DoubleCancelContract;
             });
+        }
+        public void SetViewCurrContractLabel(StringHash32 contractId)
+        {
+            var label = ViewCurrContractButton.GetComponentInChildren<TMP_Text>();
+            label.text = contractId.IsEmpty ? string.Empty : ContractUtility.GetDefinition(contractId).Title();
         }
     }
 }

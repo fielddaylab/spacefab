@@ -3,6 +3,7 @@ using FieldDay.Components;
 using FieldDay;
 using UnityEngine;
 using SpaceFab.UI;
+using System;
 
 namespace SpaceFab.Design {
     /// <summary>
@@ -48,15 +49,15 @@ namespace SpaceFab.Design {
 
         // One-frame input flags. Set by the pointer handlers below; consumed by
         // ToolbarSelectSystem; cleared by ToolbarRefreshSystem at end of frame.
-        [HideInInspector] public bool ClickedThisFrame;
-        [HideInInspector] public bool PointerEnterThisFrame;
-        [HideInInspector] public bool PointerExitThisFrame;
+        [NonSerialized] public bool ClickedThisFrame;
+        [NonSerialized] public bool PointerEnterThisFrame;
+        [NonSerialized] public bool PointerExitThisFrame;
 
         // Set by ToolbarAvailabilityUtility when the current level's allowed-tools mask is
         // applied. Unavailable buttons have Available=false AND gameObject.SetActive(false)
         // AND DynamicButton disabled — but select/refresh systems guard against stale flags
         // anyway, in case something flips a flag during a scene transition race.
-        [HideInInspector] public bool Available = true;
+        [NonSerialized] public bool Available = true;
 
         public void OnRegister() {
             if (DynamicButton == null) { return; }

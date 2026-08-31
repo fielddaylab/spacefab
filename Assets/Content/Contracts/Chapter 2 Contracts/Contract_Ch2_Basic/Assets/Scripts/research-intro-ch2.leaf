@@ -15,14 +15,16 @@ $endif
 
 ::OnWikiClosed
 @trigger    OnWikiClosed
-@when       !MinigameHasValidSolution(), temp:needsToOpenWikiFirstTime
+@when       !MinigameHasValidSolution(), temp:needsToOpenWikiFirstTime == true
 $set temp:needsToOpenWikiFirstTime = false
-{@PAL}      Interesting. Semiconductors allow current to pass, and current increases when heat is applied. \n\nI recommend you add a material to the voltage chamber to begin testing.
-
+{@PAL}      Interesting. Semiconductors don't allow current to pass, and current increases when heat is applied. \n\nI recommend you add a material to the voltage chamber to begin testing.
+$call   HighlightElement(research:sample-silicon)
 
 ::OnPlaceIntoSlot
 @trigger    OnSlotFilled
 @when       slotType == "primary", !MinigameHasValidSolution()
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:increase-voltage-btn)
 {@PAL}      Now apply voltage to to test the sample’s electrical properties
 
 
@@ -30,35 +32,51 @@ $set temp:needsToOpenWikiFirstTime = false
 @trigger    OnVoltageIncreased
 @when       !MinigameHasValidSolution()
 $call   ShowPrimaryPALButton("OpenObservations")
-$set    temp:needsToSelectObs = true
-{@PAL}      It looks like this sample allows voltage to pass. Open your database to the Observations tab and click on the observation to record it.
-
+$set    temp:needsToSelectVoltage = true
+$set    temp:needsToOpenWikiFirstTime = false // skip OnWikiClosed event and move to OnVoltageObsPageOpened
+$if     research:primaryMaterial == "Copper"
+    {@PAL}      It looks like this sample allows voltage to pass. Open your database to the Observations tab and click on the observation to record it.
+$else
+    {@PAL}      It looks like this sample does not allow voltage to pass. Open your database to the Observations tab and click on the observation to record it.
+$endif
 
 ::OnVoltageObsPageOpened
 @trigger    OnWikiPageOpened
-@when   temp:needsToSelectObs == true, pageId == "Voltage Observations"
-$call   HighlightElement(wiki:observations-electrical-conductive, false, -1, true)
+@when   temp:needsToSelectVoltage == true, pageId == "Voltage Observations"
+$if     research:primaryMaterial == "Copper"
+    $call   ReleaseAllHighlights()
+    $call   HighlightElement(wiki:observations-electrical-conductive, false, -1, true)
+$else
+    $call   ReleaseAllHighlights()
+    $call   HighlightElement(wiki:observations-electrical-nonconductive, false, -1, true)
+$endif
 
 ::OnNonVoltageObsPageOpened
 @trigger    OnWikiPageOpened
-@when   temp:needsToSelectObs == true, pageId != "Voltage Observations"
+@when   temp:needsToSelectVoltage, pageId != "Voltage Observations"
 $call   ReleaseAllHighlights()
 
 ::OnAllowsCurrentSelected
-@trigger    OnObservationAdded // todo: add this trigger
-@when       observationId == "conductive" // todo: pass in this val
-$call   HighlightElement(research:thermal-chamber-btn)
+@trigger    OnObservationAdded
+@when       observationId == "nonconductive"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:thermal-chamber-btn, false, -1, true)
+$call   CloseWiki()
+$set temp:needsToSelectObs = false 
+$set temp:needsToSelectVoltage = false
 {@PAL} You’ll need the thermal chamber to add the next observation. Remember to reference the semiconductor component in your database. 
 
 
 ::OnThermalChamberSelected
-@trigger    OnChamberSwitched   // todo: add this trigger
-@when       chamberId == "thermal"  // todo: pass in this val
-$call   HighlightElement(research:increase-heat-btn) // todo: add this tag
+@trigger    OnChamberSwitched
+@when       research:chamberId == "Thermal"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:increase-heat-btn)
 {@PAL} Now you’ll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
 
 ::OnHeatIncreased
-@trigger    OnHeatIncreased     // todo: add this trigger
+@trigger    OnHeatIncreased
+$call   ReleaseAllHighlights()
 $call   ShowPrimaryPALButton("OpenObservations")
 {@PAL}  That looks like increased current to me! Use your database to submit your observation.
 $set temp:needsToSelectThermal = true
@@ -67,7 +85,7 @@ $set temp:needsToSelectThermal = true
 ::OnFirstObsTabOpened
 @trigger    OnWikiTabOpened
 @when       temp:needsToSelectThermal
-$if tabId == "Observations_Tab" // not resolving?
+$if local:tabId == "Observations_Tab"
     $call   HighlightElement(wiki:page-thermal-observations, false, -1, true)
 $else
     $call   ReleaseAllHighlights()
@@ -75,13 +93,39 @@ $endif
 
 ::OnThermalObsPageOpened
 @trigger    OnWikiPageOpened
-@when       temp:needsToSelectThermal == true, pageId == "Thermal"
+@when       temp:needsToSelectThermal, pageId == "Thermal Observations"
 $call   ReleaseAllHighlights()
+$if     research:primaryMaterial == "Silicon"
+    $call   HighlightElement(wiki:observations-thermal-heatactivated, false, -1, true)
+$endif
+
+::OnHeatActivatedSelected
+@trigger    OnObservationAdded
+@when       observationId == "heatactivated"
+$call   ReleaseAllHighlights()
+$call   CloseWiki()
+
+
+::OnWikiClosedAfterThermalObs
+@trigger    OnWikiClosed
+@when       !MinigameHasValidSolution(), temp:needsToSelectThermal == true
 $set temp:needsToSelectThermal = false
+$call   SetTabById("Material Properties_Tab")
+$call   SetPageById("Semiconductor")
+$call   ShowPrimaryPALButton("OpenProperties")
+$set temp:needsToSelectSemiconductor = true
+{@PAL}      Now we need to select a component to verify our observations against.
 
-// todo: select component to verify obs against
 
-// highlight semiconductor property
+::OnSemiconductorPageOpened
+@trigger    OnWikiPageOpened
+@when       temp:needsToSelectSemiconductor == true, pageId == "Semiconductor"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(wiki:property-semiconductor, false, -1, true)
+$set temp:needsToSelectSemiconductor = false
 
-// force close wiki, tell to click verify and highlight it
 
+::OnSemiconductorSelected
+@trigger    OnPropertyAdded
+@when       propertyId == "semiconductor"
+$call   ReleaseAllHighlights()

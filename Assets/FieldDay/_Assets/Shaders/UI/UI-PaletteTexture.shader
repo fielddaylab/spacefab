@@ -15,6 +15,10 @@ Shader "FieldDay/UI/Palette Texture"
 		[Header(Colors)] [Space]
         _Color ("Tint", Color) = (1,1,1,1)
 
+		[Header(Dithering)] [Space]
+		[KeywordEnum(OFF,TWO,FOUR,EIGHT)] FD_DITHER ("Dithered Alpha Mode", Int) = 0
+		_DitherAlphaScale("Dithered Alpha Pixel Scale", Float) = 1
+
         [HideInInspector] _StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector] _Stencil ("Stencil ID", Float) = 0
         [HideInInspector] _StencilOp ("Stencil Operation", Float) = 0
@@ -76,6 +80,7 @@ Shader "FieldDay/UI/Palette Texture"
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local_fragment _ UNITY_UI_ALPHACLIP
             #pragma shader_feature_local_fragment FD_SAMPLE_R FD_SAMPLE_G FD_SAMPLE_B FD_SAMPLE_A
+			#pragma shader_feature_local_fragment _ FD_DITHER_TWO FD_DITHER_FOUR FD_DITHER_EIGHT
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
 			#pragma shader_feature_local_fragment _ FD_PALETTE_ATTENUATE_ALPHA
 			#pragma multi_compile_local _ FD_COLORMOD_LERP
@@ -84,17 +89,10 @@ Shader "FieldDay/UI/Palette Texture"
             #include "../CGIncludes/UI.cginc"
 			#include "../CGIncludes/Palette.cginc"
 
-            fixed4 CustomFrag(Varyings_UI IN) : SV_Target
+            fixed4 CustomFrag(Varyings_UI IN, float_vpos fragPos : VPOS) : SV_Target
             {
 				half4 color = LayerPaletteTexture(_MainTex, IN.texcoord, _PaletteTex) * IN.color;
-
-                UIRectClip(IN.mask, color);
-                UIAlphaClip(color);
-
-				UIApplyLerpColor(color, IN);
-			    UIApplyAdditiveColor(color, IN);
-    
-                PremultiplyAlpha(color);
+				UIFragCommonFooter(IN, color, fragPos);
                 return color;
             }
         ENDCG

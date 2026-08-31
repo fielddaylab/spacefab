@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -16,9 +17,9 @@ namespace SpaceFab.Fabrication
         // UI element to update with current time
         [SerializeField] public TextMeshProUGUI TimerText;
         // flag to disable incrementing the timer
-        [HideInInspector] public bool IsPaused = false;
+        [NonSerialized] public bool IsPaused = false;
         // storing elapsed time of a current run
-        [HideInInspector] public float ElapsedTime;
+        [NonSerialized] public float ElapsedTime;
 
         public void OnRegister()
         {

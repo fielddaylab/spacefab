@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.Systems;
+using UnityEngine;
 
 namespace SpaceFab.Design {
     /// <summary>
@@ -53,6 +54,35 @@ namespace SpaceFab.Design {
                 bool focused = row.Row == toolbarState.FocusedRow;
                 if (row.FadeGroup != null) {
                     row.FadeGroup.alpha = focused ? 1f : 0.4f;
+                }
+            }
+
+            // set up toolbar state's CurrentArrowAnchor position for
+            // toolbarState to update the ptr's position
+            RectTransform anchor = null;
+            var buttons = Find.Components<ToolbarButton>();
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                ToolbarButton button = buttons[i];
+                if (ToolbarUtility.ToolTypeForKind(button.Kind) == toolModeState.ActiveTool)
+                {
+                    anchor = button.ArrowAnchor;
+                    break;
+                }
+            }
+
+            toolbarState.CurrentArrowAnchor = anchor;
+            RectTransform ptr = toolbarState.SelectedToolPtr ? toolbarState.SelectedToolPtr.rectTransform : null;
+            if (ptr != null)
+            {
+                bool show = anchor != null;
+                if (ptr.gameObject.activeSelf != show)
+                {
+                    ptr.gameObject.SetActive(show);
+                }
+                if (show)
+                {
+                    ptr.position = anchor.position;
                 }
             }
         }

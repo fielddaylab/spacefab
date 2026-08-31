@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -27,26 +28,26 @@ namespace SpaceFab.Fabrication.Sequence
 
         // Runtime pointers tracking which authored slot is currently in front vs. behind. Swapped
         // by SequenceVisualsUtility.AdvanceRoutine. Initialized in OnRegister and on every Reset.
-        [HideInInspector] public SequenceCard FrontCard;
-        [HideInInspector] public SequenceCard BackCard;
+        [NonSerialized] public SequenceCard FrontCard;
+        [NonSerialized] public SequenceCard BackCard;
 
         // BeauRoutine handle for the active transition animation.
-        [HideInInspector] public Routine TransitionRoutine;
+        [NonSerialized] public Routine TransitionRoutine;
 
         // Set by SequenceUtility.ResetSequence. Consumed by SequenceVisualsSystem to rebuild both
         // cards' content from step 0 / step 1 and reset which slot is in front.
-        [HideInInspector] public bool ResetRequested;
+        [NonSerialized] public bool ResetRequested;
 
         // Set by SequenceUtility.AdvanceStep on a non-final advance. Drives the swap-and-repopulate
         // transition.
-        [HideInInspector] public bool AdvanceRequested;
+        [NonSerialized] public bool AdvanceRequested;
 
         // for use in moving the top panel off frame
-        [HideInInspector] public bool MoveAwayRequested;
+        [NonSerialized] public bool MoveAwayRequested;
 
         // Set by SequenceUtility.AdvanceStep on the final advance. Hides both cards permanently
         // until the next reset.
-        [HideInInspector] public bool CompletionRequested;
+        [NonSerialized] public bool CompletionRequested;
 
         public void OnRegister()
         {

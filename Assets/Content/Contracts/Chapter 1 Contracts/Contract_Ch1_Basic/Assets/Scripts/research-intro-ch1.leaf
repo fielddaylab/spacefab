@@ -5,6 +5,10 @@
 $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else
+    $call   UnlockWikiPage("Basic Conductor")
+    $call   UnlockWikiPage("Basic Insulator")
+    $call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
+    $call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter 
     $set temp:designTutorialStep = 0
     $call   ReleaseAllHighlights()
     $call   HighlightElement(research:sample-copper)
