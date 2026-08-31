@@ -23,8 +23,9 @@ namespace SpaceFab.Research
         public GameObject AtomicView;
         public GameObject SecondarySlotLid;
 
-        public MaterialAtom[] SubstrateAtomicViews;
-        public MaterialAtom DopantAtomicView;
+        public MaterialAtom SubstrateAtom;
+        public MaterialAtom DopantAtom;
+        
 
         // Observation chips the player can add while this chamber is active.
         // Read by the chip-picker UI (Tier 4).
