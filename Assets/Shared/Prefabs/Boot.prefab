@@ -230,8 +230,9 @@ MonoBehaviour:
     m_HashValue: 0
   RequestedPageId:
     m_HashValue: 0
+  PoppedTabIndex: 0
   NeedsRebuild: 0
-  ActivePageChangedThisFrame: 0
+  VisualsDirty: 0
 --- !u!1 &4107408674079076998
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,6 +533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SingleFrameAllocBufferSize: 256
   m_TargetFramerate: 60
+  m_PerformanceTargets: {fileID: 11400000, guid: 777445b9e8a000f4a80af53248d1e20e, type: 2}
   m_DefaultLanguage:
     m_Raw: 28261
   m_DefaultPixelSprite: {fileID: 21300000, guid: 9f0bc06012c6df84e8d09458de17665b, type: 3}

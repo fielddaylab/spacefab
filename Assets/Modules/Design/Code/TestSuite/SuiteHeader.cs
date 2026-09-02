@@ -8,7 +8,7 @@ namespace SpaceFab.Design
 {
     public class SuiteHeader : MonoBehaviour
     {
-        public RectTransform Rect;
         public TMP_Text Label;
+        public Image Icon;
     }
 }

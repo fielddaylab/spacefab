@@ -479,6 +479,7 @@ MonoBehaviour:
   - {fileID: 2556164438593427101}
   - {fileID: 8921682736016725712}
   - {fileID: 3119349212716759173}
+  SelectContractButton: {fileID: 663453334303720286}
   ApprovedStamp: {fileID: 2427410065574976976}
   SignatureImage: {fileID: 3971723900269717502}
 --- !u!1 &1570053837378581972
@@ -1014,7 +1015,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Projected Revenue
+  m_text: Payment
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ecd4ee2a0dd453d40b6ae24ceedcd014, type: 2}
   m_sharedMaterial: {fileID: 2063795413171510144, guid: ecd4ee2a0dd453d40b6ae24ceedcd014, type: 2}

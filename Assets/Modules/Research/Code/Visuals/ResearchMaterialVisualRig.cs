@@ -4,6 +4,7 @@ using FieldDay.Components;
 using SpaceFab.Materials;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -23,6 +24,7 @@ namespace SpaceFab.Research {
 
         [Header("Other")]
         public TMP_Text Label;
+        public SpriteRenderer LabelBG;
         public GameObject Highlight;
     }
 
@@ -80,6 +82,7 @@ namespace SpaceFab.Research {
                 ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
                 //rig.Label.SetText(known ? material.ShortName : view.SampleNumber.ToString());
                 rig.Label.SetText(known ? material.ShortName : view.SampleLabel.ToString());
+                rig.LabelBG.color = known ? Color.black : Color.gray;
             }
         }
 
@@ -94,6 +97,9 @@ namespace SpaceFab.Research {
             }
             if (rig.Label != null) {
                 rig.Label.SetText(string.Empty);
+            }
+            if (rig.LabelBG != null) {
+                rig.LabelBG.color = Color.clear;
             }
         }
     }

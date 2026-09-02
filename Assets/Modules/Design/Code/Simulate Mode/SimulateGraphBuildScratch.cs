@@ -2,6 +2,7 @@ using FieldDay.SharedState;
 using FieldDay.Systems;
 using FieldDay;
 using UnityEngine;
+using System;
 
 namespace SpaceFab.Design
 {
@@ -30,10 +31,10 @@ namespace SpaceFab.Design
         // CellAdjDest[k]         — the cellIndex of the k-th connected neighbor.
         // CellAdjDestUsed        — total entries written into CellAdjDest so far this build.
 
-        [HideInInspector] public int[] CellAdjStart;
-        [HideInInspector] public int[] CellAdjCount;
-        [HideInInspector] public int[] CellAdjDest;
-        [HideInInspector] public int CellAdjDestUsed;
+        [NonSerialized] public int[] CellAdjStart;
+        [NonSerialized] public int[] CellAdjCount;
+        [NonSerialized] public int[] CellAdjDest;
+        [NonSerialized] public int CellAdjDestUsed;
 
         // ---- BFS work queue of crucial-node indices ----
         //
@@ -42,19 +43,26 @@ namespace SpaceFab.Design
         // enqueued multiple times during the build: first on initial discovery, then potentially
         // re-enqueued at a later EvalDepth when a gate-dependency postponement resolves.
 
-        [HideInInspector] public int[] WorkQueue;
-        [HideInInspector] public int WorkHead;
-        [HideInInspector] public int WorkTail;
+        [NonSerialized] public int[] WorkQueue;
+        [NonSerialized] public int WorkHead;
+        [NonSerialized] public int WorkTail;
 
-        // ---- DFS visit stamps (O(1) reset replacement for a bool[] + ResetAllVisited) ----
+        // ---- DFS visit stamps (O(1) reset replacement for a bool[]) ----
         //
         // Instead of clearing a bool[cellCount] between DFS runs, we bump CurrentVisitStamp and
         // consider a cell visited iff VisitStamps[cellIdx] == CurrentVisitStamp. Clearing is a
         // single int increment, not a loop over every cell. Wraparound is a theoretical concern
         // but would require running billions of DFS passes in one Build — not a real risk here.
+        //
+        // The stamp is bumped once per crucial node DEQUEUED in Pass 2, so visited is scoped to
+        // a single origin's sweep. It is deliberately NOT shared across a depth layer: sharing
+        // lets whichever node is dequeued first claim a shared metal region, and every other
+        // crucial node on that region then finds its first neighbour stamped and emits no edge
+        // into it at all. Per-origin scoping is also what makes CrucialNode.EvalDepth come out
+        // as the exact hop distance from the Input set.
 
-        [HideInInspector] public int[] VisitStamps;
-        [HideInInspector] public int CurrentVisitStamp;
+        [NonSerialized] public int[] VisitStamps;
+        [NonSerialized] public int CurrentVisitStamp;
 
         // ---- DFS path scratch (shared by all DFS invocations within a Build) ----
         //
@@ -62,8 +70,8 @@ namespace SpaceFab.Design
         // reach a crucial node, we snapshot DfsPathBuffer[0..DfsPathDepth] into PathPool and
         // record the slice on the emitted CrucialEdge.
 
-        [HideInInspector] public int[] DfsPathBuffer;
-        [HideInInspector] public int DfsPathDepth;
+        [NonSerialized] public int[] DfsPathBuffer;
+        [NonSerialized] public int DfsPathDepth;
 
         // ---- Crucial nodes reached during one DFS invocation ----
         //
@@ -76,10 +84,10 @@ namespace SpaceFab.Design
         // reached trail). TryEmitEdge later uses these instead of re-snapshotting from the
         // already-backtracked DfsPathBuffer.
 
-        [HideInInspector] public int[] DfsReachedCrucial;
-        [HideInInspector] public int[] DfsReachedPathStart;
-        [HideInInspector] public int[] DfsReachedPathLength;
-        [HideInInspector] public int DfsReachedCrucialCount;
+        [NonSerialized] public int[] DfsReachedCrucial;
+        [NonSerialized] public int[] DfsReachedPathStart;
+        [NonSerialized] public int[] DfsReachedPathLength;
+        [NonSerialized] public int DfsReachedCrucialCount;
 
         // ---- Postponed gate-dependency pairs ----
         //
@@ -88,19 +96,24 @@ namespace SpaceFab.Design
         // records (dependentOriginCrucialIdx, dependencyGateBelowCrucialIdx) — two ints per
         // pair, packed into a single array to avoid allocating a 2-int struct.
         //
+        // BOTH slots are read when a postponement resolves. Slot 0 (the origin) is what gets
+        // re-enqueued a depth deeper, because only the origin's sweep can emit the edge it
+        // deferred. Slot 1 (the gate-below) is what carries AwaitingDependency /
+        // DisallowAdditionalDep and locates the matching gate-above.
+        //
         // PostponedCount is the number of PAIRS, not the number of ints. Total ints = 2 * count.
 
-        [HideInInspector] public int[] PostponedPairs;
-        [HideInInspector] public int PostponedCount;
+        [NonSerialized] public int[] PostponedPairs;
+        [NonSerialized] public int PostponedCount;
 
         // ---- Per-crucial-node transient flags (indexed by crucialIndex, not cellIndex) ----
         //
         // These mirror the prototype's CrucialGraphNode fields by the same names. Only relevant
         // during Build — do not belong on the durable CrucialNode struct. Cleared per build.
 
-        [HideInInspector] public bool[] AwaitingDependency;
-        [HideInInspector] public bool[] EvaluatedForDependency;
-        [HideInInspector] public bool[] DisallowAdditionalDep;
+        [NonSerialized] public bool[] AwaitingDependency;
+        [NonSerialized] public bool[] EvaluatedForDependency;
+        [NonSerialized] public bool[] DisallowAdditionalDep;
 
         // Set to true when a crucial node is dequeued in Pass 2's BFS. Read by TryEmitEdge to
         // avoid RE-ENQUEUING an already-processed crucial (which would let the BFS loop forever
@@ -108,7 +121,7 @@ namespace SpaceFab.Design
         // an already-processed crucial must still be recorded so a second driver's flow reaches
         // that node during propagation; only the enqueue is suppressed. See SimulateGraphUtility.Pass2.
 
-        [HideInInspector] public bool[] Processed;
+        [NonSerialized] public bool[] Processed;
 
         // ---- Cumulative no-return pairs (faithful port of the prototype's per-node NoReturnList) ----
         //
@@ -124,8 +137,8 @@ namespace SpaceFab.Design
         // This must be cumulative (not stamp-reset-per-dequeue) — a per-dequeue reset is exactly
         // the defect that forced the old, over-pruning Processed-drops-the-edge workaround.
 
-        [HideInInspector] public int[] NoReturnPairs;
-        [HideInInspector] public int NoReturnPairCount;
+        [NonSerialized] public int[] NoReturnPairs;
+        [NonSerialized] public int NoReturnPairCount;
 
         // ---- Unsorted edge accumulator (populated in Pass 2, sorted into SimulateGraphState.OrderedEdges in Pass 3) ----
         //
@@ -134,8 +147,17 @@ namespace SpaceFab.Design
         // Pass 3 bucket-sorts UnsortedEdges[0..UnsortedEdgeCount] into OrderedEdges to restore
         // monotonic depth order.
 
-        [HideInInspector] public CrucialEdge[] UnsortedEdges;
-        [HideInInspector] public int UnsortedEdgeCount;
+        [NonSerialized] public CrucialEdge[] UnsortedEdges;
+        [NonSerialized] public int UnsortedEdgeCount;
+
+        // ---- Per-segment write cursors (Pass 6) ----
+        //
+        // Scratch for the counting sort that groups cell indices into SimulateGraphState.
+        // SegmentCells. Kept separate from SegmentCellStart so that table keeps holding each
+        // segment's START offset, which the run-time paint walk reads every time a segment's
+        // flow changes.
+
+        [NonSerialized] public int[] SegmentCursor;
 
         public void OnRegister()
         {

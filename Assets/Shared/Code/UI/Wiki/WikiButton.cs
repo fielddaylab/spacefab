@@ -1,3 +1,4 @@
+using System;
 using FieldDay;
 using FieldDay.Components;
 using SpaceFab.Onboarding;
@@ -41,14 +42,14 @@ namespace SpaceFab.UI {
 
         public ElementTag ElementTag;
 
-        [HideInInspector] public bool ClickedThisFrame;
-        [HideInInspector] public bool PointerEnterThisFrame;
-        [HideInInspector] public bool PointerExitThisFrame;
+        [NonSerialized] public bool ClickedThisFrame;
+        [NonSerialized] public bool PointerEnterThisFrame;
+        [NonSerialized] public bool PointerExitThisFrame;
 
         // Set by WikiAvailabilityUtility on unlock-state resolution. Locked tabs have
         // Available=false, gameObject.SetActive(false), and DynamicButton disabled. Non-Tab
         // buttons are chrome and remain Available=true regardless.
-        [HideInInspector] public bool Available = true;
+        [NonSerialized] public bool Available = true;
 
         public void OnRegister() {
             if (DynamicButton == null) { return; }

@@ -21,6 +21,8 @@ namespace SpaceFab.Research
         public static readonly StringHash32 OnHeatDecreased = "OnHeatDecreased";
         public static readonly StringHash32 OnObservationPickerOpened = "OnObservationPickerOpened";
         public static readonly StringHash32 OnObservationAdded = "OnObservationAdded";
+        public static readonly StringHash32 OnChamberSwitched = "OnChamberSwitched";
+        public static readonly StringHash32 OnPropertyAdded = "OnPropertyAdded";
         // Fires the frame after the Verify (submit) button becomes visible, once its ElementTag is
         // registered. Onboarding scripts that highlight the verify button should listen for this
         // rather than OnObservationAdded — the button isn't active (so its tag isn't in the lookup)

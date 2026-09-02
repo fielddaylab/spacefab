@@ -16,6 +16,10 @@ namespace SpaceFab.Overarching
     public class OverarchingRenderPose : ScriptActorComponent, IBaked {
         public OverarchingRenderPlane[] Planes;
         public ActiveGroup Activate;
+        [Range(0, 1)] public float Padding;
+        public Vector3 DriftMin;
+        public Vector3 DriftMax;
+        public float DriftSpeed;
 
         [Header("Camera Attributes")]
         public float NearPlane;
@@ -33,7 +37,9 @@ namespace SpaceFab.Overarching
             foreach(var plane in Planes) {
                 plane.transform.SetParent(transform, false);
                 plane.transform.localPosition = new Vector3(0, 0, plane.Distance);
-                plane.transform.localScale = new Vector3(plane.Distance, plane.Distance, plane.Distance);
+
+                float scale = plane.Distance * (1 + Padding);
+                plane.transform.localScale = new Vector3(scale, scale, scale);
                 plane.transform.SetParent(null);
             }
             return true;

@@ -1,17 +1,29 @@
 using BeauUtil;
+using BeauUtil.Debugger;
+using FieldDay.Assets;
+using ScriptableBake;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace SpaceFab.Design
 {
-    public enum FlowState
+    public enum FlowState : byte
     {
         Empty,
         Hi,
         Lo,
         Unstable,
+    }
+
+    [Flags]
+    public enum TestSuiteColumnMask : byte {
+        InputA = 0x01,
+        InputB = 0x02,
+        OutputX = 0x04,
+        OutputY = 0x08
     }
 
     [Serializable]
@@ -22,16 +34,80 @@ namespace SpaceFab.Design
     }
 
     [Serializable]
-    public struct TestData
-    {
-        public TestEntry[] Bundle; // all tests that run in the same pass
+    public struct TestData {
+        [Header("Input")]
+        public FlowState InputA;
+        public FlowState InputB;
+        [Header("Output")]
+        public FlowState OutputX;
+        public FlowState OutputY;
     }
 
     [CreateAssetMenu(menuName = "SpaceFab/Design/Test Suite Data")]
     public class TestSuiteData : ScriptableObject
     {
-        // public SerializedHash32[] Headers;
-        public TestData[] Tests;
+        public TestSuiteColumnMask ColumnMask;
+        public TestData[] Rows;
+
+        //[UnityEditor.MenuItem("SpaceFab/Design/Upgrade Test Suites")]
+        //static private void UpgradeAll() {
+        //    var allSuites = AssetUtility.Editor.FindAllAssets<TestSuiteData>();
+        //    foreach(var suite in allSuites) {
+        //        Baking.PrepareUndo(suite, "Upgrading data");
+        //        if (UpgradeData(suite)) {
+        //            Log.Msg("[TestSuiteData] Upgraded '{0}'", suite.name);
+        //            Baking.SetDirty(suite);
+        //        }
+        //    }
+        //}
+
+        //static public bool UpgradeData(TestSuiteData suiteData) {
+        //    if (suiteData.Tests.Length <= 0) {
+        //        return false;
+        //    }
+
+        //    TestRow[] rows = new TestRow[suiteData.Tests.Length];
+        //    TestSuiteColumnMask columns = default;
+
+        //    for(int i = 0; i < suiteData.Tests.Length; i++) {
+        //        ref TestRow rowData = ref rows[i];
+        //        ref TestData testData = ref suiteData.Tests[i];
+
+        //        foreach(var entry in testData.Bundle) {
+        //            switch (entry.Id) {
+        //                case InputOutputNodeTypeFlags.A: {
+        //                    columns |= TestSuiteColumnMask.InputA;
+        //                    rowData.InputA = entry.State;
+        //                    break;
+        //                }
+        //                case InputOutputNodeTypeFlags.B: {
+        //                    columns |= TestSuiteColumnMask.InputB;
+        //                    rowData.InputB = entry.State;
+        //                    break;
+        //                }
+        //                case InputOutputNodeTypeFlags.OUTX: {
+        //                    columns |= TestSuiteColumnMask.OutputX;
+        //                    rowData.OutputX = entry.State;
+        //                    break;
+        //                }
+        //                case InputOutputNodeTypeFlags.OUTY: {
+        //                    columns |= TestSuiteColumnMask.OutputY;
+        //                    rowData.OutputY = entry.State;
+        //                    break;
+        //                }
+        //                default: {
+        //                    Log.Error("[TestSuiteData] Suite '{0}' is using unexpected node type {1}", suiteData.name, entry.Id);
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    suiteData.Tests = null;
+        //    suiteData.Rows = rows;
+        //    suiteData.ColumnMask = columns;
+        //    return true;
+        //}
     }
 
     public static class EvalUtility
@@ -39,18 +115,43 @@ namespace SpaceFab.Design
         // Finds the FlowState for a given node subtype in this test row's bundle. Returns
         // FlowState.Empty if no matching entry. Handles VPLUS/VMINUS as constant HI/LO without
         // requiring suite authors to include them in Bundle.
-        public static FlowState GetTestValBySubType(InputOutputNodeTypeFlags subtype, TestData testData)
+        public static FlowState GetTestValBySubType(InputOutputNodeTypeFlags subtype, TestSuiteColumnMask columnMask, TestData testData)
         {
-            // VPLUS / VMINUS are rail constants — not bundled per test.
-            if (subtype == InputOutputNodeTypeFlags.VPLUS) { return FlowState.Hi; }
-            if (subtype == InputOutputNodeTypeFlags.VMINUS) { return FlowState.Lo; }
-
-            if (testData.Bundle == null) { return FlowState.Empty; }
-            for (int i = 0; i < testData.Bundle.Length; i++)
-            {
-                if (testData.Bundle[i].Id == subtype) { return testData.Bundle[i].State; }
+            switch (subtype) {
+                case InputOutputNodeTypeFlags.VPLUS: {
+                    return FlowState.Hi;
+                }
+                case InputOutputNodeTypeFlags.VMINUS: {
+                    return FlowState.Lo;
+                }
+                case InputOutputNodeTypeFlags.A: {
+                    if ((columnMask & TestSuiteColumnMask.InputA) == 0) {
+                        return FlowState.Empty;
+                    }
+                    return testData.InputA;
+                }
+                case InputOutputNodeTypeFlags.B: {
+                    if ((columnMask & TestSuiteColumnMask.InputB) == 0) {
+                        return FlowState.Empty;
+                    }
+                    return testData.InputB;
+                }
+                case InputOutputNodeTypeFlags.OUTX: {
+                    if ((columnMask & TestSuiteColumnMask.OutputX) == 0) {
+                        return FlowState.Empty;
+                    }
+                    return testData.OutputX;
+                }
+                case InputOutputNodeTypeFlags.OUTY: {
+                    if ((columnMask & TestSuiteColumnMask.OutputY) == 0) {
+                        return FlowState.Empty;
+                    }
+                    return testData.OutputY;
+                }
+                default: {
+                    return FlowState.Empty;
+                }
             }
-            return FlowState.Empty;
         }
 
         /*

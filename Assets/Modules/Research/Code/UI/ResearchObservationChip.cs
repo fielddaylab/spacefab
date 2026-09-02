@@ -23,6 +23,7 @@ namespace SpaceFab.Research {
     public class ResearchObservationChip : MonoBehaviour {
         public Image Background;
         public TMP_Text LabelText;
+        public Image Icon;
 
         public GameObject LockedOverlay;
         public CursorHint Click;
@@ -75,11 +76,30 @@ namespace SpaceFab.Research {
                 if (spriteOk) {
                     Background.sprite = sprite;
                     Background.enabled = true;
+
                 } else {
                     // No sprite registered for this observation type yet —
                     // hide the chip background so it doesn't render as a
                     // default white square.
                     Background.enabled = false;
+                }
+            }
+
+            // fill chip icon
+            if (Icon != null)
+            {
+                Icon.color = Color.white;
+                Sprite iconSprite = null;
+
+                // only add icons if the chip is not empty
+                if (asset != null && !empty && asset.TryGetIcon(observationType, out iconSprite))
+                {
+                    Icon.sprite = iconSprite;
+                    Icon.enabled = true;
+                }
+                else
+                {
+                    Icon.enabled = false;
                 }
             }
 

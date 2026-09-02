@@ -6,6 +6,7 @@ using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab.Design;
 using SpaceFab.Save;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,8 +30,8 @@ namespace SpaceFab.Overarching
     public class ContractChangeState : SharedStateComponent, IRegistrationCallbacks
     {
         public ContractChangePhase Phase;
-        [HideInInspector] public int StashedSelectedContractIndex;
-        [HideInInspector] public bool ChangeDoubleConfirmed;
+        [NonSerialized] public int StashedSelectedContractIndex;
+        [NonSerialized] public bool ChangeDoubleConfirmed;
 
         public Routine TransitionRoutine;
 
@@ -47,8 +48,11 @@ namespace SpaceFab.Overarching
 
     public static class ContractChangeUtility
     {
-        public static IEnumerator ViewCurrentRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState)
+        public static IEnumerator ViewCurrentRoutine(ContractChangeState changeState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, PlayerProgressState playerProgress)
         {
+            // This runs before ContractSelectSystem's own rebuild, so refresh the list here rather
+            // than reading a stale one - the change-contract button is gated on its count below.
+            ContractSelectUtility.RebuildAvailableContracts(selectState, chapterState, playerProgress);
 
             layoutState.ViewCurrContractButton.gameObject.SetActive(false);
             layoutState.HideCurrContractButton.gameObject.SetActive(true);
@@ -56,15 +60,23 @@ namespace SpaceFab.Overarching
             layoutState.FaderGroup.alpha = 1;
             layoutState.FaderGroup.blocksRaycasts = true;
 
-            layoutState.ChangeContractButton.gameObject.SetActive(true);
-
             // Fill the panel with the accepted contract — it may still be showing whatever was browsed last
             StringHash32 currContractId = ChapterUtility.GetSelectedContractId(chapterState);
             ContractUtility.LoadContractData(layoutState.SelectionContractUI,
                 currContractId.IsEmpty ? null : ContractUtility.GetDefinition(currContractId));
 
             layoutState.SelectionContractUI.gameObject.SetActive(true);
-            
+
+            // only enable change contract btn when there is alternative contract
+            if (ContractSelectUtility.AvailableCount(selectState) > 1)
+            {
+                layoutState.ChangeContractButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                // disable select button if only one contract is available
+                layoutState.SelectionContractUI.SelectContractButton.enabled = false;
+            }
             layoutState.NextContractButton.gameObject.SetActive(false);
             layoutState.PrevContractButton.gameObject.SetActive(false);
 

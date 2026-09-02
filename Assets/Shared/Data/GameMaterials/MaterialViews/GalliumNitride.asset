@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3760780465900a41abc9d5b147727d6, type: 3}
+  m_Name: GalliumNitride
+  m_EditorClassIdentifier: 
+  MaterialId:
+    m_Source: GalliumNitride
+    m_HashValue: 296790427
+  AtomColor:
+  - {r: 0.43810073, g: 0.43828037, b: 0.5188679, a: 1}
+  - {r: 0.5927376, g: 0.5927376, b: 0.6792453, a: 1}
+  GemScale: 1
+  SampleOrder: 0
+  SampleLabel: 13

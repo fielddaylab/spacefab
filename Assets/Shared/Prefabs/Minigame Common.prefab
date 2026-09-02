@@ -66,6 +66,8 @@ GameObject:
   - component: {fileID: 4194491049191091273}
   - component: {fileID: 1585309193046212053}
   - component: {fileID: 2852105977866806387}
+  - component: {fileID: 559409703359702938}
+  - component: {fileID: 3542549358322639880}
   m_Layer: 0
   m_Name: Common Assets
   m_TagString: Untagged
@@ -114,6 +116,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SceneMask: 0
+--- !u!114 &559409703359702938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081540577530493474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cb87c5005e77d041b90371cabfaea95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3542549358322639880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081540577530493474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62c48417274d71e47b0522cc92f0314d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Fallback: {fileID: 2100000, guid: 3eeedab9346de9e499fd845f26fd4229, type: 2}
 --- !u!1 &7680620308455763636
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,6 +289,7 @@ MonoBehaviour:
     m_GUID: e7f14cd189ad9e747a51a3c21ee45e32
   DisplayWiki: 1
   DisplayHelper: 1
+  WikiTabs: []
 --- !u!1001 &555578507559985843
 PrefabInstance:
   m_ObjectHideFlags: 0

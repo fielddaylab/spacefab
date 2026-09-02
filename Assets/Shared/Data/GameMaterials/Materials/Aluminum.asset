@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: Aluminum
   ShortName: Al
-  GemSprite: {fileID: 21300000, guid: 3506396ffcc5f48f5a48d3ed4403d744, type: 3}
+  GemSprite: {fileID: 21300000, guid: 7c417889b8984bb4bbc7e9351c112cef, type: 3}
   ConstituentElementNames: []
   ValenceElectronCounts: 03000000
   AtomicRadii: 76000000

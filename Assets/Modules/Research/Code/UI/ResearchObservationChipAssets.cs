@@ -27,13 +27,16 @@ namespace SpaceFab.Research {
     /// this asset, not every chip prefab in the scene.
     /// </summary>
     [CreateAssetMenu(menuName = "SpaceFab/Research/Observation Chip Visuals")]
-    public class ResearchObservationChipAssets : GlobalAsset {
+    public class ResearchObservationChipAssets : GlobalAsset
+    {
         [Serializable]
-        public struct ObservationSpritePair {
+        public struct ObservationSpritePair
+        {
             public ObservationType ObservationType;
             public Sprite EmptyChip; // empty slot -- only shape, no color
             public Sprite FilledChip; // shape and color
             public Sprite ConfirmedChip; // shape and green + checkmark
+            public Sprite ChipIcon; // left icon for different type
         }
 
         [SerializeField] private ObservationSpritePair[] m_ObservationSprites;
@@ -62,15 +65,18 @@ namespace SpaceFab.Research {
 
         public Sprite EmptySlotSprite => m_EmptySlotSprite;
 
-        public override void Mount() {
+        public override void Mount()
+        {
             int count = m_ObservationSprites != null ? m_ObservationSprites.Length : 0;
             m_Lookup = new Dictionary<ObservationType, ObservationSpritePair>(count);
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
                 m_Lookup[m_ObservationSprites[i].ObservationType] = m_ObservationSprites[i];
             }
         }
 
-        public override void Unmount() {
+        public override void Unmount()
+        {
             m_Lookup = null;
         }
 
@@ -80,9 +86,12 @@ namespace SpaceFab.Research {
         /// when the registered entry has a null sprite — chip callers
         /// hide the Image in that case.
         /// </summary>
-        public bool TryGetSprite(ObservationType observationType, ChipFillState fillState, out Sprite sprite) {
-            if (m_Lookup != null && m_Lookup.TryGetValue(observationType, out var pair)) {
-                switch (fillState) {
+        public bool TryGetSprite(ObservationType observationType, ChipFillState fillState, out Sprite sprite)
+        {
+            if (m_Lookup != null && m_Lookup.TryGetValue(observationType, out var pair))
+            {
+                switch (fillState)
+                {
                     case ChipFillState.Confirmed:
                         sprite = pair.ConfirmedChip;
                         break;
@@ -93,6 +102,17 @@ namespace SpaceFab.Research {
                         sprite = pair.EmptyChip;
                         break;
                 }
+                return sprite != null;
+            }
+            sprite = null;
+            return false;
+        }
+
+        public bool TryGetIcon(ObservationType observationType, out Sprite sprite)
+        {
+            if (m_Lookup != null && m_Lookup.TryGetValue(observationType, out var pair))
+            {
+                sprite = pair.ChipIcon;
                 return sprite != null;
             }
             sprite = null;

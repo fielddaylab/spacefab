@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 namespace SpaceFab.Overarching {
     /// <summary>
@@ -47,8 +48,12 @@ namespace SpaceFab.Overarching {
             }
         }
 
-        // Kicks off the present-available-contracts routine and advances the phase.
+        // Rebuilds the available-contract list, kicks off the present routine, and advances the phase.
         static private void ProcessLoading(ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, PlayerProgressState progressState) {
+            // Drop already-completed contracts before anything reads the list - everything
+            // downstream browses and confirms against the filtered set.
+            ContractSelectUtility.RebuildAvailableContracts(selectState, chapterState, progressState);
+
             layoutState.SelectionRoutine.Replace(ContractSelectUtility.PresentAvailableRoutine(selectState, layoutState, chapterState, progressState));
             selectState.Phase = ContractSelectPhase.PresentAvailableContracts;
         }
@@ -67,20 +72,26 @@ namespace SpaceFab.Overarching {
             // When the selected contract changes, refresh its detail UI
             if (selectState.SelectedContractIndexChanged) {
                 layoutState.PrevContractButton.gameObject.SetActive(selectState.SelectedContractIndex > 0);
-                layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < chapterState.ChapterDefinition.AvailableContracts.Length - 1);
-                layoutState.SelectionContractUI.SignatureImage.fillAmount = chapterState.LastSelectedContractIndex == selectState.SelectedContractIndex ? 1 : 0;
+                layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < ContractSelectUtility.AvailableCount(selectState) - 1);
+                // Compare in raw index space - LastSelectedContractIndex is a raw chapter index,
+                // and its -1 "nothing accepted" sentinel must never match a valid selection.
+                layoutState.SelectionContractUI.SignatureImage.fillAmount = chapterState.LastSelectedContractIndex == ContractSelectUtility.ToRawIndex(selectState, selectState.SelectedContractIndex) ? 1 : 0;
 
                 ContractUtility.LoadContractData(layoutState.SelectionContractUI,
-                    ContractUtility.GetDefinition(chapterState.ChapterDefinition.AvailableContracts[selectState.SelectedContractIndex]));
+                    ContractUtility.GetDefinition(ContractSelectUtility.GetContractId(selectState, chapterState, selectState.SelectedContractIndex)));
                 selectState.SelectedContractIndexChanged = false;
             }
 
             // Confirmed — advance the phase
             if (selectState.SelectionConfirmed) {
                 Debug.Log("Confirm selection");
-                SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, selectState.SelectedContractIndex.ToString());
+                // Log the raw chapter index so contract_id keeps the same meaning it had before
+                // the list was filtered.
+                SpacefabGame.Events.Dispatch(GameEvents.AcceptContract, ContractSelectUtility.ToRawIndex(selectState, selectState.SelectedContractIndex).ToString());
                 ScriptUtility.Trigger("OnContractAccept");
                 selectState.Phase = ContractSelectPhase.Completed;
+
+                layoutState.SetViewCurrContractLabel(ContractSelectUtility.GetContractId(selectState, chapterState, selectState.SelectedContractIndex));
             }
         }
     }

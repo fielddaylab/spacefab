@@ -227,6 +227,9 @@ namespace SpaceFab {
                 // else rely on SupplyChain save state
                 supplyCosts = saveStates.Supply.FinalizedCost;
             }
+            // -1 is the "no confirmed result" sentinel, from both SetDefaults and a route edit
+            // invalidating an earlier confirm. Clamp it the same way pending cycles does.
+            supplyCosts = Mathf.Max(0, supplyCosts);
 
             int totalCosts = supplyCosts;
 
