@@ -1,4 +1,6 @@
+using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
@@ -16,9 +18,11 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ResearchSampleTrayState : SharedStateComponent, IRegistrationCallbacks {
         public Transform Root;
-        public float XSpacing = 0.9f;
+        public float XSpacing = 1.1f;
         public float YSpacing = 1.2f;
         public GameObject SamplePrefab;
+        public MaterialAtom SampleAtomicView;
+        public MaterialPolyelementalAtom PolyelementalSampleAtomicView;
 
         // Box collider defining the tray's drop region. A dragged instance
         // dropped anywhere inside this region returns to the pool, so the
@@ -105,9 +109,42 @@ namespace SpaceFab.Research {
                     ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material, researchState);
                 }
 
+                // 3a. Spawn doping chamber view
+                bool known = researchState != null
+                    && researchState.SandboxProperties.TryGetValue(material.AssetId, out var dopantRecord)
+                    && !MaterialPropertyRecordUtility.IsEmpty(dopantRecord);
+
+                ResearchMaterialView materialView = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
+                Assert.False(materialView == null, $"[ResearchSampleTrayUtility] Missing research material view for {material.AssetId.ToDebugString()}");
+                
+                if (material.ConstituentElementNames.Length == 0) {
+                    MaterialAtom atom = UnityEngine.Object.Instantiate(trayState.SampleAtomicView, source.AtomicView);
+                    atom.MaterialSprite.color = materialView.AtomColor[0];
+                    atom.Label.text = known ? material.ShortName : "?";
+                    for (int i = 0; i < atom.ElectronSprites.Length; i++) {
+                        SpriteRenderer electron = atom.ElectronSprites[i];
+                        electron.SetAlpha (i < material.ValenceElectronCounts[0] ? 1f : 0f);
+                    }
+                }
+                else {
+                    MaterialPolyelementalAtom atom = UnityEngine.Object.Instantiate(trayState.PolyelementalSampleAtomicView, source.AtomicView);
+                    for (int i = 0; i < atom.MaterialAtoms.Length; i++) {
+                        atom.MaterialAtoms[i].MaterialSprite.color = materialView.AtomColor[i];
+                        atom.Label.text = known ? material.ShortName : "?";
+                        for (int e = 0; e < atom.MaterialAtoms[i].ElectronSprites.Length; e++) {
+                            SpriteRenderer electron = atom.MaterialAtoms[i].ElectronSprites[e];
+                            electron.SetAlpha(e < material.ValenceElectronCounts[i] ? 1f : 0f);
+                        }
+                    }
+                }
+
+                // TODO: debugging purpose
+                source.Rig.gameObject.SetActive(false);
+                source.AtomicView.gameObject.SetActive(true);
+
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
-                float startX = -0.1f;
+                float startX = -0.2f;
                 float startY = 3.2f;
                 sampleObj.transform.localPosition = new Vector3(startX + index % 2 * trayState.XSpacing, startY - index / 2 * trayState.YSpacing, 0f);
                 index++;

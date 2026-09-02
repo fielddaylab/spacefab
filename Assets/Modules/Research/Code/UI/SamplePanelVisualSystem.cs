@@ -209,6 +209,7 @@ namespace SpaceFab.Research {
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
                     }
+                    panel.SlotChips[i].gameObject.SetActive(filled);
                     panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
