@@ -1,6 +1,6 @@
 #basePath Chapter6
 
-::FirstContractOpenCh5 
+::FirstContractOpenCh6 
 @trigger    OnContractSelectOpen
 @cutscene
 @once 
