@@ -167,7 +167,7 @@ namespace FieldDay.Mathematics {
 
         public ref Color32 Color(uint index) {
             Assert.True(index < 4);
-            return ref Unsafe.FastCast<uint, Color32>(ref PackedUInt32[0]);
+            return ref Unsafe.FastCast<uint, Color32>(ref PackedUInt32[index]);
         }
 
         public ref bool Bool() {

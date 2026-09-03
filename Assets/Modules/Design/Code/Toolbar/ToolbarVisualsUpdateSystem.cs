@@ -60,6 +60,7 @@ namespace SpaceFab.Design {
             // set up toolbar state's CurrentArrowAnchor position for
             // toolbarState to update the ptr's position
             RectTransform anchor = null;
+            ToolbarButton highlight = null;
             var buttons = Find.Components<ToolbarButton>();
             for (int i = 0; i < buttons.Count; i++)
             {
@@ -67,6 +68,7 @@ namespace SpaceFab.Design {
                 if (ToolbarUtility.ToolTypeForKind(button.Kind) == toolModeState.ActiveTool)
                 {
                     anchor = button.ArrowAnchor;
+                    highlight = button;
                     break;
                 }
             }
@@ -83,6 +85,17 @@ namespace SpaceFab.Design {
                 if (show)
                 {
                     ptr.position = anchor.position;
+                    toolbarState.SelectedToolPointerLabel.SetText(highlight.ToolName);
+
+                    if (highlight.AnchorBelow) {
+                        toolbarState.SelectedToolPointerArrow.localEulerAngles = new Vector3(0, 0, 180);
+                        Positioning.SetAnchorY(toolbarState.SelectedToolPointerLabel.rectTransform, 0);
+                        Positioning.SetPivotY(toolbarState.SelectedToolPointerLabel.rectTransform, 1);
+                    } else {
+                        toolbarState.SelectedToolPointerArrow.localEulerAngles = new Vector3(0, 0, 0);
+                        Positioning.SetAnchorY(toolbarState.SelectedToolPointerLabel.rectTransform, 1);
+                        Positioning.SetPivotY(toolbarState.SelectedToolPointerLabel.rectTransform, 0);
+                    }
                 }
             }
         }

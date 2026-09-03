@@ -7,20 +7,35 @@ using UnityEditor;
 namespace FieldDay.Perf {
     [CreateAssetMenu(menuName = "Field Day/Performance/Performance Budget")]
     public sealed class PerformanceBudget : ScriptableObject {
+        /// <summary>
+        /// Will alert if a frame takes up this many times the expected amount of milliseconds.
+        /// </summary>
         [Header("Frame Time")]
         [Tooltip("Alerts if frame time spikes above the desired frame time multiplied by this factor")]
         [Range(1, 10)] public float MaxFrameTimeSpikeRatio = 4;
 
+        /// <summary>
+        /// Will alert if the average frame takes up this many times the expected amount of milliseconds.
+        /// </summary>
         [Tooltip("Alerts if average frame time hovers above the desired frame time multiplied by this factor")]
         [Range(1, 10)] public float MaxAverageFrameTimeRatio = 1.5f;
 
+        /// <summary>
+        /// Will alert if CPU memory usage or heap size (WebGL only) exceeds this value, in MiB.
+        /// </summary>
         [Header("Memory")]
         [Tooltip("Alerts if CPU memory usage or heap size goes above this value in MiB")]
         [Range(32, 512)] public int MaxCPUMemoryMB = 160;
 
+        /// <summary>
+        /// Will alert if GPU memory usage exceeds this value, in MiB.
+        /// </summary>
         [Tooltip("Alerts if GPU memory usage goes above this value in MiB")]
         [Range(32, 512)] public int MaxGPUMemoryMB = 80;
 
+        /// <summary>
+        /// Will alert if Texture memory usage exceeds this value, in MiB.
+        /// </summary>
         [Tooltip("Alerts if texture memory usage goes above this value in MiB")]
         [Range(32, 512)] public int MaxTextureMemoryMB = 128;
     }

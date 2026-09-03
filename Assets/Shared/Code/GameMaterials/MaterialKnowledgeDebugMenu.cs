@@ -7,8 +7,7 @@ using SpaceFab.Materials;
 using SpaceFab.Research;
 using SpaceFab.UI;
 
-namespace SpaceFab
-{
+namespace SpaceFab {
     /// <summary>
     /// Development-only debug menu for material knowledge. Registered via [DebugMenuFactory]
     /// (auto-discovered at boot; compiled out of release builds since the attribute is
@@ -23,8 +22,7 @@ namespace SpaceFab
     /// the frame-start queue the menu factories run on, so the ordering asset is available
     /// here; if it somehow isn't, only Unlock All Knowledge is contributed.
     /// </summary>
-    public static class MaterialKnowledgeDebugMenu
-    {
+    public static class MaterialKnowledgeDebugMenu {
         // Contributes the Materials root.
         [DebugMenuFactory]
         private static DMInfo CreateMaterialKnowledgeDebugMenu()

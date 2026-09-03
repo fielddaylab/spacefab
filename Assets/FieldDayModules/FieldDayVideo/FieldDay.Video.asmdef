@@ -1,0 +1,23 @@
+{
+    "name": "FieldDay.Video",
+    "rootNamespace": "FieldDay.Video",
+    "references": [
+        "FieldDay.Core",
+        "BeauUtil",
+        "BeauRoutine",
+        "EasyAssetStreaming",
+        "BeauUtil.Parse",
+        "BeauPools",
+        "TinyIL.Mono",
+        "ScriptableBake"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
