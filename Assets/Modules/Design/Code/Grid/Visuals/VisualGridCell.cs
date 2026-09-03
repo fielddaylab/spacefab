@@ -11,10 +11,10 @@ namespace SpaceFab.Design
     public class VisualGridCell : BatchedComponent
     {
         public SpriteRenderer PathRenderer;
+        public SpriteRenderer ShadowPathRenderer;
         public SpriteRenderer SubRenderer;
         public SpriteRenderer PathOverlayRenderer;
         public SpriteRenderer PathOverlayBaseRenderer;
-        public TMP_Text TextRenderer;
         public SpriteRenderer TransferRenderer;
         public SpriteRenderer SecondaryTransferRenderer;
         public SpriteRenderer[] DirRenderers;
@@ -136,6 +136,7 @@ namespace SpaceFab.Design
 
             // Reset
             visualCell.PathRenderer.sprite = null;
+            visualCell.ShadowPathRenderer.sprite = null;
             visualCell.PathOverlayRenderer.sprite = null;
             visualCell.PathOverlayBaseRenderer.sprite = null;
             visualCell.SubRenderer.sprite = null;
@@ -206,6 +207,7 @@ namespace SpaceFab.Design
             }
 
             visualCell.PathRenderer.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
+            visualCell.ShadowPathRenderer.sortingOrder = TRANSISTOR_SORT_ORDER + 20;
             visualCell.PathOverlayRenderer.sortingOrder = visualCell.PathRenderer.sortingOrder + 3;
             visualCell.PathOverlayBaseRenderer.sortingOrder = visualCell.PathOverlayRenderer.sortingOrder - 1;
             visualCell.SubRenderer.sortingOrder = visualCell.PathRenderer.sortingOrder - 10;
@@ -222,6 +224,11 @@ namespace SpaceFab.Design
                 var angles = visualCell.PathRenderer.transform.rotation.eulerAngles;
                 angles.z = 90 * pathData.Turns;
                 visualCell.PathRenderer.transform.rotation = Quaternion.Euler(angles);
+
+                if (layerIndex == 0) {
+                    visualCell.ShadowPathRenderer.sprite = pathData.Sprite;
+                    visualCell.ShadowPathRenderer.transform.rotation = Quaternion.Euler(angles);
+                }
 
                 visualCell.FlowMask.transform.rotation = Quaternion.Euler(angles);
                 visualCell.FlowMask.sprite = pathData.Sprite;
