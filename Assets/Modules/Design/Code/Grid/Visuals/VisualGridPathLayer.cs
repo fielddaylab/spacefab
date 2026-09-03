@@ -11,6 +11,6 @@ namespace SpaceFab.Design.Visuals {
     }
 
     static public partial class VisualGridPathUtility {
-        static public void AppendPathNode()
+        
     }
 }

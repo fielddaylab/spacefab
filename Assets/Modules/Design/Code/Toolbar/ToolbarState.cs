@@ -20,6 +20,7 @@ namespace SpaceFab.Design {
         public RectTransform SelectedToolPtr;
         public RectTransform SelectedToolPointerArrow;
         public TMP_Text SelectedToolPointerLabel;
+        public RectTransform SelectedLayerHighlight;
 
         // Which row the visuals layer should focus this frame. Normally aligned with the row of
         // the selected tool; temporarily flips when the player hovers over the opposite row.

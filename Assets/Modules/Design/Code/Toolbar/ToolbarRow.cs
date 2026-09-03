@@ -12,5 +12,6 @@ namespace SpaceFab.Design {
     public class ToolbarRow : BatchedComponent {
         public StackLayer Row;
         public CanvasGroup FadeGroup;
+        public CanvasGroup DiagramGroup;
     }
 }

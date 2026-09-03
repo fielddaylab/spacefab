@@ -55,6 +55,13 @@ namespace SpaceFab.Design {
                 if (row.FadeGroup != null) {
                     row.FadeGroup.alpha = focused ? 1f : 0.4f;
                 }
+                if (row.DiagramGroup != null) {
+                    row.DiagramGroup.alpha = focused ? 1f : 0.4f;
+                }
+
+                if (focused && row.DiagramGroup) {
+                    toolbarState.SelectedLayerHighlight.position = row.DiagramGroup.transform.position;
+                }
             }
 
             // set up toolbar state's CurrentArrowAnchor position for

@@ -63,6 +63,7 @@ namespace SpaceFab.Design.Visuals
         // simulated flow. Hi/Lo reuse the input-toggle colors; these two buckets cover the flow
         // states the input toggle never sees. Each bucket has a fill color (background) and a text
         // color (arrow + subtype label), mirroring the input-toggle color/text-color split.
+        public Sprite OutputArrow;
         public Color OutputEmptyColor = Color.white;
         public Color OutputEmptyTextColor = Color.white;
         public Color OutputUnstableColor = Color.white;

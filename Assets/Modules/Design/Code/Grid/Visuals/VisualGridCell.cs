@@ -21,6 +21,8 @@ namespace SpaceFab.Design
         public SpriteMask FlowMask;
 
         public SpriteRenderer FlowIndicator;
+
+        public Transform[] ShiftForMetalLayer;
     }
 
     public static class VisualGridCellUtility
@@ -141,7 +143,6 @@ namespace SpaceFab.Design
             visualCell.FlowMask.sprite = null;
             visualCell.FlowMask.backSortingOrder = 0;
             visualCell.FlowMask.frontSortingOrder = 0;
-            visualCell.TextRenderer.SetText("");
             visualCell.PathRenderer.color = Color.white;
 
             // Render according to cell data
@@ -208,7 +209,6 @@ namespace SpaceFab.Design
             visualCell.PathOverlayRenderer.sortingOrder = visualCell.PathRenderer.sortingOrder + 3;
             visualCell.PathOverlayBaseRenderer.sortingOrder = visualCell.PathOverlayRenderer.sortingOrder - 1;
             visualCell.SubRenderer.sortingOrder = visualCell.PathRenderer.sortingOrder - 10;
-            visualCell.TextRenderer.GetComponent<Renderer>().sortingOrder = visualCell.PathRenderer.sortingOrder + 10;
             foreach (var r in visualCell.DirRenderers) { r.sortingOrder = visualCell.PathRenderer.sortingOrder + 5; }
             visualCell.TransferRenderer.sortingOrder = cellData.TransferType == TransferType.Via ? VIA_SORT_ORDER : GATE_SORT_ORDER;
             visualCell.SecondaryTransferRenderer.sortingOrder = SECONDARY_SORT_ORDER;
