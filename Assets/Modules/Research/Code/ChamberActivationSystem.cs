@@ -16,6 +16,7 @@ namespace SpaceFab.Research
                     .ReadShared<BatteryChamberState>()
                     .ReadShared<ThermalChamberState>()
                     .ReadShared<DopingChamberState>()
+                    .ReadShared<ResearchSampleTrayState>()
             );
         }
 
@@ -27,7 +28,8 @@ namespace SpaceFab.Research
             Find.State(
                 out BatteryChamberState batteryChamber,
                 out ThermalChamberState thermalChamber,
-                out DopingChamberState dopingChamber
+                out DopingChamberState dopingChamber,
+                out ResearchSampleTrayState trayState
             );
 
             batteryChamber.Root.SetActive(false);
@@ -72,6 +74,7 @@ namespace SpaceFab.Research
             ResearchSlotUtility.FillInSlot(interfacer, ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Secondary, false);
+            ResearchSampleTrayUtility.SetTrayView(trayState, interfacer);
 
             ScriptUtility.WriteVariable(new TableKeyPair("research", "chamberId"), activeChamber.ToString());
             ScriptUtility.Trigger(ResearchScriptTriggers.OnChamberSwitched);

@@ -73,6 +73,9 @@ namespace SpaceFab.Research
             dopingChamberState.SecondarySlotLid.SetActive(!substrateSlotted);
             ChamberInterfacerUtility.SetReceptive(interfacerState, ChamberSlotKind.Secondary, substrateSlotted);
 
+            Find.State(out ResearchSampleTrayState trayState);
+            ResearchSampleTrayUtility.SetTrayView(trayState, interfacerState);
+
             if (!substrateSlotted) return;
             UpdateAtomicView(interfacerState, dopingChamberState, researchState);
             ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
@@ -105,11 +108,14 @@ namespace SpaceFab.Research
             }
 
             // Set toggle labels
-            bool known = researchState != null
-                && researchState.SandboxProperties.TryGetValue(material.AssetId, out var record)
-                && !MaterialPropertyRecordUtility.IsEmpty(record);
-            dopingChamber.ElementToggleLabel[0].text = known ? material.ConstituentElementNames[0] : view.SampleLabel + "A";
-            dopingChamber.ElementToggleLabel[1].text = known ? material.ConstituentElementNames[1] : view.SampleLabel + "B";
+            // bool known = researchState != null
+            //     && researchState.SandboxProperties.TryGetValue(material.AssetId, out var record)
+            //     && !MaterialPropertyRecordUtility.IsEmpty(record);
+            // dopingChamber.ElementToggleLabel[0].text = known ? material.ConstituentElementNames[0] : view.SampleLabel + "A";
+            // dopingChamber.ElementToggleLabel[1].text = known ? material.ConstituentElementNames[1] : view.SampleLabel + "B";
+
+            dopingChamber.ElementToggleLabel[0].text = material.ConstituentElementNames[0];
+            dopingChamber.ElementToggleLabel[1].text = material.ConstituentElementNames[1];
         }
 
         private static void UpdateDopant(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)
@@ -226,7 +232,7 @@ namespace SpaceFab.Research
                 && !MaterialPropertyRecordUtility.IsEmpty(dopantRecord);
 
             dopantAtom.MaterialSprite.color = dopantView.AtomColor[0];
-            dopantAtom.Label.text = dopantKnown ? dopant.ShortName : dopantView.SampleLabel;
+            dopantAtom.Label.text = dopantKnown ? dopant.ShortName : "?";
 
             for (int i = 0; i < dopantAtom.ElectronSprites.Length; i++) {
                 SpriteRenderer electron = dopantAtom.ElectronSprites[i];

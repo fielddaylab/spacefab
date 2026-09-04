@@ -81,7 +81,7 @@ namespace SpaceFab.Research {
                     && !MaterialPropertyRecordUtility.IsEmpty(record);
                 ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
                 //rig.Label.SetText(known ? material.ShortName : view.SampleNumber.ToString());
-                rig.Label.SetText(known ? material.ShortName : view.SampleLabel.ToString());
+                rig.Label.SetText(known ? material.ShortName : "?");
                 rig.LabelBG.color = known ? Color.black : Color.gray;
             }
         }

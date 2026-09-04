@@ -7,6 +7,5 @@ namespace SpaceFab.Research
     public class MaterialPolyelementalAtom : BatchedComponent
     {
         public MaterialAtom[] MaterialAtoms;
-        public TMP_Text Label;
     }
 }

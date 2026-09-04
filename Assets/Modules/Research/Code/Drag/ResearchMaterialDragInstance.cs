@@ -17,6 +17,8 @@ namespace SpaceFab.Research {
     public class ResearchMaterialDragInstance : BatchedComponent, IRegistrationCallbacks {
         public Collider2D Region;
         public ResearchMaterialVisualRig Rig;
+        public MaterialAtom AtomicView;
+        public MaterialPolyelementalAtom PolyelementalAtomicView;
 
         [NonSerialized] public MaterialAsset Material;
         [NonSerialized] public ResearchMaterialSource OriginSource;

@@ -110,37 +110,19 @@ namespace SpaceFab.Research {
                 }
 
                 // 3a. Spawn doping chamber view
-                bool known = researchState != null
-                    && researchState.SandboxProperties.TryGetValue(material.AssetId, out var dopantRecord)
-                    && !MaterialPropertyRecordUtility.IsEmpty(dopantRecord);
-
-                ResearchMaterialView materialView = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
-                Assert.False(materialView == null, $"[ResearchSampleTrayUtility] Missing research material view for {material.AssetId.ToDebugString()}");
-                
                 if (material.ConstituentElementNames.Length == 0) {
-                    MaterialAtom atom = UnityEngine.Object.Instantiate(trayState.SampleAtomicView, source.AtomicView);
-                    atom.MaterialSprite.color = materialView.AtomColor[0];
-                    atom.Label.text = known ? material.ShortName : "?";
-                    for (int i = 0; i < atom.ElectronSprites.Length; i++) {
-                        SpriteRenderer electron = atom.ElectronSprites[i];
-                        electron.SetAlpha (i < material.ValenceElectronCounts[0] ? 1f : 0f);
-                    }
+                    MaterialAtom atom = UnityEngine.Object.Instantiate(trayState.SampleAtomicView, source.AtomicView.transform);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(atom, material, researchState);
                 }
                 else {
-                    MaterialPolyelementalAtom atom = UnityEngine.Object.Instantiate(trayState.PolyelementalSampleAtomicView, source.AtomicView);
-                    for (int i = 0; i < atom.MaterialAtoms.Length; i++) {
-                        atom.MaterialAtoms[i].MaterialSprite.color = materialView.AtomColor[i];
-                        atom.Label.text = known ? material.ShortName : "?";
-                        for (int e = 0; e < atom.MaterialAtoms[i].ElectronSprites.Length; e++) {
-                            SpriteRenderer electron = atom.MaterialAtoms[i].ElectronSprites[e];
-                            electron.SetAlpha(e < material.ValenceElectronCounts[i] ? 1f : 0f);
-                        }
-                    }
+                    MaterialPolyelementalAtom atom = UnityEngine.Object.Instantiate(trayState.PolyelementalSampleAtomicView, source.AtomicView.transform);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[0], material, researchState, 0);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[1], material, researchState, 1);
                 }
 
                 // TODO: debugging purpose
                 source.Rig.gameObject.SetActive(false);
-                source.AtomicView.gameObject.SetActive(true);
+                source.AtomicView.SetActive(true);
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
@@ -148,6 +130,16 @@ namespace SpaceFab.Research {
                 float startY = 3.2f;
                 sampleObj.transform.localPosition = new Vector3(startX + index % 2 * trayState.XSpacing, startY - index / 2 * trayState.YSpacing, 0f);
                 index++;
+            }
+        }
+
+        public static void SetTrayView(ResearchSampleTrayState trayState, ChamberInterfacerState interfacerState) {
+            bool atomicView = interfacerState.ActiveChamber == ActiveChamberKind.Doping &&
+                ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary) != null;
+            
+            foreach (ResearchMaterialSource item in trayState.SpawnedSamples) {
+                item.Rig.gameObject.SetActive(!atomicView);
+                item.AtomicView.SetActive(atomicView);
             }
         }
     }

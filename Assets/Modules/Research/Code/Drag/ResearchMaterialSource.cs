@@ -15,7 +15,7 @@ namespace SpaceFab.Research {
     public class ResearchMaterialSource : BatchedComponent, IRegistrationCallbacks {
         public Collider2D Region;
         public ResearchMaterialVisualRig Rig;
-        public Transform AtomicView;
+        public GameObject AtomicView;
         public MaterialAsset Material;
 
         // Onboarding tag stamped per spawn by ResearchSampleTrayUtility (id derived from
