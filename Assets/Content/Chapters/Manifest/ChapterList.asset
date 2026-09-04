@@ -14,10 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Chapters:
   - ChapterId:
-      m_HashValue: 703635534
-    PackageId:
-      m_HashValue: 2927225661
-  - ChapterId:
       m_HashValue: 570083838
     PackageId:
       m_HashValue: 1396134493
@@ -61,3 +57,11 @@ MonoBehaviour:
       m_HashValue: 280726603
     PackageId:
       m_HashValue: 198824076
+  - ChapterId:
+      m_HashValue: 703635534
+    PackageId:
+      m_HashValue: 2927225661
+  - ChapterId:
+      m_HashValue: 703635534
+    PackageId:
+      m_HashValue: 2927225661

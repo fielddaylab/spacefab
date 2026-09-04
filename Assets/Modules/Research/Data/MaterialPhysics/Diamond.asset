@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Diamond
     m_HashValue: 3747167047
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
+  BaseConduction: 0.4
+  HeatedConduction: 1.6
   MaxTemperature: 1
   MaxVoltage: 1
   IsHighMobility: 1

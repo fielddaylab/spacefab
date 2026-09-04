@@ -367,6 +367,34 @@ namespace SpaceFab.UI {
             return false;
         }
 
+        // Finds the property page for a property label and returns the tab + page ids OpenTo needs.
+        // Matched on label alone, not the whole MaterialPropertyCheck — a page is authored per
+        // property, while a contract goal's InComparisonTo substrate is per-contract, so
+        // "P-Type dopant for sample A" and "P-Type dopant for sample B" share one page.
+        public static bool TryFindPropertyPage(WikiContent content, MaterialPropertyLabel label, out StringHash32 tabId, out StringHash32 pageId)
+        {
+            tabId = default;
+            pageId = default;
+
+            if (content == null || content.Tabs == null) { return false; }
+            for (int t = 0; t < content.Tabs.Length; t++)
+            {
+                WikiTabData tab = content.Tabs[t];
+                if (tab == null || tab.Pages == null) { continue; }
+                for (int p = 0; p < tab.Pages.Length; p++)
+                {
+                    WikiPageData page = tab.Pages[p];
+                    if (page != null && page.IsPropertyPage && page.PropertyCheck.Label == label)
+                    {
+                        tabId = tab.AssetId;
+                        pageId = page.AssetId;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         #endregion // Material Page Lookup
 
         #region Tab + Page Commands

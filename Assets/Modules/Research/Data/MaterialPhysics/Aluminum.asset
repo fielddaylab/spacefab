@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Aluminum
     m_HashValue: 2571817723
-  ConductionMultiplier: 0.7
-  ThermalMultiplier: 0.5
+  BaseConduction: 0.7
+  HeatedConduction: 0.175
   MaxTemperature: 0.33
   MaxVoltage: 1
   IsHighMobility: 0

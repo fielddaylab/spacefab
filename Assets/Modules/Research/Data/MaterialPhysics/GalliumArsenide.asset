@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: GalliumArsenide
     m_HashValue: 2929137943
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
+  BaseConduction: 0.4
+  HeatedConduction: 1.6
   MaxTemperature: 0.66
   MaxVoltage: 0.66
   IsHighMobility: 1

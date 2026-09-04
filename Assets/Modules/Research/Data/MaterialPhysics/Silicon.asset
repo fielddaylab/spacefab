@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: Silicon
     m_HashValue: 1163381446
-  ConductionMultiplier: 0.001
-  ThermalMultiplier: 2
+  BaseConduction: 0.001
+  HeatedConduction: 0.9
   MaxTemperature: 0.66
   MaxVoltage: 0.66
   IsHighMobility: 0
