@@ -15,7 +15,7 @@ MonoBehaviour:
   MaterialId:
     m_Source: GalliumNitride
     m_HashValue: 296790427
-  BaseConduction: 0.4
+  BaseConduction: 0.001
   HeatedConduction: 1.6
   MaxTemperature: 1
   MaxVoltage: 1

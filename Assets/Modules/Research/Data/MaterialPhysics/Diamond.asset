@@ -15,9 +15,9 @@ MonoBehaviour:
   MaterialId:
     m_Source: Diamond
     m_HashValue: 3747167047
-  BaseConduction: 0.4
+  BaseConduction: 0.001
   HeatedConduction: 1.6
-  MaxTemperature: 1
+  MaxTemperature: 0.66
   MaxVoltage: 1
   IsHighMobility: 1
   IsLightEmitting: 0

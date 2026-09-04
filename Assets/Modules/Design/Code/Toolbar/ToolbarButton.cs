@@ -35,8 +35,7 @@ namespace SpaceFab.Design {
         // their hover does not swap focus because ToolbarUtility.BeginHover only swaps when the
         // hovered row differs from the selected tool's row — and Clear/Erase do not change the
         // selected tool's row.
-        public StackLayer Row;
-
+        public ToolbarLayer Row;
 
         // The dynamic button component on this button's GameObject (assigned in inspector).
         // Its onClick / onPointerEnter / onPointerExit events drive the one-frame flags below.
@@ -46,6 +45,8 @@ namespace SpaceFab.Design {
         // RectTransform the selection arrow should snap to when this button is selected.
         // Read by ToolbarVisualsUpdateSystem (stubbed this pass).
         public RectTransform ArrowAnchor;
+        public string ToolName;
+        public bool AnchorBelow;
 
         // One-frame input flags. Set by the pointer handlers below; consumed by
         // ToolbarSelectSystem; cleared by ToolbarRefreshSystem at end of frame.

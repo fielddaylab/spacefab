@@ -218,21 +218,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65a0491bd8d22fa4faed5481dfdb2db8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Expanded: 0
-  Transitioning: 0
-  ActiveTabIndex: 0
-  ActivePageIndex: 0
-  PageWindowStartIndex: 0
-  OpenRequestedThisFrame: 0
-  CloseRequestedThisFrame: 0
-  OpenToRequestedThisFrame: 0
-  RequestedTabId:
-    m_HashValue: 0
-  RequestedPageId:
-    m_HashValue: 0
-  PoppedTabIndex: 0
-  NeedsRebuild: 0
-  VisualsDirty: 0
 --- !u!1 &4107408674079076998
 GameObject:
   m_ObjectHideFlags: 0
@@ -300,7 +285,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 100
+  far clip plane: 128
   field of view: 60
   orthographic: 1
   orthographic size: 5

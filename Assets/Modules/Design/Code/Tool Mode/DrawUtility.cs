@@ -62,7 +62,13 @@ namespace SpaceFab.Design
             // disallow drag from inputs/outputs on transistor layer
             if (type == CellType.NTransistor || type == CellType.PTransistor)
             {
-                if (fromCell.CellType == CellType.Input || fromCell.CellType == CellType.Input)
+                if (fromCell.CellType == CellType.Input || fromCell.CellType == CellType.Output)
+                {
+                    ToolModeUtility.TerminateDrag(toolModeState);
+                    return;
+                }
+
+                if (!CanDrawNode(gridState, toolModeState.ActiveLayer, toCell, gridPos))
                 {
                     ToolModeUtility.TerminateDrag(toolModeState);
                     return;
@@ -86,5 +92,15 @@ namespace SpaceFab.Design
             GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, toolModeState.LastKnownDragCoord, fromCell);
             GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, toCell);
             }
+        public static bool CanDrawNode(GridStackState gridState, StackLayer activeLayer, GridCell cell, Vector2Int gridPos)
+        {
+            if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) return false;
+
+            var linkedLayer = gridState.GridStack.GridLayers[(int)GridStackUtility.GetOppositeLayer(activeLayer)];
+            var linkedCell = GridLayerUtility.GetCell(linkedLayer, gridPos);
+            if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) return false;
+
+            return true;
+        }
     }
 }

@@ -24,15 +24,10 @@ namespace SpaceFab.Design.Visuals
 
         [Header("Vias")]
         public Sprite Via;
-        public Sprite ViaHigh;
-        public Sprite ViaLow;
-        public Sprite ViaUnstable;
+        public Sprite ViaBase;
 
         [Header("Gates")]
         public Sprite Gate;
-        public Sprite GateHigh;
-        public Sprite GateLow;
-        public Sprite GateUnstable;
 
         [Header("IO")]
         public Sprite IOInner;
@@ -63,6 +58,7 @@ namespace SpaceFab.Design.Visuals
         // simulated flow. Hi/Lo reuse the input-toggle colors; these two buckets cover the flow
         // states the input toggle never sees. Each bucket has a fill color (background) and a text
         // color (arrow + subtype label), mirroring the input-toggle color/text-color split.
+        public Sprite OutputArrow;
         public Color OutputEmptyColor = Color.white;
         public Color OutputEmptyTextColor = Color.white;
         public Color OutputUnstableColor = Color.white;
@@ -73,36 +69,38 @@ namespace SpaceFab.Design.Visuals
     {
         public static Sprite LookupViaSprite(GridSpriteDB spriteDB, FlowState state)
         {
-            switch (state)
-            {
-                case FlowState.Empty:
-                    return spriteDB.Via;
-                case FlowState.Hi:
-                    return spriteDB.ViaHigh;
-                case FlowState.Lo:
-                    return spriteDB.ViaLow;
-                case FlowState.Unstable:
-                    return spriteDB.ViaUnstable;
-                default:
-                    return null;
-            }
+            return spriteDB.Via;
+            //switch (state)
+            //{
+            //    case FlowState.Empty:
+            //        return spriteDB.Via;
+            //    case FlowState.Hi:
+            //        return spriteDB.ViaHigh;
+            //    case FlowState.Lo:
+            //        return spriteDB.ViaLow;
+            //    case FlowState.Unstable:
+            //        return spriteDB.ViaUnstable;
+            //    default:
+            //        return null;
+            //}
         }
 
         public static Sprite LookupGateSprite(GridSpriteDB spriteDB, FlowState state)
         {
-            switch (state)
-            {
-                case FlowState.Empty:
-                    return spriteDB.Gate;
-                case FlowState.Hi:
-                    return spriteDB.GateHigh;
-                case FlowState.Lo:
-                    return spriteDB.GateLow;
-                case FlowState.Unstable:
-                    return spriteDB.GateUnstable;
-                default:
-                    return null;
-            }
+            return spriteDB.Gate;
+            //switch (state)
+            //{
+            //    case FlowState.Empty:
+            //        return spriteDB.Gate;
+            //    case FlowState.Hi:
+            //        return spriteDB.GateHigh;
+            //    case FlowState.Lo:
+            //        return spriteDB.GateLow;
+            //    case FlowState.Unstable:
+            //        return spriteDB.GateUnstable;
+            //    default:
+            //        return null;
+            //}
         }
 
         // Tint colour applied to the input-toggle overlay's tinted renderers based on the

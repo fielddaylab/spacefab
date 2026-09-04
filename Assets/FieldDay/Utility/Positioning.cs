@@ -245,6 +245,24 @@ namespace FieldDay {
             rect.pivot = new Vector2(GetAnchorX(pivot), GetAnchorY(pivot));
         }
 
+        /// <summary>
+        /// Sets the pivot point on the x-axis for the given RectTransform.
+        /// </summary>
+        static public void SetPivotX(RectTransform rect, float pivotX) {
+            Vector2 pivot = rect.pivot;
+            pivot.x = pivotX;
+            rect.pivot = pivot;
+        }
+
+        /// <summary>
+        /// Sets the pivot point on the y-axis for the given RectTransform.
+        /// </summary>
+        static public void SetPivotY(RectTransform rect, float pivotY) {
+            Vector2 pivot = rect.pivot;
+            pivot.y = pivotY;
+            rect.pivot = pivot;
+        }
+
         #endregion // Pivot
 
         #region Size Delta

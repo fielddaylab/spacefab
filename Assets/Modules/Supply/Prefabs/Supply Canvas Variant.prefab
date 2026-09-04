@@ -233,7 +233,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_PlaneDistance
-      value: 50
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1461900991
       objectReference: {fileID: 0}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
@@ -298,22 +302,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6080182201635691}
     m_Modifications:
-    - target: {fileID: 4565727837445534518, guid: 5032da1440de2f04599d99bc2df318c2, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4565727837445534518, guid: 5032da1440de2f04599d99bc2df318c2, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4565727837445534518, guid: 5032da1440de2f04599d99bc2df318c2, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4565727837445534518, guid: 5032da1440de2f04599d99bc2df318c2, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5481307330991817649, guid: 5032da1440de2f04599d99bc2df318c2, type: 3}
       propertyPath: m_Name
       value: Supply ResultsUI Variant

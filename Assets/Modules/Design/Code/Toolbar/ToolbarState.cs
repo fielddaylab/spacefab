@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,11 +17,14 @@ namespace SpaceFab.Design {
     /// (LateUpdate). One-frame flags cleared by ToolbarRefreshSystem (LateUpdate, order 100).
     /// </summary>
     public class ToolbarState : SharedStateComponent, IRegistrationCallbacks {
-        public Image SelectedToolPtr;
+        public RectTransform SelectedToolPtr;
+        public RectTransform SelectedToolPointerArrow;
+        public TMP_Text SelectedToolPointerLabel;
+        public RectTransform SelectedLayerHighlight;
 
         // Which row the visuals layer should focus this frame. Normally aligned with the row of
         // the selected tool; temporarily flips when the player hovers over the opposite row.
-        [NonSerialized] public StackLayer FocusedRow;
+        [NonSerialized] public ToolbarLayer FocusedRow;
 
         // True iff FocusedRow is currently driven by a hover rather than the selected tool's
         // row. ToolbarSelectSystem sets this on BeginHover and clears it on EndHover.
@@ -41,7 +45,7 @@ namespace SpaceFab.Design {
             // if there are no pointer events, so this default is what the player sees until
             // they click a button. Alignment with ToolModeState.ActiveTool = None is fine —
             // no tool is selected, so no row is "correct" yet.
-            FocusedRow = StackLayer.Metal;
+            FocusedRow = ToolbarLayer.Metal;
             HoverOverrideActive = false;
             ClearRequestedThisFrame = false;
             CurrentArrowAnchor = null;
@@ -63,9 +67,11 @@ namespace SpaceFab.Design {
         // clicked. Writes both ToolModeState (authoritative selection) and ToolbarState
         // (display focus). HoverOverrideActive flips off because the player has committed to
         // a row — any lingering hover focus is now outdated.
-        public static void SelectTool(ToolModeState toolModeState, ToolbarState toolbarState, ToolbarButtonKind kind, StackLayer row) {
+        public static void SelectTool(ToolModeState toolModeState, ToolbarState toolbarState, ToolbarButtonKind kind, ToolbarLayer row) {
             toolModeState.ActiveTool = ToolTypeForKind(kind);
-            toolModeState.ActiveLayer = row;
+            if (row != ToolbarLayer.Erase) {
+                toolModeState.ActiveLayer = (StackLayer)row;
+            }
             toolbarState.FocusedRow = row;
             toolbarState.HoverOverrideActive = false;
             using (var table = TempVarTable.Alloc()) {
@@ -84,8 +90,8 @@ namespace SpaceFab.Design {
         // Hover-entry handler. Only swaps focus if the hovered row differs from the selected
         // tool's row. Buttons in the same row as the selected tool don't trigger a swap —
         // hovering stays within the already-focused row.
-        public static void BeginHover(ToolbarState toolbarState, ToolModeState toolModeState, StackLayer hoveredRow) {
-            StackLayer selectedRow = RowForTool(toolModeState.ActiveTool, toolbarState.FocusedRow);
+        public static void BeginHover(ToolbarState toolbarState, ToolModeState toolModeState, ToolbarLayer hoveredRow) {
+            ToolbarLayer selectedRow = RowForTool(toolModeState.ActiveTool, toolbarState.FocusedRow);
             if (hoveredRow == selectedRow) { return; }
 
             toolbarState.FocusedRow = hoveredRow;
@@ -126,15 +132,17 @@ namespace SpaceFab.Design {
         // row identity is defined by where the button sits in the toolbar, not what they
         // affect. None/Erase don't have an intrinsic row — we fall back to whatever the
         // caller passed as the default.
-        public static StackLayer RowForTool(ToolType tool, StackLayer fallback) {
+        public static ToolbarLayer RowForTool(ToolType tool, ToolbarLayer fallback) {
             switch (tool) {
                 case ToolType.DrawMetal:
                 case ToolType.DrawVia:
                 case ToolType.DrawGate:
-                    return StackLayer.Metal;
+                    return ToolbarLayer.Metal;
                 case ToolType.DrawNNodes:
                 case ToolType.DrawPNodes:
-                    return StackLayer.Transistor;
+                    return ToolbarLayer.Transistor;
+                case ToolType.Erase:
+                    return ToolbarLayer.Erase;
                 default:
                     return fallback;
             }

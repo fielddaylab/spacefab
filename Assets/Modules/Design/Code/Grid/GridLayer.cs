@@ -22,6 +22,8 @@ namespace SpaceFab.Design
     /// </summary>
     public class GridLayer
     {
+        // TODO: change to struct, edge info should be smaller and baked-in
+
         public GridCell[] Cells; // accessed in row, col order
 
         #region Constructor

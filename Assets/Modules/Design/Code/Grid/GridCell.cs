@@ -42,6 +42,15 @@ namespace SpaceFab.Design
         DESCEND
     }
 
+    public enum EdgeDirMask : byte {
+        NORTH = 0x01,
+        EAST = 0x02,
+        ASCEND = 0x04,
+        SOUTH = 0x08,
+        WEST = 0x10,
+        DESCEND = 0x20
+    }
+
     public enum TransferType : byte
     {
         NONE,

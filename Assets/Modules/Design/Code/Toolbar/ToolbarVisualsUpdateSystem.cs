@@ -52,14 +52,24 @@ namespace SpaceFab.Design {
             for (int i = 0; i < rows.Count; i++) {
                 ToolbarRow row = rows[i];
                 bool focused = row.Row == toolbarState.FocusedRow;
-                if (row.FadeGroup != null) {
-                    row.FadeGroup.alpha = focused ? 1f : 0.4f;
+                if (row.DeemphasizeGroup != null) {
+                    row.DeemphasizeGroup.alpha = focused ? 0f : 1;
+                }
+                if (row.DiagramGroup != null) {
+                    row.DiagramGroup.alpha = focused ? 1f : 0.4f;
+                }
+
+                if (focused && row.DiagramGroup) {
+                    toolbarState.SelectedLayerHighlight.position = row.DiagramGroup.transform.position;
                 }
             }
+
+            toolbarState.SelectedLayerHighlight.gameObject.SetActive(toolbarState.FocusedRow != ToolbarLayer.Erase);
 
             // set up toolbar state's CurrentArrowAnchor position for
             // toolbarState to update the ptr's position
             RectTransform anchor = null;
+            ToolbarButton highlight = null;
             var buttons = Find.Components<ToolbarButton>();
             for (int i = 0; i < buttons.Count; i++)
             {
@@ -67,12 +77,13 @@ namespace SpaceFab.Design {
                 if (ToolbarUtility.ToolTypeForKind(button.Kind) == toolModeState.ActiveTool)
                 {
                     anchor = button.ArrowAnchor;
+                    highlight = button;
                     break;
                 }
             }
 
             toolbarState.CurrentArrowAnchor = anchor;
-            RectTransform ptr = toolbarState.SelectedToolPtr ? toolbarState.SelectedToolPtr.rectTransform : null;
+            RectTransform ptr = toolbarState.SelectedToolPtr;
             if (ptr != null)
             {
                 bool show = anchor != null;
@@ -83,6 +94,17 @@ namespace SpaceFab.Design {
                 if (show)
                 {
                     ptr.position = anchor.position;
+                    toolbarState.SelectedToolPointerLabel.SetText(highlight.ToolName);
+
+                    if (highlight.AnchorBelow) {
+                        toolbarState.SelectedToolPointerArrow.localEulerAngles = new Vector3(0, 0, 180);
+                        Positioning.SetAnchorY(toolbarState.SelectedToolPointerLabel.rectTransform, 0);
+                        Positioning.SetPivotY(toolbarState.SelectedToolPointerLabel.rectTransform, 1);
+                    } else {
+                        toolbarState.SelectedToolPointerArrow.localEulerAngles = new Vector3(0, 0, 0);
+                        Positioning.SetAnchorY(toolbarState.SelectedToolPointerLabel.rectTransform, 1);
+                        Positioning.SetPivotY(toolbarState.SelectedToolPointerLabel.rectTransform, 0);
+                    }
                 }
             }
         }

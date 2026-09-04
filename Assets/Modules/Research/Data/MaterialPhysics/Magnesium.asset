@@ -16,8 +16,8 @@ MonoBehaviour:
     m_Source: Magnesium
     m_HashValue: 336354447
   BaseConduction: 0.7
-  HeatedConduction: 0.175
-  MaxTemperature: 0.33
+  HeatedConduction: 0.01
+  MaxTemperature: 0.66
   MaxVoltage: 0.66
   IsHighMobility: 0
   IsLightEmitting: 0

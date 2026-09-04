@@ -70,7 +70,7 @@ namespace SpaceFab.Supply {
             using(PooledList<Vector2> points = PooledList<Vector2>.Create()) {
                 int segmentCount = collider.GetPoints(points) - 1;
                 for(int i = 0; i < segmentCount; i++) {
-                    float lenSq = LineMath.DistanceFromPointToLineSegmentSquared(position, points[i], points[i + 1]);
+                    float lenSq = LineMath.SqrDistanceFromPointToLineSegment(position, points[i], points[i + 1]);
                     if (lenSq < closestDist) {
                         closestDist = lenSq;
                         closestSeg = i;
