@@ -262,6 +262,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6595118729678225028}
     m_Modifications:
+    - target: {fileID: 2503848790426191530, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3292708311143665810, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -306,6 +310,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Research Material Drag Instance Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 3973695509947971105, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5701757055239453547, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -313,6 +321,10 @@ PrefabInstance:
     - target: {fileID: 8102405075493776846, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8901383016482266259, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_SortingOrder
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

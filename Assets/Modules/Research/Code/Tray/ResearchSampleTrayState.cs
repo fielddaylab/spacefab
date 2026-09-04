@@ -18,8 +18,8 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ResearchSampleTrayState : SharedStateComponent, IRegistrationCallbacks {
         public Transform Root;
-        public float XSpacing = 1.1f;
-        public float YSpacing = 1.2f;
+        public float XSpacing = 1.05f;
+        public float YSpacing = 1f;
         public GameObject SamplePrefab;
         public MaterialAtom SampleAtomicView;
         public MaterialPolyelementalAtom PolyelementalSampleAtomicView;
@@ -126,7 +126,7 @@ namespace SpaceFab.Research {
 
                 // 2c. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
-                float startX = -0.2f;
+                float startX = -0.15f;
                 float startY = 3.2f;
                 sampleObj.transform.localPosition = new Vector3(startX + index % 2 * trayState.XSpacing, startY - index / 2 * trayState.YSpacing, 0f);
                 index++;

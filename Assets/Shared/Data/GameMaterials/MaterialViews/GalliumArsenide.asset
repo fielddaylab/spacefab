@@ -16,8 +16,7 @@ MonoBehaviour:
     m_Source: GalliumArsenide
     m_HashValue: 2929137943
   AtomColor:
-  - {r: 0.6332493, g: 0.6901961, b: 0.34117648, a: 1}
-  - {r: 0.43960193, g: 0.5188679, b: 0.2667764, a: 1}
+  - {r: 0.32941177, g: 0.29411766, b: 0.4509804, a: 1}
+  - {r: 0.16862746, g: 0.4, b: 0.34509805, a: 1}
   GemScale: 1
-  SampleOrder: 0
   SampleLabel: 12
