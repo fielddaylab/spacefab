@@ -10,8 +10,14 @@ namespace SpaceFab.Design {
     /// FadeGroup.alpha based on which row is focused. Two instances total — one per row.
     /// </summary>
     public class ToolbarRow : BatchedComponent {
-        public StackLayer Row;
-        public CanvasGroup FadeGroup;
+        public ToolbarLayer Row;
+        public CanvasGroup DeemphasizeGroup;
         public CanvasGroup DiagramGroup;
+    }
+
+    public enum ToolbarLayer : byte {
+        Metal = 0,
+        Transistor = 1,
+        Erase = 2
     }
 }

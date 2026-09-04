@@ -52,8 +52,8 @@ namespace SpaceFab.Design {
             for (int i = 0; i < rows.Count; i++) {
                 ToolbarRow row = rows[i];
                 bool focused = row.Row == toolbarState.FocusedRow;
-                if (row.FadeGroup != null) {
-                    row.FadeGroup.alpha = focused ? 1f : 0.4f;
+                if (row.DeemphasizeGroup != null) {
+                    row.DeemphasizeGroup.alpha = focused ? 0f : 1;
                 }
                 if (row.DiagramGroup != null) {
                     row.DiagramGroup.alpha = focused ? 1f : 0.4f;
@@ -63,6 +63,8 @@ namespace SpaceFab.Design {
                     toolbarState.SelectedLayerHighlight.position = row.DiagramGroup.transform.position;
                 }
             }
+
+            toolbarState.SelectedLayerHighlight.gameObject.SetActive(toolbarState.FocusedRow != ToolbarLayer.Erase);
 
             // set up toolbar state's CurrentArrowAnchor position for
             // toolbarState to update the ptr's position
