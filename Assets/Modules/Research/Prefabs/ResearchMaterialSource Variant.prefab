@@ -375,6 +375,14 @@ PrefabInstance:
       propertyPath: PropertyIcons.Array.data[1]
       value: 
       objectReference: {fileID: 7098414042480915834}
+    - target: {fileID: 2432536149545970658, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 2432536149545970658, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 3292708311143665810, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -430,6 +438,22 @@ PrefabInstance:
     - target: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       propertyPath: m_Name
       value: ResearchMaterialVisualRig
+      objectReference: {fileID: 0}
+    - target: {fileID: 5585567937148795608, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_text
+      value: C2O2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5585567937148795608, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_fontSize
+      value: 2.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5585567937148795608, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5585567937148795608, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      propertyPath: m_fontSizeMin
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
