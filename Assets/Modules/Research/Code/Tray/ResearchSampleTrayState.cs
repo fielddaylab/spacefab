@@ -109,7 +109,7 @@ namespace SpaceFab.Research {
                     ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material, researchState);
                 }
 
-                // 3a. Spawn doping chamber view
+                // 2c. Spawn doping chamber view
                 if (material.ConstituentElementNames.Length == 0) {
                     MaterialAtom atom = UnityEngine.Object.Instantiate(trayState.SampleAtomicView, source.AtomicView.transform);
                     MaterialAtomicViewUtility.RenderMaterialAtom(atom, material, researchState);
@@ -120,11 +120,7 @@ namespace SpaceFab.Research {
                     MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[1], material, researchState, 1);
                 }
 
-                // TODO: debugging purpose
-                source.Rig.gameObject.SetActive(false);
-                source.AtomicView.SetActive(true);
-
-                // 2c. Vertical layout, top-down: index 0 sits at Root, each
+                // 2d. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
                 float startX = -0.15f;
                 float startY = 3.2f;

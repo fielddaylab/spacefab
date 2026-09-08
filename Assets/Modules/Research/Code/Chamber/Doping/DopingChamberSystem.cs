@@ -185,8 +185,6 @@ namespace SpaceFab.Research
 
         private static void UpdateAtomicView(ChamberInterfacerState interfacer, DopingChamberState dopingChamber, ResearchMinigameState researchState)
         {
-            ResearchAtomConfig config = Find.GlobalAsset<ResearchAtomConfig>();
-
             // Substrate atom
             MaterialAsset substrate = ChamberInterfacerUtility.GetCurrent(interfacer, ChamberSlotKind.Primary);
             if (substrate == null) return;
@@ -236,7 +234,6 @@ namespace SpaceFab.Research
 
             for (int i = 0; i < dopantAtom.ElectronSprites.Length; i++) {
                 SpriteRenderer electron = dopantAtom.ElectronSprites[i];
-                electron.color = dopantView.AtomColor[0];
                 
                 if (count <= cap) {
                     electron.SetAlpha(i < count ? 1f : 0f);

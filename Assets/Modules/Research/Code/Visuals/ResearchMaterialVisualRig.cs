@@ -26,6 +26,7 @@ namespace SpaceFab.Research {
         public TMP_Text Label;
         public SpriteRenderer LabelBG;
         public GameObject Highlight;
+        public SpriteRenderer[] PropertyIcons;
     }
 
     /// <summary>
@@ -84,6 +85,41 @@ namespace SpaceFab.Research {
                 rig.Label.SetText(known ? material.ShortName : "?");
                 rig.LabelBG.color = known ? Color.black : Color.gray;
             }
+
+            // 5. Property icons: Show confirmed properties
+            if (rig.PropertyIcons != null && rig.PropertyIcons.Length > 0) {
+                PropertyIconSprites iconAssets = Find.GlobalAsset<PropertyIconSprites>();
+                int iconIdx = 0;
+                for (int i = 0; i < material.Properties.Length; i++) {
+                    MaterialPropertyLabel label = material.Properties[i];
+                    bool confirmed = ResearchStateUtility.HasConfirmed(researchState, material.AssetId, label, StringHash32.Null);
+                    Sprite sprite = label switch {
+                        MaterialPropertyLabel.Conductor => iconAssets.ConductorIcon,
+                        MaterialPropertyLabel.Insulator => iconAssets.InsulatorIcon,
+                        MaterialPropertyLabel.Semiconductor => iconAssets.SemiconductorIcon,
+                        MaterialPropertyLabel.PDopantFor => iconAssets.PDopantIcon,
+                        MaterialPropertyLabel.NDopantFor => iconAssets.NDopantIcon,
+                        _ => null
+                    };
+
+                    if (sprite == null) { continue; }
+
+                    // Check property confirmation with substrate context
+                    if (label == MaterialPropertyLabel.PDopantFor || label == MaterialPropertyLabel.NDopantFor) {
+                        foreach (MaterialAsset context in material.Contexts) {
+                            if (ResearchStateUtility.HasConfirmed(researchState, material.AssetId, label, context.AssetId)) {
+                                confirmed = true;
+                            }
+                        }
+                    }
+
+                    if (confirmed) {
+                        rig.PropertyIcons[iconIdx].gameObject.SetActive(true);
+                        rig.PropertyIcons[iconIdx].sprite = sprite;
+                        iconIdx++;
+                    }
+                }
+            }
         }
 
         // Clears the rig's visual content. Used when the held material becomes
@@ -100,6 +136,11 @@ namespace SpaceFab.Research {
             }
             if (rig.LabelBG != null) {
                 rig.LabelBG.color = Color.clear;
+            }
+            if (rig.PropertyIcons != null && rig.PropertyIcons.Length > 0) {
+                foreach (SpriteRenderer sprite in rig.PropertyIcons) {
+                    sprite.sprite = null;
+                }
             }
         }
     }
