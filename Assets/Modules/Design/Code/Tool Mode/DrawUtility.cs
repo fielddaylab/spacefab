@@ -22,6 +22,9 @@ namespace SpaceFab.Design
 
             if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) { return; }
 
+            // ensure any data from existing transfer type gets (i.e. via) gets erased
+            EraseUtility.EraseTransferData(toolModeState, gridState, cell, gridPos, (int)toolModeState.ActiveLayer);
+
             cell.TransferType = TransferType.Via;
 
             int cellEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.DESCEND : (int)EdgeDir.ASCEND;
@@ -40,15 +43,11 @@ namespace SpaceFab.Design
 
             if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) { return; }
 
+            // ensure any data from existing transfer type gets (i.e. via) gets erased
+            EraseUtility.EraseTransferData(toolModeState, gridState, cell, gridPos, (int)toolModeState.ActiveLayer);
+
             cell.TransferType = toolModeState.ActiveLayer == StackLayer.Metal ? TransferType.GateAbove : TransferType.GateBelow;
             linkedCell.TransferType = toolModeState.ActiveLayer == StackLayer.Metal ? TransferType.GateBelow : TransferType.GateAbove;
-
-            /*
-            int cellEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.DESCEND : (int)EdgeDir.ASCEND;
-            int linkedEdgeIndex = toolModeState.ActiveLayer == StackLayer.Metal ? (int)EdgeDir.ASCEND : (int)EdgeDir.DESCEND;
-            cell.Edges[cellEdgeIndex] = EdgeState.Connected;
-            linkedCell.Edges[linkedEdgeIndex] = EdgeState.Connected;
-            */
         }
 
         public static void DragDrawNodeOfType(ToolModeState toolModeState, GridStackState gridState, VisualGridStackState visualState, CellType type, Vector2Int gridPos)
@@ -63,7 +62,13 @@ namespace SpaceFab.Design
             // disallow drag from inputs/outputs on transistor layer
             if (type == CellType.NTransistor || type == CellType.PTransistor)
             {
-                if (fromCell.CellType == CellType.Input || fromCell.CellType == CellType.Input)
+                if (fromCell.CellType == CellType.Input || fromCell.CellType == CellType.Output)
+                {
+                    ToolModeUtility.TerminateDrag(toolModeState);
+                    return;
+                }
+
+                if (!CanDrawNode(gridState, toolModeState.ActiveLayer, toCell, gridPos))
                 {
                     ToolModeUtility.TerminateDrag(toolModeState);
                     return;
@@ -87,5 +92,15 @@ namespace SpaceFab.Design
             GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, toolModeState.LastKnownDragCoord, fromCell);
             GridLayerUtility.SetCellAndUpdateVisuals(visualState, layer, gridPos, toCell);
             }
+        public static bool CanDrawNode(GridStackState gridState, StackLayer activeLayer, GridCell cell, Vector2Int gridPos)
+        {
+            if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) return false;
+
+            var linkedLayer = gridState.GridStack.GridLayers[(int)GridStackUtility.GetOppositeLayer(activeLayer)];
+            var linkedCell = GridLayerUtility.GetCell(linkedLayer, gridPos);
+            if (linkedCell.CellType == CellType.Input || linkedCell.CellType == CellType.Output) return false;
+
+            return true;
+        }
     }
 }

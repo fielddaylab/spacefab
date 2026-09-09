@@ -92,9 +92,11 @@ namespace SpaceFab
             while (Game.Assets.IsLoadingStreamedPackage(loadInfo.PackageId)) {
                 yield return null;
             }
+
             ChapterDef chapterAsset = Find.NamedAsset<ChapterDef>(loadInfo.ChapterId);
             chapterState.ChapterDefinition = chapterAsset;
             chapterState.ChapterScriptHandle = ScriptDBUtility.Load(chapterAsset.Script);
+            Game.Events.Queue(GameEvents.ChapterLoaded);
         }
 
         static public bool UnloadChapterData(ChapterState chapterState) {
@@ -111,6 +113,7 @@ namespace SpaceFab
             chapterState.ChapterDefinition = null;
             chapterState.ChapterScriptHandle = default;
             chapterState.ChapterId = default;
+            Game.Events.Queue(GameEvents.ChapterUnloaded);
             return true;
         }
 

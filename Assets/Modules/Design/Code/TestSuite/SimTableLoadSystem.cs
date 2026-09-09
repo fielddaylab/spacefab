@@ -39,13 +39,14 @@ namespace SpaceFab.Design
                 out PlayerProgressState progressState
                 );
             Find.State(
-                out ContractState contractState
+                out ContractState contractState,
+                out ResultState resultState
                 );
             DesignMinigameState designState = Find.State<DesignMinigameState>();
 
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suiteData = levelData.GetTestSuite();
-            var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
+            var suiteDB = Find.GlobalAsset<SuiteVisualConfig>();
 
             switch (transitionState.Phase)
             {
@@ -58,6 +59,7 @@ namespace SpaceFab.Design
 
                     // build Sim table
                     SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, designState, suiteDB);
+                    ResultStateUtility.BuildResultsTable(resultState, suiteData, suiteDB);
 
                     // If the player has already passed this contract's suite, present all rows as
                     // Correct on entry rather than forcing them to re-run. FoundValidSolution is

@@ -1,4 +1,4 @@
-using BeauUtil;
+﻿using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Physics;
@@ -78,6 +78,19 @@ namespace SpaceFab.Supply {
 
     public unsafe struct SupplyRouteRenderInfo {
         
+    }
+
+    /// <summary>
+    /// Serialized form of one ship's route. Nodes are stored as SupplyRouteNode.Id hashes rather
+    /// than runtime indices - an index is the node's position in SupplyChainMap.Nodes, which is
+    /// scene hierarchy order and shifts whenever the map hierarchy is edited.
+    /// Deliberately separate from SupplyRouteData so the on-disk format is decoupled from the
+    /// runtime state shape (SupplyRouteData holds live SupplyRouteNode references and cannot be blitted).
+    /// </summary>
+    public unsafe struct SupplyRouteSaveData {
+        public byte NodeCount;
+        public SupplyRouteFlags Flags;
+        public fixed uint NodeIds[SupplyRouteData.MaxNodes];
     }
 
     [Flags]

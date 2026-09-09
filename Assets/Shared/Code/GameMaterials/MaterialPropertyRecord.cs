@@ -111,6 +111,15 @@ namespace SpaceFab.Materials
         /// </summary>
         public static bool TrySet(ref MaterialPropertyRecord record, MaterialPropertyLabel label, StringHash32 contextMaterialId)
         {
+            return TrySet(ref record, label, contextMaterialId, Find.GlobalAsset<MaterialOrderAsset>());
+        }
+
+        /// <summary>
+        /// MaterialOrderAsset-explicit form of TrySet, for callers running outside a
+        /// mounted AssetMgr - the editor bake path resolves dynamic bit indices this
+        /// way. Dynamic labels return false when no ordering is supplied.
+        /// </summary>
+        public static bool TrySet(ref MaterialPropertyRecord record, MaterialPropertyLabel label, StringHash32 contextMaterialId, MaterialOrderAsset materialOrder) {
             if (!MaterialPropertyLabelUtility.IsPersistent(label))
             {
                 return false;
@@ -118,7 +127,11 @@ namespace SpaceFab.Materials
 
             if (MaterialPropertyLabelUtility.IsDynamic(label))
             {
-                MaterialOrderAsset materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
+                if (materialOrder == null)
+                {
+                    return false;
+                }
+
                 if (!materialOrder.TryGetIndex(contextMaterialId, out int idx))
                 {
                     return false;
@@ -156,6 +169,16 @@ namespace SpaceFab.Materials
             target.StaticMask |= other.StaticMask;
             target.DynamicMask_PDopant |= other.DynamicMask_PDopant;
             target.DynamicMask_NDopant |= other.DynamicMask_NDopant;
+        }
+
+        /// <summary>
+        /// True iff both records carry identical masks. Lets callers diff two snapshots
+        /// without reaching into the bit layout themselves.
+        /// </summary>
+        public static bool AreEqual(in MaterialPropertyRecord a, in MaterialPropertyRecord b) {
+            return a.StaticMask == b.StaticMask
+                && a.DynamicMask_PDopant == b.DynamicMask_PDopant
+                && a.DynamicMask_NDopant == b.DynamicMask_NDopant;
         }
 
         /// <summary>

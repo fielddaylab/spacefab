@@ -13,21 +13,23 @@ MonoBehaviour:
   m_Name: Chapter 11 Def
   m_EditorClassIdentifier: 
   AvailableContracts:
-  - m_HashValue: 3050020568
+  - m_HashValue: 4276306438
   - m_HashValue: 4267738292
   - m_HashValue: 3237735012
   AvailableMaterials:
   - m_HashValue: 3821421172
+  - m_HashValue: 541320182
   - m_HashValue: 1821685427
-  - m_HashValue: 2571817723
-  - m_HashValue: 527899933
-  - m_HashValue: 2929137943
+  - m_HashValue: 3317014541
   - m_HashValue: 1163381446
   - m_HashValue: 466928580
-  - m_HashValue: 296790427
-  - m_HashValue: 541320182
+  - m_HashValue: 527899933
   - m_HashValue: 336354447
-  - m_HashValue: 3317014541
+  - m_HashValue: 2571817723
+  - m_HashValue: 2929137943
+  - m_HashValue: 296790427
   ExcludeFromResearch:
   - m_HashValue: 1163381446
   Script: {fileID: -1942890987711236906, guid: 94b316d69c202194c9df0f465cd5ce92, type: 3}
+  SkyboxMaterial: {fileID: 2100000, guid: 4e3dcd7423137994e8ded390696ecea2, type: 2}
+  SkyboxRotation: 0

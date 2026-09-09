@@ -16,8 +16,9 @@ MonoBehaviour:
   - production*
   - staging*
   - hotfix*
-  DevelopmentBuild: 0
   Order: 2
+  IsFallback: 0
+  DevelopmentBuild: 0
   CustomDefines: PRODUCTION,IGNORE_UNITY_EDITOR
   StrippingLevel: 3
-  OptimizationFlags: 5
+  OptimizationFlags: 6

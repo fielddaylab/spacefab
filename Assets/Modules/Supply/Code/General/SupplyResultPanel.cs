@@ -59,7 +59,7 @@ namespace SpaceFab.Supply {
             AcquirePriority();
             Input.SetInputOverride(null);
 
-            Find.State(out SupplyRouteCollection routes, out SupplyMinigameState minigameState, out SupplyShipIndex ships);
+            Find.State(out SupplyRouteCollection routes, out SupplyMinigameState minigameState, out SupplyShipIndex ships, out SupplyRouteDrawingState draw);
 
             int cost = 0,
                 time = 0,
@@ -76,6 +76,10 @@ namespace SpaceFab.Supply {
             minigameState.Reliability = risk;
 
             minigameState.FoundValidSolution = true;
+
+            // Refresh the route mirror before exporting - ExportState writes it out, and it still
+            // holds whatever was imported at scene entry until something captures the live routes.
+            SupplyRouteSaveUtility.Capture(routes, draw, ships, minigameState);
 
             ref SupplySaveState saveState = ref Find.State<MinigameSaveStates>().Supply;
             SupplyStateUtility.ExportState(ref saveState, minigameState);

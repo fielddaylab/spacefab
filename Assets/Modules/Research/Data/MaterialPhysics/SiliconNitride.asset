@@ -15,8 +15,8 @@ MonoBehaviour:
   MaterialId:
     m_Source: SiliconNitride
     m_HashValue: 4101603807
-  ConductionMultiplier: 0.1
-  ThermalMultiplier: 1
+  BaseConduction: 0.001
+  HeatedConduction: 0.001
   MaxTemperature: 1
   MaxVoltage: 1
   IsHighMobility: 0

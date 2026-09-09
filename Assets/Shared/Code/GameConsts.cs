@@ -9,6 +9,7 @@ namespace SpaceFab
     public static class GameConsts
     {
         public static int StartGameSceneIndex = 0; // index of the first scene -- usually Boot
+        public static string OverarchingSceneName = "Overarching";
     }
 
     public static class GameEvents
@@ -111,6 +112,11 @@ namespace SpaceFab
         // Supply: Route Drawing
         public static readonly StringHash32 SupplyRouteDrawingOpen = "supply:route-drawing-open";
         public static readonly StringHash32 SupplyRouteDrawingClose = "supply:route-drawing-close";
+
+        // Loading States
+
+        public static readonly StringHash32 ChapterLoaded = "chapter:loaded";
+        public static readonly StringHash32 ChapterUnloaded = "chapter:unloaded";
     }
 
     public static class ScriptTriggers

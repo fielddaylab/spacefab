@@ -6,6 +6,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Fabrication.Sequence;
+using System.Linq;
 
 namespace SpaceFab.Fabrication
 {
@@ -15,15 +16,13 @@ namespace SpaceFab.Fabrication
 
         public CanvasGroup ResultsGroup;
         public Image Background;
+        public RectTransform StationDisplayRow;
         public DynamicButton RetryButton, ContinueButton;
 
         public ResultDisplaySection Heading, Accuracy, Time, ProductionTime;
         public StationResultDisplay[] StationResults;
 
         public Routine ResultsTransitionRoutine;
-
-        public Sprite[] BackgroundSprites;
-        public Sprite[] HeadingSprites;
 
         public void OnDeregister()
         {
@@ -77,23 +76,25 @@ namespace SpaceFab.Fabrication
 
         private static IEnumerator ShowResultsRoutine(ResultDisplayState displayState)
         {
-            displayState.Accuracy.Text.text = "";
-            displayState.Time.Text.text = "";
-            displayState.ProductionTime.Text.text = "";
+            displayState.Accuracy.gameObject.SetActive(false);
+            displayState.Time.gameObject.SetActive(false);
+            displayState.ProductionTime.gameObject.SetActive(false);
+
             foreach(StationResultDisplay station in displayState.StationResults)
                 station.gameObject.SetActive(false);
             displayState.RetryButton.gameObject.SetActive(false);
             displayState.ContinueButton.gameObject.SetActive(false);
 
-            // TODO: determine success/failure
             // Set display color
             WaferState waferState = Find.State<WaferState>();
-            bool success = WaferStateUtility.GetAggregatedPrecision(waferState) > 0.8f;
+            Find.GlobalAsset(out ResultDisplayConfig config);
+
+            bool success = WaferStateUtility.GetAggregatedPrecision(waferState) > 0.8f; // TODO: adjust value
+            displayState.Background.color = success ? config.SuccessBackgroundColor : config.FailureBackgroundColor;
             displayState.Heading.Text.text = success ? "WAFER COMPLETE" : "WAFER FAILED";
-            displayState.Background.sprite = displayState.BackgroundSprites[success ? 0 : 1];
-            displayState.Heading.Background.sprite = displayState.HeadingSprites[success ? 0 : 1];
-            Color sectionColor = success ? new Color(127f / 255f, 205f / 255f, 154f / 255f) :
-                new Color(244f / 255f, 150f / 255f, 121f / 255f);
+            displayState.Heading.Background.color = success ? config.SuccessHeaderColor : config.FailureHeaderColor;
+
+            Color sectionColor = success ? config.SuccessSectionColor : config.FailureSectionColor;
             displayState.Accuracy.Background.color = sectionColor;
             displayState.Time.Background.color = sectionColor;
             displayState.ProductionTime.Background.color = sectionColor;
@@ -107,8 +108,16 @@ namespace SpaceFab.Fabrication
             // Show ratings for each station
             Find.State(out SequenceState sequence);
             FabricationStep[] steps = sequence.Level.Sequence.Steps;
+
+            int activeStepsCount = steps.Length < 6 ? steps.Length : 6;
+            var rect = displayState.StationDisplayRow;
+            Vector2 size = rect.sizeDelta;
+            size.x = activeStepsCount * 90f - 10f;
+            rect.sizeDelta = size;
+            
             float[] stationPrecisions = new float[displayState.StationResults.Length];
             float[] stationCount = new float[displayState.StationResults.Length];
+            
             for (int i = 0; i < steps.Length; i++)
             {
                 stationPrecisions[(int)steps[i].StepId] += waferState.StepPrecisions[i];
@@ -123,12 +132,12 @@ namespace SpaceFab.Fabrication
                 }
 
                 float average = stationPrecisions[i] / stationCount[i];
-                displayState.StationResults[i].SetRating(average);
+                displayState.StationResults[i].SetRating(average, config);
                 displayState.StationResults[i].gameObject.SetActive(true);
-                yield return 0.25f;
+                yield return 0.5f;
             }
 
-            // Show section
+            // Show sections - accuracy/time/production time (cycles)
             TimeState timeState = Find.State<TimeState>();
             float time = TimeStateUtility.GetElapsed(timeState);
             FabricationMinigameState fabState = Find.State<FabricationMinigameState>();
@@ -136,13 +145,17 @@ namespace SpaceFab.Fabrication
             int cycles = (int) Mathf.Ceil(time / secondssPerCycle);
 
             displayState.Accuracy.Text.text = $"{fabState.Precision * 100:F2}%";
-            yield return 0.5f;
-
             displayState.Time.Text.text = $"{time:F2}s";
-            yield return 0.5f;
-
             displayState.ProductionTime.Text.text = $"{fabState.TotalCycles} cycles";
-            yield return 0.5f;
+
+            displayState.Accuracy.gameObject.SetActive(true);
+            yield return 1f;
+
+            displayState.Time.gameObject.SetActive(true);
+            yield return 1f;
+
+            displayState.ProductionTime.gameObject.SetActive(true);
+            yield return 1f;
 
             // Show button
             GameObject button = success ? displayState.ContinueButton.gameObject : displayState.RetryButton.gameObject;

@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Design;
 using SpaceFab.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace SpaceFab.Fabrication
         public DynamicButton GenerateButton;
         public DynamicButton LeftArrowButton;
         public DynamicButton RightArrowButton;
-        [HideInInspector] public bool IsGeneratePressed, IsLeftArrowPressed, IsRightArrowPressed;
+        [NonSerialized] public bool IsGeneratePressed, IsLeftArrowPressed, IsRightArrowPressed;
 
         public void OnRegister()
         {

@@ -69,7 +69,7 @@ namespace SpaceFab.Fabrication.Microgames
         private static void ProcessSweeping(ResistMicrogameState state)
         {
             // on player input, capture drop position and begin spreading phase
-            if (state.InputAccepted && Game.Input.IsKeyPressed(FabricationConsts.Activate))
+            if (state.InputAccepted && Game.Input.IsKeyDown(FabricationConsts.Activate))
             {
                 state.DropX = state.SweeperX;
 
@@ -94,7 +94,6 @@ namespace SpaceFab.Fabrication.Microgames
             // animation finished, exit out
             if (accruedSpread >= 1f)
             {
-
                 state.SpreadingGraphic.transform.localScale = Vector3.zero;
 
                 Find.State(out StationControlState stationState);

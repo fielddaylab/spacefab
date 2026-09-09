@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: DesignVisualAssets
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
+  m_FilterSearch: 
   m_GlobalAssets:
   - {fileID: 11400000, guid: 9610ea0bf14deab43926e8819860d7be, type: 2}
-  - {fileID: 11400000, guid: 4ff7cf82e72a2e548bc36fc086d0f8a2, type: 2}
+  - {fileID: 11400000, guid: 7980e5c24cc20f24395644919681500e, type: 2}
   m_NamedAssets: []
   m_LiteAssets: []

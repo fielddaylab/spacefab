@@ -15,8 +15,8 @@ namespace SpaceFab.Fabrication
     {
         #region Saved State
 
-        [HideInInspector] public int TotalCycles;
-        [HideInInspector] public float Precision;
+        [NonSerialized] public int TotalCycles;
+        [NonSerialized] public float Precision;
 
         #endregion // Saved State
 

@@ -2,6 +2,7 @@ using BeauUtil;
 using FieldDay;
 using Leaf.Runtime;
 using SpaceFab;
+using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -55,6 +56,21 @@ namespace SpaceFab.UI {
             WikiState wikiState = Find.State<WikiState>();
             PlayerProgressState progressState = Find.State<PlayerProgressState>();
             WikiUtility.SelectPageById(wikiState, contents[0], progressState, new StringHash32(pageId));
+        }
+
+        // Select a tab by id (does not expand the wiki — use OpenWikiTo for that). Id is the tab asset
+        // name, case-sensitive. Drops the request if the id doesn't match an authored tab. No-op
+        // when no wiki is present.
+        [LeafMember("GetTabId")]
+        public static StringHash32 Leaf_GetTabId() {
+            if (!Game.SharedState.Has<WikiState>()) { return null; }
+
+            var contents = Find.Components<WikiContent>();
+            if (contents.Count == 0) { return null; }
+
+            WikiState wikiState = Find.State<WikiState>();
+            Debug.Log(contents[0].Tabs[wikiState.ActiveTabIndex].AssetId.ToDebugString());
+            return contents[0].Tabs[wikiState.ActiveTabIndex].AssetId;
         }
     }
 }

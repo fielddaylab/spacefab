@@ -1,4 +1,5 @@
 using BeauRoutine;
+using BeauUtil.Variants;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.Scripting;
@@ -70,6 +71,10 @@ namespace SpaceFab.Research {
                     // prefab — pass null for researchState since the
                     // known/unknown distinction only affects the label.
                     ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material, null);
+
+                    if (kind == ChamberSlotKind.Primary) {
+                        ScriptUtility.WriteVariable(new TableKeyPair("research", "primaryMaterial"), material.AssetId);
+                    }
 
                     using (var table = TempVarTable.Alloc()) {
                         table.Set("slotType", kind.ToString().ToLowerInvariant());

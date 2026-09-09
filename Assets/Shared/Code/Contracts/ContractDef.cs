@@ -22,6 +22,8 @@ namespace SpaceFab
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
 
+        [SerializeField] private bool m_unlocksBigBattery; // whether Research unlocks the big battery
+
         [StreamedPackId] public StringHash32 StreamedPack;
         [AssetName(typeof(ContractAssetSet))] public StringHash32 AssetSet;
 
@@ -34,5 +36,6 @@ namespace SpaceFab
         public int Payout() { return m_payout; }
         public int ExpectedDuration() { return m_expectedDuration; }
         public int ExpectedProfit() { return m_expectedProfit; }
+        public bool UnlocksBigBattery() { return m_unlocksBigBattery; }
     }
 }

@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,19 +28,19 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // ResistMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
+        [NonSerialized] public bool IsActive;
 
         // current x position of dropper along sweep. Updated each fixedupdate by ResistMicrogameSystem
-        [HideInInspector] public float SweeperX;
+        [NonSerialized] public float SweeperX;
 
         // x position where player dropped resist.
-        [HideInInspector] public float DropX;
+        [NonSerialized] public float DropX;
 
         // inspector controls for sweeper movement over chip
         public float CenterX, MaxOffset, SweepSpeed;
 
         // true after EnterComplete fires
-        [HideInInspector] public bool InputAccepted;
+        [NonSerialized] public bool InputAccepted;
 
         // 2D sprites
         public GameObject ResistUI;

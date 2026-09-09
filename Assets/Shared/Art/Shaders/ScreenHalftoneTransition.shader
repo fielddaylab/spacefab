@@ -79,7 +79,7 @@ Shader "SpaceFab/Screen Halftone Transition"
             fixed4 OverlayFrag(Varyings_PP f) : SV_Target
             {
                 fixed4 color = _Color;
-				float2 cellOffset = float2(0.5 * (int(f.texcoord.y) % 2), 0);
+				float2 cellOffset = float2(0.5 * (uint(f.texcoord.y) % 2), 0);
 
                 float2 center = ComputeHalftoneCellPosition(f.texcoord + cellOffset) - cellOffset;
 

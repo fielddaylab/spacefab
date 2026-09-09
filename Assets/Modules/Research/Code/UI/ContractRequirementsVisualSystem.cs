@@ -1,7 +1,9 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -55,11 +57,20 @@ namespace SpaceFab.Research {
             MaterialPropertyCheck[] goals = researchState.RequiredResearchGoals;
             int goalCount = goals != null ? goals.Length : 0;
 
+            // Resolved once per pass rather than per row. Absent in a scene that doesn't ship the
+            // wiki prefab, which just leaves every row inert.
+            var contents = Find.Components<WikiContent>();
+            WikiContent wikiContent = contents.Count > 0 ? contents[0] : null;
+
             for (int i = 0; i < panel.Rows.Length; i++) {
                 ResearchContractRequirementRow row = panel.Rows[i];
                 if (row == null) {
                     continue;
                 }
+
+                // Handlers are rebound every pass, so drop the prior one first — otherwise a
+                // refresh stacks a second registration on the same chip.
+                ClearRowClick(row);
 
                 MaterialPropertyCheck goal = i < goalCount ? goals[i] : null;
                 if (goal == null) {
@@ -86,6 +97,8 @@ namespace SpaceFab.Research {
                 row.Chip.SetState(BuildRequirementText(goal),
                     fulfilled ? ChipFillState.Confirmed : ChipFillState.Filled, false,
                     MaterialObservationChamberLookup.GetChamberType(goal.Label));
+
+                BindRowClick(row, goal, wikiContent, progressState);
             }
         }
 
@@ -99,6 +112,40 @@ namespace SpaceFab.Research {
             // TODO: show actual name for known materials
             ResearchMaterialView contextView = Find.NamedAsset<ResearchMaterialView>(goal.InComparisonTo);
             return contextView != null ? $"{text} for sample {contextView.SampleLabel}" : text;
+        }
+
+        // Registers the row's chip to open the wiki on the goal's property page. Left unbound when
+        // no page covers the property or the page is still locked — OpenTo would drop the request
+        // at SelectPageById anyway, and an inert row is better than one that looks live and does
+        // nothing.
+        private static void BindRowClick(ResearchContractRequirementRow row, MaterialPropertyCheck goal, WikiContent wikiContent, PlayerProgressState progressState)
+        {
+            if (wikiContent == null || row.Chip.Click == null)
+            {
+                return;
+            }
+            if (!WikiUtility.TryFindPropertyPage(wikiContent, goal.Label, out StringHash32 tabId, out StringHash32 pageId))
+            {
+                return;
+            }
+            if (!WikiUtility.IsPageUnlocked(progressState, pageId))
+            {
+                return;
+            }
+
+            // Ids captured at bind time — the click resolves nothing, so a content change can't
+            // land it on a different page than the one this pass validated.
+            row.WikiClickHandler = () => WikiUtility.OpenTo(tabId, pageId);
+            row.Chip.Click.onClick.Register(row.WikiClickHandler);
+        }
+
+        private static void ClearRowClick(ResearchContractRequirementRow row)
+        {
+            if (row.WikiClickHandler != null && row.Chip != null && row.Chip.Click != null)
+            {
+                row.Chip.Click.onClick.Deregister(row.WikiClickHandler);
+            }
+            row.WikiClickHandler = null;
         }
     }
 }

@@ -52,6 +52,7 @@ namespace SpaceFab.Research {
         // Sample material view
         public Image SampleSprite;
         public TMP_Text SampleLabel;
+        public Image SampleLabelBG;
 
         // Sample panel view for doping chamber
         public GameObject DopingGroup;

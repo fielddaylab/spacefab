@@ -45,22 +45,22 @@ namespace SpaceFab
         private void InitializeVolumeSettings()
         {
             UserSettingsState settings = Find.State<UserSettingsState>();
-            VolumeSlider.value = settings.MasterVolume;
-            MusicSlider.value = settings.MusicVolume;
-            SFXSlider.value = settings.SFXVolume;
+            VolumeSlider.SetValueWithoutNotify(settings.MasterVolume * 10);
+            MusicSlider.SetValueWithoutNotify(settings.MusicVolume * 10);
+            SFXSlider.SetValueWithoutNotify(settings.SFXVolume * 10);
         }
 
-        private void UpdateFullscreen(bool toggle)
+        static private void UpdateFullscreen(bool toggle)
         {
             SettingsUtility.SetFullscreen(Find.State<UserSettingsState>(), toggle);
         }
 
-        private void UpdateVolume(float volume)
+        static private void UpdateVolume(float volume)
         {
             SettingsUtility.SetMasterVolume(Find.State<UserSettingsState>(), volume / 10);
         }
 
-        private void UpdateBusVolume(StringHash32 bus, float volume)
+        static private void UpdateBusVolume(StringHash32 bus, float volume)
         {
             SettingsUtility.SetAudioBusVolume(Find.State<UserSettingsState>(), bus, volume / 10);
         }

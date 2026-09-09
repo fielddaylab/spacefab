@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 318cdd041ad469e4dae79dcc4f242e18, type: 3}
+  m_Name: Contract_Ch9-10_Basic
+  m_EditorClassIdentifier: 
+  m_requiredMaterialProperties:
+  - {fileID: 11400000, guid: 6d66cd15838f54a4fb236b7a33f7ff29, type: 2}
+  - {fileID: 11400000, guid: 2f285b257626f4df1a1a7f21403d89c8, type: 2}
+  - {fileID: 11400000, guid: 78093ac5e7fad463894f49b0b629d47c, type: 2}
+  - {fileID: 11400000, guid: 08721792820144d26b307c84e32a71ae, type: 2}
+  m_omitFromSupplyRequirements: []
+  m_title: AND
+  m_description: This is where the contract is described
+  m_client: '[Client Name]'
+  m_payout: 13
+  m_expectedDuration: 6
+  m_expectedProfit: 4
+  m_unlocksBigBattery: 0
+  StreamedPack:
+    m_HashValue: 3839208338
+  AssetSet:
+    m_HashValue: 1358037015

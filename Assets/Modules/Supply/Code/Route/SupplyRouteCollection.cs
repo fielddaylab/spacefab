@@ -22,6 +22,11 @@ namespace SpaceFab.Supply {
         [NonSerialized] public BitSet32 UpdatedRouteMask;
         [NonSerialized] public bool AreFragmentsDirty;
 
+        // Routes dirtied from outside the Supply frame - set during preload when routes are restored
+        // from save, and promoted into UpdatedRouteMask on the next PreUpdate so the view systems
+        // see them for a full frame instead of having them cleared out from under.
+        [NonSerialized] public BitSet32 PendingRouteRefreshMask;
+
         void IRegistrationCallbacks.OnDeregister() {
         }
 

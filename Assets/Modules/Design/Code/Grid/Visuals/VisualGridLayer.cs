@@ -18,16 +18,26 @@ namespace SpaceFab.Design
             LayerIndex = layerIndex;
             m_Cells = new VisualGridCell[yDim * xDim];
             float cellOffset = 0.5f;
-            int xOffset = (DesignConsts.NUM_GRID_COLS - xDim) / 2;
-            int yOffset = (DesignConsts.NUM_GRID_ROWS - yDim) / 2;
+            float xOffset = (DesignConsts.NUM_GRID_COLS - xDim) / 2;
+            float yOffset = (DesignConsts.NUM_GRID_ROWS - yDim) / 2;
+            float shiftForTopLayer = 0;
+            if (layerIndex == (int) StackLayer.Metal) {
+                shiftForTopLayer += 0.05f;
+            }
             for (int row = 0; row < yDim; row++)
             {
                 for (int col = 0; col < xDim; col++)
                 {
                     var cell = GameObject.Instantiate(cellVisualsPrefab, container).GetComponent<VisualGridCell>();
                     cell.transform.localPosition = new Vector3(col + cellOffset + xOffset, row + cellOffset + yOffset, 0);
-                    cell.gameObject.name = "Cell Visual (" + col + ", " + row + ")";
+                    cell.gameObject.name = "Cell Visual (" + col + ", " + row + ", " + layerIndex + ")";
                     SetCell(col, row, cell);
+
+                    if (shiftForTopLayer != 0) {
+                        foreach(var topLayer in cell.ShiftForMetalLayer) {
+                            topLayer.Translate(0, shiftForTopLayer, 0, Space.Self);
+                        }
+                    }
                 }
             }
         }

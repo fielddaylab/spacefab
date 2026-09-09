@@ -50,6 +50,10 @@ MonoBehaviour:
   Activate:
     GameObjects: []
     Behaviours: []
+  Padding: 0.05
+  DriftMin: {x: -0.2, y: -0.2, z: 0}
+  DriftMax: {x: 0.2, y: 0.2, z: 0.2}
+  DriftSpeed: 1
   NearPlane: 0.3
   FarPlane: 200
   FOV: 33.2

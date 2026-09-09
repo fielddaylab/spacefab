@@ -1,3 +1,4 @@
+using System;
 using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.UI;
@@ -23,8 +24,8 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // IonMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
-        [HideInInspector] public bool InputAccepted;
+        [NonSerialized] public bool IsActive;
+        [NonSerialized] public bool InputAccepted;
         
         public GameObject IonUI;
         public Transform PatternParent;
@@ -32,7 +33,7 @@ namespace SpaceFab.Fabrication.Microgames
 
         public float PointDensity = 10;
         public float FillRadius = 3;
-        [HideInInspector] public IonPatternData IonPattern;
+        [NonSerialized] public IonPatternData IonPattern;
 
         public IonMicrogamePhase Phase;
 

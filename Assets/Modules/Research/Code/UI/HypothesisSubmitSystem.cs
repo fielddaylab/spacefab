@@ -177,9 +177,9 @@ namespace SpaceFab.Research {
 
         // Scratch for the union decomposition; submits are rare and
         // single-threaded, so shared buffers suffice.
-        private static readonly List<MaterialObservationEntry> s_UnionScratch = new List<MaterialObservationEntry>(8);
-        private static readonly List<MaterialObservationEntry> s_DefScratch = new List<MaterialObservationEntry>(8);
-        private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
+        [NotStateful] private static readonly List<MaterialObservationEntry> s_UnionScratch = new List<MaterialObservationEntry>(8);
+        [NotStateful] private static readonly List<MaterialObservationEntry> s_DefScratch = new List<MaterialObservationEntry>(8);
+        [NotStateful] private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
 
         // Decomposes every registered definition for the label and
         // returns the deduped (label, context) union of their leaves.

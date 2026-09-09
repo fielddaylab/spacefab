@@ -19,10 +19,6 @@ $call   ReleaseAllHighlights()
 {@PAL}      Feel free to go to Research or Design! 
 {@Player}   Guess it's time to get started... 
 $call   HighlightElement(overarching:select-contract-btn)
-$call   UnlockWikiPage("Basic Conductor")
-$call   UnlockWikiPage("Basic Insulator")
-$call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
-$call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter 
 
 :: FirstContractAccept
 @trigger    OnContractAccept

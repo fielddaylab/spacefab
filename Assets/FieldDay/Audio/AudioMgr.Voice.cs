@@ -264,12 +264,13 @@ namespace FieldDay.Audio {
         }
 
         private unsafe void UpdateVoices(float deltaTime, double currentTime) {
+            bool hasAudioFocus = AudioUtility.IsActive() && !AudioListener.pause;
+            
             AudioPropertyBlock* busValues = stackalloc AudioPropertyBlock[m_BusCount];
             for(int i = 0; i < m_BusCount; i++) {
                 busValues[i] = m_WorkingBusProperties[i];
+                busValues[i].Pause |= !hasAudioFocus;
             }
-
-            bool hasAudioFocus = AudioUtility.IsActive();
 
             for(int i = m_ActiveVoices.Count - 1; i >= 0; i--) {
                 VoiceData voice = m_ActiveVoices[i];
@@ -339,11 +340,9 @@ namespace FieldDay.Audio {
                                 }
                             }
                         } else if (hasAudioFocus) {
-                            if (voice.Components.Source.loop) {
-                                voice.State = VoiceState.PlayRequested;
-                            } else if (voice.FrameEnded == Frame.InvalidIndex) {
+                            if (voice.FrameEnded == Frame.InvalidIndex) {
                                 voice.FrameEnded = Frame.Index;
-                            } else if (Frame.Age(voice.FrameEnded) >= 8) {
+                            } else if (Frame.Age(voice.FrameEnded) >= 5) {
                                 voice.Components.Source.Stop();
                                 voice.State = VoiceState.Stopped;
                                 UpdatePlayingInstanceCount(voice.Handle, voice.BusIndex, false);

@@ -55,6 +55,10 @@ MonoBehaviour:
     - {fileID: 0}
     - {fileID: 0}
     Behaviours: []
+  Padding: 0
+  DriftMin: {x: -0.1, y: -0.1, z: 0}
+  DriftMax: {x: 0.1, y: 0.1, z: 0}
+  DriftSpeed: 1
   NearPlane: 0.3
   FarPlane: 200
   FOV: 51

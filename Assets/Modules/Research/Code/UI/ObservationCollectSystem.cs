@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Variants;
 using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.Systems;
@@ -77,12 +78,20 @@ namespace SpaceFab.Research {
 
                     if (ResearchInventoryUtility.AddObservation(researchState, secondarySlottedId, inputState.ChipPickerSelectionLabel, slottedId)) {
                         viewModelDirty = true;
-                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                        using (var table = TempVarTable.Alloc())
+                        {
+                            table.Set("observationId", inputState.ChipPickerSelectionLabel.ToString().ToLower());
+                            ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
+                        }
                     }
                 }
                 else if (ResearchInventoryUtility.AddObservation(researchState, slottedId, inputState.ChipPickerSelectionLabel, StringHash32.Null)) {
                     viewModelDirty = true;
-                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded);
+                    using (var table = TempVarTable.Alloc())
+                    {
+                        table.Set("observationId", inputState.ChipPickerSelectionLabel.ToString().ToLower());
+                        ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationAdded, table);
+                    }
                 }
             }
 
@@ -105,10 +114,18 @@ namespace SpaceFab.Research {
                         {
                             if (ResearchInventoryUtility.RemoveObservation(researchState, secondarySlottedId, label, context)) {
                                 viewModelDirty = true;
+                                using (var table = TempVarTable.Alloc()) {
+                                    table.Set("observationId", label.ToString().ToLower());
+                                    ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationRemoved, table);
+                                }
                             }
                         }
                         else if (ResearchInventoryUtility.RemoveObservation(researchState, slottedId, label, context)) {
                             viewModelDirty = true;
+                            using (var table = TempVarTable.Alloc()) {
+                                table.Set("observationId", label.ToString().ToLower());
+                                ScriptUtility.Trigger(ResearchScriptTriggers.OnObservationRemoved, table);
+                            }
                         }
                     }
                 }

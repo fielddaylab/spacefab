@@ -1,5 +1,7 @@
 using BeauUtil;
+using BeauUtil.Variants;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
@@ -49,8 +51,8 @@ namespace SpaceFab.Research {
 
         // Scratch for first-definition decomposition; rebuilds are rare
         // and single-threaded, so one shared buffer suffices.
-        private static readonly List<MaterialObservationEntry> s_LeafScratch = new List<MaterialObservationEntry>(8);
-        private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
+        [NotStateful] private static readonly List<MaterialObservationEntry> s_LeafScratch = new List<MaterialObservationEntry>(8);
+        [NotStateful] private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
 
         private static void ProcessWork(float deltaTime) {
             Find.State(
@@ -99,6 +101,9 @@ namespace SpaceFab.Research {
             if (slotChanged || inputState.RemoveHypothesisClickedThisFrame) {
                 viewModelState.HypothesisSelected = false;
                 viewModelState.HypothesisContext = StringHash32.Null;
+
+                ScriptUtility.WriteVariable(new TableKeyPair("research", "propertyId"), "null");
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyRemoved);
             }
 
             // Dynamic labels need a substrate context, which only the
@@ -121,6 +126,9 @@ namespace SpaceFab.Research {
                     viewModelState.HypothesisSelected = true;
                     viewModelState.HypothesisLabel = label;
                     viewModelState.HypothesisContext = context;
+
+                    ScriptUtility.WriteVariable(new TableKeyPair("research", "propertyId"), label.ToString().ToLower());
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyAdded);
                 }
             }
 

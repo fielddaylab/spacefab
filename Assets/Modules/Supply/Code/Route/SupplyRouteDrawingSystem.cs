@@ -45,7 +45,8 @@ namespace SpaceFab.Supply {
                     .ReadWriteShared<SupplyRouteCollection>()
                     .ReadShared<SupplyHoverState>()
                     .ReadWriteShared<SupplyRouteDrawingState>()
-                    .ReadShared<SupplyShipIndex>());
+                    .ReadShared<SupplyShipIndex>()
+                    .ReadWriteShared<SupplyMinigameState>());
 
             ecs.Register(&UpdatePreviewRouteLines, new SysUpdate(GameLoopPhase.LateUpdate, 10, UpdateMasks.SupplyMask),
                 new SysPermissions()
@@ -56,7 +57,10 @@ namespace SpaceFab.Supply {
         static private void ClearCollectionDirtyFlags(float dt) {
             Find.State(out SupplyRouteCollection routes);
             routes.AreFragmentsDirty = false;
-            routes.UpdatedRouteMask.Clear();
+            // Routes dirtied outside the Supply frame (restored from save during preload) take over
+            // the mask for this frame instead of being cleared before anything renders them.
+            routes.UpdatedRouteMask = routes.PendingRouteRefreshMask;
+            routes.PendingRouteRefreshMask = default;
         }
 
         static private void HandleQueuedRouteChanges(float dt) {
@@ -276,6 +280,10 @@ namespace SpaceFab.Supply {
             routes.RouteStats[draw.RouteIndex] = previewStats;
 
             routes.UpdatedRouteMask.Set(draw.RouteIndex);
+
+            // The single point where a player edit lands on a route - add, remove, cut and delete
+            // all funnel through here - so it is also where a confirmed result stops being valid.
+            SupplyStateUtility.InvalidateFinalizedSolution(Find.State<SupplyMinigameState>());
 
             if (routes.TempRouteFragmentConsume >= 0) {
                 SupplyRouteUtility.RemoveFragmentAtIndex(routes.TempRouteFragmentConsume);

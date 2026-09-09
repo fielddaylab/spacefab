@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using System;
+using System.Text;
 using UnityEngine;
 
 namespace SpaceFab.Design
@@ -11,20 +12,16 @@ namespace SpaceFab.Design
     /// transition, or dangling-end cell. All identity is integer — CellIndex (into GridStackState)
     /// and CrucialIndex (this node's slot in SimulateGraphState.CrucialNodes).
     ///
-    /// EvalDepth is the BFS layer at which this node gets its flow value computed. Inputs are
-    /// depth 0; each crucial-to-crucial hop adds 1. Gate postponement can bump a node's depth
-    /// higher after initial discovery — see Pass 2 of SimulateGraphUtility.Build.
-    ///
-    /// FirstOutEdgeIndex / OutEdgeCount index into SimulateGraphState.OrderedEdges. Populated in
-    /// Pass 4 as a byproduct of feeding DependencySolver; left zero if that pass is skipped.
+    /// EvalDepth is the BFS layer at which this node gets its flow value computed. Because Pass 2
+    /// gives every dequeued node a clean visited set, it comes out as the exact hop distance from
+    /// the Input set. Gate postponement can bump a node's depth higher after initial discovery —
+    /// see Pass 2 of SimulateGraphUtility.Build.
     /// </summary>
     public struct CrucialNode
     {
         public int CellIndex;
         public GridCoord Coord;
         public int EvalDepth;
-        public int FirstOutEdgeIndex;
-        public int OutEdgeCount;
     }
 
     /// <summary>
@@ -37,8 +34,9 @@ namespace SpaceFab.Design
     /// order; Pass 3 bucket-sorts them into OrderedEdges so the depth-step propagation walker
     /// sees them in increasing depth order.
     ///
-    /// CycleDetected is set by Pass 4 when the edge participates in a cycle (back edge under
-    /// DFS coloring). The propagation loop uses this to mark cells along the path as unstable.
+    /// CycleDetected marks an edge into a gate whose dependency never resolved — set by the
+    /// DisallowAdditionalDep branch of TryEmitEdge. The propagation loop treats such an edge as
+    /// permanently unstable.
     /// </summary>
     public struct CrucialEdge
     {
@@ -57,51 +55,73 @@ namespace SpaceFab.Design
     /// </summary>
     public class SimulateGraphState : SharedStateComponent, IRegistrationCallbacks
     {
-        [HideInInspector] public bool IsBuilt;
+        // Tick in the inspector to have Build dump the node + edge table to the console.
+        public bool LogGraphOnBuild;
+
+        [NonSerialized] public bool IsBuilt;
 
         // Node table: 0..NodeCount-1 are valid. Array is sized to an upper bound (cellCount) and
         // not resized until a build hits a larger grid, at which point Build grows it.
-        [HideInInspector] public CrucialNode[] CrucialNodes;
-        [HideInInspector] public int NodeCount;
+        [NonSerialized] public CrucialNode[] CrucialNodes;
+        [NonSerialized] public int NodeCount;
 
         // Edge table, depth-sorted. 0..EdgeCount-1 are valid. All crucial edges are written here
         // AFTER the bucket-sort in Pass 3 — never appended directly during BFS.
-        [HideInInspector] public CrucialEdge[] OrderedEdges;
-        [HideInInspector] public int EdgeCount;
+        [NonSerialized] public CrucialEdge[] OrderedEdges;
+        [NonSerialized] public int EdgeCount;
 
         // Largest EvalDepth across OrderedEdges. Used by SimulateModeSystem.ProcessPropagating
         // to decide when the propagation walk has finished (CurrentDepth > MaxDepth).
-        [HideInInspector] public int MaxDepth;
+        [NonSerialized] public int MaxDepth;
 
         // Shared path pool: every edge.PathStart/PathLength slices into this flat int[] of
         // cellIndices. Durable (not scratch) because DepthStepSystem reads from it every
         // frame during Propagating.
-        [HideInInspector] public int[] PathPool;
-        [HideInInspector] public int PathPoolUsed;
+        [NonSerialized] public int[] PathPool;
+        [NonSerialized] public int PathPoolUsed;
 
         // cellIndex → crucialIndex reverse lookup. Entries of -1 mean "this cell is not a crucial
         // node." Sized to cellCount and reset per build.
-        [HideInInspector] public int[] CellToCrucial;
+        [NonSerialized] public int[] CellToCrucial;
 
-        // cellIndex → cellIndex of the crucial node whose resolved per-cell flow this cell mirrors,
-        // or -1 for crucial / empty / unreachable cells. Lets DepthStepSystem paint connected
-        // non-crucial cells that lie on no crucial-to-crucial path (dead-end "stub" branches the
-        // DFS walked into and popped) by copying their segment's resolved flow. Built once per
-        // Build by Pass 6; the association never crosses a P-N transistor boundary, so a stub
-        // inherits its own segment's value and not the far side of a diode.
-        [HideInInspector] public int[] CellFlowRepresentative;
+        // ---- Electrical segments (Pass 6) ----
+        //
+        // A segment is a maximal connected run of participating cells that never crosses a junction
+        // (see IsSwitchableJunction) — one conductor at one potential. It is the unit flow is
+        // stored and painted on: SimulateRunScratch.SegmentFlow is indexed by segmentId, so every
+        // cell in a segment necessarily shows the same value.
+        //
+        // The metal above a gate is never joined to the transistor below it — DrawGate leaves that
+        // vertical edge disconnected. Vias do connect, so a via correctly keeps both of its cells
+        // inside one segment.
+        //
+        // Segments are built once per Build and never rebuilt mid-test, so the partition has to
+        // anticipate what a gate can do rather than describe the grid as drawn. A gate-controlled
+        // transistor is therefore cut from its transistor neighbours even when they currently share
+        // a polarity: the moment the gate inverts it, that adjacency IS a junction, and a segment
+        // spanning it would carry flow straight through the block. The reverse case needs nothing —
+        // a gate that OPENS a channel shows up as flow crossing the junction edge and both segments
+        // settling on the same value.
 
-        // Compact list of the non-crucial cellIndices that have a representative (i.e.
-        // CellFlowRepresentative[cell] >= 0), so DepthStepSystem's per-row paint pass walks only
-        // these cells instead of the whole grid. Count-prefixed; entries 0..RepresentedCellCount.
-        [HideInInspector] public int[] RepresentedCells;
-        [HideInInspector] public int RepresentedCellCount;
+        // cellIndex → segmentId, or -1 for cells that participate in nothing.
+        [NonSerialized] public int[] CellSegment;
+        [NonSerialized] public int SegmentCount;
+
+        // Segment membership in CSR form: segment s owns SegmentCells[SegmentCellStart[s] ..
+        // SegmentCellStart[s + 1]), so repainting a whole segment is one contiguous walk.
+        // SegmentCellStart is sized SegmentCount + 1; the last entry is the total cell count.
+        [NonSerialized] public int[] SegmentCells;
+        [NonSerialized] public int[] SegmentCellStart;
+
+        // crucialIndex → segmentId. Equal to CellSegment[CrucialNodes[i].CellIndex]; kept as its
+        // own table so the propagation hot loop doesn't re-derive it per edge endpoint.
+        [NonSerialized] public int[] CrucialSegment;
 
         // Per-depth edge range table. DepthEdgeStart[d] is the first index in OrderedEdges whose
         // EvalDepth == d; DepthEdgeStart[MaxDepth + 1] == EdgeCount (sentinel). Lets
         // DepthStepSystem iterate exactly the edges at CurrentDepth without scanning the full
         // edge list. Populated by Pass 3 as a byproduct of the bucket-sort prefix-sum.
-        [HideInInspector] public int[] DepthEdgeStart;
+        [NonSerialized] public int[] DepthEdgeStart;
 
         public void OnRegister()
         {
@@ -127,8 +147,12 @@ namespace SpaceFab.Design
         // Initial capacity heuristics. Grids with more cells or more complex routing may grow
         // these at runtime — each growth emits a Debug.LogWarning so we can tune capacities
         // once representative levels exist.
-        private const int InitialEdgesPerCell = 4;
-        private const int InitialPathEntriesPerCell = 4;
+        //
+        // Sized for the per-origin sweep in Pass 2: a region carrying k crucial nodes produces
+        // up to k(k-1)/2 edges rather than k-1, and each of those carries a path slice that can
+        // span the region.
+        private const int InitialEdgesPerCell = 8;
+        private const int InitialPathEntriesPerCell = 16;
 
         // Invalidates the cached graph. Called by ModeTransitionSystem on Simulate-mode exit.
         // Does NOT touch the arrays — keeping them alive is the whole reason this system is
@@ -140,7 +164,7 @@ namespace SpaceFab.Design
             graphState.EdgeCount = 0;
             graphState.MaxDepth = 0;
             graphState.PathPoolUsed = 0;
-            graphState.RepresentedCellCount = 0;
+            graphState.SegmentCount = 0;
         }
 
         /// <summary>
@@ -152,8 +176,7 @@ namespace SpaceFab.Design
         /// Pass 2: BFS from Inputs; for each crucial-to-crucial hop, DFS through intermediate
         ///         cells to record the path. Handle gate-dependency postponement mid-BFS.
         /// Pass 3: bucket-sort discovered edges by EvalDepth into graphState.OrderedEdges.
-        /// Pass 4: detect cycles via index-based coloring DFS; mark back-edges as CycleDetected.
-        /// Pass 6: assign each non-crucial cell a flow representative for stub-cell painting.
+        /// Pass 6: partition every participating cell into electrical segments.
         /// Pass 5: finalize IsBuilt + MaxDepth.
         /// </summary>
         public static void Build(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState)
@@ -169,9 +192,83 @@ namespace SpaceFab.Design
             Pass1_DiscoverNodesAndAdjacency(graphState, scratch, gridStackState, numLayers, numCols, numRows, cellsPerLayer);
             Pass2_BfsAndPathDiscovery(graphState, scratch, gridStackState, numCols, cellsPerLayer);
             int maxDepth = Pass3_BucketSortEdgesByDepth(graphState, scratch);
-            Pass4_DetectCycles(graphState, scratch);
-            Pass6_AssignFlowRepresentatives(graphState, scratch, gridStackState, numCols, cellsPerLayer, cellCount);
+            Pass6_PartitionSegments(graphState, scratch, gridStackState, numCols, cellsPerLayer, cellCount);
             Pass5_Finalize(graphState, maxDepth);
+
+            if (graphState.LogGraphOnBuild)
+            {
+                LogGraph(graphState, gridStackState, numCols, cellsPerLayer);
+            }
+        }
+
+        // Dumps the built graph to the console. Each edge prints as origin → dest with the depth
+        // it will be evaluated at, so a cell that never lights can be traced to either a missing
+        // edge or an edge whose origin never carried flow.
+        private static void LogGraph(SimulateGraphState graphState, GridStackState gridStackState, int numCols, int cellsPerLayer)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[SimulateGraphUtility] nodes=").Append(graphState.NodeCount)
+                .Append(" edges=").Append(graphState.EdgeCount)
+                .Append(" segments=").Append(graphState.SegmentCount)
+                .Append(" maxDepth=").Append(graphState.MaxDepth)
+                .Append(" pathPoolUsed=").Append(graphState.PathPoolUsed);
+
+            for (int e = 0; e < graphState.EdgeCount; e++)
+            {
+                CrucialEdge edge = graphState.OrderedEdges[e];
+                sb.AppendLine();
+                AppendNodeLabel(sb, graphState, gridStackState, edge.OriginIndex);
+                sb.Append(" -> ");
+                AppendNodeLabel(sb, graphState, gridStackState, edge.OtherIndex);
+                sb.Append("  depth=").Append(edge.EvalDepth)
+                    .Append(" pathLen=").Append(edge.PathLength)
+                    .Append(" seg ").Append(graphState.CrucialSegment[edge.OriginIndex])
+                    .Append("->").Append(graphState.CrucialSegment[edge.OtherIndex]);
+                if (edge.CycleDetected) { sb.Append(" CYCLE"); }
+            }
+
+            // Segment membership. Cells sharing an id are one conductor and always show one value,
+            // so this is where to confirm a merge region came out as a single segment.
+            for (int s = 0; s < graphState.SegmentCount; s++)
+            {
+                sb.AppendLine();
+                sb.Append("segment ").Append(s).Append(": ");
+                int start = graphState.SegmentCellStart[s];
+                int end = graphState.SegmentCellStart[s + 1];
+                for (int i = start; i < end; i++)
+                {
+                    if (i > start) { sb.Append(' '); }
+                    AppendCellLabel(sb, gridStackState, graphState.SegmentCells[i], numCols, cellsPerLayer);
+                }
+            }
+
+            Debug.Log(sb.ToString());
+        }
+
+        // "L0C3R1(Metal/Via)" — enough to find the cell on the grid and tell why it's crucial.
+        private static void AppendNodeLabel(StringBuilder sb, SimulateGraphState graphState, GridStackState gridStackState, int crucialIdx)
+        {
+            GridCoord coord = graphState.CrucialNodes[crucialIdx].Coord;
+            GridCell cell = GridStackUtility.GetCellDirect(gridStackState, coord);
+            AppendCoordLabel(sb, cell, coord.Layer, coord.Col, coord.Row);
+        }
+
+        // Same label from a flat cellIndex, for the segment listing.
+        private static void AppendCellLabel(StringBuilder sb, GridStackState gridStackState, int cellIdx, int numCols, int cellsPerLayer)
+        {
+            int layer = cellIdx / cellsPerLayer;
+            int rem = cellIdx - layer * cellsPerLayer;
+            int row = rem / numCols;
+            int col = rem - row * numCols;
+            AppendCoordLabel(sb, GridStackUtility.GetCellDirect(gridStackState, layer, col, row), layer, col, row);
+        }
+
+        private static void AppendCoordLabel(StringBuilder sb, GridCell cell, int layer, int col, int row)
+        {
+            sb.Append('L').Append(layer)
+                .Append('C').Append(col)
+                .Append('R').Append(row)
+                .Append('(').Append(cell.CellType).Append('/').Append(cell.TransferType).Append(')');
         }
 
         #region Pass 0
@@ -191,8 +288,10 @@ namespace SpaceFab.Design
         private static void Pass0_EnsureCapacityAndReset(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int cellCount)
         {
             EnsureCapacity(ref graphState.CellToCrucial, cellCount, nameof(graphState.CellToCrucial));
-            EnsureCapacity(ref graphState.CellFlowRepresentative, cellCount, nameof(graphState.CellFlowRepresentative));
-            EnsureCapacity(ref graphState.RepresentedCells, cellCount, nameof(graphState.RepresentedCells));
+            EnsureCapacity(ref graphState.CellSegment, cellCount, nameof(graphState.CellSegment));
+            EnsureCapacity(ref graphState.SegmentCells, cellCount, nameof(graphState.SegmentCells));
+            EnsureCapacity(ref graphState.SegmentCellStart, cellCount + 1, nameof(graphState.SegmentCellStart));
+            EnsureCapacity(ref graphState.CrucialSegment, cellCount, nameof(graphState.CrucialSegment));
             EnsureCapacity(ref graphState.CrucialNodes, cellCount, nameof(graphState.CrucialNodes));
             EnsureCapacity(ref graphState.OrderedEdges, cellCount * InitialEdgesPerCell, nameof(graphState.OrderedEdges));
             EnsureCapacity(ref graphState.PathPool, cellCount * InitialPathEntriesPerCell, nameof(graphState.PathPool));
@@ -213,12 +312,13 @@ namespace SpaceFab.Design
             EnsureCapacity(ref scratch.DisallowAdditionalDep, cellCount, nameof(scratch.DisallowAdditionalDep));
             EnsureCapacity(ref scratch.Processed, cellCount, nameof(scratch.Processed));
             EnsureCapacity(ref scratch.UnsortedEdges, cellCount * InitialEdgesPerCell, nameof(scratch.UnsortedEdges));
+            EnsureCapacity(ref scratch.SegmentCursor, cellCount + 1, nameof(scratch.SegmentCursor));
 
             graphState.NodeCount = 0;
             graphState.EdgeCount = 0;
             graphState.MaxDepth = 0;
             graphState.PathPoolUsed = 0;
-            graphState.RepresentedCellCount = 0;
+            graphState.SegmentCount = 0;
 
             scratch.CellAdjDestUsed = 0;
             scratch.WorkHead = 0;
@@ -235,10 +335,11 @@ namespace SpaceFab.Design
 
             // Clear CellToCrucial so cells without crucial assignments show -1. This IS an O(cellCount)
             // pass, but -1 is the sentinel we rely on everywhere downstream — cannot use a stamp.
-            // CellFlowRepresentative shares the sentinel and the loop (Pass 6 fills it in).
+            // CellSegment shares the sentinel and the loop; Pass 6 also treats -1 as "not yet
+            // assigned to a segment", so it doubles as that flood fill's visited marker.
             for (int i = 0; i < cellCount; i++)
             {
-                graphState.CellFlowRepresentative[i] = -1;
+                graphState.CellSegment[i] = -1;
                 graphState.CellToCrucial[i] = -1;
             }
 
@@ -335,8 +436,6 @@ namespace SpaceFab.Design
                                 CellIndex = cellIndex,
                                 Coord = new GridCoord(layer, col, row),
                                 EvalDepth = 0,
-                                FirstOutEdgeIndex = 0,
-                                OutEdgeCount = 0,
                             };
                             graphState.CellToCrucial[cellIndex] = crucialIdx;
                             graphState.NodeCount++;
@@ -345,7 +444,7 @@ namespace SpaceFab.Design
                             // and gets its real EvalDepth assigned at discovery time.
                             if (cell.CellType == CellType.Input)
                             {
-                                scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+                                PushWork(scratch, crucialIdx);
                             }
                         }
 
@@ -401,18 +500,24 @@ namespace SpaceFab.Design
         //
         //   outer BFS loop:
         //     dequeue currCrucialIdx from WorkQueue
-        //     if its EvalDepth differs from prior depth, bump CurrentVisitStamp (new layer)
+        //     bump CurrentVisitStamp so this origin sweeps a clean visited set
         //     for each outgoing neighbor of currCellIdx:
         //        DFS through non-crucial cells to find reachable crucial nodes
         //        for each reached crucial: emit a CrucialEdge (with path slice copied into
         //            PathPool) unless the reciprocal edge already exists (NoReturn) or
         //            gate-dependency rules defer it
         //
+        // Visited is scoped to one origin's sweep (CurrentVisitStamp is bumped per dequeue), so
+        // every crucial node reaches every crucial node it can reach through non-crucial cells,
+        // regardless of who else was processed at the same depth. That makes discovery
+        // order-independent and makes EvalDepth exactly the hop distance from the Input set:
+        // each node dequeued at depth d assigns d+1 to all of its crucial neighbours.
+        //
         // Reciprocal suppression (NoReturn): once an edge O→C is recorded we must never record
-        // C→O — the prototype's per-node NoReturnList rule, here a cumulative pair buffer (see
-        // SimulateGraphBuildScratch.NoReturnPairs). This is what bounds the BFS: each ordered
-        // crucial pair is emitted at most once, and Processed stops re-enqueuing nodes, so the
-        // work queue strictly drains.
+        // C→O — a cumulative pair buffer (see SimulateGraphBuildScratch.NoReturnPairs). A ban
+        // never blocks a FIRST reach (it only exists once the reverse edge was recorded, which
+        // means the target already holds a depth), so it cannot delay a depth assignment.
+        // Processed stops re-enqueuing nodes, so the work queue strictly drains.
         //
         // The key subtlety is the gate-dependency mechanic. A GateBelow (underside of a gate)
         // can only be correctly evaluated AFTER its matching GateAbove (metal connector) has
@@ -462,14 +567,12 @@ namespace SpaceFab.Design
                 // won't re-enqueue it — that's what bounds the BFS on mutually-cell-reachable crucials.
                 scratch.Processed[currCrucialIdx] = true;
 
-                // Depth boundary: bump the visit stamp so DFS state from the previous layer
-                // doesn't leak into this one. The prototype did a full ResetAllVisited here;
-                // the stamp bump is O(1).
-                if (nodeDepth != currDepth)
-                {
-                    scratch.CurrentVisitStamp++;
-                    currDepth = nodeDepth;
-                }
+                // Give this origin a clean visited set. Visited is scoped to ONE crucial node's
+                // sweep, not to a depth layer — sharing it across a layer lets whichever node is
+                // dequeued first claim a shared region, leaving every other node on that region
+                // unable to emit an edge into it. The stamp bump is O(1).
+                scratch.CurrentVisitStamp++;
+                currDepth = nodeDepth;
 
                 int adjStart = scratch.CellAdjStart[currCellIdx];
                 int adjEnd = adjStart + scratch.CellAdjCount[currCellIdx];
@@ -486,7 +589,7 @@ namespace SpaceFab.Design
                     scratch.DfsPathBuffer[scratch.DfsPathDepth++] = currCellIdx;
 
                     // Run the iterative DFS.
-                    DfsFromNeighbor(graphState, scratch, currCrucialIdx, currCellIdx, neighborCellIdx, currDepth);
+                    DfsFromNeighbor(graphState, scratch, gridStackState, currCrucialIdx, currCellIdx, neighborCellIdx, currDepth);
 
                     // Emit one CrucialEdge per reached crucial node. Gate-dependency logic lives
                     // here because it affects whether the edge is emitted now or deferred. The
@@ -536,29 +639,30 @@ namespace SpaceFab.Design
 
         #endregion // Pass 3
 
-        #region Pass 4
-
         // ====================================================================================
-        // PASS 4 — Cycle detection
+        // NOTE — there is no cycle-detection pass.
         // ------------------------------------------------------------------------------------
-        // DependencySolver.Solve exists in the codebase for topological ordering + cycle
-        // detection, but it returns a single boolean Result on cycle — no per-node or per-
-        // edge attribution. Since the propagation loop's `stable &= !currEdge.CycleDetected`
-        // check NEEDS per-edge attribution, we do an index-based 3-color DFS directly on
-        // OrderedEdges instead.
+        // A back-edge DFS over OrderedEdges used to live here. It could not survive two facts:
         //
-        // Coloring scheme (white = 0 = unvisited; gray = 1 = on current DFS stack;
-        // black = 2 = fully explored). A back-edge is any edge whose target is gray. When
-        // we find a back-edge, we mark its edge.CycleDetected = true and continue — we do
-        // not abort because we want to find ALL back-edges, not just the first.
+        //   1. Pass 2 sweeps per origin, so every edge runs from an earlier-dequeued node to a
+        //      later-dequeued one (had the target been dequeued first, its own complete sweep
+        //      would have recorded the reverse and banned this direction). That is a topological
+        //      order, so back-edges effectively never occurred and the pass was dead code.
+        //   2. TryRecordReachedCrucial now emits P↔N junctions in BOTH directions, which reads
+        //      as a 2-cycle on every transistor on the board — the pass would have driven the
+        //      whole grid Unstable.
+        //
+        // No replacement is needed. A DRIVEN feedback loop pushes a second, conflicting value
+        // into its own segment, and AssignSegmentFlow's absorbing Unstable reports it. An
+        // UNDRIVEN feedback ring stays Empty and its output simply mismatches, which is an
+        // Incorrect row rather than an Unstable one — the right answer, since nothing about it
+        // is electrically unstable. An unstable region that reaches no output leaves the verdict
+        // alone because ProcessResolvingTest scores the output segments, not a global flag.
+        //
+        // CrucialEdge.CycleDetected survives and is still set by the DisallowAdditionalDep path
+        // in TryEmitEdge — a build-time signal that a gate dependency never resolved, which is
+        // unrelated to the deleted DFS.
         // ====================================================================================
-        private static void Pass4_DetectCycles(SimulateGraphState graphState, SimulateGraphBuildScratch scratch)
-        {
-            BuildOutEdgeOffsets(graphState);
-            DetectCyclesAndMarkBackEdges(graphState, scratch);
-        }
-
-        #endregion // Pass 4
 
         #region Pass 5
 
@@ -576,103 +680,128 @@ namespace SpaceFab.Design
         #region Pass 6
 
         // ====================================================================================
-        // PASS 6 — Assign a flow representative to every non-crucial cell
+        // PASS 6 — Partition every participating cell into electrical segments
         // ------------------------------------------------------------------------------------
-        // Visual coverage only — does NOT affect flow values. DepthStepSystem paints cells along
-        // crucial-to-crucial edge paths; a connected cell that lies on no such path (a dead-end
-        // "stub" branch the DFS walked into and popped) is never painted. To match the prototype
-        // (which painted the whole connected region), we give each non-crucial cell a single
-        // "representative" crucial cell whose resolved per-cell flow it should mirror, then
-        // DepthStepSystem copies that flow each row.
+        // A segment is a maximal connected run of participating cells that never crosses a
+        // junction — one conductor at one potential. Flow is stored per segment and painted per
+        // segment, so this partition is what guarantees a wire can never display two colours at
+        // once and what makes a late conflicting driver recolour the whole region.
         //
-        // The representative is found by a multi-source BFS seeded from every crucial cell, run
-        // over the same cell-adjacency Pass 1 built (CellAdjStart/Count/Dest, which covers EVERY
-        // non-empty cell). The BFS does NOT cross a P-N transistor boundary — a diode separates
-        // two electrical segments that can hold different values, so a stub must mirror its own
-        // segment's crucial, never the far side. (Physical polarity is the right boundary even
-        // though gate inversion can flip effective polarity at run time: inversion changes whether
-        // flow passes, not where the diode physically sits, and the value copied at run time is
-        // the already-resolved per-cell flow.)
+        // Flood fill over the same cell adjacency Pass 1 built (CellAdjStart/Count/Dest, which
+        // covers EVERY participating cell), refusing hops where IsSwitchableJunction is true —
+        // physical P-N pairs, plus same-type pairs under a gate, whose effective polarity can flip
+        // mid-run. A conductor that a gate can split has to be partitioned as though it were
+        // already split, since segment flow is instantaneous and would otherwise carry straight
+        // through the cell the gate just inverted. Two conductors joined by a channel the gate
+        // OPENS need no special handling — flow crosses the junction edge and both settle on the
+        // same value.
         //
-        // CellFlowRepresentative doubles as the BFS working map (it is sized to cellCount and
-        // pre-cleared to -1 in Pass 0), so no extra scratch is needed: a crucial cell is seeded
-        // pointing at itself, the BFS propagates that cellIndex outward, and the final sweep
-        // resets crucial entries back to -1 (a crucial mirrors nothing — it is painted by its own
-        // edge) and records the represented non-crucial cells into the compact RepresentedCells list.
+        // Sweeps all cellCount cells rather than seeding from crucial nodes, so a region holding
+        // no crucial node at all (a closed metal ring) still gets an id and stays uniform.
+        // CellSegment was pre-cleared to -1 in Pass 0 and doubles as the visited marker, so the
+        // fill needs no visit stamps.
+        //
+        // Membership is then grouped into CSR form (SegmentCells / SegmentCellStart) with the same
+        // counting-sort shape as BucketSortEdgesByDepth, so repainting one segment at run time is
+        // a contiguous walk rather than a scan of the grid.
         // ====================================================================================
-        private static void Pass6_AssignFlowRepresentatives(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int numCols, int cellsPerLayer, int cellCount)
+        private static void Pass6_PartitionSegments(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int numCols, int cellsPerLayer, int cellCount)
         {
-            // Fresh visit stamp for this BFS (O(1) invalidation of prior marks).
-            scratch.CurrentVisitStamp++;
-            scratch.WorkHead = 0;
-            scratch.WorkTail = 0;
+            graphState.SegmentCount = 0;
 
-            // Seed: every crucial cell is its own representative and a BFS source.
+            for (int seed = 0; seed < cellCount; seed++)
+            {
+                if (graphState.CellSegment[seed] >= 0) { continue; }
+                if (!CellParticipates(gridStackState, seed, numCols, cellsPerLayer)) { continue; }
+
+                int segmentId = graphState.SegmentCount++;
+                graphState.CellSegment[seed] = segmentId;
+
+                scratch.WorkHead = 0;
+                scratch.WorkTail = 0;
+                PushWork(scratch, seed);
+
+                while (scratch.WorkHead < scratch.WorkTail)
+                {
+                    int cellIdx = scratch.WorkQueue[scratch.WorkHead++];
+                    GridCell cell = GetCellByIndex(gridStackState, cellIdx, numCols, cellsPerLayer);
+
+                    int adjStart = scratch.CellAdjStart[cellIdx];
+                    int adjEnd = adjStart + scratch.CellAdjCount[cellIdx];
+                    for (int a = adjStart; a < adjEnd; a++)
+                    {
+                        int nbrIdx = scratch.CellAdjDest[a];
+                        if (graphState.CellSegment[nbrIdx] >= 0) { continue; }
+
+                        GridCell nbrCell = GetCellByIndex(gridStackState, nbrIdx, numCols, cellsPerLayer);
+
+                        // A junction separates two conductors that can hold different values —
+                        // including a same-type pair under a gate, which becomes a real junction
+                        // the moment the gate inverts one side.
+                        if (IsSwitchableJunction(cell, nbrCell)) { continue; }
+
+                        graphState.CellSegment[nbrIdx] = segmentId;
+                        PushWork(scratch, nbrIdx);
+                    }
+                }
+            }
+
+            GroupCellsBySegment(graphState, scratch, cellCount);
+
             for (int c = 0; c < graphState.NodeCount; c++)
             {
-                int crucialCellIdx = graphState.CrucialNodes[c].CellIndex;
-                graphState.CellFlowRepresentative[crucialCellIdx] = crucialCellIdx;
-                scratch.VisitStamps[crucialCellIdx] = scratch.CurrentVisitStamp;
-                scratch.WorkQueue[scratch.WorkTail++] = crucialCellIdx;
+                graphState.CrucialSegment[c] = graphState.CellSegment[graphState.CrucialNodes[c].CellIndex];
             }
+        }
 
-            // BFS outward through non-crucial cells, never crossing a P-N boundary.
-            while (scratch.WorkHead < scratch.WorkTail)
-            {
-                int cellIdx = scratch.WorkQueue[scratch.WorkHead++];
-                int rep = graphState.CellFlowRepresentative[cellIdx];
+        // Counting-sort cell indices into SegmentCells grouped by segment, leaving each segment's
+        // start offset in SegmentCellStart[s] and the total in SegmentCellStart[SegmentCount].
+        private static void GroupCellsBySegment(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int cellCount)
+        {
+            int bucketCount = graphState.SegmentCount;
 
-                // Decompose cellIdx → (layer, col, row) to read its cell for the boundary check.
-                int layer = cellIdx / cellsPerLayer;
-                int rem = cellIdx - layer * cellsPerLayer;
-                int row = rem / numCols;
-                int col = rem - row * numCols;
-                GridCell cell = GridStackUtility.GetCellDirect(gridStackState, layer, col, row);
-
-                int adjStart = scratch.CellAdjStart[cellIdx];
-                int adjEnd = adjStart + scratch.CellAdjCount[cellIdx];
-                for (int a = adjStart; a < adjEnd; a++)
-                {
-                    int nbrIdx = scratch.CellAdjDest[a];
-                    if (scratch.VisitStamps[nbrIdx] == scratch.CurrentVisitStamp) { continue; }
-
-                    int nbrLayer = nbrIdx / cellsPerLayer;
-                    int nbrRem = nbrIdx - nbrLayer * cellsPerLayer;
-                    int nbrRow = nbrRem / numCols;
-                    int nbrCol = nbrRem - nbrRow * numCols;
-                    GridCell nbrCell = GridStackUtility.GetCellDirect(gridStackState, nbrLayer, nbrCol, nbrRow);
-
-                    // Don't let a representative bleed across a diode (opposite-polarity P-N pair).
-                    if (IsDiodeBoundaryHop(cell, nbrCell)) { continue; }
-
-                    scratch.VisitStamps[nbrIdx] = scratch.CurrentVisitStamp;
-
-                    // A crucial neighbor is already its own representative — don't overwrite or
-                    // re-enqueue (it was seeded). Non-crucial neighbors inherit this cell's rep.
-                    if (graphState.CellToCrucial[nbrIdx] >= 0) { continue; }
-
-                    graphState.CellFlowRepresentative[nbrIdx] = rep;
-                    scratch.WorkQueue[scratch.WorkTail++] = nbrIdx;
-                }
-            }
-
-            // Final sweep: crucial cells mirror nothing (reset to -1); collect represented
-            // non-crucial cells into the compact list DepthStepSystem walks each row. Bound by the
-            // real cellCount, not the array capacity — pooled arrays may hold stale entries past
-            // cellCount from a previous larger build (Pass 0 only clears 0..cellCount).
-            graphState.RepresentedCellCount = 0;
+            // Histogram into [s + 1] so the prefix sum below leaves starts in place without a
+            // separate offset step. Non-participating cells (segment -1) are skipped throughout.
+            for (int s = 0; s <= bucketCount; s++) { graphState.SegmentCellStart[s] = 0; }
             for (int i = 0; i < cellCount; i++)
             {
-                if (graphState.CellToCrucial[i] >= 0)
-                {
-                    graphState.CellFlowRepresentative[i] = -1;
-                    continue;
-                }
-                if (graphState.CellFlowRepresentative[i] >= 0)
-                {
-                    graphState.RepresentedCells[graphState.RepresentedCellCount++] = i;
-                }
+                int s = graphState.CellSegment[i];
+                if (s < 0) { continue; }
+                graphState.SegmentCellStart[s + 1]++;
             }
+            for (int s = 0; s < bucketCount; s++)
+            {
+                graphState.SegmentCellStart[s + 1] += graphState.SegmentCellStart[s];
+            }
+
+            // Placement uses its own write cursors so SegmentCellStart keeps the start offsets
+            // the run-time paint walk reads.
+            for (int s = 0; s < bucketCount; s++) { scratch.SegmentCursor[s] = graphState.SegmentCellStart[s]; }
+            for (int i = 0; i < cellCount; i++)
+            {
+                int s = graphState.CellSegment[i];
+                if (s < 0) { continue; }
+                graphState.SegmentCells[scratch.SegmentCursor[s]++] = i;
+            }
+        }
+
+        // True if a cell takes part in the electrical graph at all. Same rule Pass 1 classifies
+        // with: a cell with no CellType still participates when it carries a GateAbove transfer.
+        private static bool CellParticipates(GridStackState gridStackState, int cellIdx, int numCols, int cellsPerLayer)
+        {
+            GridCell cell = GetCellByIndex(gridStackState, cellIdx, numCols, cellsPerLayer);
+            return cell.CellType != CellType.NONE || cell.TransferType == TransferType.GateAbove;
+        }
+
+        // Decompose a flat cellIndex back to (layer, col, row) and read the cell. Inverse of
+        // CellIndex; see that helper for the packing.
+        private static GridCell GetCellByIndex(GridStackState gridStackState, int cellIdx, int numCols, int cellsPerLayer)
+        {
+            int layer = cellIdx / cellsPerLayer;
+            int rem = cellIdx - layer * cellsPerLayer;
+            int row = rem / numCols;
+            int col = rem - row * numCols;
+            return GridStackUtility.GetCellDirect(gridStackState, layer, col, row);
         }
 
         #endregion // Pass 6
@@ -684,10 +813,11 @@ namespace SpaceFab.Design
 
         #region Pass 1 helpers
 
-        // True if this P/N transistor cell borders a transistor of the opposite type via any
-        // connected edge. Mirrors prototype's IsTransistorTransition (lines 1010–1039) but
-        // takes the cell as a parameter instead of doing a second lookup, and takes explicit
-        // layer/dim args instead of reading GridStack.Instance.
+        // True if this P/N transistor cell borders a junction via any connected edge — either a
+        // transistor of the opposite type, or a gate-controlled transistor whose polarity can flip
+        // mid-run. Both sides of a junction have to be crucial so the junction exists as an edge:
+        // DepthStepSystem only applies its diode rule when both of an edge's ENDPOINTS are
+        // transistors, so a junction buried in the middle of an edge's path is never evaluated.
         private static bool IsTransistorTransition(GridStackState gridStackState, int layer, int col, int row, GridCell cell, int numLayers, int numCols, int numRows)
         {
             // Metal layer can't host transistors; skip.
@@ -708,22 +838,35 @@ namespace SpaceFab.Design
                 if (adjRow < 0 || adjRow >= numRows) { continue; }
 
                 GridCell adjCell = GridStackUtility.GetCellDirect(gridStackState, adjLayer, adjCol, adjRow);
-                if (cell.CellType == CellType.NTransistor && adjCell.CellType == CellType.PTransistor) { return true; }
-                if (cell.CellType == CellType.PTransistor && adjCell.CellType == CellType.NTransistor) { return true; }
+                if (IsSwitchableJunction(cell, adjCell)) { return true; }
             }
 
             return false;
         }
 
-        // True if a hop between two adjacent cells crosses a P-N transistor boundary (a diode):
-        // both cells are transistors of opposite physical polarity. Pass 6 uses this to stop a
-        // flow representative from spreading across a diode, since the two sides are separate
-        // electrical segments that can carry different values.
-        private static bool IsDiodeBoundaryHop(GridCell a, GridCell b)
+        // True if a hop between two adjacent cells is a junction the simulation may have to gate.
+        // Two cases, and the second is why this is not just a physical-polarity test:
+        //
+        //   - A physical P-N pair. A diode; the two sides are separate conductors that can carry
+        //     different values.
+        //   - A same-type pair where one side sits under a gate. A gate flips its cell's EFFECTIVE
+        //     polarity mid-run, turning a uniform chain into P-N-P (or N-P-N), so the boundary has
+        //     to mean "could ever be a junction" rather than "is one right now". Deciding this from
+        //     physical polarity alone leaves the inversion with no edge and no segment boundary to
+        //     act on, and the chain conducts as though the gate were not there.
+        //
+        // Both cells must be transistors, so a via from a gate cell up to metal is not a junction
+        // and stays one conductor.
+        private static bool IsSwitchableJunction(GridCell a, GridCell b)
         {
-            if (a.CellType == CellType.PTransistor && b.CellType == CellType.NTransistor) { return true; }
-            if (a.CellType == CellType.NTransistor && b.CellType == CellType.PTransistor) { return true; }
-            return false;
+            if (!IsTransistorCell(a) || !IsTransistorCell(b)) { return false; }
+            if (a.CellType != b.CellType) { return true; }
+            return a.TransferType == TransferType.GateBelow || b.TransferType == TransferType.GateBelow;
+        }
+
+        private static bool IsTransistorCell(GridCell cell)
+        {
+            return cell.CellType == CellType.PTransistor || cell.CellType == CellType.NTransistor;
         }
 
         #endregion // Pass 1 helpers
@@ -742,7 +885,7 @@ namespace SpaceFab.Design
         // The origin is already pushed before this is called (caller does
         // DfsPathBuffer[0] = originCellIdx). This function pushes the first neighbor and
         // proceeds from there.
-        private static unsafe void DfsFromNeighbor(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int originCrucialIdx, int originCellIdx, int firstNeighborCellIdx, int currDepth)
+        private static unsafe void DfsFromNeighbor(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int originCrucialIdx, int originCellIdx, int firstNeighborCellIdx, int currDepth)
         {
             // Per-frame neighbor cursor. Bounded by path depth (<= cellCount). 256 covers every
             // plausible grid size; grow dynamically if we ever exceed.
@@ -769,7 +912,7 @@ namespace SpaceFab.Design
             int firstCrucial = graphState.CellToCrucial[firstNeighborCellIdx];
             if (firstCrucial >= 0 && firstNeighborCellIdx != originCellIdx)
             {
-                TryRecordReachedCrucial(graphState, scratch, originCrucialIdx, firstCrucial, currDepth);
+                TryRecordReachedCrucial(graphState, scratch, gridStackState, originCrucialIdx, firstCrucial, currDepth);
                 scratch.DfsPathDepth--; // pop back to just the origin
                 return;
             }
@@ -807,7 +950,7 @@ namespace SpaceFab.Design
                         {
                             scratch.DfsPathBuffer[scratch.DfsPathDepth++] = dest;
                         }
-                        TryRecordReachedCrucial(graphState, scratch, originCrucialIdx, destCrucial, currDepth);
+                        TryRecordReachedCrucial(graphState, scratch, gridStackState, originCrucialIdx, destCrucial, currDepth);
                         scratch.DfsPathDepth--; // pop dest
                         continue;
                     }
@@ -843,12 +986,20 @@ namespace SpaceFab.Design
         // already-processed crucials — that edge must be emitted so a second driver's flow reaches
         // the node during propagation; re-enqueuing the processed node is what's suppressed, and
         // that's handled in TryEmitEdge.
-        private static void TryRecordReachedCrucial(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int originCrucialIdx, int reachedCrucialIdx, int currDepth)
+        private static void TryRecordReachedCrucial(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, GridStackState gridStackState, int originCrucialIdx, int reachedCrucialIdx, int currDepth)
         {
+            // A junction is exempt from reciprocal suppression: it has to exist in both directions,
+            // because a gate inversion can create or remove it mid-run and which direction got
+            // discovered first is an accident of BFS order. Conduction stays governed at run time
+            // by DepthStepSystem.EvaluateFlowThroughDiode, so emitting both is safe. Keyed on
+            // endpoint cell types rather than adjacency to match the rule that check applies.
+            GridCell originCell = GridStackUtility.GetCellDirect(gridStackState, graphState.CrucialNodes[originCrucialIdx].Coord);
+            GridCell reachedCell = GridStackUtility.GetCellDirect(gridStackState, graphState.CrucialNodes[reachedCrucialIdx].Coord);
+            bool isJunction = IsSwitchableJunction(originCell, reachedCell);
+
             // Reciprocal suppression: if reached -> origin was already recorded earlier in the
-            // build, do not record origin -> reached now. Cumulative across the whole build,
-            // mirroring the prototype's per-node NoReturnList (EvaluationMgr lines 1291 + 1299).
-            if (NoReturnContains(scratch, originCrucialIdx, reachedCrucialIdx))
+            // build, do not record origin -> reached now. Cumulative across the whole build.
+            if (!isJunction && NoReturnContains(scratch, originCrucialIdx, reachedCrucialIdx))
             {
                 return;
             }
@@ -877,19 +1028,22 @@ namespace SpaceFab.Design
 
             // Record the reciprocal block: now that origin -> reached exists, forbid reached ->
             // origin. Stored as "reached's no-return list gains origin" so a later reached-origin
-            // DFS that reaches origin is suppressed by the NoReturnContains check above.
-            NoReturnAdd(scratch, reachedCrucialIdx, originCrucialIdx);
+            // DFS that reaches origin is suppressed by the NoReturnContains check above. Skipped
+            // for junctions, which are deliberately kept bidirectional.
+            if (!isJunction)
+            {
+                NoReturnAdd(scratch, reachedCrucialIdx, originCrucialIdx);
+            }
 
             // Assign BFS depth if not yet assigned. The node's depth is determined the first time
             // it's reached — later reaches from the same or earlier BFS layer don't override it.
-            // Prototype sets parentDepth + 1 here.
             CrucialNode reached = graphState.CrucialNodes[reachedCrucialIdx];
             if (reached.EvalDepth == 0)
             {
                 // Possible that a non-input was genuinely already at 0 depth (the default). Safe
                 // to overwrite because non-inputs should never be at 0 unless they're already
                 // enqueued — in which case we're hitting them again via a later path and the
-                // ContainsByName-style dedupe above already prevented this.
+                // dedupe above already prevented this.
                 reached.EvalDepth = currDepth + 1;
                 graphState.CrucialNodes[reachedCrucialIdx] = reached;
             }
@@ -937,17 +1091,20 @@ namespace SpaceFab.Design
                 else if (aboveCrucial >= 0)
                 {
                     // Defer: stash the (origin, reached) pair. DO NOT emit the edge now. The
-                    // reached node will be re-enqueued with EvalDepth = currDepth + 1 when the
-                    // above-gate resolves, and this same DFS will re-run to re-emit the edge
-                    // at the correct depth.
+                    // ORIGIN gets re-enqueued at EvalDepth = currDepth + 1 once the above-gate
+                    // resolves, and its re-run sweep re-reaches this node and emits the edge at
+                    // the correct depth.
                     scratch.AwaitingDependency[reachedCrucialIdx] = true;
-                    scratch.PostponedPairs[scratch.PostponedCount * 2] = originCrucialIdx;
-                    scratch.PostponedPairs[scratch.PostponedCount * 2 + 1] = reachedCrucialIdx;
-                    scratch.PostponedCount++;
-                    // Note: TryRecordReachedCrucial already reserved the path slice; on a
-                    // defer we hold that PathPool slot without using it. Wasteful in rare
-                    // pathological layouts; consider pool-rewind-on-defer if profiling shows
-                    // the pool bloating.
+                    PushPostponement(scratch, originCrucialIdx, reachedCrucialIdx);
+
+                    // TryRecordReachedCrucial already reserved a path slice for an edge we're
+                    // not emitting. Hand it back when it's still the tail of the pool — the
+                    // re-run reserves a fresh one. A non-tail slice can't be reclaimed without
+                    // compacting, so leave it; the check makes that case a no-op.
+                    if (pathStart + pathLength == graphState.PathPoolUsed)
+                    {
+                        graphState.PathPoolUsed = pathStart;
+                    }
                 }
                 else
                 {
@@ -971,7 +1128,7 @@ namespace SpaceFab.Design
 
                 if (belowCrucial >= 0 && scratch.AwaitingDependency[belowCrucial])
                 {
-                    ResolvePostponementsForBelow(graphState, scratch, belowCrucial, belowCellIdx, currDepth);
+                    ResolvePostponementsForBelow(graphState, scratch, belowCrucial, currDepth);
                     scratch.AwaitingDependency[belowCrucial] = false;
                 }
                 else if (belowCrucial >= 0 && scratch.DisallowAdditionalDep[belowCrucial])
@@ -984,14 +1141,21 @@ namespace SpaceFab.Design
             else
             {
                 // Normal crucial-to-crucial hop. No gate dependency.
-                EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
+                if (reachedCell.CellType != CellType.Output)
+                {
+                    EnqueueIfUnprocessed(scratch, reachedCrucialIdx);
+                }
                 AppendEdge(scratch, edge);
             }
         }
 
-        // Re-enqueue postponed dependents at one depth deeper, reset the below-cell's visit
-        // stamp so DFS can hit it again next depth layer, and remove the resolved pairs.
-        private static void ResolvePostponementsForBelow(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int belowCrucialIdx, int belowCellIdx, int currDepth)
+        // Re-enqueue the ORIGIN of each pair postponed on this below-gate, one depth deeper, and
+        // remove the resolved pairs. It is the origin's sweep that has to run again: the edge it
+        // deferred is only emitted when that sweep re-reaches the below-gate and finds the
+        // matching above-gate now marked EvaluatedForDependency. Re-enqueuing the below-gate
+        // instead would drop the deferred edge entirely, leaving the gated transistor with no
+        // edge from its driver.
+        private static void ResolvePostponementsForBelow(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int belowCrucialIdx, int currDepth)
         {
             for (int p = 0; p < scratch.PostponedCount; )
             {
@@ -999,13 +1163,14 @@ namespace SpaceFab.Design
 
                 if (dependencyReached == belowCrucialIdx)
                 {
-                    // Bump the reached node's depth, enqueue it, reset the below cell's visit
-                    // stamp to allow DFS to re-find the path on the next layer.
-                    CrucialNode dep = graphState.CrucialNodes[dependencyReached];
+                    // Bump the origin's depth and enqueue it so its sweep re-runs one layer
+                    // deeper. Bypasses EnqueueIfUnprocessed on purpose — the origin has already
+                    // been processed, and running it again is the whole point.
+                    int postponedOrigin = scratch.PostponedPairs[p * 2];
+                    CrucialNode dep = graphState.CrucialNodes[postponedOrigin];
                     dep.EvalDepth = currDepth + 1;
-                    graphState.CrucialNodes[dependencyReached] = dep;
-                    scratch.WorkQueue[scratch.WorkTail++] = dependencyReached;
-                    scratch.VisitStamps[belowCellIdx] = 0;
+                    graphState.CrucialNodes[postponedOrigin] = dep;
+                    PushWork(scratch, postponedOrigin);
 
                     // Swap-remove this pair from PostponedPairs.
                     int lastP = scratch.PostponedCount - 1;
@@ -1025,23 +1190,22 @@ namespace SpaceFab.Design
         }
 
         // Called when BFS is out of pending work but PostponedPairs isn't empty — their
-        // dependencies will never satisfy. For each remaining pair: push dependent at
-        // currDepth + 1, mark below cell DisallowAdditionalDep, mark above cell
-        // EvaluatedForDependency. Mirrors prototype lines 1230–1259.
+        // dependencies will never satisfy. For each remaining pair: re-enqueue the ORIGIN at
+        // currDepth + 1 so its sweep runs again and emits the edge it deferred, then mark the
+        // below-gate DisallowAdditionalDep and its above-gate EvaluatedForDependency so that
+        // re-run isn't deferred a second time.
         private static void FlushUnresolvedPostponements(SimulateGraphState graphState, SimulateGraphBuildScratch scratch, int currDepth, int numCols, int cellsPerLayer)
         {
             for (int p = 0; p < scratch.PostponedCount; p++)
             {
+                int postponedOrigin = scratch.PostponedPairs[p * 2];
                 int dependencyReached = scratch.PostponedPairs[p * 2 + 1];
 
-                // Bump the dependent to the next depth + re-enqueue.
-                CrucialNode dep = graphState.CrucialNodes[dependencyReached];
+                // Bump the origin to the next depth + re-enqueue.
+                CrucialNode dep = graphState.CrucialNodes[postponedOrigin];
                 dep.EvalDepth = currDepth + 1;
-                graphState.CrucialNodes[dependencyReached] = dep;
-                scratch.WorkQueue[scratch.WorkTail++] = dependencyReached;
-
-                int belowCellIdx = graphState.CrucialNodes[dependencyReached].CellIndex;
-                scratch.VisitStamps[belowCellIdx] = 0;
+                graphState.CrucialNodes[postponedOrigin] = dep;
+                PushWork(scratch, postponedOrigin);
 
                 scratch.AwaitingDependency[dependencyReached] = false;
                 scratch.DisallowAdditionalDep[dependencyReached] = true;
@@ -1060,6 +1224,38 @@ namespace SpaceFab.Design
             scratch.PostponedCount = 0;
         }
 
+        // Append a crucial index to the BFS work queue, growing if needed. WorkTail only ever
+        // moves forward (the queue never wraps), and postponement re-queues push nodes that were
+        // already processed, so total pushes are not bounded by NodeCount — the growth check is
+        // load-bearing, not defensive.
+        private static void PushWork(SimulateGraphBuildScratch scratch, int crucialIdx)
+        {
+            if (scratch.WorkTail >= scratch.WorkQueue.Length)
+            {
+                int newSize = Mathf.Max(scratch.WorkQueue.Length * 2, scratch.WorkTail + 1);
+                Debug.LogWarning("[SimulateGraphUtility] WorkQueue grew from " + scratch.WorkQueue.Length + " to " + newSize + " — initial capacity heuristic undersized");
+                Array.Resize(ref scratch.WorkQueue, newSize);
+            }
+            scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+        }
+
+        // Append an (origin, gateBelow) postponement pair, growing if needed. One pair per
+        // deferred edge, and several origins can defer on the same gate before its above-gate is
+        // reached, so this is not bounded by NodeCount either.
+        private static void PushPostponement(SimulateGraphBuildScratch scratch, int originCrucialIdx, int belowCrucialIdx)
+        {
+            int neededInts = (scratch.PostponedCount + 1) * 2;
+            if (neededInts > scratch.PostponedPairs.Length)
+            {
+                int newSize = Mathf.Max(scratch.PostponedPairs.Length * 2, neededInts);
+                Debug.LogWarning("[SimulateGraphUtility] PostponedPairs grew from " + scratch.PostponedPairs.Length + " to " + newSize + " — initial capacity heuristic undersized");
+                Array.Resize(ref scratch.PostponedPairs, newSize);
+            }
+            scratch.PostponedPairs[scratch.PostponedCount * 2] = originCrucialIdx;
+            scratch.PostponedPairs[scratch.PostponedCount * 2 + 1] = belowCrucialIdx;
+            scratch.PostponedCount++;
+        }
+
         // Enqueue a crucial node for BFS processing unless it has already been processed.
         // Re-enqueuing a processed node is what would let the BFS loop forever on mutually-
         // cell-reachable crucials; the edge into it is still emitted by the caller — only the
@@ -1068,7 +1264,7 @@ namespace SpaceFab.Design
         private static void EnqueueIfUnprocessed(SimulateGraphBuildScratch scratch, int crucialIdx)
         {
             if (scratch.Processed[crucialIdx]) { return; }
-            scratch.WorkQueue[scratch.WorkTail++] = crucialIdx;
+            PushWork(scratch, crucialIdx);
         }
 
         // True if ownerCrucialIdx's no-return list already contains memberCrucialIdx. Linear scan
@@ -1241,177 +1437,6 @@ namespace SpaceFab.Design
         }
 
         #endregion // Pass 3 helpers
-
-        #region Pass 4 helpers
-
-        // Populate FirstOutEdgeIndex / OutEdgeCount on each CrucialNode based on OrderedEdges.
-        // Because OrderedEdges is sorted by EvalDepth (not by origin), we need two sweeps: one
-        // to count per-origin, one to compute starts. Then a scatter pass to produce a
-        // contiguous per-origin view... but that would require shuffling OrderedEdges, which
-        // breaks depth ordering.
-        //
-        // Compromise: use a per-origin edge-INDEX table (scratch field) that maps origin ->
-        // List<edgeIdx>. For cycle detection we don't actually need contiguity — just the set
-        // of outgoing edge indices per node. We scan OrderedEdges once per DFS to find outgoing
-        // edges of a given origin. Keep the sweep cheap (EdgeCount is small).
-        //
-        // For now, leave FirstOutEdgeIndex / OutEdgeCount at zero unless a future consumer
-        // needs them. Cycle detection will use an ad-hoc O(edges) scan per node, which is fine
-        // given typical edge counts in the hundreds.
-        private static void BuildOutEdgeOffsets(SimulateGraphState graphState)
-        {
-            // No-op for now — left as TODO for future performance work if cycle detection
-            // or other consumers need per-node out-edge contiguity. The current coloring DFS
-            // iterates OrderedEdges linearly and filters by origin, which is acceptable.
-        }
-
-        // Three-color DFS cycle detection, marking back-edges as CycleDetected.
-        //
-        // white = 0 (unvisited), gray = 1 (on current DFS stack), black = 2 (fully explored).
-        // A back-edge is any edge whose target is currently gray. When found, mark
-        // edge.CycleDetected = true and continue — we want ALL back-edges, not just the first.
-        //
-        // The outer loop iterates each node as a potential DFS root to cover disconnected
-        // components. Inner stack is explicit, keyed by OrderedEdges cursor per frame.
-        //
-        // Stack-path via stackalloc for node counts up to StackColorCap. Extreme grids fall
-        // back to a managed implementation. Split code paths to keep the stack path clean.
-        private static void DetectCyclesAndMarkBackEdges(SimulateGraphState graphState, SimulateGraphBuildScratch scratch)
-        {
-            int nodeCount = graphState.NodeCount;
-            if (nodeCount == 0) { return; }
-
-            const int StackColorCap = 256;
-            if (nodeCount <= StackColorCap)
-            {
-                DetectCyclesStackPath(graphState, nodeCount, StackColorCap);
-            }
-            else
-            {
-                Debug.LogWarning("[SimulateGraphUtility] nodeCount " + nodeCount + " exceeds StackColorCap; falling back to heap cycle detection");
-                DetectCyclesHeapPath(graphState, nodeCount);
-            }
-        }
-
-        private static unsafe void DetectCyclesStackPath(SimulateGraphState graphState, int nodeCount, int stackCap)
-        {
-            byte* colors = stackalloc byte[nodeCount];
-            for (int i = 0; i < nodeCount; i++) { colors[i] = 0; }
-            int* stackNodes = stackalloc int[stackCap];
-            int* stackCursors = stackalloc int[stackCap];
-
-            for (int startNode = 0; startNode < nodeCount; startNode++)
-            {
-                if (colors[startNode] != 0) { continue; }
-
-                int stackDepth = 0;
-                stackNodes[stackDepth] = startNode;
-                stackCursors[stackDepth] = 0;
-                colors[startNode] = 1;
-                stackDepth++;
-
-                while (stackDepth > 0)
-                {
-                    int frame = stackDepth - 1;
-                    int currNode = stackNodes[frame];
-                    int cursor = stackCursors[frame];
-
-                    int foundEdgeIdx = FindNextOutEdge(graphState, currNode, cursor);
-                    stackCursors[frame] = foundEdgeIdx < 0 ? graphState.EdgeCount : foundEdgeIdx + 1;
-
-                    if (foundEdgeIdx < 0)
-                    {
-                        colors[currNode] = 2;
-                        stackDepth--;
-                        continue;
-                    }
-
-                    int otherIdx = graphState.OrderedEdges[foundEdgeIdx].OtherIndex;
-                    byte otherColor = colors[otherIdx];
-
-                    if (otherColor == 1)
-                    {
-                        graphState.OrderedEdges[foundEdgeIdx].CycleDetected = true;
-                    }
-                    else if (otherColor == 0)
-                    {
-                        if (stackDepth >= stackCap)
-                        {
-                            Debug.LogWarning("[SimulateGraphUtility] cycle-detection stack overflow; aborting");
-                            return;
-                        }
-                        colors[otherIdx] = 1;
-                        stackNodes[stackDepth] = otherIdx;
-                        stackCursors[stackDepth] = 0;
-                        stackDepth++;
-                    }
-                }
-            }
-        }
-
-        private static void DetectCyclesHeapPath(SimulateGraphState graphState, int nodeCount)
-        {
-            byte[] colors = new byte[nodeCount];
-            int[] stackNodes = new int[nodeCount];
-            int[] stackCursors = new int[nodeCount];
-
-            for (int startNode = 0; startNode < nodeCount; startNode++)
-            {
-                if (colors[startNode] != 0) { continue; }
-
-                int stackDepth = 0;
-                stackNodes[stackDepth] = startNode;
-                stackCursors[stackDepth] = 0;
-                colors[startNode] = 1;
-                stackDepth++;
-
-                while (stackDepth > 0)
-                {
-                    int frame = stackDepth - 1;
-                    int currNode = stackNodes[frame];
-                    int cursor = stackCursors[frame];
-
-                    int foundEdgeIdx = FindNextOutEdge(graphState, currNode, cursor);
-                    stackCursors[frame] = foundEdgeIdx < 0 ? graphState.EdgeCount : foundEdgeIdx + 1;
-
-                    if (foundEdgeIdx < 0)
-                    {
-                        colors[currNode] = 2;
-                        stackDepth--;
-                        continue;
-                    }
-
-                    int otherIdx = graphState.OrderedEdges[foundEdgeIdx].OtherIndex;
-                    byte otherColor = colors[otherIdx];
-
-                    if (otherColor == 1)
-                    {
-                        graphState.OrderedEdges[foundEdgeIdx].CycleDetected = true;
-                    }
-                    else if (otherColor == 0)
-                    {
-                        colors[otherIdx] = 1;
-                        stackNodes[stackDepth] = otherIdx;
-                        stackCursors[stackDepth] = 0;
-                        stackDepth++;
-                    }
-                }
-            }
-        }
-
-        // Scan OrderedEdges starting at cursor for the next edge whose OriginIndex == node.
-        // Returns the edge index, or -1 if no more.
-        private static int FindNextOutEdge(SimulateGraphState graphState, int node, int cursor)
-        {
-            while (cursor < graphState.EdgeCount)
-            {
-                if (graphState.OrderedEdges[cursor].OriginIndex == node) { return cursor; }
-                cursor++;
-            }
-            return -1;
-        }
-
-        #endregion // Pass 4 helpers
 
         #region Shared helpers
 

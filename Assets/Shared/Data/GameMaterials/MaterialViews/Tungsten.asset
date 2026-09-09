@@ -16,7 +16,6 @@ MonoBehaviour:
     m_Source: Tungsten
     m_HashValue: 527899933
   AtomColor:
-  - {r: 0.6901961, g: 0.34117648, b: 0.6515712, a: 1}
+  - {r: 0.50980395, g: 0.59607846, b: 0.72156864, a: 1}
   GemScale: 1
-  SampleOrder: 0
-  SampleLabel: H
+  SampleLabel: 9

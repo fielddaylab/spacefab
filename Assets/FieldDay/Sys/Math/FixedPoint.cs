@@ -3,7 +3,7 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace FieldDay.Mathematics {
     /// <summary>
-    /// Fixed point conversions.
+    /// Fixed point value conversions.
     /// </summary>
     [Il2CppEagerStaticClassConstruction]
     static public class FixedPoint {
@@ -42,6 +42,7 @@ namespace FieldDay.Mathematics {
         #endregion // Shared
 
         /// <summary>
+        /// Signed fixed point format. 12 bits integer, 3 bits fraction.
         /// [-2048, 2047] + [1/8]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]
@@ -60,6 +61,7 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// Signed fixed point format. 11 bits integer, 4 bits fraction.
         /// [-1024, 1023] + [1/16]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]
@@ -78,6 +80,7 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// Signed fixed point format. 3 bits integer, 12 bits fraction.
         /// [-8, 7] + [1/4096]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]
@@ -96,6 +99,7 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// Signed fixed point format. 9 bits integer, 6 bits fraction.
         /// [-512, 511] + [1/64]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]
@@ -114,6 +118,7 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// Signed fixed point format. 7 bits integer, 8 bits fraction.
         /// [-128, 127] + [1/256]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]
@@ -132,6 +137,7 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// Signed fixed point format. 7 bits fraction.
         /// +- [1/127]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]
@@ -150,6 +156,7 @@ namespace FieldDay.Mathematics {
         }
 
         /// <summary>
+        /// Signed fixed point format. 4 bits integer, 11 bits fraction.
         /// [-16, 15] + [1/2048]
         /// </summary>
         [Il2CppEagerStaticClassConstruction]

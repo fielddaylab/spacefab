@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay.Components;
 using SpaceFab.Fabrication.StationControl;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,18 +27,18 @@ namespace SpaceFab.Fabrication.Stations {
         [SerializeField] private SerializedHash32 m_Id;
         public SerializedHash32 Id => m_Id;
 
-        [HideInInspector] public MicrogameInterfacerPhase Phase;
+        [NonSerialized] public MicrogameInterfacerPhase Phase;
 
         // Set by the microgame (via MicrogameStationInterfacerUtility.SignalCompleted) when its internal
         // state machine reaches "done". Forwarded same frame to StationControlState.MicrogameCompletedThisFrame
         // by MicrogameStationInterfacerBridgeSystem; cleared at end of frame by MicrogameStationInterfacerRefreshSystem.
-        [HideInInspector] public bool CompletedThisFrame;
+        [NonSerialized] public bool CompletedThisFrame;
 
         // Set by the microgame (via MicrogameStationInterfacerUtility.SignalProcessAnimationStarted) when
         // it starts a parallel process animation during InMicrogame. Forwarded same frame to
         // StationControlState.ProcessAnimationInProgress by MicrogameStationInterfacerBridgeSystem;
         // cleared at end of frame by MicrogameStationInterfacerRefreshSystem.
-        [HideInInspector] public bool ProcessAnimationStartedThisFrame;
+        [NonSerialized] public bool ProcessAnimationStartedThisFrame;
 
         // The microgame component hosted at this station. Must implement IMicrogame. Optional: when null,
         // the station has no microgame and Activate attempts will no-op.
