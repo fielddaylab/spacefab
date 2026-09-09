@@ -18,6 +18,7 @@ namespace SpaceFab.Fabrication.Sequence
         // Authored on the Sequence Panel Group prefab — both cards live there at the same local
         // position. Which one is "in front" is controlled by sibling order, not by translation.
         public RectTransform SequencePanelGroup;
+        public CanvasGroup PanelCanvasGroup;
         public SequenceCard CardSlotA;
         public SequenceCard CardSlotB;
 
@@ -108,7 +109,8 @@ namespace SpaceFab.Fabrication.Sequence
                 StepRuntimeData runtime = GetRuntime(sequenceState, currentIndex);
                 PopulateCard(visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
-                SetCardVisible(visualsState.FrontCard, runtime.IsGlitched);
+                SetCardVisible(visualsState.FrontCard, true);
+                SetPanelVisible(visualsState, runtime.IsGlitched);
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
             }
@@ -138,8 +140,9 @@ namespace SpaceFab.Fabrication.Sequence
             // 1. Reveal the back card — it already holds the new current step's content
             //    (pre-loaded on the previous Reset or Advance). Hide the outgoing front.
             StepRuntimeData incomingRuntime = GetRuntime(sequenceState, sequenceState.CurrentStepIndex);
-            SetCardVisible(visualsState.BackCard, incomingRuntime.IsGlitched);
+            SetCardVisible(visualsState.BackCard, true);
             SetCardVisible(visualsState.FrontCard, false);
+            SetPanelVisible(visualsState, incomingRuntime.IsGlitched);
 
             yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
 
@@ -235,6 +238,15 @@ namespace SpaceFab.Fabrication.Sequence
             card.Group.alpha = visible ? 1f : 0f;
             card.Group.interactable = visible;
             card.Group.blocksRaycasts = visible;
+        }
+
+        private static void SetPanelVisible(SequenceVisualsState visualsState, bool visible)
+        {
+            CanvasGroup group = visualsState.PanelCanvasGroup;
+            if (group == null) return;
+            group.alpha = visible ? 1f : 0f;
+            group.interactable = visible;
+            group.blocksRaycasts = visible;
         }
 
         // Puts a card on top by making it the last sibling under its parent. Sibling order is how

@@ -2461,6 +2461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SequencePanelGroup: {fileID: 20408019}
+  PanelCanvasGroup: {fileID: 5429475297052697720}
   CardSlotA: {fileID: 5429475297052697718}
   CardSlotB: {fileID: 5429475297052697719}
   TransitionDurationSeconds: 0.4
@@ -6401,6 +6402,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e3d2e90712e9b44b9f6de2888b6058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!225 &5429475297052697720 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 50964461757892599, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
+  m_PrefabInstance: {fileID: 5429475297052697717}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
