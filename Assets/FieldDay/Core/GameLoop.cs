@@ -76,6 +76,9 @@ namespace FieldDay {
         private int m_TargetFramerate = 60;
 
         [SerializeField]
+        private PerformanceBudget m_PerformanceTargets;
+
+        [SerializeField]
         private LanguageId m_DefaultLanguage = Languages.English;
 
         [SerializeField]
@@ -297,7 +300,7 @@ namespace FieldDay {
 
                 Log.Msg("[GameLoop] Creating memory manager...");
                 Game.Memory = new MemoryMgr();
-                Game.Memory.Initialize(m_MemoryConfig);
+                Game.Memory.Initialize(m_MemoryConfig, m_PerformanceTargets);
 
                 Log.Msg("[GameLoop] Creating file system...");
                 Game.Files = new FileSystem();
@@ -305,6 +308,7 @@ namespace FieldDay {
 
                 Log.Msg("[GameLoop] Creating performance manager...");
                 Game.Perf = new PerformanceMgr();
+                Game.Perf.Initialize(m_PerformanceTargets);
 
                 Log.Msg("[GameLoop] Creating asset manager...");
                 Game.Assets = new AssetMgr();

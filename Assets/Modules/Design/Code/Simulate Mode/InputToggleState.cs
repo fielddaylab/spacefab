@@ -40,16 +40,16 @@ namespace SpaceFab.Design
     public class InputToggleState : SharedStateComponent, IRegistrationCallbacks
     {
         // Compact runtime entries; the first InputCount slots are valid. May be oversized.
-        [HideInInspector] public InputToggleEntry[] Inputs;
-        [HideInInspector] public int InputCount;
+        [NonSerialized] public InputToggleEntry[] Inputs;
+        [NonSerialized] public int InputCount;
 
         // Index into the active TestSuiteData.Tests of the row that matches the current toggle
         // combo, or -1 if no row matches. Set by SuiteTestButtonRefreshSystem on every refresh.
-        [HideInInspector] public int LastMatchedRowIndex;
+        [NonSerialized] public int LastMatchedRowIndex;
 
         // Raised by any toggle mutation (HandleToggleClick) and by Import. Consumed by
         // SuiteTestButtonRefreshSystem to recompute LastMatchedRowIndex.
-        [HideInInspector] public bool MatchDirty;
+        [NonSerialized] public bool MatchDirty;
 
         public void OnRegister()
         {
@@ -114,17 +114,16 @@ namespace SpaceFab.Design
         // that omits a subtype the grid happens to expose still matches. Returns -1 if none match.
         public static int FindMatchingTestRow(InputToggleState state, TestSuiteData suite)
         {
-            if (suite == null || suite.Tests == null) { return -1; }
-            if (state == null || state.InputCount == 0) { return -1; }
+            if (state.InputCount == 0) { return -1; }
 
-            for (int testIdx = 0; testIdx < suite.Tests.Length; testIdx++)
+            for (int testIdx = 0; testIdx < suite.Rows.Length; testIdx++)
             {
-                TestData td = suite.Tests[testIdx];
+                TestData td = suite.Rows[testIdx];
                 bool match = true;
                 for (int i = 0; i < state.InputCount; i++)
                 {
                     InputToggleEntry entry = state.Inputs[i];
-                    FlowState expected = EvalUtility.GetTestValBySubType(entry.Subtype, td);
+                    FlowState expected = EvalUtility.GetTestValBySubType(entry.Subtype, suite.ColumnMask, td);
                     if (expected == FlowState.Empty) { continue; }
                     if (entry.State != expected) { match = false; break; }
                 }
@@ -137,8 +136,7 @@ namespace SpaceFab.Design
         // (Idle / SuiteComplete). Mid-propagation clicks are dropped on the floor.
         public static bool CanAcceptToggle(ModeTransitionState modeState, SimulateRunState runState)
         {
-            if (modeState != null && modeState.Mode == DesignMode.Tool) { return true; }
-            if (runState == null) { return true; }
+            if (modeState.Mode == DesignMode.Tool) { return true; }
             return runState.Phase == SimulatePhase.Idle || runState.Phase == SimulatePhase.SuiteComplete;
         }
 

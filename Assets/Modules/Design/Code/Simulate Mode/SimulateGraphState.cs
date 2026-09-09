@@ -58,31 +58,31 @@ namespace SpaceFab.Design
         // Tick in the inspector to have Build dump the node + edge table to the console.
         public bool LogGraphOnBuild;
 
-        [HideInInspector] public bool IsBuilt;
+        [NonSerialized] public bool IsBuilt;
 
         // Node table: 0..NodeCount-1 are valid. Array is sized to an upper bound (cellCount) and
         // not resized until a build hits a larger grid, at which point Build grows it.
-        [HideInInspector] public CrucialNode[] CrucialNodes;
-        [HideInInspector] public int NodeCount;
+        [NonSerialized] public CrucialNode[] CrucialNodes;
+        [NonSerialized] public int NodeCount;
 
         // Edge table, depth-sorted. 0..EdgeCount-1 are valid. All crucial edges are written here
         // AFTER the bucket-sort in Pass 3 — never appended directly during BFS.
-        [HideInInspector] public CrucialEdge[] OrderedEdges;
-        [HideInInspector] public int EdgeCount;
+        [NonSerialized] public CrucialEdge[] OrderedEdges;
+        [NonSerialized] public int EdgeCount;
 
         // Largest EvalDepth across OrderedEdges. Used by SimulateModeSystem.ProcessPropagating
         // to decide when the propagation walk has finished (CurrentDepth > MaxDepth).
-        [HideInInspector] public int MaxDepth;
+        [NonSerialized] public int MaxDepth;
 
         // Shared path pool: every edge.PathStart/PathLength slices into this flat int[] of
         // cellIndices. Durable (not scratch) because DepthStepSystem reads from it every
         // frame during Propagating.
-        [HideInInspector] public int[] PathPool;
-        [HideInInspector] public int PathPoolUsed;
+        [NonSerialized] public int[] PathPool;
+        [NonSerialized] public int PathPoolUsed;
 
         // cellIndex → crucialIndex reverse lookup. Entries of -1 mean "this cell is not a crucial
         // node." Sized to cellCount and reset per build.
-        [HideInInspector] public int[] CellToCrucial;
+        [NonSerialized] public int[] CellToCrucial;
 
         // ---- Electrical segments (Pass 6) ----
         //
@@ -104,24 +104,24 @@ namespace SpaceFab.Design
         // settling on the same value.
 
         // cellIndex → segmentId, or -1 for cells that participate in nothing.
-        [HideInInspector] public int[] CellSegment;
-        [HideInInspector] public int SegmentCount;
+        [NonSerialized] public int[] CellSegment;
+        [NonSerialized] public int SegmentCount;
 
         // Segment membership in CSR form: segment s owns SegmentCells[SegmentCellStart[s] ..
         // SegmentCellStart[s + 1]), so repainting a whole segment is one contiguous walk.
         // SegmentCellStart is sized SegmentCount + 1; the last entry is the total cell count.
-        [HideInInspector] public int[] SegmentCells;
-        [HideInInspector] public int[] SegmentCellStart;
+        [NonSerialized] public int[] SegmentCells;
+        [NonSerialized] public int[] SegmentCellStart;
 
         // crucialIndex → segmentId. Equal to CellSegment[CrucialNodes[i].CellIndex]; kept as its
         // own table so the propagation hot loop doesn't re-derive it per edge endpoint.
-        [HideInInspector] public int[] CrucialSegment;
+        [NonSerialized] public int[] CrucialSegment;
 
         // Per-depth edge range table. DepthEdgeStart[d] is the first index in OrderedEdges whose
         // EvalDepth == d; DepthEdgeStart[MaxDepth + 1] == EdgeCount (sentinel). Lets
         // DepthStepSystem iterate exactly the edges at CurrentDepth without scanning the full
         // edge list. Populated by Pass 3 as a byproduct of the bucket-sort prefix-sum.
-        [HideInInspector] public int[] DepthEdgeStart;
+        [NonSerialized] public int[] DepthEdgeStart;
 
         public void OnRegister()
         {

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Chapter 9 Def
   m_EditorClassIdentifier: 
   AvailableContracts:
-  - m_HashValue: 2097784599
+  - m_HashValue: 544982385
   - m_HashValue: 3584329365
-  - m_HashValue: 3869968965
+  - m_HashValue: 3959957051
   AvailableMaterials:
   - m_HashValue: 3821421172
   - m_HashValue: 541320182
@@ -30,3 +30,5 @@ MonoBehaviour:
   ExcludeFromResearch:
   - m_HashValue: 1163381446
   Script: {fileID: -1942890987711236906, guid: 9fbc5208035529c47a15a49d1dbe466d, type: 3}
+  SkyboxMaterial: {fileID: 2100000, guid: 4e3dcd7423137994e8ded390696ecea2, type: 2}
+  SkyboxRotation: 0

@@ -7,7 +7,7 @@ namespace SpaceFab.Design
 {
     #region Enums & Structs
 
-    public enum EdgeState
+    public enum EdgeState : byte
     {
         Disconnected,
         Connected,
@@ -17,7 +17,7 @@ namespace SpaceFab.Design
     public struct EdgeStateData
     {
         public EdgeState EdgeState;
-        [HideInInspector] public bool Eraseable;
+        [NonSerialized] public bool Eraseable;
 
         public EdgeStateData(EdgeState state)
         {
@@ -32,7 +32,7 @@ namespace SpaceFab.Design
         }
     }
 
-    public enum EdgeDir
+    public enum EdgeDir : byte
     {
         NORTH,
         EAST,
@@ -42,7 +42,16 @@ namespace SpaceFab.Design
         DESCEND
     }
 
-    public enum TransferType
+    public enum EdgeDirMask : byte {
+        NORTH = 0x01,
+        EAST = 0x02,
+        ASCEND = 0x04,
+        SOUTH = 0x08,
+        WEST = 0x10,
+        DESCEND = 0x20
+    }
+
+    public enum TransferType : byte
     {
         NONE,
         Via,
@@ -51,7 +60,7 @@ namespace SpaceFab.Design
         Implicit // Input/Output to Metal
     }
 
-    public enum CellType
+    public enum CellType : byte
     {
         NONE,
         Input,

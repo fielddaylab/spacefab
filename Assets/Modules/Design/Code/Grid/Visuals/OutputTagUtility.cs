@@ -99,9 +99,9 @@ namespace SpaceFab.Design
             {
                 overlay.BackgroundRenderer.sprite = spriteDB.OutputToggleBackground;
             }
-            if (overlay.ArrowRenderer != null && spriteDB.InputToggleArrow != null)
+            if (overlay.ArrowRenderer != null && spriteDB.OutputArrow != null)
             {
-                overlay.ArrowRenderer.sprite = spriteDB.InputToggleArrow;
+                overlay.ArrowRenderer.sprite = spriteDB.OutputArrow;
             }
         }
 

@@ -22,14 +22,9 @@ MonoBehaviour:
   PSide: {fileID: 21300000, guid: 1a6adfc6ac2bd394aa03916b29a0d84a, type: 3}
   InvertedOverlay: {fileID: 21300000, guid: 598d496783b3adb47a14ea514a4605fd, type: 3}
   InvertedOverlayBase: {fileID: 21300000, guid: c9cb3f3cb69fc2841933aabc683be7f8, type: 3}
-  Via: {fileID: 21300000, guid: 0eb956f0ccdadb945bed563316fe3d04, type: 3}
-  ViaHigh: {fileID: 21300000, guid: 4ee84c461b63743429ee62f42a4deace, type: 3}
-  ViaLow: {fileID: 21300000, guid: 8f9c90e7389830941bfebd083e47f2e0, type: 3}
-  ViaUnstable: {fileID: 21300000, guid: 1e9fdef50f3adc243978cde29ca6a7cf, type: 3}
-  Gate: {fileID: 21300000, guid: d5b668f7757ed2e4eba0684220b48e9c, type: 3}
-  GateHigh: {fileID: 21300000, guid: 78efde9288f7f3a4aaf83cc0749ad714, type: 3}
-  GateLow: {fileID: 21300000, guid: 725213504f6c2e34c90c40ae6fbd6ea3, type: 3}
-  GateUnstable: {fileID: 21300000, guid: 838e634c7fee32e4281defaef0545a9d, type: 3}
+  Via: {fileID: 21300000, guid: 1abbd0722d61d414488b13bdc09fbdcc, type: 3}
+  ViaBase: {fileID: 21300000, guid: e4fc8657b7ddcba4ba0ec0ea630590ad, type: 3}
+  Gate: {fileID: 21300000, guid: 2bce72bed08ccfd48afbfdd8ba429c0f, type: 3}
   IOInner: {fileID: 0}
   IOOuter: {fileID: 0}
   InputConstantHigh: {fileID: 21300000, guid: ccd825c774947c347bff4107e50f33a8, type: 3}
@@ -42,12 +37,13 @@ MonoBehaviour:
   FlowUnstableBelow: {fileID: 21300000, guid: 691f87bd2f7ba074db27fc2fd484b8e6, type: 3}
   InputToggleBackgroundHi: {fileID: 21300000, guid: e877ce26fc146df44af91033f10f79fe, type: 3}
   InputToggleBackgroundLow: {fileID: 21300000, guid: 1072ddcf57df7df4e8758d5554cfa721, type: 3}
-  InputToggleArrow: {fileID: 21300000, guid: da2d98ec4ffb90c43a16391796f0a3e4, type: 3}
+  InputToggleArrow: {fileID: 21300000, guid: b8c34a44a51433b4d88043a596acd43e, type: 3}
   InputToggleLoColor: {r: 0.6901961, g: 0.6431373, b: 0.9607844, a: 1}
   InputToggleLoTextColor: {r: 0.3137255, g: 0.24313727, b: 0.7254902, a: 1}
   InputToggleHiColor: {r: 1, g: 0.62352943, b: 0.48627454, a: 1}
   InputToggleHiTextColor: {r: 0.78823537, g: 0.25882354, b: 0.06666667, a: 1}
   OutputToggleBackground: {fileID: 21300000, guid: 38df8dd3b4a49334db9aaa6c19c1437e, type: 3}
+  OutputArrow: {fileID: 21300000, guid: bfb6eb2cafb881543a5d7303288f375a, type: 3}
   OutputEmptyColor: {r: 1, g: 1, b: 1, a: 1}
   OutputEmptyTextColor: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
   OutputUnstableColor: {r: 1, g: 0.26630434, b: 0, a: 1}

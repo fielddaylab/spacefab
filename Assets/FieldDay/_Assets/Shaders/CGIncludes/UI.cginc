@@ -8,6 +8,7 @@
 #include "./Common.cginc"
 #include "UnityUI.cginc"
 #include "./ColorMod.cginc"
+#include "./Dithering.cginc"
 
 /// Configuration Defines
 
@@ -110,6 +111,13 @@ inline float UIPerformRectClip(half4 mask)
 
 /// Programs
 
+#define UIFragCommonFooter(varyings, color, fragPos) \
+    UIRectClip((varyings).mask, color); \
+    DitheredAlphaApply(color, fragPos); \
+    UIAlphaClip(color); \
+    UIApplyLerpColor(color, varyings); \
+    PremultiplyAlpha(color);
+
 Varyings_UI DefaultUIVert(Attributes_UI v, out float4 vertex : SV_Position)
 {
     Varyings_UI output;
@@ -135,18 +143,12 @@ Varyings_UI DefaultUIVert(Attributes_UI v, out float4 vertex : SV_Position)
     return output;
 }
 
-fixed4 DefaultUIFrag(Varyings_UI f) : SV_Target
+fixed4 DefaultUIFrag(Varyings_UI f, float_vpos fragPos : VPOS) : SV_Target
 {
     f.color.a = Quantize8(f.color.a);
     half4 color = f.color * (tex2D(_MainTex, f.texcoord));
     
-    UIRectClip(f.mask, color);
-    UIAlphaClip(color);
-    
-    UIApplyLerpColor(color, f);
-    UIApplyAdditiveColor(color, f);
-    
-    PremultiplyAlpha(color);
+    UIFragCommonFooter(f, color, fragPos);
     return color;
 }
 

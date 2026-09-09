@@ -51,7 +51,7 @@ namespace FieldDay.Rendering {
         /// <summary>
         /// Returns the number of materials set on this renderer.
         /// </summary>
-        [IntrinsicIL("ldarg.0; call [arg renderer]::GetMaterialCount(); ret")]
+        [IntrinsicIL("ldarg.0; callvirt [arg renderer]::GetMaterialCount(); ret")]
         static public int GetMaterialCount(this Renderer renderer) {
             throw new NotImplementedException();
         }

@@ -234,12 +234,18 @@ namespace SpaceFab.Design {
                     SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
-                    cell.CellType = CellType.NTransistor;
-                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
+                    if (DrawUtility.CanDrawNode(gridStackState, toolModeState.ActiveLayer, cell, gridPos))
+                    {
+                        cell.CellType = CellType.NTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
+                    }
                     break;
                 case ToolType.DrawPNodes:
-                    cell.CellType = CellType.PTransistor;
-                    SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
+                    if (DrawUtility.CanDrawNode(gridStackState, toolModeState.ActiveLayer, cell, gridPos))
+                    {
+                        cell.CellType = CellType.PTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
+                    }
                     break;
                 case ToolType.DrawVia:
                     DrawUtility.DrawVia(toolModeState, gridStackState, ref cell, gridPos);
@@ -419,41 +425,17 @@ namespace SpaceFab.Design {
                     SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "Erase")));
                     break;
                 case ToolType.DrawNNodes:
-                    // do not allow dragging onto inputs/outputs
-                    if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) {
-                        ToolModeUtility.TerminateDrag(toolModeState);
-                        return;
-                    }
-                    else {
-                        if (cell.CellType == CellType.PTransistor) {
-                            // draw connection, preserve type
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
-                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
-                        }
-                        else {
-                            // override
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
-                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
-                        }
+                    if (DrawUtility.CanDrawNode(gridStackState, toolModeState.ActiveLayer, cell, gridPos))
+                    {
+                        cell.CellType = CellType.NTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
                     }
                     break;
                 case ToolType.DrawPNodes:
                     // do not allow dragging onto inputs/outputs
-                    if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) {
-                        ToolModeUtility.TerminateDrag(toolModeState);
-                        return;
-                    }
-                    else {
-                        if (cell.CellType == CellType.NTransistor) {
-                            // draw connection, preserve type
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.NTransistor, gridPos);
-                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "NNodes")));
-                        }
-                        else {
-                            // override
-                            DrawUtility.DragDrawNodeOfType(toolModeState, gridStackState, visualState, CellType.PTransistor, gridPos);
-                            SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
-                        }
+                    if (DrawUtility.CanDrawNode(gridStackState, toolModeState.ActiveLayer, cell, gridPos)) {
+                        cell.CellType = CellType.PTransistor;
+                        SpacefabGame.Events.Dispatch(GameEvents.DesignGridModified, EvtArgs.Box((gridCoord, "PNodes")));
                     }
                     break;
                 default:

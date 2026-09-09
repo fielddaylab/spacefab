@@ -22,6 +22,7 @@ MonoBehaviour:
   - experimental/*
   - main
   - art/*
+  - stable*
   Order: 0
   IsFallback: 1
   DevelopmentBuild: 1

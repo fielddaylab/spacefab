@@ -8,6 +8,10 @@ Shader "FieldDay/UI/Configurable"
 		[Header(Colors)] [Space]
         _Color ("Tint", Color) = (1,1,1,1)
 
+		[Header(Dithering)] [Space]
+		[KeywordEnum(OFF,TWO,FOUR,EIGHT)] FD_DITHER ("Dithered Alpha Mode", Int) = 0
+		_DitherAlphaScale("Dithered Alpha Pixel Scale", Float) = 1
+
         [HideInInspector] _StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector] _Stencil ("Stencil ID", Float) = 0
         [HideInInspector] _StencilOp ("Stencil Operation", Float) = 0
@@ -72,6 +76,7 @@ Shader "FieldDay/UI/Configurable"
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local_fragment _ UNITY_UI_ALPHACLIP
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
+			#pragma shader_feature_local_fragment _ FD_DITHER_TWO FD_DITHER_FOUR FD_DITHER_EIGHT
 			#pragma multi_compile_local _ FD_COLORMOD_LERP
 			#pragma multi_compile_local _ FD_COLORMOD_ADDITIVE
         ENDCG

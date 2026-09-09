@@ -4,7 +4,6 @@ using FieldDay.Systems;
 using SpaceFab.Overarching;
 using SpaceFab.Save;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using UnityEngine;
 
 namespace SpaceFab {

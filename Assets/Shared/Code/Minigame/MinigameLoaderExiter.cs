@@ -13,7 +13,9 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    [PreloadOrder(0)] // TODO: investigate why PreloadOrder not working. Set to 0, but runs after SupplyLoader with [PreloadOrder(10000)]
+    // Imports save state ahead of the per-minigame loaders, which run at higher preload orders and
+    // may depend on what was imported.
+    [PreloadOrder(0)]
     public class MinigameLoaderExiter : MonoBehaviour, ISceneLoadHandler, IScenePreload {
         public void OnSceneLoad(SceneBinding inScene, object inContext) {
             Find.State(

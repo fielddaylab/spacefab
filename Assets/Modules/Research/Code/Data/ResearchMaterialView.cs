@@ -25,11 +25,6 @@ namespace SpaceFab.Research {
         // Uniform scale applied to the gem renderer's transform.
         public float GemScale = 1f;
 
-        // Human-readable per-material identifier shown in UI ("SAMPLE 13").
-        // Authored per asset; independent of asset id, ordering, or runtime
-        // indexing so artists can place numbers freely.
-        public int SampleOrder;
-
         // Alternativel switch to strings for number labels (1, 2, 3)
         // retain sample number in case change later
         public string SampleLabel;

@@ -194,6 +194,7 @@ namespace SpaceFab.Overarching {
             // previous-chapter completion sequence has finished, so the button never appears
             // alongside the completed-contract presentation.
             layoutState.ViewCurrContractButton.gameObject.SetActive(!contractState.ContractId.IsEmpty);
+            layoutState.SetViewCurrContractLabel(contractState.ContractId);
 
             // Fire the Leaf trigger now that the overarching scene is fully loaded and interactive,
             // letting narrative scripts respond to entering the scene (e.g. gating a node on

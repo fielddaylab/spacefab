@@ -168,7 +168,7 @@ namespace SpaceFab.Design
             // Two Inputs wired to one segment resolve Unstable here, before propagation begins.
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            TestData currTest = suite.Tests[runState.CurrentRow];
+            TestData currTest = suite.Rows[runState.CurrentRow];
             List<GridCoord> inputs = new List<GridCoord>();
             List<GridCoord> outputs = new List<GridCoord>();
 
@@ -178,7 +178,7 @@ namespace SpaceFab.Design
                 GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
                 if (cell.CellType == CellType.Input)
                 {
-                    FlowState inputFlow = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                    FlowState inputFlow = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, suite.ColumnMask, currTest);
                     SimulateRunScratchUtility.AssignSegmentFlow(runScratch, graphState.CrucialSegment[i], inputFlow);
 
                     // Paint the Input's own cell too. DepthStepSystem's crawl carries the colour
@@ -197,15 +197,13 @@ namespace SpaceFab.Design
 
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, EvtArgs.Box((inputs, outputs, runState.CurrentRow)));
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
+            SimulateControlUtility.SetVerdictInProgress(runState, runState.CurrentRow);
 
             // Wipe any leftover verdict marks from this row's previous run — the new propagation
             // hasn't produced a result yet, so the per-output visualizers should read as "no
             // verdict active" until ResolvingTest writes fresh ones. In toggle-input mode we
             // preserve verdicts across runs (they only clear on grid edits), so skip the hide.
-            if (!designState.UseToggleInputMode)
-            {
-                SimulateUIUtility.HideRowVerdicts(uiState, runState.CurrentRow);
-            }
+            SimulateUIUtility.HideRowVerdicts(uiState, runState.CurrentRow);
 
             // Mark visuals dirty so GridVisualsUpdateSystem redraws the now-empty-flow grid.
             visualState.VisualsNeedRefreshing = true;
@@ -338,7 +336,7 @@ namespace SpaceFab.Design
         {
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            TestData currTest = suite.Tests[runState.CurrentRow];
+            TestData currTest = suite.Rows[runState.CurrentRow];
 
             MinigameSaveStates saveStates = Find.State<MinigameSaveStates>();
 
@@ -347,7 +345,7 @@ namespace SpaceFab.Design
             // same CrucialNodes ordering — so outputIdx walks both in lockstep. We also build
             // actualPerCol — actual flow indexed by bundle column — so the UI layer can display
             // per-output verdicts without re-walking the graph.
-            FlowState[] actualPerCol = new FlowState[currTest.Bundle.Length];
+            TestData actualPerCol = default;
             bool allCorrect = true;
             bool anyOutputUnstable = false;
             int outputIdx = 0;
@@ -358,18 +356,18 @@ namespace SpaceFab.Design
                 if (cell.CellType != CellType.Output) { continue; }
 
                 FlowState actual = runScratch.SegmentFlow[graphState.CrucialSegment[i]];
-                FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, suite.ColumnMask, currTest);
                 runScratch.OutputFlowBuffer[outputIdx++] = actual;
                 if (actual != expected) { allCorrect = false; }
                 if (actual == FlowState.Unstable) { anyOutputUnstable = true; }
 
-                // Map this graph-output back to its bundle column by SubtypeLabel match so the
-                // UI's verdict visualizers (indexed by bundle col) can read the actual flow.
-                for (int col = 0; col < currTest.Bundle.Length; col++)
-                {
-                    if (currTest.Bundle[col].Id == cell.SubtypeLabel)
-                    {
-                        actualPerCol[col] = actual;
+                switch (cell.SubtypeLabel) {
+                    case InputOutputNodeTypeFlags.OUTX: {
+                        actualPerCol.OutputX = actual;
+                        break;
+                    }
+                    case InputOutputNodeTypeFlags.OUTY: {
+                        actualPerCol.OutputY = actual;
                         break;
                     }
                 }
@@ -383,7 +381,7 @@ namespace SpaceFab.Design
             TestRowVerdict verdict = anyOutputUnstable
                 ? TestRowVerdict.Unstable
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
-            SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
+            SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict, actualPerCol);
             SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
             
             using (var table = TempVarTable.Alloc()) {
@@ -398,7 +396,7 @@ namespace SpaceFab.Design
             // only when every row in the suite has been resolved Correct (the "level complete"
             // moment). Partial passes / fails leave the panel hidden so the player can keep
             // toggling inputs and running tests without dismissal friction.
-            if (designState.UseToggleInputMode)
+            if (true)
             {
                 runState.Phase = SimulatePhase.SuiteComplete;
                 bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
@@ -415,37 +413,37 @@ namespace SpaceFab.Design
                 return;
             }
 
-            // Advance based on Scope.
-            if (runState.Scope == RunScope.SingleTest)
-            {
-                runState.Phase = SimulatePhase.SuiteComplete;
-                SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
-                SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
-            }
-            else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length)
-            {
-                runState.CurrentRow++;
-                runState.Phase = SimulatePhase.PreparingTest;
-            }
-            else
-            {
-                runState.Phase = SimulatePhase.SuiteComplete;
-                bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
-                SimulateUIUtility.ShowResultsPanel(uiState, suiteAllCorrect);
-                // A passing full-suite run is the one moment FoundValidSolution flips true.
-                // It's reset to false on grid edits and on any subsequent test re-run via
-                // DesignMinigameState's event listeners — set directly here rather than via
-                // an event to keep the success signal coupled to the verdict array that
-                // produced it.
-                if (suiteAllCorrect)
-                {
-                    DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
-                }
-                SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
-            }
+            //// Advance based on Scope.
+            //if (runState.Scope == RunScope.SingleTest)
+            //{
+            //    runState.Phase = SimulatePhase.SuiteComplete;
+            //    SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
+            //    SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            //}
+            //else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length)
+            //{
+            //    runState.CurrentRow++;
+            //    runState.Phase = SimulatePhase.PreparingTest;
+            //}
+            //else
+            //{
+            //    runState.Phase = SimulatePhase.SuiteComplete;
+            //    bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
+            //    SimulateUIUtility.ShowResultsPanel(uiState, suiteAllCorrect);
+            //    // A passing full-suite run is the one moment FoundValidSolution flips true.
+            //    // It's reset to false on grid edits and on any subsequent test re-run via
+            //    // DesignMinigameState's event listeners — set directly here rather than via
+            //    // an event to keep the success signal coupled to the verdict array that
+            //    // produced it.
+            //    if (suiteAllCorrect)
+            //    {
+            //        DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
+            //    }
+            //    SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            //}
 
-            // Phase or CurrentRow changed; the active row's button needs a repaint.
-            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+            //// Phase or CurrentRow changed; the active row's button needs a repaint.
+            //SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
         }
 
         // True iff every entry in verdicts is Correct. Used for the suite-level pass/fail flag

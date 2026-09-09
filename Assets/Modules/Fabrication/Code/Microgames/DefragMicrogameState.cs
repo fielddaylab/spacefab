@@ -1,6 +1,7 @@
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Sequence;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // DefragMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
+        [NonSerialized] public bool IsActive;
 
         // TODO: meter fill level [0,1] and decay rate.
     }

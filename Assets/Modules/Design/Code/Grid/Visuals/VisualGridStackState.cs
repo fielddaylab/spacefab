@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace SpaceFab.Design.Visuals
         // Visual Feedback Routine
         // ResetFlow States
         // Result closed clicked
-        [HideInInspector] public bool VisualsNeedRefreshing;
+        [NonSerialized] public bool VisualsNeedRefreshing;
 
         public void OnDeregister()
         {

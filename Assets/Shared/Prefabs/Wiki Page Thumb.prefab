@@ -66,10 +66,6 @@ MonoBehaviour:
   PageIndex: 0
   DynamicButton: {fileID: 7687530588830565046}
   ElementTag: {fileID: 4936668618918178319}
-  ClickedThisFrame: 0
-  PointerEnterThisFrame: 0
-  PointerExitThisFrame: 0
-  Available: 1
 --- !u!114 &568859424960568193
 MonoBehaviour:
   m_ObjectHideFlags: 0

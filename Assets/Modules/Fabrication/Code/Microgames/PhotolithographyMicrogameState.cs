@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +26,7 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // PhotolithographyMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
+        [NonSerialized] public bool IsActive;
         public GameObject PhotolithographyUI;
         public PhotolithographyMicrogamePhase Phase;
 
@@ -37,7 +38,7 @@ namespace SpaceFab.Fabrication.Microgames
         public float PhotomaskY;
         public float FallSpeed;
 
-        [HideInInspector] public bool InputAccepted;
+        [NonSerialized] public bool InputAccepted;
     }
 
     /// <summary>

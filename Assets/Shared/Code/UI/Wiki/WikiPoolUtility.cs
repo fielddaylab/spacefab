@@ -42,6 +42,11 @@ namespace SpaceFab.UI {
             var active = pools.TabButtonPool.ActiveObjects;
             for (int tabIndex = 0; tabIndex < desired; tabIndex++) {
                 Configure(active[tabIndex], WikiButtonKind.Tab, tabIndex, -1);
+
+                // give tab button tags so they can be highlighted in tutorial
+                if (active[tabIndex].Kind == WikiButtonKind.Tab && active[tabIndex].ElementTag != null) {
+                    active[tabIndex].ElementTag.SetId(WikiElementTagUtility.TabId(content.Tabs[tabIndex].Title.ToLower()));
+                }
             }
         }
 

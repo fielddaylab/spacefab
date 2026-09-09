@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CharacterAssets
   m_EditorClassIdentifier: 
   m_IncludeMode: 0
+  m_FilterSearch: 
   m_GlobalAssets: []
   m_NamedAssets:
   - {fileID: 11400000, guid: 71fba72bab9a2fb4f9db93a5971f7553, type: 2}

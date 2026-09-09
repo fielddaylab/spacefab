@@ -1,4 +1,6 @@
+using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
@@ -16,8 +18,11 @@ namespace SpaceFab.Research {
     /// </summary>
     public class ResearchSampleTrayState : SharedStateComponent, IRegistrationCallbacks {
         public Transform Root;
-        public float Spacing = 1f;
+        public float XSpacing = 1.05f;
+        public float YSpacing = 1f;
         public GameObject SamplePrefab;
+        public MaterialAtom SampleAtomicView;
+        public MaterialPolyelementalAtom PolyelementalSampleAtomicView;
 
         // Box collider defining the tray's drop region. A dragged instance
         // dropped anywhere inside this region returns to the pool, so the
@@ -104,11 +109,33 @@ namespace SpaceFab.Research {
                     ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(rig, material, researchState);
                 }
 
-                // 2c. Vertical layout, top-down: index 0 sits at Root, each
+                // 2c. Spawn doping chamber view
+                if (material.ConstituentElementNames.Length == 0) {
+                    MaterialAtom atom = UnityEngine.Object.Instantiate(trayState.SampleAtomicView, source.AtomicView.transform);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(atom, material, researchState);
+                }
+                else {
+                    MaterialPolyelementalAtom atom = UnityEngine.Object.Instantiate(trayState.PolyelementalSampleAtomicView, source.AtomicView.transform);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[0], material, researchState, 0);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[1], material, researchState, 1);
+                }
+
+                // 2d. Vertical layout, top-down: index 0 sits at Root, each
                 // subsequent gem moves down by Spacing on Y.
-                float startY = 2.5f;
-                sampleObj.transform.localPosition = new Vector3(0f, startY - index * trayState.Spacing, 0f);
+                float startX = -0.15f;
+                float startY = 3.2f;
+                sampleObj.transform.localPosition = new Vector3(startX + index % 2 * trayState.XSpacing, startY - index / 2 * trayState.YSpacing, 0f);
                 index++;
+            }
+        }
+
+        public static void SetTrayView(ResearchSampleTrayState trayState, ChamberInterfacerState interfacerState) {
+            bool atomicView = interfacerState.ActiveChamber == ActiveChamberKind.Doping &&
+                ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary) != null;
+            
+            foreach (ResearchMaterialSource item in trayState.SpawnedSamples) {
+                item.Rig.gameObject.SetActive(!atomicView);
+                item.AtomicView.SetActive(atomicView);
             }
         }
     }

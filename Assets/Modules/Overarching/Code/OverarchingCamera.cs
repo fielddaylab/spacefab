@@ -14,10 +14,22 @@ using UnityEngine;
 namespace SpaceFab.Overarching
 {
     public class OverarchingCamera : SharedStateComponent, IScenePreload {
+        [Serializable]
+        public struct Wavelet {
+            public float Offset;
+            public float Scale;
+        }
+        
         public Camera Camera;
         public Transform Root;
+        public Transform Effects;
 
         public OverarchingRenderPose DefaultPose;
+
+        [Header("Drifting Parameters")]
+        public Wavelet DriftX;
+        public Wavelet DriftY;
+        public Wavelet DriftZ;
 
         [NonSerialized] public OverarchingRenderPose CurrentPose;
 

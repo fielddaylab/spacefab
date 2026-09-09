@@ -47,6 +47,16 @@ namespace FieldDay.Perf {
 #endif // UNITY_WEBGL && !UNITY_EDITOR
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public ulong GetTotalAllocatedTextureMemory() {
+            return Texture.currentTextureMemory;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public long GetTotalAllocatedGPUMemory() {
+            return Profiler.GetAllocatedMemoryForGraphicsDriver();
+        }
+
 #if UNITY_WEBGL
         [DllImport("__Internal")]
         static private extern bool WebPerf_IsCrossOriginIsolated();

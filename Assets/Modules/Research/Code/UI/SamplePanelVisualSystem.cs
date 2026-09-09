@@ -172,7 +172,7 @@ namespace SpaceFab.Research {
                     panel.SampleLabelBG.color = Color.black;
                 } else {
                     //int sampleNumber = view != null ? view.SampleNumber : 0;
-                    panel.SampleLabel.text = view != null ? view.SampleLabel : "0"; // 0 as fallback
+                    panel.SampleLabel.text = "?";
                     panel.SampleLabelBG.color = Color.gray; // gray out unknown sample label
                 }
 
@@ -181,12 +181,11 @@ namespace SpaceFab.Research {
                 {
                     bool substrateKnown = researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
                     && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
-                    ResearchMaterialView substrateView = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
                     panel.SubstrateSprite.sprite = primaryMaterial.GemSprite;
                     if (substrateKnown) {
                         panel.SubstrateLabel.text = primaryMaterial.ShortName;
                     } else {
-                        panel.SubstrateLabel.text = view != null ? substrateView.SampleLabel : "Z"; // z as fallback
+                        panel.SubstrateLabel.text = "?";
                     }
                 }
             }
@@ -209,6 +208,7 @@ namespace SpaceFab.Research {
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
                     }
+                    panel.SlotChips[i].gameObject.SetActive(filled);
                     panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
@@ -227,8 +227,8 @@ namespace SpaceFab.Research {
             }
             if (hypoVm.HypothesisContext != StringHash32.Null)
             {
-                ResearchMaterialView hypoContext = Find.NamedAsset<ResearchMaterialView>(hypoVm.HypothesisContext);
-                hypoLabel += " for " + hypoContext.SampleLabel; // TODO: show actual name for known materials
+                MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
+                hypoLabel += " for " + hypoContext.ShortName; // TODO: only 'confirmed' semiconductors can be slotted -- always known
             }
             panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 

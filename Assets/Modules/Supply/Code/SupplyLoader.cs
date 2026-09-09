@@ -95,6 +95,14 @@ namespace SpaceFab.Supply {
             Find.State(out SupplyCameraControlState cameraState);
             cameraState.Region = entry.CameraBounds;
 
+            yield return null;
+
+            // Rebuild the player's saved routes. Runs here rather than in ImportState because it
+            // needs the map this method just built - active nodes, cached positions, home, and the
+            // ship index - none of which exist at import time.
+            Find.State(out SupplyRouteCollection routes, out ShoppingListState shoppingList, out SupplyProgressMeterState meter);
+            SupplyRouteSaveUtility.Apply(supplyState, routes, shipIndex, map, Find.Panel<ShipListPanel>(), shoppingList, meter);
+
             GameLoop.SuspendUpdates(UpdateMasks.SetupMask);
             GameLoop.ResumeUpdates(UpdateMasks.SupplyMask);
         }

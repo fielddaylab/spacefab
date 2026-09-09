@@ -2,6 +2,7 @@ using BeauRoutine;
 using BeauUtil;
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -44,19 +45,19 @@ namespace SpaceFab.Fabrication.Sequence
         public float FadeOutSeconds = 0.30f;
 
         // BeauRoutine handle for the active recap.
-        [HideInInspector] public Routine RecapRoutine;
+        [NonSerialized] public Routine RecapRoutine;
 
         // One-shot flag raised by SequenceUtility.AdvanceStep. CompletionRecapSystem consumes it,
         // captures RecapJustCompletedIndex, and starts the recap routine.
-        [HideInInspector] public bool RecapRequested;
+        [NonSerialized] public bool RecapRequested;
 
         // Step index that just completed. Captured at the moment the recap is requested so the
         // routine reads a stable value even as SequenceState.CurrentStepIndex moves forward.
-        [HideInInspector] public int RecapJustCompletedIndex;
+        [NonSerialized] public int RecapJustCompletedIndex;
 
         // True while RecapRoutine is in flight. CompletionRecapSystem checks this each frame to
         // re-arm StationControlState.ExitTimerExternalHold (which holds the exit phase open).
-        [HideInInspector] public bool RecapInProgress;
+        [NonSerialized] public bool RecapInProgress;
 
         public void OnRegister()
         {
