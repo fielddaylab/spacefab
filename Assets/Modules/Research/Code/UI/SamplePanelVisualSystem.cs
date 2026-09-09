@@ -94,6 +94,14 @@ namespace SpaceFab.Research {
                 panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
             }
 
+            if (panel.AddObservationButton != null) {
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount == 0);
+            }
+
+            if (panel.AddPropertyButton != null) {
+                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible);
+            }
+
             if (interfacerState.ActiveChamberChangedThisFrame)
             {
                 ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();

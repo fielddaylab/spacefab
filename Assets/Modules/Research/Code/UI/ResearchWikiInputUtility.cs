@@ -51,6 +51,16 @@ namespace SpaceFab.Research {
             }
         }
 
+        // Opens the wiki to the properties page.m
+        public static void OpenPropertyPage(PlayerProgressState progressState, WikiState wikiState) {
+            var contentComponents = Find.Components<WikiContent>();
+            if (contentComponents.Count == 0) {
+                return;
+            }
+            
+            WikiUtility.SelectTabById(wikiState, contentComponents[0], progressState, new StringHash32("Properties"));
+        }
+
         // The context observations are stored under right now. The doping
         // chamber records every observation against the substrate in the
         // primary slot; every other chamber records against nothing.
