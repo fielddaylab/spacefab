@@ -25,20 +25,7 @@ namespace SpaceFab
 
         [Header("Assets")]
         public LeafAsset Script;
-
-        private void OnEnable()
-        {
-            foreach (StringHash32 contractId in AvailableContracts)
-            {
-                ContractDef contractDef = ContractUtility.GetDefinition(contractId);
-                if (contractDef == null) continue;
-
-                ContractAssetSet contractAssetSet = Find.NamedAsset<ContractAssetSet>(contractDef.AssetSet);
-                if (contractAssetSet == null) continue;
-
-                
-                GlitchChances.Append(contractAssetSet.FabricationLevel.GlitchChance);
-            }
-        }
+        public Material SkyboxMaterial;
+        public float SkyboxRotation;
     }
 }

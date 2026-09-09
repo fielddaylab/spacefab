@@ -105,9 +105,10 @@ namespace SpaceFab.Fabrication.Sequence
 
             // 4. Populate and show the front card with the current step (if in range).
             if (currentIndex >= 0 && currentIndex < steps.Length) {
-                PopulateCard(visualsState.FrontCard, steps[currentIndex], GetRuntime(sequenceState, currentIndex), lookup, waferLookup);
+                StepRuntimeData runtime = GetRuntime(sequenceState, currentIndex);
+                PopulateCard(visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
-                SetCardVisible(visualsState.FrontCard, true);
+                SetCardVisible(visualsState.FrontCard, runtime.IsGlitched);
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
             }
@@ -136,7 +137,8 @@ namespace SpaceFab.Fabrication.Sequence
         {
             // 1. Reveal the back card — it already holds the new current step's content
             //    (pre-loaded on the previous Reset or Advance). Hide the outgoing front.
-            SetCardVisible(visualsState.BackCard, true);
+            StepRuntimeData incomingRuntime = GetRuntime(sequenceState, sequenceState.CurrentStepIndex);
+            SetCardVisible(visualsState.BackCard, incomingRuntime.IsGlitched);
             SetCardVisible(visualsState.FrontCard, false);
 
             yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
@@ -202,7 +204,7 @@ namespace SpaceFab.Fabrication.Sequence
             card.InstructionLabelText.text = entry.InstructionLabel;
 
             // TODO: when runtime.IsGlitched, apply lookup.GlitchOverlaySprite / GlitchOverlayText.
-            // Deferred until the card prefab carries a dedicated glitch overlay child.
+            // Deferred until the card prefab carries a dedicated glitch overlay child
         }
 
         // Looks up the per-step runtime data (IsGlitched, WasCheckpointReached) for the given step
