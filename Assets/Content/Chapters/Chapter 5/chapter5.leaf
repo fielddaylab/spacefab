@@ -5,17 +5,13 @@
 @cutscene
 @once 
 
-{@PAL}      Captain, I have another suprise for you! 
-{@Player}   Another crew-mate, wait... finally someone else on the ship??
-{@PAL}      No! 
-{@Player}   Oh.
-{@PAL}      Instead of one contract, you now have... two!
-{@PAL}      Congratulations on achieving agency Captain! 
-{@Player}   ...thanks P.A.L. 
-{@PAL}      One that is simple, the other contract is a bit more complex. 
-{@PAL}      They also have different contractors. One is an independent contract, the other is a Frontier contract. 
-{@PAL}      You decide, but remember, Frontier Robotics is your best friend! 
-{@Player}   Right. 
+{@PAL}      	Captain, I have another surprise for you! 
+{@Player}   	Wait... finally someone else on my ship?
+{@PAL}      	No! 
+{@Player}   	Oh.
+{@PAL}      	Instead of one contract, you now have... two!
+{@PAL}      	Congratulations on achieving agency Captain! 
+{@Player}   	...thanks P.A.L. 
 
 ::BeforeSupplyChainCh5
 @trigger    OnOverarchingLoaded
@@ -23,15 +19,32 @@
 @cutscene 
 @once 
 
-{@Ovill}    Hi Locke.
-{@Ovill}    I got a thrilling new update for the Forsch Sector!
-{@Ovill}    As you may know the Ausrine System has been dealing with some pesky pirates, specifically when sourcing Boron. 
-{@Ovill}    We at Frontier Robotics have officially established a Boron system. 
-{@Ovill}    It is advised that all Frontier Robotics ships source from this new location. 
-{@Callie}   Oil spit! Lies I hear. 
-{@Ovill}    How-how did you get this frequency?! This is an encrypted channel? 
-{@Callie}   Frontier? Having proper firewall protections? 
-{@Player}   
+{@Ovill}    	Hi Locke.
+{@Ovill}    	I got a thrilling new update for the Forsch Sector!
+{@Callie}   	I wouldn’t listen to him, my Clackey friend.
+{@Ovill}    	How-how did you get this frequency?! This is an encrypted channel!
+{@Ovill}    	Who are you?
+{@Callie}   	Why, it is I...
+{@Player}  	    Here we go... 
+{@Callie}   	Callie Lee! The Space Pirate Queen of Velos Station! 
+{@Callie}   	Trying to steal me business huh?
+{@Ovill}    	Stealing- you stole a whole station from Frontier!
+{@Callie}   	You seriously want to conduct business with this fool, Clackey? 
+{@Player}   	My name is not Clackey. 
+{@Ovill}    	Get OFF this frequency!
+{@Callie}   	Seeesh! Okay I will! Don't forget to take some blood pressure meds. 
+{@Callie}   	See you later, Clackey.
+{@Ovill}   	    Hm-ph... sorry about that. 
+{@Player}   	No worries. 
+{@Ovill}    	...reach out if you want to do business. 
 
-//#region 
-   
+::AfterSupplyChain
+@trigger	    OnOverarchingLoaded 
+@when 	        IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply)
+{@Player} 	    P.A.L., Fabrication is going to be… not glitched this time, right? 
+{@PAL} 	        After much evaluation, I have a 97.1% certainty that all Frontier Fabrication Ships are in proper working order!
+{@Player} 	    So Fabrication’s glitches are solved? 
+{@PAL}	        That percentage is based on the Frontier Robotics Productivity Database, which estimates the effectiveness of all Frontier Robotics Fabrication Ships. 
+{@Player} 	    Okay… what about my ship? 
+{@PAL}	        Unfortunately, I can't determine that percentage right now. 
+{@Player} 	    Of course. 

@@ -1,3 +1,4 @@
+
 # basePath Chapter4
 
 ::FirstContractOpenCh4 
@@ -5,25 +6,44 @@
 @cutscene
 @once 
 
-//NOTE - NOT WHEN CONTRACT CHOICE IS ALLOWED
+{@PAL}      	Wow, what a thrilling game of laser-tag! 
+{@Quinn}    	Wait y'all played laser-tag without us?!
+{@Joel}     	Oh, don't get all jambled, Quinnie.
+{@Joel}     	Sorry Captain, she’s a huge fan of the Inter-System Laser Tag League. 
+{@Quinn}    	One, don't call me Quinnie. 
+{@Quinn}    	Two, he could have at least invited us. 
+{@Quinn}	    …and go Kalvis Comets. 
+{@Player}   	It was spur-of-the-moment; I'll invite you next time.
+{@Quinn}    	Promise? 
+{@Player} 	    Captain’s honor. 
+{@Quinn} 	    Heh, maybe you’re cool after all. 
 
-{@PAL}      What a fun game of cards! 
-{@PAL}      As they say: Work Hard, Play when contractually convenient to your employer!
-{@Player}   That's not the saying.  
-
-
-:: BeforeSupplyChainCh4
+::BeforeSupplyChainCh4
 @trigger    OnOverarchingLoaded
-@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
-@cutscene
+@when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design)
+@cutscene 
 @once 
 
-{@PAL}      It appears you have an automated message Captain from the Cu-6533-29.
-{@Taryn}    Hi Locke! 
-{@Taryn}    Just a heads up that our Phosphorus production has shut-down for the next few cycles. 
-{@Taryn}    We're taking time to celebrate the Kalvis Festival! 
-{@Taryn}    All other materials in our sector will be available, but they may take some time. 
-{@Taryn}    See you soon, and if you can, you should come planet-side and check the festival out! 
-{@Player}   Festival? Is that what Blaze was talking about? 
-{@PAL}      I'd suggest sourcing from a Frontier sector. 
+{@PAL}      	It appears you have an automated message Captain from the Cu-6533-29.
+{@Taryn}    	Hi Locke! 
+{@Taryn}    	Just a heads up that our Phosphorus production has shut-down for the next few cycles. 
+{@Taryn}    	We're taking time to celebrate the Kalvis Festival! 
+{@Taryn}    	All other materials in our sector will still be available, but they may take some time. 
+{@Player}   	Festival? Is that what Blaze was talking about? 
+{@PAL}      	The Kalvis Sector tends to be... unrealiable with their... "holidays.”
+{@Ovill}     	Which is why the Frosch sector is excited to announce a new Boron Station - 
 
+::AfterSupplyChainCh4 
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply)
+@trigger
+@once 
+
+{@PAL}     	One thing to note Captain. 
+{@PAL}     	The system is full of risks. 
+{@PAL} 	    The higher the risk the more likely you’ll encounter a hiccup! 
+{@Quinn} 	Good to know the bot has faith in us. 
+{@Joel} 	With the pirates and the general deadly vacuum that is space…
+{@Joel} 	P.A.L.’s not wrong. 
+{@Player} 	Just stay safe you guys. 
+{@Quinn} 	Aye aye, Cap’. 

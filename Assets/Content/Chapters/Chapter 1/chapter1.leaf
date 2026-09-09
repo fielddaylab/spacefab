@@ -1,13 +1,12 @@
 # basePath Chapter1
-
-:: FirstContractOpen
+:: FirstContractOpenCh1
 @trigger    OnContractSelectOpen
 @cutscene
 @once
 
 {@PAL}      Welcome to employee Orientation! 
 {@Player}   Wait... don't I own the ship-
-{@PAL}      Irrelevant! To get you strated, we have Frontier Robotics contract for you. 
+{@PAL}      Irrelevant! To get you started, we have Frontier Robotics contract for you. 
 {@PAL}      You'll have more in the future, but for now, we will start off with just one. 
 $call   HighlightElement(overarching:costs-section, false, 25, true)
 {@PAL}      It looks like it will take this many days to complete.
@@ -19,111 +18,68 @@ $call   ReleaseAllHighlights()
 {@PAL}      Feel free to go to Research or Design! 
 {@Player}   Guess it's time to get started... 
 $call   HighlightElement(overarching:select-contract-btn)
+$call   UnlockWikiPage("Basic Conductor")
+$call   UnlockWikiPage("Basic Insulator")
+$call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
+$call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter 
 
-:: FirstContractAccept
-@trigger    OnContractAccept
-@cutscene
+:: FirstContractAcceptCh1
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Research)
+@cutscene 
 @once
 $call   ReleaseAllHighlights()
 
-:: BeforeSupplyChain
+{@Quinn}    Is... is this thing on?
+{@Player}   Uh... P.A.L? Who's that?
+{@PAL}      Oh, that's Quinn.
+{@Player}   Whose Quinn?
+{@Quinn}    Wow, Cap' I can tell you read the fleet manifest. 
+{@PAL}      I believe Quinn is participating the human verbal condition called: 
+{@PAL}      Sarcasm. 
+{@PAL}      Quinn is your hauler, she'll follow the routes you draw for material pick-up on the Supply-Chain screen, which will come later. 
+{@Quinn}    "Follow", more like "guide." I never follow the beaten-path. 
+{@Player}   Isn't that... dangerous? 
+{@Quinn}    Wait? Space is dangerous? Why didn't you tell me?!
+{@Quinn}    Stop leaking cyro fluid Cap', promise I'll be timely and efficient, Hauler's Honor. 
+{@Player}   Right...
+
+:: BeforeSupplyChainCh1
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
 @cutscene
 @once
 {@Player}    P.A.L., why can’t I build the chip yet?
-{@PAL}       We are short on conductor materials.
-{@PAL}       Your station is too slow for supply runs, so you can hire faster ships.
-{@PAL}       The ship fee and materials cost come out of the contract payment.
-{@Player}    Wait, I don’t keep all the money? Better keep costs low.
-
-
-//region Supply Chain Haulers
-
-{@Quinn}    Is... is this thing on?
-{@Player}   Uh... P.A.L? Who's that?
-{@PAL}      That's your hauler, Quinn! 
-{@Player}   Wait, another human?
-{@Quinn}    Wow! You sure got some good eyes on you. Very observant.
-{@Player}   Uh huh... 
-{@PAL}      I believe Quinn is participating the human verbal condition called: 
-{@PAL}      Sarcasm. 
-{@PAL}      Quinn will follow the routes you draw for material pick-up. 
-{@Quinn}    "Follow", more like "guide." I never follow the beaten-path. 
-{@Player}   Isn't that... dangerous? 
-{@Quinn}    Wait? Space is dangerous? Why didn't you tell me?!
-{@Quinn}    Stop leaking cyro fluid Cap', promise I'll be timely and efficient, Hauler's Honor. 
-{@Player}   Whatever you say...
-
-//#region - After Supply Chain 
+{@PAL}       You'll need materials silly! You have to source them on the supply chain screen. 
 
 //region Supply Chain - Taryn Intro 
 
-{@Player}   Guess I should call one of the supplier contacts... Cu-6533etc. 
-//phone dial character??
-{@Taryn}    Oh Universe above. I swear, for the last time, P.A.L. I don't want to do work with you-
-{@Player}   Uh... 
-{@Taryn}    I'm already at my wits end with Frontier, we all are. 
-{@Taryn}    We won't work for you unless you have a human on board, 
+{@Player}   Guess I should call one of the supplier contacts... Cu-6533... jeez so many numbers. 
+//phone dial character
+{@Taryn}    Oh Universe above. I swear, for the last time, P.A.L. 
+{@Taryn}    We won't work for you unless you have a human on board,
 {@Taryn}    AND ANOTHER THING-... Oh my stars you're a human. 
-{@Player}   Uh. Last time I checked, yeah. 
-{@Taryn}    Shoot, uh, sorry! I...
-{@Taryn}    I'm Kalvis Sector wait uh no, in the-supplier... uh-
+{@Player}   Last time I checked, yeah. 
+{@Taryn}    Shoot, uh, hi I'm Kalvis Sector- 
+{@Taryn}    Wait uh no, in the-supplier... uh-
 {@Player}   What?
-{@Taryn}    Ack-... Sorry. This isn't the first time your ship has contacted me. 
-{@Taryn}    Let's just say, P.A.L. left a bad taste in my mouth. 
-{@Player}   I see.
+{@Taryn}    Ack-... Sorry.
+{@Taryn}    Let's just say, P.A.L. called and left a bad taste in my mouth. 
+{@Player}   I... understand. 
 {@Taryn}    How about we start over and forget about the embarassing yelling and the word vomit that just happened? 
 {@Taryn}    Name's Taryn. I'm the supplier contact for the Kalvis sector. 
 {@Player}   Nice to meet you Taryn. I'm Locke. 
 {@Taryn}    ...Locke... why does that sound familiar? 
 {@Taryn}    Anyways, pleasure to meet you Locke!
 {@Taryn}    If you want any materials in our sector, I'm the one to call! 
-{@Player}   I'll keep that in mind, thanks! 
+{@Player}   I'll keep that in mind.
 //hang up dial.
-
-//end region
-
-//#region Supplier - Ovill
-
-//dial
-{@Player}   Oh, a call. 
-//pick up tone
-{@Ovill}    Boy oh boy do I have a deal for you! 
-{@Player}   What?
-{@Ovill}    We at Frontier Robotics value our loyal customers. 
-{@Ovill}    So much so that we have a super duper exclusive deal just for members like you! 
-{@Ovill}    Source with us today, and we'll throw in a complimentary Frontier Robotics swag bag! 
-{@Ovill}    This includes a hat, several Robo-Bros trading cards, and an all exclusive poster signed by the CEO himself. Mr. Grayson! 
-{@Ovill}    All you need to do is source with us within the next 24 hours, or the deal is gone, Locke, GONE! 
-{@Player}   How do you know my name? 
-{@Ovill}    Unimportant! So, what do you say, you ready to make a deal?  
-{@Player}   Uh... that's neat and all, but I think I only want to source the materials...
-{@Ovill}    ...what. 
-{@Player}   I just want to source materials. 
-{@Ovill}    Did I do the pitch wrong? 
-{@Player}   Uh... no- 
-{@Ovill}    Oh my stars I came on too strong. 
-{@Ovill}    Or was it not strong enough? Maybe if I raise my voice and bring more "pazaaz". Let me start over.
-{@Player}   That's not necessary-
-{@Ovill}    LOCKE, DO I HAVE A DEAL FOR YOU, IF YOU SOURCE WITH US TODAY- 
-{@Player}   I'M NOT INTERESTED!
-{@Player}   Not because you did a bad pitch. I just... want to pay off this debt. 
-{@Ovill}    So... it wasn't my fault? 
-{@Player}   Yes. I guess. 
-{@Ovill}    Fantastic!  I can put that in my daily report. Perfect marks.  
-{@Ovill}    Though it's odd that you don't want free stuff... I'll write it off as a customer fluke. 
-{@Ovill}    Anyways. I'm Representative 32-A345. But you can just call me Ovill. 
-{@Ovill}    If you need anything from the Forsch sector, you let me know! I am always open for business! 
-{@Player}   Thanks, Ovill. 
 
 // end region
 
-
-
 //#region - After Supply Chain 
 
-::AfterSupplyChain 
+::AfterSupplyChainCh1
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply)
 @cutscene
@@ -131,10 +87,29 @@ $call   ReleaseAllHighlights()
 
 {@PAL}      Great, with the materials arriving, now we can get to work!
 {@Player}   Have we not been working this entire time?
-{@PAL}      We have, but this is where the fun begins!
+{@PAL}      We have, but this is where the fun begins! 
+{@PAL}      Oh Captain, looks like you're being holo'd!
+//pickup tone
+{@Ovill}    We have a super duper exclusive deal just for you! 
+{@Player}   What?
+{@Ovill}    If you source with us today, and we'll throw in a complimentary Frontier Robotics swag bag! 
+{@Ovill}    All you need to do is source with us within the next 24 hours-
+{@Player}   I already sourced materials with Kalvis...I needed Copper so...
+{@Ovill}    Oh-... was my pitch bad?
+{@Ovill}    Maybe if I raise my voice and bring more "pazaaz". Let me start over.
+{@Ovill}    LOCKE, DO I HAVE A DEAL FOR YOU, IF YOU SOURCE WITH US TODAY- 
+{@Player}   I'M NOT INTERESTED!
+{@Player}   Not because you did a bad pitch. Just... bad timing. Sorry.
+{@Ovill}    So... it wasn't my fault? 
+{@Player}   Yes. I guess. 
+{@Ovill}    Fantastic!  I can put that in my daily report. Perfect marks.  
+{@Ovill}    Anyways. I'm Ovill. 
+{@Ovill}    Just holo if you would like to business with the Forsch sector!
+{@Player}   Thanks, Ovill. 
+//hang-up dial
 
 //#region - Fabrication 
-::AfterFabrication 
+::AfterFabricationCh1
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
 @cutscene
@@ -147,8 +122,3 @@ $call   ReleaseAllHighlights()
 {@PAL}      Now it's time to submit the contract, and then you can do it all over again!
 
 //endregion 
-            
-
-
-
-

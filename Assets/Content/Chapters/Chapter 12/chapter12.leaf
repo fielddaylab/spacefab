@@ -1,0 +1,85 @@
+#basePath Chapter12
+
+::OnContractSelectOpenCh12
+@trigger 
+@cutscene 
+@once 
+
+{@Arken}    Alirghty Locke, you ready to be rid of this debt?
+{@Player}   I'm ready to be rid of Frontier. 
+{@Arken}    Well some good news then, those diamond wafers are ready. 
+{@Player}   Let's get this done. 
+{@Arken}    Let's. 
+
+::AfterResearchCh12
+
+@trigger 
+@when       IsSolutionFoundFor(Research)
+@cutscene 
+@once 
+
+{@Player}   Hey Taryn. 
+{@Taryn}    Locke! 
+{@Taryn}    Arken told me you might be sourcing some diamond wafers from Blair.
+{@Player}   Yay, I wanted to-
+//conference call dial. 
+{@Ovill}    Locke, hey. 
+{@Player}   Oh, uh Ovill-
+{@Ovill}    I'm going to keep it short and sweet. I've... been let go. 
+{@Ovill}    Profits are in the gutter and so the chopping block is out. 
+{@Ovill}    I'll be replaced by a bot effective immediately.
+{@Taryn}    They fired you Ovill?
+{@Ovill}    Taryn?!
+{@Ovill}    I didn't realize, I should... go.
+{@Taryn}    Wait, Ovill. 
+{@Taryn}    Kalvis is always looking for more representatives.
+{@Taryn}    We could use someone like you on the team. 
+{@Ovill}    Wait... really?  
+{@Taryn}    We can be deserters together. 
+{@Ovill}    ...I'll... I'll book a shuttle to Kalvis. Thank you...
+{@Taryn}    See you soon Ovill.  
+    
+
+
+::AfterSupplyChain12
+@trigger OnOverarchingLoaded
+@when   IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply)
+@cutscene 
+@once
+
+{@Xavier}	Locke. 
+{@Player} 	Hey, you actually got my name right this time. 
+{@Xavier} 	Yea, yea.
+{@Xavier}   Heard you and the new CEO got into a scuffle. 
+{@Player}   How do you know?
+{@Xavier}   He told me himself. 
+{@Xavier}   You don't come back home to Ralston with a black eye expecting no-one questioning you. 
+{@Xavier}   Anyways... 
+{@Xavier}   Good work, pawn. Seems you reached the other end of the board. 
+{@Player}   It feels like things are just get started...
+{@Xavier}   And they are. So be ready, Locke.
+{@Xavier}   Friends in high places, so remember me Locke. Business is always open for you. 
+{@Player}   Won't you get in trouble if you work with me?
+{@Xavier}   Oh please Locke, you doubt me. 
+{@Xavier}   Ralston's got a shiny image, but we all know it's all fool's gold underneath. 
+{@Xavier}   How do you think it got so rich? 
+{@Player}   Fair point...
+
+::AfterFabrication12 
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
+@cutscene
+@once
+
+{@Arken}    Well Locke, this is it. 
+{@Player}   It's unreal...
+{@Player}   Thought I would never pay off this debt. 
+{@Arken}    But you are. That means something Locke. 
+{@Player}   Thanks to you, and everyone else whose got me here.
+{@Callie}   Aye, I know, I really carried the team didn't I? 
+{@Player}   You've only been working for a cycle...
+{@Callie}   And what back-breaking work I've been putting in! 
+{@Quinn}    Just press the button already! I need a full pay-check. 
+{@Joel}     Quinnie... 
+{@Quinn}    Right... sorry Cap'
+{@Arken}    Whenever you're ready Captain. 

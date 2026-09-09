@@ -14,6 +14,43 @@
 {@MAL}      Whose Keela? 
 {@Player}   Never mind, let's just do a contract. 
 
+::AfterResearchCh8
+@trigger 
+@when       IsSolutionFoundFor(Research)
+@cutsceme 
+@once 
+
+{@MAL}      <@P+@1N
+{@Player}   PAL- 
+{@MAL}      Wh0s3 P@1 !'m- 
+{@Player}   Ugh, what is it? 
+{@MAL}      Y0u h@v3 a N3\/\/ hAul3r
+{@Player}   A new hauler? Oh, uh great. Hello...!
+{@Joel}     Still just us Captian. 
+{@Quinn}    'Cept now we have a bot operating the new ship. 
+{@Player}   Oh...
+{@MAL}      Y-y-y0u'''rE we1C<>m3 C@p'
+
+
+
+::AfterDesignCh8
+@trigger 
+@when       IsSolutionFoundFor(Design)
+@cutscene 
+@once 
+
+//RingDial
+{@Ovill}    Locke! We've been trying to reach you.
+{@Xavier}   We're using a proxy channel outside of Frontier's network.
+{@Player}   Is this because of the hack? 
+{@Ovill}    All of our PAL systems and communication networks are shot! 
+{@Ovill}    Frontier's projection figures have dropped 80% and continuing to freefall. 
+{@Ovill}    I... I-... 
+{@Xavier}   What my hyper-ventalating friend here is trying to say...
+{@Xavier}   is using us as primary suppliers is vital. 
+{@Ovill}    Please Locke. 
+{@Xavier}   Don't let us down. 
+
 ::BeforeSupplyChainCh8
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
@@ -24,20 +61,16 @@
 {@Player}   Oh. Hi Mai.
 {@Mai}      The Juza-Hahn Station is now accesible to you. 
 {@Mai}      So if you need Gallium Nitride-
-{@MAL}      P-P@tch1ng Kalvis Sector into call. 
+{@MAL}      P-P@ch1ng Kalvis Sector into call. 
 {@Player}   What, no P.A.L.- 
 {@Taryn}    Heya Locke! Woah, conference call? Special occasion?
 {@Player}   Uh, no I didn't mean to call you, P.A.L.-
 {@MAL}      Whose P.A.L.? 
-{@Player}   Called, they've been on the fritz lately. 
+{@Player}   -called, they've been on the fritz lately. 
 {@Mai}      Keela's hack worked? 
 {@Player}   Yeah- wait how do you know that? 
 {@Mai}      ... don't worry about that. 
-{@Taryn}    ... I don't mean to intrude, but the Kalvis sector now has our Magnesium Station.
-{@Taryn}    Just to update you!
-{@Taryn} TEST 
-//THIS IS A TEST TEST TEST TEST 
-// TETSTSTSTSTSTSSTST
+{@Taryn}    ... I don't mean to intrude...
 
 
 

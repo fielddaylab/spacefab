@@ -1,0 +1,66 @@
+# basePath Chapter9 
+
+::OnContractSelectOpenCh9
+@trigger 
+@cutscene 
+@once 
+
+::AfterResearchCh9
+
+@trigger 
+@when       IsSolutionFoundFor(Research)
+@cutscene 
+@once 
+
+{@Xavier}   Listen, Lake. 
+{@Player}   Locke.
+{@Xavier}   Whatever. 
+{@Xavier}   I'm gonna keep it real. 
+{@Xavier}   You're a pawn. 
+{@Player}   ...Excuse me? 
+{@Xavier}   This is all a game, you see, and pieces on the board are shifting.
+{@Xavier}   No one reveals their strategy till it's in play, and once known it's already too late. 
+{@Xavier}   Such is the game. 
+{@Player}   Your point? 
+{@Xavier}   My point is... 
+{@Xavier}   You're a pawn, but every pawn can rise if given the right opportunity. 
+{@Player}   Why... are you telling me this?
+{@Xavier}   Simple, you have potential. 
+{@Xavier}   And you’ll need people in… high places. 
+{@Player}   Okay...
+{@Xavier}   Holo you soon. 
+
+::BeforeSupplyChainCh9
+@trigger 
+@when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design)
+@cutscene 
+@once 
+
+{@Mai}      Hi. 
+{@Player}   Oh, hey Mai. 
+{@Mai}      ...the protests are stirring up again. 
+{@Mai}      Wolfram's Tungsten production has stopped. 
+{@Player}   You doing alright?
+{@Mai}      This is nothing new. 
+{@Mai}      Wolfram's known for their revolts. 
+{@Mai}      Hoping to see some change this time around. 
+{@Player}   Yea...
+{@Mai}      Get rid of the bug Locke. 
+{@Mai}      Don't trust Dorian.
+{@Player}   Wh- how do you- what??
+{@Mai}      ...the call must've glitched. 
+{@Mai}      Cya. 
+
+::AfterFabrication 
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
+@cutscene
+@once
+
+{@MAL}      Okey dokeeyyyyyyy CAP-tain!
+{@MAL}      Time to submiiiiiiiiiiiiiiiiiii-
+{@MAL}      Hi Captiain, how are you doing today?
+{@Player}   ...
+{@MAL}      Your silence is reassuring! 
+{@Player}   M.A.L... after this contract, we need to make a detour. 
+{@MAL}      Oh, sounds good Captain!

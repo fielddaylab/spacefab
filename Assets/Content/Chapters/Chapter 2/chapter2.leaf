@@ -5,13 +5,10 @@
 @cutscene
 @once
 
-//NOTE - should dialogue/tutorializing be prompted in mini-games? 
-
-{@Dorian}   Alright my friend, or "employee", looks you'll need a conductor and semi-conductor. 
-{@Dorian}   With semi-conductors you will be working on doping. 
-{@Dorian}   Essentially, adding impurities to the semi-conductor make it, well, conductive. 
+{@Dorian}   Alright my friend, or "employee", this contract asks for a semi-conductore and conductor.
 {@Player}   Okay, great, so, when I go about doing it--
-{@Dorian}   Oh shoot, sorry Locke, I'm getting a halo, I have to go. 
+// off-screen ring dial
+{@Dorian}   Oh shoot, sorry Locke, I'm getting a holo, I have to go. 
 {@Dorian}   P.A.L. should be able to help you out though!
 {@Player}   Yea, no worries. 
 {@Dorian}   Chat soon. 
@@ -25,54 +22,89 @@ $call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the 
 $call   UnlockWikiPage("Conductor")
 $call   UnlockWikiPage("Insulator")
 
+::AfterResearchCh2 
+
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Research)
+@cutscene 
+@once
+
+{@Quinn}    Hey Cap, how is it that your friend is also your boss?
+{@Player}   What? How do you- were you eavesdropping? 
+{@Quinn}    Oh, yea, I hear every convo you have. 
+{@Quinn}    Holo's broacasted to the all ships on the network. 
+{@Player}   ...I see...
+{@Player}   Well, don't feel like you have to listen. 
+{@Quinn}    Ah but I have to, in accordance to Frontier Robotics Code yadda yadda red-tape. 
+{@Quinn}    Even if I wanted to I can't turn it off. 
+{@Quinn}    And just so you know, I do want to listen. 
+{@Player}   ...great. 
+
 ::BeforeSupplyChainCh2
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
 @cutscene
 @once
 
-//region Suppliers 
-//NOTE - under context of being in mini-game 
 {@Player}   Hey P.A.L., why are there two sources of Phosphorus? 
 {@PAL}      Looks like both the Forsch and Kalvis sectors are offering that material. 
 {@Player}   What's the difference? 
 {@PAL}      Depending on which one they may have different costs and time sinks.
-{@PAL}      I highly recommend going with the Forsch sector. 
-{@Player}   Are you seriously recommending that? 
-{@Player}   Or are you saying that because that's a Frontier sector? 
-{@PAL}      A Froniter Robotics deal is always a good deal! 
 {@Player}   Let me call each, then I'll decide. 
-
-//#region - Kalvis & Forsch Sector 
 
 {@Player}   Hi Taryn.
 {@Taryn}    Locke, hiya!
 {@Player}   Listen I saw... your face, you got uh... dirt all over it. 
 {@Taryn}    Oh! I was in my garden earlier, got a bit lost in the weeds!  
-{@Taryn}    Anywhosies. Let me guess, you're calling about the new Phosphorus station? 
+{@Taryn}    Let me guess, you're calling about the Menuo Station? 
 {@PAL}      Seems like a conference call can speed up your decision. Let me patch you to the Forsch Sector! 
-{@Player}   Wait no, P.A.L.
-{@PAL}      Call connected! 
-{@Ovill}    Hello Locke! I got another deal for you. Our new Phosphorus station will blow your noodle!
+{@Player}   Wait no, P.A.L.-
+// phone connection dial
+{@Ovill}    Hello Locke! I got exciting news! You can access Hennig Station!
 {@Taryn}    Ovill.
-{@Ovill}    Taryn.
+{@Ovill}    Oh...Taryn.
 {@Taryn}    So, trying to steal my client? 
 {@Ovill}    Rich, coming from a deserter. 
 {@Player}   ...Do you guys know each other? 
 {@Taryn}    I... worked at Frontier Robotics once upon a time.
-{@Taryn}    But I left. 
 {@Ovill}    Taryn here decided that working with traitors was a better option. 
 {@Taryn}    At least I didn't sell my soul to a mega-corp.
-{@Ovill}    And to think you were a rising star. 
-{@Taryn}    Whatever. Frontier has a gazillion rising stars. I wasn't special.
-{@Taryn}    Neither are you, or anyone trying to climb Frontier's ladder. 
 {@Ovill}    I'll have you know I have the highest marks out of my entire department. 
 {@Player}   Hey guys... the Phosphorus...
-{@Ovill}    Hm? Oh yes! We have a Phosphorus station available to you in rapid speed! 
+{@Ovill}    Hm? Oh yes! We can have Phosphorus available to you in rapid speed! 
 {@Ovill}    Just to remind you that there will be a sourcing fee, a labor fee, a buying fee-
 {@Taryn}    Oh, don't forget the breathing fee.
 {@Ovill}    -_-
 {@Taryn}    Or you can source from us! It'll take a bit longer but you'll have genunine product at a fair price. 
 {@Player}   I'll think about it. Thanks guys. 
 
+::AfterSupplyChainCh2
+@trigger OnOverarchingLoaded
+@when   IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply)
+@cutscene 
+@once
 
+{@Quinn}    Got the materials loaded Cap'!
+{@Quinn}    Say, since you're in debt, does that mean I'm in debt too? 
+{@Player}   I don't think that's how that works. 
+{@Player}   Like, at all actually. 
+{@PAL}      Actually Captain, every Hauler's is placed into a 20% debt match, which is deducted from their pay. 
+{@Quinn}    Wait, that wasn't in the fine print...
+{@PAL}      Yes it was! It was on the final page. 
+{@Quinn}    The contract was 100 pages... in the smallest font size ever...
+{@PAL}      You signed it!
+{@Quinn}    ...Touché.
+
+::AfterFabricationCh2 
+@trigger OnOverarchingLoaded
+@when   IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
+@cutscene 
+@once
+
+{@PAL}      Captain!
+{@Player}   P.A.L.? 
+{@PAL}      Has your interaction with me been satisfactory? 
+{@Player}   Well, if I'm being honest P.A.L.- 
+{@PAL}      Frontier Robotics values it's users. 
+{@PAL}      And we would love for you to fill out this 45-minute survey. 
+{@Player}   ...Maybe later. 

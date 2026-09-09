@@ -4,24 +4,17 @@
 @trigger    OnContractSelectOpen
 @cutscene
 @once 
-{@PAL}      Okay Captain, you now have more contracts available to you. 
 {@Player}   P.A.L., what's going on with Kalvis? 
 {@PAL}      Don't you mean Cu-6355-29?
 {@Player}   There was a mine collapse. 
 {@PAL}      My records do not indicate a mine collapse of any kind. 
 {@Player}   But Mara said- 
-{@PAL}      Mara must be wrong. Misinformation is a dangerous phenomenom plaguing the Ausrine system. 
-{@PAL}      Did you know that 92.7% of Independent contractors failed the Frontier Robotics Honesty Test? 
+{@PAL}      Mara must be wrong. Misinformation is a dangerous phenomenon plaguing the Ausrine system. 
+{@PAL}      Did you know that 92.7% of Independent contractors failed the Frontier Robotics Honesty Survey? 
 {@PAL}      A true shame that is. 
-{@Player}   ...
+{@Player}  Uh-huh…
 {@PAL}      Shall we get back to work Captian?
 {@Player}   Yeah... sure. 
-{@PAL}      Great! As you can see, another contract has been added. 
-{@PAL}      This contract requires more advanced materials. 
-{@PAL}      It'll require more work, but it'll have a larger payout! 
-{@Player}   Good to know. 
-{@PAL}      Let's get productive Captain!
-
 
 ::BeforeSupplyChainCh6
 @trigger    OnOverarchingLoaded
@@ -29,26 +22,21 @@
 @cutscene 
 @once 
 
-//#region Germanium Introduction
 {@Xavier}   Hey... uh. What's your name?
 {@Player}   Locke. 
 {@Xavier}   Locke. Right. Listen, got something for you. 
 {@Xavier}   Frontier's been tinkering around with autonomous workforces for a couple years. 
 {@Xavier}   And you'll never guess which sector is seeing it's first implementation. 
-{@Player}   Yours?
-{@Xavier}   You're looking at the first autonomous station owner. 
-{@Xavier}   Productivity gonna go through the roof! Our marigins are expected to exceed this next quarter. 
-{@Xavier}   And we will be expecting your business.
+{@Player}   ...yours.
+{@Xavier}   Productivity gonna go through the roof! Our marigins are expected to boom this next quarter. 
 {@Player}   Wait, so what happened to the workers? 
-{@Xavier}   What? The humans? Oh. 
-{@Xavier}   We've... reassigned them. 
+{@Xavier}   They've been... reassigned. 
 {@Xavier}   Telling you, the only people needed will be people like us. 
 {@Player}   Like us? 
 {@Xavier}   Yeah, managers of autonomous workforces. 
 {@Xavier}   Corporate's expecting us to up our cooperation percentage. 
-{@Xavier}   So don't dissapoint. Expect your business soon. 
+{@Xavier}   So don't dissapoint. Expecting your business soon. 
 //hang up tone
 {@Player}   ...does Frontier want to make all fabrication autonomous? 
 
 
-//TEST
