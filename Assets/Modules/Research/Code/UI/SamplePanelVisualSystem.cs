@@ -95,7 +95,7 @@ namespace SpaceFab.Research {
             }
 
             if (panel.AddObservationButton != null) {
-                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount == 0);
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible);
             }
 
             if (panel.AddPropertyButton != null) {

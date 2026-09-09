@@ -57,8 +57,9 @@ namespace SpaceFab.Research {
             if (contentComponents.Count == 0) {
                 return;
             }
-            
+
             WikiUtility.SelectTabById(wikiState, contentComponents[0], progressState, new StringHash32("Properties"));
+            WikiUtility.Open(wikiState);
         }
 
         // The context observations are stored under right now. The doping

@@ -5349,8 +5349,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id:
-    m_Source: research:add-observation-btn
-    m_HashValue: 3278974483
+    m_Source: research:add-property-btn
+    m_HashValue: 3598367016
   RectTransform: {fileID: 1769054415}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 0}
