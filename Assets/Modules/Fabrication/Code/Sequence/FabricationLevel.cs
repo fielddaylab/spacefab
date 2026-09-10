@@ -22,5 +22,21 @@ namespace SpaceFab.Fabrication.Sequence
 
         [SerializeField] private int m_PatternIndex;
         public int PatternIndex => m_PatternIndex;
+
+        public int GetPatternIndex(SequenceState sequence)
+        {
+            int currStep = sequence.CurrentStepIndex;
+            SequenceChunk chunk = sequence.Level.Sequence.Steps[currStep].Chunk;
+
+            switch (chunk)
+            {
+                case SequenceChunk.N:
+                    return 0;
+                case SequenceChunk.P:
+                    return 1;
+                default:
+                    return 2;
+            }
+        }
     }
 }

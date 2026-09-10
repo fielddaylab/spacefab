@@ -70,7 +70,9 @@ namespace SpaceFab.Fabrication.Microgames
             state.SputterUI.SetActive(true);
 
             // Set pattern
-            int patternIndex = sequence.Level.PatternIndex;
+            // int patternIndex = sequence.Level.PatternIndex;
+            int patternIndex = sequence.Level.GetPatternIndex(sequence);
+
             Find.GlobalAsset(out MicrogameStationConfig config);
             state.SputterPattern = GameObject.Instantiate(config.SputterPatterns[patternIndex], state.SputterUI.transform).GetComponent<SputterPatternData>();
             state.SputterPattern.SetPatternData(state.ProjectilePrefab.Sprite.bounds.size.x);
