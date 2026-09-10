@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace SpaceFab {
     public sealed class ContractRequirementSubRow : MonoBehaviour {
-        public const int MaxSlots = 7;
+        public const int MaxSlots = 4;
 
         public CursorHint Cursor;
 
@@ -32,7 +32,7 @@ namespace SpaceFab {
     }
 
     static public partial class ContractUIUtility {
-        static public unsafe void AssignSubRowData(ContractRequirementSubRow row, int materialCount) {
+        static public unsafe void AssignSubRowCount(ContractRequirementSubRow row, int materialCount) {
             Assert.True(row.SlotConnections.Length == 0 || row.SlotConnections.Length == row.Slots.Length);
             for(int i = 0; i < row.Slots.Length; i++) {
                 row.Slots[i].enabled = i < materialCount;
