@@ -295,7 +295,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8720449552181856173, guid: edabe887b5f73f740b6e7b859b8c73f5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -96
+      value: -48
       objectReference: {fileID: 0}
     - target: {fileID: 8720449552181856173, guid: edabe887b5f73f740b6e7b859b8c73f5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -341,6 +341,10 @@ PrefabInstance:
     - target: {fileID: 125947878226729235, guid: 560c96e4f30feb74390668ffcaa060e5, type: 3}
       propertyPath: m_Name
       value: Hypothesis Requirement Row (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 125947878226729235, guid: 560c96e4f30feb74390668ffcaa060e5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7511319893351415252, guid: 560c96e4f30feb74390668ffcaa060e5, type: 3}
       propertyPath: m_Pivot.x

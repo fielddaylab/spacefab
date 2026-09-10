@@ -20,10 +20,14 @@ MonoBehaviour:
   m_omitFromSupplyRequirements: []
   m_title: NAND
   m_description: This is where the contract is described
-  m_client: '[Client Name]'
+  m_client:
+    m_Source: cm
+    m_HashValue: 1680451373
   m_payout: 15
   m_expectedDuration: 6
   m_expectedProfit: 6
+  m_contractType: 2
+  m_difficulty: 2
   m_unlocksBigBattery: 0
   StreamedPack:
     m_HashValue: 3712198030

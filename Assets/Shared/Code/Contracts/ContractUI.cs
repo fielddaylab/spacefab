@@ -10,12 +10,33 @@ namespace SpaceFab {
     {
         public TMP_Text Title;
         public TMP_Text Description;
+
+        [Header("Type")]
+        public Graphic[] TypeBackground;
+        public Graphic[] TypeOutline;
+        public TMP_Text TypeLabel;
+        public Image TypeSprite;
+        public Image TypeSpriteSparkles;
+
+        [Header("Difficulty")]
+        public Graphic DifficultyBackground;
+        public TMP_Text DifficultyLabel;
+
+        [Header("Client")]
+        public TMP_Text ClientText;
+        public Image ClientIcon;
+
+        [Header("Requirements")]
         public ContractRequirementTable Requirements;
 
+        [Header("Stats")]
         public Image[] TimeIndicators;
         public Image[] RevenueIndicators;
 
+        [Header("Buttons")]
         public DynamicButton SelectContractButton;
+        
+        [Header("Animated")]
         public GameObject ApprovedStamp;
         public Image SignatureImage;
 
@@ -61,6 +82,8 @@ namespace SpaceFab {
     {
         public static void LoadContractData(ContractUI ui, int chapterIndex, ContractDef def)
         {
+            Find.GlobalAsset(out ContractUIAssetSet assets);
+
             if (def == null)
             {
                 ui.Title.SetText(string.Empty);
@@ -74,6 +97,26 @@ namespace SpaceFab {
                 ui.ShowDuration(def.ExpectedDuration());
                 ui.ShowProfit(def.Payout());
                 ui.ShowRequirement(chapterIndex, def);
+
+                var clientConfig = ContractUIUtility.GetClientInfo(assets, def.ClientId());
+                var difficultyConfig = assets.Difficulties[(int)def.Difficulty()];
+                var typeConfig = assets.Types[(int)def.ContractClass()];
+
+                ui.ClientText.SetText(clientConfig.Text);
+                ui.ClientIcon.sprite = clientConfig.Icon;
+
+                ui.DifficultyBackground.color = difficultyConfig.Background;
+                ui.DifficultyLabel.SetText(difficultyConfig.Label);
+
+                ui.TypeSpriteSparkles.enabled = typeConfig.ShowSparkles;
+                ui.TypeSprite.sprite = typeConfig.Icon;
+                foreach (var bg in ui.TypeBackground) {
+                    bg.color = typeConfig.Background;
+                }
+                foreach (var outline in ui.TypeOutline) {
+                    outline.color = typeConfig.Outline;
+                }
+                ui.TypeLabel.SetText(typeConfig.Label);
             }
         }
     }
