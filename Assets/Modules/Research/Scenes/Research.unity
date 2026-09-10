@@ -3175,6 +3175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FoundValidSolution: 0
+  DebugLevelData: {fileID: 0}
 --- !u!4 &854215820
 Transform:
   m_ObjectHideFlags: 0
@@ -7231,7 +7232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1821951250683658829, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2311835857094499173, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_Name
@@ -7369,6 +7370,14 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 994501228}
+    - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
+      propertyPath: m_PlaneDistance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1461900991
+      objectReference: {fileID: 0}
     - target: {fileID: 5111093539282069938, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
