@@ -193,7 +193,26 @@ namespace SpaceFab.Fabrication.Sequence
 
             // Wafer images: ConvertFrom + ConvertToA always set; ConvertToB only if authored.
             card.WaferState1.sprite = waferLookup.GetSprite(entry.ConvertFrom);
-            card.WaferState2Base.sprite = waferLookup.GetSprite(entry.ConvertToA);
+            if (entry.ConvertToA.Equals("dopant-np"))
+            {
+                switch (step.Chunk)
+                {
+                    case SequenceChunk.N:
+                        card.WaferState2Base.sprite = waferLookup.GetSprite("dopant-n");
+                        break;
+                    case SequenceChunk.P:
+                        card.WaferState2Base.sprite = waferLookup.GetSprite("dopant-np");
+                        break;
+                    case SequenceChunk.Metal:
+                        card.WaferState2Base.sprite = waferLookup.GetSprite("metal");
+                        break;
+                }
+            }
+            else
+            {
+                card.WaferState2Base.sprite = waferLookup.GetSprite(entry.ConvertToA);
+            }
+
             if (entry.ConvertToB.IsEmpty) {
                 card.WaferState2Overlay.enabled = false;
             } else {

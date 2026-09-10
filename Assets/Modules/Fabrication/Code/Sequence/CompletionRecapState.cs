@@ -195,7 +195,26 @@ namespace SpaceFab.Fabrication.Sequence
             if (stepIndex > justCompletedIndex) {
                 card.Wafer.sprite = waferLookup.GetSprite(unknownStepId);
             } else {
-                card.Wafer.sprite = waferLookup.GetSprite(entry.ConvertToA);
+                SequenceChunk chunk = steps[stepIndex].Chunk;
+                if (entry.ConvertToA.Equals("dopant-np"))
+                {
+                    switch (chunk)
+                    {
+                        case SequenceChunk.N:
+                            card.Wafer.sprite = waferLookup.GetSprite("dopant-n");
+                            break;
+                        case SequenceChunk.P:
+                            card.Wafer.sprite = waferLookup.GetSprite("dopant-np");
+                            break;
+                        case SequenceChunk.Metal:
+                            card.Wafer.sprite = waferLookup.GetSprite("metal");
+                            break;
+                    }
+                }
+                else
+                {
+                    card.Wafer.sprite = waferLookup.GetSprite(entry.ConvertToA);
+                }
             }
             card.Label.text = entry.InstructionLabel;
         }
