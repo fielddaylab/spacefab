@@ -29,6 +29,8 @@ namespace SpaceFab {
 
         [Header("Children")]
         public GameObject[] VirtualChildren;
+
+        [NonSerialized] public MaterialPropertyLabel DisplayedProperty;
     }
 
     static public partial class ContractUIUtility {

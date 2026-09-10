@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Data;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
 using SpaceFab.Save;
@@ -25,7 +26,7 @@ namespace SpaceFab.Research
         public bool IsValid { get { return !MaterialId.IsEmpty; } }
     }
 
-    public class ResearchMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
+    public class ResearchMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState, IEditorOnlyData
     {
         #region Saved State
 
@@ -73,6 +74,9 @@ namespace SpaceFab.Research
 
         #endregion // Runtime State
 
+        [Header("-- DEBUGGING --")]
+        public ContractDef DebugLevelData;
+
         #region Interfaces
 
         // IRegistrationCallbacks
@@ -101,6 +105,14 @@ namespace SpaceFab.Research
         public override void MergeState() {
             ResearchStateUtility.CommitToPlayerProgress(this, Find.State<PlayerProgressState>());
         }
+
+#if UNITY_EDITOR
+
+        void IEditorOnlyData.ClearEditorData(bool isDevelopmentBuild) {
+            DebugLevelData = null;
+        }
+
+#endif // UNITY_EDITOR
 
         #endregion // Interfaces
     }

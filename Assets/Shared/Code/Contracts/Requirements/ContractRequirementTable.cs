@@ -81,6 +81,12 @@ namespace SpaceFab {
             table.Rows.Clear();
             table.Columns.Clear();
 
+            if (contract == null) {
+                table.UsedDefaultRows = 0;
+                table.UsedExtendedRow = false;
+                return;
+            }
+
             ContractRequirementTable.PropertyLabelList conductorProps = default;
             ContractRequirementTable.PropertyLabelList insulatorProps = default;
             ContractRequirementTable.PropertyLabelList semiconductorProps = default;
@@ -320,7 +326,7 @@ namespace SpaceFab {
                     labelBuilder.Builder.Clear();
                     subLabelBuilder.Builder.Clear();
 
-                    GenerateLabel(rowData.Properties, labelBuilder, subLabelBuilder, out Sprite icon);
+                    GenerateLabel(rowData.Properties, labelBuilder, subLabelBuilder, out MaterialPropertyLabel baseProperty, out Sprite icon);
                     AssignSubRowLabel(subRowVisuals, labelBuilder, subLabelBuilder, icon, table.SubLabelOffsetY);
 
                     int usedDopantRows = 0;
@@ -361,7 +367,7 @@ namespace SpaceFab {
             table.Sizer.VerticalLayout(table.Spacing, 0);
         }
 
-        static private unsafe void GenerateLabel(ContractRequirementTable.PropertyLabelList properties, StringBuilder labelBuilder, StringBuilder subLabelBuilder, out Sprite icon) {
+        static private unsafe void GenerateLabel(ContractRequirementTable.PropertyLabelList properties, StringBuilder labelBuilder, StringBuilder subLabelBuilder, out MaterialPropertyLabel basePropertyOutput, out Sprite icon) {
             labelBuilder.Clear();
             subLabelBuilder.Clear();
 
@@ -402,6 +408,8 @@ namespace SpaceFab {
                     }
                 }
             }
+
+            basePropertyOutput = baseLabel;
 
             switch (baseLabel) {
                 case MaterialPropertyLabel.Conductor: {
@@ -548,5 +556,10 @@ namespace SpaceFab {
         }
 
         #endregion // Updates
+
+        #region Wiki Hooks
+
+        
+        #endregion // Wiki Hooks
     }
 }
