@@ -114,7 +114,7 @@ namespace SpaceFab.Fabrication.Sequence
             //    the wafer shows; the background "stamps" in during Stage 2. The slot's transform
             //    and CanvasGroup are reset here so a re-entrant call lands in a clean state.
             CompletionRecapCard centerCard = recapState.CardSlots[2];
-            PopulateRecapCard(centerCard, steps, stepIndices[2], justCompletedIndex, lookup, waferLookup, recapState.UnknownStepId);
+            PopulateRecapCard(centerCard, steps, stepIndices[2], justCompletedIndex, lookup, waferLookup, recapState.UnknownStepId, sequenceState);
             if (centerCard.CardBackground != null) {
                 centerCard.CardBackground.enabled = false;
             }
@@ -151,7 +151,7 @@ namespace SpaceFab.Fabrication.Sequence
                 if (!slotVisible[i]) continue;
 
                 CompletionRecapCard card = recapState.CardSlots[i];
-                PopulateRecapCard(card, steps, stepIndices[i], justCompletedIndex, lookup, waferLookup, recapState.UnknownStepId);
+                PopulateRecapCard(card, steps, stepIndices[i], justCompletedIndex, lookup, waferLookup, recapState.UnknownStepId, sequenceState);
                 if (card.CardBackground != null) {
                     card.CardBackground.enabled = true;
                 }
@@ -186,18 +186,39 @@ namespace SpaceFab.Fabrication.Sequence
         // Sets the wafer image and label on a card. For steps after justCompletedIndex (future),
         // the wafer image is resolved from the mystery WaferStepUILookup entry id so the player
         // sees a "?" placeholder; the label still shows (gives a preview of upcoming work).
-        public static void PopulateRecapCard(CompletionRecapCard card, FabricationStep[] steps, int stepIndex, int justCompletedIndex, SequenceLookup lookup, WaferStepUILookup waferLookup, SerializedHash32 unknownStepId)
+        public static void PopulateRecapCard(CompletionRecapCard card, FabricationStep[] steps, int stepIndex, int justCompletedIndex, SequenceLookup lookup, WaferStepUILookup waferLookup, SerializedHash32 unknownStepId, SequenceState sequence)
         {
             if (card == null) {
                 return;
             }
             SequenceStepEntry entry = lookup.GetStep(steps[stepIndex].StepId);
+            bool isGlitched  = SequenceVisualsUtility.GetRuntime(sequence, stepIndex).IsGlitched;
             if (stepIndex > justCompletedIndex) {
                 card.Wafer.sprite = waferLookup.GetSprite(unknownStepId);
+                card.Label.text = isGlitched ? "?" : entry.InstructionLabel;
             } else {
-                card.Wafer.sprite = waferLookup.GetSprite(entry.ConvertToA);
+                SequenceChunk chunk = steps[stepIndex].Chunk;
+                if (entry.ConvertToA.Equals("dopant-np"))
+                {
+                    switch (chunk)
+                    {
+                        case SequenceChunk.N:
+                            card.Wafer.sprite = waferLookup.GetSprite("dopant-n");
+                            break;
+                        case SequenceChunk.P:
+                            card.Wafer.sprite = waferLookup.GetSprite("dopant-np");
+                            break;
+                        case SequenceChunk.Metal:
+                            card.Wafer.sprite = waferLookup.GetSprite("metal");
+                            break;
+                    }
+                }
+                else
+                {
+                    card.Wafer.sprite = waferLookup.GetSprite(entry.ConvertToA);
+                }
+                card.Label.text = entry.InstructionLabel;
             }
-            card.Label.text = entry.InstructionLabel;
         }
 
         // Computes a slot's landing localPosition: (slotIndex - 2) * SlotSpacing. Slot 2 (center)

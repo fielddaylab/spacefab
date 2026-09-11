@@ -131,6 +131,17 @@ namespace SpaceFab
             return LoadChapterData(chapterState, chapterState.ChapterIndex);
         }
 
+        static public float GetGlitchChance(ChapterState chapterState)
+        {
+            ChapterDef def = chapterState.ChapterDefinition;
+            int index = chapterState.LastSelectedContractIndex;
+            if (def == null || index < 0 || index >= def.GlitchChances.Length)
+            {
+                return 0f;
+            }
+            return def.GlitchChances[index];
+        }
+
         public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, ContractState contractState, MinigameSaveStates saveStates)
         {
             // save elapsed cycles and funds
