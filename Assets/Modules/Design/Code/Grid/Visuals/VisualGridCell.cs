@@ -45,7 +45,7 @@ namespace SpaceFab.Design
                 : FlowState.Empty;
             // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
-            visualCell.FlowIndicator.sortingOrder += 50;
+             visualCell.FlowIndicator.sortingOrder += 1;
 
             switch (flow)
             {

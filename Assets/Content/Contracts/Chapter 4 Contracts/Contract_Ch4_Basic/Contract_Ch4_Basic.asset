@@ -20,10 +20,14 @@ MonoBehaviour:
   m_omitFromSupplyRequirements: []
   m_title: Double Diode Contract
   m_description: This is where the contract is described
-  m_client: '[Client Name]'
+  m_client:
+    m_Source: cm
+    m_HashValue: 1680451373
   m_payout: 12
   m_expectedDuration: 4
   m_expectedProfit: 3
+  m_contractType: 0
+  m_difficulty: 0
   m_unlocksBigBattery: 0
   StreamedPack:
     m_HashValue: 312831301
