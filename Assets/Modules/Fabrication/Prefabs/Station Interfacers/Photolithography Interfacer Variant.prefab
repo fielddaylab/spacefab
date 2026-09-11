@@ -200,7 +200,7 @@ SpriteRenderer:
   m_Size: {x: 7.41, y: 7.04}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &8455481839558968086
@@ -284,7 +284,7 @@ SpriteRenderer:
   m_Size: {x: 7.41, y: 7.04}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &8760312411971624932
@@ -461,7 +461,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8755272116839694844, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_text
-      value: ALIGNER
+      value: MASK ALIGNER
       objectReference: {fileID: 0}
     - target: {fileID: 8779092490790572546, guid: 02114744d3877ac478226a8e5117e5e5, type: 3}
       propertyPath: m_Sprite

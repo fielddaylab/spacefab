@@ -17,12 +17,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2f285b257626f4df1a1a7f21403d89c8, type: 2}
   - {fileID: 11400000, guid: 78093ac5e7fad463894f49b0b629d47c, type: 2}
   m_omitFromSupplyRequirements: []
-  m_title: Depletion II Contract
+  m_title: Depletion II
   m_description: This is where the contract is described
-  m_client: '[Client Name]'
+  m_client:
+    m_Source: cm
+    m_HashValue: 1680451373
   m_payout: 12
-  m_expectedDuration: 6
+  m_expectedDuration: 5
   m_expectedProfit: 3
+  m_contractType: 0
+  m_difficulty: 0
+  m_unlocksBigBattery: 0
   StreamedPack:
     m_HashValue: 689174327
   AssetSet:

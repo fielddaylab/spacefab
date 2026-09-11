@@ -5,6 +5,7 @@ using FieldDay.HID;
 using FieldDay.Scripting;
 using FieldDay.UI;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -34,6 +35,7 @@ namespace SpaceFab.Research {
         public ResearchObservationChip HypothesisChip;
 
         public CursorHint AddObservationButton;
+        public CursorHint AddPropertyButton;
         public GameObject ChipPickerOverlay;
 
         // Scene-wired RectTransform under ChipPickerOverlay that pool-
@@ -102,6 +104,11 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Register(HandleAddObservation);
             }
+
+            if (AddPropertyButton != null) {
+                AddPropertyButton.onClick.Register(HandleAddProperty);
+            }
+
             if (VerifyButton != null) {
                 VerifyButton.onClick.Register(HandleSubmit);
             }
@@ -139,6 +146,11 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Deregister(HandleAddObservation);
             }
+
+            if (AddPropertyButton != null) {
+                AddPropertyButton.onClick.Deregister(HandleAddProperty);
+            }
+
             if (VerifyButton != null) {
                 VerifyButton.onClick.Deregister(HandleSubmit);
             }
@@ -160,6 +172,12 @@ namespace SpaceFab.Research {
             // observations. The player can also reach it by browsing the
             // wiki; adds work either way.
             ResearchWikiInputUtility.OpenObservationPageForActiveChamber(Find.State<ChamberInterfacerState>());
+        }
+
+        private void HandleAddProperty() {
+            ResearchUIInputUtility.RequestAddObservation(Find.State<ResearchUIInputState>());
+            // Shortcut to the wiki page listing the material properties.
+            ResearchWikiInputUtility.OpenPropertyPage(Find.State<PlayerProgressState>(), Find.State<WikiState>());
         }
 
         // Picker chip click. Public so ObservationPickerLoadUtility can

@@ -78,6 +78,7 @@ namespace SpaceFab.Overarching {
                 layoutState.SelectionContractUI.SignatureImage.fillAmount = chapterState.LastSelectedContractIndex == ContractSelectUtility.ToRawIndex(selectState, selectState.SelectedContractIndex) ? 1 : 0;
 
                 ContractUtility.LoadContractData(layoutState.SelectionContractUI,
+                    chapterState.ChapterIndex,
                     ContractUtility.GetDefinition(ContractSelectUtility.GetContractId(selectState, chapterState, selectState.SelectedContractIndex)));
                 selectState.SelectedContractIndexChanged = false;
             }

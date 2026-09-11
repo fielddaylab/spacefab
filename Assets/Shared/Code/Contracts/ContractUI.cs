@@ -10,13 +10,33 @@ namespace SpaceFab {
     {
         public TMP_Text Title;
         public TMP_Text Description;
-        public Transform RequirementParent;
-        public ResearchObservationChip RequirementElement;
 
+        [Header("Type")]
+        public Graphic[] TypeBackground;
+        public Graphic[] TypeOutline;
+        public TMP_Text TypeLabel;
+        public Image TypeSprite;
+        public Image TypeSpriteSparkles;
+
+        [Header("Difficulty")]
+        public Graphic DifficultyBackground;
+        public TMP_Text DifficultyLabel;
+
+        [Header("Client")]
+        public TMP_Text ClientText;
+        public Image ClientIcon;
+
+        [Header("Requirements")]
+        public ContractRequirementTable Requirements;
+
+        [Header("Stats")]
         public Image[] TimeIndicators;
         public Image[] RevenueIndicators;
 
+        [Header("Buttons")]
         public DynamicButton SelectContractButton;
+        
+        [Header("Animated")]
         public GameObject ApprovedStamp;
         public Image SignatureImage;
 
@@ -29,9 +49,6 @@ namespace SpaceFab {
             }
             for (int i = 0; i < RevenueIndicators.Length; i++) {
                 RevenueIndicators[i].sprite = spriteSet.RevenueEmpty;
-            }
-            for (int i = 0; i < RequirementParent.childCount; i++) {
-                Destroy(RequirementParent.GetChild(i).gameObject);
             }
         }
 
@@ -53,30 +70,20 @@ namespace SpaceFab {
             }
         }
 
-        public void ShowRequirement(Materials.MaterialPropertyCheck[] requiredProperties)
+        public void ShowRequirement(int chapterIndex, ContractDef contract)
         {
-            foreach (var property in requiredProperties)
-            {
-                string materialName = MaterialPropertyLabelDisplay.GetPropertyName(property.Label);
-                materialName = char.ToUpper(materialName[0]) + materialName[1..].ToLower();
-                
-                RequirementElement.SetState(
-                    materialName,
-                    ChipFillState.Filled,
-                    false,
-                    Materials.MaterialObservationChamberLookup.GetChamberType(property.Label)
-                );
-                GameObject element = Instantiate(RequirementElement.gameObject);
-                element.transform.SetParent(RequirementParent);
-                element.transform.localScale = Vector3.one;
-            }
+            ContractUIUtility.BuildRequirementData(Requirements, chapterIndex, contract);
+            ContractUIUtility.InitializeVisuals(Requirements);
+            ContractUIUtility.UpdateVisualsWithCompletion(Requirements, Find.State<PlayerProgressState>().MaterialProperties);
         }
     }
 
     public static partial class ContractUtility
     {
-        public static void LoadContractData(ContractUI ui, ContractDef def)
+        public static void LoadContractData(ContractUI ui, int chapterIndex, ContractDef def)
         {
+            Find.GlobalAsset(out ContractUIAssetSet assets);
+
             if (def == null)
             {
                 ui.Title.SetText(string.Empty);
@@ -89,7 +96,27 @@ namespace SpaceFab {
                 ui.ClearElements();
                 ui.ShowDuration(def.ExpectedDuration());
                 ui.ShowProfit(def.Payout());
-                ui.ShowRequirement(def.RequiredMaterialProperties());
+                ui.ShowRequirement(chapterIndex, def);
+
+                var clientConfig = ContractUIUtility.GetClientInfo(assets, def.ClientId());
+                var difficultyConfig = assets.Difficulties[(int)def.Difficulty()];
+                var typeConfig = assets.Types[(int)def.ContractClass()];
+
+                ui.ClientText.SetText(clientConfig.Text);
+                ui.ClientIcon.sprite = clientConfig.Icon;
+
+                ui.DifficultyBackground.color = difficultyConfig.Background;
+                ui.DifficultyLabel.SetText(difficultyConfig.Label);
+
+                ui.TypeSpriteSparkles.enabled = typeConfig.ShowSparkles;
+                ui.TypeSprite.sprite = typeConfig.Icon;
+                foreach (var bg in ui.TypeBackground) {
+                    bg.color = typeConfig.Background;
+                }
+                foreach (var outline in ui.TypeOutline) {
+                    outline.color = typeConfig.Outline;
+                }
+                ui.TypeLabel.SetText(typeConfig.Label);
             }
         }
     }

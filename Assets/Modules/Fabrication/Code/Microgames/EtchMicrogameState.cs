@@ -60,7 +60,9 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out EtchMicrogameState state, out SequenceState sequence);
 
             // Setup pattern
-            int patternIndex = sequence.Level.PatternIndex;
+            // int patternIndex = sequence.Level.PatternIndex;
+            int patternIndex = sequence.Level.GetPatternIndex(sequence);
+
             Find.GlobalAsset(out MicrogameStationConfig config);
             state.Pattern = GameObject.Instantiate(config.EtchPatterns[patternIndex], state.EtchUI.transform).GetComponent<EtchPatternData>();
             
