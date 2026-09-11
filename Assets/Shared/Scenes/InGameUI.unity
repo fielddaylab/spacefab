@@ -371,6 +371,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8644128702167178304, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9014342196634986766, guid: 4eafe552a64c05e49861d4aa4afbd136, type: 3}
       propertyPath: m_Name
       value: WikiCanvas
