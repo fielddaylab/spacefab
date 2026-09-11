@@ -108,7 +108,14 @@ namespace SpaceFab.Design
             }
             if (config.TransferType != TransferType.NONE)
             {
-                TransferEraseable = false; // pre-loaded nodes not erasable
+                if (config.TransferType == TransferType.Implicit && config.SubtypeLabel == 0)
+                {
+                    Debug.LogError("[CellConfig] config has an implicit transfer type but no subtype!");
+                }
+                else
+                {
+                    TransferEraseable = false; // pre-loaded nodes not erasable
+                }
             }
             TransferType = config.TransferType;
 
