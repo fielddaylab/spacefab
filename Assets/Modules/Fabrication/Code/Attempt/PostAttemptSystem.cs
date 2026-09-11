@@ -32,7 +32,8 @@ namespace SpaceFab.Fabrication {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ModeState modeState,
-                out ResultDisplayState displayState
+                out ResultDisplayState displayState,
+                out SequenceState sequenceState
                 );
 
             Find.State(
@@ -53,7 +54,17 @@ namespace SpaceFab.Fabrication {
 
                 // Record the run on the live minigame state. ExportState copies this into
                 // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
-                fabState.TotalCycles = Mathf.CeilToInt(TimeStateUtility.GetElapsed(timeState) / secondsPerCycle);
+
+                // TODO: set exact thresholds for cycle buckets
+                int stationNum = sequenceState.StepRuntime.Length;
+                float bucket1 = stationNum * 13f;
+                float bucket2 = stationNum * 20f;
+
+                float elapsedTime = TimeStateUtility.GetElapsed(timeState);
+                if (elapsedTime <= bucket1) { fabState.TotalCycles = 2; }
+                else if (elapsedTime <= bucket2) { fabState.TotalCycles = 3; }
+                else { fabState.TotalCycles = 4; }
+
                 fabState.Precision = accuracy;
 
                 // display results
