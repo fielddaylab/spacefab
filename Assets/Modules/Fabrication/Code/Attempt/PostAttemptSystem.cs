@@ -47,15 +47,9 @@ namespace SpaceFab.Fabrication {
 
             if (modeState.ChangedModeThisFrame)
             {
-                // save total cycles
-                float time = TimeStateUtility.GetElapsed(timeState);
-                float secondsPerCycle = 30;
-                int cycles = (int)Mathf.Ceil(time / secondsPerCycle);
-                float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
-
                 // Record the run on the live minigame state. ExportState copies this into
                 // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
-
+                // compute total cycles based on buckets
                 int stationNum = sequenceState.StepRuntime.Length;
                 FabricationSequence fabSequence = sequenceState.Level.Sequence;
                 float Coefficient = contractState.ContractAssets.fabCoefficient;
@@ -67,7 +61,8 @@ namespace SpaceFab.Fabrication {
                 if (elapsedTime <= bucket1) { fabState.TotalCycles = 2; }
                 else if (elapsedTime <= bucket2) { fabState.TotalCycles = 3; }
                 else { fabState.TotalCycles = 4; }
-
+                
+                float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
                 fabState.Precision = accuracy;
 
                 // display results
