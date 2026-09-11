@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 using UnityEngine;
 
 namespace SpaceFab.Research {
@@ -35,12 +36,13 @@ namespace SpaceFab.Research {
         private static void ProcessWork(float deltaTime) {
             Find.State(
                 out ChamberInterfacerState interfacerState,
-                out HypothesisViewModelState hypoVm
+                out HypothesisViewModelState hypoVm,
+                out WikiState wikiState
             );
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
-                SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState);
+                SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState, wikiState);
             }
 
             // Onboarding hook: fire OnVerifyButtonShown the frame AFTER the verify button becomes
@@ -72,7 +74,8 @@ namespace SpaceFab.Research {
             ResearchSamplePanel panel,
             ChamberInterfacerState interfacerState,
             HypothesisViewModelState hypoVm,
-            ResearchMinigameState researchState
+            ResearchMinigameState researchState,
+            WikiState wikiState
         ) {
             if (panel == null) {
                 return;
@@ -95,7 +98,7 @@ namespace SpaceFab.Research {
             }
 
             if (panel.AddObservationButton != null) {
-                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible);
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !wikiState.Expanded);
             }
 
             if (panel.AddPropertyButton != null) {
