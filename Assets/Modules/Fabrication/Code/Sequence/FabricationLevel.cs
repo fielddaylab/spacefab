@@ -31,11 +31,11 @@ namespace SpaceFab.Fabrication.Sequence
             switch (chunk)
             {
                 case SequenceChunk.N:
-                    return 0;
-                case SequenceChunk.P:
                     return 1;
-                default:
+                case SequenceChunk.P:
                     return 2;
+                default:
+                    return 0;
             }
         }
     }

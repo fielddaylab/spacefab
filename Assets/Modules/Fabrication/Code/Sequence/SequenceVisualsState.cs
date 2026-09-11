@@ -110,7 +110,7 @@ namespace SpaceFab.Fabrication.Sequence
                 PopulateCard(visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
                 SetCardVisible(visualsState.FrontCard, true);
-                SetPanelVisible(visualsState, runtime.IsGlitched);
+                SetPanelVisible(visualsState, !runtime.IsGlitched);
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
             }
@@ -142,7 +142,7 @@ namespace SpaceFab.Fabrication.Sequence
             StepRuntimeData incomingRuntime = GetRuntime(sequenceState, sequenceState.CurrentStepIndex);
             SetCardVisible(visualsState.BackCard, true);
             SetCardVisible(visualsState.FrontCard, false);
-            SetPanelVisible(visualsState, incomingRuntime.IsGlitched);
+            SetPanelVisible(visualsState, !incomingRuntime.IsGlitched);
 
             yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
 
@@ -231,7 +231,7 @@ namespace SpaceFab.Fabrication.Sequence
 
         // Looks up the per-step runtime data (IsGlitched, WasCheckpointReached) for the given step
         // index, returning default if StepRuntime is unallocated or out of range.
-        private static StepRuntimeData GetRuntime(SequenceState sequenceState, int stepIndex)
+        public static StepRuntimeData GetRuntime(SequenceState sequenceState, int stepIndex)
         {
             if (sequenceState.StepRuntime == null || stepIndex < 0 || stepIndex >= sequenceState.StepRuntime.Length) {
                 return default;
