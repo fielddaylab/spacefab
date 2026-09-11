@@ -83,3 +83,5 @@ MonoBehaviour:
       StepPrecisions: []
       RecordedStepCount: 0
     IsCheckpoint: 0
+  bucketThreshold1: 13
+  bucketthreshold2: 20

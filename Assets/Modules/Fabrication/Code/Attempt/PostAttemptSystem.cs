@@ -33,7 +33,8 @@ namespace SpaceFab.Fabrication {
             Find.State(
                 out ModeState modeState,
                 out ResultDisplayState displayState,
-                out SequenceState sequenceState
+                out SequenceState sequenceState,
+                out ContractState contractState
                 );
 
             Find.State(
@@ -55,10 +56,12 @@ namespace SpaceFab.Fabrication {
                 // Record the run on the live minigame state. ExportState copies this into
                 // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
 
-                // TODO: set exact thresholds for cycle buckets
                 int stationNum = sequenceState.StepRuntime.Length;
-                float bucket1 = stationNum * 13f;
-                float bucket2 = stationNum * 20f;
+                FabricationSequence fabSequence = sequenceState.Level.Sequence;
+                float Coefficient = contractState.ContractAssets.fabCoefficient;
+
+                float bucket1 = stationNum * fabSequence.bucketThreshold1 * Coefficient;
+                float bucket2 = stationNum * fabSequence.bucketthreshold2 * Coefficient;
 
                 float elapsedTime = TimeStateUtility.GetElapsed(timeState);
                 if (elapsedTime <= bucket1) { fabState.TotalCycles = 2; }

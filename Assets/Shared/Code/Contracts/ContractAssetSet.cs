@@ -24,5 +24,8 @@ namespace SpaceFab
         // Sequence definition for the Fabrication minigame under this contract. Populated into
         // SequenceState on minigame entry via FabricationMinigameState.ImportState.
         public FabricationLevel FabricationLevel;
+
+        // For adjustment of fab cycle bucket thresholds per contract asset.
+        public float fabCoefficient = 1f; // set default to 1
     }
 }

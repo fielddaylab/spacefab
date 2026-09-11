@@ -44,5 +44,12 @@ namespace SpaceFab.Fabrication.Sequence
     {
         [SerializeField] private FabricationStep[] m_Steps;
         public FabricationStep[] Steps => m_Steps;
+
+
+        // Time thresholds for excellent & great, great & good fabrication total cycles. Each value
+        // represents the average time for every station
+        // TODO: set exact thresholds for cycle buckets
+        public float bucketThreshold1 = 13f;
+        public float bucketthreshold2 = 20f;
     }
 }
