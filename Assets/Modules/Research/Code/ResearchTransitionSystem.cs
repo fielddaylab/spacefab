@@ -46,7 +46,8 @@ namespace SpaceFab.Research {
                 );
             Find.State(
                 out HypothesisViewModelState hypothesisViewModelState,
-                out ContractState contractState
+                out ContractState contractState,
+                out ResearchContractRequirementsPanelState requirementsPanel
                 );
 
             researchState.AvailableMaterials.Clear();
@@ -81,6 +82,11 @@ namespace SpaceFab.Research {
             hypothesisViewModelState.HypothesisSelected = false;
             hypothesisViewModelState.HypothesisContext = StringHash32.Null;
             HypothesisViewModelUtility.RequestRebuild(hypothesisViewModelState);
+
+            // Initialize requirements display
+            ContractUIUtility.BuildRequirementData(requirementsPanel.Table, chapterState.ChapterIndex, contractState.ContractDefinition);
+            ContractUIUtility.InitializeVisuals(requirementsPanel.Table);
+            Positioning.SetHeightDelta(requirementsPanel.Bounds, requirementsPanel.Table.Sizer.LastSize.y + requirementsPanel.HeightPadding);
 
             // Init Battery Chamber. Instantiate the meter rig variant for
             // this save's unlock state under BatteryContainer, then prime

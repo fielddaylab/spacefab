@@ -6,6 +6,7 @@ using SpaceFab.Design;
 using SpaceFab.Materials;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -16,6 +17,7 @@ namespace SpaceFab
     {
         [Header("Contracts")]
         [AssetName(typeof(ContractDef))] public StringHash32[] AvailableContracts;
+        [SerializeField, Range(0f, 1f)] public float[] GlitchChances;
 
         [Header("Materials")]
         [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_availableMaterials")] public StringHash32[] AvailableMaterials;

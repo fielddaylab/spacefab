@@ -69,7 +69,6 @@ namespace SpaceFab.UI {
             if (contents.Count == 0) { return null; }
 
             WikiState wikiState = Find.State<WikiState>();
-            Debug.Log(contents[0].Tabs[wikiState.ActiveTabIndex].AssetId.ToDebugString());
             return contents[0].Tabs[wikiState.ActiveTabIndex].AssetId;
         }
     }

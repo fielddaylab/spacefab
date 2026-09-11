@@ -76,7 +76,8 @@ namespace SpaceFab.Fabrication.Microgames
             HintedCursor.Visibility = HintedCursor.VisiblityMode.Invisible;
 
             // setup IonPoints
-            int patternIndex = sequence.Level.PatternIndex;
+            // int patternIndex = sequence.Level.PatternIndex;
+            int patternIndex = sequence.Level.GetPatternIndex(sequence);
 
             Find.GlobalAsset(out MicrogameStationConfig config);
             state.IonPattern = GameObject.Instantiate(config.IonPatterns[patternIndex], state.PatternParent).GetComponent<IonPatternData>();

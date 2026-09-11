@@ -25,8 +25,7 @@ MonoBehaviour:
   - m_HashValue: 1163381446
   - m_HashValue: 3774176290
   - m_HashValue: 466928580
-  ExcludeFromResearch:
-  - m_HashValue: 1163381446
+  ExcludeFromResearch: []
   Script: {fileID: -1942890987711236906, guid: 7bda8ad110a964d4c801495d5137477c, type: 3}
   SkyboxMaterial: {fileID: 2100000, guid: 4e3dcd7423137994e8ded390696ecea2, type: 2}
   SkyboxRotation: 0

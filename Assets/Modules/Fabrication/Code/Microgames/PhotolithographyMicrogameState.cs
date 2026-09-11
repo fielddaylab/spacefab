@@ -59,7 +59,9 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out PhotolithographyMicrogameState state, out SequenceState sequence);
 
             // Set pattern sprites
-            int patternIndex = sequence.Level.PatternIndex;
+            // int patternIndex = sequence.Level.PatternIndex;
+            int patternIndex = sequence.Level.GetPatternIndex(sequence);
+
             Find.GlobalAsset(out MicrogameStationConfig config);
             state.PhotomaskSprite.sprite = config.PhotolithographyMasks[patternIndex];
             state.OutlineSprite.sprite = config.PhotolithographyOutlines[patternIndex];

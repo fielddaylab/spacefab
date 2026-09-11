@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2030232774
+CRC: 1750931404
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 75bbc8a6eeed49b52609173fe7d6a215
+    Hash: 877803648c0d17e8db753568e5e25f5e
   TypeTreeHash:
     serializedVersion: 2
     Hash: 69e0630b4927b6d1d89be8eb51c2d752
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 75bbc8a6eeed49b52609173fe7d6a215
+    Hash: 877803648c0d17e8db753568e5e25f5e
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -33,6 +33,8 @@ ClassTypes:
 SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.Dimensions
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Design.EdgeStateData
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Design.GridCellConfig
 - AssemblyName: Assembly-CSharp

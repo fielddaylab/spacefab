@@ -16,11 +16,13 @@ namespace SpaceFab
         // subtracts these. Match is by asset reference.
         [SerializeField] private MaterialPropertyCheck[] m_omitFromSupplyRequirements;
         [SerializeField] private string m_title;
-        [SerializeField] private string m_description;
-        [SerializeField] private string m_client;
+        [SerializeField, Multiline] private string m_description;
+        [SerializeField] private SerializedHash32 m_client;
         [SerializeField] private int m_payout;
         [SerializeField] private int m_expectedDuration;
         [SerializeField] private int m_expectedProfit;
+        [SerializeField] private ContractClass m_contractType;
+        [SerializeField] private ContractDifficulty m_difficulty;
 
         [SerializeField] private bool m_unlocksBigBattery; // whether Research unlocks the big battery
         [SerializeField] private bool m_unlocksThermalChamber;
@@ -34,12 +36,26 @@ namespace SpaceFab
         // public StringHash32[] RequiredResearchMaterials() { return m_requiredResearchMaterials; }
         public string Title() { return m_title; }
         public string Description() { return m_description; }
-        public string Client() { return m_client; }
+        public StringHash32 ClientId() { return m_client; }
         public int Payout() { return m_payout; }
         public int ExpectedDuration() { return m_expectedDuration; }
         public int ExpectedProfit() { return m_expectedProfit; }
+        public ContractClass ContractClass() { return m_contractType; }
+        public ContractDifficulty Difficulty() { return m_difficulty; }
         public bool UnlocksBigBattery() { return m_unlocksBigBattery; }
         public bool UnlocksThermalChamber() { return m_unlocksThermalChamber; }
         public bool UnlocksDopingChamber() { return m_unlocksDopingChamber; }
+    }
+
+    public enum ContractClass : byte {
+        Basic,
+        Materials,
+        Design
+    }
+
+    public enum ContractDifficulty : byte {
+        Low,
+        Medium,
+        High
     }
 }

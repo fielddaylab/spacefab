@@ -18,6 +18,7 @@ namespace SpaceFab.Fabrication.Sequence
         // Authored on the Sequence Panel Group prefab — both cards live there at the same local
         // position. Which one is "in front" is controlled by sibling order, not by translation.
         public RectTransform SequencePanelGroup;
+        public CanvasGroup PanelCanvasGroup;
         public SequenceCard CardSlotA;
         public SequenceCard CardSlotB;
 
@@ -105,9 +106,11 @@ namespace SpaceFab.Fabrication.Sequence
 
             // 4. Populate and show the front card with the current step (if in range).
             if (currentIndex >= 0 && currentIndex < steps.Length) {
-                PopulateCard(visualsState.FrontCard, steps[currentIndex], GetRuntime(sequenceState, currentIndex), lookup, waferLookup);
+                StepRuntimeData runtime = GetRuntime(sequenceState, currentIndex);
+                PopulateCard(visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
                 SetCardVisible(visualsState.FrontCard, true);
+                SetPanelVisible(visualsState, !runtime.IsGlitched);
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
             }
@@ -136,8 +139,10 @@ namespace SpaceFab.Fabrication.Sequence
         {
             // 1. Reveal the back card — it already holds the new current step's content
             //    (pre-loaded on the previous Reset or Advance). Hide the outgoing front.
+            StepRuntimeData incomingRuntime = GetRuntime(sequenceState, sequenceState.CurrentStepIndex);
             SetCardVisible(visualsState.BackCard, true);
             SetCardVisible(visualsState.FrontCard, false);
+            SetPanelVisible(visualsState, !incomingRuntime.IsGlitched);
 
             yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
 
@@ -188,7 +193,26 @@ namespace SpaceFab.Fabrication.Sequence
 
             // Wafer images: ConvertFrom + ConvertToA always set; ConvertToB only if authored.
             card.WaferState1.sprite = waferLookup.GetSprite(entry.ConvertFrom);
-            card.WaferState2Base.sprite = waferLookup.GetSprite(entry.ConvertToA);
+            if (entry.ConvertToA.Equals("dopant-np"))
+            {
+                switch (step.Chunk)
+                {
+                    case SequenceChunk.N:
+                        card.WaferState2Base.sprite = waferLookup.GetSprite("dopant-n");
+                        break;
+                    case SequenceChunk.P:
+                        card.WaferState2Base.sprite = waferLookup.GetSprite("dopant-np");
+                        break;
+                    case SequenceChunk.Metal:
+                        card.WaferState2Base.sprite = waferLookup.GetSprite("metal");
+                        break;
+                }
+            }
+            else
+            {
+                card.WaferState2Base.sprite = waferLookup.GetSprite(entry.ConvertToA);
+            }
+
             if (entry.ConvertToB.IsEmpty) {
                 card.WaferState2Overlay.enabled = false;
             } else {
@@ -202,12 +226,12 @@ namespace SpaceFab.Fabrication.Sequence
             card.InstructionLabelText.text = entry.InstructionLabel;
 
             // TODO: when runtime.IsGlitched, apply lookup.GlitchOverlaySprite / GlitchOverlayText.
-            // Deferred until the card prefab carries a dedicated glitch overlay child.
+            // Deferred until the card prefab carries a dedicated glitch overlay child
         }
 
         // Looks up the per-step runtime data (IsGlitched, WasCheckpointReached) for the given step
         // index, returning default if StepRuntime is unallocated or out of range.
-        private static StepRuntimeData GetRuntime(SequenceState sequenceState, int stepIndex)
+        public static StepRuntimeData GetRuntime(SequenceState sequenceState, int stepIndex)
         {
             if (sequenceState.StepRuntime == null || stepIndex < 0 || stepIndex >= sequenceState.StepRuntime.Length) {
                 return default;
@@ -233,6 +257,15 @@ namespace SpaceFab.Fabrication.Sequence
             card.Group.alpha = visible ? 1f : 0f;
             card.Group.interactable = visible;
             card.Group.blocksRaycasts = visible;
+        }
+
+        private static void SetPanelVisible(SequenceVisualsState visualsState, bool visible)
+        {
+            CanvasGroup group = visualsState.PanelCanvasGroup;
+            if (group == null) return;
+            group.alpha = visible ? 1f : 0f;
+            group.interactable = visible;
+            group.blocksRaycasts = visible;
         }
 
         // Puts a card on top by making it the last sibling under its parent. Sibling order is how

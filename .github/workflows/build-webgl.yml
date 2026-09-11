@@ -7,13 +7,17 @@ on:
    push:
    workflow_dispatch:
   
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
   build:
     name: Build Unity Project
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
+      group: ${{ github.workflow }}
+      queue: max
 
     # Setup Steps
 
