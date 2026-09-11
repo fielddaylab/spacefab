@@ -1,3 +1,4 @@
+using System;
 using BeauUtil;
 using FieldDay;
 using Leaf.Runtime;
@@ -45,6 +46,30 @@ namespace SpaceFab.Research {
                         ThermalChamberUtility.ResetState(Find.State<ThermalChamberState>());
                     }
                     break;
+            }
+        }
+
+        [LeafMember("LockChamber")]
+        public static void Leaf_LockChamber(string chamberId)
+        {
+            if (Enum.TryParse(chamberId, out ActiveChamberKind chamberKind)) {
+                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+                foreach (var panel in Find.Components<ResearchSamplePanel>()) {
+                    if (panel == null || !panel.PickerOpen) continue;
+                    SamplePanelInputUtility.LockChamberButton(panel, chamberKind, uiAssets);
+                }
+            }
+        }
+
+        [LeafMember("UnlockChamber")]
+        public static void Leaf_UnlockChamber(string chamberId)
+        {
+            if (Enum.TryParse(chamberId, out ActiveChamberKind chamberKind)) {
+                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+                foreach (var panel in Find.Components<ResearchSamplePanel>()) {
+                    if (panel == null || !panel.PickerOpen) continue;
+                    SamplePanelInputUtility.UnlockChamberButton(panel, chamberKind, uiAssets);
+                }
             }
         }
     }
