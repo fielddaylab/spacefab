@@ -22,6 +22,9 @@ MonoBehaviour:
   m_payout: 9
   m_expectedDuration: 2
   m_expectedProfit: 2
+  m_unlocksBigBattery: 0
+  m_unlocksThermalChamber: 1
+  m_unlocksDopingChamber: 0
   StreamedPack:
     m_HashValue: 1099542355
   AssetSet:

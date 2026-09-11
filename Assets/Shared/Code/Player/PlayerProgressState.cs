@@ -20,6 +20,8 @@ namespace SpaceFab
         [NonSerialized] public StringHash32 RecentlyCompletedContract;
 
         [NonSerialized] public bool BigBatteryUnlocked;
+        [NonSerialized] public bool ThermalChamberUnlocked;
+        [NonSerialized] public bool DopingChamberUnlocked;
 
         // Tracks whether the one-shot wiki initial-unlocks pass has
         // already run for this save. OverarchingStartupSequenceSystem
@@ -79,6 +81,8 @@ namespace SpaceFab
             // version gate. When SaveVersion is fixed, move into a
             // versioned slot.
             BigBatteryUnlocked = reader.Read<bool>();
+            ThermalChamberUnlocked = reader.Read<bool>();
+            DopingChamberUnlocked = reader.Read<bool>();
             InitialUnlocksApplied = reader.Read<bool>();
             
         }
@@ -101,6 +105,8 @@ namespace SpaceFab
             writer.Write(PlayerProgressUtility.PackCompletedContracts(this));
             PlayerProgressUtility.PackMaterialProperties(this, ref writer);
             writer.Write(BigBatteryUnlocked);
+            writer.Write(ThermalChamberUnlocked);
+            writer.Write(DopingChamberUnlocked);
             writer.Write(InitialUnlocksApplied);
         }
 

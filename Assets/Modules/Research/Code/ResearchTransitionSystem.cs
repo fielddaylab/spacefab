@@ -104,11 +104,17 @@ namespace SpaceFab.Research {
             }
 
             // Init Thermal Chamber.
-            ResearchHeatConfig heatConfig = Find.GlobalAsset<ResearchHeatConfig>();
-            if (heatConfig != null && thermalChamberState.HeatControl != null)
+            interfacerState.LastUnlockedChamber = playerProgress.DopingChamberUnlocked ? ActiveChamberKind.Doping
+                : playerProgress.ThermalChamberUnlocked ? ActiveChamberKind.Thermal : ActiveChamberKind.Voltage;
+            
+            if (playerProgress.ThermalChamberUnlocked)
             {
-                thermalChamberState.HeatControl.HeatIndex = heatConfig.DefaultIndex;
-                HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
+                ResearchHeatConfig heatConfig = Find.GlobalAsset<ResearchHeatConfig>();
+                if (heatConfig != null && thermalChamberState.HeatControl != null)
+                {
+                    thermalChamberState.HeatControl.HeatIndex = heatConfig.DefaultIndex;
+                    HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
+                }
             }
 
             ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Voltage);
