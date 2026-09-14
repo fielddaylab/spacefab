@@ -32,7 +32,9 @@ namespace SpaceFab.Fabrication {
         static private void ProcessWork(float deltaTime) {
             Find.State(
                 out ModeState modeState,
-                out ResultDisplayState displayState
+                out ResultDisplayState displayState,
+                out SequenceState sequenceState,
+                out ContractState contractState
                 );
 
             Find.State(
@@ -45,15 +47,22 @@ namespace SpaceFab.Fabrication {
 
             if (modeState.ChangedModeThisFrame)
             {
-                // save total cycles
-                float time = TimeStateUtility.GetElapsed(timeState);
-                float secondsPerCycle = 30;
-                int cycles = (int)Mathf.Ceil(time / secondsPerCycle);
-                float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
-
                 // Record the run on the live minigame state. ExportState copies this into
                 // FabricationSaveState.FinalizedTotalCycles when the player exits the scene.
-                fabState.TotalCycles = Mathf.CeilToInt(TimeStateUtility.GetElapsed(timeState) / secondsPerCycle);
+                // compute total cycles based on buckets
+                int stationNum = sequenceState.StepRuntime.Length;
+                FabricationSequence fabSequence = sequenceState.Level.Sequence;
+                float Coefficient = contractState.ContractAssets.fabCoefficient;
+
+                float bucket1 = stationNum * fabSequence.bucketThreshold1 * Coefficient;
+                float bucket2 = stationNum * fabSequence.bucketthreshold2 * Coefficient;
+
+                float elapsedTime = TimeStateUtility.GetElapsed(timeState);
+                if (elapsedTime <= bucket1) { fabState.TotalCycles = 2; }
+                else if (elapsedTime <= bucket2) { fabState.TotalCycles = 3; }
+                else { fabState.TotalCycles = 4; }
+                
+                float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
                 fabState.Precision = accuracy;
 
                 // display results
