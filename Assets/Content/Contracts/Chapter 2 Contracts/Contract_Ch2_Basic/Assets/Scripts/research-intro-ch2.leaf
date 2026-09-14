@@ -2,27 +2,22 @@
 
 ::IntroSelectTrace
 @trigger    OnSetupComplete
+$call   LockChamber("Thermal")
 $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else
     // $call   SetTabById("Properties")
     // $call   SetPageById("Semiconductor")
     // $call   ShowPrimaryPALButton("OpenProperties")
-    {@PAL}  This contract specifies that we need to research a semiconductor. \n\nLet's open up the database to learn properties a semiconductor has.
-    $wait   1.5
+    $set    temp:semiconductorPageChecked = false
+    {@PAL}  This contract specifies that we need to research a semiconductor. \n\nLet's open up the database!
+    $wait   1
     $call   OpenWikiTo("Properties", "Semiconductor")
     $set    temp:semiconductorPageChecked = true
 $endif
 
 
-::OnWikiClosed
-@trigger    OnWikiClosed
-@when       !MinigameHasValidSolution(), temp:semiconductorPageChecked
-$set        temp:semiconductorPageChecked = false
-{@PAL}      Interesting. Semiconductors don't allow current to pass, and current increases when heat is applied.
-$call       HighlightElement(research:sample-silicon)
-
-::OnWikiClosedAfterSiliconSlotted
+::OnWikiClosedAfterSemiconductorPageChecked
 @trigger    OnWikiClosed
 @when       !MinigameHasValidSolution()
 $call   ReleaseHighlight(wiki:tab-observations)
@@ -36,16 +31,15 @@ $call   ReleaseHighlight(wiki:page-semiconductor)
 
 ::OnPlaceIntoSlot
 @trigger    OnSlotFilled
-@when       !MinigameHasValidSolution()
+@when       !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
 $call   ReleaseAllHighlights()
-$if     research:primaryMaterial == "Silicon"
-    $set    temp:siliconSlotted = true
-    $call   HighlightElement(research:increase-voltage-btn)
-    {@PAL}      Now apply voltage to to test the sample’s electrical properties.
-$else
-    $call   HighlightElement(research:sample-silicon)
-    {@PAL}      Let's try with an unknown sample.
+$call   CloseWiki()
+$if     temp:semiconductorPageChecked
+    {@PAL}  Interesting. Semiconductors don't allow current to pass, and current increases when heat is applied.
+    $wait   1
 $endif
+$call   HighlightElement(research:increase-voltage-btn)
+{@PAL}      Now apply voltage to to test the sample’s electrical properties.
 
 
 ::OnNonObsTabOpened
@@ -79,6 +73,7 @@ $endif
 ::OnNonconductiveSelected
 @trigger    OnObservationAdded
 @when       temp:needsToSelectVoltageObs, research:primaryMaterial == "Silicon", observationId == "nonconductive"
+$call   UnlockChamber("Thermal")
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:thermal-chamber-btn, false, -1, true)
 $call   CloseWiki()
@@ -140,8 +135,8 @@ $else
     $call   HighlightElement(wiki:page-semiconductor)
 $endif
 
-::OnSemiconductorSelected
-@trigger    OnPropertyAdded
+::OnVerifyButtonShown
+@trigger    OnVerifyButtonShown
 @when       research:propertyId == "semiconductor", research:primaryMaterial == "Silicon"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
