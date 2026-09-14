@@ -74,6 +74,8 @@ namespace SpaceFab.Research {
 
                     if (kind == ChamberSlotKind.Primary) {
                         ScriptUtility.WriteVariable(new TableKeyPair("research", "primaryMaterial"), material.AssetId);
+                    } else if (kind == ChamberSlotKind.Secondary) {
+                        ScriptUtility.WriteVariable(new TableKeyPair("research", "secondaryMaterial"), material.AssetId);
                     }
 
                     using (var table = TempVarTable.Alloc()) {

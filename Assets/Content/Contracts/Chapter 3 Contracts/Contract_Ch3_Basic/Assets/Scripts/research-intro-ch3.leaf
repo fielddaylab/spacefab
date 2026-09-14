@@ -1,0 +1,59 @@
+# basePath ResearchIntroCh3
+
+::IntroSelectTrace
+@trigger    OnSetupComplete
+$if MinigameHasValidSolution()
+    {@PAL}  You've already researched everything you need to! You can continue your experiments to uncover new insights.
+$else
+    $call   HighlightElement(research:doping-chamber-btn, false, -1, true)
+    {@PAL}  We have a new property to discover: dopants!\nTo investigate this, you’ll need to use the doping chamber.
+$endif
+
+
+::OnDopingChamberSelected
+@trigger    OnChamberSwitched
+@when       !MinigameHasValidSolution(), research:chamberId == "Doping"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:primary-slot)
+{@PAL}  This slot only accepts confirmed semiconductors. Place a semiconductor to this slot.
+
+::OnSubstrateFilled
+@trigger    OnSlotFilled
+@when       !MinigameHasValidSolution(), research:chamberId == "Doping", slotType == "primary"
+$if     research:primaryMaterial == "Silicon"
+    $call   ReleaseHighlight(research:primary-slot)
+    $call   HighlightElement(research:secondary-slot)
+    {@PAL}  Now you'll need to place a possible dopant.\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
+$else
+    {@PAL}  That is not a confirmed semiconductor. Refer to the database if you need help.
+$endif
+
+::OnDopantFilled
+@trigger    OnSlotFilled
+@when       !MinigameHasValidSolution(), research:chamberId == "Doping", slotType == "secondary"
+$if     research:secondaryMaterial == "Boron"
+    $call   ReleaseHighlight(research:secondary-slot)
+    {@PAL}  Great! Add observations and select a hypothesis to verify.
+$elseif research:secondaryMaterial == "Phosphorus"
+    $call   ReleaseHighlight(research:secondary-slot)
+    {@PAL}  Great! Add observations and select a hypothesis to verify.
+$else
+    {@PAL}  That sample doesn't fit!\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
+$endif
+
+
+::OnHypothesisCorrect
+@trigger    OnHypothesisSubmitted
+@when   !MinigameHasValidSolution(), result == "success"
+$call   CloseWiki()
+$if MinigameHasValidSolution()
+    {@PAL}  Great. You've completed all research tasks! You can return to the ship, or continue your experiments to uncover new insights.
+$else
+    {@PAL}  Correct. Now see if you can complete the remaining requirement.
+$endif
+
+::OnHypothesisIncorrect
+@trigger    OnHypothesisSubmitted
+@when   !MinigameHasValidSolution(), result == "failure"
+$call   CloseWiki()
+{@PAL}  That doesn't seem right. Try changing the hypothesis or select a different observation.

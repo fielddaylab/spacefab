@@ -2,89 +2,50 @@
 
 ::IntroSelectTrace
 @trigger    OnSetupComplete
-$call   LockChamber("Thermal")
 $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else
-    // $call   SetTabById("Properties")
-    // $call   SetPageById("Semiconductor")
-    // $call   ShowPrimaryPALButton("OpenProperties")
-    $set    temp:semiconductorPageChecked = false
+    $call   LockChamber("Thermal")
+    $set    temp:needsToOpenWiki = true
     {@PAL}  This contract specifies that we need to research a semiconductor. \n\nLet's open up the database!
     $wait   1
     $call   OpenWikiTo("Properties", "Semiconductor")
-    $set    temp:semiconductorPageChecked = true
 $endif
 
 
-::OnWikiClosedAfterSemiconductorPageChecked
-@trigger    OnWikiClosed
-@when       !MinigameHasValidSolution()
-$call   ReleaseHighlight(wiki:tab-observations)
-$call   ReleaseHighlight(wiki:tab-properties)
-$call   ReleaseHighlight(wiki:observations-electrical-nonconductive)
-$call   ReleaseHighlight(wiki:page-voltage-observations)
-$call   ReleaseHighlight(wiki:page-semiconductor)
-$call   ReleaseHighlight(wiki:observations-thermal-heatactivated)
-$call   ReleaseHighlight(wiki:property-semiconductor)
-$call   ReleaseHighlight(wiki:page-semiconductor)
-
-::OnPlaceIntoSlot
+::OnSlotFilled // ensures that the player opens the semiconductor page before running the tests
 @trigger    OnSlotFilled
-@when       !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
-$call   ReleaseAllHighlights()
+@when   !MinigameHasValidSolution(), temp:needsToOpenWiki
 $call   CloseWiki()
-$if     temp:semiconductorPageChecked
-    {@PAL}  Interesting. Semiconductors don't allow current to pass, and current increases when heat is applied.
-    $wait   1
-$endif
-$call   HighlightElement(research:increase-voltage-btn)
-{@PAL}      Now apply voltage to to test the sample’s electrical properties.
 
 
-::OnNonObsTabOpened
-@trigger    OnWikiTabOpened
-@when   research:primaryMaterial == "Silicon", tabId != "Observations"
+::OnWikiClosed
+@trigger    OnWikiClosed
+@when       !MinigameHasValidSolution(), temp:needsToOpenWiki
 $call   ReleaseAllHighlights()
-$if     temp:needsToSelectVoltageObs
-    $call   HighlightElement(wiki:tab-observations, false, -1, true)
-$elseif temp:needsToSelectThermalObs
-    $call   HighlightElement(wiki:tab-observations, false, -1, true)
-$endif
+$set    temp:needsToOpenWiki = false
+{@PAL}  Interesting. Semiconductors don't allow current to pass, and current increases when heat is applied.\n\nTry testing the unknown sample.
 
 
 ::OnVoltageIncreased
 @trigger    OnVoltageIncreased
 @when       !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
-$set        temp:needsToSelectVoltageObs = true
-$call       HighlightElement(research:add-observation-btn)
 {@PAL}      It looks like this sample does not allow voltage to pass. Let's record the observation.
 
-::OnVoltageObsPageOpened
-@trigger    OnWikiPageOpened
-@when   temp:needsToSelectVoltageObs, research:primaryMaterial == "Silicon", GetTabId() == "Observations"
-$call   ReleaseAllHighlights()
-$if     local:pageId == "Voltage Observations"
-    $call   HighlightElement(wiki:observations-electrical-nonconductive, false, -1, true)
-$else
-    $call   HighlightElement(wiki:page-voltage-observations, false, -1, true)
-$endif
 
 ::OnNonconductiveSelected
-@trigger    OnObservationAdded
-@when       temp:needsToSelectVoltageObs, research:primaryMaterial == "Silicon", observationId == "nonconductive"
+@trigger    research:primaryMaterial == "Silicon", observationId == "nonconductive"
 $call   UnlockChamber("Thermal")
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:thermal-chamber-btn, false, -1, true)
 $call   CloseWiki()
-$set temp:needsToSelectVoltageObs = false
-{@PAL} You’ll need the thermal chamber to add the next observation. Let's heat up the samples and see if they change!
+{@PAL}  We have a new chamber! Use the thermal chamber to heat up the samples and see if they change!
 
 
 // Thermal Observation
 ::OnThermalChamberSelected
 @trigger    OnChamberSwitched
-@when       !MinigameHasValidSolution(), research:chamberId == "Thermal", research:primaryMaterial == "Silicon"
+@when       !MinigameHasValidSolution(), research:chamberId == "Thermal"
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:increase-heat-btn)
 {@PAL}  You’ll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
@@ -92,68 +53,40 @@ $call   HighlightElement(research:increase-heat-btn)
 ::OnHeatIncreased
 @trigger    OnHeatIncreased
 @when   !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
-$call   ReleaseAllHighlights()
-$set    temp:needsToSelectThermalObs = true
-$call   HighlightElement(research:add-observation-btn)
+$call   ReleaseHighlight(research:increase-heat-btn)
 {@PAL}  That looks like increased current to me! Use your database to submit your observation.
-
-::OnThermalObsPageOpened
-@trigger    OnWikiPageOpened
-@when       temp:needsToSelectThermalObs, research:primaryMaterial == "Silicon", GetTabId() == "Observations"
-$call   ReleaseAllHighlights()
-$if     local:pageId == "Thermal Observations"
-    $call   HighlightElement(wiki:observations-thermal-heatactivated, false, -1, true)
-$else
-    $call   HighlightElement(wiki:page-thermal-observations, false, -1, true)
-$endif
 
 ::OnHeatActivatedSelected
 @trigger    OnObservationAdded
-@when       temp:needsToSelectThermalObs, research:primaryMaterial == "Silicon", observationId == "heatactivated"
-$call       ReleaseAllHighlights()
+@when       !MinigameHasValidSolution(), research:primaryMaterial == "Silicon", observationId == "heatactivated"
 $call       CloseWiki()
-$set        temp:needsToSelectThermalObs = false
-$call       HighlightElement(research:add-property-btn)
-$set        temp:needsToSelectSemiconductor = true
-{@PAL}      Now select the semiconductor property to verify if your observations match.
+{@PAL}      Now select the property and verify if your observations match.
 
-
-// Semiconductor property
-::OnNonPropertiesTabOpened
-@trigger    OnWikiTabOpened
-@when   research:primaryMaterial == "Silicon", tabId != "Properties", temp:needsToSelectSemiconductor
-$call   ReleaseAllHighlights()
-$call   HighlightElement(wiki:tab-properties, false, -1, true)
-
-::OnSemiconductorPageOpened
-@trigger    OnWikiPageOpened
-@when       temp:needsToSelectSemiconductor, research:primaryMaterial == "Silicon", GetTabId() == "Properties"
-$call   ReleaseAllHighlights()
-$if     local:pageId == "Semiconductor"
-    $call   HighlightElement(wiki:property-semiconductor, false, -1, true)
-$else
-    $call   HighlightElement(wiki:page-semiconductor)
-$endif
 
 ::OnVerifyButtonShown
 @trigger    OnVerifyButtonShown
-@when       research:propertyId == "semiconductor", research:primaryMaterial == "Silicon"
-$call   ReleaseAllHighlights()
+@when   !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
 $call   CloseWiki()
-$call   HighlightElement(research:verify-observation-btn)
 {@PAL}  Let's check if your observation matches the selected hypothesis.
 
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when       research:primaryMaterial == "Silicon", result == "success"
-$call       ReleaseAllHighlights()
-$call       HighlightElement(return-button)
-{@PAL}  Great. You've found a semiconductor! Press the back button to return to the ship.
-$wait   1.5
-$call   OpenWikiToLastDiscovery()
+@when   !MinigameHasValidSolution(), result == "success"
+$call   CloseWiki()
+$if MinigameHasValidSolution()
+    {@PAL}  Great. You've completed all research tasks! Let's return to the ship.
+$elseif research:primaryMaterial == "Silicon"
+    {@PAL}  Great. You've found a semiconductor! Now re-test the samples with the thermal chamber to see if our initial identifications were correct.
+$else
+    {@PAL}  Correct. Now see if you can complete the remaining requirements.
+$endif
 
 ::OnHypothesisIncorrect
 @trigger    OnHypothesisSubmitted
-@when       research:primaryMaterial == "Silicon", result == "failure"
-$call ReleaseAllHighlights()
-{@PAL}  That doesn't seem right. Remember that semiconductors don't allow current to pass, and current increases when heat is applied.
+@when   !MinigameHasValidSolution(), result == "failure"
+$call   CloseWiki()
+$if     research:primaryMaterial == "Silicon"
+    {@PAL}  That doesn't seem right. Remember that semiconductors don't allow current to pass, and current increases when heat is applied.
+$else
+    {@PAL}  That doesn't seem right. Try changing the hypothesis or select a different observation.
+$endif
