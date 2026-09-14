@@ -1,4 +1,5 @@
 using SpaceFab.Design.Visuals;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace SpaceFab.Design
@@ -95,6 +96,8 @@ namespace SpaceFab.Design
         public static bool CanDrawNode(GridStackState gridState, StackLayer activeLayer, GridCell cell, Vector2Int gridPos)
         {
             if (cell.CellType == CellType.Input || cell.CellType == CellType.Output) return false;
+            if (activeLayer == StackLayer.Transistor && !cell.TransferEraseable) return false;
+            if (activeLayer == StackLayer.Metal && !cell.NodeEraseable) return false;
 
             var linkedLayer = gridState.GridStack.GridLayers[(int)GridStackUtility.GetOppositeLayer(activeLayer)];
             var linkedCell = GridLayerUtility.GetCell(linkedLayer, gridPos);
