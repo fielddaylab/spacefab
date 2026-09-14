@@ -22,10 +22,10 @@ namespace SpaceFab.Narrative {
     /// </summary>
     public static class DialogueButtonActionUtility {
         // Asset name of the wiki tab OpenProperties targets.
-        private static readonly StringHash32 MaterialPropertiesTabId = "Material Properties_Tab";
+        private static readonly StringHash32 MaterialPropertiesTabId = "Properties";
 
         // Asset name of the wiki tab OpenObservations targets.
-        private static readonly StringHash32 MaterialObservationsTabId = "Observations_Tab";
+        private static readonly StringHash32 MaterialObservationsTabId = "Observations";
 
         // Resolves a DialogueButtonAction enum name (e.g. "OpenProperties") to its value,
         // case-insensitively. Returns false with action left as None for an empty or unrecognized

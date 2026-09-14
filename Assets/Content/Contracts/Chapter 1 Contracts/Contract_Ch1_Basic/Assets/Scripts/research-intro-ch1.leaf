@@ -85,8 +85,8 @@ $endif
 @trigger    OnObservationAdded
 @when   !MinigameHasValidSolution(), research:propertyId == "null"
 $call   ReleaseAllHighlights()
-$call   HighlightElement(research:hypothesis-slot, false, -1, true)
-$call   HighlightElement(wiki:tab-properties, false, -1, true)
+$call   CloseWiki()
+$call   HighlightElement(research:add-property-btn, false, -1, true)
 {@PAL}  Select a property that matches the selected observation as your hypothesis.
 
 
@@ -104,10 +104,11 @@ $endif
 
 ::OnPropertyAdded
 @trigger    OnPropertyAdded
-@when   !MinigameHasValidSolution(), temp:addObsBtnActive, research:observationCount == 0
+@when   !MinigameHasValidSolution()
 $call   ReleaseAllHighlights()
-$call   HighlightElement(wiki:tab-observations, false, -1, true)
-{@PAL}  Add an observation.
+$call   CloseWiki()
+$call   HighlightElement(research:verify-observation-btn)
+{@PAL}  Select "Verify" to check if observation matches the selected hypothesis.
 
 
 ::OnPropertyRemoved
@@ -139,27 +140,15 @@ $endif
 @trigger    OnWikiClosed
 @when   !MinigameHasValidSolution()
 $set    temp:wikiOpen = false
-$if     research:observationCount == 0
-    $call   ReleaseHighlight(wiki:tab-observations)
-    $call   HighlightElement(research:add-observation-btn)
-$elseif     research:propertyId == "null"
-    $call   ReleaseHighlight(wiki:tab-properties)
-    $call   HighlightElement(research:add-observation-btn)
-$endif
-
-
-::OnVerifyButtonShown
-@trigger    OnVerifyButtonShown
-@when       !MinigameHasValidSolution()
-$call   ReleaseAllHighlights()
-$call   HighlightElement(research:verify-observation-btn)
-{@PAL}  Select "Verify" to check if observation matches the selected hypothesis.
+$call   ReleaseHighlight(wiki:tab-observations)
+$call   ReleaseHighlight(wiki:tab-properties)
 
 
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
 @when       result == "success"
-$call ReleaseAllHighlights()
+$call   ReleaseAllHighlights()
+$call   CloseWiki()
 $if MinigameHasValidSolution()
     $call       HighlightElement(return-button)
     {@PAL}  Correct. You've completed all research tasks! Press the back button to return to the ship.
@@ -173,7 +162,8 @@ $call   OpenWikiToLastDiscovery()
 ::OnHypothesisIncorrectHypothesisMismatch
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "hypothesis_mismatch", !MinigameHasValidSolution()
-$call ReleaseAllHighlights()
+$call   ReleaseAllHighlights()
+$call   CloseWiki()
 $call HighlightElement(research:hypothesis-slot)
 {@PAL}  Your hypothesis doesn't match the observation. Try changing the hypothesis or select a different observation.
 
@@ -181,4 +171,5 @@ $call HighlightElement(research:hypothesis-slot)
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "observation_incorrect", !MinigameHasValidSolution()
 $call ReleaseAllHighlights()
+$call   CloseWiki()
 {@PAL}  The observation is incorrect. Try a different observation or select another sample.
