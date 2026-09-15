@@ -37,6 +37,8 @@ $if     research:secondaryMaterial == "Boron"
 $elseif research:secondaryMaterial == "Phosphorus"
     $call   ReleaseHighlight(research:secondary-slot)
     {@PAL}  Great! Add observations and select a hypothesis to verify.
+$elseif research:secondaryMaterial == "SiliconDioxide"
+    {@PAL}  Polyelemental materials cannot be a dopant!\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
 $else
     {@PAL}  That sample doesn't fit!\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
 $endif

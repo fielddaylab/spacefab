@@ -7108,6 +7108,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DopingChamber
       objectReference: {fileID: 0}
+    - target: {fileID: 6165560960228309612, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6449554735563346285, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_Color.b
       value: 0.6603774
@@ -7159,6 +7163,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 496764679}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8918686274110502201, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
     - targetCorrespondingSourceObject: {fileID: 5828068202223279238, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
