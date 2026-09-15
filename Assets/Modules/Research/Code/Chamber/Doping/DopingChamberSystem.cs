@@ -143,7 +143,7 @@ namespace SpaceFab.Research
             if (dopant.ConstituentElementNames.Length > 1) {
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
-                ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
+                ExplosionStyle.Polyelemental, delay: 1f); // TODO: add explosion style if needed
                 CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
                 CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
                 dopingChamber.AtomicViewChangedThisFrame = true;

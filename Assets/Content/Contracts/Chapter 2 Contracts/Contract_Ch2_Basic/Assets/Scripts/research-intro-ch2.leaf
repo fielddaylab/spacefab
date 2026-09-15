@@ -10,13 +10,9 @@ $else
     {@PAL}  This contract specifies that we need to research a semiconductor. \n\nLet's open up the database!
     $wait   1
     $call   OpenWikiTo("Properties", "Semiconductor")
+    $wait   2
+    $call   CloseWiki()
 $endif
-
-
-::OnSlotFilled // ensures that the player opens the semiconductor page before running the tests
-@trigger    OnSlotFilled
-@when   !MinigameHasValidSolution(), temp:needsToOpenWiki
-$call   CloseWiki()
 
 
 ::OnWikiClosed
@@ -24,61 +20,53 @@ $call   CloseWiki()
 @when       !MinigameHasValidSolution(), temp:needsToOpenWiki
 $call   ReleaseAllHighlights()
 $set    temp:needsToOpenWiki = false
-{@PAL}  Interesting. Semiconductors don't allow current to pass, and current increases when heat is applied.\n\nTry testing the unknown sample.
-
-
-::OnVoltageIncreased
-@trigger    OnVoltageIncreased
-@when       !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
-{@PAL}      It looks like this sample does not allow voltage to pass. Let's record the observation.
-
-
-::OnNonconductiveSelected
-@trigger    research:primaryMaterial == "Silicon", observationId == "nonconductive"
+{@PAL}  Interesting. Semiconductors actually seem like insulators until we heat them up.
+$wait   1
+{@PAL}  We need to re-test our materials with the thermal chamber to see if our initial identifications were correct.
 $call   UnlockChamber("Thermal")
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:thermal-chamber-btn, false, -1, true)
-$call   CloseWiki()
-{@PAL}  We have a new chamber! Use the thermal chamber to heat up the samples and see if they change!
 
 
-// Thermal Observation
+// Thermal Chamber
 ::OnThermalChamberSelected
 @trigger    OnChamberSwitched
 @when       !MinigameHasValidSolution(), research:chamberId == "Thermal"
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:increase-heat-btn)
+$set    temp:needsToIncreaseHeat = true
+$call   CloseWiki()
 {@PAL}  You’ll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
 
 ::OnHeatIncreased
 @trigger    OnHeatIncreased
-@when   !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
+@when   !MinigameHasValidSolution(), temp:needsToIncreaseHeat
 $call   ReleaseHighlight(research:increase-heat-btn)
-{@PAL}  That looks like increased current to me! Use your database to submit your observation.
+$set    temp:needsToIncreaseHeat = false
+$call   CloseWiki()
+{@PAL}  Now use your database to record your observation.\nMake sure you include all required observations for the property!
 
-::OnHeatActivatedSelected
-@trigger    OnObservationAdded
-@when       !MinigameHasValidSolution(), research:primaryMaterial == "Silicon", observationId == "heatactivated"
-$call       CloseWiki()
-{@PAL}      Now select the property and verify if your observations match.
-
+::OnMaterialExploded
+@trigger    OnMaterialExploded
+$call   CloseWiki()
+{@PAL}  Be careful! Each material has its own temperature limit.\nIf you exceed it, the material will explode.
 
 ::OnVerifyButtonShown
 @trigger    OnVerifyButtonShown
-@when   !MinigameHasValidSolution(), research:primaryMaterial == "Silicon"
+@when   !MinigameHasValidSolution()
 $call   CloseWiki()
-{@PAL}  Let's check if your observation matches the selected hypothesis.
+{@PAL}  Let's check if your observations match the selected hypothesis.
 
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when   !MinigameHasValidSolution(), result == "success"
+@when   result == "success"
 $call   CloseWiki()
 $if MinigameHasValidSolution()
     {@PAL}  Great. You've completed all research tasks! Let's return to the ship.
 $elseif research:primaryMaterial == "Silicon"
-    {@PAL}  Great. You've found a semiconductor! Now re-test the samples with the thermal chamber to see if our initial identifications were correct.
+    {@PAL}  Great. You've found a semiconductor! Try other samples with the thermal chamber to see if our initial identifications were correct.
 $else
-    {@PAL}  Correct. Now see if you can complete the remaining requirements.
+    {@PAL}  Correct. Try other samples with the thermal chamber to see if our initial identifications were correct.
 $endif
 
 ::OnHypothesisIncorrect

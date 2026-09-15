@@ -12,6 +12,7 @@ $else
     $call   ReleaseAllHighlights()
     $call   HighlightElement(research:sample-copper)
     $call   HighlightElement(research:sample-SiliconDioxide)
+    $call   HighlightElement(research:sample-Silicon)
     {@PAL}  Start by selecting a sample.
 $endif
 
@@ -20,8 +21,6 @@ $endif
 @trigger    OnSampleLifted
 @when       source == "tray", !MinigameHasValidSolution()
 $call   ReleaseAllHighlights()
-//$call   ReleaseHighlight(research:sample-copper)
-//$call   ReleaseHighlight(research:sample-SiliconDioxide)
 $call   HighlightElement(research:primary-slot)
 {@PAL}  Place the sample in the Voltage Chamber.
 
@@ -156,8 +155,10 @@ $else
     $call   HighlightElement(research:primary-slot)
     {@PAL}  Correct. Now see if you can find a sample that satisfies the other hypothesis.
 $endif
-$wait 1.5
+$wait 1
 $call   OpenWikiToLastDiscovery()
+$wait 1.5
+$call   CloseWiki()
 
 ::OnHypothesisIncorrectHypothesisMismatch
 @trigger    OnHypothesisSubmitted
