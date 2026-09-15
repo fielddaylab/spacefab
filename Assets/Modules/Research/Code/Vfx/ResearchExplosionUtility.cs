@@ -114,7 +114,7 @@ namespace SpaceFab.Research {
             if (rigRenderer != null && originalMaterial != null) {
                 rigRenderer.sharedMaterial = originalMaterial;
             }
-            ResearchSlotUtility.FillInSlot(interfacerState, slot, kind, null);
+            ResearchSlotUtility.ClearSlot(interfacerState, slot, kind);
             
             using (var table = TempVarTable.Alloc())
             {
