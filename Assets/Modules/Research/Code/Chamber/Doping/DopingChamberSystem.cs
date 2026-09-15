@@ -179,24 +179,17 @@ namespace SpaceFab.Research
             // Substrate atom
             MaterialAsset substrate = ChamberInterfacerUtility.GetCurrent(interfacer, ChamberSlotKind.Primary);
             if (substrate == null) return;
-            ResearchMaterialView substrateView = Find.NamedAsset<ResearchMaterialView>(substrate.AssetId);
-
             int hostIndex = dopingChamber.HostElementIndex;
-            bool substrateKnown = researchState != null
-                && researchState.SandboxProperties.TryGetValue(substrate.AssetId, out var record)
-                && !MaterialPropertyRecordUtility.IsEmpty(record);
-            bool isPolyelemental = substrate.ConstituentElementNames.Length > 1;
-
             Assert.False(dopingChamber.SubstrateAtom == null);
             
             MaterialAtom substrateAtom = dopingChamber.SubstrateAtom;
             int cap = substrate.ValenceElectronCounts[hostIndex];
-
             for (int i = 0; i < substrateAtom.ElectronSprites.Length; i++) {
                 substrateAtom.ElectronSprites[i].SetAlpha(i < cap ? 1f : 0f);
             }
 
-            Debug.Log($"Substrate: {substrate} - {cap} electrons");
+            float substrateScale = 0.7f + 0.3f * substrate.AtomicRadii[dopingChamber.HostElementIndex] / 200f;
+            substrateAtom.MaterialSprite.transform.SetScale(substrateScale);
 
             // Dopant atom -- empty
             Assert.False(dopingChamber.DopantAtom == null);
@@ -204,14 +197,9 @@ namespace SpaceFab.Research
             MaterialAsset dopant = ChamberInterfacerUtility.GetCurrent(interfacer, ChamberSlotKind.Secondary);
             MaterialAtom dopantAtom = dopingChamber.DopantAtom;
             dopantAtom.gameObject.SetActive(dopant != null);
-            if (dopant == null) {
-                substrateAtom.Label.text = "?";
-                return;
-            }
+            if (dopant == null) { return; }
 
             // Dopant atom -- filled
-            substrateAtom.Label.text = "";
-
             ResearchMaterialView dopantView = Find.NamedAsset<ResearchMaterialView>(dopant.AssetId);
             int count = dopant.ValenceElectronCounts[0];
             int excess = count - cap;
@@ -221,6 +209,8 @@ namespace SpaceFab.Research
 
             dopantAtom.MaterialSprite.color = dopantView.AtomColor[0];
             dopantAtom.Label.text = dopantKnown ? dopant.ShortName : "?";
+            float dopantScale = 0.6f + 0.4f * dopant.AtomicRadii[0] / 200f;
+            dopantAtom.MaterialSprite.transform.SetScale(dopantScale);
 
             for (int i = 0; i < dopantAtom.ElectronSprites.Length; i++) {
                 SpriteRenderer electron = dopantAtom.ElectronSprites[i];
@@ -233,8 +223,6 @@ namespace SpaceFab.Research
                     electron.SetAlpha(front || back ? 1f : 0f);
                 }
             }
-
-            Debug.Log($"Dopant: {dopant} - {count} electrons");
         }
     }
 }

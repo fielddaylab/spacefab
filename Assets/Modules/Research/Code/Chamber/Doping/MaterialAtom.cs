@@ -27,8 +27,10 @@ namespace SpaceFab.Research
             ResearchMaterialView materialView = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
             Assert.False(materialView == null, $"[ResearchSampleTrayUtility] Missing research material view for {material.AssetId.ToDebugString()}");
 
-            atom.MaterialSprite.SetAlpha(1f);
-            atom.MaterialSprite.color = materialView.AtomColor[elementIndex];
+            if (atom.MaterialSprite != null) {
+                atom.MaterialSprite.SetAlpha(1f);
+                atom.MaterialSprite.color = materialView.AtomColor[elementIndex];
+            }
 
             if (atom.Label != null) {
                 atom.Label.text = known ? material.ShortName : "?";
