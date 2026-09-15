@@ -80,6 +80,7 @@ namespace SpaceFab.Research {
 
             bool anyPruned = PruneIncorrectPicks(researchState, slotted, viewModelState, out string failureReason);
             if (anyPruned) {
+                viewModelState.HypothesisSelected = false;
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
 
                 using (var table = TempVarTable.Alloc()) {
@@ -99,6 +100,10 @@ namespace SpaceFab.Research {
                 // next LateUpdate.
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
             }
+            else {
+                viewModelState.HypothesisSelected = false;
+            }
+            
 
             using (var table = TempVarTable.Alloc()) {
                 var resultStr = success ? "success" : "failure";
