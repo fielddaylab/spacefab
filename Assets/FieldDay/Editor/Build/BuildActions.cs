@@ -21,6 +21,7 @@ namespace FieldDay.Editor {
             }
         }
 
+        [MenuItem("Field Day/Testing/Test Automated Build Script")]
         static public void AutomatedBuild() {
             IsAutomated = true;
             ManualStepControl = true;
@@ -40,6 +41,7 @@ namespace FieldDay.Editor {
 
             options.target = buildTarget;
             options.scenes = GetBuildScenes();
+            options.locationPathName = "./build/WebGL/WebGL";
 
             return options;
         }

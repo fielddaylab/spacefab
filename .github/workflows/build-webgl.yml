@@ -7,6 +7,12 @@ on:
    push:
    workflow_dispatch:
   
+# Concurrent access via the VPN seems to result in crashes
+# Therefore we're establishing two concurrency rules for builds
+# 1. New builds on the same branch will cancel old builds
+# 2. Builds must not run concurrently
+
+# Concurrency rule 1
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -15,7 +21,7 @@ jobs:
   build:
     name: Build Unity Project
     runs-on: ubuntu-latest
-    concurrency:
+    concurrency: # Concurrency rule 2
       group: ${{ github.workflow }}
       queue: max
 
@@ -84,6 +90,7 @@ jobs:
       with:
         unityVersion: ${{ env.UNITY_VERSION }}
         targetPlatform: WebGL
+        buildMethod: FieldDay.Editor.BuildActions.AutomatedBuild
         #customParameters: '-myParameter myValue -myBoolean -ThirdParameter andItsValue'
     
     
