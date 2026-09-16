@@ -6787,7 +6787,7 @@ PrefabInstance:
       objectReference: {fileID: 994501228}
     - target: {fileID: 7083275829205027350, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: WikiTabs.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7083275829205027350, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: WikiTabs.Array.data[0]
@@ -6796,9 +6796,13 @@ PrefabInstance:
     - target: {fileID: 7083275829205027350, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: WikiTabs.Array.data[1]
       value: 
-      objectReference: {fileID: 11400000, guid: 773b96efe665e2c4baca08d684f754f0, type: 2}
+      objectReference: {fileID: 11400000, guid: 341fde69f08a8154185555b37bd0b219, type: 2}
     - target: {fileID: 7083275829205027350, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: WikiTabs.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: 773b96efe665e2c4baca08d684f754f0, type: 2}
+    - target: {fileID: 7083275829205027350, guid: b69396a508bab5e439460784e128a6dc, type: 3}
+      propertyPath: WikiTabs.Array.data[3]
       value: 
       objectReference: {fileID: 11400000, guid: 64bb228a83f3b184eb45a5510fef6e09, type: 2}
     - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Doping Chamber
-  m_Icon: {fileID: 21300000, guid: a21271153662ee94b9c05f99c55cfad2, type: 3}
+  m_Icon: {fileID: 21300000, guid: f895bf4b6ef7a6f4385c5dda1fb6815e, type: 3}
   m_IllustrationFrames:
   - {fileID: 181942833539103692, guid: a6e8404536c528f4bba116dd549a0e02, type: 3}
   m_IllustrationFPS: 0.5

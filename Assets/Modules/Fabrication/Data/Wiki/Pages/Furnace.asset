@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Furnace
-  m_Icon: {fileID: 21300000, guid: 0b0940a4583ec844d971d12d9791ed54, type: 3}
+  m_Icon: {fileID: 21300000, guid: e9fcdf39a5d5f014982dc2b7d7d19b75, type: 3}
   m_IllustrationFrames:
   - {fileID: 21300000, guid: 52e6c48f685d18c43928361769bb90d3, type: 3}
   m_IllustrationFPS: 0.5
@@ -22,3 +22,6 @@ MonoBehaviour:
     or preparing them for the next fabrication step.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

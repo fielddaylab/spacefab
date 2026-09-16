@@ -12,8 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Metal
   m_EditorClassIdentifier: 
+  m_isPlanet: 0
   m_Title: Metal
-  m_Icon: {fileID: 21300000, guid: bd46f76ab3a914d49a3bbc1e4ae2b218, type: 3}
-  m_IllustrationFrames: []
+  m_Icon: {fileID: 21300000, guid: 655da0f6a0ce9854b803c807a43f1620, type: 3}
+  m_IllustrationFrames:
+  - {fileID: 21300000, guid: 17cb8e8f85310c74d883e684ac4005bc, type: 3}
+  - {fileID: 21300000, guid: b5ed4b27b66cdeb4c8023a54a2ae857f, type: 3}
   m_IllustrationFPS: 0.5
   m_Body: Metals conduct electrical signals in the upper Metal layer.
+  m_MaterialId:
+    m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

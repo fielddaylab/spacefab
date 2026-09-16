@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Thermal Chamber
-  m_Icon: {fileID: 21300000, guid: d127ede71a1a70041a40f557c3dddbfc, type: 3}
+  m_Icon: {fileID: 21300000, guid: 5c83d2fb20faa7643845c4a71ef32c5b, type: 3}
   m_IllustrationFrames:
   - {fileID: -2697522952519470549, guid: 0229e21b6f578fb458d4ecbd616cdf72, type: 3}
   m_IllustrationFPS: 0.5

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Etcher
-  m_Icon: {fileID: 21300000, guid: 3e0abb2e85922b746b76427836c07d09, type: 3}
+  m_Icon: {fileID: 21300000, guid: 3136c198732b3a84bb32361a7e86e94c, type: 3}
   m_IllustrationFrames:
   - {fileID: 21300000, guid: 9bc3c771a83e9ca498a8eae9f4ccdefd, type: 3}
   m_IllustrationFPS: 0.5
@@ -22,3 +22,6 @@ MonoBehaviour:
     gas.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

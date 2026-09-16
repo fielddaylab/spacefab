@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Implanter
-  m_Icon: {fileID: 21300000, guid: 1f87f57ecfc1d5249a0d19af5da9f8d6, type: 3}
+  m_Icon: {fileID: 21300000, guid: c0af5d3c0f25bb7429dc146a0738c2a4, type: 3}
   m_IllustrationFrames:
   - {fileID: 21300000, guid: 761385517424d89409078ed3a54cb1b3, type: 3}
   m_IllustrationFPS: 0.5
@@ -22,3 +22,6 @@ MonoBehaviour:
     how selected areas behave.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

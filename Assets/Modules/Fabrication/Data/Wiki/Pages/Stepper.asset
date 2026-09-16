@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Stepper
-  m_Icon: {fileID: 21300000, guid: 04be6752c65ebe04c8a761f2c29bb1df, type: 3}
+  m_Icon: {fileID: 21300000, guid: d78eb03a49ba99d4d8bec568f340cd7f, type: 3}
   m_IllustrationFrames:
   - {fileID: 21300000, guid: 51a43e0a098f6db43a55ba1bd179a414, type: 3}
   m_IllustrationFPS: 0.5
@@ -22,3 +22,6 @@ MonoBehaviour:
     changed in the next step.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

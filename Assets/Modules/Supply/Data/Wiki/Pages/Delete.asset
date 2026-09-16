@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Delete
-  m_Icon: {fileID: 21300000, guid: 4ac59727244248b49a52b03f3b08b18e, type: 3}
+  m_Icon: {fileID: 21300000, guid: b78d0b0c64989ad49a496ac4386403a3, type: 3}
   m_IllustrationFrames:
-  - {fileID: 21300000, guid: c793f412f3590db4abe5651beb8f03ef, type: 3}
+  - {fileID: 21300000, guid: 383a3aba3cfb46e4bb8ff1e31dda0a34, type: 3}
   m_IllustrationFPS: 0.5
   m_Body: 'Delete a Route: To delete a route, select it and press Backspace, or double-click
     the route.'
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

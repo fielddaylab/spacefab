@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Resist
-  m_Icon: {fileID: 21300000, guid: 9f830cc135a5eab4db9ae26810996c2d, type: 3}
+  m_Icon: {fileID: 21300000, guid: 8ac97b33f2976464cae20751b8286b92, type: 3}
   m_IllustrationFrames:
   - {fileID: 21300000, guid: 97a601a4387153344b6d91d7a0c80830, type: 3}
   m_IllustrationFPS: 0.5
@@ -22,3 +22,6 @@ MonoBehaviour:
     it at high speed.
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

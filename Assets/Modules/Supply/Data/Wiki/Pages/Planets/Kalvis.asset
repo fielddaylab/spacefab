@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
+  m_Name: Kalvis
+  m_EditorClassIdentifier: 
+  m_isPlanet: 1
+  m_Title: Kalvis
+  m_Icon: {fileID: 21300000, guid: e566c0107375b994fa6a8c6cbfae413a, type: 3}
+  m_IllustrationFrames: []
+  m_IllustrationFPS: 0.5
+  m_Body: Kalvis is a copper abundant planet. It operates (mostly) independent from
+    Frontier Robotics, despite it still allowing the company to have semi-control
+    over the mines.
+  m_MaterialId:
+    m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}
