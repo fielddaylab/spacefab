@@ -56,6 +56,30 @@ namespace SpaceFab.Fabrication.Microgames
     /// </summary>
     public static class SputterMicrogameUtility
     {
+        // Tunables for the particle shower spawned when a pulse reflects off the target.
+        private const int ShowerParticleCount = 8;
+        private const float ShowerSpreadAngle = 25f;
+        private const float ShowerParticleSpeed = 5f;
+        private const float ShowerAngleJitter = 2f;
+
+        // Spawns a burst of particles at the reflection point, evenly spread around the reflected
+        // angle (plus a little jitter per particle so the fan doesn't look mechanically uniform).
+        public static void SpawnParticleShower(Vector2 origin, float baseAngle)
+        {
+            Find.State(out SputterMicrogameState state);
+
+            float step = ShowerParticleCount > 1 ? ShowerSpreadAngle / (ShowerParticleCount - 1) : 0f;
+            float startAngle = baseAngle - ShowerSpreadAngle * 0.5f;
+
+            for (int i = 0; i < ShowerParticleCount; i++)
+            {
+                float angle = startAngle + step * i + UnityEngine.Random.Range(-ShowerAngleJitter * 0.5f, ShowerAngleJitter * 0.5f);
+                SputterMicrogameProjectile particle = GameObject.Instantiate(state.ProjectilePrefab, state.ProjectileParent);
+                particle.transform.position = origin;
+                particle.InitializeAsShowerParticle(angle, ShowerParticleSpeed);
+            }
+        }
+
         // determines if microgame can be started based on if this step is next
         public static bool CanActivate()
         {
@@ -151,7 +175,7 @@ namespace SpaceFab.Fabrication.Microgames
 
             if (state.SputterPattern.m_TotalSlots == 0) { return 0f; }
 
-            float precision = state.SputterPattern.m_FilledSlots / state.SputterPattern.m_TotalSlots;
+            float precision = (float)state.SputterPattern.m_FilledSlots / state.SputterPattern.m_TotalSlots;
             return Mathf.Clamp01(precision);
         }
     }

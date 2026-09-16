@@ -41,12 +41,11 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
-        private static float spawnTimer = 0f;
         static private void ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;
-            
+
             float angle = state.SputterHeadAnchor.eulerAngles.z;
             float rotationSpeed = 15f;
 
@@ -60,12 +59,10 @@ namespace SpaceFab.Fabrication.Microgames
             }
             state.SputterHeadAnchor.rotation = Quaternion.Euler(0, 0, angle);
 
-            // Spawn projectile
+            // Spawn projectile on Activate press
             Vector2 startPosition = state.FirePoint.position;
-            spawnTimer -= deltaTime;
-            if (spawnTimer <= 0f)
+            if (Game.Input.IsKeyPressed(FabricationConsts.Activate))
             {
-                spawnTimer = 0.2f;
                 SputterMicrogameProjectile projectile = Instantiate(state.ProjectilePrefab, state.ProjectileParent);
                 projectile.transform.position = startPosition;
                 // direction
