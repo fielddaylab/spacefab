@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.Audio;
+using FieldDay.Scripting;
 using SpaceFab.Materials;
 using System.Collections;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace SpaceFab.Research {
         InvalidCombo,
         TemperatureBreakdownHot,
         TemperatureBreakdownCold,
+        Polyelemental,
     }
 
     /// <summary>
@@ -112,7 +114,13 @@ namespace SpaceFab.Research {
             if (rigRenderer != null && originalMaterial != null) {
                 rigRenderer.sharedMaterial = originalMaterial;
             }
-            ResearchSlotUtility.FillInSlot(interfacerState, slot, kind, null);
+            ResearchSlotUtility.ClearSlot(interfacerState, slot, kind);
+            
+            using (var table = TempVarTable.Alloc())
+            {
+                table.Set("explosionStyle", style.ToString());
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnMaterialExploded, table);
+            }
         }
 
         // Flips the shared explosion flag and pauses input. Idempotent — a

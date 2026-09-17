@@ -117,7 +117,15 @@ namespace SpaceFab.Overarching
             if (contractState.ContractDefinition.UnlocksBigBattery())
             {
                 playerProgress.BigBatteryUnlocked = true;
-            } 
+            }
+            if (contractState.ContractDefinition.UnlocksThermalChamber())
+            {
+                playerProgress.ThermalChamberUnlocked = true;
+            }
+            if (contractState.ContractDefinition.UnlocksDopingChamber())
+            {
+                playerProgress.DopingChamberUnlocked = true;
+            }
 
             SaveUtility.Save(SaveSlot.Main);
         }

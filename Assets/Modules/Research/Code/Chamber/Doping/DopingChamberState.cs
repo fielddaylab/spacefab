@@ -19,12 +19,9 @@ namespace SpaceFab.Research
         // Root of doping chamber's GameObject hierarchy; used to toggle visibility on activation/deactivation.
         public GameObject Root;
 
-        // Root of atomic view ui
-        public GameObject AtomicView;
-        public GameObject SecondarySlotLid;
-
         public MaterialAtom SubstrateAtom;
         public MaterialAtom DopantAtom;
+        public GameObject EmptyState;
         
 
         // Observation chips the player can add while this chamber is active.

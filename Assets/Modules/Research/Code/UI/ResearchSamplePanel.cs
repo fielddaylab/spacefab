@@ -295,5 +295,32 @@ namespace SpaceFab.Research {
             if (panel.PickerClickHandlers != null) panel.PickerClickHandlers.Clear();
             if (panel.PickerLabels != null) panel.PickerLabels.Clear();
         }
+
+        public static void LockChamberButton(ResearchSamplePanel panel, ActiveChamberKind chamberKind, ResearchUIAssets config) {
+            ChamberButton chamberButton = chamberKind switch {
+                ActiveChamberKind.Thermal => panel.ThermalChamberButton,
+                ActiveChamberKind.Doping => panel.DopingChamberButton,
+                _ => null,
+            };
+
+            if (chamberButton == null) { return; }
+            chamberButton.Image.sprite = config.LockedChamber;
+            chamberButton.Cursor.enabled = false;
+        }
+
+        public static void UnlockChamberButton(ResearchSamplePanel panel, ActiveChamberKind chamberKind, ResearchUIAssets config) {
+            switch (chamberKind) {
+                case ActiveChamberKind.Thermal:
+                    panel.ThermalChamberButton.Image.sprite = config.ThermalNormal;
+                    panel.ThermalChamberButton.Cursor.enabled = true;
+                    break;
+                case ActiveChamberKind.Doping:
+                    panel.DopingChamberButton.Image.sprite = config.DopingNormal;
+                    panel.DopingChamberButton.Cursor.enabled = true;
+                    break;
+                default:
+                    return;
+            };
+        }
     }
 }
