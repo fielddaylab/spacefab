@@ -14,6 +14,7 @@ namespace FieldDay.UI.Widgets {
         }
 
         [SerializeField] private Style m_Style;
+        [SerializeField] private bool m_IsToggle;
 
         [NonSerialized] private GuiWidgetInteractableState m_InteractableState;
         [NonSerialized] private bool m_WasClicked = false;

@@ -213,11 +213,23 @@ namespace FieldDay.UI.Widgets {
 
         #endregion // Events
 
+        #region Style
+
+        /// <summary>
+        /// The assigned widget style.
+        /// </summary>
+        public IGuiWidgetStyle Styler {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return m_BaseStyle; }
+        }
+
         protected void AssignBaseStyle(IGuiWidgetStyle style) {
             Assert.NotNullOrDestroyed(style);
             m_BaseStyle = style;
             style.UpdateState(m_StateFlags, m_StateFlags, this, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
         }
+
+        #endregion // Style
 
         #region Interactable
 

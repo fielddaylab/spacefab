@@ -849,8 +849,8 @@ namespace FieldDay {
     public struct LayoutStyle {
         public Vector3 MarginLower;
         public Vector3 MarginUpper;
-        public Vector3 PaddingLower;
-        public Vector3 PaddingUpper;
+        //public Vector3 PaddingLower;
+        //public Vector3 PaddingUpper;
     }
 
     [Serializable]

@@ -28,11 +28,9 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.LateUpdate, 800, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadWrite<WikiButton>()
-                    .ReadWrite<WikiPools>()
                     .Read<WikiContent>()
                     .ReadWriteShared<WikiState>()
                     .ReadWriteShared<WikiLayoutState>()
-                    .ReadWriteShared<WikiChipPools>()
                     .ReadWriteShared<PlayerProgressState>()
             );
         }
@@ -41,8 +39,6 @@ namespace SpaceFab.UI {
             var buttons = Find.Components<WikiButton>();
             for (int i = 0; i < buttons.Count; i++) {
                 buttons[i].ClickedThisFrame = false;
-                buttons[i].PointerEnterThisFrame = false;
-                buttons[i].PointerExitThisFrame = false;
             }
         }
 
@@ -52,7 +48,6 @@ namespace SpaceFab.UI {
             Find.State(
                 out WikiState wikiState,
                 out WikiLayoutState layoutState,
-                out WikiChipPools chipPools,
                 out PlayerProgressState progressState
                 );
 
@@ -65,14 +60,14 @@ namespace SpaceFab.UI {
             if (contents.Count == 0) { return; }
             WikiContent content = contents[0];
 
-            var pools = Find.Components<WikiPools>();
-            Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
+            //var pools = Find.Components<WikiPools>();
+            //Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
 
             // Structural first: a rebuild changes which instances exist, and both halves invalidate
             // the strip domains on their own, so the paint below picks the change up.
             if (needsRebuild) {
-                WikiPoolUtility.RebuildStrips(wikiState, content, pools[0]);
-                WikiAvailabilityUtility.ApplyUnlocks(content, pools[0], progressState);
+                WikiPoolUtility.RebuildStrips(wikiState, content);
+                WikiAvailabilityUtility.ApplyUnlocks(content, progressState);
                 wikiState.NeedsRebuild = false;
             }
 
@@ -81,7 +76,7 @@ namespace SpaceFab.UI {
             // Resolve returns an absent context elsewhere, and the page binds render inert.
             WikiResearchContext researchContext = WikiResearchContextUtility.Resolve();
 
-            WikiVisualsUtility.Refresh(wikiState, layoutState, content, pools[0], chipPools, progressState, researchContext);
+            WikiVisualsUtility.Refresh(wikiState, layoutState, content, progressState, researchContext);
 
             // Announced after the paint, so OnWikiTabOpened / OnWikiPageOpened fire against what is
             // actually on screen, once for wherever the frame's mutations left the selection. Safe

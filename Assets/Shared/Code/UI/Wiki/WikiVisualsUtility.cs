@@ -37,7 +37,7 @@ namespace SpaceFab.UI {
         // Applies every dirty domain, then clears the mask. Systems pass the states they hold.
         // researchContext is absent outside the Research scene, where observation and property
         // pages render plain and inert.
-        public static void Refresh(WikiState wikiState, WikiLayoutState layout, WikiContent content, WikiPools pools, WikiChipPools chipPools, PlayerProgressState progressState, in WikiResearchContext researchContext) {
+        public static void Refresh(WikiState wikiState, WikiLayoutState layout, WikiContent content, PlayerProgressState progressState, in WikiResearchContext researchContext) {
             WikiVisualDirty dirty = wikiState.VisualsDirty;
             if (dirty == WikiVisualDirty.None) { return; }
 
@@ -59,15 +59,15 @@ namespace SpaceFab.UI {
             }
 
             if ((dirty & WikiVisualDirty.TabStrip) != 0) {
-                RefreshTabStrip(pools, content, layout, wikiState);
+                RefreshTabStrip(content, layout, wikiState);
             }
 
             if ((dirty & WikiVisualDirty.PageContent) != 0) {
-                RefreshPageContent(layout, chipPools, activeTab, progressState, wikiState.ActivePageIndex, researchContext);
+                //RefreshPageContent(layout, chipPools, activeTab, progressState, wikiState.ActivePageIndex, researchContext);
             }
 
             if ((dirty & WikiVisualDirty.Paginator) != 0) {
-                RefreshPaginator(layout, pools, content, activeTab, wikiState, progressState);
+                RefreshPaginator(layout, content, activeTab, wikiState, progressState);
             }
 
             wikiState.VisualsDirty = WikiVisualDirty.None;
@@ -82,29 +82,29 @@ namespace SpaceFab.UI {
         // what's still active.
         //
         // Offset and width aren't written here — SyncTabPop owns both, since the pop animates them.
-        private static void RefreshTabStrip(WikiPools pools, WikiContent content, WikiLayoutState layout, WikiState wikiState) {
-            var tabButtons = pools.TabButtonPool.ActiveObjects;
-            WikiLayoutUtility.LayoutTabStrip(layout, tabButtons);
+        private static void RefreshTabStrip(WikiContent content, WikiLayoutState layout, WikiState wikiState) {
+            //var tabButtons = pools.TabButtonPool.ActiveObjects;
+            //WikiLayoutUtility.LayoutTabStrip(layout, tabButtons);
 
-            WikiButton selectedTab = null;
+            //WikiButton selectedTab = null;
 
-            for (int i = 0; i < tabButtons.Count; i++) {
-                WikiButton tab = tabButtons[i];
-                Assert.True(tab.TabIndex >= 0 && tab.TabIndex < content.Tabs.Length,
-                    "Wiki tab button has out-of-range TabIndex {0}", tab.TabIndex);
+            //for (int i = 0; i < tabButtons.Count; i++) {
+            //    WikiButton tab = tabButtons[i];
+            //    Assert.True(tab.TabIndex >= 0 && tab.TabIndex < content.Tabs.Length,
+            //        "Wiki tab button has out-of-range TabIndex {0}", tab.TabIndex);
 
-                Image icon = tab.GetComponent<WikiTab>().TabIcon;
-                icon.sprite = content.Tabs[tab.TabIndex].Icon;
-                icon.color = Color.white;
+            //    Image icon = tab.GetComponent<WikiTab>().TabIcon;
+            //    icon.sprite = content.Tabs[tab.TabIndex].Icon;
+            //    icon.color = Color.white;
 
-                bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
-                tab.DynamicButton.image.sprite = selected ? layout.TabActiveSprite : layout.TabInactiveSprite;
-                tab.DynamicButton.interactable = true;
+            //    bool selected = tab.TabIndex == wikiState.ActiveTabIndex;
+            //    tab.DynamicButton.image.sprite = selected ? layout.TabActiveSprite : layout.TabInactiveSprite;
+            //    tab.DynamicButton.interactable = true;
 
-                if (selected) { selectedTab = tab; }
-            }
+            //    if (selected) { selectedTab = tab; }
+            //}
 
-            SyncTabPop(wikiState, layout, tabButtons, selectedTab);
+            //SyncTabPop(wikiState, layout, tabButtons, selectedTab);
         }
 
         // Brings the pop in line with the selection: selected tab popped out, every other tab resting.
@@ -185,7 +185,7 @@ namespace SpaceFab.UI {
         //
         // progressState is the unlock set a material page's characteristics column reads to pick
         // between the basic and full halves of a property pair.
-        private static void RefreshPageContent(WikiLayoutState layout, WikiChipPools chipPools, WikiTabData activeTab, PlayerProgressState progressState, int activePageIndex, in WikiResearchContext researchContext) {
+        private static void RefreshPageContent(WikiLayoutState layout, WikiTabData activeTab, PlayerProgressState progressState, int activePageIndex, in WikiResearchContext researchContext) {
             // The header shows the active tab's title, so it turns over with the page bind rather
             // than with the tab strip's icons.
             layout.Header.text = activeTab.Title;
@@ -200,47 +200,47 @@ namespace SpaceFab.UI {
 
             // Body wrapper visible only on default pages. Observation and property pages carry
             // their own body widget inside their group.
-            widgets.DefaultGroup.SetActive(defaultPage);
+            //widgets.DefaultGroup.SetActive(defaultPage);
             if (defaultPage) {
-                widgets.BodyText.text = activePage.Body ?? " ";
+                widgets.BodyText.text = activePage.BodyText ?? " ";
             }
 
-            widgets.PlanetDetailsContainer.SetActive(activePage.isPlanet);
+            //widgets.PlanetDetailsContainer.SetActive(activePage.isPlanet);
 
             // Chips are filled before the group is shown, so navigation never renders an empty
             // column. That used to be a cross-system phase-ordering convention; keeping the two
             // statements adjacent makes it structural. Each kind frees the other two kinds' chips
             // so none stay parked under a hidden container with live click handlers.
-            if (materialPage) {
-                WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, progressState, activePage.MaterialId);
-            } else {
-                WikiCharacteristicsLoadUtility.FreeAllCharacteristicChips(chipPools);
-            }
+            //if (materialPage) {
+            //    WikiCharacteristicsLoadUtility.LoadFor(widgets, chipPools, progressState, activePage.MaterialId);
+            //} else {
+            //    WikiCharacteristicsLoadUtility.FreeAllCharacteristicChips(chipPools);
+            //}
 
-            if (observationPage) {
-                WikiObservationLoadUtility.LoadFor(widgets, chipPools, activePage, researchContext);
-            } else {
-                WikiObservationLoadUtility.FreeAllObservationChips(chipPools);
-            }
+            //if (observationPage) {
+            //    WikiObservationLoadUtility.LoadFor(widgets, chipPools, activePage, researchContext);
+            //} else {
+            //    WikiObservationLoadUtility.FreeAllObservationChips(chipPools);
+            //}
 
-            if (propertyPage) {
-                WikiPropertyLoadUtility.LoadFor(widgets, chipPools, activePage, researchContext);
-            } else {
-                WikiPropertyLoadUtility.FreeAllPropertyChips(widgets, chipPools);
-            }
+            //if (propertyPage) {
+            //    WikiPropertyLoadUtility.LoadFor(widgets, chipPools, activePage, researchContext);
+            //} else {
+            //    WikiPropertyLoadUtility.FreeAllPropertyChips(widgets, chipPools);
+            //}
 
-            widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
-            if (widgets.ObservationGroup != null) {
-                widgets.ObservationGroup.SetActive(observationPage);
-            }
-            if (widgets.PropertyGroup != null) {
-                widgets.PropertyGroup.SetActive(propertyPage);
-                if (propertyPage)
-                {
-                    // clear title. Chip stands in for it.
-                    widgets.TitleText.SetText(string.Empty);
-                }
-            }
+            //widgets.MaterialCharacteristicsGroup.SetActive(materialPage);
+            //if (widgets.ObservationGroup != null) {
+            //    widgets.ObservationGroup.SetActive(observationPage);
+            //}
+            //if (widgets.PropertyGroup != null) {
+            //    widgets.PropertyGroup.SetActive(propertyPage);
+            //    if (propertyPage)
+            //    {
+            //        // clear title. Chip stands in for it.
+            //        widgets.TitleText.SetText(string.Empty);
+            //    }
+            //}
 
             // Default pages cycle their authored frame sequence; material pages pull the gem sprite
             // off the referenced material asset, which is a single still frame. Either way a page
@@ -276,14 +276,14 @@ namespace SpaceFab.UI {
                 Log.Warn("[WikiVisualsUtility] Wiki page '{0}' authors more than one page kind; rendering as material > observation > property.", page.name);
             }
 
-            if (observationPage && widgets.ObservationGroup == null) {
-                Log.Warn("[WikiVisualsUtility] Wiki page '{0}' is an observation page but WikiPageContentWidgets.ObservationGroup is not authored; rendering as a default page.", page.name);
-                observationPage = false;
-            }
-            if (propertyPage && widgets.PropertyGroup == null) {
-                Log.Warn("[WikiVisualsUtility] Wiki page '{0}' is a property page but WikiPageContentWidgets.PropertyGroup is not authored; rendering as a default page.", page.name);
-                propertyPage = false;
-            }
+            //if (observationPage && widgets.ObservationGroup == null) {
+            //    Log.Warn("[WikiVisualsUtility] Wiki page '{0}' is an observation page but WikiPageContentWidgets.ObservationGroup is not authored; rendering as a default page.", page.name);
+            //    observationPage = false;
+            //}
+            //if (propertyPage && widgets.PropertyGroup == null) {
+            //    Log.Warn("[WikiVisualsUtility] Wiki page '{0}' is a property page but WikiPageContentWidgets.PropertyGroup is not authored; rendering as a default page.", page.name);
+            //    propertyPage = false;
+            //}
 
             return material;
         }
@@ -296,11 +296,11 @@ namespace SpaceFab.UI {
         // the selected thumb, and the arrow enable-state. These share their inputs, and the
         // highlight needs a RectTransform only the thumbnail pass can produce, so they repaint
         // together.
-        private static void RefreshPaginator(WikiLayoutState layout, WikiPools pools, WikiContent content, WikiTabData activeTab, WikiState wikiState, PlayerProgressState progressState) {
+        private static void RefreshPaginator(WikiLayoutState layout, WikiContent content, WikiTabData activeTab, WikiState wikiState, PlayerProgressState progressState) {
             // Slides the strip under its UI Mask so out-of-window thumbnails clip away.
             WikiLayoutUtility.ScrollPaginator(layout, wikiState.PageWindowStartIndex);
 
-            RectTransform selectedThumbRect = RefreshPaginatorStrip(pools, activeTab, content, wikiState, progressState);
+            RectTransform selectedThumbRect = RefreshPaginatorStrip(activeTab, content, wikiState, progressState);
 
             // The highlight is positioned from the thumb's live rect, and the pass above changed
             // which thumbs the strip's layout group has to place. Settle that now — the group
@@ -317,53 +317,53 @@ namespace SpaceFab.UI {
         //
         // Off-window thumbs stay active — the strip's UI Mask clips them once ScrollPaginator has
         // slid the content. Only wrong-tab and locked thumbs are deactivated.
-        private static RectTransform RefreshPaginatorStrip(WikiPools pools, WikiTabData activeTab, WikiContent content, WikiState wikiState, PlayerProgressState progressState) {
+        private static RectTransform RefreshPaginatorStrip(WikiTabData activeTab, WikiContent content, WikiState wikiState, PlayerProgressState progressState) {
             RectTransform selectedThumbRect = null;
             int pageWindowSize = Mathf.Max(1, content.PageWindowSize);
 
-            var thumbButtons = pools.PageThumbPool.ActiveObjects;
-            for (int i = 0; i < thumbButtons.Count; i++) {
-                WikiButton thumb = thumbButtons[i];
-                Assert.NotNullOrDestroyed(thumb.DynamicButton, "Wiki page thumb '{0}' has no DynamicButton", thumb.name);
+            //var thumbButtons = pools.PageThumbPool.ActiveObjects;
+            //for (int i = 0; i < thumbButtons.Count; i++) {
+            //    WikiButton thumb = thumbButtons[i];
+            //    Assert.NotNullOrDestroyed(thumb.DynamicButton, "Wiki page thumb '{0}' has no DynamicButton", thumb.name);
 
-                // Belongs to another tab — a real state, not missing setup.
-                if (thumb.TabIndex != wikiState.ActiveTabIndex) {
-                    thumb.gameObject.SetActive(false);
-                    continue;
-                }
+            //    // Belongs to another tab — a real state, not missing setup.
+            //    if (thumb.TabIndex != wikiState.ActiveTabIndex) {
+            //        thumb.gameObject.SetActive(false);
+            //        continue;
+            //    }
 
-                Assert.True(thumb.PageIndex >= 0 && thumb.PageIndex < activeTab.Pages.Length,
-                    "Wiki page thumb has out-of-range PageIndex {0} for tab '{1}'", thumb.PageIndex, activeTab.name);
+            //    Assert.True(thumb.PageIndex >= 0 && thumb.PageIndex < activeTab.Pages.Length,
+            //        "Wiki page thumb has out-of-range PageIndex {0} for tab '{1}'", thumb.PageIndex, activeTab.name);
 
-                // A locked page is a real state too — hide its thumbnail.
-                int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
-                if (unlockedIndex == -1) {
-                    thumb.gameObject.SetActive(false);
-                    continue;
-                }
+            //    // A locked page is a real state too — hide its thumbnail.
+            //    int unlockedIndex = WikiUtility.GetUnlockedIndex(activeTab, progressState, thumb.PageIndex);
+            //    if (unlockedIndex == -1) {
+            //        thumb.gameObject.SetActive(false);
+            //        continue;
+            //    }
 
-                thumb.gameObject.SetActive(true);
-                thumb.DynamicButton.interactable = true;
+            //    thumb.gameObject.SetActive(true);
+            //    thumb.DynamicButton.interactable = true;
 
-                // Same split as the page illustration: material pages take their thumbnail from the
-                // material asset, default pages from the authored icon.
-                WikiPageData thumbPage = activeTab.Pages[thumb.PageIndex];
-                Assert.NotNullOrDestroyed(thumbPage, "Tab '{0}' has a null page at index {1}", activeTab.name, thumb.PageIndex);
+            //    // Same split as the page illustration: material pages take their thumbnail from the
+            //    // material asset, default pages from the authored icon.
+            //    WikiPageData thumbPage = activeTab.Pages[thumb.PageIndex];
+            //    Assert.NotNullOrDestroyed(thumbPage, "Tab '{0}' has a null page at index {1}", activeTab.name, thumb.PageIndex);
 
-                Sprite thumbSprite = thumbPage.Icon;
-                if (thumbPage.IsMaterialPage) {
-                    MaterialAsset material = Find.NamedAsset<MaterialAsset>(thumbPage.MaterialId);
-                    Assert.NotNullOrDestroyed(material, "Wiki page '{0}' references unknown material '{1}'", thumbPage.name, thumbPage.MaterialId);
-                    thumbSprite = material.GemSprite;
-                }
-                thumb.DynamicButton.image.sprite = thumbSprite;
+            //    Sprite thumbSprite = thumbPage.Icon;
+            //    if (thumbPage.IsMaterialPage) {
+            //        MaterialAsset material = Find.NamedAsset<MaterialAsset>(thumbPage.MaterialId);
+            //        Assert.NotNullOrDestroyed(material, "Wiki page '{0}' references unknown material '{1}'", thumbPage.name, thumbPage.MaterialId);
+            //        thumbSprite = material.GemSprite;
+            //    }
+            //    thumb.DynamicButton.image.sprite = thumbSprite;
 
-                // Record the selected in-window thumb so the highlight can be placed over it.
-                bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
-                if (inWindow && thumb.PageIndex == wikiState.ActivePageIndex) {
-                    selectedThumbRect = thumb.DynamicButton.image.rectTransform;
-                }
-            }
+            //    // Record the selected in-window thumb so the highlight can be placed over it.
+            //    bool inWindow = unlockedIndex >= wikiState.PageWindowStartIndex && unlockedIndex < wikiState.PageWindowStartIndex + pageWindowSize;
+            //    if (inWindow && thumb.PageIndex == wikiState.ActivePageIndex) {
+            //        selectedThumbRect = thumb.DynamicButton.image.rectTransform;
+            //    }
+            //}
 
             return selectedThumbRect;
         }

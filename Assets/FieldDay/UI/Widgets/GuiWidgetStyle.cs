@@ -42,7 +42,8 @@ namespace FieldDay.UI.Widgets {
         CanDecrease = 0x04,
         HideControls = 0x08,
         IsEmpty = 0x10,
-        IsFull = 0x20
+        IsFull = 0x20,
+        IsToggleOn = 0x40
     }
 
     public enum GuiWidgetInteractableState : byte {

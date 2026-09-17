@@ -12,16 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Kalvis
   m_EditorClassIdentifier: 
-  m_isPlanet: 1
-  m_Title: Kalvis
-  m_Icon: {fileID: 21300000, guid: e566c0107375b994fa6a8c6cbfae413a, type: 3}
-  m_IllustrationFrames: []
-  m_IllustrationFPS: 0.5
-  m_Body: Kalvis is a copper abundant planet. It operates (mostly) independent from
-    Frontier Robotics, despite it still allowing the company to have semi-control
-    over the mines.
-  m_MaterialId:
+  Title: Kalvis
+  Icon: {fileID: 21300000, guid: e566c0107375b994fa6a8c6cbfae413a, type: 3}
+  IllustrationFrames: []
+  IllustrationFPS: 0.5
+  BodyText: A forested and mountainous planet, Kalvis is the capital of it's aptly
+    named sector. It belongs to a hard-working class people who value community and
+    a hardy work attitude.
+  MaterialId:
     m_HashValue: 0
-  m_IsObservationPage: 0
-  m_ObservationType: 0
-  m_PropertyCheck: {fileID: 0}
+  IsObservationPage: 0
+  ObservationType: 0
+  PropertyCheck: {fileID: 0}

@@ -36,75 +36,75 @@ namespace SpaceFab.UI {
         // slots — and grey when the observation is already in the sample
         // panel. Non-selected chips stay ungreyed even when the panel is
         // full; the click handler ignores them instead.
-        public static void LoadFor(WikiPageContentWidgets widgets, WikiChipPools pools, WikiPageData page, in WikiResearchContext researchContext) {
-            if (widgets == null || pools == null || pools.ChipPool == null) return;
-            if (widgets.ObservationChipContainer == null) return;
+        public static void LoadFor(WikiPageContentWidgets widgets, WikiPageData page, in WikiResearchContext researchContext) {
+            //if (widgets == null || pools == null || pools.ChipPool == null) return;
+            ////if (widgets.ObservationChipContainer == null) return;
 
-            // 1. Free prior chips.
-            FreeAllObservationChips(pools);
+            //// 1. Free prior chips.
+            //FreeAllObservationChips(pools);
 
-            // Observations already in the sample panel are matched under the
-            // context the collect path stores them with — the substrate in
-            // the doping chamber, nothing elsewhere.
-            StringHash32 slotContext = researchContext.Present
-                ? ResearchWikiInputUtility.GetActiveObservationContext(researchContext.InterfacerState)
-                : StringHash32.Null;
+            //// Observations already in the sample panel are matched under the
+            //// context the collect path stores them with — the substrate in
+            //// the doping chamber, nothing elsewhere.
+            //StringHash32 slotContext = researchContext.Present
+            //    ? ResearchWikiInputUtility.GetActiveObservationContext(researchContext.InterfacerState)
+            //    : StringHash32.Null;
 
-            // 2. Walk the observation block in enum order. Everything from
-            // ConductorNaive on is a persistent property, not an
-            // observation, and never belongs on these pages.
-            for (MaterialPropertyLabel label = 0; label < MaterialPropertyLabel.ConductorNaive; label++) {
-                if (MaterialObservationChamberLookup.GetChamberType(label) != page.ObservationType) {
-                    continue;
-                }
+            //// 2. Walk the observation block in enum order. Everything from
+            //// ConductorNaive on is a persistent property, not an
+            //// observation, and never belongs on these pages.
+            //for (MaterialPropertyLabel label = 0; label < MaterialPropertyLabel.ConductorNaive; label++) {
+            //    if (MaterialObservationChamberLookup.GetChamberType(label) != page.ObservationType) {
+            //        continue;
+            //    }
 
-                ResearchObservationChip chip = pools.ChipPool.Alloc();
-                if (chip == null) {
-                    break;
-                }
-                chip.transform.SetParent(widgets.ObservationChipContainer, false);
+            //    ResearchObservationChip chip = pools.ChipPool.Alloc();
+            //    if (chip == null) {
+            //        break;
+            //    }
+            //    //chip.transform.SetParent(widgets.ObservationChipContainer, false);
 
-                string text = researchContext.Present
-                    ? ResearchWikiInputUtility.GetObservationChipText(label, researchContext.InterfacerState)
-                    : MaterialPropertyLabelDisplay.GetObservationName(label);
-                chip.SetState(text, ChipFillState.Filled, false, page.ObservationType);
+            //    string text = researchContext.Present
+            //        ? ResearchWikiInputUtility.GetObservationChipText(label, researchContext.InterfacerState)
+            //        : MaterialPropertyLabelDisplay.GetObservationName(label);
+            //    chip.SetState(text, ChipFillState.Filled, false, page.ObservationType);
 
-                WikiElementTagUtility.Stamp(chip, WikiElementTagUtility.ObservationTypeObservationId(page.ObservationType, label));
+            //    WikiElementTagUtility.Stamp(chip, WikiElementTagUtility.ObservationTypeObservationId(page.ObservationType, label));
 
-                // Capture the label rather than the index — the click
-                // resolves its own slot, and the list order is only
-                // bookkeeping for the free pass.
-                Action handler = null;
-                bool selected = false;
-                if (researchContext.Present) {
-                    selected = ResearchWikiInputUtility.FindSlotIndex(researchContext.ViewModel, label, slotContext) >= 0;
+            //    // Capture the label rather than the index — the click
+            //    // resolves its own slot, and the list order is only
+            //    // bookkeeping for the free pass.
+            //    Action handler = null;
+            //    bool selected = false;
+            //    if (researchContext.Present) {
+            //        selected = ResearchWikiInputUtility.FindSlotIndex(researchContext.ViewModel, label, slotContext) >= 0;
 
-                    MaterialPropertyLabel captured = label;
-                    handler = () => ResearchWikiInputUtility.HandleObservationChipClick(captured);
-                    if (chip.Click != null) {
-                        chip.Click.onClick.Register(handler);
-                    }
-                }
-                chip.SetPickerChipDisabledVisual(selected);
+            //        MaterialPropertyLabel captured = label;
+            //        handler = () => ResearchWikiInputUtility.HandleObservationChipClick(captured);
+            //        if (chip.Click != null) {
+            //            chip.Click.onClick.Register(handler);
+            //        }
+            //    }
+            //    chip.SetPickerChipDisabledVisual(selected);
 
-                pools.ActiveObservationChips.Add(chip);
-                pools.ActiveObservationLabels.Add(label);
-                pools.ActiveObservationClickHandlers.Add(handler);
-            }
+            //    pools.ActiveObservationChips.Add(chip);
+            //    pools.ActiveObservationLabels.Add(label);
+            //    pools.ActiveObservationClickHandlers.Add(handler);
+            //}
 
-            // 3. Lay out + resize the group.
-            float contentHeight = ResearchUILayoutUtility.LayoutVerticalAlignedTop(
-                widgets.ObservationChipContainer, pools.ActiveObservationChips, pools.ActiveObservationChips.Count, ChipGap);
-            /*
-            if (widgets.ObservationGroup != null) {
-                RectTransform groupRect = widgets.ObservationGroup.transform as RectTransform;
-                if (groupRect != null) {
-                    Vector2 size = groupRect.sizeDelta;
-                    size.y = contentHeight + 2f * OverlayPadding;
-                    groupRect.sizeDelta = size;
-                }
-            }
-            */
+            //// 3. Lay out + resize the group.
+            ////float contentHeight = ResearchUILayoutUtility.LayoutVerticalAlignedTop(
+            ////    widgets.ObservationChipContainer, pools.ActiveObservationChips, pools.ActiveObservationChips.Count, ChipGap);
+            ///*
+            //if (widgets.ObservationGroup != null) {
+            //    RectTransform groupRect = widgets.ObservationGroup.transform as RectTransform;
+            //    if (groupRect != null) {
+            //        Vector2 size = groupRect.sizeDelta;
+            //        size.y = contentHeight + 2f * OverlayPadding;
+            //        groupRect.sizeDelta = size;
+            //    }
+            //}
+            //*/
         }
 
         // Returns every pool-held observation chip to the pool,
@@ -112,24 +112,24 @@ namespace SpaceFab.UI {
         // step of LoadFor (clean slate), and directly when navigating away
         // from an observation page so chips don't stay parked under the
         // container with live handlers.
-        public static void FreeAllObservationChips(WikiChipPools pools) {
-            if (pools == null || pools.ActiveObservationChips == null) return;
-            int n = pools.ActiveObservationChips.Count;
-            for (int i = n - 1; i >= 0; i--) {
-                ResearchObservationChip chip = pools.ActiveObservationChips[i];
-                Action handler = i < pools.ActiveObservationClickHandlers.Count
-                    ? pools.ActiveObservationClickHandlers[i]
-                    : null;
-                if (chip != null && chip.Click != null && handler != null) {
-                    chip.Click.onClick.Deregister(handler);
-                }
-                if (chip != null) {
-                    Pool.TryFree(chip);
-                }
-            }
-            pools.ActiveObservationChips.Clear();
-            pools.ActiveObservationLabels?.Clear();
-            pools.ActiveObservationClickHandlers?.Clear();
+        public static void FreeAllObservationChips() {
+            //if (pools == null || pools.ActiveObservationChips == null) return;
+            //int n = pools.ActiveObservationChips.Count;
+            //for (int i = n - 1; i >= 0; i--) {
+            //    ResearchObservationChip chip = pools.ActiveObservationChips[i];
+            //    Action handler = i < pools.ActiveObservationClickHandlers.Count
+            //        ? pools.ActiveObservationClickHandlers[i]
+            //        : null;
+            //    if (chip != null && chip.Click != null && handler != null) {
+            //        chip.Click.onClick.Deregister(handler);
+            //    }
+            //    if (chip != null) {
+            //        Pool.TryFree(chip);
+            //    }
+            //}
+            //pools.ActiveObservationChips.Clear();
+            //pools.ActiveObservationLabels?.Clear();
+            //pools.ActiveObservationClickHandlers?.Clear();
         }
     }
 }

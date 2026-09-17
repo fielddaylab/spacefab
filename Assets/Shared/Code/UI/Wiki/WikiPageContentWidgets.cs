@@ -1,6 +1,9 @@
+using FieldDay;
+using FieldDay.UI;
 using SpaceFab.Research;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -13,27 +16,19 @@ namespace SpaceFab.UI {
         // Wraps the illustration Image so a page can author an animated sequence. Still pages bind
         // through it too, as a one-frame cycle.
         public SpriteCycler Illustration;
-
-        public GameObject DefaultGroup;
         public TextMeshProUGUI BodyText;
 
-        // Chips are pool-allocated under CharacteristicsContainer, and the group's RectTransform
-        // is resized to fit them.
-        public GameObject MaterialCharacteristicsGroup;
-        public RectTransform CharacteristicsContainer;
-        public GameObject PlanetDetailsContainer;
+        [Header("Material Page")]
+        public GameObject MaterialGroup;
+        public Image MaterialIcon;
+        public TextMeshProUGUI MaterialLabel;
+        public LayoutSizeGroup MaterialLabelSize;
 
-        [Header("Observation Page")]
-        public GameObject ObservationGroup;
-        // Caption above the chip column. Bound from the page's Body when it authors one.
-        public RectTransform ObservationChipContainer;
-
-        [Header("Property Page")]
-        public GameObject PropertyGroup;
-        // Authored on the prefab rather than pool-allocated — there is exactly one per page, and
-        // it carries the property-selection click.
+        [Header("Property Chips")]
         public ResearchObservationChip PropertyChip;
-        public TextMeshProUGUI PropertyBodyText;
-        public RectTransform PropertyLeafChipContainer;
+        public ResearchObservationChip[] ObservationChips;
+
+        [Header("Sizing")]
+        public LayoutOptions VerticalLayout = LayoutOptions.PreferredSize(4, 1);
     }
 }

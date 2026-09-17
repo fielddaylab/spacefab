@@ -59,67 +59,67 @@ namespace SpaceFab.UI {
         //
         // materialId == Null or no MaterialAsset registered => zero
         // chips + minimum group size (just padding).
-        public static void LoadFor(WikiPageContentWidgets widgets, WikiChipPools pools, PlayerProgressState progressState, StringHash32 materialId) {
-            if (widgets == null || pools == null || pools.ChipPool == null) return;
-            if (widgets.CharacteristicsContainer == null) return;
+        public static void LoadFor(WikiPageContentWidgets widgets, PlayerProgressState progressState, StringHash32 materialId) {
+            //if (widgets == null || pools == null || pools.ChipPool == null) return;
+            ////if (widgets.CharacteristicsContainer == null) return;
 
-            // 1. Free prior chips.
-            FreeAllCharacteristicChips(pools);
+            //// 1. Free prior chips.
+            //FreeAllCharacteristicChips(pools);
 
-            // 2. Merge knowledge sources. Start from canonical
-            //    PlayerProgressState; OR-merge ResearchMinigameState
-            //    sandbox if Research is currently loaded.
-            MaterialPropertyRecord merged = default;
-            if (progressState != null && progressState.MaterialProperties != null
-                && progressState.MaterialProperties.TryGetValue(materialId, out var canonicalRecord)) {
-                merged = canonicalRecord;
-            }
-            if (Game.SharedState.Has<ResearchMinigameState>()) {
-                ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
-                if (researchState.SandboxProperties != null
-                    && researchState.SandboxProperties.TryGetValue(materialId, out var sandboxRecord))
-                {
-                    MaterialPropertyRecordUtility.Merge(ref merged, sandboxRecord);
-                }
-            }
+            //// 2. Merge knowledge sources. Start from canonical
+            ////    PlayerProgressState; OR-merge ResearchMinigameState
+            ////    sandbox if Research is currently loaded.
+            //MaterialPropertyRecord merged = default;
+            //if (progressState != null && progressState.MaterialProperties != null
+            //    && progressState.MaterialProperties.TryGetValue(materialId, out var canonicalRecord)) {
+            //    merged = canonicalRecord;
+            //}
+            //if (Game.SharedState.Has<ResearchMinigameState>()) {
+            //    ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
+            //    if (researchState.SandboxProperties != null
+            //        && researchState.SandboxProperties.TryGetValue(materialId, out var sandboxRecord))
+            //    {
+            //        MaterialPropertyRecordUtility.Merge(ref merged, sandboxRecord);
+            //    }
+            //}
 
-            // 3. Walk the material's ground-truth Properties[] for
-            // the static-persistent placeholder pass.
-            MaterialAsset material = Find.NamedAsset<MaterialAsset>(materialId);
-            if (material != null && material.Properties != null) {
-                for (int i = 0; i < material.Properties.Length; i++) {
-                    MaterialPropertyLabel label = material.Properties[i];
-                    if (!MaterialPropertyLabelUtility.IsPersistent(label)) continue;
-                    if (MaterialPropertyLabelUtility.IsDynamic(label)) continue;
-                    if (IsRetiredPairHalf(material.Properties, label, progressState)) continue;
+            //// 3. Walk the material's ground-truth Properties[] for
+            //// the static-persistent placeholder pass.
+            //MaterialAsset material = Find.NamedAsset<MaterialAsset>(materialId);
+            //if (material != null && material.Properties != null) {
+            //    for (int i = 0; i < material.Properties.Length; i++) {
+            //        MaterialPropertyLabel label = material.Properties[i];
+            //        if (!MaterialPropertyLabelUtility.IsPersistent(label)) continue;
+            //        if (MaterialPropertyLabelUtility.IsDynamic(label)) continue;
+            //        if (IsRetiredPairHalf(material.Properties, label, progressState)) continue;
 
-                    bool confirmed = MaterialPropertyRecordUtility.Has(merged, label, StringHash32.Null);
-                    AddChip(widgets, pools,
-                        text: confirmed ? MaterialPropertyLabelDisplay.GetPropertyName(label) : UnknownLabelText,
-                        fillState: confirmed ? ChipFillState.Confirmed : ChipFillState.Filled,
-                        // Tagged off the label rather than the rendered text, so an undiscovered
-                        // "?" slot is addressable under the same id it will carry once confirmed.
-                        tagId: WikiElementTagUtility.MaterialCharacteristicId(materialId, label));
-                }
-            }
+            //        bool confirmed = MaterialPropertyRecordUtility.Has(merged, label, StringHash32.Null);
+            //        AddChip(widgets, pools,
+            //            text: confirmed ? MaterialPropertyLabelDisplay.GetPropertyName(label) : UnknownLabelText,
+            //            fillState: confirmed ? ChipFillState.Confirmed : ChipFillState.Filled,
+            //            // Tagged off the label rather than the rendered text, so an undiscovered
+            //            // "?" slot is addressable under the same id it will carry once confirmed.
+            //            tagId: WikiElementTagUtility.MaterialCharacteristicId(materialId, label));
+            //    }
+            //}
 
-            // 4. Confirmed dynamic-label entries from the merged
-            // record. No placeholder pass for these — only show when
-            // known. (PDopantFor / NDopantFor — both filled.)
-            AppendConfirmedDynamic(widgets, pools, merged, materialId, MaterialPropertyLabel.PDopantFor);
-            AppendConfirmedDynamic(widgets, pools, merged, materialId, MaterialPropertyLabel.NDopantFor);
+            //// 4. Confirmed dynamic-label entries from the merged
+            //// record. No placeholder pass for these — only show when
+            //// known. (PDopantFor / NDopantFor — both filled.)
+            //AppendConfirmedDynamic(widgets, pools, merged, materialId, MaterialPropertyLabel.PDopantFor);
+            //AppendConfirmedDynamic(widgets, pools, merged, materialId, MaterialPropertyLabel.NDopantFor);
 
-            // 5. Lay out + resize the group.
-            float contentHeight = ResearchUILayoutUtility.LayoutVerticalCentered(
-                pools.ActiveCharacteristicChips, pools.ActiveCharacteristicChips.Count, ChipGap);
-            if (widgets.MaterialCharacteristicsGroup != null) {
-                RectTransform groupRect = widgets.MaterialCharacteristicsGroup.transform as RectTransform;
-                if (groupRect != null) {
-                    Vector2 size = groupRect.sizeDelta;
-                    size.y = contentHeight + 2f * OverlayPadding;
-                    groupRect.sizeDelta = size;
-                }
-            }
+            //// 5. Lay out + resize the group.
+            ////float contentHeight = ResearchUILayoutUtility.LayoutVerticalCentered(
+            ////    pools.ActiveCharacteristicChips, pools.ActiveCharacteristicChips.Count, ChipGap);
+            ////if (widgets.MaterialCharacteristicsGroup != null) {
+            ////    RectTransform groupRect = widgets.MaterialCharacteristicsGroup.transform as RectTransform;
+            ////    if (groupRect != null) {
+            ////        Vector2 size = groupRect.sizeDelta;
+            ////        size.y = contentHeight + 2f * OverlayPadding;
+            ////        groupRect.sizeDelta = size;
+            ////    }
+            ////}
         }
 
         // True when `label` is the half of an exclusive pair the wiki
@@ -195,16 +195,16 @@ namespace SpaceFab.UI {
         //
         // tagId is the onboarding ElementTag id Leaf addresses this chip
         // by while the page is bound; null leaves the chip untagged.
-        private static void AddChip(WikiPageContentWidgets widgets, WikiChipPools pools, string text, ChipFillState fillState, string tagId) {
-            ResearchObservationChip chip = pools.ChipPool.Alloc();
-            if (chip == null) return;
-            chip.transform.SetParent(widgets.CharacteristicsContainer, false);
-            chip.SetState(text, fillState, false, ObservationType.ConfirmedProperty);
-            if (chip.LabelText != null) {
-                chip.LabelText.color = Color.black;
-            }
-            WikiElementTagUtility.Stamp(chip, tagId);
-            pools.ActiveCharacteristicChips.Add(chip);
+        private static void AddChip(WikiPageContentWidgets widgets, string text, ChipFillState fillState, string tagId) {
+            //ResearchObservationChip chip = pools.ChipPool.Alloc();
+            //if (chip == null) return;
+            ////chip.transform.SetParent(widgets.CharacteristicsContainer, false);
+            //chip.SetState(text, fillState, false, ObservationType.ConfirmedProperty);
+            //if (chip.LabelText != null) {
+            //    chip.LabelText.color = Color.black;
+            //}
+            //WikiElementTagUtility.Stamp(chip, tagId);
+            //pools.ActiveCharacteristicChips.Add(chip);
         }
 
         // Emits a filled chip for every bit set in the record's
@@ -214,21 +214,21 @@ namespace SpaceFab.UI {
         //
         // Every chip here renders the same label text, so the tag id
         // carries the bit's context material to keep the ids distinct.
-        private static void AppendConfirmedDynamic(WikiPageContentWidgets widgets, WikiChipPools pools, in MaterialPropertyRecord record, StringHash32 materialId, MaterialPropertyLabel dynamicLabel) {
-            ushort mask = dynamicLabel == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMask_NDopant;
-            if (mask == 0) return;
+        private static void AppendConfirmedDynamic(WikiPageContentWidgets widgets, in MaterialPropertyRecord record, StringHash32 materialId, MaterialPropertyLabel dynamicLabel) {
+            //ushort mask = dynamicLabel == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMask_NDopant;
+            //if (mask == 0) return;
 
-            MaterialOrderAsset materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
-            if (materialOrder == null) return;
-            int orderCount = materialOrder.Count;
+            //MaterialOrderAsset materialOrder = Find.GlobalAsset<MaterialOrderAsset>();
+            //if (materialOrder == null) return;
+            //int orderCount = materialOrder.Count;
 
-            for (int bit = 0; bit < 16 && mask != 0; bit++) {
-                if ((mask & (1 << bit)) == 0) continue;
-                mask &= unchecked((ushort)~(1 << bit));
-                if (bit >= orderCount) continue;
-                AddChip(widgets, pools, MaterialPropertyLabelDisplay.GetPropertyName(dynamicLabel), ChipFillState.Confirmed,
-                    WikiElementTagUtility.MaterialCharacteristicId(materialId, dynamicLabel, materialOrder.GetId(bit)));
-            }
+            //for (int bit = 0; bit < 16 && mask != 0; bit++) {
+            //    if ((mask & (1 << bit)) == 0) continue;
+            //    mask &= unchecked((ushort)~(1 << bit));
+            //    if (bit >= orderCount) continue;
+            //    AddChip(widgets, pools, MaterialPropertyLabelDisplay.GetPropertyName(dynamicLabel), ChipFillState.Confirmed,
+            //        WikiElementTagUtility.MaterialCharacteristicId(materialId, dynamicLabel, materialOrder.GetId(bit)));
+            //}
         }
 
         // Returns every pool-held characteristic chip to the pool,
@@ -237,17 +237,17 @@ namespace SpaceFab.UI {
         // LoadFor (clean slate); also callable directly when navigating
         // away from a material page so chips don't stay parked under
         // CharacteristicsContainer.
-        public static void FreeAllCharacteristicChips(WikiChipPools pools) {
-            if (pools == null || pools.ActiveCharacteristicChips == null) return;
-            int n = pools.ActiveCharacteristicChips.Count;
-            for (int i = n - 1; i >= 0; i--) {
-                ResearchObservationChip chip = pools.ActiveCharacteristicChips[i];
-                if (chip != null) {
-                    WikiElementTagUtility.Clear(chip);
-                    Pool.TryFree(chip);
-                }
-            }
-            pools.ActiveCharacteristicChips.Clear();
+        public static void FreeAllCharacteristicChips() {
+        //    if (pools == null || pools.ActiveCharacteristicChips == null) return;
+        //    int n = pools.ActiveCharacteristicChips.Count;
+        //    for (int i = n - 1; i >= 0; i--) {
+        //        ResearchObservationChip chip = pools.ActiveCharacteristicChips[i];
+        //        if (chip != null) {
+        //            WikiElementTagUtility.Clear(chip);
+        //            Pool.TryFree(chip);
+        //        }
+        //    }
+        //    pools.ActiveCharacteristicChips.Clear();
         }
     }
 }

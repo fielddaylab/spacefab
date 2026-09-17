@@ -160,7 +160,6 @@ namespace SpaceFab.UI {
         {
             if (!Game.SharedState.Has<WikiState>()
                 || !Game.SharedState.Has<WikiLayoutState>()
-                || !Game.SharedState.Has<WikiChipPools>()
                 || !Game.SharedState.Has<PlayerProgressState>())
             {
                 // not in a scene that needs wiki rebuilding
@@ -170,7 +169,6 @@ namespace SpaceFab.UI {
             Find.State(
                 out WikiState wikiState,
                 out WikiLayoutState layoutState,
-                out WikiChipPools chipPools,
                 out PlayerProgressState progressState
             );
 
@@ -179,16 +177,16 @@ namespace SpaceFab.UI {
             // No WikiContent means this scene doesn't ship the wiki prefab. Everything past this
             // point assumes the full authoring is present and asserts if it isn't.
 
-            var pools = Find.Components<WikiPools>();
-            Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
+            //var pools = Find.Components<WikiPools>();
+            //Assert.True(pools.Count > 0, "WikiPools missing from a scene that has WikiContent");
 
-            WikiPoolUtility.RebuildStrips(wikiState, layoutState.WikiContent, pools[0]);
-            WikiAvailabilityUtility.ApplyUnlocks(layoutState.WikiContent, pools[0], progressState);
+            //WikiPoolUtility.RebuildStrips(wikiState, layoutState.WikiContent, pools[0]);
+            //WikiAvailabilityUtility.ApplyUnlocks(layoutState.WikiContent, pools[0], progressState);
             wikiState.NeedsRebuild = false;
 
             // Painted here rather than left to WikiRefreshSystem's drain: waiting for the first
             // LateUpdate would show one frame of an unstyled panel on scene load.
-            WikiVisualsUtility.Refresh(wikiState, layoutState, layoutState.WikiContent, pools[0], chipPools, progressState,
+            WikiVisualsUtility.Refresh(wikiState, layoutState, layoutState.WikiContent, progressState,
                 WikiResearchContextUtility.Resolve());
         }
     }
@@ -935,17 +933,17 @@ namespace SpaceFab.UI {
     /// WikiVisualsUtility.
     /// </summary>
     public static class WikiAvailabilityUtility {
-        public static void ApplyUnlocks(WikiContent content, WikiPools pools, PlayerProgressState progressState) {
-            // Walk the pools' allocated sets.
-            var tabButtons = pools.TabButtonPool.ActiveObjects;
-            for (int i = 0; i < tabButtons.Count; i++) {
-                ApplyTabAvailability(tabButtons[i], content, progressState);
-            }
+        public static void ApplyUnlocks(WikiContent content, PlayerProgressState progressState) {
+            //// Walk the pools' allocated sets.
+            //var tabButtons = pools.TabButtonPool.ActiveObjects;
+            //for (int i = 0; i < tabButtons.Count; i++) {
+            //    ApplyTabAvailability(tabButtons[i], content, progressState);
+            //}
 
-            var thumbButtons = pools.PageThumbPool.ActiveObjects;
-            for (int i = 0; i < thumbButtons.Count; i++) {
-                ApplyPageThumbAvailability(thumbButtons[i], content, progressState);
-            }
+            //var thumbButtons = pools.PageThumbPool.ActiveObjects;
+            //for (int i = 0; i < thumbButtons.Count; i++) {
+            //    ApplyPageThumbAvailability(thumbButtons[i], content, progressState);
+            //}
 
             // Chrome buttons (arrows, exit, collapsed icon) need no pass — WikiButton.Available
             // initializes true and only the two helpers above ever clear it.
