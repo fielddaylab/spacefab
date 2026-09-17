@@ -295,6 +295,7 @@ MonoBehaviour:
   Region: {fileID: 6924086022814655278}
   Rig: {fileID: 6255782049053299357}
   AtomicView: {fileID: 8520620929206980832}
+  Atoms: []
   Material: {fileID: 0}
   Tag: {fileID: 171097056233951362}
 --- !u!114 &171097056233951362
@@ -314,7 +315,7 @@ MonoBehaviour:
     m_HashValue: 0
   RectTransform: {fileID: 0}
   SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
+  Collider: {fileID: 6924086022814655278}
 --- !u!58 &6924086022814655278
 CircleCollider2D:
   m_ObjectHideFlags: 0

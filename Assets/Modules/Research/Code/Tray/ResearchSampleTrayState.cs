@@ -113,11 +113,14 @@ namespace SpaceFab.Research {
                 if (material.ConstituentElementNames.Length == 0) {
                     MaterialAtom atom = UnityEngine.Object.Instantiate(trayState.SampleAtomicView, source.AtomicView.transform);
                     MaterialAtomicViewUtility.RenderMaterialAtom(atom, material, researchState);
+                    source.Atoms.Add(atom);
                 }
                 else {
                     MaterialPolyelementalAtom atom = UnityEngine.Object.Instantiate(trayState.PolyelementalSampleAtomicView, source.AtomicView.transform);
                     MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[0], material, researchState, 0);
+                    source.Atoms.Add(atom.MaterialAtoms[0]);
                     MaterialAtomicViewUtility.RenderMaterialAtom(atom.MaterialAtoms[1], material, researchState, 1);
+                    source.Atoms.Add(atom.MaterialAtoms[1]);
                 }
 
                 // 2d. Vertical layout, top-down: index 0 sits at Root, each

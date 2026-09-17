@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FieldDay;
 using FieldDay.Components;
 using SpaceFab.Materials;
@@ -16,6 +17,7 @@ namespace SpaceFab.Research {
         public Collider2D Region;
         public ResearchMaterialVisualRig Rig;
         public GameObject AtomicView;
+        public List<MaterialAtom> Atoms;
         public MaterialAsset Material;
 
         // Onboarding tag stamped per spawn by ResearchSampleTrayUtility (id derived from
@@ -32,6 +34,9 @@ namespace SpaceFab.Research {
             // system corrects it once a property is confirmed.
             if (Rig != null && Material != null) {
                 ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(Rig, Material, Find.State<ResearchMinigameState>());
+            }
+            if (Atoms == null) {
+                Atoms = new List<MaterialAtom>();
             }
         }
 

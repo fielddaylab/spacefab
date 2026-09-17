@@ -31,5 +31,6 @@ namespace SpaceFab.Research
         // until the sample panel renders the viewmodel a couple of systems after the add.
         public static readonly StringHash32 OnVerifyButtonShown = "OnVerifyButtonShown";
         public static readonly StringHash32 OnHypothesisSubmitted = "OnHypothesisSubmitted";
+        public static readonly StringHash32 OnMaterialExploded = "OnMaterialExploded";
     }
 }

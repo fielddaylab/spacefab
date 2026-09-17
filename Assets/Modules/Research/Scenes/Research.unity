@@ -4623,11 +4623,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2731764934151807371, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731764934151807371, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.07
+      value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 2731764934151807371, guid: 53e8830c342c16e42be658d93eff239a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6880,6 +6880,26 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1327220854399440614, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2451d3c3b979f41e1ad9ac52ff20385e, type: 3}
+    - target: {fileID: 1327220854399440614, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1327220854399440614, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1327220854399440614, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1327220854399440614, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 1643596385745686790, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_Color.b
       value: 0.6603774
@@ -7108,6 +7128,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DopingChamber
       objectReference: {fileID: 0}
+    - target: {fileID: 6165560960228309612, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6449554735563346285, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_Color.b
       value: 0.6603774
@@ -7119,6 +7143,18 @@ PrefabInstance:
     - target: {fileID: 6449554735563346285, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_Color.r
       value: 0.6603774
+      objectReference: {fileID: 0}
+    - target: {fileID: 6632359596876566041, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6632359596876566041, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6632359596876566041, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7888470468484059516, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_LocalScale.x
@@ -7140,9 +7176,17 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.55
       objectReference: {fileID: 0}
+    - target: {fileID: 8221763110631013117, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_SortingOrder
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 8437287652106085637, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_margin.w
       value: 0.03647542
+      objectReference: {fileID: 0}
+    - target: {fileID: 8439282354781477384, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: m_SortingOrder
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 8822104561510869163, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_Mesh
@@ -7159,6 +7203,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 496764679}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8918686274110502201, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
     - targetCorrespondingSourceObject: {fileID: 5828068202223279238, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
