@@ -2,6 +2,7 @@ using BeauUtil;
 using SpaceFab.Materials;
 using SpaceFab.Research;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SpaceFab
 {
@@ -278,6 +279,7 @@ namespace SpaceFab
             {
                 if (!HasAnyFulfillingMaterial(progress, checks[i]))
                 {
+                    Debug.Log(checks[i].ToString());
                     return false;
                 }
             }

@@ -185,7 +185,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7091301445713432738
 Transform:
   m_ObjectHideFlags: 0
@@ -1989,8 +1989,6 @@ MonoBehaviour:
   Circuit: {fileID: 130131968842501781}
   SampleHolder: {fileID: 3546955409230533120}
   Root: {fileID: 7576376653351747665}
-  AtomicView: {fileID: 2825397926812422657}
-  SecondarySlotLid: {fileID: 6165560960228309612}
   SubstrateAtom: {fileID: 1099987963829235032}
   DopantAtom: {fileID: 7509356532144791990}
   EmptyState: {fileID: 8918686274110502201}
