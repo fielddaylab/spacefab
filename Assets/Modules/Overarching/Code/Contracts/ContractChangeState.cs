@@ -81,6 +81,9 @@ namespace SpaceFab.Overarching
             layoutState.NextContractButton.gameObject.SetActive(false);
             layoutState.PrevContractButton.gameObject.SetActive(false);
 
+            layoutState.NextStackedPile.enabled = false;
+            layoutState.PrevStackedPile.enabled = false;
+
             yield return 0.5f;
 
             layoutState.SelectionCanvasGroup.alpha = 0;

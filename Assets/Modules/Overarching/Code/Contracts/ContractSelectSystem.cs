@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 namespace SpaceFab.Overarching {
     /// <summary>
@@ -71,8 +72,12 @@ namespace SpaceFab.Overarching {
 
             // When the selected contract changes, refresh its detail UI
             if (selectState.SelectedContractIndexChanged) {
+                bool isVisible = selectState.SelectedContractIndex > 0;
                 layoutState.PrevContractButton.gameObject.SetActive(selectState.SelectedContractIndex > 0);
+                layoutState.PrevStackedPile.gameObject.SetActive(isVisible);
+
                 layoutState.NextContractButton.gameObject.SetActive(selectState.SelectedContractIndex < ContractSelectUtility.AvailableCount(selectState) - 1);
+                layoutState.NextStackedPile.enabled = selectState.SelectedContractIndex < ContractSelectUtility.AvailableCount(selectState) - 1;
                 // Compare in raw index space - LastSelectedContractIndex is a raw chapter index,
                 // and its -1 "nothing accepted" sentinel must never match a valid selection.
                 layoutState.SelectionContractUI.SignatureImage.fillAmount = chapterState.LastSelectedContractIndex == ContractSelectUtility.ToRawIndex(selectState, selectState.SelectedContractIndex) ? 1 : 0;

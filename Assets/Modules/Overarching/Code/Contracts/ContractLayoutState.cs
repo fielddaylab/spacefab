@@ -30,6 +30,9 @@ namespace SpaceFab.Overarching
         public DynamicButton NextContractButton;
         public DynamicButton PrevContractButton;
 
+        public Image NextStackedPile;
+        public Image PrevStackedPile;
+
         [Header("Change")]
         public DynamicButton ViewCurrContractButton;
         public CanvasGroup ChangeCanvasGroup;
