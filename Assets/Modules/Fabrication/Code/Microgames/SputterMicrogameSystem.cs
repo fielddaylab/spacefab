@@ -3,8 +3,7 @@ using FieldDay.Systems;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.StationControl;
 using SpaceFab.Fabrication.Stations;
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SpaceFab.Fabrication.Microgames
@@ -41,7 +40,8 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
-        static private void ProcessActive(SputterMicrogameState state, float deltaTime)
+
+        static private async Task ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;
@@ -61,27 +61,42 @@ namespace SpaceFab.Fabrication.Microgames
 
             // Spawn projectile on Activate press
             Vector2 startPosition = state.FirePoint.position;
+            
+            // Update line renderer (trajectory preview)
+            Vector2 direction = Quaternion.Euler(0, 0, angle) * Vector2.right;
+            RaycastHit2D hit = Physics2D.Raycast(startPosition, direction, 100f, ~(1 << 2));
+
+            state.TrajectoryPreview.enabled = state.IsTrajectoryDisplayed;
+            state.TrajectoryPreview.SetPosition(0, startPosition);
+            state.TrajectoryPreview.SetPosition(1, hit.point);
+
             if (Game.Input.IsKeyPressed(FabricationConsts.Activate))
             {
+                state.TrajectoryPreview.positionCount = 2;
+                state.IsTrajectoryDisplayed = true;
+
                 SputterMicrogameProjectile projectile = Instantiate(state.ProjectilePrefab, state.ProjectileParent);
-                projectile.transform.position = startPosition;
+                projectile.transform.position = hit.point;
                 // direction
                 projectile.SetDirection(angle);
             }
 
-            // Update line renderer (trajectory preview)
-            Vector2 direction = Quaternion.Euler(0, 0, angle) * Vector2.right;
-            RaycastHit2D hit = Physics2D.Raycast(startPosition, direction, 100f, ~(1 << 2));
-            state.TrajectoryPreview.SetPosition(0, startPosition);
+            if (state.IsTrajectoryDisplayed)
+            {
+                state.TrajectoryPreview.enabled = true;
+                state.FlashTime -= Frame.DeltaTime;
+                if (state.FlashTime <= 0f)
+                {
+                    state.TrajectoryPreview.enabled = false;
+                    state.IsTrajectoryDisplayed = false;
+                    state.FlashTime = 0.18f;
+                }
+            }
 
-            state.TrajectoryPreview.positionCount = 2;
-            state.TrajectoryPreview.SetPosition(1, hit.point);
             if (hit.collider.name == "Mirror")
             {
-                state.TrajectoryPreview.positionCount++;
                 direction = Quaternion.Euler(0, 0, -angle) * Vector2.right;
                 hit = Physics2D.Raycast(hit.point + direction * 0.01f, direction, 100f, ~(1 << 2));
-                state.TrajectoryPreview.SetPosition(2, hit.point);
             }
 
             if (state.SputterPattern.CompletelyFilled)

@@ -39,6 +39,9 @@ namespace SpaceFab.Fabrication.Microgames
         public SputterMicrogameProjectile ProjectilePrefab;
         [NonSerialized] public SputterPatternData SputterPattern;
 
+        public bool IsTrajectoryDisplayed = false;
+        public float FlashTime = 0.18f;
+
         public void OnRegister()
         {
             
