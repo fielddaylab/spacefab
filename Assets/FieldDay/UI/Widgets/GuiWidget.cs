@@ -226,6 +226,7 @@ namespace FieldDay.UI.Widgets {
         protected void AssignBaseStyle(IGuiWidgetStyle style) {
             Assert.NotNullOrDestroyed(style);
             m_BaseStyle = style;
+            style.Bind(this);
             style.UpdateState(m_StateFlags, m_StateFlags, this, GuiWidgetUpdateFlags.Force | GuiWidgetUpdateFlags.NoAnimation);
         }
 

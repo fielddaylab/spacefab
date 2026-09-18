@@ -685,6 +685,22 @@ namespace FieldDay {
 
         #region Preferred
 
+        static public void SetSizeWithCurrentAnchors(RectTransform rect, Vector2 size) {
+            Vector2 parentSize = default;
+            RectTransform parent = rect.parent as RectTransform;
+            if (parent) {
+                parentSize = parent.sizeDelta;
+            }
+
+            Vector2 anchorMin = rect.anchorMin,
+                anchorMax = rect.anchorMax;
+
+            Vector2 newSizeDelta;
+            newSizeDelta.x = size.x - parentSize.x * (anchorMax.x - anchorMin.x);
+            newSizeDelta.y = size.y - parentSize.y * (anchorMax.y - anchorMin.y);
+			rect.sizeDelta = newSizeDelta;
+        }
+
         /// <summary>
         /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
         /// </summary>

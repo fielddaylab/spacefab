@@ -62,6 +62,9 @@ namespace SpaceFab.UI {
         // property plus its decomposed observations.
         [FormerlySerializedAs("m_PropertyCheck")] public MaterialPropertyCheck PropertyCheck;
 
+        [Header("Unlocks")]
+        public bool IsUnlockedByDefault;
+
         public bool IsMaterialPage { get { return !MaterialId.IsEmpty; } }
         public bool IsPropertyPage { get { return PropertyCheck != null; } }
     }

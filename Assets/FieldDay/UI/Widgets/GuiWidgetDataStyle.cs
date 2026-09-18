@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace FieldDay.UI.Widgets {
     public interface IGuiWidgetStyle {
+        void Bind(GuiWidget source);
         void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags changed, GuiWidget source, GuiWidgetUpdateFlags flags);
     }
 
@@ -18,7 +19,8 @@ namespace FieldDay.UI.Widgets {
         void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags);
     }
 
-    public abstract class GuiWidgetStyle<TValue> : MonoBehaviour, IGuiWidgetDataStyle<TValue>, IGuiWidgetStyle {
+    public abstract class GuiWidgetDataStyle<TValue> : MonoBehaviour, IGuiWidgetDataStyle<TValue>, IGuiWidgetStyle {
+        public abstract void Bind(GuiWidget source);
         public abstract void Populate(in TValue data, GuiWidget source, GuiWidgetUpdateFlags flags);
         public abstract void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags changed, GuiWidget source, GuiWidgetUpdateFlags flags);
     }

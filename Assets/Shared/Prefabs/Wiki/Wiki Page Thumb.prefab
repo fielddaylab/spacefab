@@ -154,7 +154,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2533435817408525176}
   - component: {fileID: 3065326265740529273}
-  - component: {fileID: 3546720853377191150}
   - component: {fileID: 4936668618918178319}
   - component: {fileID: 4673306683996144519}
   - component: {fileID: 4295522130762144046}
@@ -198,24 +197,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3437054748629689750}
   m_CullTransparentMesh: 1
---- !u!114 &3546720853377191150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3437054748629689750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82b72b5b7343fa0419b905b54fb2e388, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Kind: 1
-  TabIndex: 0
-  PageIndex: 0
-  DynamicButton: {fileID: 0}
-  Button: {fileID: 4295522130762144046}
-  ElementTag: {fileID: 4936668618918178319}
 --- !u!114 &4936668618918178319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,6 +259,7 @@ MonoBehaviour:
   m_Cursor: {fileID: 4673306683996144519}
   m_PrimaryGraphic: {fileID: 3916259799329018807}
   m_Style: {fileID: 7507607852729686297}
+  m_IsToggle: 0
 --- !u!114 &7507607852729686297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,9 +272,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594515ac596b9bb4ba1266f7f2856112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Icon: {fileID: 3916259799329018807}
   Background: {fileID: 2848356772034724076}
   Outline: {fileID: 5049612052889696939}
+  Taggable: {fileID: 4936668618918178319}
   MaterialLabelGroup: {fileID: 3830130610982485371}
   MaterialLabel: {fileID: 6539479075654501426}
   MaterialLabelSizer: {fileID: 6562758055605540216}
