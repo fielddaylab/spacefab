@@ -56,7 +56,7 @@ $endif
 
 ::OnHypothesisCorrect
 @trigger    OnHypothesisSubmitted
-@when   !MinigameHasValidSolution(), result == "success"
+@when   result == "success"
 $call   CloseWiki()
 $if MinigameHasValidSolution()
     {@PAL}  Great. You've completed all research tasks! You can return to the ship, or continue your experiments to uncover new insights.
