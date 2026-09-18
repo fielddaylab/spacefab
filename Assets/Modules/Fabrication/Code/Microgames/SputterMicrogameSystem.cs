@@ -5,6 +5,7 @@ using SpaceFab.Fabrication.StationControl;
 using SpaceFab.Fabrication.Stations;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Fabrication.Microgames
 {
@@ -40,7 +41,6 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
-
         static private async Task ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
@@ -66,6 +66,8 @@ namespace SpaceFab.Fabrication.Microgames
             Vector2 direction = Quaternion.Euler(0, 0, angle) * Vector2.right;
             RaycastHit2D hit = Physics2D.Raycast(startPosition, direction, 100f, ~(1 << 2));
 
+            SpriteRenderer hitEffect = state.sputerHitImg;
+            hitEffect.enabled = state.IsTrajectoryDisplayed;
             state.TrajectoryPreview.enabled = state.IsTrajectoryDisplayed;
             state.TrajectoryPreview.SetPosition(0, startPosition);
             state.TrajectoryPreview.SetPosition(1, hit.point);
@@ -77,18 +79,21 @@ namespace SpaceFab.Fabrication.Microgames
 
                 SputterMicrogameProjectile projectile = Instantiate(state.ProjectilePrefab, state.ProjectileParent);
                 projectile.transform.position = hit.point;
+                hitEffect.GetComponent<Transform>().position = hit.point;
                 // direction
                 projectile.SetDirection(angle);
             }
 
             if (state.IsTrajectoryDisplayed)
             {
-                state.TrajectoryPreview.enabled = true;
+                //state.TrajectoryPreview.enabled = true;
                 state.FlashTime -= Frame.DeltaTime;
+                hitEffect.enabled = true;
+
                 if (state.FlashTime <= 0f)
                 {
-                    state.TrajectoryPreview.enabled = false;
                     state.IsTrajectoryDisplayed = false;
+                    hitEffect.enabled = false;
                     state.FlashTime = 0.18f;
                 }
             }

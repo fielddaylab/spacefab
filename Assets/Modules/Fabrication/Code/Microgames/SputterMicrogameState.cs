@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace SpaceFab.Fabrication.Microgames
@@ -38,6 +39,7 @@ namespace SpaceFab.Fabrication.Microgames
 
         public SputterMicrogameProjectile ProjectilePrefab;
         [NonSerialized] public SputterPatternData SputterPattern;
+        public SpriteRenderer sputerHitImg;
 
         public bool IsTrajectoryDisplayed = false;
         public float FlashTime = 0.18f;
@@ -107,6 +109,9 @@ namespace SpaceFab.Fabrication.Microgames
             state.Phase = SputterMicrogamePhase.Entering;
             state.IsActive = true;
             state.InputAccepted = false;
+
+            state.TrajectoryPreview.enabled = false;
+            state.sputerHitImg.enabled = false;
         }
 
         public static void EnterComplete()
