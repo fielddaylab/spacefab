@@ -22,8 +22,9 @@ namespace SpaceFab.Research {
                 new SysPermissions()
                     .ReadShared<ChamberInterfacerState>()
                     .ReadShared<HypothesisViewModelState>()
-                    //.ReadShared<BatteryChamberState>()
                     .ReadShared<ResearchMinigameState>()
+                    .ReadShared<PlayerProgressState>()
+                    .ReadShared<ContractState>()
                     .ReadWrite<ResearchSamplePanel>()
             );
         }
@@ -43,6 +44,10 @@ namespace SpaceFab.Research {
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                 SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState, wikiState);
+                if (panel.CompleteButton != null) {
+                    Find.State(out PlayerProgressState progressState, out ContractState contractState);
+                    panel.CompleteButton.gameObject.SetActive(ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition));
+                }
             }
 
             // Onboarding hook: fire OnVerifyButtonShown the frame AFTER the verify button becomes

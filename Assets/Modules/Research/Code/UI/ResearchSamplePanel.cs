@@ -38,6 +38,8 @@ namespace SpaceFab.Research {
         public CursorHint AddPropertyButton;
         public GameObject ChipPickerOverlay;
 
+        public DynamicButton CompleteButton;
+
         // Scene-wired RectTransform under ChipPickerOverlay that pool-
         // alloced picker chips are reparented under. The load utility
         // lays chips out here vertically and resizes the overlay to fit.
@@ -122,6 +124,9 @@ namespace SpaceFab.Research {
             if (DopingChamberButton != null) {
                 DopingChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
+            if (CompleteButton != null) {
+                CompleteButton.onClick.AddListener(HandleCompleteMinigame);
+            }
 
             SamplePanelInputUtility.ClosePicker(this);
         }
@@ -164,6 +169,10 @@ namespace SpaceFab.Research {
             if (DopingChamberButton != null) {
                 DopingChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
+
+            if (CompleteButton != null) {
+                CompleteButton.onClick.RemoveListener(HandleCompleteMinigame);
+            }
         }
 
         private void HandleAddObservation() {
@@ -202,6 +211,10 @@ namespace SpaceFab.Research {
         private void HandleChamberSwitch(ActiveChamberKind kind)
         {
             ChamberInterfacerUtility.SetActiveChamber(Find.State<ChamberInterfacerState>(), kind);
+        }
+
+        public void HandleCompleteMinigame() {
+            Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.Requested;
         }
     }
 
