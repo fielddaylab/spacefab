@@ -81,8 +81,14 @@ namespace SpaceFab
             // version gate. When SaveVersion is fixed, move into a
             // versioned slot.
             BigBatteryUnlocked = reader.Read<bool>();
-            ThermalChamberUnlocked = reader.Read<bool>();
-            DopingChamberUnlocked = reader.Read<bool>();
+            if (consts.Version >= 1) {
+                ThermalChamberUnlocked = reader.Read<bool>();
+                DopingChamberUnlocked = reader.Read<bool>();
+            } else {
+                ThermalChamberUnlocked = false;
+                DopingChamberUnlocked = false;
+            }
+
             InitialUnlocksApplied = reader.Read<bool>();
             
         }
