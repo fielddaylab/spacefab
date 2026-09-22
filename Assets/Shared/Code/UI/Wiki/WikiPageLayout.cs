@@ -30,7 +30,7 @@ namespace SpaceFab.UI {
         public LayoutOptions VerticalLayout = LayoutOptions.PreferredSize(4, 1);
     }
 
-    static public partial class WikiUtilityV2 {
+    static public partial class WikiUtility {
         static public void PopulatePageContent(WikiPageLayout layout, WikiPageData pageData, IWikiContentFilter contentFilter) {
             ClearPageContent(layout);
 

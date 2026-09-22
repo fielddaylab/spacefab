@@ -46,9 +46,11 @@ namespace SpaceFab.UI {
                 button.MaterialLabelGroup.SetActive(true);
                 pageIcon = material.GemSprite;
                 button.Widget.CursorHint.TooltipHeader = material.DisplayName;
+                button.Taggable.SetId(WikiElementTagUtility.PageThumbId(material.ShortName));
             } else {
                 button.MaterialLabelGroup.SetActive(false);
                 button.Widget.CursorHint.TooltipHeader = pageData.Title;
+                button.Taggable.SetId(WikiElementTagUtility.PageThumbId(pageData.Title));
             }
 
             button.Widget.ImageGraphic.sprite = pageIcon;

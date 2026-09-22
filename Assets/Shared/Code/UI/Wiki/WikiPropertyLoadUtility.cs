@@ -151,39 +151,5 @@ namespace SpaceFab.UI {
             ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
             return uiAssets != null && uiAssets.PropertyPageObservationChipsClickable;
         }
-
-        // Returns every pool-held leaf chip to the pool and unbinds the
-        // authored property chip, deregistering handlers and onboarding tag
-        // ids in lockstep. Called as the first step of LoadFor (clean slate),
-        // and directly when navigating away from a property page.
-        public static void FreeAllPropertyChips(WikiPageContentWidgets widgets) {
-            //if (pools == null) return;
-
-            //if (widgets != null && widgets.PropertyChip != null) {
-            //    if (widgets.PropertyChip.Click != null && pools.PropertyChipClickHandler != null) {
-            //        widgets.PropertyChip.Click.onClick.Deregister(pools.PropertyChipClickHandler);
-            //    }
-            //    WikiElementTagUtility.Clear(widgets.PropertyChip);
-            //}
-            //pools.PropertyChipClickHandler = null;
-
-            //if (pools.ActivePropertyLeafChips == null) return;
-            //int n = pools.ActivePropertyLeafChips.Count;
-            //for (int i = n - 1; i >= 0; i--) {
-            //    ResearchObservationChip chip = pools.ActivePropertyLeafChips[i];
-            //    Action handler = i < pools.ActivePropertyLeafClickHandlers.Count
-            //        ? pools.ActivePropertyLeafClickHandlers[i]
-            //        : null;
-            //    if (chip != null && chip.Click != null && handler != null) {
-            //        chip.Click.onClick.Deregister(handler);
-            //    }
-            //    if (chip != null) {
-            //        WikiElementTagUtility.Clear(chip);
-            //        Pool.TryFree(chip);
-            //    }
-            //}
-            //pools.ActivePropertyLeafChips.Clear();
-            //pools.ActivePropertyLeafClickHandlers?.Clear();
-        }
     }
 }

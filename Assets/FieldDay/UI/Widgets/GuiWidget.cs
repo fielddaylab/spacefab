@@ -203,11 +203,8 @@ namespace FieldDay.UI.Widgets {
         #region Events
 
         protected virtual void Awake() {
-            if (!m_Cursor) {
-                m_Cursor = GetComponentInChildren<CursorHint>(true);
-            }
-            if (m_Cursor) {
-                m_Cursor.Owner = this;
+            if (m_Cursor && m_Cursor.Owner == null) {
+                m_Cursor.Owner = this; 
             }
         }
 

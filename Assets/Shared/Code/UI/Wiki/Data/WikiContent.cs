@@ -5,6 +5,7 @@ using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.Scenes;
+using FieldDay.SharedState;
 using SpaceFab.Materials;
 
 namespace SpaceFab.UI {
@@ -14,15 +15,15 @@ namespace SpaceFab.UI {
     /// resolve TabId/PageId lookups for OpenTo calls) and WikiVisualsUtility (to render
     /// tab/page content).
     /// </summary>
-    public class WikiContent : BatchedComponent, IRegistrationCallbacks {
+    public class WikiContent : SharedStateComponent, IRegistrationCallbacks {
+        // Number of page thumbnails visible at once in the paginator strip. Scrolling moves the
+        // strip one slot at a time, keeping the selected page inside the window.
+        public const int PageWindowSize = 5;
+
         // Runtime-only: the tab set is authored per-minigame on GlobalUISceneConfig.WikiTabs and
         // pushed here by QuickToolbar on scene late enable. Empty until that happens, so a scene
         // without a config simply shows no tabs rather than tripping the strip asserts.
         [NonSerialized] public WikiTabData[] Tabs = Array.Empty<WikiTabData>();
-
-        // Number of page thumbnails visible at once in the paginator strip. Scrolling moves the
-        // strip one slot at a time, keeping the selected page inside the window.
-        public int PageWindowSize = 5;
 
         [NonSerialized] public IWikiContentFilter ContentFilter;
 
@@ -155,9 +156,141 @@ namespace SpaceFab.UI {
 
         #region Indices
 
+        /// <summary>
+        /// Returns the id of the given wiki tab.
+        /// </summary>
+        static public int LookupTabId(WikiContent content, StringHash32 tabName) {
+            for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
+                WikiTabData tabData = content.Tabs[tabIndex];
+                if (tabData.AssetId == tabName) {
+                    return tabIndex;
+                }
+            }
 
+            Log.Error("[WikiUtility] Tab with name '{0}' not found in loaded set of Wiki Content", tabName);
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the address of the given wiki page.
+        /// </summary>
+        static public WikiPageAddress LookupPageAddress(WikiContent content, StringHash32 pageName) {
+            for(int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
+                WikiTabData tabData = content.Tabs[tabIndex];
+                for (int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
+                    WikiPageData pageData = tabData.Pages[pageIndex];
+                    if (pageData.AssetId == pageName) {
+                        return new WikiPageAddress() {
+                            TabId = (sbyte) tabIndex,
+                            PageId = (sbyte) pageIndex
+                        };
+                    }
+                }
+            }
+
+            Log.Error("[WikiUtility] Page with name '{0}' not found in loaded set of Wiki Content", pageName);
+            return new WikiPageAddress() {
+                PageId = -1,
+                TabId = -1
+            };
+        }
+
+        /// <summary>
+        /// Returns the address of the wiki page for the given observation type.
+        /// </summary>
+        static public WikiPageAddress LookupObservationPageAddress(WikiContent content, ObservationType observationType) {
+            for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
+                WikiTabData tabData = content.Tabs[tabIndex];
+                for (int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
+                    WikiPageData pageData = tabData.Pages[pageIndex];
+                    if (pageData.IsObservationPage && pageData.ObservationType == observationType) {
+                        return new WikiPageAddress() {
+                            TabId = (sbyte) tabIndex,
+                            PageId = (sbyte) pageIndex
+                        };
+                    }
+                }
+            }
+
+            Log.Error("[WikiUtility] Page with observation '{0}' not found in loaded set of Wiki Content", observationType);
+            return new WikiPageAddress() {
+                PageId = -1,
+                TabId = -1
+            };
+        }
+
+        /// <summary>
+        /// Returns the address of the wiki page for the given property type.
+        /// </summary>
+        static public WikiPageAddress LookupPropertyPageAddress(WikiContent content, MaterialPropertyLabel propertyType) {
+            for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
+                WikiTabData tabData = content.Tabs[tabIndex];
+                for (int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
+                    WikiPageData pageData = tabData.Pages[pageIndex];
+                    if (pageData.IsPropertyPage && pageData.PropertyCheck.Label == propertyType) {
+                        return new WikiPageAddress() {
+                            TabId = (sbyte) tabIndex,
+                            PageId = (sbyte) pageIndex
+                        };
+                    }
+                }
+            }
+
+            Log.Error("[WikiUtility] Page with property '{0}' not found in loaded set of Wiki Content", propertyType);
+            return new WikiPageAddress() {
+                PageId = -1,
+                TabId = -1
+            };
+        }
+
+        /// <summary>
+        /// Returns the address of the wiki page for the given material id.
+        /// </summary>
+        static public WikiPageAddress LookupMaterialPageAddress(WikiContent content, StringHash32 materialId) {
+            for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
+                WikiTabData tabData = content.Tabs[tabIndex];
+                for (int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
+                    WikiPageData pageData = tabData.Pages[pageIndex];
+                    if (pageData.IsMaterialPage && pageData.MaterialId == materialId) {
+                        return new WikiPageAddress() {
+                            TabId = (sbyte) tabIndex,
+                            PageId = (sbyte) pageIndex
+                        };
+                    }
+                }
+            }
+
+            Log.Error("[WikiUtility] Page with material '{0}' not found in loaded set of Wiki Content", materialId);
+            return new WikiPageAddress() {
+                PageId = -1,
+                TabId = -1
+            };
+        }
+
+        /// <summary>
+        /// Returns the visual index of the given page index in the given tab.
+        /// </summary>
+        static public unsafe int LookupPageVisualIndex(WikiContent content, int tabIndex, int pageIndex) {
+            Assert.True(tabIndex >= 0, "Tab index out of range");
+            WikiContentList pageList = content.TabPages[tabIndex];
+            if (!pageList.Availability.IsSet(pageIndex)) {
+                return -1;
+            }
+
+            for(int i = 0; i < pageList.Count; i++) {
+                if (pageList.Indices[i] == pageIndex) {
+                    return i;
+                }
+            }
+            return -1;
+        }
 
         #endregion // Indices
+    }
+
+    public struct WikiPageAddress {
+        public sbyte TabId;
+        public sbyte PageId;
     }
 
     public enum WikiListUpdateResult {

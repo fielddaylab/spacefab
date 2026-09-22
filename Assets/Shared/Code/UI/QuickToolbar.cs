@@ -64,7 +64,7 @@ namespace SpaceFab
             WikiUtility.LoadTabs(Find.State<WikiState>(), Find.State<WikiLayoutState>().WikiContent, config.WikiTabs);
         }
 
-        #region // Handlers
+        #region Handlers
         
         private void OnCollapsedWikiClicked() {
             WikiUtility.ToggleWikiOpen(Find.State<WikiState>());

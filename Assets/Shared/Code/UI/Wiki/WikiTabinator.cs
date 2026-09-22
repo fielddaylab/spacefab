@@ -41,7 +41,7 @@ namespace SpaceFab.UI {
                     break;
                 }
 
-                tabVisuals.Widget.SetToggleState(tabVisuals.Widget.GetVariantValue() == selectedId, updateFlags);
+                tabVisuals.Widget.SetToggleState(tabVisuals.Widget.GetVariantValue().AsInt() == selectedId, updateFlags);
             }
         }
 

@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using BeauUtil.UI;
 using BeauUtil.Variants;
 using System;
@@ -22,7 +23,6 @@ namespace FieldDay.UI.Widgets {
         }
 
         [SerializeField] private Style m_Style;
-        [SerializeField] private bool m_IsToggle;
 
         [NonSerialized] private GuiWidgetInteractableState m_InteractableState;
         [NonSerialized] private bool m_WasClicked = false;
@@ -115,8 +115,12 @@ namespace FieldDay.UI.Widgets {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public GuiButton Resolve(PointerListener.EventData data) {
+            Assert.True(data.Source is CursorHint, "Pointer data did not originate from a CursorHint");
             CursorHint cursor = Unsafe.FastCast<CursorHint>(data.Source);
+
+            Assert.True(cursor.Owner is GuiButton, "Cursor hint is not owned by a GuiButton");
             GuiButton button = Unsafe.FastCast<GuiButton>(cursor.Owner);
+
             return button;
         }
 

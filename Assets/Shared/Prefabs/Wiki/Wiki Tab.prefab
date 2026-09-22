@@ -146,7 +146,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3446962239971779429}
   - component: {fileID: 2771044658933046884}
-  - component: {fileID: 4451518251995077875}
   - component: {fileID: 4075394584355128957}
   - component: {fileID: 4542525751125533162}
   - component: {fileID: 4360009080446103270}
@@ -191,24 +190,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2543509618474448267}
   m_CullTransparentMesh: 1
---- !u!114 &4451518251995077875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2543509618474448267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82b72b5b7343fa0419b905b54fb2e388, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Kind: 0
-  TabIndex: 0
-  PageIndex: -1
-  DynamicButton: {fileID: 0}
-  Button: {fileID: 4360009080446103270}
-  ElementTag: {fileID: 4542525751125533162}
 --- !u!114 &4075394584355128957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,9 +202,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09af936012d412e43bf2f9a96013d5db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TabIcon: {fileID: 8987225826158094849}
   Background: {fileID: 8864581315390554252}
   Outline: {fileID: 4085893415760714341}
+  Taggable: {fileID: 4542525751125533162}
 --- !u!114 &4542525751125533162
 MonoBehaviour:
   m_ObjectHideFlags: 0
