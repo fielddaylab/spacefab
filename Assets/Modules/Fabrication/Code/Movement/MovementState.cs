@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Robot;
 using SpaceFab.Fabrication.StationControl;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,14 +21,14 @@ namespace SpaceFab.Fabrication.Movement {
         // index of the slot the robot is currently at.
         public int CurrSlotPosition;
 
-        [HideInInspector] public bool MoveEnabled;
+        [NonSerialized] public bool MoveEnabled;
 
         public Routine MoveRoutine;
 
         // One-frame flag: set by MovementSystem whenever CurrSlotPosition is written (either becoming
         // TRAVELING at move-start or becoming a target index at move-end). Cleared by MovementRefreshSystem
         // in LateUpdate. Consumed by StationControlSystem to detect arrival/departure edges.
-        [HideInInspector] public bool SlotChangedThisFrame;
+        [NonSerialized] public bool SlotChangedThisFrame;
 
         public void OnDeregister() {
         }

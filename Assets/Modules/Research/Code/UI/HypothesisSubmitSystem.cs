@@ -80,6 +80,7 @@ namespace SpaceFab.Research {
 
             bool anyPruned = PruneIncorrectPicks(researchState, slotted, viewModelState, out string failureReason);
             if (anyPruned) {
+                viewModelState.HypothesisSelected = false;
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
 
                 using (var table = TempVarTable.Alloc()) {
@@ -98,6 +99,9 @@ namespace SpaceFab.Research {
                 // record state — request a rebuild so the visual updates
                 // next LateUpdate.
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
+            }
+            else {
+                viewModelState.HypothesisSelected = false;
             }
 
             using (var table = TempVarTable.Alloc()) {
@@ -177,9 +181,9 @@ namespace SpaceFab.Research {
 
         // Scratch for the union decomposition; submits are rare and
         // single-threaded, so shared buffers suffice.
-        private static readonly List<MaterialObservationEntry> s_UnionScratch = new List<MaterialObservationEntry>(8);
-        private static readonly List<MaterialObservationEntry> s_DefScratch = new List<MaterialObservationEntry>(8);
-        private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
+        [NotStateful] private static readonly List<MaterialObservationEntry> s_UnionScratch = new List<MaterialObservationEntry>(8);
+        [NotStateful] private static readonly List<MaterialObservationEntry> s_DefScratch = new List<MaterialObservationEntry>(8);
+        [NotStateful] private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
 
         // Decomposes every registered definition for the label and
         // returns the deduped (label, context) union of their leaves.

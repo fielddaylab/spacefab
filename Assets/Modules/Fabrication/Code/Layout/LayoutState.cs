@@ -3,10 +3,10 @@ using FieldDay;
 using FieldDay.SharedState;
 using Leaf.Runtime;
 using SpaceFab.Fabrication.Stations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Unity.Mathematics.math;
 
 namespace SpaceFab.Fabrication.Layout
 {
@@ -19,8 +19,8 @@ namespace SpaceFab.Fabrication.Layout
         public MicrogameStationInterfacer[] StationInterfacers;
         public StationSlot[] StationSlots;
 
-        [HideInInspector] public bool NeedsReshuffling;
-        [HideInInspector] public LeafThreadHandle PreAttemptScriptHandle = default;
+        [NonSerialized] public bool NeedsReshuffling;
+        [NonSerialized] public LeafThreadHandle PreAttemptScriptHandle = default;
 
     }
 
@@ -41,7 +41,7 @@ namespace SpaceFab.Fabrication.Layout
             // Fisher-Yates shuffle
             for (int i = 0; i < numElements - 1; i++)
             {
-                int swapIndex = Random.Range(i, numElements);
+                int swapIndex = UnityEngine.Random.Range(i, numElements);
                 int temp = stationOrder[i];
                 stationOrder[i] = stationOrder[swapIndex];
                 stationOrder[swapIndex] = temp;

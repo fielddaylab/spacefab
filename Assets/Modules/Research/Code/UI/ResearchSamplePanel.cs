@@ -5,6 +5,7 @@ using FieldDay.HID;
 using FieldDay.Scripting;
 using FieldDay.UI;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -34,7 +35,10 @@ namespace SpaceFab.Research {
         public ResearchObservationChip HypothesisChip;
 
         public CursorHint AddObservationButton;
+        public CursorHint AddPropertyButton;
         public GameObject ChipPickerOverlay;
+
+        public DynamicButton CompleteButton;
 
         // Scene-wired RectTransform under ChipPickerOverlay that pool-
         // alloced picker chips are reparented under. The load utility
@@ -52,6 +56,7 @@ namespace SpaceFab.Research {
         // Sample material view
         public Image SampleSprite;
         public TMP_Text SampleLabel;
+        public Image SampleLabelBG;
 
         // Sample panel view for doping chamber
         public GameObject DopingGroup;
@@ -101,6 +106,11 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Register(HandleAddObservation);
             }
+
+            if (AddPropertyButton != null) {
+                AddPropertyButton.onClick.Register(HandleAddProperty);
+            }
+
             if (VerifyButton != null) {
                 VerifyButton.onClick.Register(HandleSubmit);
             }
@@ -113,6 +123,9 @@ namespace SpaceFab.Research {
             }
             if (DopingChamberButton != null) {
                 DopingChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
+            }
+            if (CompleteButton != null) {
+                CompleteButton.onClick.AddListener(HandleCompleteMinigame);
             }
 
             SamplePanelInputUtility.ClosePicker(this);
@@ -138,6 +151,11 @@ namespace SpaceFab.Research {
             if (AddObservationButton != null) {
                 AddObservationButton.onClick.Deregister(HandleAddObservation);
             }
+
+            if (AddPropertyButton != null) {
+                AddPropertyButton.onClick.Deregister(HandleAddProperty);
+            }
+
             if (VerifyButton != null) {
                 VerifyButton.onClick.Deregister(HandleSubmit);
             }
@@ -151,6 +169,10 @@ namespace SpaceFab.Research {
             if (DopingChamberButton != null) {
                 DopingChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
+
+            if (CompleteButton != null) {
+                CompleteButton.onClick.RemoveListener(HandleCompleteMinigame);
+            }
         }
 
         private void HandleAddObservation() {
@@ -159,6 +181,12 @@ namespace SpaceFab.Research {
             // observations. The player can also reach it by browsing the
             // wiki; adds work either way.
             ResearchWikiInputUtility.OpenObservationPageForActiveChamber(Find.State<ChamberInterfacerState>());
+        }
+
+        private void HandleAddProperty() {
+            ResearchUIInputUtility.RequestAddObservation(Find.State<ResearchUIInputState>());
+            // Shortcut to the wiki page listing the material properties.
+            ResearchWikiInputUtility.OpenPropertyPage(Find.State<PlayerProgressState>(), Find.State<WikiState>());
         }
 
         // Picker chip click. Public so ObservationPickerLoadUtility can
@@ -183,6 +211,10 @@ namespace SpaceFab.Research {
         private void HandleChamberSwitch(ActiveChamberKind kind)
         {
             ChamberInterfacerUtility.SetActiveChamber(Find.State<ChamberInterfacerState>(), kind);
+        }
+
+        public void HandleCompleteMinigame() {
+            Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.Requested;
         }
     }
 
@@ -275,6 +307,33 @@ namespace SpaceFab.Research {
             pools.ActivePickerChips.Clear();
             if (panel.PickerClickHandlers != null) panel.PickerClickHandlers.Clear();
             if (panel.PickerLabels != null) panel.PickerLabels.Clear();
+        }
+
+        public static void LockChamberButton(ResearchSamplePanel panel, ActiveChamberKind chamberKind, ResearchUIAssets config) {
+            ChamberButton chamberButton = chamberKind switch {
+                ActiveChamberKind.Thermal => panel.ThermalChamberButton,
+                ActiveChamberKind.Doping => panel.DopingChamberButton,
+                _ => null,
+            };
+
+            if (chamberButton == null) { return; }
+            chamberButton.Image.sprite = config.LockedChamber;
+            chamberButton.Cursor.enabled = false;
+        }
+
+        public static void UnlockChamberButton(ResearchSamplePanel panel, ActiveChamberKind chamberKind, ResearchUIAssets config) {
+            switch (chamberKind) {
+                case ActiveChamberKind.Thermal:
+                    panel.ThermalChamberButton.Image.sprite = config.ThermalNormal;
+                    panel.ThermalChamberButton.Cursor.enabled = true;
+                    break;
+                case ActiveChamberKind.Doping:
+                    panel.DopingChamberButton.Image.sprite = config.DopingNormal;
+                    panel.DopingChamberButton.Cursor.enabled = true;
+                    break;
+                default:
+                    return;
+            };
         }
     }
 }

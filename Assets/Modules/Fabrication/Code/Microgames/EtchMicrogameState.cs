@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,20 +26,20 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // EtchMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
-        [HideInInspector] public bool InputAccepted;
+        [NonSerialized] public bool IsActive;
+        [NonSerialized] public bool InputAccepted;
         public GameObject EtchUI;
         public EtchMicrogamePhase Phase;
 
-        [HideInInspector] public EtchPatternData Pattern;
+        [NonSerialized] public EtchPatternData Pattern;
 
         public LineRenderer PlayerBeam;
-        [HideInInspector] public List<Vector2> PlayerPoints = new();
-        [HideInInspector] public List<Vector2> CachedPreviewPoints;
-        [HideInInspector] public Vector2 Direction;
+        [NonSerialized] public List<Vector2> PlayerPoints = new();
+        [NonSerialized] public List<Vector2> CachedPreviewPoints;
+        [NonSerialized] public Vector2 Direction;
 
-        [HideInInspector] public int PreviewVisibleCount;
-        [HideInInspector] public float PreviewProgress;
+        [NonSerialized] public int PreviewVisibleCount;
+        [NonSerialized] public float PreviewProgress;
     }
 
     /// <summary>
@@ -59,7 +60,9 @@ namespace SpaceFab.Fabrication.Microgames
             Find.State(out EtchMicrogameState state, out SequenceState sequence);
 
             // Setup pattern
-            int patternIndex = sequence.Level.PatternIndex;
+            // int patternIndex = sequence.Level.PatternIndex;
+            int patternIndex = sequence.Level.GetPatternIndex(sequence);
+
             Find.GlobalAsset(out MicrogameStationConfig config);
             state.Pattern = GameObject.Instantiate(config.EtchPatterns[patternIndex], state.EtchUI.transform).GetComponent<EtchPatternData>();
             

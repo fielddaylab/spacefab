@@ -15,7 +15,8 @@ Material:
   - FD_INTENSITY_ALPHA
   - FD_PREMULTIPLY_ALPHA
   - FD_SAMPLE_R
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - FD_DITHER_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -32,12 +33,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - FD_DITHER: 0
     - FD_INTENSITY: 1
     - FD_SAMPLE: 0
     - _AlphaCutoff: 0
     - _BlendOp: 0
     - _CullMode: 2
     - _DestBlend: 10
+    - _DitherAlphaScale: 1
     - _EnableAlphaClip: 0
     - _EnableFog: 0
     - _IntensityAlphaMinThreshold: 0.25

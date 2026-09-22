@@ -78,7 +78,26 @@ namespace SpaceFab.Research {
             // Drag-instance labels are hidden in the prefab — pass null
             // for researchState since the known/unknown distinction only
             // affects the label.
-            ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(instance.Rig, material, null);
+            Find.State(out ChamberInterfacerState interfacerState);
+            ChamberInterfacerUtility.GetActiveChamber(interfacerState);
+
+            bool atomicView = interfacerState.ActiveChamber == ActiveChamberKind.Doping &&
+                ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary) != null;
+
+            if (!atomicView) {
+                ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(instance.Rig, material, null);
+            }
+            else {
+                Find.State(out ResearchMinigameState researchState);
+
+                if (material.ConstituentElementNames.Length == 0) {
+                    MaterialAtomicViewUtility.RenderMaterialAtom(instance.AtomicView, material, researchState);
+                }
+                else {
+                    MaterialAtomicViewUtility.RenderMaterialAtom(instance.PolyelementalAtomicView.MaterialAtoms[0], material, researchState, 0);
+                    MaterialAtomicViewUtility.RenderMaterialAtom(instance.PolyelementalAtomicView.MaterialAtoms[1], material, researchState, 1);
+                }
+            }
             instance.gameObject.SetActive(true);
             pool.Active.Add(instance);
             return instance;
@@ -102,6 +121,10 @@ namespace SpaceFab.Research {
             instance.Material = null;
             instance.OriginSource = null;
             ResearchMaterialVisualRigUtility.ClearRig(instance.Rig);
+            MaterialAtomicViewUtility.Clear(instance.AtomicView);
+            MaterialAtomicViewUtility.Clear(instance.PolyelementalAtomicView.MaterialAtoms[0]);
+            MaterialAtomicViewUtility.Clear(instance.PolyelementalAtomicView.MaterialAtoms[1]);
+
             instance.transform.SetParent(pool.PoolRoot, false);
             instance.gameObject.SetActive(false);
             pool.Free.Push(instance);

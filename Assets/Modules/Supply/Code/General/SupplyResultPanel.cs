@@ -13,6 +13,9 @@ namespace SpaceFab.Supply {
         public DynamicButton NextButton;
         public SceneReference NextScene;
 
+        public Transform ShoppingListParent; // to copy the visuals from the shopping list to this
+        public Transform ListParent;
+
         [Header("Ships")]
         public SupplyProgressMeterView MeterView;
         public SupplyShipBreakdownRow[] ShipRows;
@@ -56,7 +59,7 @@ namespace SpaceFab.Supply {
             AcquirePriority();
             Input.SetInputOverride(null);
 
-            Find.State(out SupplyRouteCollection routes, out SupplyMinigameState minigameState, out SupplyShipIndex ships);
+            Find.State(out SupplyRouteCollection routes, out SupplyMinigameState minigameState, out SupplyShipIndex ships, out SupplyRouteDrawingState draw);
 
             int cost = 0,
                 time = 0,
@@ -74,14 +77,29 @@ namespace SpaceFab.Supply {
 
             minigameState.FoundValidSolution = true;
 
+            // Refresh the route mirror before exporting - ExportState writes it out, and it still
+            // holds whatever was imported at scene entry until something captures the live routes.
+            SupplyRouteSaveUtility.Capture(routes, draw, ships, minigameState);
+
             ref SupplySaveState saveState = ref Find.State<MinigameSaveStates>().Supply;
             SupplyStateUtility.ExportState(ref saveState, minigameState);
 
             Populate(minigameState);
+
+            CopyShoppingList();
         }
 
         private void Populate(SupplyMinigameState minigameState) {
 
+        }
+
+        private void CopyShoppingList()
+        {
+            for (int i = 0; i < ShoppingListParent.childCount; i++)
+            {
+                GameObject requirement = ShoppingListParent.GetChild(i).gameObject;
+                Instantiate(requirement, ListParent);
+            }
         }
 
         public override void Hide() {

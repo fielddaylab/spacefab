@@ -7,6 +7,7 @@ using FieldDay;
 using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.Systems;
+using FieldDay.UI;
 using Leaf.Runtime;
 using SpaceFab.Materials;
 using UnityEngine;
@@ -54,16 +55,16 @@ namespace SpaceFab.UI {
 
         // True when the full panel is visible, false when only the collapsed icon is. Assigned
         // only by OnRegister, the two transition routines, and ForceCollapse.
-        [HideInInspector] public bool Expanded;
+        [NonSerialized] public bool Expanded;
 
         // True while a transition routine is in flight. Re-entrancy guard only, so a second
         // transition can't stack on an in-flight one — read by BeginExpand, BeginCollapse, and
         // OpenTo. Presentation reads Expanded instead.
-        [HideInInspector] public bool Transitioning;
+        [NonSerialized] public bool Transitioning;
 
         // Last-viewed selection. Persists across expand/collapse cycles; reset on level load.
-        [HideInInspector] public int ActiveTabIndex;
-        [HideInInspector] public int ActivePageIndex;
+        [NonSerialized] public int ActiveTabIndex;
+        [NonSerialized] public int ActivePageIndex;
 
         // Last-viewed raw page index per tab, parallel to WikiContent.Tabs. Switching tabs restores
         // the page the player left that tab on rather than snapping back to its first. Entries stay
@@ -79,40 +80,50 @@ namespace SpaceFab.UI {
         // Paginator scroll offset, counted in the active tab's *unlocked* pages: the window's
         // leftmost slot shows the (PageWindowStartIndex)th unlocked page. Kept such that the
         // selected page always falls inside [start, start + WikiContent.PageWindowSize).
-        [HideInInspector] public int PageWindowStartIndex;
+        [NonSerialized] public int PageWindowStartIndex;
 
         // One-frame request flags. Raised by WikiUtility.Open / Close / OpenTo; consumed and
         // cleared inline by WikiSelectSystem.
-        [HideInInspector] public bool OpenRequestedThisFrame;
-        [HideInInspector] public bool CloseRequestedThisFrame;
-        [HideInInspector] public bool OpenToRequestedThisFrame;
-        [HideInInspector] public StringHash32 RequestedTabId;
-        [HideInInspector] public StringHash32 RequestedPageId;
+        [NonSerialized] public bool OpenRequestedThisFrame;
+        [NonSerialized] public bool CloseRequestedThisFrame;
+        [NonSerialized] public bool OpenToRequestedThisFrame;
+        [NonSerialized] public StringHash32 RequestedTabId;
+        [NonSerialized] public StringHash32 RequestedPageId;
 
         // Expand/collapse routine handle. Owned here so WikiUtility can Replace() it without
         // threading a MonoBehaviour owner through every call site.
-        [HideInInspector] public Routine TransitionRoutine;
+        [NonSerialized] public Routine TransitionRoutine;
 
         // Tab pop-out routine handle. Owned here for the same reason TransitionRoutine is, though the
         // routine itself is hosted on the scene's WikiLayoutState — the tab buttons it writes to die
         // with the wiki prefab, and this state doesn't.
-        [HideInInspector] public Routine TabPopRoutine;
+        [NonSerialized] public Routine TabPopRoutine;
 
         // Tab the pop is settling on, or -1 before the first pop of a tab set. Matches
         // ActiveTabIndex in every steady state; a mismatch is the strip refresh's signal that the
         // selection has moved and the pop hasn't played yet, and names the tab to ease back in.
-        [HideInInspector] public int PoppedTabIndex;
+        [NonSerialized] public int PoppedTabIndex;
 
         // Requests a strip rebuild + unlock pass — the set of pooled button instances is wrong, as
         // opposed to VisualsDirty's "existing instances need restyling". Drained by
         // WikiRefreshSystem ahead of the visuals pass, and by OnSceneLateEnable on level load.
-        [HideInInspector] public bool NeedsRebuild;
+        [NonSerialized] public bool NeedsRebuild;
+
+        // Tab and page last reported to Leaf through OnWikiTabOpened / OnWikiPageOpened. Compared
+        // against the live selection by WikiUtility.AnnounceSelection, so a frame that moves the
+        // selection more than once — OpenTo picks a tab, then a page under it — announces only
+        // where it landed rather than every step on the way.
+        //
+        // Runtime-only for the same reason LastPageIndexByTab is: the ids mean nothing against a
+        // different scene's tab set, and LoadTabs drops them.
+        [NonSerialized] public StringHash32 AnnouncedTabId;
+        [NonSerialized] public StringHash32 AnnouncedPageId;
 
         // Which presentation domains are stale. Raised by the WikiUtility mutators at the point of
         // mutation, consumed and cleared by WikiVisualsUtility.Refresh. Unlike the *ThisFrame
         // flags this persists until drained, so an invalidation raised far from a refresh call
         // site — a mid-session UnlockPage, say — still lands.
-        [HideInInspector] public WikiVisualDirty VisualsDirty;
+        [NonSerialized] public WikiVisualDirty VisualsDirty;
 
         public void OnRegister() {
             Expanded = false;
@@ -127,6 +138,8 @@ namespace SpaceFab.UI {
             OpenToRequestedThisFrame = false;
             RequestedTabId = default;
             RequestedPageId = default;
+            AnnouncedTabId = default;
+            AnnouncedPageId = default;
 
             // Nothing has been painted yet.
             VisualsDirty = WikiVisualDirty.All;
@@ -245,12 +258,65 @@ namespace SpaceFab.UI {
             wikiState.TabPopRoutine.Stop();
             wikiState.PoppedTabIndex = -1;
 
+            // The announced ids name assets from the outgoing tab set, so they can't gate the
+            // incoming one's first announcement.
+            ClearAnnouncedSelection(wikiState);
+
             // Every pooled instance is about to change identity, and the panel may already be
             // painted with the previous scene's content.
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.All);
         }
 
         #endregion // External API
+
+        #region Script Triggers
+
+        // Reports the tab and page the player is currently looking at to Leaf, once per change.
+        // Drained by WikiRefreshSystem after the frame's paint rather than fired at the point of
+        // mutation, so a frame that moves the selection several times — OpenTo picks a tab, then a
+        // page under it — announces where it landed instead of every intermediate step.
+        //
+        // Nothing is announced while the panel is collapsed: a selection made behind a closed wiki
+        // isn't something the player has opened. The announcement is dropped on collapse instead,
+        // so reopening on that selection announces it then.
+        public static void AnnounceSelection(WikiState wikiState, WikiContent content) {
+            if (!wikiState.Expanded) { return; }
+
+            WikiTabData tab = ActiveTab(wikiState, content);
+            if (tab == null) { return; }
+
+            // Tab first, so a tab switch reads as "this tab opened, and here's the page under it".
+            if (wikiState.AnnouncedTabId != tab.AssetId) {
+                wikiState.AnnouncedTabId = tab.AssetId;
+
+                using (TempVarTable table = TempVarTable.Alloc()) {
+                    table.Set("tabId", tab.AssetId);
+                    ScriptUtility.Trigger(ScriptTriggers.OnWikiTabOpened, table);
+                }
+            }
+
+            WikiPageData page = ActivePage(wikiState, content);
+            if (page == null) { return; }
+
+            if (wikiState.AnnouncedPageId != page.AssetId) {
+                wikiState.AnnouncedPageId = page.AssetId;
+
+                using (TempVarTable table = TempVarTable.Alloc()) {
+                    table.Set("pageId", page.AssetId);
+                    ScriptUtility.Trigger(ScriptTriggers.OnWikiPageOpened, table);
+                }
+            }
+        }
+
+        // Forgets what was last announced, so the next AnnounceSelection reports the selection even
+        // if it hasn't moved since. Raised wherever the player stops looking at the current
+        // selection — a collapse — or where the ids stop meaning anything — a tab load.
+        private static void ClearAnnouncedSelection(WikiState wikiState) {
+            wikiState.AnnouncedTabId = default;
+            wikiState.AnnouncedPageId = default;
+        }
+
+        #endregion // Script Triggers
 
         #region Material Page Lookup
 
@@ -292,6 +358,34 @@ namespace SpaceFab.UI {
                 for (int p = 0; p < tab.Pages.Length; p++) {
                     WikiPageData page = tab.Pages[p];
                     if (page != null && page.IsObservationPage && page.ObservationType == observationType) {
+                        tabId = tab.AssetId;
+                        pageId = page.AssetId;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Finds the property page for a property label and returns the tab + page ids OpenTo needs.
+        // Matched on label alone, not the whole MaterialPropertyCheck — a page is authored per
+        // property, while a contract goal's InComparisonTo substrate is per-contract, so
+        // "P-Type dopant for sample A" and "P-Type dopant for sample B" share one page.
+        public static bool TryFindPropertyPage(WikiContent content, MaterialPropertyLabel label, out StringHash32 tabId, out StringHash32 pageId)
+        {
+            tabId = default;
+            pageId = default;
+
+            if (content == null || content.Tabs == null) { return false; }
+            for (int t = 0; t < content.Tabs.Length; t++)
+            {
+                WikiTabData tab = content.Tabs[t];
+                if (tab == null || tab.Pages == null) { continue; }
+                for (int p = 0; p < tab.Pages.Length; p++)
+                {
+                    WikiPageData page = tab.Pages[p];
+                    if (page != null && page.IsPropertyPage && page.PropertyCheck.Label == label)
+                    {
                         tabId = tab.AssetId;
                         pageId = page.AssetId;
                         return true;
@@ -508,6 +602,7 @@ namespace SpaceFab.UI {
             wikiState.OpenRequestedThisFrame = false;
             wikiState.CloseRequestedThisFrame = false;
             wikiState.OpenToRequestedThisFrame = false;
+            ClearAnnouncedSelection(wikiState);
 
             // Applied directly rather than through Invalidate: the scene is unloading, so there may
             // be no later drain. Clear the bit so the pending mask doesn't outlive the teardown.
@@ -535,6 +630,10 @@ namespace SpaceFab.UI {
         public static IEnumerator CollapseRoutine(WikiState wikiState) {
             wikiState.Transitioning = true;
             wikiState.Expanded = false;
+
+            // The player is no longer looking at the selection, so reopening on it should announce
+            // it again rather than treat it as already reported.
+            ClearAnnouncedSelection(wikiState);
 
             // Only the roots change — the contents keep whatever they were last painted with.
             WikiVisualsUtility.Invalidate(wikiState, WikiVisualDirty.Visibility);
@@ -639,6 +738,14 @@ namespace SpaceFab.UI {
             if (content.Tabs == null) { return null; }
             if (wikiState.ActiveTabIndex < 0 || wikiState.ActiveTabIndex >= content.Tabs.Length) { return null; }
             return content.Tabs[wikiState.ActiveTabIndex];
+        }
+
+        // The active page asset, or null if either index is out of range or content isn't authored.
+        private static WikiPageData ActivePage(WikiState wikiState, WikiContent content) {
+            WikiTabData tab = ActiveTab(wikiState, content);
+            if (tab == null || tab.Pages == null) { return null; }
+            if (wikiState.ActivePageIndex < 0 || wikiState.ActivePageIndex >= tab.Pages.Length) { return null; }
+            return tab.Pages[wikiState.ActivePageIndex];
         }
 
         // Index in content.Tabs matching tabId, or -1. Two passes, so an OpenTo caller can pass
@@ -877,6 +984,9 @@ namespace SpaceFab.UI {
                 "Wiki tab button has out-of-range TabIndex {0}", button.TabIndex);
 
             bool available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
+            CursorHint hintHeader = button.GetComponent<CursorHint>();
+            hintHeader.TooltipHeader = content.Tabs[button.TabIndex].Title;
+
             ApplyAvailability(button, available);
         }
 
@@ -894,6 +1004,9 @@ namespace SpaceFab.UI {
             Assert.NotNullOrDestroyed(page, "Wiki tab '{0}' has a null page at index {1}", tab.name, button.PageIndex);
 
             bool available = WikiUtility.IsPageUnlocked(progressState, page.AssetId);
+            CursorHint hintHeader = button.GetComponent<CursorHint>();
+            hintHeader.TooltipHeader = page.Title;
+
             ApplyAvailability(button, available);
         }
 

@@ -2102,9 +2102,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f73f51f72240eb748a2fc00df14f3ef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Root: {fileID: 8889264491327715500}
-  ShipIcon: {fileID: 4618321795039440626}
-  ShipName: {fileID: 2441010644315862855}
-  RiskText: {fileID: 5867697105720723100}
-  CostText: {fileID: 7014227609789879683}
-  TimeText: {fileID: 6963715596217293305}
+  m_Id:
+    m_Source: 
+    m_HashValue: 0
+  m_Class:
+    m_Source: 
+    m_HashValue: 0
+  m_Group:
+    m_Source: 
+    m_HashValue: 0
+  m_Cursor: {fileID: 0}
+  m_PrimaryGraphic: {fileID: 0}
+  Mask: {fileID: 0}
+  Slide: {fileID: 0}
+  SlideDistance: 0
+  Cost: {fileID: 0}
+  Time: {fileID: 0}
+  Risk: {fileID: 0}

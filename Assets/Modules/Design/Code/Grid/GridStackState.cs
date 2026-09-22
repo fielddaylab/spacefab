@@ -189,8 +189,8 @@ namespace SpaceFab.Design
 
         public static EdgeDir GetOppositeDir(EdgeDir original)
         {
-            EdgeDir opposite = (EdgeDir)(((int)original + Enum.GetValues(typeof(EdgeDir)).Length / 2) % Enum.GetValues(typeof(EdgeDir)).Length);
-
+            const int edgeDirLength = 6; // why was reflection here?
+            EdgeDir opposite = (EdgeDir)(((int)original + (edgeDirLength / 2)) % edgeDirLength);
             return opposite;
         }
 

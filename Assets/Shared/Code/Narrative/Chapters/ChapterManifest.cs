@@ -1,21 +1,64 @@
 using System;
 using System.Collections.Generic;
+using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Assets;
+using ScriptableBake;
+using SpaceFab.Materials;
 using UnityEngine;
 
 namespace SpaceFab {
     [CreateAssetMenu(menuName = "SpaceFab/Chapters/Chapter Manifest")]
-    public sealed class ChapterManifest : GlobalAsset {
+    public sealed class ChapterManifest : GlobalAsset, IBaked {
         [Serializable]
         public struct Entry {
             [AssetName(typeof(ChapterDef))] public StringHash32 ChapterId;
             [StreamedPackId] public StringHash32 PackageId;
         }
 
+        [Serializable]
+        public struct ExportedData {
+            [AssetName(typeof(MaterialAsset))] public StringHash32[] ResearchableMaterials;
+        }
+
         public Entry[] Chapters;
+        public ExportedData[] ResidentData;
+
+#if UNITY_EDITOR
+
+        int IBaked.Order { get { return 0; } }
+
+        unsafe bool IBaked.Bake(BakeFlags flags, BakeContext context) {
+            ResidentData = new ExportedData[Chapters.Length];
+
+            foreach(var chapterDef in Baking.FindAssets<ChapterDef>()) {
+                var _ = chapterDef.AssetId;
+            }
+
+            using (PooledList<StringHash32> materialIds = PooledList<StringHash32>.Create()) {
+                for (int i = 0; i < Chapters.Length; i++) {
+
+                    ChapterDef chapter = Baking.FindAsset<ChapterDef>(Chapters[i].ChapterId.ToDebugString());
+                    Assert.NotNullOrDestroyed(chapter);
+
+                    materialIds.AddRange(chapter.AvailableMaterials);
+                    foreach(var exclude in chapter.ExcludeFromResearch) {
+                        materialIds.FastRemove(exclude);
+                    }
+
+                    ResidentData[i] = new ExportedData() {
+                        ResearchableMaterials = materialIds.ToArray()
+                    };
+                    materialIds.Clear();
+                }
+            }
+
+            return true;
+        }
+
+#endif // UNITY_EDITOR
     }
 
     static public partial class ChapterUtility {

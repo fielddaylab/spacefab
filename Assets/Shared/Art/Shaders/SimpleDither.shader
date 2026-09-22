@@ -62,7 +62,6 @@ Shader "SpaceFab/Simple Color Dither"
             #pragma fragment DitherFrag
             #pragma target 3.0
             #pragma multi_compile_instancing
-            #pragma multi_compile_fog
 			#pragma shader_feature_local_fragment _ FD_PREMULTIPLY_ALPHA
 
             #include "Assets/FieldDay/_Assets/Shaders/CGIncludes/UI.cginc"

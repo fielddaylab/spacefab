@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: Silicon Carbide
   ShortName: SiC
-  GemSprite: {fileID: 21300000, guid: bfc7d0965e7fd4d97aef1a80a5abd58e, type: 3}
+  GemSprite: {fileID: 21300000, guid: c611a65121cc17b4bacf442276daa902, type: 3}
   ConstituentElementNames:
   - Si
   - C

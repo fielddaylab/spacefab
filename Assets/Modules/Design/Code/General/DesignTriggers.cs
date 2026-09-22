@@ -30,13 +30,12 @@ namespace SpaceFab.Design
             ClearFoundValidSolution();
 
             DesignMinigameState designState = Find.State<DesignMinigameState>();
-            if (designState == null || !designState.UseToggleInputMode) { return; }
 
             SimulateRunState runState = Find.State<SimulateRunState>();
             SimulateUIState uiState = Find.State<SimulateUIState>();
 
-            if (runState != null) { SimulateControlUtility.ClearAllVerdicts(runState); }
-            if (uiState != null) { SimulateUIUtility.HideAllRowVerdicts(uiState); }
+            SimulateControlUtility.ClearAllVerdicts(runState);
+            SimulateUIUtility.HideAllRowVerdicts(uiState);
         }
 
         // A test (single or full-suite) just started. Until it completes successfully, treat
@@ -49,8 +48,8 @@ namespace SpaceFab.Design
         static private void HandleSimPlayStarted()
         {
             DesignMinigameState designState = Find.State<DesignMinigameState>();
-            if (designState != null && designState.UseToggleInputMode) { return; }
-            ClearFoundValidSolution();
+            //if (designState != null && designState.UseToggleInputMode) { return; }
+            //ClearFoundValidSolution();
         }
 
         // Both reset paths funnel here. Clears the active level's solved flag (and refreshes the
@@ -61,7 +60,6 @@ namespace SpaceFab.Design
         {
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             MinigameSaveStates saveStates = Find.State<MinigameSaveStates>();
-            if (designState == null || saveStates == null) { return; }
             DesignLevelUtility.ClearActiveLevelSolved(saveStates.Design, designState);
         }
     }

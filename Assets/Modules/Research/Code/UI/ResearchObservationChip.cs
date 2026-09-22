@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.HID;
 using FieldDay.UI;
 using SpaceFab.Materials;
+using SpaceFab.Onboarding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,9 +23,19 @@ namespace SpaceFab.Research {
     public class ResearchObservationChip : MonoBehaviour {
         public Image Background;
         public TMP_Text LabelText;
+        public Image Icon;
 
         public GameObject LockedOverlay;
         public CursorHint Click;
+
+        // Onboarding highlight handle, left unassigned on the prefab. Chips are pool-allocated
+        // and reused across pages, so neither the tag nor its id can be baked in: the wiki's
+        // page-load utilities attach one on demand via WikiElementTagUtility, stamp a per-page
+        // id, and clear it again on free. Allocators that don't tutorialize their chips (the
+        // Research picker and sample panel) never touch this, so those chips stay untagged and
+        // out of ElementTagLookup entirely. Assign it in the inspector to point the highlight at
+        // a different host than the chip root.
+        public ElementTag Tag;
 
         // Label color applied by the most recent SetState, so the
         // disabled visual can restore it when re-enabled.
@@ -65,11 +76,30 @@ namespace SpaceFab.Research {
                 if (spriteOk) {
                     Background.sprite = sprite;
                     Background.enabled = true;
+
                 } else {
                     // No sprite registered for this observation type yet —
                     // hide the chip background so it doesn't render as a
                     // default white square.
                     Background.enabled = false;
+                }
+            }
+
+            // fill chip icon
+            if (Icon != null)
+            {
+                Icon.color = Color.white;
+                Sprite iconSprite = null;
+
+                // only add icons if the chip is not empty
+                if (asset != null && !empty && asset.TryGetIcon(observationType, out iconSprite))
+                {
+                    Icon.sprite = iconSprite;
+                    Icon.enabled = true;
+                }
+                else
+                {
+                    Icon.enabled = false;
                 }
             }
 

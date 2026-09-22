@@ -75,31 +75,31 @@ namespace SpaceFab.Fabrication.Sequence
     /// </summary>
     public class SequenceState : SharedStateComponent, IRegistrationCallbacks
     {
-        [HideInInspector] public SequenceStatus Status;
+        [NonSerialized] public SequenceStatus Status;
 
         // The level asset this sequence is running. Assigned by the level-load flow
         // (FabricationMinigameState.ImportState -> SequenceUtility.ResetSequence).
-        [HideInInspector] public FabricationLevel Level;
+        [NonSerialized] public FabricationLevel Level;
 
         // 0-based index into Level.Steps. Valid only when Status is Active. When Status is
         // Restoring, CurrentStepIndex has already been rolled back to the step after the checkpoint.
-        [HideInInspector] public int CurrentStepIndex;
+        [NonSerialized] public int CurrentStepIndex;
 
         // Per-step runtime data (IsGlitched, WasCheckpointReached). Rebuilt on ResetSequence.
-        [HideInInspector] public StepRuntimeData[] StepRuntime;
+        [NonSerialized] public StepRuntimeData[] StepRuntime;
 
         // Populated by SequenceUtility.CaptureCheckpoint when a checkpoint step completes. Read by
         // SequenceUtility.RestoreCheckpoint on misalignment. The Checkpoint fields are valid only
         // when HasCheckpoint is true.
-        [HideInInspector] public bool HasCheckpoint;
-        [HideInInspector] public SequenceCheckpoint Checkpoint;
+        [NonSerialized] public bool HasCheckpoint;
+        [NonSerialized] public SequenceCheckpoint Checkpoint;
 
         // BeauRoutine handle for the lead-in coroutine played during checkpoint restoration.
         public Routine RestoreRoutine;
 
         // One-frame flag: a misalignment was detected this frame. Set by SequenceUtility
         // .FlagMisalignment, cleared by SequenceFlagRefreshSystem in LateUpdate.
-        [HideInInspector] public bool MisalignmentThisFrame;
+        [NonSerialized] public bool MisalignmentThisFrame;
 
         public void OnRegister()
         {

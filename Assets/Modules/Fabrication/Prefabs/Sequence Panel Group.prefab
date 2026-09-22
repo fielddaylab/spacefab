@@ -222,11 +222,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7557327208732354821, guid: b90568064a316014eb5245473399b5c4, type: 3}
+      propertyPath: GlitchOverlay
+      value: 
+      objectReference: {fileID: 7782121574264657602}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b90568064a316014eb5245473399b5c4, type: 3}
+--- !u!1 &7782121574264657602 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3089289506850927203, guid: b90568064a316014eb5245473399b5c4, type: 3}
+  m_PrefabInstance: {fileID: 4693025859022496929}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &8150618105171538423 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3475712235364406614, guid: b90568064a316014eb5245473399b5c4, type: 3}
@@ -324,6 +333,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7557327208732354821, guid: b90568064a316014eb5245473399b5c4, type: 3}
+      propertyPath: GlitchOverlay
+      value: 
+      objectReference: {fileID: 5993961193183969622}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -332,5 +345,10 @@ PrefabInstance:
 --- !u!224 &5318111648410117731 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3475712235364406614, guid: b90568064a316014eb5245473399b5c4, type: 3}
+  m_PrefabInstance: {fileID: 8786962140595876661}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5993961193183969622 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3089289506850927203, guid: b90568064a316014eb5245473399b5c4, type: 3}
   m_PrefabInstance: {fileID: 8786962140595876661}
   m_PrefabAsset: {fileID: 0}

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace SpaceFab.Supply {
@@ -11,13 +12,13 @@ namespace SpaceFab.Supply {
         public Transform CostCellParent, RiskCellParent, TimeCellParent;
 
         // Summed risk across ships, rendered as filled diamond cells.
-        [HideInInspector] public ProgressMeterCell[] RiskCells;
+        [NonSerialized] public ProgressMeterCell[] RiskCells;
  
         // Contract funds, rendered as remaining (yellow) then spent (red) bars.
-        [HideInInspector] public ProgressMeterCell[] CostCells;
+        [NonSerialized] public ProgressMeterCell[] CostCells;
         
         // Max time across ships, rendered as filled dot cells.
-        [HideInInspector] public ProgressMeterCell[] TimeCells;
+        [NonSerialized] public ProgressMeterCell[] TimeCells;
 
         public void Start()
         {

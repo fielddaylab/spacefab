@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da6445d90ced764499e2a3f60c3e2111, type: 3}
+  m_Name: SuiteVisualConfig
+  m_EditorClassIdentifier: 
+  InputLow: {fileID: 21300000, guid: d3c25e8e538d1a648b4cadabf7fd5699, type: 3}
+  InputHigh: {fileID: 21300000, guid: 63053d871368a6d4c9dbe04a1e31b2c9, type: 3}
+  OutputEmpty: {fileID: 21300000, guid: d18a4ae89fbf3e54483aa014f04467d1, type: 3}
+  OutputLow: {fileID: 21300000, guid: 4c01ff45da641d14f93a8057b90e4950, type: 3}
+  OutputHigh: {fileID: 21300000, guid: 5005f9a740565bd4a9cf23c3a0320a81, type: 3}
+  RowPending: {fileID: 21300000, guid: 40255e9857efe994b9c28446bed68ffa, type: 3}
+  RowSuccess: {fileID: 21300000, guid: 32b76cc3c1402d94fa2ea4b09936d0ac, type: 3}
+  RowFailure: {fileID: 21300000, guid: 6640efae2529fe8429faecfdde39c82c, type: 3}
+  RowPendingScale: {x: 1, y: 1}
+  RowFinishedScale: {x: 1.5, y: 1.5}
+  OutputEmptyTextColor:
+    serializedVersion: 2
+    rgba: 4285366422
+  OutputFilledTextColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  RowPendingLineLeftColor:
+    serializedVersion: 2
+    rgba: 4288326690
+  RowPendingLineRightColor:
+    serializedVersion: 2
+    rgba: 4292536441
+  RowSuccessLineColor:
+    serializedVersion: 2
+    rgba: 4283348775
+  RowFailureLineColor:
+    serializedVersion: 2
+    rgba: 4285756405
+  LowLabel: LO
+  HighLabel: HI
+  EmptyLabel: --
+  InputALabel: A
+  InputBLabel: B
+  OutputXLabel: X
+  OutputYLabel: Y

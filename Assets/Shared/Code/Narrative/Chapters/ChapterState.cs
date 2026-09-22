@@ -92,9 +92,11 @@ namespace SpaceFab
             while (Game.Assets.IsLoadingStreamedPackage(loadInfo.PackageId)) {
                 yield return null;
             }
+
             ChapterDef chapterAsset = Find.NamedAsset<ChapterDef>(loadInfo.ChapterId);
             chapterState.ChapterDefinition = chapterAsset;
             chapterState.ChapterScriptHandle = ScriptDBUtility.Load(chapterAsset.Script);
+            Game.Events.Queue(GameEvents.ChapterLoaded);
         }
 
         static public bool UnloadChapterData(ChapterState chapterState) {
@@ -111,6 +113,7 @@ namespace SpaceFab
             chapterState.ChapterDefinition = null;
             chapterState.ChapterScriptHandle = default;
             chapterState.ChapterId = default;
+            Game.Events.Queue(GameEvents.ChapterUnloaded);
             return true;
         }
 
@@ -126,6 +129,17 @@ namespace SpaceFab
 
         static public bool LoadCurrentChapter(ChapterState chapterState) {
             return LoadChapterData(chapterState, chapterState.ChapterIndex);
+        }
+
+        static public float GetGlitchChance(ChapterState chapterState)
+        {
+            ChapterDef def = chapterState.ChapterDefinition;
+            int index = chapterState.LastSelectedContractIndex;
+            if (def == null || index < 0 || index >= def.GlitchChances.Length)
+            {
+                return 0f;
+            }
+            return def.GlitchChances[index];
         }
 
         public static void LoadNextChapter(ChapterState chapterState, PlayerProgressState progressState, ContractState contractState, MinigameSaveStates saveStates)

@@ -249,6 +249,22 @@ namespace SpaceFab.Supply
             return null;
         }
 
+        // Non-asserting counterpart to GetNodeForId, for resolving ids that came from outside the
+        // current scene - a saved route may name a node that was renamed or removed since.
+        public static bool TryGetNodeForId(SupplyChainMap map, StringHash32 id, out SupplyRouteNode node) {
+            if (!id.IsEmpty) {
+                foreach (var mapNode in map.Nodes) {
+                    if (mapNode.Id == id) {
+                        node = mapNode;
+                        return true;
+                    }
+                }
+            }
+
+            node = null;
+            return false;
+        }
+
         static public SupplyRouteHazard GetHazardForIndex(int index) {
             Find.State(out SupplyChainMap loader);
             Assert.True(index >= 0 && index < loader.Hazards.Length, "Supply hazard index {0} out of range", index);

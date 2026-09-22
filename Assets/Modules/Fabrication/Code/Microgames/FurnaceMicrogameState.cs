@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using SpaceFab.Fabrication.Layout;
 using SpaceFab.Fabrication.Sequence;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,18 +26,18 @@ namespace SpaceFab.Fabrication.Microgames
     {
         // True while this microgame owns input/simulation. Set by EnterBegin, cleared by ExitComplete.
         // FurnaceMicrogameSystem reads this to gate its ProcessWork.
-        [HideInInspector] public bool IsActive;
+        [NonSerialized] public bool IsActive;
 
         // TODO: current heat value, target range center + half-width (varies per process: Oxidation /
         // N-Type Doping / P-Type Doping).
         // TargetRange determins position, TargetHalfWidth determines width for precision, MaxRange determines total meter range, Sensitivity determines rate heat increases, lower slower
         public float TargetRange, TargetHalfWidth, MaxRange, Sensitivity;
-        [HideInInspector] public float CurrentValue;
-        [HideInInspector] public float FinalHeat;
+        [NonSerialized] public float CurrentValue;
+        [NonSerialized] public float FinalHeat;
 
-        [HideInInspector] public bool InputAccepted;
-        [HideInInspector] public bool isSpacebarHeld;
-        [HideInInspector] public bool IncreasingHeat;
+        [NonSerialized] public bool InputAccepted;
+        [NonSerialized] public bool isSpacebarHeld;
+        [NonSerialized] public bool IncreasingHeat;
 
         // 2d sprites
         public GameObject FurnaceUI;

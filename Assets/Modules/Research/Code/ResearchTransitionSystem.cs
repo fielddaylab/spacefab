@@ -46,7 +46,8 @@ namespace SpaceFab.Research {
                 );
             Find.State(
                 out HypothesisViewModelState hypothesisViewModelState,
-                out ContractState contractState
+                out ContractState contractState,
+                out ResearchContractRequirementsPanelState requirementsPanel
                 );
 
             researchState.AvailableMaterials.Clear();
@@ -82,6 +83,11 @@ namespace SpaceFab.Research {
             hypothesisViewModelState.HypothesisContext = StringHash32.Null;
             HypothesisViewModelUtility.RequestRebuild(hypothesisViewModelState);
 
+            // Initialize requirements display
+            ContractUIUtility.BuildRequirementData(requirementsPanel.Table, chapterState.ChapterIndex, contractState.ContractDefinition);
+            ContractUIUtility.InitializeVisuals(requirementsPanel.Table);
+            Positioning.SetHeightDelta(requirementsPanel.Bounds, requirementsPanel.Table.Sizer.LastSize.y + requirementsPanel.HeightPadding);
+
             // Init Battery Chamber. Instantiate the meter rig variant for
             // this save's unlock state under BatteryContainer, then prime
             // the dial: assigning Battery first lets RefreshVisualState
@@ -104,11 +110,17 @@ namespace SpaceFab.Research {
             }
 
             // Init Thermal Chamber.
-            ResearchHeatConfig heatConfig = Find.GlobalAsset<ResearchHeatConfig>();
-            if (heatConfig != null && thermalChamberState.HeatControl != null)
+            interfacerState.LastUnlockedChamber = playerProgress.DopingChamberUnlocked ? ActiveChamberKind.Doping
+                : playerProgress.ThermalChamberUnlocked ? ActiveChamberKind.Thermal : ActiveChamberKind.Voltage;
+            
+            if (playerProgress.ThermalChamberUnlocked)
             {
-                thermalChamberState.HeatControl.HeatIndex = heatConfig.DefaultIndex;
-                HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
+                ResearchHeatConfig heatConfig = Find.GlobalAsset<ResearchHeatConfig>();
+                if (heatConfig != null && thermalChamberState.HeatControl != null)
+                {
+                    thermalChamberState.HeatControl.HeatIndex = heatConfig.DefaultIndex;
+                    HeatUtility.RefreshVisualState(thermalChamberState.HeatControl, heatConfig);
+                }
             }
 
             ChamberInterfacerUtility.SetActiveChamber(interfacerState, ActiveChamberKind.Voltage);

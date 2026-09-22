@@ -22,15 +22,10 @@ namespace SpaceFab.Research {
         // Gem color for atomic view
         public Color[] AtomColor = new Color[] { Color.white };
 
-        // Uniform scale applied to the gem renderer's transform.
-        public float GemScale = 1f;
+        // Uniform scale applied to the atom transform.
+        public float AtomScale = 1f;
 
-        // Human-readable per-material identifier shown in UI ("SAMPLE 13").
-        // Authored per asset; independent of asset id, ordering, or runtime
-        // indexing so artists can place numbers freely.
-        public int SampleOrder;
-
-        // Alternativel switch to strings for letter labels (A, B, C)
+        // Alternativel switch to strings for number labels (1, 2, 3)
         // retain sample number in case change later
         public string SampleLabel;
     }

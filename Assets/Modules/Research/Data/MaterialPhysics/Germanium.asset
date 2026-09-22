@@ -15,9 +15,9 @@ MonoBehaviour:
   MaterialId:
     m_Source: Germanium
     m_HashValue: 466928580
-  ConductionMultiplier: 0.4
-  ThermalMultiplier: 2
-  MaxTemperature: 0.33
+  BaseConduction: 0.001
+  HeatedConduction: 1.6
+  MaxTemperature: 0.66
   MaxVoltage: 0.66
   IsHighMobility: 1
   IsLightEmitting: 0

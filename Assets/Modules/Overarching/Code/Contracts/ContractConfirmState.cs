@@ -39,7 +39,10 @@ namespace SpaceFab.Overarching
         public static IEnumerator ConfirmContractRoutine(ContractConfirmState confirmState, ContractSelectState selectState, ContractLayoutState layoutState, ChapterState chapterState, SharedUIState sharedUIState, PlayerProgressState playerProgress, ContractState contractState)
         {
             // Apply the selected contract's data (active contract id, loaded assets, seeded minigame save).
-            yield return ApplyContractByIndex(chapterState, playerProgress, contractState, selectState.SelectedContractIndex);
+            // SelectedContractIndex is filtered; ApplyContractByIndex records a raw chapter index
+            // into LastSelectedContractIndex, which is persisted and resolved back on load.
+            yield return ApplyContractByIndex(chapterState, playerProgress, contractState,
+                ContractSelectUtility.ToRawIndex(selectState, selectState.SelectedContractIndex));
 
             float fillAmount = 0;
             while (fillAmount < 1)
@@ -108,6 +111,20 @@ namespace SpaceFab.Overarching
             if (ContractProgressUtility.IsContractSatisfied(playerProgress, contractState.ContractDefinition))
             {
                 minigameSaveState.Research.FoundValidSolution = true;
+            }
+
+            // If the selected contract unlocks the big battery, unlock the battery.
+            if (contractState.ContractDefinition.UnlocksBigBattery())
+            {
+                playerProgress.BigBatteryUnlocked = true;
+            }
+            if (contractState.ContractDefinition.UnlocksThermalChamber())
+            {
+                playerProgress.ThermalChamberUnlocked = true;
+            }
+            if (contractState.ContractDefinition.UnlocksDopingChamber())
+            {
+                playerProgress.DopingChamberUnlocked = true;
             }
 
             SaveUtility.Save(SaveSlot.Main);

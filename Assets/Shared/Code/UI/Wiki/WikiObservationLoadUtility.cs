@@ -4,6 +4,7 @@ using SpaceFab.Materials;
 using SpaceFab.Research;
 using System;
 using UnityEngine;
+using static SpaceFab.Title.TitleController;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -67,6 +68,8 @@ namespace SpaceFab.UI {
                     ? ResearchWikiInputUtility.GetObservationChipText(label, researchContext.InterfacerState)
                     : MaterialPropertyLabelDisplay.GetObservationName(label);
                 chip.SetState(text, ChipFillState.Filled, false, page.ObservationType);
+
+                WikiElementTagUtility.Stamp(chip, WikiElementTagUtility.ObservationTypeObservationId(page.ObservationType, label));
 
                 // Capture the label rather than the index — the click
                 // resolves its own slot, and the list order is only

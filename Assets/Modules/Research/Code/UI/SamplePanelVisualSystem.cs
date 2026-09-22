@@ -4,6 +4,7 @@ using FieldDay.Scripting;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 using UnityEngine;
 
 namespace SpaceFab.Research {
@@ -21,8 +22,9 @@ namespace SpaceFab.Research {
                 new SysPermissions()
                     .ReadShared<ChamberInterfacerState>()
                     .ReadShared<HypothesisViewModelState>()
-                    //.ReadShared<BatteryChamberState>()
                     .ReadShared<ResearchMinigameState>()
+                    .ReadShared<PlayerProgressState>()
+                    .ReadShared<ContractState>()
                     .ReadWrite<ResearchSamplePanel>()
             );
         }
@@ -35,12 +37,17 @@ namespace SpaceFab.Research {
         private static void ProcessWork(float deltaTime) {
             Find.State(
                 out ChamberInterfacerState interfacerState,
-                out HypothesisViewModelState hypoVm
+                out HypothesisViewModelState hypoVm,
+                out WikiState wikiState
             );
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
             foreach (var panel in Find.Components<ResearchSamplePanel>()) {
-                SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState);
+                SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState, wikiState);
+                if (panel.CompleteButton != null) {
+                    Find.State(out PlayerProgressState progressState, out ContractState contractState);
+                    panel.CompleteButton.gameObject.SetActive(ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition));
+                }
             }
 
             // Onboarding hook: fire OnVerifyButtonShown the frame AFTER the verify button becomes
@@ -72,9 +79,10 @@ namespace SpaceFab.Research {
             ResearchSamplePanel panel,
             ChamberInterfacerState interfacerState,
             HypothesisViewModelState hypoVm,
-            ResearchMinigameState researchState
+            ResearchMinigameState researchState,
+            WikiState wikiState
         ) {
-            if (panel == null || interfacerState == null || hypoVm == null) {
+            if (panel == null) {
                 return;
             }
 
@@ -94,33 +102,58 @@ namespace SpaceFab.Research {
                 panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
             }
 
-            if (interfacerState.ActiveChamberChangedThisFrame)
-            {
-                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
-                ActiveChamberKind chamberKind = ChamberInterfacerUtility.GetActiveChamber(interfacerState);
-
-                if (panel.VoltageChamberButton != null) {
-                    panel.VoltageChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Voltage
-                        ? uiAssets.VoltagePressed : uiAssets.VoltageNormal;
+            if (panel.AddObservationButton != null) {
+                var contents = Find.Components<WikiContent>();
+                bool obsTabOpen = false;
+                if (contents.Count != 0 && wikiState.Expanded) {
+                    obsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Observations";
                 }
-                if (panel.ThermalChamberButton != null) {
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !obsTabOpen);
+            }
+
+            if (panel.AddPropertyButton != null) {
+                var contents = Find.Components<WikiContent>();
+                bool propsTabOpen = false;
+                if (contents.Count != 0 && wikiState.Expanded) {
+                    propsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Properties";
+                }
+                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !propsTabOpen);
+            }
+
+            ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+            ActiveChamberKind chamberKind = ChamberInterfacerUtility.GetActiveChamber(interfacerState);
+
+            if (panel.VoltageChamberButton != null) {
+                panel.VoltageChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Voltage
+                    ? uiAssets.VoltagePressed : uiAssets.VoltageNormal;
+            }
+            if (panel.ThermalChamberButton != null) {
+                if (interfacerState.LastUnlockedChamber < ActiveChamberKind.Thermal) {
+                    SamplePanelInputUtility.LockChamberButton(panel, ActiveChamberKind.Thermal, uiAssets);
+                }
+                else {
                     panel.ThermalChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Thermal
                         ? uiAssets.ThermalPressed : uiAssets.ThermalNormal;
                 }
-                if (panel.DopingChamberButton != null) {
+            }
+            if (panel.DopingChamberButton != null) {
+                if (interfacerState.LastUnlockedChamber < ActiveChamberKind.Doping) {
+                    SamplePanelInputUtility.LockChamberButton(panel, ActiveChamberKind.Doping, uiAssets);
+                }
+                else {
                     panel.DopingChamberButton.Image.sprite = chamberKind == ActiveChamberKind.Doping
                         ? uiAssets.DopingPressed : uiAssets.DopingNormal;
                 }
+            }
 
-                if (panel.ChamberText != null) {
-                    panel.ChamberText.text = chamberKind == ActiveChamberKind.None ? "" : $"{chamberKind} Chamber";
-                }
+            if (panel.ChamberText != null) {
+                panel.ChamberText.text = chamberKind == ActiveChamberKind.None ? "" : $"{chamberKind} Chamber";
             }
 
             // 1. Empty-state path: no material slotted
             bool isDopingChamber = interfacerState.ActiveChamber == ActiveChamberKind.Doping;
             bool isSlotFilled = isDopingChamber ?
-                secondaryMaterial != null : primaryMaterial != null;
+                primaryMaterial != null && secondaryMaterial != null : primaryMaterial != null;
 
             if (!isSlotFilled) {
                 if (panel.EmptyState != null) {
@@ -169,23 +202,23 @@ namespace SpaceFab.Research {
                 panel.SampleSprite.sprite = targetMaterial.GemSprite;
                 if (known) {
                     panel.SampleLabel.text = targetMaterial.ShortName;
+                    panel.SampleLabelBG.color = Color.black;
                 } else {
                     //int sampleNumber = view != null ? view.SampleNumber : 0;
-                    panel.SampleLabel.text = view != null ? view.SampleLabel : "Z"; // z as fallback
+                    panel.SampleLabel.text = "?";
+                    panel.SampleLabelBG.color = Color.gray; // gray out unknown sample label
                 }
 
                 // Set the substrate label and sprite if currently on doping chamber
                 if (isDopingChamber)
                 {
-                    bool substrateKnown = researchState != null
-                        && researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
-                        && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
-                    ResearchMaterialView substrateView = Find.NamedAsset<ResearchMaterialView>(primaryMaterial.AssetId);
+                    bool substrateKnown = researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
+                    && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
                     panel.SubstrateSprite.sprite = primaryMaterial.GemSprite;
                     if (substrateKnown) {
                         panel.SubstrateLabel.text = primaryMaterial.ShortName;
                     } else {
-                        panel.SubstrateLabel.text = view != null ? substrateView.SampleLabel : "Z"; // z as fallback
+                        panel.SubstrateLabel.text = "?";
                     }
                 }
             }
@@ -208,6 +241,7 @@ namespace SpaceFab.Research {
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
                     }
+                    panel.SlotChips[i].gameObject.SetActive(filled);
                     panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
@@ -218,7 +252,7 @@ namespace SpaceFab.Research {
             panel.HypothesisChip.gameObject.SetActive(true);
             bool hypoFilled = hypoVm.HypothesisSelected;
             string hypoLabel = null;
-            ObservationType hypoType = default;
+            ObservationType hypoType = ObservationType.Component;
             if (hypoFilled) {
                 MaterialPropertyLabel hypo = hypoVm.HypothesisLabel;
                 hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
@@ -226,8 +260,8 @@ namespace SpaceFab.Research {
             }
             if (hypoVm.HypothesisContext != StringHash32.Null)
             {
-                ResearchMaterialView hypoContext = Find.NamedAsset<ResearchMaterialView>(hypoVm.HypothesisContext);
-                hypoLabel += " for " + hypoContext.SampleLabel; // TODO: show actual name for known materials
+                MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
+                hypoLabel += " for " + hypoContext.ShortName; // TODO: only 'confirmed' semiconductors can be slotted -- always known
             }
             panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 

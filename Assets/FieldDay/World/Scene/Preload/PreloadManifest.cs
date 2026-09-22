@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BeauUtil;
+using BeauUtil.Debugger;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -78,6 +79,7 @@ namespace FieldDay.Scenes {
                 while (loaderPtr < preloaders.Count) {
                     int nextBucket = OrderAttribute.Get(preloaders[loaderPtr].GetType());
                     if (nextBucket != bucketOrder) {
+                        Assert.True(nextBucket > bucketOrder, "Buckets are out-of-order ({0} to {1})", bucketOrder, nextBucket);
                         int count = loaderPtr - bucketStart;
                         if (count > 0) {
                             buckets.Add(new BucketInfo() {

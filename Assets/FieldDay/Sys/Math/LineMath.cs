@@ -4,13 +4,19 @@ using UnityEngine;
 
 namespace FieldDay.Mathematics {
     static public class LineMath {
+        /// <summary>
+        /// Returns the distance from a given point to the given line segment.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public float DistanceFromPointToLineSegment(Vector2 point, Vector2 lineA, Vector2 lineB) {
             return (point - ClosestPointOnLineSegment(point, lineA, lineB)).magnitude;
         }
 
+        /// <summary>
+        /// Returns the squared distance from a given point to the given line segment.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static public float DistanceFromPointToLineSegmentSquared(Vector2 point, Vector2 lineA, Vector2 lineB) {
+        static public float SqrDistanceFromPointToLineSegment(Vector2 point, Vector2 lineA, Vector2 lineB) {
             return Vector2.SqrMagnitude(point - ClosestPointOnLineSegment(point, lineA, lineB));
         }
 

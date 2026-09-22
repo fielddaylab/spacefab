@@ -180,6 +180,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5024851448177858497, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
+      propertyPath: m_text
+      value: P-type dopant
+      objectReference: {fileID: 0}
+    - target: {fileID: 5024851448177858497, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: m_fontSize
       value: 18
       objectReference: {fileID: 0}
@@ -189,15 +193,15 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: cb15a36ff3bdc5043a93a009b65945bf, type: 2}
     - target: {fileID: 5024851448177858497, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: m_fontColor.b
-      value: 0.28627452
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5024851448177858497, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: m_fontColor.g
-      value: 0.5058824
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5024851448177858497, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.6039216
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5024851448177858497, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: m_fontSizeMax
@@ -234,6 +238,10 @@ PrefabInstance:
     - target: {fileID: 6596900777543646110, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: m_Name
       value: Contract Requirement
+      objectReference: {fileID: 0}
+    - target: {fileID: 7781752791941135336, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9152314213503323257, guid: 1659a2a301b50474e8c294de1451eefa, type: 3}
       propertyPath: AcceptedMouseButtons

@@ -3,6 +3,10 @@ using FieldDay.Systems;
 using FieldDay;
 using UnityEngine;
 using SpaceFab.Design.Visuals;
+using System;
+using FieldDay.Scenes;
+using System.Collections.Generic;
+using BeauUtil;
 
 namespace SpaceFab.Design
 {
@@ -11,37 +15,41 @@ namespace SpaceFab.Design
     /// per-row verdicts, and the one-frame request flags driven by UI / Leaf. Replaces the ambient
     /// state that the prototype's VisualFeedbackRoutine kept in coroutine locals.
     /// </summary>
-    public class SimulateRunState : SharedStateComponent, IRegistrationCallbacks
+    [PreloadOrder(-99)]
+    public class SimulateRunState : SharedStateComponent, IRegistrationCallbacks, IScenePreload
     {
         // ---- Phase machine ----
 
-        [HideInInspector] public SimulatePhase Phase;
-        [HideInInspector] public RunScope Scope;
+        [NonSerialized] public SimulatePhase Phase;
+        [NonSerialized] public RunScope Scope;
 
         // Row currently executing or last executed. Valid once Phase advances past Idle.
-        [HideInInspector] public int CurrentRow;
+        [NonSerialized] public int CurrentRow;
 
         // Payload for PlaySingleTestRequested: which row the UI asked to play.
-        [HideInInspector] public int RequestedRowIndex;
+        [NonSerialized] public int RequestedRowIndex;
 
         // Row queued to play once an in-flight Cancel finishes. -1 = nothing queued.
         // Set by the suite-row click handler when the player clicks an inactive row mid-run;
         // consumed by ProcessCancelling at the Cancelling -> Idle transition, which re-fires
         // PlaySingleTestRequested with this row index.
-        [HideInInspector] public int PendingPlayRowIndex;
+        [NonSerialized] public int PendingPlayRowIndex;
 
         // Depth pointer into SimulateGraphState.OrderedEdges.
-        [HideInInspector] public int CurrentDepth;
+        [NonSerialized] public int CurrentDepth;
 
         // Time spent at the current depth (or other timed sub-phase). Reset on depth advance / phase change.
-        [HideInInspector] public float PhaseTimer;
+        [NonSerialized] public float PhaseTimer;
 
         // True for exactly one frame when ProcessPropagating wants DepthStepSystem to paint this depth.
         // Cleared by SimulateControlRefreshSystem in LateUpdate.
-        [HideInInspector] public bool PaintDepthThisFrame;
+        [NonSerialized] public bool PaintDepthThisFrame;
 
-        // Set during Propagating if the current row produced an unstable flow anywhere.
-        [HideInInspector] public bool IsUnstable;
+        // Set during Propagating if the current row produced an unstable flow ANYWHERE on the
+        // board. Diagnostic only — it does not decide the verdict, because a region that reaches
+        // no output has no bearing on whether the row passes. ProcessResolvingTest scopes the
+        // Unstable verdict to the output segments instead.
+        [NonSerialized] public bool IsUnstable;
 
         // ---- Inspector-editable pacing (matches prototype timeBetweenSteps / timeBetweenTests) ----
 
@@ -50,23 +58,24 @@ namespace SpaceFab.Design
 
         // ---- One-frame request flags (cleared by SimulateControlRefreshSystem in LateUpdate) ----
 
-        [HideInInspector] public bool PlayFullSuiteRequested;
-        [HideInInspector] public bool PlaySingleTestRequested;
-        [HideInInspector] public bool PauseRequested;
-        [HideInInspector] public bool ResumeRequested;
-        [HideInInspector] public bool RestartTestRequested;
-        [HideInInspector] public bool RestartSuiteRequested;
-        [HideInInspector] public bool CancelRequested;
-        [HideInInspector] public bool DismissResultsRequested; // TODO
+        [NonSerialized] public bool PlayFullSuiteRequested;
+        [NonSerialized] public bool PlaySingleTestRequested;
+        [NonSerialized] public bool PauseRequested;
+        [NonSerialized] public bool ResumeRequested;
+        [NonSerialized] public bool RestartTestRequested;
+        [NonSerialized] public bool RestartSuiteRequested;
+        [NonSerialized] public bool CancelRequested;
+        [NonSerialized] public bool DismissResultsRequested; // TODO
 
         // Toggle-input mode: the player clicked Test, and InputToggleState.LastMatchedRowIndex
         // identified which TestData row to run. Carries through RequestedRowIndex like
         // PlaySingleTestRequested but skips the verdict-wipe so prior runs' verdicts persist.
-        [HideInInspector] public bool PlayCurrentToggleComboRequested;
+        [NonSerialized] public bool PlayCurrentToggleComboRequested;
 
         // ---- Per-row verdicts. Sized to suite length on Simulate entry by ModeTransitionSystem. ----
 
-        [HideInInspector] public TestRowVerdict[] RowVerdicts;
+        [NonSerialized] public TestRowVerdict[] RowVerdicts;
+        [NonSerialized] public TestData[] RowValues;
 
         public void OnRegister()
         {
@@ -91,10 +100,21 @@ namespace SpaceFab.Design
             PlayCurrentToggleComboRequested = false;
 
             RowVerdicts = null;
+            RowValues = null;
         }
 
         public void OnDeregister()
         {
+        }
+
+        public IEnumerator<WorkSlicer.Result?> Preload() {
+            Find.State(out ContractState contractState, out DesignMinigameState designState);
+            LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
+            TestSuiteData suiteData = levelData.GetTestSuite();
+
+            RowVerdicts = new TestRowVerdict[suiteData.Rows.Length];
+            RowValues = new TestData[suiteData.Rows.Length];
+            return null;
         }
     }
 
@@ -226,6 +246,7 @@ namespace SpaceFab.Design
             for (int i = 0; i < runState.RowVerdicts.Length; i++)
             {
                 runState.RowVerdicts[i] = TestRowVerdict.Untested;
+                runState.RowVerdicts[i] = default;
             }
         }
 
@@ -235,21 +256,26 @@ namespace SpaceFab.Design
         // lives in exactly one place.
         public static void WipeVerdictsForNewRun(SimulateRunState runState, SimulateUIState uiState, DesignMinigameState designState)
         {
-            if (designState != null && designState.UseToggleInputMode) { return; }
-            ClearAllVerdicts(runState);
-            SimulateUIUtility.HideAllRowVerdicts(uiState);
+            //if (designState != null && designState.UseToggleInputMode) { return; }
+            //ClearAllVerdicts(runState);
+            //SimulateUIUtility.HideAllRowVerdicts(uiState);
+        }
+
+        public static void SetVerdictInProgress(SimulateRunState runState, int rowIndex) {
+            SetVerdict(runState, rowIndex, TestRowVerdict.InProgress, default);
         }
 
         // Writes a verdict for a specific row; no-op on out-of-range index.
-        public static void SetVerdict(SimulateRunState runState, int rowIndex, TestRowVerdict verdict)
+        public static void SetVerdict(SimulateRunState runState, int rowIndex, TestRowVerdict verdict, TestData values)
         {
             if (runState.RowVerdicts == null) { return; }
             if (rowIndex < 0 || rowIndex >= runState.RowVerdicts.Length) { return; }
             runState.RowVerdicts[rowIndex] = verdict;
+            runState.RowValues[rowIndex] = values;
         }
 
         // Resets the active simulation back to a clean Idle state — wipes per-cell flow,
-        // clears per-node transients, clears all row verdicts (model + UI), marks visuals dirty,
+        // clears per-segment and per-node transients, clears all row verdicts (model + UI), marks visuals dirty,
         // parks Phase at Idle, and flags the run-button icons for repaint. Shared by
         // SimulateModeSystem.ProcessCancelling and ModeTransitionSystem.ExitSimulateMode.
         // Intentionally does NOT touch PendingPlayRowIndex so callers can decide whether to
@@ -261,14 +287,11 @@ namespace SpaceFab.Design
         public static void WipeRunState(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, DesignMinigameState designState)
         {
             SimulateRunScratchUtility.BumpFlowStamp(runScratch);
-            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+            SimulateRunScratchUtility.ClearRunTransients(runScratch, graphState.NodeCount, graphState.SegmentCount);
             visualState.VisualsNeedRefreshing = true;
 
-            if (designState == null || !designState.UseToggleInputMode)
-            {
-                ClearAllVerdicts(runState);
-                SimulateUIUtility.HideAllRowVerdicts(uiState);
-            }
+            ClearAllVerdicts(runState);
+            SimulateUIUtility.HideAllRowVerdicts(uiState);
 
             runState.Phase = SimulatePhase.Idle;
             SimulateUIUtility.MarkAllRunButtonsDirty(uiState);

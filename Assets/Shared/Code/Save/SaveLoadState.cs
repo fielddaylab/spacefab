@@ -20,6 +20,16 @@ namespace SpaceFab.Save
         public string ServerURL;
         public Routine Operation;
 
+        // Suppresses the automatic saves the game fires on contract accept, minigame exit, chapter
+        // advance and so on. Driven by the debug menu toggle.
+        [NonSerialized] public bool AutosaveDisabled;
+
+        // Names the bookmark this session was created from or loaded into, empty otherwise. Set once
+        // and never cleared: a bookmarked session must never write back over a real player's save.
+        // Deliberately outside the DEVELOPMENT guard - bookmarks load in builds, so the firewall has
+        // to hold there too.
+        [NonSerialized] public string ActiveBookmark;
+
 #if DEVELOPMENT
         [NonSerialized] public bool IsDebug;
 #endif // DEVELOPMENT
@@ -48,6 +58,22 @@ namespace SpaceFab.Save
                 return;
             }
 #endif // DEVELOPMENT
+
+            // Both of these silently drop the save, which is this feature's most confusing failure
+            // mode, so each says why. Reload and LoadFromServer are deliberately left alone: neither
+            // writes anything, and after a bookmark load the buffer still holds the bookmark, so
+            // "Read Current from Memory" usefully becomes "restart from this bookmark".
+            if (!string.IsNullOrEmpty(save.ActiveBookmark))
+            {
+                Log.Msg("[SaveUtility] Save skipped: session is running from bookmark '{0}'", save.ActiveBookmark);
+                return;
+            }
+
+            if (save.AutosaveDisabled)
+            {
+                Log.Msg("[SaveUtility] Save skipped: autosave is disabled from the debug menu");
+                return;
+            }
 
             if (save.Operation)
             {

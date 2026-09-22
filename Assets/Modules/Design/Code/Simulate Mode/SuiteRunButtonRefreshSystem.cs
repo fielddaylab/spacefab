@@ -29,31 +29,24 @@ namespace SpaceFab.Design
         // table isn't built yet or the inspector ref hasn't been wired.
         static private void ProcessWork(float deltaTime)
         {
-            Find.State(out SimulateRunState runState, out SimulateUIState uiState);
-            DesignMinigameState designState = Find.State<DesignMinigameState>();
+            //Find.State(out SimulateRunState runState, out SimulateUIState uiState);
+            //DesignMinigameState designState = Find.State<DesignMinigameState>();
 
-            // Toggle-input mode hides the suite Run button — keep it inactive on every frame.
-            // SuiteSecondaryButtonRefreshSystem (order 3) still clears SuiteButtonsNeedRefreshing.
-            if (designState != null && designState.UseToggleInputMode)
-            {
-                if (uiState.SuiteRunButton != null && uiState.SuiteRunButton.gameObject.activeSelf)
-                {
-                    uiState.SuiteRunButton.gameObject.SetActive(false);
-                }
-                return;
-            }
+            //// Toggle-input mode hides the suite Run button — keep it inactive on every frame.
+            //// SuiteSecondaryButtonRefreshSystem (order 3) still clears SuiteButtonsNeedRefreshing.
+            //if (designState != null && designState.UseToggleInputMode)
+            //{
+            //    return;
+            //}
 
-            if (!uiState.SuiteButtonsNeedRefreshing) { return; }
-            if (!uiState.TableBuilt) { return; }
-            if (uiState.SuiteRunButton == null || uiState.SuiteRunButton.Icon == null) { return; }
+            //if (!uiState.SuiteButtonsNeedRefreshing) { return; }
+            //if (!uiState.TableBuilt) { return; }
 
-            var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
+            //var suiteDB = Find.GlobalAsset<SuiteVisualsDB>();
 
-            SuiteRunButtonState state = SuiteRunButtonState.Play;
-            if (runState.Phase == SimulatePhase.Propagating) { state = SuiteRunButtonState.Pause; }
-            else if (runState.Phase == SimulatePhase.Paused) { state = SuiteRunButtonState.Resume; }
-
-            uiState.SuiteRunButton.Icon.sprite = SuiteVisualsDBUtility.LookupRunButtonSprite(suiteDB, state);
+            //SuiteRunButtonState state = SuiteRunButtonState.Play;
+            //if (runState.Phase == SimulatePhase.Propagating) { state = SuiteRunButtonState.Pause; }
+            //else if (runState.Phase == SimulatePhase.Paused) { state = SuiteRunButtonState.Resume; }
         }
     }
 }

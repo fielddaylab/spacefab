@@ -39,8 +39,6 @@ namespace SpaceFab.Design
             DesignMinigameState designState = Find.State<DesignMinigameState>();
             GridSpriteDB spriteDB = Find.GlobalAsset<GridSpriteDB>();
 
-            bool modeOn = designState.UseToggleInputMode;
-
             var visuals = Find.Components<InputToggleVisual>();
             for (int i = 0; i < visuals.Count; i++)
             {
@@ -49,12 +47,6 @@ namespace SpaceFab.Design
 
                 // Pre-stamp visuals stay hidden until SpawnInputOverlays assigns the cell index.
                 if (!visual.CellIndexStamped)
-                {
-                    SetActiveIfChanged(visual, false);
-                    continue;
-                }
-
-                if (!modeOn)
                 {
                     SetActiveIfChanged(visual, false);
                     continue;

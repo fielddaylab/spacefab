@@ -1,7 +1,9 @@
+using System;
 using BeauUtil;
 using FieldDay;
 using Leaf.Runtime;
 using SpaceFab.UI;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -45,6 +47,34 @@ namespace SpaceFab.Research {
                         ThermalChamberUtility.ResetState(Find.State<ThermalChamberState>());
                     }
                     break;
+            }
+        }
+
+        [LeafMember("LockChamber")]
+        public static void Leaf_LockChamber(string chamberId)
+        {
+            if (Enum.TryParse(chamberId, out ActiveChamberKind chamberKind)) {
+                Find.State(out ChamberInterfacerState interfacer);
+                interfacer.LastUnlockedChamber = chamberKind - 1;
+                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+                foreach (var panel in Find.Components<ResearchSamplePanel>()) {
+                    if (panel == null) continue;
+                    SamplePanelInputUtility.LockChamberButton(panel, chamberKind, uiAssets);
+                }
+            }
+        }
+
+        [LeafMember("UnlockChamber")]
+        public static void Leaf_UnlockChamber(string chamberId)
+        {
+            if (Enum.TryParse(chamberId, out ActiveChamberKind chamberKind)) {
+                Find.State(out ChamberInterfacerState interfacer);
+                interfacer.LastUnlockedChamber = chamberKind;
+                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+                foreach (var panel in Find.Components<ResearchSamplePanel>()) {
+                    if (panel == null) continue;
+                    SamplePanelInputUtility.UnlockChamberButton(panel, chamberKind, uiAssets);
+                }
             }
         }
     }

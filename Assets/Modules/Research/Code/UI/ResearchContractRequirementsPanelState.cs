@@ -25,7 +25,9 @@ namespace SpaceFab.Research {
     /// confirmed this frame.
     /// </summary>
     public class ResearchContractRequirementsPanelState : SharedStateComponent, IRegistrationCallbacks {
-        public ResearchContractRequirementRow[] Rows;
+        public RectTransform Bounds;
+        public float HeightPadding;
+        public ContractRequirementTable Table;
 
         // Refresh request flag. The visual system reads it alongside
         // ResearchMinigameState.PropertyConfirmedThisFrame to decide

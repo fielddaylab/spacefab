@@ -1,7 +1,9 @@
+using BeauUtil;
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Materials;
+using SpaceFab.UI;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -48,57 +50,11 @@ namespace SpaceFab.Research {
     /// </summary>
     public static class ContractRequirementsVisualUtility {
         public static void Apply(ResearchContractRequirementsPanelState panel, ResearchMinigameState researchState, PlayerProgressState progressState) {
-            if (panel == null || panel.Rows == null || researchState == null || progressState == null) {
+            if (panel == null || panel.Table == null || researchState == null || progressState == null) {
                 return;
             }
 
-            MaterialPropertyCheck[] goals = researchState.RequiredResearchGoals;
-            int goalCount = goals != null ? goals.Length : 0;
-
-            for (int i = 0; i < panel.Rows.Length; i++) {
-                ResearchContractRequirementRow row = panel.Rows[i];
-                if (row == null) {
-                    continue;
-                }
-
-                MaterialPropertyCheck goal = i < goalCount ? goals[i] : null;
-                if (goal == null) {
-                    row.gameObject.SetActive(false);
-                    continue;
-                }
-                row.gameObject.SetActive(true);
-                if (row.Chip == null) {
-                    continue;
-                }
-
-                // A goal is met when some material's merged (sandbox OR
-                // saved) record satisfies it. A goal that names a substrate
-                // is context-exact — "P-Type dopant for sample A" is not met
-                // by a dopant confirmed for a different one. A goal with no
-                // substrate is a wildcard; see SatisfiesCheck.
-                bool fulfilled = ContractProgressUtility.HasAnyFulfillingMaterial(progressState, researchState, goal);
-
-                // Goal labels are persistent properties, so the chamber
-                // lookup resolves them to the ConfirmedProperty sprite
-                // bucket — the same frame the sample panel's hypothesis
-                // chip wears. A met goal takes that bucket's confirmed
-                // sprite, which carries the green checkmark.
-                row.Chip.SetState(BuildRequirementText(goal),
-                    fulfilled ? ChipFillState.Confirmed : ChipFillState.Filled, false,
-                    MaterialObservationChamberLookup.GetChamberType(goal.Label));
-            }
-        }
-
-        // Example text: "P-Type dopant for sample A", plus the
-        // substrate it is measured against when the goal names one.
-        private static string BuildRequirementText(MaterialPropertyCheck goal) {
-            string text = MaterialPropertyLabelDisplay.GetPropertyName(goal.Label);
-            if (goal.InComparisonTo.IsEmpty) {
-                return text;
-            }
-            // TODO: show actual name for known materials
-            ResearchMaterialView contextView = Find.NamedAsset<ResearchMaterialView>(goal.InComparisonTo);
-            return contextView != null ? $"{text} for sample {contextView.SampleLabel}" : text;
+            ContractUIUtility.UpdateVisualsWithCompletion(panel.Table, researchState.SandboxProperties);
         }
     }
 }

@@ -65,6 +65,7 @@ namespace SpaceFab.Materials
         Dopant,
         Special,
         ConfirmedProperty,
+        Component,
     }
 
     [CreateAssetMenu(menuName = "SpaceFab/Material Property")]

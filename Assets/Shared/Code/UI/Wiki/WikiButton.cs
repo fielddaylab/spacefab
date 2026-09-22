@@ -1,5 +1,7 @@
+using System;
 using FieldDay;
 using FieldDay.Components;
+using SpaceFab.Onboarding;
 using UnityEngine;
 
 namespace SpaceFab.UI {
@@ -38,14 +40,16 @@ namespace SpaceFab.UI {
         // the one-frame flags below via the handlers at the bottom of this file.
         public DynamicButton DynamicButton;
 
-        [HideInInspector] public bool ClickedThisFrame;
-        [HideInInspector] public bool PointerEnterThisFrame;
-        [HideInInspector] public bool PointerExitThisFrame;
+        public ElementTag ElementTag;
+
+        [NonSerialized] public bool ClickedThisFrame;
+        [NonSerialized] public bool PointerEnterThisFrame;
+        [NonSerialized] public bool PointerExitThisFrame;
 
         // Set by WikiAvailabilityUtility on unlock-state resolution. Locked tabs have
         // Available=false, gameObject.SetActive(false), and DynamicButton disabled. Non-Tab
         // buttons are chrome and remain Available=true regardless.
-        [HideInInspector] public bool Available = true;
+        [NonSerialized] public bool Available = true;
 
         public void OnRegister() {
             if (DynamicButton == null) { return; }

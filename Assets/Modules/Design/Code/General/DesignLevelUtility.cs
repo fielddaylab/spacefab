@@ -1,5 +1,6 @@
 using BeauUtil;
 using FieldDay;
+using FieldDay.Debugging;
 using FieldDay.Scenes;
 using SpaceFab.Save;
 
@@ -19,6 +20,9 @@ namespace SpaceFab.Design
         {
             if (contractState.ContractAssets == null || contractState.ContractAssets.DesignLevels == null)
             {
+                if (DebugFlags.LaunchedFromThisScene) {
+                    return designState.DebugLevelData;
+                }
                 return null;
             }
 

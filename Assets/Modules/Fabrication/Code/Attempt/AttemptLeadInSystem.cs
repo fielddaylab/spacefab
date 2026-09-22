@@ -35,7 +35,8 @@ namespace SpaceFab.Fabrication {
                 );
             Find.State(
                 out SequenceState sequenceState,
-                out SequenceVisualsState SequenceVisualsState
+                out SequenceVisualsState SequenceVisualsState,
+                out ContractState contractState
                 );
 
             if (modeState.CurrMode != LevelMode.AttemptLeadIn) { return; }
@@ -57,7 +58,8 @@ namespace SpaceFab.Fabrication {
 
                 // reset sequence
                 Log.Msg("[AttemptLeadInSystem] Resetting sequence");
-                SequenceUtility.ResetSequence(sequenceState, sequenceState.Level, SequenceVisualsState);
+                FabricationLevel level = contractState.ContractAssets.FabricationLevel;
+                SequenceUtility.ResetSequence(sequenceState, level, SequenceVisualsState);
 
                 // show visual
                 RobotUtility.UpdateStatus(robotState, RobotStatus.Holding);

@@ -1,4 +1,5 @@
 using BeauRoutine;
+using BeauUtil.Variants;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.Scripting;
@@ -52,6 +53,22 @@ namespace SpaceFab.Research {
     /// systems can react.
     /// </summary>
     public static class ResearchSlotUtility {
+        // Clear slot and reset voltage/heat control after explosion
+        public static bool ClearSlot(ChamberInterfacerState interfacerState, ResearchSlot slot, ChamberSlotKind kind) {
+            if (FillInSlot(interfacerState, slot, kind, null)) {
+                if (interfacerState.ActiveChamber == ActiveChamberKind.Voltage) {
+                    Find.State(out BatteryChamberState batteryChamber);
+                    BatteryChamberUtility.ResetState(batteryChamber);
+                }
+                else if (interfacerState.ActiveChamber == ActiveChamberKind.Thermal) {
+                    Find.State(out ThermalChamberState thermalChamber);
+                    ThermalChamberUtility.ResetState(thermalChamber);
+                }
+                return true;
+            }
+            return false;
+        }
+
         // Sets or clears the slot's held material. Returns true if the write
         // was applied; returns false (no-op) if the slot kind is currently
         // marked non-receptive. Writing the same material a slot already holds
@@ -70,6 +87,12 @@ namespace SpaceFab.Research {
                     // prefab — pass null for researchState since the
                     // known/unknown distinction only affects the label.
                     ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(slot.Rig, material, null);
+
+                    if (kind == ChamberSlotKind.Primary) {
+                        ScriptUtility.WriteVariable(new TableKeyPair("research", "primaryMaterial"), material.AssetId);
+                    } else if (kind == ChamberSlotKind.Secondary) {
+                        ScriptUtility.WriteVariable(new TableKeyPair("research", "secondaryMaterial"), material.AssetId);
+                    }
 
                     using (var table = TempVarTable.Alloc()) {
                         table.Set("slotType", kind.ToString().ToLowerInvariant());

@@ -32,6 +32,7 @@ namespace SpaceFab.Design
     public enum TestRowVerdict
     {
         Untested,
+        InProgress,
         Correct,
         Incorrect,
         Unstable,

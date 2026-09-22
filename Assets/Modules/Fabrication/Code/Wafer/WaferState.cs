@@ -41,11 +41,11 @@ namespace SpaceFab.Fabrication
         // Per-step precision scores. Allocated by SequenceUtility.ResetSequence with length equal to
         // the number of steps in the level. Written by microgames on successful completion via
         // WaferStateUtility.SetStepPrecision; read by results UI and by GetAggregatedPrecision.
-        [HideInInspector] public float[] StepPrecisions;
+        [NonSerialized] public float[] StepPrecisions;
 
         // Number of entries in StepPrecisions that have been written by microgames this attempt.
         // Used for aggregation so uncompleted steps don't drag the average toward 0.
-        [HideInInspector] public int RecordedStepCount;
+        [NonSerialized] public int RecordedStepCount;
     }
 
     /// <summary>

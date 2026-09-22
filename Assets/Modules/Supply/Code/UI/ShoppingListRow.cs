@@ -26,11 +26,6 @@ namespace SpaceFab.Supply {
         public Color UncheckedUIColor;
         public Sprite DefaultIcon;
 
-        public void Start()
-        {
-            SetChecked(false);
-        }
-
         public void SetChecked(bool isChecked)
         {
             MaterialIcon.color = isChecked ? Color.white : UncheckedUIColor;

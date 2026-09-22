@@ -1,5 +1,6 @@
 using FieldDay.Components;
 using SpaceFab.Fabrication.Stations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace SpaceFab.Fabrication.Layout {
     /// </summary>
     public class StationSlot : BatchedComponent
     {
-        [HideInInspector] public MicrogameStationInterfacer AssignedStationInterfacer;
+        [NonSerialized] public MicrogameStationInterfacer AssignedStationInterfacer;
     }
 
     public static class StationSlotUtility

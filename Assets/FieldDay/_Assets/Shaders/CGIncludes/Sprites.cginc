@@ -6,6 +6,7 @@
 #include "./Common.cginc"
 #include "./Fog.cginc"
 #include "./ColorMod.cginc"
+#include "./Dithering.cginc"
 
 /// Configuration Defines
 
@@ -111,6 +112,14 @@ inline fixed4 SampleMainWithExternalAlpha(float2 uv)
 #endif // UNITY_UI_ALPHACLIP
 
 /// Programs
+    
+#define SpriteCommonFooter(varyings, color, fragPos) \
+    DitheredAlphaApply(color, fragPos); \
+    SpriteAlphaClip(color); \
+    LayerApplyLerpColor(color); \
+    LayerApplyAdditiveColor(color); \
+    FogApply(color, varyings); \
+    PremultiplyAlpha(color);
 
 Varyings_Sprite DefaultSpriteVert(Attributes_Sprite v, out float4 vertex : SV_Position)
 {
@@ -130,15 +139,11 @@ Varyings_Sprite DefaultSpriteVert(Attributes_Sprite v, out float4 vertex : SV_Po
     return output;
 }
 
-fixed4 DefaultSpriteFrag(Varyings_Sprite v) : SV_Target
+fixed4 DefaultSpriteFrag(Varyings_Sprite v, float_vpos fragPos : VPOS) : SV_Target
 {
     InstancingInitialize(v);
     fixed4 color = SampleSpriteTexture(v.texcoord) * v.color;
-    SpriteAlphaClip(color);
-    LayerApplyLerpColor(color);
-    LayerApplyAdditiveColor(color);
-    FogApply(color, v);
-    PremultiplyAlpha(color);
+    SpriteCommonFooter(v, color, fragPos);
     return color;
 }
 

@@ -1,0 +1,80 @@
+# basePath ResearchIntroCh2
+
+::IntroSelectTrace
+@trigger    OnSetupComplete
+$if MinigameHasValidSolution()
+    {@PAL}  You've already researched everything you need to!
+$else
+    $call   LockChamber("Thermal")
+    $set    temp:needsToOpenWiki = true
+    {@PAL}  This contract specifies that we need to research a semiconductor. \n\nLet's open up the database!
+    $wait   1
+    $call   OpenWikiTo("Properties", "Semiconductor")
+    $wait   2
+    $call   CloseWiki()
+$endif
+
+
+::OnWikiClosed
+@trigger    OnWikiClosed
+@when       !MinigameHasValidSolution(), temp:needsToOpenWiki
+$call   ReleaseAllHighlights()
+$set    temp:needsToOpenWiki = false
+{@PAL}  Interesting. Semiconductors actually seem like insulators until we heat them up.
+$wait   1
+{@PAL}  We need to re-test our materials with the thermal chamber to see if our initial identifications were correct.
+$call   UnlockChamber("Thermal")
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:thermal-chamber-btn, false, -1, true)
+
+
+// Thermal Chamber
+::OnThermalChamberSelected
+@trigger    OnChamberSwitched
+@when       !MinigameHasValidSolution(), research:chamberId == "Thermal"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:increase-heat-btn)
+$set    temp:needsToIncreaseHeat = true
+$call   CloseWiki()
+{@PAL}  You’ll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
+
+::OnHeatIncreased
+@trigger    OnHeatIncreased
+@when   !MinigameHasValidSolution(), temp:needsToIncreaseHeat
+$call   ReleaseHighlight(research:increase-heat-btn)
+$set    temp:needsToIncreaseHeat = false
+$call   CloseWiki()
+{@PAL}  Now use your database to record your observation.\nMake sure you include all required observations for the property!
+
+::OnMaterialExploded
+@trigger    OnMaterialExploded
+$call   CloseWiki()
+{@PAL}  Be careful! Each material has its own temperature limit.\nIf you exceed it, the material will explode.
+
+::OnVerifyButtonShown
+@trigger    OnVerifyButtonShown
+@when   !MinigameHasValidSolution()
+$call   CloseWiki()
+{@PAL}  Let's check if your observations match the selected hypothesis.
+
+::OnHypothesisCorrect
+@trigger    OnHypothesisSubmitted
+@when   result == "success"
+$call   CloseWiki()
+$if MinigameHasValidSolution()
+    {@PAL}  Great. You've completed all research tasks! Let's return to the ship.
+$elseif research:primaryMaterial == "Silicon"
+    {@PAL}  Great. You've found a semiconductor! Try other samples with the thermal chamber to see if our initial identifications were correct.
+$else
+    {@PAL}  Correct. Try other samples with the thermal chamber to see if our initial identifications were correct.
+$endif
+
+::OnHypothesisIncorrect
+@trigger    OnHypothesisSubmitted
+@when   !MinigameHasValidSolution(), result == "failure"
+$call   CloseWiki()
+$if     research:primaryMaterial == "Silicon"
+    {@PAL}  That doesn't seem right. Remember that semiconductors don't allow current to pass, and current increases when heat is applied.
+$else
+    {@PAL}  That doesn't seem right. Try changing the hypothesis or select a different observation.
+$endif

@@ -143,31 +143,32 @@ namespace SpaceFab.Design
             }
         }
 
-        // PreparingTest: reset per-row sim state, prime input flows, advance to Propagating.
+        // PreparingTest: reset per-row sim state, seed the input segments, advance to Propagating.
         // Runs exactly once per test-row start.
         //
         // Reset strategy:
-        //   - Per-node transient arrays (NodeFlow / NodeTempTransform): Array.Clear on 0..NodeCount.
-        //     NodeCount is tens at most — effectively free.
+        //   - Transient arrays (SegmentFlow / NodeTempTransform): Array.Clear over the live counts.
+        //     Both are tens at most — effectively free.
         //   - Per-cell transient state (CellFlow / CellTempTransform): BumpFlowStamp. Single int
         //     increment invalidates every per-cell mark from the prior test.
-        //   - Edge state: none to reset. Cycle-detection flags are durable on CrucialEdge and
-        //     computed at Build time, not per test.
+        //   - Edge state: none to reset. CycleDetected is durable on CrucialEdge and computed at
+        //     Build time, not per test.
         static private void ProcessPreparingTest(SimulateRunState runState, SimulateRunScratch runScratch, SimulateGraphState graphState, SimulateUIState uiState, VisualGridStackState visualState, PlayerProgressState progressState, ContractState contractState, GridStackState gridStackState, DesignMinigameState designState)
         {
-            // Per-node transient reset. Cheap: NodeCount is small.
-            SimulateRunScratchUtility.ClearNodeTransients(runScratch, graphState.NodeCount);
+            // Per-segment and per-node transient reset.
+            SimulateRunScratchUtility.ClearRunTransients(runScratch, graphState.NodeCount, graphState.SegmentCount);
 
             // Per-cell transient reset. O(1) — stamp bump invalidates all prior flow + temp-
             // transform writes without touching the arrays themselves.
             SimulateRunScratchUtility.BumpFlowStamp(runScratch);
 
-            // Prime InputFlowByNode for this row. Walk Input crucial nodes and materialize their
-            // test-row value once; DepthStepSystem reads from the array per edge, avoiding a
-            // per-edge TestData scan.
+            // Seed each Input's segment with this row's value. An Input drives its whole conductor
+            // the moment the row starts, so this belongs on the segment rather than being read
+            // back per edge — which is also what removes the Input special case from ProcessEdge.
+            // Two Inputs wired to one segment resolve Unstable here, before propagation begins.
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            TestData currTest = suite.Tests[runState.CurrentRow];
+            TestData currTest = suite.Rows[runState.CurrentRow];
             List<GridCoord> inputs = new List<GridCoord>();
             List<GridCoord> outputs = new List<GridCoord>();
 
@@ -177,7 +178,13 @@ namespace SpaceFab.Design
                 GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
                 if (cell.CellType == CellType.Input)
                 {
-                    runScratch.InputFlowByNode[i] = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                    FlowState inputFlow = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, suite.ColumnMask, currTest);
+                    SimulateRunScratchUtility.AssignSegmentFlow(runScratch, graphState.CrucialSegment[i], inputFlow);
+
+                    // Paint the Input's own cell too. DepthStepSystem's crawl carries the colour
+                    // already on an edge's origin cell, so without this every depth-0 edge would
+                    // start from an unpainted origin and nothing would ever advance.
+                    SimulateRunScratchUtility.SetCellFlow(runScratch, node.CellIndex, inputFlow);
                     inputs.Add(node.Coord);
                 }
                 else if (cell.CellType == CellType.Output)
@@ -190,15 +197,13 @@ namespace SpaceFab.Design
 
             SpacefabGame.Events.Dispatch(GameEvents.DesignSimRowStarted, EvtArgs.Box((inputs, outputs, runState.CurrentRow)));
             SimulateUIUtility.WriteRowInputs(uiState, runState.CurrentRow, currTest);
+            SimulateControlUtility.SetVerdictInProgress(runState, runState.CurrentRow);
 
             // Wipe any leftover verdict marks from this row's previous run — the new propagation
             // hasn't produced a result yet, so the per-output visualizers should read as "no
             // verdict active" until ResolvingTest writes fresh ones. In toggle-input mode we
             // preserve verdicts across runs (they only clear on grid edits), so skip the hide.
-            if (!designState.UseToggleInputMode)
-            {
-                SimulateUIUtility.HideRowVerdicts(uiState, runState.CurrentRow);
-            }
+            SimulateUIUtility.HideRowVerdicts(uiState, runState.CurrentRow);
 
             // Mark visuals dirty so GridVisualsUpdateSystem redraws the now-empty-flow grid.
             visualState.VisualsNeedRefreshing = true;
@@ -317,7 +322,8 @@ namespace SpaceFab.Design
 
         // ResolvingTest: score outputs for CurrentRow, write verdict, advance to next row or finish.
         //
-        // Reads per-output flow from runScratch.NodeFlow, fills runScratch.OutputFlowBuffer in
+        // Reads each Output's flow from its SEGMENT — the same value the output tag shows via
+        // GetCellFlow, so the two cannot disagree — fills runScratch.OutputFlowBuffer in
         // CrucialNodes-Output order, and compares each value to the expected one from the current
         // row's TestData. The verdict gets recorded on runState.RowVerdicts via SetVerdict and
         // pushed to the UI via WriteRowVerdict (currently a stub — UI not yet implemented).
@@ -330,7 +336,7 @@ namespace SpaceFab.Design
         {
             LevelData levelData = DesignLevelUtility.GetActiveLevelData(contractState, designState);
             TestSuiteData suite = levelData.GetTestSuite();
-            TestData currTest = suite.Tests[runState.CurrentRow];
+            TestData currTest = suite.Rows[runState.CurrentRow];
 
             MinigameSaveStates saveStates = Find.State<MinigameSaveStates>();
 
@@ -339,8 +345,9 @@ namespace SpaceFab.Design
             // same CrucialNodes ordering — so outputIdx walks both in lockstep. We also build
             // actualPerCol — actual flow indexed by bundle column — so the UI layer can display
             // per-output verdicts without re-walking the graph.
-            FlowState[] actualPerCol = new FlowState[currTest.Bundle.Length];
+            TestData actualPerCol = default;
             bool allCorrect = true;
+            bool anyOutputUnstable = false;
             int outputIdx = 0;
             for (int i = 0; i < graphState.NodeCount; i++)
             {
@@ -348,29 +355,33 @@ namespace SpaceFab.Design
                 GridCell cell = GridStackUtility.GetCellDirect(gridStackState, node.Coord);
                 if (cell.CellType != CellType.Output) { continue; }
 
-                FlowState actual = runScratch.NodeFlow[i];
-                FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, currTest);
+                FlowState actual = runScratch.SegmentFlow[graphState.CrucialSegment[i]];
+                FlowState expected = EvalUtility.GetTestValBySubType(cell.SubtypeLabel, suite.ColumnMask, currTest);
                 runScratch.OutputFlowBuffer[outputIdx++] = actual;
                 if (actual != expected) { allCorrect = false; }
+                if (actual == FlowState.Unstable) { anyOutputUnstable = true; }
 
-                // Map this graph-output back to its bundle column by SubtypeLabel match so the
-                // UI's verdict visualizers (indexed by bundle col) can read the actual flow.
-                for (int col = 0; col < currTest.Bundle.Length; col++)
-                {
-                    if (currTest.Bundle[col].Id == cell.SubtypeLabel)
-                    {
-                        actualPerCol[col] = actual;
+                switch (cell.SubtypeLabel) {
+                    case InputOutputNodeTypeFlags.OUTX: {
+                        actualPerCol.OutputX = actual;
+                        break;
+                    }
+                    case InputOutputNodeTypeFlags.OUTY: {
+                        actualPerCol.OutputY = actual;
                         break;
                     }
                 }
             }
 
-            // Unstable beats Correct/Incorrect: any unstable flow this row, even if all outputs
-            // happened to match expectations, is a fail-by-instability per the prototype.
-            TestRowVerdict verdict = runState.IsUnstable
+            // Unstable beats Correct/Incorrect, but only when the instability actually reaches an
+            // output. Scoping it to the output segments rather than a board-wide flag means a
+            // conflicting pair of drivers off in a region that connects to nothing still paints
+            // Unstable — it is unstable, and the player should see that — without deciding a row
+            // it has no electrical bearing on.
+            TestRowVerdict verdict = anyOutputUnstable
                 ? TestRowVerdict.Unstable
                 : (allCorrect ? TestRowVerdict.Correct : TestRowVerdict.Incorrect);
-            SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict);
+            SimulateControlUtility.SetVerdict(runState, runState.CurrentRow, verdict, actualPerCol);
             SimulateUIUtility.WriteRowVerdict(uiState, runState.CurrentRow, currTest, actualPerCol);
             
             using (var table = TempVarTable.Alloc()) {
@@ -385,7 +396,7 @@ namespace SpaceFab.Design
             // only when every row in the suite has been resolved Correct (the "level complete"
             // moment). Partial passes / fails leave the panel hidden so the player can keep
             // toggling inputs and running tests without dismissal friction.
-            if (designState.UseToggleInputMode)
+            if (true)
             {
                 runState.Phase = SimulatePhase.SuiteComplete;
                 bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
@@ -402,37 +413,37 @@ namespace SpaceFab.Design
                 return;
             }
 
-            // Advance based on Scope.
-            if (runState.Scope == RunScope.SingleTest)
-            {
-                runState.Phase = SimulatePhase.SuiteComplete;
-                SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
-                SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
-            }
-            else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length)
-            {
-                runState.CurrentRow++;
-                runState.Phase = SimulatePhase.PreparingTest;
-            }
-            else
-            {
-                runState.Phase = SimulatePhase.SuiteComplete;
-                bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
-                SimulateUIUtility.ShowResultsPanel(uiState, suiteAllCorrect);
-                // A passing full-suite run is the one moment FoundValidSolution flips true.
-                // It's reset to false on grid edits and on any subsequent test re-run via
-                // DesignMinigameState's event listeners — set directly here rather than via
-                // an event to keep the success signal coupled to the verdict array that
-                // produced it.
-                if (suiteAllCorrect)
-                {
-                    DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
-                }
-                SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
-            }
+            //// Advance based on Scope.
+            //if (runState.Scope == RunScope.SingleTest)
+            //{
+            //    runState.Phase = SimulatePhase.SuiteComplete;
+            //    SimulateUIUtility.ShowResultsPanel(uiState, verdict == TestRowVerdict.Correct);
+            //    SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            //}
+            //else if (runState.CurrentRow + 1 < runState.RowVerdicts.Length)
+            //{
+            //    runState.CurrentRow++;
+            //    runState.Phase = SimulatePhase.PreparingTest;
+            //}
+            //else
+            //{
+            //    runState.Phase = SimulatePhase.SuiteComplete;
+            //    bool suiteAllCorrect = IsAllCorrect(runState.RowVerdicts);
+            //    SimulateUIUtility.ShowResultsPanel(uiState, suiteAllCorrect);
+            //    // A passing full-suite run is the one moment FoundValidSolution flips true.
+            //    // It's reset to false on grid edits and on any subsequent test re-run via
+            //    // DesignMinigameState's event listeners — set directly here rather than via
+            //    // an event to keep the success signal coupled to the verdict array that
+            //    // produced it.
+            //    if (suiteAllCorrect)
+            //    {
+            //        DesignLevelUtility.MarkActiveLevelSolved(saveStates.Design, designState);
+            //    }
+            //    SpacefabGame.Events.Dispatch(GameEvents.DesignSimSuiteComplete);
+            //}
 
-            // Phase or CurrentRow changed; the active row's button needs a repaint.
-            SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
+            //// Phase or CurrentRow changed; the active row's button needs a repaint.
+            //SimulateUIUtility.MarkAllRunButtonsDirty(uiState);
         }
 
         // True iff every entry in verdicts is Correct. Used for the suite-level pass/fail flag

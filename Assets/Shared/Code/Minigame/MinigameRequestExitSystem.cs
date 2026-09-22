@@ -3,6 +3,8 @@ using FieldDay;
 using FieldDay.SharedState;
 using FieldDay.Systems;
 using SpaceFab.Overarching;
+using SpaceFab.Research;
+using SpaceFab.Supply;
 using SpaceFab.UI;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,7 +34,10 @@ namespace SpaceFab {
 
             switch (requestExitState.ExitRequestState) {
                 case RequestState.Requested:
-                    if (DisplayLeavePopup(minigameInterfacer.Id)) {
+                    if (minigameInterfacer.Id == MinigameId.Research) {
+                        Find.Panel<ResearchResultPanel>().Show();
+                        requestExitState.ExitRequestState = RequestState.Pending;
+                    } else if (DisplayLeavePopup(minigameInterfacer.Id)) {
                         requestExitState.ExitRequestState = RequestState.Pending;
                     } else {
                         goto case RequestState.Confirmed;
@@ -53,11 +58,11 @@ namespace SpaceFab {
 
         static private bool DisplayLeavePopup(MinigameId minigame) {
             PopupRequestContent request = default;
-            request.Header = "Leave Game?";
+            request.Header = "Return to Ship?";
             request.Callback = OnLeavePopupSelected;
 
             request.ButtonA = new PopupRequestButton() {
-                Label = "Leave Game",
+                Label = "Return to Ship",
                 ResponseId = "Yes",
                 Tint = new ColorPalette2(Color.black, new Color32(255, 137, 137, 255))
             };

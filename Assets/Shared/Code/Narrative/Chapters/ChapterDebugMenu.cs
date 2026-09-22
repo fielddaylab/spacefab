@@ -19,9 +19,6 @@ namespace SpaceFab {
         // their predicate.
         private const int MaxChapterSlots = 12;
 
-        // A chapter always starts in the overarching hub, so that is where a skip lands.
-        private const string OverarchingSceneName = "Overarching";
-
         // Contributes the Chapters root.
         [DebugMenuFactory]
         private static DMInfo CreateChapterDebugMenu() {
@@ -32,7 +29,7 @@ namespace SpaceFab {
 
             for (int i = 0; i < MaxChapterSlots; i++) {
                 int index = i; // capture per-iteration for the closures
-                menu.AddButton("Skip to chapter #" + i, () => DebugSkipToChapter(index), () => index < ChapterCount() && CanSkip());
+                menu.AddButton("Skip to chapter #" + (i + 1), () => DebugSkipToChapter(index), () => index < ChapterCount() && CanSkip());
             }
 
             return menu;
@@ -114,7 +111,7 @@ namespace SpaceFab {
 
             // Jump to the hub rather than reloading whatever scene the skip was triggered from.
             // forceReload so the startup sequence reruns even when the hub is already the main scene.
-            Game.Scenes.LoadMainScene(SceneReference.FromName(OverarchingSceneName), true);
+            Game.Scenes.LoadMainScene(SceneReference.FromName(GameConsts.OverarchingSceneName), true);
             Log.Msg("[ChapterDebugMenu] Skipped to chapter #{0}", chapterIndex);
         }
     }

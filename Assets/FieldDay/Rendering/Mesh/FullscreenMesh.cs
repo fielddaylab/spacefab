@@ -37,6 +37,7 @@ namespace FieldDay.Rendering {
             mesh.bounds = new Bounds(default, new Vector3(ushort.MaxValue, ushort.MaxValue, ushort.MaxValue));
             mesh.name = "Fullscreen-Viewport";
             meshData.Release();
+            mesh.hideFlags = HideFlags.DontSave;
             s_CachedMesh = mesh;
 
             Log.Msg("[FullscreenMesh] Created mesh");

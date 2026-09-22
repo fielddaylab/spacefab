@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace SpaceFab.Fabrication.Robot
     /// </summary>
     public class RobotState : SharedStateComponent, IRegistrationCallbacks
     {
-        [HideInInspector] public bool IsStunned = false;
+        [NonSerialized] public bool IsStunned = false;
         public RobotStatus Status = RobotStatus.Idle;
 
         public void OnRegister()

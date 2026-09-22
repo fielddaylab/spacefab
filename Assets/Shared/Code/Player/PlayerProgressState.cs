@@ -20,6 +20,8 @@ namespace SpaceFab
         [NonSerialized] public StringHash32 RecentlyCompletedContract;
 
         [NonSerialized] public bool BigBatteryUnlocked;
+        [NonSerialized] public bool ThermalChamberUnlocked;
+        [NonSerialized] public bool DopingChamberUnlocked;
 
         // Tracks whether the one-shot wiki initial-unlocks pass has
         // already run for this save. OverarchingStartupSequenceSystem
@@ -79,6 +81,14 @@ namespace SpaceFab
             // version gate. When SaveVersion is fixed, move into a
             // versioned slot.
             BigBatteryUnlocked = reader.Read<bool>();
+            if (consts.Version >= 1) {
+                ThermalChamberUnlocked = reader.Read<bool>();
+                DopingChamberUnlocked = reader.Read<bool>();
+            } else {
+                ThermalChamberUnlocked = false;
+                DopingChamberUnlocked = false;
+            }
+
             InitialUnlocksApplied = reader.Read<bool>();
             
         }
@@ -101,6 +111,8 @@ namespace SpaceFab
             writer.Write(PlayerProgressUtility.PackCompletedContracts(this));
             PlayerProgressUtility.PackMaterialProperties(this, ref writer);
             writer.Write(BigBatteryUnlocked);
+            writer.Write(ThermalChamberUnlocked);
+            writer.Write(DopingChamberUnlocked);
             writer.Write(InitialUnlocksApplied);
         }
 
@@ -179,6 +191,24 @@ namespace SpaceFab
             {
                 state.MaterialProperties[materialId] = record;
             }
+        }
+
+        /// <summary>
+        /// OR-merges a whole record of confirmed properties onto the material. Used to
+        /// apply a pre-built property set - a baked knowledge snapshot, a restored save -
+        /// in one step instead of replaying Confirm per label. Additive: bits already
+        /// confirmed are never cleared. Returns true if anything new was confirmed.
+        /// </summary>
+        public static bool ConfirmAll(PlayerProgressState state, StringHash32 materialId, in MaterialPropertyRecord properties) {
+            state.MaterialProperties.TryGetValue(materialId, out var record);
+            MaterialPropertyRecord merged = record;
+            MaterialPropertyRecordUtility.Merge(ref merged, properties);
+            if (MaterialPropertyRecordUtility.AreEqual(record, merged)) {
+                return false;
+            }
+
+            state.MaterialProperties[materialId] = merged;
+            return true;
         }
 
         /// <summary>

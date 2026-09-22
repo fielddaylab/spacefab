@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
   m_Name: ResearchUIAsset
   m_EditorClassIdentifier: 
+  m_IncludeMode: 0
+  m_FilterSearch: 
   m_GlobalAssets:
+  - {fileID: 11400000, guid: 03dc7a8191cb64a7cb4a5ae906e591c5, type: 2}
   - {fileID: 11400000, guid: ab68c0497d295814b82b4de1a7147063, type: 2}
   m_NamedAssets: []
   m_LiteAssets: []

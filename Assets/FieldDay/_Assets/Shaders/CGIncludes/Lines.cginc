@@ -5,6 +5,7 @@
 
 #include "./Common.cginc"
 #include "./Fog.cginc"
+#include "./Dithering.cginc"
 
 /// Configuration Defines
 
@@ -79,6 +80,12 @@ inline fixed4 SampleMainWithExternalAlpha(float2 uv)
 #endif // UNITY_UI_ALPHACLIP
 
 /// Programs
+    
+#define LineFragCommonFooter(varyings, color, fragPos) \
+    DitheredAlphaApply(color, fragPos); \
+    SpriteAlphaClip(color); \
+    FogApply(color, varyings); \
+    PremultiplyAlpha(color);
 
 Varyings_Line DefaultLineVert(Attributes_Line v, out float4 vertex : SV_Position)
 {
@@ -96,13 +103,11 @@ Varyings_Line DefaultLineVert(Attributes_Line v, out float4 vertex : SV_Position
     return output;
 }
 
-fixed4 DefaultLineFrag(Varyings_Line v) : SV_Target
+fixed4 DefaultLineFrag(Varyings_Line v, float_vpos fragPos : VPOS) : SV_Target
 {
     InstancingInitialize(v);
     fixed4 color = SampleSpriteTexture(v.texcoord) * v.color;
-    SpriteAlphaClip(color);
-    FogApply(color, v);
-    PremultiplyAlpha(color);
+    LineFragCommonFooter(v, color, fragPos);
     return color;
 }
 

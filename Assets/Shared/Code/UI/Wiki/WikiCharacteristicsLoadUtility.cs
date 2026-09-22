@@ -96,15 +96,18 @@ namespace SpaceFab.UI {
                     bool confirmed = MaterialPropertyRecordUtility.Has(merged, label, StringHash32.Null);
                     AddChip(widgets, pools,
                         text: confirmed ? MaterialPropertyLabelDisplay.GetPropertyName(label) : UnknownLabelText,
-                        fillState: confirmed ? ChipFillState.Confirmed : ChipFillState.Filled);
+                        fillState: confirmed ? ChipFillState.Confirmed : ChipFillState.Filled,
+                        // Tagged off the label rather than the rendered text, so an undiscovered
+                        // "?" slot is addressable under the same id it will carry once confirmed.
+                        tagId: WikiElementTagUtility.MaterialCharacteristicId(materialId, label));
                 }
             }
 
             // 4. Confirmed dynamic-label entries from the merged
             // record. No placeholder pass for these — only show when
             // known. (PDopantFor / NDopantFor — both filled.)
-            AppendConfirmedDynamic(widgets, pools, merged, MaterialPropertyLabel.PDopantFor);
-            AppendConfirmedDynamic(widgets, pools, merged, MaterialPropertyLabel.NDopantFor);
+            AppendConfirmedDynamic(widgets, pools, merged, materialId, MaterialPropertyLabel.PDopantFor);
+            AppendConfirmedDynamic(widgets, pools, merged, materialId, MaterialPropertyLabel.NDopantFor);
 
             // 5. Lay out + resize the group.
             float contentHeight = ResearchUILayoutUtility.LayoutVerticalCentered(
@@ -189,7 +192,10 @@ namespace SpaceFab.UI {
         // picker / slot chips on darker backgrounds), but the wiki
         // characteristics group sits on a light surface, so empty
         // placeholders need black text to be legible.
-        private static void AddChip(WikiPageContentWidgets widgets, WikiChipPools pools, string text, ChipFillState fillState) {
+        //
+        // tagId is the onboarding ElementTag id Leaf addresses this chip
+        // by while the page is bound; null leaves the chip untagged.
+        private static void AddChip(WikiPageContentWidgets widgets, WikiChipPools pools, string text, ChipFillState fillState, string tagId) {
             ResearchObservationChip chip = pools.ChipPool.Alloc();
             if (chip == null) return;
             chip.transform.SetParent(widgets.CharacteristicsContainer, false);
@@ -197,6 +203,7 @@ namespace SpaceFab.UI {
             if (chip.LabelText != null) {
                 chip.LabelText.color = Color.black;
             }
+            WikiElementTagUtility.Stamp(chip, tagId);
             pools.ActiveCharacteristicChips.Add(chip);
         }
 
@@ -204,7 +211,10 @@ namespace SpaceFab.UI {
         // dynamic mask for the given dynamic label. Bit index →
         // material id via MaterialOrderAsset. Skipped silently if
         // the registry is missing.
-        private static void AppendConfirmedDynamic(WikiPageContentWidgets widgets, WikiChipPools pools, in MaterialPropertyRecord record, MaterialPropertyLabel dynamicLabel) {
+        //
+        // Every chip here renders the same label text, so the tag id
+        // carries the bit's context material to keep the ids distinct.
+        private static void AppendConfirmedDynamic(WikiPageContentWidgets widgets, WikiChipPools pools, in MaterialPropertyRecord record, StringHash32 materialId, MaterialPropertyLabel dynamicLabel) {
             ushort mask = dynamicLabel == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMask_NDopant;
             if (mask == 0) return;
 
@@ -216,14 +226,16 @@ namespace SpaceFab.UI {
                 if ((mask & (1 << bit)) == 0) continue;
                 mask &= unchecked((ushort)~(1 << bit));
                 if (bit >= orderCount) continue;
-                AddChip(widgets, pools, MaterialPropertyLabelDisplay.GetPropertyName(dynamicLabel), ChipFillState.Confirmed);
+                AddChip(widgets, pools, MaterialPropertyLabelDisplay.GetPropertyName(dynamicLabel), ChipFillState.Confirmed,
+                    WikiElementTagUtility.MaterialCharacteristicId(materialId, dynamicLabel, materialOrder.GetId(bit)));
             }
         }
 
-        // Returns every pool-held characteristic chip to the pool.
-        // Called as the first step of LoadFor (clean slate); also
-        // callable directly when navigating away from a material
-        // page so chips don't stay parked under
+        // Returns every pool-held characteristic chip to the pool,
+        // clearing its onboarding tag id in lockstep so an off-screen
+        // chip can't resolve a highlight. Called as the first step of
+        // LoadFor (clean slate); also callable directly when navigating
+        // away from a material page so chips don't stay parked under
         // CharacteristicsContainer.
         public static void FreeAllCharacteristicChips(WikiChipPools pools) {
             if (pools == null || pools.ActiveCharacteristicChips == null) return;
@@ -231,6 +243,7 @@ namespace SpaceFab.UI {
             for (int i = n - 1; i >= 0; i--) {
                 ResearchObservationChip chip = pools.ActiveCharacteristicChips[i];
                 if (chip != null) {
+                    WikiElementTagUtility.Clear(chip);
                     Pool.TryFree(chip);
                 }
             }

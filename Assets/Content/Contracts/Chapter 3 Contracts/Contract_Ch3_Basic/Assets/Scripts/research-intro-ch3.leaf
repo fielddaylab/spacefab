@@ -1,0 +1,71 @@
+# basePath ResearchIntroCh3
+
+::IntroSelectTrace
+@trigger    OnSetupComplete
+$if MinigameHasValidSolution()
+    {@PAL}  You've already researched everything you need to! You can continue your experiments to uncover new insights.
+$else
+    $call   HighlightElement(research:doping-chamber-btn, false, -1, true)
+    {@PAL}  We have a new property to discover: dopants!\nTo investigate this, you’ll need to use the doping chamber.
+$endif
+
+
+::OnDopingChamberSelected
+@trigger    OnChamberSwitched
+@when       !MinigameHasValidSolution(), research:chamberId == "Doping"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(research:primary-slot)
+$call   CloseWiki()
+{@PAL}  Only confirmed semiconductors are accepted as substrates.\n\nPlace a semiconductor to this slot.
+
+::OnSubstrateFilled
+@trigger    OnSlotFilled
+@when       !MinigameHasValidSolution(), research:chamberId == "Doping", slotType == "primary", research:primaryMaterial == "Silicon"
+$call   ReleaseHighlight(research:primary-slot)
+$call   HighlightElement(research:secondary-slot)
+$call   CloseWiki()
+{@PAL}  Now you'll need to place a possible dopant.\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
+
+::OnSubstrateExploded
+@trigger    OnMaterialExploded, explosionStyle == "TooBig", research:primaryMaterial == "null"
+$call   CloseWiki()
+{@PAL}  That is not a confirmed semiconductor. Refer to the database if you need help.
+
+
+::OnDopantFilled
+@trigger    OnSlotFilled
+@when       !MinigameHasValidSolution(), research:chamberId == "Doping", slotType == "secondary"
+$call   CloseWiki()
+$if     research:secondaryMaterial == "Boron"
+    $call   ReleaseHighlight(research:secondary-slot)
+    {@PAL}  Great! Add observations and select a hypothesis to verify.
+$elseif research:secondaryMaterial == "Phosphorus"
+    $call   ReleaseHighlight(research:secondary-slot)
+    {@PAL}  Great! Add observations and select a hypothesis to verify.
+$endif
+
+::OnDopantExploded
+@trigger    OnMaterialExploded, research:primaryMaterial != "null"
+$call   CloseWiki()
+$if     explosionStyle == "Polyelemental"
+    {@PAL}  Polyelemental materials cannot be a dopant!\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
+$else
+    {@PAL}  That sample doesn't fit!\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
+$endif
+
+
+::OnHypothesisCorrect
+@trigger    OnHypothesisSubmitted
+@when   result == "success"
+$call   CloseWiki()
+$if MinigameHasValidSolution()
+    {@PAL}  Great. You've completed all research tasks! You can return to the ship, or continue your experiments to uncover new insights.
+$else
+    {@PAL}  Correct. Now see if you can complete the remaining requirement.
+$endif
+
+::OnHypothesisIncorrect
+@trigger    OnHypothesisSubmitted
+@when   !MinigameHasValidSolution(), result == "failure"
+$call   CloseWiki()
+{@PAL}  That doesn't seem right. Try changing the hypothesis or select a different observation.

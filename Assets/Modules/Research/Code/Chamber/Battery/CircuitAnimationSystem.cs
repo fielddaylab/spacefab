@@ -17,7 +17,7 @@ namespace SpaceFab.Research
         // Per-shine rotation rates (degrees per second), applied to the
         // BulbShines array on each renderer. Three shines per bulb is the
         // expected layout; extras get a zero rate.
-        private static readonly float[] s_ShineRotationRates = new float[] { 24f, -30.2f, 17f };
+        [NotStateful] private static readonly float[] s_ShineRotationRates = new float[] { 24f, -30.2f, 17f };
 
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs)
         {

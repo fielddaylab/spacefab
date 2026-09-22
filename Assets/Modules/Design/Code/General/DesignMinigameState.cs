@@ -1,4 +1,8 @@
+using BeauUtil;
 using FieldDay;
+using FieldDay.Data;
+using FieldDay.Debugging;
+using FieldDay.Scenes;
 using FieldDay.SharedState;
 using SpaceFab.Save;
 using System;
@@ -12,7 +16,8 @@ namespace SpaceFab.Design
     /// Holds minigame-specific data for the Design minigame.
     /// Central hub for import/export minigame state.
     /// </summary>
-    public class DesignMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState
+    [PreloadOrder(-100)]
+    public class DesignMinigameState : MinigameStateBase, IRegistrationCallbacks, IMinigameState, IEditorOnlyData, IScenePreload
     {
         #region Saved State
 
@@ -22,16 +27,15 @@ namespace SpaceFab.Design
 
         #region Session State
 
-        // Switches between the classic per-row "Run" buttons and the new toggle-the-grid-and-Test flow.
-        // Session-only; not serialized to save data. Defaults to true (new mode) on each game launch.
-        public bool UseToggleInputMode = true;
-
         // Which Design level under the active contract the player is currently working on. Set on
         // ImportState to the first unsolved level; read by the level-data lookup, the solve-marking
         // logic, and the results "Continue" flow to decide next-level-vs-exit. Session-only.
         [NonSerialized] public int ActiveLevelIndex;
 
         #endregion // Session State
+
+        [Header("-- DEBUGGING --")]
+        public LevelData DebugLevelData;
 
         #region Interfaces
 
@@ -57,6 +61,28 @@ namespace SpaceFab.Design
         {
             DesignStateUtility.ExportState(ref saveStates.Design, this);
         }
+
+        public IEnumerator<WorkSlicer.Result?> Preload() {
+#if UNITY_EDITOR
+            if (DebugFlags.LaunchedFromThisScene && DebugLevelData) {
+                Find.State(out MinigameSaveStates minigameSaveState);
+                DesignSaveUtility.AllocLevels(minigameSaveState.Design, 1);
+                GridStackUtility.LoadConfig(ref minigameSaveState.Design.GridStacks[0], DebugLevelData.GetGridConfig());
+                // Mirror the grid seed for toggle-input mode: walk the config's Input cells and copy
+                // each DefaultInputState into the save state. Runtime ImportState reads from here.
+                InputToggleUtility.SeedDefaultsFromConfig(ref minigameSaveState.Design.InputToggles[0], DebugLevelData.GetGridConfig());
+            }
+#endif // UNITY_EDITOR
+            return null;
+        }
+
+#if UNITY_EDITOR
+
+        void IEditorOnlyData.ClearEditorData(bool isDevelopmentBuild) {
+            DebugLevelData = null;
+        }
+
+#endif // UNITY_EDITOR
 
         #endregion // Interfaces
     }

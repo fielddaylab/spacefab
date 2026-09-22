@@ -78,7 +78,7 @@ namespace SpaceFab.Research
             control.HeatIndex++;
             ApplyChange(control, config);
 
-            // ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatIncreased);
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatIncreased);
         }
 
         // Bumps the voltage index down by one. No-op at the lower magnitude
@@ -91,7 +91,7 @@ namespace SpaceFab.Research
             control.HeatIndex--;
             ApplyChange(control, config);
 
-            // ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatDecreased);
+            ScriptUtility.Trigger(ResearchScriptTriggers.OnHeatDecreased);
         }
 
         public static void Reset(HeatControl control, ResearchHeatConfig config)

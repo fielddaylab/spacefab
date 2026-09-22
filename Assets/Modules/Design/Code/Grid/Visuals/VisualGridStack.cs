@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace SpaceFab.Design.Visuals
     public class VisualGridStack
     {
         public Dimensions LayerDims; // x and y dims of each layer
-        [HideInInspector] public VisualGridLayer[] GridLayers; // layers ordered from highest to lowest
+        [NonSerialized] public VisualGridLayer[] GridLayers; // layers ordered from highest to lowest
     }
 
     public static class VisualGridStackUtility

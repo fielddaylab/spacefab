@@ -13,17 +13,23 @@ MonoBehaviour:
   m_Name: Contract_Ch11_FancyMater
   m_EditorClassIdentifier: 
   m_requiredMaterialProperties:
-  - {fileID: 11400000, guid: 29aa1befa02944d9c858cb4e2594b0e9, type: 2}
-  - {fileID: 11400000, guid: cd56cd533149942f089b46bbdc77e43e, type: 2}
+  - {fileID: 11400000, guid: 6d66cd15838f54a4fb236b7a33f7ff29, type: 2}
+  - {fileID: 11400000, guid: 8005ece4bdd9c4375950db50343f6f13, type: 2}
+  - {fileID: 11400000, guid: c0af526d7a0934c6fa5b80dc95e7e62f, type: 2}
   - {fileID: 11400000, guid: 78093ac5e7fad463894f49b0b629d47c, type: 2}
   - {fileID: 11400000, guid: 08721792820144d26b307c84e32a71ae, type: 2}
   m_omitFromSupplyRequirements: []
   m_title: Blue LED
   m_description: This is where the contract is described
-  m_client: '[Client Name]'
+  m_client:
+    m_Source: cm
+    m_HashValue: 1680451373
   m_payout: 17
-  m_expectedDuration: 7
+  m_expectedDuration: 6
   m_expectedProfit: 5
+  m_contractType: 1
+  m_difficulty: 1
+  m_unlocksBigBattery: 1
   StreamedPack:
     m_HashValue: 2300909385
   AssetSet:

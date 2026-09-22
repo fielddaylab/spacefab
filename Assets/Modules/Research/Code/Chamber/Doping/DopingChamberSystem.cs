@@ -1,5 +1,8 @@
+using System;
 using System.Linq;
 using BeauRoutine;
+using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Audio;
 using FieldDay.Systems;
@@ -49,7 +52,7 @@ namespace SpaceFab.Research
                        out ResearchMinigameState researchState);
 
             if (interfacerState.LastUpdatedKind == ChamberSlotKind.Primary) {
-                UpdateSemiconductor(interfacerState, dopingChamberState, researchState);
+                UpdateSemiconductor(interfacerState, dopingChamberState, researchState, explosionState, pools);
                 foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
                     ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacerState, dopingChamberState.AvailableObservations);
                     break;
@@ -62,14 +65,13 @@ namespace SpaceFab.Research
             dopingChamberState.AtomicViewChangedThisFrame = false;
 
             if (dopingChamberState.SampleHolder == null) return;
-            if (dopingChamberState.AtomicView == null) return;
-            if (dopingChamberState.SecondarySlotLid == null) return;
 
             bool substrateSlotted = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary) != null;
             dopingChamberState.SampleHolder.SetActive(substrateSlotted);
-            dopingChamberState.AtomicView.SetActive(substrateSlotted);
-            dopingChamberState.SecondarySlotLid.SetActive(!substrateSlotted);
             ChamberInterfacerUtility.SetReceptive(interfacerState, ChamberSlotKind.Secondary, substrateSlotted);
+
+            Find.State(out ResearchSampleTrayState trayState);
+            ResearchSampleTrayUtility.SetTrayView(trayState, interfacerState);
 
             if (!substrateSlotted) return;
             UpdateAtomicView(interfacerState, dopingChamberState, researchState);
@@ -78,10 +80,16 @@ namespace SpaceFab.Research
             dopingChamberState.ElementToggle[1].Sprite.sprite = dopingChamberState.HostElementIndex == 1 ? uiAssets.ButtonDown : uiAssets.ButtonUp;
         }
 
-        private static void UpdateSemiconductor(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchMinigameState researchState)
+        private static void UpdateSemiconductor(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchMinigameState researchState, ResearchExplosionState explosionState, ResearchPools vfxPool)
         {
             MaterialAsset material = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary);
             MaterialPhysicsProfile profile = material == null ? null : Find.NamedAsset<MaterialPhysicsProfile>(material.AssetId);
+
+            // Clear dopant
+            ResearchSlotUtility.FillInSlot(interfacerState, ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
+            dopingChamber.EmptyState.SetActive(material == null);
+            dopingChamber.SubstrateAtom.gameObject.SetActive(material != null);
+            dopingChamber.DopantAtom.gameObject.SetActive(false);
 
             if (material == null || profile == null) {
                 CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
@@ -89,25 +97,28 @@ namespace SpaceFab.Research
                 return;
             }
 
-            // Clear dopant
-            ResearchSlotUtility.FillInSlot(interfacerState, ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
-
             // Show toggle for polyelemental substrates
-            ResearchMaterialView view = Find.NamedAsset<ResearchMaterialView>(material.AssetId);
             dopingChamber.HostElementIndex = 0;
             bool isPolyelemental = material.AtomicRadii.Length > 1;
             dopingChamber.Toggle.SetActive(isPolyelemental);
 
-            if (!isPolyelemental) {
+            // Substrates must be confirmed semiconductors.
+            ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Primary);
+            if (!ResearchStateUtility.HasConfirmed(researchState, material.AssetId, MaterialPropertyLabel.Semiconductor, StringHash32.Null)) {
+                ResearchExplosionUtility.ExplodeSlot(
+                    explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Primary,
+                    ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
+                CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
+                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
+                dopingChamber.AtomicViewChangedThisFrame = true;
+
                 return;
             }
 
-            // Set toggle labels
-            bool known = researchState != null
-                && researchState.SandboxProperties.TryGetValue(material.AssetId, out var record)
-                && !MaterialPropertyRecordUtility.IsEmpty(record);
-            dopingChamber.ElementToggleLabel[0].text = known ? material.ConstituentElementNames[0] : view.SampleLabel + "1";
-            dopingChamber.ElementToggleLabel[1].text = known ? material.ConstituentElementNames[1] : view.SampleLabel + "2";
+            if (isPolyelemental) {
+                dopingChamber.ElementToggleLabel[0].text = material.ConstituentElementNames[0];
+                dopingChamber.ElementToggleLabel[1].text = material.ConstituentElementNames[1];
+            }
         }
 
         private static void UpdateDopant(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)
@@ -128,23 +139,11 @@ namespace SpaceFab.Research
             }
 
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Secondary);
-            
-            // Substrates must be semiconductors.
-            if (!substrate.Properties.Contains(MaterialPropertyLabel.Semiconductor)) {
-                ResearchExplosionUtility.ExplodeSlot(
-                explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
-                ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
-                CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
-                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
-                dopingChamber.AtomicViewChangedThisFrame = true;
-
-                return;
-            }
             // Polyelemental materials cannot be used as dopants.
             if (dopant.ConstituentElementNames.Length > 1) {
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
-                ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
+                ExplosionStyle.Polyelemental, delay: 1f); // TODO: add explosion style if needed
                 CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
                 CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
                 dopingChamber.AtomicViewChangedThisFrame = true;
@@ -177,69 +176,53 @@ namespace SpaceFab.Research
 
         private static void UpdateAtomicView(ChamberInterfacerState interfacer, DopingChamberState dopingChamber, ResearchMinigameState researchState)
         {
-            ResearchAtomConfig config = Find.GlobalAsset<ResearchAtomConfig>();
-
-            // Substrate atoms
+            // Substrate atom
             MaterialAsset substrate = ChamberInterfacerUtility.GetCurrent(interfacer, ChamberSlotKind.Primary);
             if (substrate == null) return;
-            ResearchMaterialView substrateView = Find.NamedAsset<ResearchMaterialView>(substrate.AssetId);
-
             int hostIndex = dopingChamber.HostElementIndex;
-            bool substrateKnown = researchState != null
-                && researchState.SandboxProperties.TryGetValue(substrate.AssetId, out var record)
-                && !MaterialPropertyRecordUtility.IsEmpty(record);
-            bool isPolyelemental = substrate.ConstituentElementNames.Length > 1;
+            Assert.False(dopingChamber.SubstrateAtom == null);
             
-            for (int i = 0; i < dopingChamber.SubstrateAtomicViews.Length; i++) {
-                MaterialAtom atom = dopingChamber.SubstrateAtomicViews[i];
-                int index = isPolyelemental ? (i + hostIndex) % 2 : 0;
-                atom.MaterialSprite.color = substrateView.AtomColor[index];
-                if (isPolyelemental) {
-                    atom.Label.text = substrateKnown ? substrate.ConstituentElementNames[index] : substrateView.SampleLabel + (index + 1);
-                }
-                else {
-                    atom.Label.text = substrateKnown ? substrate.ShortName : substrateView.SampleLabel;
-                }
+            MaterialAtom substrateAtom = dopingChamber.SubstrateAtom;
+            int cap = substrate.ValenceElectronCounts[hostIndex];
+            for (int i = 0; i < substrateAtom.ElectronSprites.Length; i++) {
+                substrateAtom.ElectronSprites[i].SetAlpha(i < cap ? 1f : 0f);
             }
+
+            float substrateScale = 0.7f + 0.3f * substrate.AtomicRadii[dopingChamber.HostElementIndex] / 200f;
+            substrateAtom.MaterialSprite.transform.SetScale(substrateScale);
 
             // Dopant atom -- empty
-            int cap = substrate.ValenceElectronCounts[hostIndex];
+            Assert.False(dopingChamber.DopantAtom == null);
+
             MaterialAsset dopant = ChamberInterfacerUtility.GetCurrent(interfacer, ChamberSlotKind.Secondary);
-            MaterialAtom dopantAtom = dopingChamber.DopantAtomicView;
-            if (dopant == null) {
-                dopantAtom.MaterialSprite.sprite = config.EmptySlotSprite;
-                dopantAtom.MaterialSprite.color = config.ActiveSlotColor;
-                dopantAtom.Label.text = "?";
-
-                for(int i = 0; i < dopantAtom.ElectronSprites.Length; i++)
-                {
-                    SpriteRenderer atom = dopantAtom.ElectronSprites[i];
-                    atom.sprite = i < cap ? config.EmptySlotSprite : config.FilledSlotSprite;
-                    atom.color = i < cap ? config.ActiveSlotColor : config.DisabledSlotColor;
-                }
-
-                return;
-            }
+            MaterialAtom dopantAtom = dopingChamber.DopantAtom;
+            dopantAtom.gameObject.SetActive(dopant != null);
+            if (dopant == null) { return; }
 
             // Dopant atom -- filled
             ResearchMaterialView dopantView = Find.NamedAsset<ResearchMaterialView>(dopant.AssetId);
             int count = dopant.ValenceElectronCounts[0];
+            int excess = count - cap;
             bool dopantKnown = researchState != null
-                && researchState.SandboxProperties.TryGetValue(substrate.AssetId, out var dopantRecord)
+                && researchState.SandboxProperties.TryGetValue(dopant.AssetId, out var dopantRecord)
                 && !MaterialPropertyRecordUtility.IsEmpty(dopantRecord);
 
-            dopantAtom.MaterialSprite.sprite = config.FilledSlotSprite;
             dopantAtom.MaterialSprite.color = dopantView.AtomColor[0];
-            dopantAtom.Label.text = dopantKnown ? dopant.ShortName : dopantView.SampleLabel;
+            dopantAtom.Label.text = dopantKnown ? dopant.ShortName : "?";
+            float dopantScale = 0.6f + 0.4f * dopant.AtomicRadii[0] / 200f;
+            dopantAtom.MaterialSprite.transform.SetScale(dopantScale);
 
-            for(int i = 0; i < count; i++)
-            {
-                SpriteRenderer atom = dopantAtom.ElectronSprites[i];
-                atom.sprite = config.FilledSlotSprite;
-                atom.color = i < cap ? config.ActiveSlotColor : config.InvalidSlotColor;
+            for (int i = 0; i < dopantAtom.ElectronSprites.Length; i++) {
+                SpriteRenderer electron = dopantAtom.ElectronSprites[i];
+                
+                if (count <= cap) {
+                    electron.SetAlpha(i < count ? 1f : 0f);
+                } else {
+                    bool front = i < cap;
+                    bool back = i >= dopantAtom.ElectronSprites.Length - excess;
+                    electron.SetAlpha(front || back ? 1f : 0f);
+                }
             }
-
-            Debug.Log($"Substrate: {substrate}\nDopant: {dopant}");
         }
     }
 }

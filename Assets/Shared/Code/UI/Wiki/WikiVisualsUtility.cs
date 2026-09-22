@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using BeauRoutine;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.UI;
 using SpaceFab.Materials;
 using UnityEngine;
 using UnityEngine.UI;

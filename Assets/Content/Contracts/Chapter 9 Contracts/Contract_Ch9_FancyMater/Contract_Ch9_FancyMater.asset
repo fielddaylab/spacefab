@@ -20,10 +20,15 @@ MonoBehaviour:
   m_omitFromSupplyRequirements: []
   m_title: IR LED
   m_description: This is where the contract is described
-  m_client: '[Client Name]'
-  m_payout: 15
+  m_client:
+    m_Source: cm
+    m_HashValue: 1680451373
+  m_payout: 16
   m_expectedDuration: 6
-  m_expectedProfit: 4
+  m_expectedProfit: 5
+  m_contractType: 1
+  m_difficulty: 1
+  m_unlocksBigBattery: 0
   StreamedPack:
     m_HashValue: 219582974
   AssetSet:

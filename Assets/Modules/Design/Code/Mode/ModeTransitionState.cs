@@ -4,6 +4,7 @@ using FieldDay.SharedState;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace SpaceFab.Design
 {
@@ -26,7 +27,7 @@ namespace SpaceFab.Design
     {
         // Defaults to Tool — DesignMinigameState.DefaultUpdateMask matches (ToolModeMask active,
         // SimulateModeMask suspended).
-        [HideInInspector] public DesignMode Mode;
+        [NonSerialized] public DesignMode Mode;
 
         public void OnRegister()
         {

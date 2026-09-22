@@ -1,5 +1,6 @@
 using FieldDay;
 using FieldDay.SharedState;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,17 +17,17 @@ namespace SpaceFab.Fabrication
     {
         // One-frame request to open the popup. Set on a precision-gate failure; consumed to show the popup
         // and pause the timer; cleared by TutorialInterruptRefreshSystem.
-        [HideInInspector] public bool TutorialInterruptRequested;
+        [NonSerialized] public bool TutorialInterruptRequested;
 
         // Latch raised by the StationRestartButton click listener; consumed-and-cleared by
         // TutorialInterruptSystem (which restarts the microgame and hides the popup). NOT cleared by the
         // refresh system: the click is async to the frame, so a fixed-boundary clear could drop it before
         // the system sees it.
-        [HideInInspector] public bool RestartButtonPressedThisFrame;
+        [NonSerialized] public bool RestartButtonPressedThisFrame;
 
         // Persistent guard so TutorialInterruptSystem registers the restart-button listener exactly once
         // per scene. NOT cleared by the refresh system.
-        [HideInInspector] public bool ListenerRegistered;
+        [NonSerialized] public bool ListenerRegistered;
 
         public void OnRegister()
         {

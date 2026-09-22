@@ -1,4 +1,6 @@
 using BeauUtil;
+using BeauUtil.Variants;
+using FieldDay.Scripting;
 
 namespace SpaceFab.Materials
 {
@@ -50,6 +52,9 @@ namespace SpaceFab.Materials
             list.LabelBuffer[slot] = (byte)label;
             list.ContextBuffer[slot] = contextMaterialId.HashValue;
             list.Count++;
+
+            ScriptUtility.WriteVariable(new TableKeyPair("research", "observationCount"), (int) list.Count);
+
             return true;
         }
 
@@ -75,6 +80,9 @@ namespace SpaceFab.Materials
                     list.LabelBuffer[last] = 0;
                     list.ContextBuffer[last] = 0;
                     list.Count--;
+
+                    ScriptUtility.WriteVariable(new TableKeyPair("research", "observationCount"), (int) list.Count);
+
                     return true;
                 }
             }
