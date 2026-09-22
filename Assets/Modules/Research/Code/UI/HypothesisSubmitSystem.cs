@@ -105,7 +105,6 @@ namespace SpaceFab.Research {
                 }
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
             }
-            Debug.LogError(failureReason);
         }
 
         // Checks if the hypothesis property matches the material. If the property does not
@@ -115,7 +114,16 @@ namespace SpaceFab.Research {
             MaterialPropertyLabel[] validProperties = material.Properties;
             for (int i = 0; i < validProperties.Length; i++) {
                 if (validProperties[i] == viewModelState.HypothesisLabel) {
-                    return true;
+                    if (validProperties[i] != MaterialPropertyLabel.PDopantFor && validProperties[i] != MaterialPropertyLabel.NDopantFor) {
+                        return true;
+                    }
+                    
+                    for (int c = 0; c < material.Contexts.Length; c++) {
+                        if (viewModelState.SlotContexts[0] == material.Contexts[c].AssetId) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
             }
 
@@ -153,7 +161,6 @@ namespace SpaceFab.Research {
                     if (ResearchInventoryUtility.RemoveObservation(
                         researchState, material.AssetId, slotLabel, slotContext)) {
                         anyRemoved = true;
-                        Debug.LogError($"Invalid: {slotLabel} for {slotContext.ToDebugString()}");
                     }
                 }
             }
@@ -172,20 +179,18 @@ namespace SpaceFab.Research {
 
             bool hasMissingObs = false;
 
-            HashSet<(MaterialPropertyLabel, StringHash32)> matched = new();
+            List<MaterialPropertyLabel> matched = new();
             for (int i = 0; i < slotCount; i++) {
                 MaterialPropertyLabel label = viewModelState.SlotLabels[i];
-                StringHash32 context = viewModelState.SlotContexts[i];
 
-                bool onLeaf = LeafMatches(leaves, leafCount, label, context);
+                bool onLeaf = LeafMatches(leaves, leafCount, label, StringHash32.Null);
                 if (onLeaf) {
-                    matched.Add((label, context));
+                    matched.Add(label);
                 } else {
                     foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                         if (panel == null || !panel.PickerOpen) continue;
                         // TODO: change sprite for greyed out chips
                         panel.SlotChips[i].Background.color = Color.grey;
-                        Debug.LogError($"{label} greyed out");
                         failureReason = "irrelevant_observation";
                     }
                 }
@@ -193,70 +198,14 @@ namespace SpaceFab.Research {
 
             for (int i = 0; i < leafCount; i++) {
                 var leaf = leaves[i];
-                if (!matched.Contains((leaf.Label, leaf.Context))) {
+                if (!matched.Contains(leaf.Label)) {
                     hasMissingObs = true;
-                    Debug.LogError($"Missing: {leaf.Label} for {leaf.Context.ToDebugString()}");
                     failureReason = "missing_observation";
                     break;
                 }
             }
 
             return !hasMissingObs;
-        }
-
-        // For each non-locked slot, prune it if the (label, context) is
-        // either not on the hypothesis's decomposed leaves OR not
-        // actually true for the slotted material. "Actually true" means
-        // the observation appears in the decomposition of some persistent
-        // property in MaterialAsset.Properties — see
-        // MaterialPropertyDefinitionUtility.IsObservationTrueForProperties.
-        // Leaves are the union across every registered definition for the
-        // selected label, so a pick supporting any alternate satisfaction
-        // path survives. Returns true if any removal happened. Locked
-        // slots are ancestor-confirmed (not in researchState.Observations)
-        // and can't be removed; they remain regardless.
-        private static bool PruneIncorrectPicks(ResearchMinigameState researchState, MaterialAsset material, HypothesisViewModelState viewModelState, out string failureReason) {
-            int slotCount = viewModelState.SlotCount;
-            List<MaterialObservationEntry> leaves = DecomposeAllDefinitions(viewModelState.HypothesisLabel);
-            int leafCount = leaves.Count;
-            MaterialPropertyLabel[] trueProperties = material.Properties;
-            bool anyRemoved = false;
-            string foundReason = null;
-
-            for (int i = 0; i < slotCount; i++) {
-                bool locked = (viewModelState.SlotLockedMask & (1u << i)) != 0;
-                if (locked) continue;
-
-                MaterialPropertyLabel slotLabel = viewModelState.SlotLabels[i];
-                StringHash32 slotContext = viewModelState.SlotContexts[i];
-
-                bool isDopant = MaterialObservationChamberLookup.GetChamberType(slotLabel) == ObservationType.Dopant;
-                StringHash32[] contextIds = isDopant ? new StringHash32[material.Contexts.Length] : new StringHash32[] {StringHash32.Null};
-                if (isDopant)
-                {
-                    for (int c = 0; c < material.Contexts.Length; c++)
-                    {
-                        contextIds[c] = material.Contexts[c].AssetId;
-                    }
-                }
-
-                bool onLeaf = LeafMatches(leaves, leafCount, slotLabel, null);
-                bool materialHasIt = MaterialPropertyDefinitionUtility.IsObservationTrueForProperties(trueProperties, slotLabel, slotContext, contextIds);
-                if (onLeaf && materialHasIt) continue;
-
-                // Determine if removal was hypothesis mismatch error or observation error
-                if (!onLeaf && materialHasIt) {
-                    if (foundReason == null) foundReason = "hypothesis_mismatch";
-                } else {
-                    if (foundReason == null) foundReason = "observation_incorrect";
-                }
-
-                if (ResearchInventoryUtility.RemoveObservation(researchState, material.AssetId, slotLabel, slotContext)) {
-                    anyRemoved = true;
-                }
-            }
-            failureReason = foundReason;
-            return anyRemoved;
         }
 
         // True if some leaf matches (label, context).
