@@ -69,49 +69,139 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            // Pre-validate every non-locked pick against (a) the
-            // hypothesis's decomposed leaves and (b) the slotted
-            // material's ground-truth Properties array. Any pick that
-            // fails either check gets pruned now; the hypothesis is
-            // rejected (no confirm) if any pruning happens. This keeps
-            // Silicon + Conductive from confirming "Conductor" just
-            // because the observation evaluator's logic is satisfied —
-            // Conductive simply isn't true for Silicon.
-
-            bool anyPruned = PruneIncorrectPicks(researchState, slotted, viewModelState, out string failureReason);
+            // 1. Check if observations match the material
+            string failureReason = null;
+            bool anyPruned = PruneInvalidObservations(researchState, slotted, viewModelState);
             if (anyPruned) {
-                viewModelState.HypothesisSelected = false;
                 HypothesisViewModelUtility.RequestRebuild(viewModelState);
-
-                using (var table = TempVarTable.Alloc()) {
-                    table.Set("result", "failure");
-                    table.Set("reason", failureReason ?? "observation_incorrect");
-                    ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
-                }
-                return;
+                failureReason = "invalid_observation";
             }
 
-            bool success = ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, viewModelState.HypothesisLabel, viewModelState.HypothesisContext);
+            bool hasRequiredObs = EvaluateObservations(viewModelState, out string evalReason);
+            if (failureReason == null && evalReason != null) {
+                failureReason = evalReason;
+            }
+
+            bool validHypothesis = ValidateProperty(slotted, viewModelState);
+            if (failureReason == null && !validHypothesis) {
+                failureReason = "hypothesis_mismatch";
+            }
+
+            bool success = !anyPruned && hasRequiredObs && validHypothesis;
             if (success) {
-                // A new property bit flipped (or the property was already
-                // confirmed and the call was idempotent). Either way the
-                // viewmodel's IsFulfilled / SatisfiedMask depends on the
-                // record state — request a rebuild so the visual updates
-                // next LateUpdate.
-                HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, viewModelState.HypothesisLabel, viewModelState.HypothesisContext)) {
+                    HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                }
+                else {
+                    success = false;
+                }
             }
-            else {
-                viewModelState.HypothesisSelected = false;
-            }
-
+            
             using (var table = TempVarTable.Alloc()) {
                 var resultStr = success ? "success" : "failure";
                 table.Set("result", resultStr);
                 if (!success) {
-                    table.Set("reason", failureReason ?? "hypothesis_mismatch");
+                    table.Set("reason", failureReason);
                 }
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
             }
+            Debug.LogError(failureReason);
+        }
+
+        // Checks if the hypothesis property matches the material. If the property does not
+        // match the material, it is removed from the hypothesis slot. Otherwise, it remains.
+        private static bool ValidateProperty(MaterialAsset material, HypothesisViewModelState viewModelState)
+        {
+            MaterialPropertyLabel[] validProperties = material.Properties;
+            for (int i = 0; i < validProperties.Length; i++) {
+                if (validProperties[i] == viewModelState.HypothesisLabel) {
+                    return true;
+                }
+            }
+
+            viewModelState.HypothesisSelected = false;
+            HypothesisViewModelUtility.RequestRebuild(viewModelState);
+            return false;
+        }
+
+        // Checks if observations match the material. Any observations that
+        // do not match the material are removed from the slot.
+        private static bool PruneInvalidObservations(ResearchMinigameState researchState, MaterialAsset material, HypothesisViewModelState viewModelState)
+        {
+            int slotCount = viewModelState.SlotCount;
+            MaterialPropertyLabel[] validProperties = material.Properties;
+            bool anyRemoved = false;
+
+            for (int i = 0; i < slotCount; i++) {
+                bool locked = (viewModelState.SlotLockedMask & (1u << i)) != 0;
+                if (locked) continue;
+
+                MaterialPropertyLabel slotLabel = viewModelState.SlotLabels[i];
+                StringHash32 slotContext = viewModelState.SlotContexts[i];
+                bool isDopant = MaterialObservationChamberLookup.GetChamberType(slotLabel) == ObservationType.Dopant;
+
+                StringHash32[] contextIds = isDopant ? new StringHash32[material.Contexts.Length] : new StringHash32[] { StringHash32.Null };
+
+                if (isDopant) {
+                    for (int c = 0; c < material.Contexts.Length; c++) {
+                        contextIds[c] = material.Contexts[c].AssetId;
+                    }
+                }
+
+                bool valid = MaterialPropertyDefinitionUtility.IsObservationTrueForProperties(validProperties, slotLabel, slotContext, contextIds);
+                if (!valid) {
+                    if (ResearchInventoryUtility.RemoveObservation(
+                        researchState, material.AssetId, slotLabel, slotContext)) {
+                        anyRemoved = true;
+                        Debug.LogError($"Invalid: {slotLabel} for {slotContext.ToDebugString()}");
+                    }
+                }
+            }
+            return anyRemoved;
+        }
+
+        // Checks if the property has all necessary observations. If not
+        // all necessary observations are present, verification fails.
+        // Any observations that are not required by the property become greyed out.
+        private static bool EvaluateObservations(HypothesisViewModelState viewModelState, out string failureReason)
+        {
+            List<MaterialObservationEntry> leaves = DecomposeAllDefinitions(viewModelState.HypothesisLabel);
+            int leafCount = leaves.Count;
+            int slotCount = viewModelState.SlotCount;
+            failureReason = null;
+
+            bool hasMissingObs = false;
+
+            HashSet<(MaterialPropertyLabel, StringHash32)> matched = new();
+            for (int i = 0; i < slotCount; i++) {
+                MaterialPropertyLabel label = viewModelState.SlotLabels[i];
+                StringHash32 context = viewModelState.SlotContexts[i];
+
+                bool onLeaf = LeafMatches(leaves, leafCount, label, context);
+                if (onLeaf) {
+                    matched.Add((label, context));
+                } else {
+                    foreach (var panel in Find.Components<ResearchSamplePanel>()) {
+                        if (panel == null || !panel.PickerOpen) continue;
+                        // TODO: change sprite for greyed out chips
+                        panel.SlotChips[i].Background.color = Color.grey;
+                        Debug.LogError($"{label} greyed out");
+                        failureReason = "irrelevant_observation";
+                    }
+                }
+            }
+
+            for (int i = 0; i < leafCount; i++) {
+                var leaf = leaves[i];
+                if (!matched.Contains((leaf.Label, leaf.Context))) {
+                    hasMissingObs = true;
+                    Debug.LogError($"Missing: {leaf.Label} for {leaf.Context.ToDebugString()}");
+                    failureReason = "missing_observation";
+                    break;
+                }
+            }
+
+            return !hasMissingObs;
         }
 
         // For each non-locked slot, prune it if the (label, context) is

@@ -36,11 +36,10 @@ $call   CloseWiki()
 @trigger    OnSlotFilled
 @when       !MinigameHasValidSolution(), research:chamberId == "Doping", slotType == "secondary"
 $call   CloseWiki()
+$call   ReleaseHighlight(research:primary-slot)
 $if     research:secondaryMaterial == "Boron"
-    $call   ReleaseHighlight(research:secondary-slot)
     {@PAL}  Great! Add observations and select a hypothesis to verify.
 $elseif research:secondaryMaterial == "Phosphorus"
-    $call   ReleaseHighlight(research:secondary-slot)
     {@PAL}  Great! Add observations and select a hypothesis to verify.
 $endif
 
