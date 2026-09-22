@@ -309,85 +309,6 @@ namespace SpaceFab.UI {
 
         #endregion // Script Triggers
 
-        #region Material Page Lookup
-
-        // Finds the page bound to materialId and returns the tab + page ids OpenTo needs. Material
-        // pages can live under any tab, so every tab's page list is scanned. Returns false with
-        // default out params when no page references the material.
-        public static bool TryFindMaterialPage(WikiContent content, StringHash32 materialId, out StringHash32 tabId, out StringHash32 pageId) {
-            tabId = default;
-            pageId = default;
-            if (content == null || content.Tabs == null || materialId.IsEmpty) { return false; }
-
-            for (int t = 0; t < content.Tabs.Length; t++) {
-                WikiTabData tab = content.Tabs[t];
-                if (tab == null || tab.Pages == null) { continue; }
-                for (int p = 0; p < tab.Pages.Length; p++) {
-                    WikiPageData page = tab.Pages[p];
-                    if (page != null && page.IsMaterialPage && page.MaterialId == materialId) {
-                        tabId = tab.AssetId;
-                        pageId = page.AssetId;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // Finds the observation page covering observationType and returns the tab + page ids
-        // OpenTo needs. Mirrors TryFindMaterialPage: observation pages can live under any tab, so
-        // every tab's page list is scanned. Returns false with default out params when no page
-        // covers the type.
-        public static bool TryFindObservationPage(WikiContent content, ObservationType observationType, out StringHash32 tabId, out StringHash32 pageId) {
-            tabId = default;
-            pageId = default;
-            if (content == null || content.Tabs == null) { return false; }
-
-            for (int t = 0; t < content.Tabs.Length; t++) {
-                WikiTabData tab = content.Tabs[t];
-                if (tab == null || tab.Pages == null) { continue; }
-                for (int p = 0; p < tab.Pages.Length; p++) {
-                    WikiPageData page = tab.Pages[p];
-                    if (page != null && page.IsObservationPage && page.ObservationType == observationType) {
-                        tabId = tab.AssetId;
-                        pageId = page.AssetId;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // Finds the property page for a property label and returns the tab + page ids OpenTo needs.
-        // Matched on label alone, not the whole MaterialPropertyCheck — a page is authored per
-        // property, while a contract goal's InComparisonTo substrate is per-contract, so
-        // "P-Type dopant for sample A" and "P-Type dopant for sample B" share one page.
-        public static bool TryFindPropertyPage(WikiContent content, MaterialPropertyLabel label, out StringHash32 tabId, out StringHash32 pageId)
-        {
-            tabId = default;
-            pageId = default;
-
-            if (content == null || content.Tabs == null) { return false; }
-            for (int t = 0; t < content.Tabs.Length; t++)
-            {
-                WikiTabData tab = content.Tabs[t];
-                if (tab == null || tab.Pages == null) { continue; }
-                for (int p = 0; p < tab.Pages.Length; p++)
-                {
-                    WikiPageData page = tab.Pages[p];
-                    if (page != null && page.IsPropertyPage && page.PropertyCheck.Label == label)
-                    {
-                        tabId = tab.AssetId;
-                        pageId = page.AssetId;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        #endregion // Material Page Lookup
-
         #region Tab + Page Commands
 
         // Switch to a tab by index, restoring the page the player last viewed under it — its first
@@ -785,10 +706,7 @@ namespace SpaceFab.UI {
         private static void MoveSelectionOffLockedPage(WikiState wikiState, PlayerProgressState progressState, StringHash32 pageId) {
             // No WikiContent means this scene doesn't ship the wiki prefab, so there's no
             // selection to repair — the unlock set was still updated above.
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return; }
-
-            WikiContent content = contents[0];
+            WikiContent content = Find.State<WikiContent>();
             WikiTabData tab = ActiveTab(wikiState, content);
             if (tab == null || tab.Pages == null) { return; }
 
@@ -885,32 +803,6 @@ namespace SpaceFab.UI {
         }
 
         #endregion // Internal Helpers
-
-        #region Paginator Queries
-
-        // True while the paginator window can still scroll left. Greys out the `<` arrow.
-        public static bool CanScrollPageWindowLeft(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
-            WikiTabData tab = ActiveTab(wikiState, content);
-            return tab != null && wikiState.PageWindowStartIndex > 0;
-        }
-
-        // True while the window's right edge hasn't reached the end of the unlocked list. Greys
-        // out the `>` arrow.
-        public static bool CanScrollPageWindowRight(WikiState wikiState, WikiContent content, PlayerProgressState progressState) {
-            WikiTabData tab = ActiveTab(wikiState, content);
-            if (tab == null) { return false; }
-
-            int windowSize = Mathf.Max(1, WikiContent.PageWindowSize);
-            return wikiState.PageWindowStartIndex + windowSize < UnlockedCount(tab, progressState);
-        }
-
-        // Public form of UnlockedIndexOf. WikiVisualsUtility walks the raw page list to style
-        // thumbnails and needs each one's slot to test it against the window bounds.
-        public static int GetUnlockedIndex(WikiTabData tab, PlayerProgressState progressState, int rawIndex) {
-            return UnlockedIndexOf(tab, progressState, rawIndex);
-        }
-
-        #endregion // Paginator Queries
     }
 
     /// <summary>
@@ -965,47 +857,6 @@ namespace SpaceFab.UI {
                     }
                 }
             }
-        }
-
-        // RebuildStrips assigned TabIndex from this same content immediately before, so it is in
-        // range by construction.
-        private static void ApplyTabAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
-            Assert.True(button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length,
-                "Wiki tab button has out-of-range TabIndex {0}", button.TabIndex);
-
-            bool available = WikiUtility.IsTabUnlocked(progressState, content.Tabs[button.TabIndex]);
-            CursorHint hintHeader = button.GetComponent<CursorHint>();
-            hintHeader.TooltipHeader = content.Tabs[button.TabIndex].Title;
-
-            ApplyAvailability(button, available);
-        }
-
-        // Same construction guarantee as above, for both halves of the thumb's (TabIndex,
-        // PageIndex) pair.
-        private static void ApplyPageThumbAvailability(WikiButton button, WikiContent content, PlayerProgressState progressState) {
-            Assert.True(button.TabIndex >= 0 && button.TabIndex < content.Tabs.Length,
-                "Wiki page thumb has out-of-range TabIndex {0}", button.TabIndex);
-
-            WikiTabData tab = content.Tabs[button.TabIndex];
-            Assert.True(button.PageIndex >= 0 && button.PageIndex < tab.Pages.Length,
-                "Wiki page thumb has out-of-range PageIndex {0} for tab '{1}'", button.PageIndex, tab.name);
-
-            WikiPageData page = tab.Pages[button.PageIndex];
-            Assert.NotNullOrDestroyed(page, "Wiki tab '{0}' has a null page at index {1}", tab.name, button.PageIndex);
-
-            bool available = WikiUtility.IsPageUnlocked(progressState, page.AssetId);
-            CursorHint hintHeader = button.GetComponent<CursorHint>();
-            hintHeader.TooltipHeader = page.Title;
-
-            ApplyAvailability(button, available);
-        }
-
-        private static void ApplyAvailability(WikiButton button, bool available) {
-            Assert.NotNullOrDestroyed(button.DynamicButton, "Wiki button '{0}' has no DynamicButton", button.name);
-
-            button.Available = available;
-            button.gameObject.SetActive(available);
-            button.DynamicButton.enabled = available;
         }
     }
 }

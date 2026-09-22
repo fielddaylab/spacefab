@@ -20,12 +20,38 @@ namespace FieldDay.Animation {
 
         static public void Replace(ref AnimHandle handle, ILiteAnimator anim, object target, LiteAnimatorState state, GameLoopPhase phase = GameLoopPhase.Update) {
             Game.Animation.CancelAnimation(ref handle);
-            Game.Animation.AddLiteAnimator(anim, target, state, phase);
+            handle = Game.Animation.AddLiteAnimator(anim, target, state, phase);
+        }
+
+        static public void Replace(ref AnimHandle handle, ILiteAnimator anim, object target, float duration, GameLoopPhase phase = GameLoopPhase.Update) {
+            Game.Animation.CancelAnimation(ref handle);
+            handle = Game.Animation.AddLiteAnimator(anim, target, duration, phase);
         }
 
         static public void Replace<T>(ref AnimHandle handle, ILiteAnimator<T> anim, T target, LiteAnimatorState state, GameLoopPhase phase = GameLoopPhase.Update) where T : class {
             Game.Animation.CancelAnimation(ref handle);
-            Game.Animation.AddLiteAnimator(anim, target, state, phase);
+            handle = Game.Animation.AddLiteAnimator(anim, target, state, phase);
+        }
+
+        static public void Replace<T>(ref AnimHandle handle, ILiteAnimator<T> anim, T target, float duration, GameLoopPhase phase = GameLoopPhase.Update) where T : class {
+            Game.Animation.CancelAnimation(ref handle);
+            handle = Game.Animation.AddLiteAnimator(anim, target, duration, phase);
+        }
+
+        static public AnimHandle Play(ILiteAnimator anim, object target, LiteAnimatorState state, GameLoopPhase phase = GameLoopPhase.Update) {
+            return Game.Animation.AddLiteAnimator(anim, target, state, phase);
+        }
+
+        static public AnimHandle Play(ILiteAnimator anim, object target, float duration, GameLoopPhase phase = GameLoopPhase.Update) {
+            return Game.Animation.AddLiteAnimator(anim, target, duration, phase);
+        }
+
+        static public AnimHandle Play<T>(ILiteAnimator<T> anim, T target, LiteAnimatorState state, GameLoopPhase phase = GameLoopPhase.Update) where T : class {
+            return Game.Animation.AddLiteAnimator(anim, target, state, phase);
+        }
+
+        static public AnimHandle Play<T>(ILiteAnimator<T> anim, T target, float duration, GameLoopPhase phase = GameLoopPhase.Update) where T : class {
+            return Game.Animation.AddLiteAnimator(anim, target, duration, phase);
         }
     }
 }

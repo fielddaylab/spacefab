@@ -298,7 +298,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaec82a1713dce845b1e2b5a14b6f6cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PageWindowSize: 5
 --- !u!1 &5324382101903763553
 GameObject:
   m_ObjectHideFlags: 0
@@ -1089,7 +1088,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1533433941328716513, guid: f1b860e3558dd6947ab9e29bb1085ce4, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -108
+      value: -128
       objectReference: {fileID: 0}
     - target: {fileID: 1533433941328716513, guid: f1b860e3558dd6947ab9e29bb1085ce4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1125,7 +1124,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1533433941328716513, guid: f1b860e3558dd6947ab9e29bb1085ce4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -100
+      value: -110
       objectReference: {fileID: 0}
     - target: {fileID: 1533433941328716513, guid: f1b860e3558dd6947ab9e29bb1085ce4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

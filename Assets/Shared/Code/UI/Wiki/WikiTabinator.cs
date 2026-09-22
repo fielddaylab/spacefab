@@ -1,5 +1,6 @@
 using BeauUtil;
 using BeauUtil.UI;
+using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
@@ -16,7 +17,7 @@ namespace SpaceFab.UI {
         public WikiTab[] Tabs;
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
-            Action<PointerListener.EventData> handler = WikiUtility.HandleTabClicked;
+            Action<PointerListener.EventData> handler = WikiLayoutUtility.HandleTabClicked;
             for(int i = 0; i < Tabs.Length; i++) {
                 Tabs[i].Widget.OnClick.Register(handler);
             }
@@ -24,16 +25,22 @@ namespace SpaceFab.UI {
         }
     }
 
-    static public partial class WikiUtility {
+    static public partial class WikiLayoutUtility {
+        #region Handlers
+
         static public void HandleTabClicked(PointerListener.EventData data) {
             int queuedTabId = GuiButton.GetData(data).AsInt();
-            // TODO: enqueue
+            Find.State(out WikiViewState viewState);
+            viewState.QueuedTabId = queuedTabId;
+            viewState.QueuedPageId = -1;
         }
+
+        #endregion // Handlers
 
         /// <summary>
         /// Syncs the toggle states of each tab to align with the current selection.
         /// </summary>
-        static public void SetSelectedTabId(WikiTabinator tabinator, int selectedId, bool instant) {
+        static public void UpdateSelectedTab(WikiTabinator tabinator, int selectedId, bool instant) {
             GuiWidgetUpdateFlags updateFlags = instant ? GuiWidgetUpdateFlags.NoAnimation : GuiWidgetUpdateFlags.Default;
             for(int i = 0; i < tabinator.Tabs.Length; i++) {
                 WikiTab tabVisuals = tabinator.Tabs[i];

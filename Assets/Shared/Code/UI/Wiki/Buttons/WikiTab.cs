@@ -41,12 +41,13 @@ namespace SpaceFab.UI
                 bool isToggleOn = (state & GuiWidgetStateFlags.IsToggleOn) != 0;
                 Outline.enabled = isToggleOn;
 
+                Anims.Cancel(ref Animation);
                 Game.Animation.CancelAnimation(ref Animation);
                 if ((flags & GuiWidgetUpdateFlags.NoAnimation) != 0) {
                     Background.color = isToggleOn ? ToggleOnColor : ToggleOffColor;
                     Widget.LayoutOffset.Offset0 = new Vector2(isToggleOn ? TravelDistance : 0, 0);
                 } else {
-                    Game.Animation.AddLiteAnimator(isToggleOn ? ToggleOnAnimInstance : ToggleOffAnimInstance, this, 0);
+                    Animation = Anims.Play(isToggleOn ? ToggleOnAnimInstance : ToggleOffAnimInstance, this, 0);
                 }
             }
         }
@@ -54,12 +55,12 @@ namespace SpaceFab.UI
         static private readonly Color ToggleOnColor = Colors.RGBA(0xccb7a4FF);
         static private readonly Color ToggleOffColor = Colors.RGBA(0x988573FF);
 
-        private const float TravelDistance = 10;
+        private const float TravelDistance = -10;
 
         static private readonly ToggleOnAnim ToggleOnAnimInstance = new ToggleOnAnim();
         static private readonly ToggleOffAnim ToggleOffAnimInstance = new ToggleOffAnim();
 
-        private class ToggleOnAnim : LiteAnimator<WikiTab> {
+        private sealed class ToggleOnAnim : LiteAnimator<WikiTab> {
             public override void InitAnimation(WikiTab target, ref LiteAnimatorState state) {
                 state.ResetTime(0.15f);
             }
@@ -74,7 +75,7 @@ namespace SpaceFab.UI
             }
         }
 
-        private class ToggleOffAnim : LiteAnimator<WikiTab> {
+        private sealed class ToggleOffAnim : LiteAnimator<WikiTab> {
             public override void InitAnimation(WikiTab target, ref LiteAnimatorState state) {
                 state.ResetTime(0.12f);
             }
@@ -90,7 +91,7 @@ namespace SpaceFab.UI
         }
     }
 
-    static public partial class WikiUtility {
+    static public partial class WikiLayoutUtility {
         
         /// <summary>
         /// Populates the appearance of a tab button.

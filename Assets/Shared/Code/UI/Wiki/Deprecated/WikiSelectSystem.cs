@@ -19,41 +19,41 @@ namespace SpaceFab.UI {
                 new SysUpdate(GameLoopPhase.PreUpdate, 0, UpdateMasks.WikiMask),
                 new SysPermissions()
                     .ReadWrite<WikiButton>()
-                    .Read<WikiContent>()
+                    .ReadShared<WikiContent>()
                     .ReadWriteShared<WikiState>()
                     .ReadWriteShared<PlayerProgressState>()
             );
         }
 
         static private void ProcessWork(float deltaTime) {
-            Find.State(
-                out WikiState wikiState,
-                out PlayerProgressState progressState
-                );
+            //Find.State(
+            //    out WikiState wikiState,
+            //    out PlayerProgressState progressState
+            //    );
 
-            // No WikiContent means this scene doesn't ship the wiki prefab, so there's nothing to
-            // select into. This is the one tolerated absence check in the wiki module — everything
-            // past it assumes the full authoring is present and asserts if it isn't.
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return; }
-            WikiContent content = contents[0];
+            //// No WikiContent means this scene doesn't ship the wiki prefab, so there's nothing to
+            //// select into. This is the one tolerated absence check in the wiki module — everything
+            //// past it assumes the full authoring is present and asserts if it isn't.
+            //var contents = Find.Components<WikiContent>();
+            //if (contents.Count == 0) { return; }
+            //WikiContent content = contents[0];
 
-            // 1. Request flags first, so a same-frame OpenTo-then-click resolves in the expected
-            //    order: the open wins, then clicks are evaluated against the now-expanded state.
-            ApplyExternalRequests(wikiState, content, progressState);
+            //// 1. Request flags first, so a same-frame OpenTo-then-click resolves in the expected
+            ////    order: the open wins, then clicks are evaluated against the now-expanded state.
+            //ApplyExternalRequests(wikiState, content, progressState);
 
-            // 2. Walk buttons in three passes — exit, enter, click — matching the toolbar's
-            //    ordering so a same-frame exit-into-new-button doesn't leak stale hover state.
-            //    The hover passes are scaffolding for a future highlight.
-            var buttons = Find.Components<WikiButton>();
+            //// 2. Walk buttons in three passes — exit, enter, click — matching the toolbar's
+            ////    ordering so a same-frame exit-into-new-button doesn't leak stale hover state.
+            ////    The hover passes are scaffolding for a future highlight.
+            //var buttons = Find.Components<WikiButton>();
 
-            for (int i = 0; i < buttons.Count; i++) {
-                // if (!buttons[i].Available) { continue; } // todo: Investigate why this is false
-                if (!buttons[i].ClickedThisFrame) { continue; }
+            //for (int i = 0; i < buttons.Count; i++) {
+            //    // if (!buttons[i].Available) { continue; } // todo: Investigate why this is false
+            //    if (!buttons[i].ClickedThisFrame) { continue; }
 
-                DispatchClick(wikiState, content, progressState, buttons[i]);
-                wikiState.NeedsRebuild = true;
-            }
+            //    DispatchClick(wikiState, content, progressState, buttons[i]);
+            //    wikiState.NeedsRebuild = true;
+            //}
         }
 
         // Clears each of the three request flags as it consumes it, routing open/close through the

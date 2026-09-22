@@ -41,24 +41,18 @@ namespace SpaceFab.Research {
                     return;
             }
 
-            var contentComponents = Find.Components<WikiContent>();
-            if (contentComponents.Count == 0) {
-                return;
-            }
+            var content = Find.State<WikiContent>();
 
-            if (WikiUtility.TryFindObservationPage(contentComponents[0], observationType, out StringHash32 tabId, out StringHash32 pageId)) {
-                WikiUtility.OpenTo(tabId, pageId);
-            }
+            var address = WikiContentUtility.LookupObservationPageAddress(content, observationType);
+
+            // TODO: Open to page
+            // WikiUtility.OpenTo(tabId, pageId);
         }
 
         // Opens the wiki to the properties page.m
         public static void OpenPropertyPage(PlayerProgressState progressState, WikiState wikiState) {
-            var contentComponents = Find.Components<WikiContent>();
-            if (contentComponents.Count == 0) {
-                return;
-            }
-
-            WikiUtility.SelectTabById(wikiState, contentComponents[0], progressState, new StringHash32("Properties"));
+            var content = Find.State<WikiContent>();
+            WikiUtility.SelectTabById(wikiState, content, progressState, new StringHash32("Properties"));
             WikiUtility.Open(wikiState);
         }
 

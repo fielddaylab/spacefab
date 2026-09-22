@@ -35,12 +35,10 @@ namespace SpaceFab.UI {
         public static void Leaf_SetTabById(string tabId) {
             if (!Game.SharedState.Has<WikiState>()) { return; }
 
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return; }
-
+            var contents = Find.State<WikiContent>();
             WikiState wikiState = Find.State<WikiState>();
             PlayerProgressState progressState = Find.State<PlayerProgressState>();
-            WikiUtility.SelectTabById(wikiState, contents[0], progressState, new StringHash32(tabId));
+            WikiUtility.SelectTabById(wikiState, contents, progressState, new StringHash32(tabId));
         }
 
         // Select a page by id within the active tab (does not expand the wiki — use OpenWikiTo for
@@ -50,12 +48,10 @@ namespace SpaceFab.UI {
         public static void Leaf_SetPageById(string pageId) {
             if (!Game.SharedState.Has<WikiState>()) { return; }
 
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return; }
-
+            var contents = Find.State<WikiContent>();
             WikiState wikiState = Find.State<WikiState>();
             PlayerProgressState progressState = Find.State<PlayerProgressState>();
-            WikiUtility.SelectPageById(wikiState, contents[0], progressState, new StringHash32(pageId));
+            WikiUtility.SelectPageById(wikiState, contents, progressState, new StringHash32(pageId));
         }
 
         // Select a tab by id (does not expand the wiki — use OpenWikiTo for that). Id is the tab asset
@@ -65,11 +61,9 @@ namespace SpaceFab.UI {
         public static StringHash32 Leaf_GetTabId() {
             if (!Game.SharedState.Has<WikiState>()) { return null; }
 
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return null; }
-
+            var contents = Find.State<WikiContent>();
             WikiState wikiState = Find.State<WikiState>();
-            return contents[0].Tabs[wikiState.ActiveTabIndex].AssetId;
+            return contents.Tabs[wikiState.ActiveTabIndex].AssetId;
         }
     }
 }

@@ -19,8 +19,6 @@ namespace SpaceFab.UI {
     /// WikiVisualsUtility when wiki state changes rather than on a per-frame poll.
     /// </summary>
     public class WikiLayoutState : SharedStateComponent, IRegistrationCallbacks, ISceneLateInitialize {
-        // Full-panel root. Opaque and interactive when expanded, faded out and raycast-transparent
-        // when collapsed.
         public Canvas RootCanvas;
         public CanvasGroup ExpandedRoot;
         public CanvasInputLayer InputLayer;
@@ -57,7 +55,7 @@ namespace SpaceFab.UI {
     /// Every layout reference these touch is required authoring on the wiki prefab, so a missing
     /// one asserts rather than silently skipping the work.
     /// </summary>
-    public static class WikiLayoutUtility {
+    public static partial class WikiLayoutUtility {
         // Snap the panel root to the visibility that matches `expanded`.
         public static void ApplyExpandedSteadyState(WikiLayoutState layoutState, bool expanded) {
             layoutState.InputLayer.SetInputOverride(expanded ? null : false);

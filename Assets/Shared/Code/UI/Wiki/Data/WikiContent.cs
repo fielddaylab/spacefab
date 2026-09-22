@@ -26,9 +26,10 @@ namespace SpaceFab.UI {
         [NonSerialized] public WikiTabData[] Tabs = Array.Empty<WikiTabData>();
 
         [NonSerialized] public IWikiContentFilter ContentFilter;
+        [NonSerialized] public WikiResearchContext ResearchContext;
 
         [NonSerialized] public WikiContentList AvailableTabs;
-        [NonSerialized] public WikiContentList[] TabPages = new WikiContentList[WikiUtility.MaxTabs];
+        [NonSerialized] public WikiContentList[] TabPages = new WikiContentList[WikiContentUtility.MaxTabs];
 
         public void OnDeregister() {
             ContentFilter = null;
@@ -43,14 +44,19 @@ namespace SpaceFab.UI {
     public struct WikiContentList {
         public BitSet32 Availability;
         public int Count;
-        public unsafe fixed sbyte Indices[WikiUtility.MaxPages];
+        public unsafe fixed sbyte Indices[WikiContentUtility.MaxPages];
     }
 
     public interface IWikiContentFilter {
         PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiPageData pageData);
         MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId);
-    }
 
+        static public MaterialPropertyRecord GetDefaultMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
+            playerProgress.MaterialProperties.TryGetValue(materialId, out MaterialPropertyRecord record);
+            return record;
+        }
+    }
+       
     public enum PageAvailabilityOverride {
         Default,
         AlwaysShow,
@@ -61,20 +67,15 @@ namespace SpaceFab.UI {
         static public readonly BaseWikiContentFilter Instance = new BaseWikiContentFilter();
 
         public MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
-            return GetDefaultMaterialProgress(playerProgress, materialId);
+            return IWikiContentFilter.GetDefaultMaterialProgress(playerProgress, materialId);
         }
 
         public PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiPageData pageData) {
             return PageAvailabilityOverride.Default;
         }
-
-        static public MaterialPropertyRecord GetDefaultMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
-            playerProgress.MaterialProperties.TryGetValue(materialId, out MaterialPropertyRecord record);
-            return record;
-        }
     }
 
-    static public partial class WikiUtility {
+    static public partial class WikiContentUtility {
         public const int MaxTabs = 4;
         public const int MaxPages = 20;
 
@@ -120,7 +121,7 @@ namespace SpaceFab.UI {
         /// Updates the list of available tabs.
         /// </summary>
         static public unsafe BitSet32 UpdateTabList(ref WikiContentList tabList, WikiContentList[] tabPageData, int tabCount) {
-            Assert.True(tabCount <= tabPageData.Length && tabCount < MaxTabs, "Too many tabs!");
+            Assert.True(tabCount <= tabPageData.Length && tabCount <= MaxTabs, "Too many tabs!");
 
             BitSet32 originalBits = tabList.Availability;
 
@@ -279,6 +280,22 @@ namespace SpaceFab.UI {
 
             for(int i = 0; i < pageList.Count; i++) {
                 if (pageList.Indices[i] == pageIndex) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the visual index of the given content index in the given list.
+        /// </summary>
+        static public unsafe int GetVisualIndex(WikiContentList contentList, int index) {
+            if (!contentList.Availability.IsSet(index)) {
+                return -1;
+            }
+
+            for (int i = 0; i < contentList.Count; i++) {
+                if (contentList.Indices[i] == index) {
                     return i;
                 }
             }

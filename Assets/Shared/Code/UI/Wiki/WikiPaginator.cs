@@ -1,5 +1,6 @@
 using BeauUtil;
 using BeauUtil.UI;
+using FieldDay;
 using FieldDay.Scenes;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
@@ -20,12 +21,12 @@ namespace SpaceFab.UI {
         public WikiPageButton[] Pages;
 
         IEnumerator<WorkSlicer.Result?> IScenePreload.Preload() {
-            Action<PointerListener.EventData> buttonHandler = WikiUtility.HandlePageClicked;
+            Action<PointerListener.EventData> buttonHandler = WikiLayoutUtility.HandlePageClicked;
             for (int i = 0; i < Pages.Length; i++) {
                 Pages[i].Widget.OnClick.Register(buttonHandler);
             }
 
-            Action<PointerListener.EventData> scrollHandler = WikiUtility.HandlePageScrollClicked;
+            Action<PointerListener.EventData> scrollHandler = WikiLayoutUtility.HandlePageScrollClicked;
             PageScrollLeft.SetVariantValue(-1);
             PageScrollRight.SetVariantValue(1);
             PageScrollLeft.OnClick.Register(scrollHandler);
@@ -34,16 +35,24 @@ namespace SpaceFab.UI {
         }
     }
 
-    static public partial class WikiUtility {
+    static public partial class WikiLayoutUtility {
+
+        #region Handlers
+
         static public void HandlePageClicked(PointerListener.EventData data) {
             int queuedPageId = GuiButton.GetData(data).AsInt();
-            // TODO: queue page select
+            Find.State(out WikiViewState viewState);
+            viewState.QueuedTabId = -1;
+            viewState.QueuedPageId = queuedPageId;
         }
 
         static public void HandlePageScrollClicked(PointerListener.EventData data) {
             int queuedScrollDirection = GuiButton.GetData(data).AsInt();
-            // TODO: queue page scroll
+            Find.State(out WikiViewState viewState);
+            viewState.QueuedPageScrollDirection = queuedScrollDirection;
         }
+
+        #endregion // Handlers
 
         /// <summary>
         /// Populates page visuals with the available pages in the content.
@@ -79,7 +88,7 @@ namespace SpaceFab.UI {
         /// <summary>
         /// Syncs the toggle states of each page button to align with the current selection.
         /// </summary>
-        static public void SetSelectedPageId(WikiPaginator paginator, int selectedId, bool instant) {
+        static public void UpdateSelectedPage(WikiPaginator paginator, int selectedId, bool instant) {
             GuiWidgetUpdateFlags updateFlags = instant ? GuiWidgetUpdateFlags.NoAnimation : GuiWidgetUpdateFlags.Default;
             for (int i = 0; i < paginator.Pages.Length; i++) {
                 WikiPageButton pageButton = paginator.Pages[i];

@@ -41,8 +41,6 @@ namespace SpaceFab.UI {
         // the one-frame flags below via the handlers at the bottom of this file.
         public DynamicButton DynamicButton;
 
-        public GuiButton Button;
-
         public ElementTag ElementTag;
 
         [NonSerialized] public bool ClickedThisFrame;
@@ -54,36 +52,14 @@ namespace SpaceFab.UI {
 
         public void OnRegister() {
             if (DynamicButton == null) { return; }
-            DynamicButton.onClick.AddListener(HandleClick);
         }
 
         public void OnDeregister() {
             if (DynamicButton == null) { return; }
-            DynamicButton.onClick.RemoveListener(HandleClick);
         }
 
         #region Pointer Handlers
 
-        // Pointer events route into WikiUtility so the mutation point is a single static
-        // surface — matches ToolbarButton pattern and gives Leaf a clean hook later.
-
-        private void HandleClick() {
-            WikiUtility.OnClick(this);
-        }
-
         #endregion // Pointer Handlers
-    }
-
-    /// <summary>
-    /// Pointer-event mutation surface for WikiButton. Intentionally trivial — the one-frame
-    /// flags here are consumed by WikiSelectSystem, which holds the interesting logic.
-    /// Declared as partial so WikiState.cs can extend WikiUtility with the command surface
-    /// (Open/Close/OpenTo, SelectTab, NextPage, ExpandRoutine, …) without a separate utility
-    /// class name.
-    /// </summary>
-    public static partial class WikiUtility {
-        public static void OnClick(WikiButton button) {
-            button.ClickedThisFrame = true;
-        }
     }
 }

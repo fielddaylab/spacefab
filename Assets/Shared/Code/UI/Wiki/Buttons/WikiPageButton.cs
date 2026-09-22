@@ -31,7 +31,7 @@ namespace SpaceFab.UI {
         }
     }
 
-    static public partial class WikiUtility {
+    static public partial class WikiLayoutUtility {
         static public void PopulatePageButton(WikiPageButton button, WikiPageData pageData, int pageIndex) {
             button.Widget.SetVariantValue(pageIndex);
             button.Widget.CursorHint.MarkDirty();
