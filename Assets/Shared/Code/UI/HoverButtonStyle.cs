@@ -1,5 +1,6 @@
 using BeauRoutine;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay.UI;
 using FieldDay.UI.Animation;
 using FieldDay.UI.Widgets;
@@ -18,6 +19,8 @@ namespace SpaceFab.UI {
         }
 
         public override void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags) {
+            Assert.False(source == null, "source is null");
+            
             float y = 0;
             Color tint = Color.white;
 
