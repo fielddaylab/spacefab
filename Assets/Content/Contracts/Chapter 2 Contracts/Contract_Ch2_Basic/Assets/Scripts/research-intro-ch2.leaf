@@ -36,7 +36,12 @@ $call   ReleaseAllHighlights()
 $call   HighlightElement(research:increase-heat-btn)
 $set    temp:needsToIncreaseHeat = true
 $call   CloseWiki()
-{@PAL}  You’ll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
+{@PAL}  You'll need to increase the heat of the chamber to see how it effects the electrical current of the sample.
+
+::OnVoltageChamberSelected
+@trigger    OnChamberSwitched
+@when       !MinigameHasValidSolution(), research:chamberId == "Voltage"
+$call   ReleaseAllHighlights()
 
 ::OnHeatIncreased
 @trigger    OnHeatIncreased
@@ -61,10 +66,11 @@ $call   CloseWiki()
 @trigger    OnHypothesisSubmitted
 @when   result == "success"
 $call   CloseWiki()
+$call   ReleaseAllHighlights()
 $if MinigameHasValidSolution()
     {@PAL}  Great. You've completed all research tasks! Let's return to the ship.
 $elseif research:primaryMaterial == "Silicon"
-    {@PAL}  Great. You've found a semiconductor! Try other samples with the thermal chamber to see if our initial identifications were correct.
+    {@PAL}  Great. You've found a semiconductor!\nTry other samples with the thermal chamber to see if our initial identifications were correct.
 $else
     {@PAL}  Correct. Try other samples with the thermal chamber to see if our initial identifications were correct.
 $endif
@@ -73,8 +79,5 @@ $endif
 @trigger    OnHypothesisSubmitted
 @when   !MinigameHasValidSolution(), result == "failure"
 $call   CloseWiki()
-$if     research:primaryMaterial == "Silicon"
-    {@PAL}  That doesn't seem right. Remember that semiconductors don't allow current to pass, and current increases when heat is applied.
-$else
-    {@PAL}  That doesn't seem right. Try changing the hypothesis or select a different observation.
-$endif
+$call   ReleaseAllHighlights()
+{@PAL}  That doesn't seem right. Try changing the hypothesis or select a different observation.

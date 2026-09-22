@@ -77,9 +77,9 @@ namespace SpaceFab.Research {
                 failureReason = "invalid_observation";
             }
 
-            bool hasRequiredObs = EvaluateObservations(viewModelState, out string evalReason);
-            if (failureReason == null && evalReason != null) {
-                failureReason = evalReason;
+            bool hasRequiredObs = EvaluateObservations(viewModelState);
+            if (failureReason == null && !hasRequiredObs) {
+                failureReason = "observation_mismatch";
             }
 
             bool validHypothesis = ValidateProperty(slotted, viewModelState);
@@ -101,6 +101,9 @@ namespace SpaceFab.Research {
                 var resultStr = success ? "success" : "failure";
                 table.Set("result", resultStr);
                 if (!success) {
+                    // "invalid_observation": observation does not match the material
+                    // "observation_mismatch": observation does not match the hypothesis and/or does not have all required observations for the hypothesis
+                    // "hypothesis_mismatch": hypothesis does not match the material
                     table.Set("reason", failureReason);
                 }
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
@@ -170,12 +173,11 @@ namespace SpaceFab.Research {
         // Checks if the property has all necessary observations. If not
         // all necessary observations are present, verification fails.
         // Any observations that are not required by the property become greyed out.
-        private static bool EvaluateObservations(HypothesisViewModelState viewModelState, out string failureReason)
+        private static bool EvaluateObservations(HypothesisViewModelState viewModelState)
         {
             List<MaterialObservationEntry> leaves = DecomposeAllDefinitions(viewModelState.HypothesisLabel);
             int leafCount = leaves.Count;
             int slotCount = viewModelState.SlotCount;
-            failureReason = null;
 
             bool hasMissingObs = false;
 
@@ -191,7 +193,6 @@ namespace SpaceFab.Research {
                         if (panel == null || !panel.PickerOpen) continue;
                         // TODO: change sprite for greyed out chips
                         panel.SlotChips[i].Background.color = Color.grey;
-                        failureReason = "irrelevant_observation";
                     }
                 }
             }
@@ -200,7 +201,6 @@ namespace SpaceFab.Research {
                 var leaf = leaves[i];
                 if (!matched.Contains(leaf.Label)) {
                     hasMissingObs = true;
-                    failureReason = "missing_observation";
                     break;
                 }
             }

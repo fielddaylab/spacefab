@@ -1,6 +1,7 @@
 using BeauUtil;
 using FieldDay;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research
 {
@@ -23,6 +24,7 @@ namespace SpaceFab.Research
             {
                 researchState.Observations[materialId] = list;
             }
+            Debug.LogError($"{materialId.ToDebugString()} - Added {label} for {contextMaterialId.ToDebugString()}");
             return added;
         }
 

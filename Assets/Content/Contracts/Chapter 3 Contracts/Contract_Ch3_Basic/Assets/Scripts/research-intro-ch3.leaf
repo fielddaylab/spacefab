@@ -6,7 +6,7 @@ $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to! You can continue your experiments to uncover new insights.
 $else
     $call   HighlightElement(research:doping-chamber-btn, false, -1, true)
-    {@PAL}  We have a new property to discover: dopants!\nTo investigate this, you’ll need to use the doping chamber.
+    {@PAL}  We have a new property to discover: dopants!\nTo investigate this, you'll need to use the doping chamber.
 $endif
 
 
@@ -14,9 +14,14 @@ $endif
 @trigger    OnChamberSwitched
 @when       !MinigameHasValidSolution(), research:chamberId == "Doping"
 $call   ReleaseAllHighlights()
-$call   HighlightElement(research:primary-slot)
 $call   CloseWiki()
-{@PAL}  Only confirmed semiconductors are accepted as substrates.\n\nPlace a semiconductor to this slot.
+$if     research:primaryMaterial == "Silicon"
+    {@PAL}  Only confirmed semiconductors are accepted as substrates.\nNow you'll need to place a possible dopant.\nLook for a sample with a smaller atomic radius and a valence electron count that differs by one.
+    $call   HighlightElement(research:secondary-slot)
+$else
+    {@PAL}  Only confirmed semiconductors are accepted as substrates.\n\nPlace a semiconductor to this slot.
+    $call   HighlightElement(research:primary-slot)
+$endif
 
 ::OnSubstrateFilled
 @trigger    OnSlotFilled
@@ -36,7 +41,7 @@ $call   CloseWiki()
 @trigger    OnSlotFilled
 @when       !MinigameHasValidSolution(), research:chamberId == "Doping", slotType == "secondary"
 $call   CloseWiki()
-$call   ReleaseHighlight(research:primary-slot)
+$call   ReleaseHighlight(research:secondary-slot)
 $if     research:secondaryMaterial == "Boron"
     {@PAL}  Great! Add observations and select a hypothesis to verify.
 $elseif research:secondaryMaterial == "Phosphorus"

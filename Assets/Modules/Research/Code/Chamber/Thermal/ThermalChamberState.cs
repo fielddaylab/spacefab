@@ -31,7 +31,6 @@ namespace SpaceFab.Research
             MaterialPropertyLabel.HeatActivated,
             MaterialPropertyLabel.HeatDeactivated,
             MaterialPropertyLabel.HeatUnaffected,
-            MaterialPropertyLabel.HeatVulnerable,
             MaterialPropertyLabel.HeatResistant
         };
         [NonSerialized] public bool HeatChangedThisFrame;
