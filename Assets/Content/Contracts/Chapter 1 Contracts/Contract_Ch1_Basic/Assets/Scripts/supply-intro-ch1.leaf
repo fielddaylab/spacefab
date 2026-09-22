@@ -40,12 +40,13 @@ $call   HighlightElement(supply:home)
 :: FirstRouteCompleted
 @trigger    OnRouteCompleted
 @when       temp:researchTutorialStep == 2
+$call   ReleaseAllHighlights()
 $if IsMaterialCollected("Copper")
     $set    temp:researchTutorialStep = 5
-    {@PAL}  click CONFIRM to commit your entire supply chain.
+    $call   HighlightElement(supply:confirm-btn)
+    {@PAL}  Click CONFIRM to commit your entire supply chain.
 $else
     $set    temp:researchTutorialStep = 3
-    $call   ReleaseAllHighlights()
     $call   HighlightElement(wiki:open-btn)
     {@PAL}  Uh-oh, this material wasn't a conductor. \n\nCheck the wiki to identify the materials on the planets.
 $endif
@@ -78,11 +79,16 @@ $call   ReleaseAllHighlights()
 
 :: OnRouteFullyRemoved
 @trigger    OnRouteFullyRemoved
-@when       temp:researchTutorialStep == 3
-$set   temp:researchTutorialStep = 4
 $call   ReleaseAllHighlights()
-$call   HighlightElement(supply:planet_si02)
-{@PAL}  Draw your new path to the planet with the Conductor.
+$if     temp:researchTutorialStep == 3
+    $set    temp:researchTutorialStep = 4
+    $call   HighlightElement(supply:planet_si02)
+    {@PAL}  Draw your new path to the planet with the Conductor.
+$else
+    $set    temp:researchTutorialStep = 0
+    $call   HighlightElement(supply:ship0)
+    {@PAL}  Build a route to complete the contract. \n\nStart by selecting a ship.
+$endif
 
 
 :: MaterialGathered
@@ -99,6 +105,10 @@ $call   ReleaseAllHighlights()
 @when       temp:researchTutorialStep >= 4
 $set    temp:researchTutorialStep = 6
 $call   ReleaseAllHighlights()
-$call   HighlightElement(supply:confirm-all-btn)
-{@PAL}  click CONFIRM to commit your entire supply chain.
+$call   HighlightElement(supply:confirm-btn)
+{@PAL}  Click CONFIRM to commit your entire supply chain.
 
+:: OnShipSelectedAfterRouteCompleted
+@trigger    OnShipSelected
+@when       temp:researchTutorialStep >= 5
+$call   ReleaseAllHighlights()
