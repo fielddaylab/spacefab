@@ -13,7 +13,8 @@ namespace SpaceFab.Save
 {
     public class SaveMgr
     {
-        public const int SaveVersion = -1;
+        // v1: Added "unlocked thermal chamber" and "unlocked doping chamber" to PlayerProgressState
+        public const int SaveVersion = 1;
 
         private struct ChunkRecord
         {
