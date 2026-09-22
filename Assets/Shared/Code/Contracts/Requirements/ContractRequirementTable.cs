@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace SpaceFab {
     public sealed class ContractRequirementTable : MonoBehaviour {
@@ -92,16 +91,26 @@ namespace SpaceFab {
             ContractRequirementTable.PropertyLabelList semiconductorProps = default;
             ContractRequirementTable.DopantRows dopants = default;
 
+            bool hasNaiveDef = false;
+
             foreach (var req in contract.RequiredMaterialProperties()) {
                 switch (req.Label) {
+                    case MaterialPropertyLabel.ConductorNaive: {
+                        hasNaiveDef = true;
+                        conductorProps.Add(req.Label);
+                        break;
+                    }
                     case MaterialPropertyLabel.Conductor:
-                    case MaterialPropertyLabel.ConductorNaive:
                     case MaterialPropertyLabel.HiTempConductor: {
                         conductorProps.Add(req.Label);
                         break;
                     }
-                    case MaterialPropertyLabel.Insulator:
                     case MaterialPropertyLabel.InsulatorNaive: {
+                        hasNaiveDef = true;
+                        insulatorProps.Add(req.Label);
+                        break;
+                    }
+                    case MaterialPropertyLabel.Insulator: {
                         insulatorProps.Add(req.Label);
                         break;
                     }
@@ -136,7 +145,7 @@ namespace SpaceFab {
                     int columnOffset = table.Columns.Count;
                     int columnCount = 0;
 
-                    using (TempReferenceBuffer<MaterialAsset> rowMaterials = ExtractMatchingMaterials(chapterMaterials, conductorProps, true)) {
+                    using (TempReferenceBuffer<MaterialAsset> rowMaterials = ExtractMatchingMaterials(chapterMaterials, conductorProps, !hasNaiveDef)) {
                         Assert.True(rowMaterials.Count <= ContractRequirementSubRow.MaxSlots, "Too many matching conductors for contract {0}", contract.name);
                         for (int i = 0; i < rowMaterials.Count; i++) {
                             MaterialAsset rowMaterial = rowMaterials[i];
@@ -163,7 +172,7 @@ namespace SpaceFab {
                     int columnOffset = table.Columns.Count;
                     int columnCount = 0;
 
-                    using (TempReferenceBuffer<MaterialAsset> rowMaterials = ExtractMatchingMaterials(chapterMaterials, insulatorProps, true)) {
+                    using (TempReferenceBuffer<MaterialAsset> rowMaterials = ExtractMatchingMaterials(chapterMaterials, insulatorProps, !hasNaiveDef)) {
                         Assert.True(rowMaterials.Count <= ContractRequirementSubRow.MaxSlots, "Too many matching insulators for contract {0}", contract.name);
                         for (int i = 0; i < rowMaterials.Count; i++) {
                             MaterialAsset rowMaterial = rowMaterials[i];

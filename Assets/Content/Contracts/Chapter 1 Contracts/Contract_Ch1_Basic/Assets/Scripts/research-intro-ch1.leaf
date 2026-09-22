@@ -150,7 +150,7 @@ $call   ReleaseAllHighlights()
 $call   CloseWiki()
 $if MinigameHasValidSolution()
     $call       HighlightElement(return-button)
-    {@PAL}  Correct. You've completed all research tasks! Press the back button to return to the ship.
+    {@PAL}  Correct. You've completed all research tasks! Press the complete button to return to the ship.
 $else
     $call   HighlightElement(research:primary-slot)
     {@PAL}  Correct. Now see if you can find a sample that satisfies the other hypothesis.

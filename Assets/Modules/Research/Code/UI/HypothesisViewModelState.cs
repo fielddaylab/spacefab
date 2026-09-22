@@ -52,8 +52,8 @@ namespace SpaceFab.Research {
 
         // === Submit ===
 
-        // True when a hypothesis is selected and the slot view is full
-        // against its leaf count. Drives the submit button's visibility.
+        // True when at least one observation is selected and a property chip is selected.
+        // Drives the submit button's visibility.
         [NonSerialized] public bool VerifyButtonVisible;
 
         // === Frame flags ===

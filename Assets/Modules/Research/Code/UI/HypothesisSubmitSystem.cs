@@ -103,7 +103,6 @@ namespace SpaceFab.Research {
             else {
                 viewModelState.HypothesisSelected = false;
             }
-            
 
             using (var table = TempVarTable.Alloc()) {
                 var resultStr = success ? "success" : "failure";
