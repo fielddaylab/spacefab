@@ -18,9 +18,7 @@ namespace SpaceFab.UI {
             //PopAnim.Play(button.LayoutOffset, PopAnim.Default);
         }
 
-        public override void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags) {
-            Assert.False(source == null, "source is null");
-            
+        public override void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags) {            
             float y = 0;
             Color tint = Color.white;
 
