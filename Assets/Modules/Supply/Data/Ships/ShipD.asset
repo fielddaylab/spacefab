@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32a2262c22269de49bca1259173cd969, type: 3}
-  m_Name: ShipC
+  m_Name: ShipD
   m_EditorClassIdentifier: 
-  DisplayName: Frontier Bot
+  DisplayName: Callie
   BodyImage: {fileID: 21300000, guid: 71de2307f3ec1fa49856a84a5eefbe98, type: 3}
   Icon: {fileID: 21300000, guid: 79c71f390e30e9e4681db18866ea4b02, type: 3}
   IconColor:

@@ -213,7 +213,7 @@ namespace SpaceFab.Research {
                 if (isDopingChamber)
                 {
                     bool substrateKnown = researchState.SandboxProperties.TryGetValue(primaryMaterial.AssetId, out var substrateRecord)
-                    && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
+                        && !MaterialPropertyRecordUtility.IsEmpty(substrateRecord);
                     panel.SubstrateSprite.sprite = primaryMaterial.GemSprite;
                     if (substrateKnown) {
                         panel.SubstrateLabel.text = primaryMaterial.ShortName;
@@ -257,12 +257,14 @@ namespace SpaceFab.Research {
                 MaterialPropertyLabel hypo = hypoVm.HypothesisLabel;
                 hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
                 hypoType = MaterialObservationChamberLookup.GetChamberType(hypo);
+
+                if (hypoVm.HypothesisContext != StringHash32.Null)
+                {
+                    MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
+                    hypoLabel += " for " + hypoContext.ShortName; // only 'confirmed' semiconductors can be slotted -- always known
+                }
             }
-            if (hypoVm.HypothesisContext != StringHash32.Null)
-            {
-                MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
-                hypoLabel += " for " + hypoContext.ShortName; // TODO: only 'confirmed' semiconductors can be slotted -- always known
-            }
+
             panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
