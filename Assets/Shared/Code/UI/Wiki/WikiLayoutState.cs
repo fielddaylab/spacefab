@@ -1,10 +1,13 @@
+using System;
 using System.Collections.ObjectModel;
 using BeauRoutine;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Animation;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
 using FieldDay.UI;
+using FieldDay.UI.Widgets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,48 +21,41 @@ namespace SpaceFab.UI {
     /// Authored once on the wiki prefab root alongside WikiContent and WikiPools, and written by
     /// WikiVisualsUtility when wiki state changes rather than on a per-frame poll.
     /// </summary>
-    public class WikiLayoutState : SharedStateComponent, IRegistrationCallbacks, ISceneLateInitialize {
+    public class WikiLayoutState : SharedStateComponent {
         public Canvas RootCanvas;
-        public CanvasGroup ExpandedRoot;
+        public RectTransform ExpandedRoot;
         public CanvasInputLayer InputLayer;
+        public LayoutOffset Offset;
 
         public TextMeshProUGUI Header;
 
         public WikiTabinator Tabinator;
         public WikiPaginator Paginator;
         public WikiPageLayout PageLayout;
+        public GuiButton CloseButton;
 
-        public WikiContent WikiContent;
+        [NonSerialized] public AnimHandle ExpandAnim;
 
-        public void OnRegister()
-        {
+        private void Awake() {
+            CloseButton.OnClick.Register(OnClickClose);
         }
 
-        public void OnDeregister() {
-        }
-
-        // Snaps the authored prefab to whatever steady state WikiState starts in, then queues the
-        // first strip rebuild.
-        public void LateInitialize()
-        {
-            Find.State(out WikiState wikiState);
-            WikiLayoutUtility.ApplyExpandedSteadyState(this, wikiState.Expanded);
-            wikiState.NeedsRebuild = true;
+        static private void OnClickClose() {
+            WikiUtility.Close(Find.State<WikiViewState>());
         }
     }
 
-    /// <summary>
-    /// Helpers for WikiLayoutState: the steady-state visibility snap, the tab strip's vertical
-    /// arrangement, the paginator scroll math, and the selection highlight's placement.
-    ///
-    /// Every layout reference these touch is required authoring on the wiki prefab, so a missing
-    /// one asserts rather than silently skipping the work.
-    /// </summary>
     public static partial class WikiLayoutUtility {
-        // Snap the panel root to the visibility that matches `expanded`.
-        public static void ApplyExpandedSteadyState(WikiLayoutState layoutState, bool expanded) {
-            layoutState.InputLayer.SetInputOverride(expanded ? null : false);
-            layoutState.RootCanvas.enabled = expanded;
+        static public void SnapExpandedState(WikiLayoutState layout, bool expanded) {
+            layout.RootCanvas.enabled = expanded;
+            SetInputEnabled(layout, expanded);
+
+            Anims.Cancel(ref layout.ExpandAnim);
+            layout.Offset.Offset0 = new Vector2(expanded ? 0 : 370, 0);
+        }
+
+        static public void SetInputEnabled(WikiLayoutState layout, bool enabled) {
+            layout.InputLayer.SetInputOverride(enabled ? null : false);
         }
     }
 }

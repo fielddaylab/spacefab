@@ -89,7 +89,7 @@ namespace SpaceFab.UI {
         /// Syncs the toggle states of each page button to align with the current selection.
         /// </summary>
         static public void UpdateSelectedPage(WikiPaginator paginator, int selectedId, bool instant) {
-            GuiWidgetUpdateFlags updateFlags = instant ? GuiWidgetUpdateFlags.NoAnimation : GuiWidgetUpdateFlags.Default;
+            GuiWidgetUpdateFlags updateFlags = instant ? GuiWidgetUpdateFlags.Initialization : GuiWidgetUpdateFlags.Default;
             for (int i = 0; i < paginator.Pages.Length; i++) {
                 WikiPageButton pageButton = paginator.Pages[i];
                 if (!pageButton.gameObject.activeSelf) {
@@ -104,10 +104,14 @@ namespace SpaceFab.UI {
         /// Updates the paginator's scroll buttons based on current scroll position.
         /// </summary>
         static public void UpdatePaginatorScrollButtons(WikiPaginator paginator, WikiContent content, int tabId, int scrollOffset) {
-            int totalPagesAvailable = content.TabPages[tabId].Count;
-            int pageIconsAvailable = paginator.Pages.Length;
-            paginator.PageScrollLeft.Interactable = scrollOffset > 0;
-            paginator.PageScrollRight.Interactable = scrollOffset < (totalPagesAvailable - pageIconsAvailable);
+            if (tabId < 0) {
+                paginator.PageScrollLeft.Interactable = paginator.PageScrollRight.Interactable = false;
+            } else {
+                int totalPagesAvailable = content.TabPages[tabId].Count;
+                int pageIconsAvailable = paginator.Pages.Length;
+                paginator.PageScrollLeft.Interactable = scrollOffset > 0;
+                paginator.PageScrollRight.Interactable = scrollOffset < (totalPagesAvailable - pageIconsAvailable);
+            }
         }
     }
 }

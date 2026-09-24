@@ -14,13 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Title: Wolfrom
   Icon: {fileID: 21300000, guid: 80e033f37358ec543ad1b5d7d8eef2c4, type: 3}
-  IllustrationFrames: []
+  IllustrationFrames:
+  - {fileID: 21300000, guid: 3b78daf9109b96d4e8ed6cf0cc7b3989, type: 3}
   IllustrationFPS: 0.5
-  BodyText: A steelworks planet, Wolfram is clouded in a choking smog but holds the
-    grit common among steelworkers. Recent protests have increased Frontier security,
-    however, many believe Wolfram to be a powder-keg of change.
+  BodyText: '<b>Supplier Contact - Mai</b>
+
+
+    A steelworks planet, Wolfram is
+    clouded in a choking smog but holds the grit common among steelworkers. Recent
+    protests have increased Frontier security, however, many believe Wolfram to be
+    a powder-keg of change.'
   MaterialId:
     m_HashValue: 0
   IsObservationPage: 0
   ObservationType: 0
   PropertyCheck: {fileID: 0}
+  IsUnlockedByDefault: 0

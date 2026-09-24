@@ -1,7 +1,9 @@
 using BeauPools;
+using BeauRoutine;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Animation;
 using FieldDay.UI;
 using SpaceFab.Comic;
 using SpaceFab.Materials;
@@ -31,16 +33,24 @@ namespace SpaceFab.UI {
         public RectTransform LayoutRoot;
         public LayoutOptions VerticalLayout = LayoutOptions.PreferredSize(4, 1);
 
+        [Header("Masking")]
+        public Mask AnimatedMask;
+
         [NonSerialized] public WikiPageType CurrentPageType;
         [NonSerialized] public StringHash32 CurrentMaterialId;
         [NonSerialized] public MaterialPropertyLabel CurrentPropertyChip;
         [NonSerialized] public int CurrentObservationChipCount;
         [NonSerialized] public WikiPageChipState[] CurrentObservationChips;
 
+        [NonSerialized] public AnimHandle AppearAnim;
+
         private void Awake() {
             CurrentObservationChips = new WikiPageChipState[ObservationChips.Length];
             CurrentObservationChipCount = 0;
             CurrentPageType = WikiPageType.Default;
+
+            AnimatedMask.enabled = false;
+            AnimatedMask.graphic.enabled = false;
         }
     }
 
@@ -92,6 +102,7 @@ namespace SpaceFab.UI {
             }
 
             layout.LayoutRoot.gameObject.SetActive(true);
+            Anims.Replace(ref layout.AppearAnim, DissolveInAnimInstance, layout, 0);
         }
 
         static private void PopulateMaterialPage(WikiPageLayout layout, WikiPageData pageData, WikiContent content) {
@@ -121,6 +132,9 @@ namespace SpaceFab.UI {
             layout.CurrentPageType = WikiPageType.Property;
             SetPageMaterialIconActive(layout, false);
             Assert.True(content.ResearchContext.Present, "Property page should not be viewed outside of Research");
+
+            layout.TitleText.SetText(pageData.Title);
+            layout.BodyText.SetTextAndActive(pageData.BodyText);
 
             MaterialPropertyCheck prop = pageData.PropertyCheck;
         }
@@ -168,6 +182,19 @@ namespace SpaceFab.UI {
             layout.CurrentPropertyChip = default;
             layout.CurrentObservationChipCount = 0;
             layout.CurrentMaterialId = default;
+
+            layout.AnimatedMask.enabled = false;
+            layout.AnimatedMask.graphic.enabled = false;
+            Anims.Cancel(ref layout.AppearAnim);
+        }
+
+        /// <summary>
+        /// Clears the page layout, and any additional asset references.
+        /// </summary>
+        static public void WipePageContentCompletely(WikiPageLayout layout) {
+            ClearPageContent(layout);
+            layout.Illustration.Frames = Array.Empty<Sprite>();
+            layout.Illustration.Target.sprite = null;
         }
 
         #endregion // Population
@@ -187,6 +214,33 @@ namespace SpaceFab.UI {
         }
 
         #endregion // Research Updates
+
+        #region Animation
+
+        static private readonly DissolveInAnimation DissolveInAnimInstance = new DissolveInAnimation();
+
+        private sealed class DissolveInAnimation : LiteAnimator<WikiPageLayout> {
+            public override void InitAnimation(WikiPageLayout target, ref LiteAnimatorState state) {
+                state.ResetTime(0.38f);
+                target.AnimatedMask.enabled = true;
+                target.AnimatedMask.graphic.SetAlpha(0);
+                target.AnimatedMask.graphic.enabled = true;
+            }
+
+            public override void ResetAnimation(WikiPageLayout target, ref LiteAnimatorState state) {
+            }
+
+            public override void UpdateAnimation(WikiPageLayout target, ref LiteAnimatorState state, float deltaTime) {
+                if (state.IsLastFrame()) {
+                    target.AnimatedMask.enabled = false;
+                    target.AnimatedMask.graphic.enabled = false;
+                } else {
+                    target.AnimatedMask.graphic.SetAlpha(state.PercentProgress);
+                }
+            }
+        }
+
+        #endregion // Animation
 
         #region Handlers
 

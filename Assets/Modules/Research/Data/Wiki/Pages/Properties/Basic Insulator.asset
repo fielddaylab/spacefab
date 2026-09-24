@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Basic Insulator
   m_EditorClassIdentifier: 
-  Title: 
+  Title: Insulator
   Icon: {fileID: 21300000, guid: c25fc175947917c41949d7bcb0fdbb3a, type: 3}
   IllustrationFrames: []
   IllustrationFPS: 0.5
@@ -23,3 +23,4 @@ MonoBehaviour:
   IsObservationPage: 0
   ObservationType: 0
   PropertyCheck: {fileID: 11400000, guid: 11e34deaa990d3e4e8b4879a1798a4af, type: 2}
+  IsUnlockedByDefault: 0

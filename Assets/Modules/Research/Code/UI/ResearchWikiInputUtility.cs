@@ -41,19 +41,20 @@ namespace SpaceFab.Research {
                     return;
             }
 
-            var content = Find.State<WikiContent>();
+            Find.State(out WikiViewState state, out WikiContent content, out PlayerProgressState progress);
+            WikiContentUtility.FlushContentChanges(content, progress);
 
             var address = WikiContentUtility.LookupObservationPageAddress(content, observationType);
-
-            // TODO: Open to page
-            // WikiUtility.OpenTo(tabId, pageId);
+            WikiUtility.OpenTo(state, address);
         }
 
         // Opens the wiki to the properties page.m
-        public static void OpenPropertyPage(PlayerProgressState progressState, WikiState wikiState) {
-            var content = Find.State<WikiContent>();
-            WikiUtility.SelectTabById(wikiState, content, progressState, new StringHash32("Properties"));
-            WikiUtility.Open(wikiState);
+        public static void OpenPropertyPage(PlayerProgressState progressState) {
+            Find.State(out WikiViewState state, out WikiContent content);
+            WikiContentUtility.FlushContentChanges(content, progressState);
+
+            int tabId = WikiContentUtility.LookupTabId(content, "Properties");
+            WikiUtility.OpenTo(state, tabId);
         }
 
         // The context observations are stored under right now. The doping

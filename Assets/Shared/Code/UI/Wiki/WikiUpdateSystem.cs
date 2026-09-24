@@ -1,22 +1,12 @@
+using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Scripting;
 using FieldDay.Systems;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace SpaceFab.UI {
-    /// <summary>
-    /// The wiki's frame bookkeeping, in two passes on two phases.
-    ///
-    /// Update order 0 clears the one-frame pointer flags, after WikiSelectSystem (PreUpdate 0) has
-    /// consumed them.
-    ///
-    /// LateUpdate order 800 drains the two pending-work signals in dependency order: NeedsRebuild
-    /// first, since rebuilding changes which button instances exist, then WikiState.VisualsDirty
-    /// into WikiVisualsUtility.Refresh. 800 puts it behind every mutation source in the frame —
-    /// WikiSelectSystem, the transition routines, and the Research property-confirm path that
-    /// reaches UnlockPage at LateUpdate 60. Rendering happens after LateUpdate, so it all still
-    /// lands in the same frame.
-    /// </summary>
     public class WikiUpdateSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
@@ -29,15 +19,83 @@ namespace SpaceFab.UI {
             );
         }
 
-        static private void ProcessWork(float deltaTime) {
+        static private unsafe void ProcessWork(float deltaTime) {
             Find.State(out WikiViewState state, out WikiContent content, out WikiLayoutState layout, out PlayerProgressState playerProgress);
 
-            WikiUtility.FlushContentChanges(state, content, playerProgress);
+            WikiContentUtility.FlushContentChanges(content, playerProgress);
+
+            if (!state.QueuedTabByName.IsEmpty) {
+                StringHash32 tabName = state.QueuedTabByName;
+                int tabId = WikiContentUtility.LookupTabId(content, tabName);
+                state.QueuedPageByName = default;
+                
+                if (tabId < 0 || !content.AvailableTabs.Mask.IsSet(tabId)) {
+                    Log.Warn("[WikiUpdateSystem] Tab '{0}' requested but not available!", tabName);
+                    state.QueuedPageByName = default;
+                } else {
+                    if (!state.QueuedPageByName.IsEmpty) {
+                        StringHash32 pageName = state.QueuedPageByName;
+                        state.QueuedPageByName = default;
+
+                        int pageId = WikiContentUtility.LookupPageIndex(content, tabId, pageName);
+                        if (pageId < 0 || !content.TabPages[tabId].Mask.IsSet(pageId)) {
+                            Log.Warn("[WikiUpdateSystem] Page '{0}' requested but not available in tab {1}!", pageName, tabName);
+                        } else {
+                            state.QueuedTabId = tabId;
+                            state.QueuedPageId = pageId;
+                        }
+                    } else {
+                        state.QueuedTabId = tabId;
+                    }
+                }
+            }
+
+            if (!state.QueuedPageByName.IsEmpty) {
+                StringHash32 pageName = state.QueuedPageByName;
+                state.QueuedPageByName = default;
+
+                WikiPageAddress pageAddress = WikiContentUtility.LookupPageAddress(content, state.QueuedPageByName);
+                if (pageAddress.TabId < 0 || !content.AvailableTabs.Mask.IsSet(pageAddress.TabId)) {
+                    Log.Warn("[WikiUpdateSystem] Page '{0}' requested but not available!", pageName);
+                } else if (pageAddress.PageId < 0 || !content.TabPages[pageAddress.TabId].Mask.IsSet(pageAddress.PageId)) {
+                    Log.Warn("[WikiUpdateSystem] Page '{0}' requested but not available!", pageName);
+                } else {
+                    state.QueuedTabId = pageAddress.TabId;
+                    state.QueuedPageId = pageAddress.PageId;
+                }
+            }
+
+            if (!content.QueuedContentUpdated.AvailableTabsUpdated.IsEmpty) {
+                WikiUtility.Invalidate(state, WikiViewDirtyFlags.TabList);
+                content.QueuedContentUpdated.AvailableTabsUpdated = default;
+                if (state.QueuedTabId < 0 && state.QueuedPageId < 0 && state.CurrentTabId >= 0) {
+                    WikiContentList tabList = content.AvailableTabs;
+                    if (!tabList.Mask.IsSet(state.CurrentTabId)) {
+                        Assert.True(tabList.Count > 0, "No tabs remaining!");
+                        state.QueuedTabId = tabList.Indices[0];
+                    }
+                }
+            }
+
+            if (!content.QueuedContentUpdated.PageListsUpdated.IsEmpty) {
+                if (state.CurrentTabId >= 0 && content.QueuedContentUpdated.PageListsUpdated.IsSet(state.CurrentTabId)) {
+                    WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageList);
+                    // if we don't have a queued tab/page shift, check for page going missing
+                    if (state.QueuedTabId < 0 && state.QueuedPageId < 0 && state.CurrentTabId >= 0) {
+                        WikiContentList pageList = content.TabPages[state.CurrentTabId];
+                        if (!pageList.Mask.IsSet(state.CurrentPageId)) {
+                            state.QueuedPageId = FindFirstAvailablePage(pageList, state.CurrentPageId);
+                        }
+                    }
+                }
+                content.QueuedContentUpdated.PageListsUpdated = default;
+            }
+
+            if (state.CurrentTabId < 0 && content.AvailableTabs.Count > 0) {
+                state.QueuedTabId = content.AvailableTabs.Indices[0];
+            }
 
             PageSeekMode seekMode = PageSeekMode.NotSeeking;
-            bool changedTab = false;
-            bool changedPage = false;
-            bool changedScroll = false;
 
             if (state.QueuedTabId >= 0) {
                 seekMode = state.QueuedPageId >= 0 ? PageSeekMode.SpecificTabAndPage : PageSeekMode.ChangeTab;
@@ -45,15 +103,41 @@ namespace SpaceFab.UI {
                 seekMode = PageSeekMode.ChangePage;
             }
 
-            // process selection changes
+            // tab selection changes
             if (state.QueuedTabId >= 0) {
                 int tabIndex = state.QueuedTabId;
                 state.QueuedTabId = -1;
 
                 state.QueuedPageScrollDirection = 0;
-                changedTab = SwapTabs(state, content, layout, tabIndex, ref seekMode);
+                if (SwapTabs(state, content, layout, tabIndex, ref seekMode)) {
+                    WikiUtility.Invalidate(state, WikiViewDirtyFlags.TabSelection | WikiViewDirtyFlags.PageList);
+                }
             }
 
+            // process page scroll first in case page needs to change
+            if (state.QueuedPageScrollDirection != 0 && state.QueuedPageId < 0) {
+                Assert.True(state.CurrentTabId >= 0, "No tab selected!");
+                int scrollDirection = state.QueuedPageScrollDirection;
+                state.QueuedPageScrollDirection = 0;
+                WikiContentList pageList = content.TabPages[state.CurrentTabId];
+                int pageCount = pageList.Count;
+                int windowSize = layout.Paginator.Pages.Length;
+                int nextScroll = ClampScroll(state.CurrentPageScroll + scrollDirection, pageCount, windowSize);
+                if (state.CurrentPageScroll != nextScroll) {
+                    state.CurrentPageScroll = nextScroll;
+                    WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageList);
+                    int currentVisualIndex = WikiContentUtility.GetVisualIndex(pageList, state.CurrentPageId);
+                    if (currentVisualIndex < nextScroll) {
+                        state.QueuedPageId = pageList.Indices[nextScroll];
+                        seekMode = PageSeekMode.ScrollInduced;
+                    } else if (currentVisualIndex >= nextScroll + windowSize) {
+                        state.QueuedPageId = pageList.Indices[nextScroll + windowSize - 1];
+                        seekMode = PageSeekMode.ScrollInduced;
+                    }
+                }
+            }
+
+            // page selection changes
             if (state.QueuedPageId >= 0) {
                 int pageId = state.QueuedPageId;
                 int queuedScroll = state.QueuedPageScrollRestore;
@@ -62,31 +146,89 @@ namespace SpaceFab.UI {
 
                 state.QueuedPageScrollDirection = 0;
                 int currentScroll = state.CurrentPageScroll;
-                changedPage = SwapPages(state, content, layout, pageId, queuedScroll, seekMode);
-                changedScroll |= currentScroll != state.CurrentPageScroll;
+                bool pageSwap = SwapPages(state, content, layout, pageId, queuedScroll, seekMode);
+                if (pageSwap) {
+                    WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageContent | WikiViewDirtyFlags.PageSelection);
+                }
+                if (currentScroll != state.CurrentPageScroll) {
+                    WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageList);
+                }
             }
 
-            // update tabs
-            if (!state.QueuedContentUpdated.AvailableTabsUpdated.IsEmpty) {
+            FlushViewVisibility(state, layout);
+            FlushViewChanges(state, content, layout);
+
+            if (state.Expanded) {
+                WikiUtility.FlushScriptAnnouncements(state, content);
+            }
+        }
+
+        static private void FlushViewVisibility(WikiViewState state, WikiLayoutState layout) {
+            if (state.Expanded == state.QueuedExpanded) {
+                return;
+            }
+
+            state.Expanded = state.QueuedExpanded;
+            // TODO: animate
+            if (!state.Expanded) {
+                WikiUtility.ClearScriptAnnouncements(state);
+                ScriptUtility.Trigger(ScriptTriggers.OnWikiClosed);
+            } else {
+                ScriptUtility.Trigger(ScriptTriggers.OnWikiOpened);
+            }
+            WikiLayoutUtility.SnapExpandedState(layout, state.Expanded);
+        }
+
+        static private void FlushViewChanges(WikiViewState state, WikiContent content, WikiLayoutState layout) {
+            if (!state.Expanded) {
+                return;
+            }
+            
+            bool tabsChangedInstant = false;
+            if ((state.DirtyFlags & WikiViewDirtyFlags.TabList) != 0) {
                 WikiLayoutUtility.PopulateTabs(layout.Tabinator, content);
-                WikiLayoutUtility.UpdateSelectedTab(layout.Tabinator, state.CurrentTabId, true);
-                state.QueuedContentUpdated.AvailableTabsUpdated = default;
-            } else if (changedTab) {
-                WikiLayoutUtility.UpdateSelectedTab(layout.Tabinator, state.CurrentTabId, false);
+                state.DirtyFlags &= ~WikiViewDirtyFlags.TabList;
+                WikiUtility.Invalidate(state, WikiViewDirtyFlags.TabSelection);
+                tabsChangedInstant = true;
             }
 
-            // update paginator
-            if (changedTab || changedScroll || (state.CurrentTabId >= 0 && state.QueuedContentUpdated.PageListsUpdated.IsSet(state.CurrentTabId))) {
+            if ((state.DirtyFlags & WikiViewDirtyFlags.TabSelection) != 0) {
+                WikiLayoutUtility.UpdateSelectedTab(layout.Tabinator, state.CurrentTabId, tabsChangedInstant);
+                if (state.CurrentTabId >= 0) {
+                    layout.Header.SetText(content.Tabs[state.CurrentTabId].Title);
+                } else {
+                    layout.Header.SetText("---");
+                }
+                state.DirtyFlags &= ~WikiViewDirtyFlags.TabSelection;
+            }
+
+            bool pagesChangedInstant = false;
+            if ((state.DirtyFlags & WikiViewDirtyFlags.PageList) != 0) {
                 WikiLayoutUtility.PopulatePages(layout.Paginator, content, state.CurrentTabId, state.CurrentPageScroll);
-                WikiLayoutUtility.UpdateSelectedPage(layout.Paginator, state.CurrentPageId, true);
-                state.QueuedContentUpdated.PageListsUpdated.Unset(state.CurrentTabId);
-            } else if (changedPage) {
-                WikiLayoutUtility.UpdateSelectedPage(layout.Paginator, state.CurrentPageId, false);
+                WikiLayoutUtility.UpdatePaginatorScrollButtons(layout.Paginator, content, state.CurrentTabId, state.CurrentPageScroll);
+                state.DirtyFlags &= ~WikiViewDirtyFlags.PageList;
+                WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageSelection);
+                pagesChangedInstant = true;
             }
 
-            // update page data
-            if (changedPage && state.CurrentTabId >= 0) {
-                WikiLayoutUtility.PopulatePageContent(layout.PageLayout, content.Tabs[state.CurrentTabId].Pages[state.CurrentPageId], content);
+            if ((state.DirtyFlags & WikiViewDirtyFlags.PageSelection) != 0) {
+                WikiLayoutUtility.UpdateSelectedPage(layout.Paginator, state.CurrentPageId, pagesChangedInstant);
+                state.DirtyFlags &= ~WikiViewDirtyFlags.PageSelection;
+            }
+
+            if ((state.DirtyFlags & WikiViewDirtyFlags.PageContent) != 0) {
+                if (state.CurrentTabId >= 0) {
+                    WikiLayoutUtility.PopulatePageContent(layout.PageLayout, content.Tabs[state.CurrentTabId].Pages[state.CurrentPageId], content);
+                } else {
+                    WikiLayoutUtility.ClearPageContent(layout.PageLayout);
+                }
+                state.DirtyFlags &= ~WikiViewDirtyFlags.PageContent;
+                WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageChips);
+            }
+
+            if ((state.DirtyFlags & WikiViewDirtyFlags.PageChips) != 0) {
+                // todo: page chips are updated
+                state.DirtyFlags &= ~WikiViewDirtyFlags.PageChips;
             }
         }
 
@@ -102,7 +244,7 @@ namespace SpaceFab.UI {
                 return false;
             }
 
-            if (!content.AvailableTabs.Availability.IsSet(tabIndex)) {
+            if (!content.AvailableTabs.Mask.IsSet(tabIndex)) {
                 Log.Warn("[WikiUpdateState] Tab '{0}' is not available right now", content.Tabs[tabIndex].AssetId);
                 return false;
             }
@@ -143,6 +285,8 @@ namespace SpaceFab.UI {
             int scroll = desiredScroll;
             if (seekMode == PageSeekMode.SpecificTabAndPage) {
                 scroll = FindCenteredScroll(visualIndex, tabContentList.Count, layout.Paginator.Pages.Length);
+            } else if (scroll < 0) {
+                scroll = state.CurrentPageScroll;
             }
 
             scroll = AdjustScrollToEnsureInWindow(visualIndex, scroll, tabContentList.Count, layout.Paginator.Pages.Length);
@@ -163,7 +307,7 @@ namespace SpaceFab.UI {
                 return contentList.Indices[0];
             }
             
-            if (contentList.Availability.IsSet(targetId)) {
+            if (contentList.Mask.IsSet(targetId)) {
                 return targetId;
             }
 
@@ -183,7 +327,7 @@ namespace SpaceFab.UI {
     
         static private int FindCenteredScroll(int visualIndex, int count, int windowSize) {
             int lower = visualIndex - windowSize / 2;
-            return Math.Max(0, Math.Min(lower, count - windowSize));
+            return ClampScroll(lower, count, windowSize);
         }
 
         static private int AdjustScrollToEnsureInWindow(int visualIndex, int currentScroll, int count, int windowSize) {
@@ -199,14 +343,20 @@ namespace SpaceFab.UI {
                 unbounded = currentScroll;
             }
 
-            return Math.Max(0, Math.Min(unbounded, count - windowSize));
-        } 
+            return ClampScroll(unbounded, count, windowSize);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static private int ClampScroll(int scroll, int count, int windowSize) {
+            return Math.Max(0, Math.Min(scroll, count - windowSize));
+        }
     
         private enum PageSeekMode {
             NotSeeking,
             ChangeTab,
             ChangePage,
-            SpecificTabAndPage
+            SpecificTabAndPage,
+            ScrollInduced
         }
     }
 }

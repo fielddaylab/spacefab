@@ -238,7 +238,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4224271422505170169}
   - component: {fileID: 890663698281379638}
-  - component: {fileID: 8873909588446888085}
   m_Layer: 5
   m_Name: Wiki
   m_TagString: Untagged
@@ -279,25 +278,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RootCanvas: {fileID: 0}
-  ExpandedRoot: {fileID: 9077723257071122525}
+  ExpandedRoot: {fileID: 1304644731084175406}
   InputLayer: {fileID: 0}
+  Offset: {fileID: 268515161913659813}
   Header: {fileID: 3216267823094600200}
   Tabinator: {fileID: 2092117273955892327}
   Paginator: {fileID: 4277206578473429309}
   PageLayout: {fileID: 2410260213636064714}
-  WikiContent: {fileID: 8873909588446888085}
---- !u!114 &8873909588446888085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4113217339503403467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eaec82a1713dce845b1e2b5a14b6f6cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  CloseButton: {fileID: 6085336254093517861}
 --- !u!1 &5324382101903763553
 GameObject:
   m_ObjectHideFlags: 0
@@ -932,6 +920,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a3b115f041a0a73499d843523502d5e6, type: 3}
+--- !u!114 &6085336254093517861 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6979023829587947299, guid: a3b115f041a0a73499d843523502d5e6, type: 3}
+  m_PrefabInstance: {fileID: 3794577521431776006}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 906fb8621338e4a4aad55f85580e6292, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6698994069432007045 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7520615260146823811, guid: a3b115f041a0a73499d843523502d5e6, type: 3}

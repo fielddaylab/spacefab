@@ -41,7 +41,7 @@ namespace SpaceFab.UI {
         /// Syncs the toggle states of each tab to align with the current selection.
         /// </summary>
         static public void UpdateSelectedTab(WikiTabinator tabinator, int selectedId, bool instant) {
-            GuiWidgetUpdateFlags updateFlags = instant ? GuiWidgetUpdateFlags.NoAnimation : GuiWidgetUpdateFlags.Default;
+            GuiWidgetUpdateFlags updateFlags = instant ? GuiWidgetUpdateFlags.Initialization : GuiWidgetUpdateFlags.Default;
             for(int i = 0; i < tabinator.Tabs.Length; i++) {
                 WikiTab tabVisuals = tabinator.Tabs[i];
                 if (!tabVisuals.gameObject.activeSelf) {

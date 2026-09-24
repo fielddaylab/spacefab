@@ -7,6 +7,7 @@ using FieldDay.Components;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.UI {
     /// <summary>
@@ -31,6 +32,9 @@ namespace SpaceFab.UI {
         [NonSerialized] public WikiContentList AvailableTabs;
         [NonSerialized] public WikiContentList[] TabPages = new WikiContentList[WikiContentUtility.MaxTabs];
 
+        [NonSerialized] public WikiContentUpdateResult QueuedContentUpdated;
+        [NonSerialized] public bool ContentListsDirty;
+
         public void OnDeregister() {
             ContentFilter = null;
             Tabs = null;
@@ -42,7 +46,7 @@ namespace SpaceFab.UI {
     }
 
     public struct WikiContentList {
-        public BitSet32 Availability;
+        public BitSet32 Mask;
         public int Count;
         public unsafe fixed sbyte Indices[WikiContentUtility.MaxPages];
     }
@@ -75,6 +79,15 @@ namespace SpaceFab.UI {
         }
     }
 
+    public abstract class WikiContentFilterComponent : MonoBehaviour, IWikiContentFilter {
+        public virtual MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
+            return IWikiContentFilter.GetDefaultMaterialProgress(playerProgress, materialId);
+        }
+        public virtual PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiPageData pageData) {
+            return PageAvailabilityOverride.Default;
+        }
+    }
+
     static public partial class WikiContentUtility {
         public const int MaxTabs = 4;
         public const int MaxPages = 20;
@@ -87,18 +100,18 @@ namespace SpaceFab.UI {
         static public unsafe WikiListUpdateResult UpdatePageList(ref WikiContentList pageList, WikiTabData tabData, PlayerProgressState progressState, IWikiContentFilter contentFilter) {
             Assert.True(tabData.Pages.Length <= MaxPages, "Too many pages in tab '{0}'!", tabData.AssetId);
 
-            BitSet32 originalBits = pageList.Availability;
+            BitSet32 originalBits = pageList.Mask;
 
-            pageList.Availability.Clear();
+            pageList.Mask.Clear();
             pageList.Count = 0;
             for(int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
                 if (IsPageAvailable(progressState, tabData.Pages[pageIndex], contentFilter)) {
-                    pageList.Availability.Set(pageIndex);
+                    pageList.Mask.Set(pageIndex);
                     pageList.Indices[pageList.Count++] = (sbyte) pageIndex;
                 }
             }
 
-            if (originalBits != pageList.Availability) {
+            if (originalBits != pageList.Mask) {
                 return WikiListUpdateResult.Changed;
             }
             return WikiListUpdateResult.NoChange;
@@ -123,18 +136,18 @@ namespace SpaceFab.UI {
         static public unsafe BitSet32 UpdateTabList(ref WikiContentList tabList, WikiContentList[] tabPageData, int tabCount) {
             Assert.True(tabCount <= tabPageData.Length && tabCount <= MaxTabs, "Too many tabs!");
 
-            BitSet32 originalBits = tabList.Availability;
+            BitSet32 originalBits = tabList.Mask;
 
-            tabList.Availability.Clear();
+            tabList.Mask.Clear();
             tabList.Count = 0;
             for(int tabIndex = 0; tabIndex < tabCount; tabIndex++) {
                 if (tabPageData[tabIndex].Count > 0) {
-                    tabList.Availability.Set(tabIndex);
+                    tabList.Mask.Set(tabIndex);
                     tabList.Indices[tabList.Count++] = (sbyte)tabIndex;
                 }
             }
 
-            return originalBits ^ tabList.Availability;
+            return originalBits ^ tabList.Mask;
         }
     
         /// <summary>
@@ -169,6 +182,22 @@ namespace SpaceFab.UI {
             }
 
             Log.Error("[WikiUtility] Tab with name '{0}' not found in loaded set of Wiki Content", tabName);
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the address of the given wiki page within the given tab.
+        /// </summary>
+        static public int LookupPageIndex(WikiContent content, int tabIndex, StringHash32 pageName) {
+            WikiTabData tabData = content.Tabs[tabIndex];
+            for (int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
+                WikiPageData pageData = tabData.Pages[pageIndex];
+                if (pageData.AssetId == pageName) {
+                    return pageIndex;
+                }
+            }
+
+            Log.Error("[WikiUtility] Page with name '{0}' not found in loaded set of Wiki Content", pageName);
             return -1;
         }
 
@@ -274,7 +303,7 @@ namespace SpaceFab.UI {
         static public unsafe int LookupPageVisualIndex(WikiContent content, int tabIndex, int pageIndex) {
             Assert.True(tabIndex >= 0, "Tab index out of range");
             WikiContentList pageList = content.TabPages[tabIndex];
-            if (!pageList.Availability.IsSet(pageIndex)) {
+            if (!pageList.Mask.IsSet(pageIndex)) {
                 return -1;
             }
 
@@ -290,7 +319,7 @@ namespace SpaceFab.UI {
         /// Returns the visual index of the given content index in the given list.
         /// </summary>
         static public unsafe int GetVisualIndex(WikiContentList contentList, int index) {
-            if (!contentList.Availability.IsSet(index)) {
+            if (!contentList.Mask.IsSet(index)) {
                 return -1;
             }
 
@@ -303,6 +332,34 @@ namespace SpaceFab.UI {
         }
 
         #endregion // Indices
+
+        #region Flush Changes
+
+        static public unsafe void FlushContentChanges(WikiContent content, PlayerProgressState playerProgress) {
+            if (content.ContentListsDirty) {
+                WikiContentUpdateResult result = UpdateAvailableContent(content, playerProgress);
+                content.QueuedContentUpdated.AvailableTabsUpdated |= result.AvailableTabsUpdated;
+                content.QueuedContentUpdated.PageListsUpdated |= result.PageListsUpdated;
+                content.ContentListsDirty = false;
+            }
+        }
+
+        #endregion // Flush Changes
+
+        #region Context
+
+        static public void ClearContexts(WikiContent content) {
+            content.ContentFilter = BaseWikiContentFilter.Instance;
+            content.ResearchContext = default;
+        }
+
+        static public void SyncContextWithScene(WikiContent content) {
+            WikiContentFilterComponent filter = Find.Any<WikiContentFilterComponent>();
+            content.ContentFilter = filter ? filter : BaseWikiContentFilter.Instance;
+            content.ResearchContext = WikiResearchContextUtility.Resolve();
+        }
+
+        #endregion // Context
     }
 
     public struct WikiPageAddress {

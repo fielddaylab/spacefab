@@ -38,7 +38,7 @@ namespace SpaceFab.Research {
             Find.State(
                 out ChamberInterfacerState interfacerState,
                 out HypothesisViewModelState hypoVm,
-                out WikiState wikiState
+                out WikiViewState wikiState
             );
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
@@ -80,7 +80,7 @@ namespace SpaceFab.Research {
             ChamberInterfacerState interfacerState,
             HypothesisViewModelState hypoVm,
             ResearchMinigameState researchState,
-            WikiState wikiState
+            WikiViewState wikiState
         ) {
             if (panel == null) {
                 return;
@@ -102,22 +102,22 @@ namespace SpaceFab.Research {
                 panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
             }
 
+            WikiContent contents = Find.State<WikiContent>();
+
             if (panel.AddObservationButton != null) {
-                //var contents = Find.Components<WikiContent>();
-                //bool obsTabOpen = false;
-                //if (contents.Count != 0 && wikiState.Expanded) {
-                //    obsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Observations";
-                //}
-                //panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !obsTabOpen);
+                bool obsTabOpen = false;
+                if (wikiState.Expanded && wikiState.CurrentTabId >= 0) {
+                    obsTabOpen = contents.Tabs[wikiState.CurrentTabId].AssetId == "Observations";
+                }
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !obsTabOpen);
             }
 
             if (panel.AddPropertyButton != null) {
-                //var contents = Find.Components<WikiContent>();
-                //bool propsTabOpen = false;
-                //if (contents.Count != 0 && wikiState.Expanded) {
-                //    propsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Properties";
-                //}
-                //panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !propsTabOpen);
+                bool propsTabOpen = false;
+                if (wikiState.Expanded && wikiState.CurrentTabId >= 0) {
+                    propsTabOpen = contents.Tabs[wikiState.CurrentTabId].AssetId == "Properties";
+                }
+                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !propsTabOpen);
             }
 
             ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();

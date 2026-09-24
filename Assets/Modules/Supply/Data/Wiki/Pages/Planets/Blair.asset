@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Title: Blair
   Icon: {fileID: 21300000, guid: 68f851f86cdf3204a88eb12a49b9ff3a, type: 3}
-  IllustrationFrames: []
+  IllustrationFrames:
+  - {fileID: 21300000, guid: 0c6c9e1e09d88714a9216da737f31a95, type: 3}
   IllustrationFPS: 0.5
   BodyText: Blair was untouched from Frontier's expansion, leading to the planet
     grow as powerful as Frontier. Though primarily isolationsists, Blair supported
@@ -24,3 +25,4 @@ MonoBehaviour:
   IsObservationPage: 0
   ObservationType: 0
   PropertyCheck: {fileID: 0}
+  IsUnlockedByDefault: 0
