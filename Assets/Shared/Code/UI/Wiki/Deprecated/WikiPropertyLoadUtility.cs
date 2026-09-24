@@ -39,84 +39,84 @@
 //        private static readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
 
 //        public static void LoadFor(WikiPageContentWidgets widgets, WikiPageData page, in WikiResearchContext researchContext) {
-//            //if (widgets == null || pools == null || pools.ChipPool == null) return;
+//            if (widgets == null || pools == null || pools.ChipPool == null) return;
 
-//            //// 1. Free prior chips and unbind the authored property chip.
-//            //FreeAllPropertyChips(widgets, pools);
+//            // 1. Free prior chips and unbind the authored property chip.
+//            FreeAllPropertyChips(widgets, pools);
 
-//            //MaterialPropertyCheck check = page.PropertyCheck;
-//            //if (check == null) return;
+//            MaterialPropertyCheck check = page.PropertyCheck;
+//            if (check == null) return;
 
-//            //// 2. Property chip. Greys while it is the active hypothesis;
-//            //// clicking it then deselects. Context-agnostic on purpose — the
-//            //// chip names a property, not a property-for-a-substrate.
-//            //if (widgets.PropertyChip != null) {
-//            //    widgets.PropertyChip.SetState(
-//            //        MaterialPropertyLabelDisplay.GetPropertyName(check.Label),
-//            //        ChipFillState.Filled, false,
-//            //        MaterialObservationChamberLookup.GetChamberType(check.Label));
+//            // 2. Property chip. Greys while it is the active hypothesis;
+//            // clicking it then deselects. Context-agnostic on purpose — the
+//            // chip names a property, not a property-for-a-substrate.
+//            if (widgets.PropertyChip != null) {
+//                widgets.PropertyChip.SetState(
+//                    MaterialPropertyLabelDisplay.GetPropertyName(check.Label),
+//                    ChipFillState.Filled, false,
+//                    MaterialObservationChamberLookup.GetChamberType(check.Label));
 
-//            //    bool isActiveHypothesis = researchContext.Present
-//            //        && researchContext.ViewModel.HypothesisSelected
-//            //        && researchContext.ViewModel.HypothesisLabel == check.Label;
-//            //    widgets.PropertyChip.SetPickerChipDisabledVisual(isActiveHypothesis);
+//                bool isActiveHypothesis = researchContext.Present
+//                    && researchContext.ViewModel.HypothesisSelected
+//                    && researchContext.ViewModel.HypothesisLabel == check.Label;
+//                widgets.PropertyChip.SetPickerChipDisabledVisual(isActiveHypothesis);
 
-//            //    // Addressable from Leaf as "wiki:property-conductor" for as long as this page is
-//            //    // bound. Re-stamped per page because the authored chip is reused across all of them.
-//            //    WikiElementTagUtility.Stamp(widgets.PropertyChip, WikiElementTagUtility.PropertyChipId(check.Label));
+//                // Addressable from Leaf as "wiki:property-conductor" for as long as this page is
+//                // bound. Re-stamped per page because the authored chip is reused across all of them.
+//                WikiElementTagUtility.Stamp(widgets.PropertyChip, WikiElementTagUtility.PropertyChipId(check.Label));
 
-//            //    if (researchContext.Present && widgets.PropertyChip.Click != null) {
-//            //        MaterialPropertyLabel captured = check.Label;
-//            //        pools.PropertyChipClickHandler = () => ResearchWikiInputUtility.HandlePropertyChipClick(captured);
-//            //        widgets.PropertyChip.Click.onClick.Register(pools.PropertyChipClickHandler);
-//            //    }
-//            //}
+//                if (researchContext.Present && widgets.PropertyChip.Click != null) {
+//                    MaterialPropertyLabel captured = check.Label;
+//                    pools.PropertyChipClickHandler = () => ResearchWikiInputUtility.HandlePropertyChipClick(captured);
+//                    widgets.PropertyChip.Click.onClick.Register(pools.PropertyChipClickHandler);
+//                }
+//            }
 
-//            //// 3. Body text lives inside the property group, so default
-//            //// pages' BodyText stays untouched.
-//            //if (widgets.PropertyBodyText != null) {
-//            //    widgets.PropertyBodyText.text = page.Body ?? " ";
-//            //}
+//            // 3. Body text lives inside the property group, so default
+//            // pages' BodyText stays untouched.
+//            if (widgets.PropertyBodyText != null) {
+//                widgets.PropertyBodyText.text = page.Body ?? " ";
+//            }
 
-//            //// 4. Decomposed observations.
-//            //if (widgets.PropertyLeafChipContainer != null) {
-//            //    bool leafChipsClickable = researchContext.Present && ArePropertyLeafChipsClickable();
-//            //    DecomposeFirstDefinition(check.Label);
+//            // 4. Decomposed observations.
+//            if (widgets.PropertyLeafChipContainer != null) {
+//                bool leafChipsClickable = researchContext.Present && ArePropertyLeafChipsClickable();
+//                DecomposeFirstDefinition(check.Label);
 
-//            //    for (int i = 0; i < s_LeafScratch.Count; i++) {
-//            //        MaterialObservationEntry leaf = s_LeafScratch[i];
-//            //        ResearchObservationChip chip = pools.ChipPool.Alloc();
-//            //        if (chip == null) {
-//            //            break;
-//            //        }
-//            //        chip.transform.SetParent(widgets.PropertyLeafChipContainer, false);
+//                for (int i = 0; i < s_LeafScratch.Count; i++) {
+//                    MaterialObservationEntry leaf = s_LeafScratch[i];
+//                    ResearchObservationChip chip = pools.ChipPool.Alloc();
+//                    if (chip == null) {
+//                        break;
+//                    }
+//                    chip.transform.SetParent(widgets.PropertyLeafChipContainer, false);
 
-//            //        string text = researchContext.Present
-//            //            ? ResearchWikiInputUtility.GetObservationChipText(leaf.Label, researchContext.InterfacerState)
-//            //            : MaterialPropertyLabelDisplay.GetObservationName(leaf.Label);
-//            //        chip.SetState(text, ChipFillState.Filled, false, leaf.ObservationType);
-//            //        chip.SetPickerChipDisabledVisual(false);
+//                    string text = researchContext.Present
+//                        ? ResearchWikiInputUtility.GetObservationChipText(leaf.Label, researchContext.InterfacerState)
+//                        : MaterialPropertyLabelDisplay.GetObservationName(leaf.Label);
+//                    chip.SetState(text, ChipFillState.Filled, false, leaf.ObservationType);
+//                    chip.SetPickerChipDisabledVisual(false);
 
-//            //        // Addressable from Leaf as "wiki:property-conductor-conductive". Keyed by
-//            //        // (property, observation) rather than by column position, so a script keeps
-//            //        // naming the same chip when the decomposition gains or loses a leaf.
-//            //        WikiElementTagUtility.Stamp(chip, WikiElementTagUtility.PropertyObservationId(check.Label, leaf.Label));
+//                    // Addressable from Leaf as "wiki:property-conductor-conductive". Keyed by
+//                    // (property, observation) rather than by column position, so a script keeps
+//                    // naming the same chip when the decomposition gains or loses a leaf.
+//                    WikiElementTagUtility.Stamp(chip, WikiElementTagUtility.PropertyObservationId(check.Label, leaf.Label));
 
-//            //        Action handler = null;
-//            //        if (leafChipsClickable && chip.Click != null) {
-//            //            MaterialPropertyLabel captured = leaf.Label;
-//            //            handler = () => ResearchWikiInputUtility.HandleObservationChipClick(captured);
-//            //            chip.Click.onClick.Register(handler);
-//            //        }
+//                    Action handler = null;
+//                    if (leafChipsClickable && chip.Click != null) {
+//                        MaterialPropertyLabel captured = leaf.Label;
+//                        handler = () => ResearchWikiInputUtility.HandleObservationChipClick(captured);
+//                        chip.Click.onClick.Register(handler);
+//                    }
 
-//            //        pools.ActivePropertyLeafChips.Add(chip);
-//            //        pools.ActivePropertyLeafClickHandlers.Add(handler);
-//            //    }
-//            //}
+//                    pools.ActivePropertyLeafChips.Add(chip);
+//                    pools.ActivePropertyLeafClickHandlers.Add(handler);
+//                }
+//            }
 
-//            //// 5. Lay out + resize the group.
-//            //float contentHeight = ResearchUILayoutUtility.LayoutVerticalAlignedTop(
-//            //    widgets.PropertyLeafChipContainer, pools.ActivePropertyLeafChips, pools.ActivePropertyLeafChips.Count, ChipGap);
+//            // 5. Lay out + resize the group.
+//            float contentHeight = ResearchUILayoutUtility.LayoutVerticalAlignedTop(
+//                widgets.PropertyLeafChipContainer, pools.ActivePropertyLeafChips, pools.ActivePropertyLeafChips.Count, ChipGap);
 //            /*
 //            if (widgets.PropertyLeafChipContainer != null) {
 //                RectTransform groupRect = widgets.PropertyLeafChipContainer.transform as RectTransform;

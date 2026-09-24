@@ -22,6 +22,7 @@ namespace SpaceFab
         [NonSerialized] public bool BigBatteryUnlocked;
         [NonSerialized] public bool ThermalChamberUnlocked;
         [NonSerialized] public bool DopingChamberUnlocked;
+        [NonSerialized] public bool SpecialPropertiesUnlocked;
 
         // Tracks whether the one-shot wiki initial-unlocks pass has
         // already run for this save. OverarchingStartupSequenceSystem
@@ -89,6 +90,12 @@ namespace SpaceFab
                 DopingChamberUnlocked = false;
             }
 
+            if (consts.Version >= 2) {
+                SpecialPropertiesUnlocked = reader.Read<bool>();
+            } else {
+                SpecialPropertiesUnlocked = false;
+            }
+
             InitialUnlocksApplied = reader.Read<bool>();
             
         }
@@ -113,6 +120,7 @@ namespace SpaceFab
             writer.Write(BigBatteryUnlocked);
             writer.Write(ThermalChamberUnlocked);
             writer.Write(DopingChamberUnlocked);
+            writer.Write(SpecialPropertiesUnlocked);
             writer.Write(InitialUnlocksApplied);
         }
 

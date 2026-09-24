@@ -1,16 +1,19 @@
+using BeauPools;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
+using FieldDay.Debugging;
 using FieldDay.Scripting;
 using FieldDay.Systems;
 using System;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace SpaceFab.UI {
     public class WikiUpdateSystem : SystemComponent {
         public override unsafe void RegisterSystems(ref SystemRegistrationTable ecs) {
             ecs.Register(&ProcessWork,
-                new SysUpdate(GameLoopPhase.LateUpdate, 600, UpdateMasks.WikiMask),
+                new SysUpdate(GameLoopPhase.LateUpdate, 600),
                 new SysPermissions()
                     .ReadWriteShared<WikiViewState>()
                     .ReadWriteShared<WikiContent>()
@@ -47,8 +50,9 @@ namespace SpaceFab.UI {
         static private void ResolveQueuedNameRequests(WikiViewState state, WikiContent content) {
             if (!state.QueuedTabByName.IsEmpty) {
                 StringHash32 tabName = state.QueuedTabByName;
+                state.QueuedTabByName = default;
+
                 int tabId = WikiContentUtility.LookupTabId(content, tabName);
-                state.QueuedPageByName = default;
 
                 if (tabId < 0 || !content.AvailableTabs.Mask.IsSet(tabId)) {
                     Log.Warn("[WikiUpdateSystem] Tab '{0}' requested but not available!", tabName);
@@ -132,6 +136,7 @@ namespace SpaceFab.UI {
 
             // tab selection changes
             if (state.QueuedTabId >= 0) {
+                Log.Msg("[WikiUpdateUtility] Processing tab change {0}, frame {1}", state.QueuedTabId, Frame.Index);
                 int tabIndex = state.QueuedTabId;
                 state.QueuedTabId = -1;
 
@@ -144,6 +149,7 @@ namespace SpaceFab.UI {
             // process page scroll first in case page needs to change
             if (state.QueuedPageScrollDirection != 0 && state.QueuedPageId < 0) {
                 Assert.True(state.CurrentTabId >= 0, "No tab selected!");
+                Log.Msg("[WikiUpdateUtility] Processing page scroll {0}, frame {1}", state.QueuedPageScrollDirection, Frame.Index);
                 int scrollDirection = state.QueuedPageScrollDirection;
                 state.QueuedPageScrollDirection = 0;
                 WikiContentList pageList = content.TabPages[state.CurrentTabId];
@@ -166,6 +172,7 @@ namespace SpaceFab.UI {
 
             // page selection changes
             if (state.QueuedPageId >= 0) {
+                Log.Msg("[WikiUpdateUtility] Processing page change {0}, frame {1}", state.QueuedPageId, Frame.Index);
                 int pageId = state.QueuedPageId;
                 int queuedScroll = state.QueuedPageScrollRestore;
                 state.QueuedPageId = -1;
@@ -253,7 +260,9 @@ namespace SpaceFab.UI {
             }
 
             if ((state.DirtyFlags & WikiViewDirtyFlags.PageChips) != 0) {
-                // todo: page chips are updated
+                WikiLayoutUtility.UpdateMaterialPageData(layout.PageLayout, content);
+                WikiLayoutUtility.UpdateObservationPageData(layout.PageLayout, content);
+                WikiLayoutUtility.UpdatePropertyPageData(layout.PageLayout, content);
                 state.DirtyFlags &= ~WikiViewDirtyFlags.PageChips;
             }
         }

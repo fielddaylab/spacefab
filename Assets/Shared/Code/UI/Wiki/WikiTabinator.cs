@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Scenes;
@@ -33,6 +34,7 @@ namespace SpaceFab.UI {
             Find.State(out WikiViewState viewState);
             viewState.QueuedTabId = queuedTabId;
             viewState.QueuedPageId = -1;
+            Log.Msg("[WikiTabinator] Queued tab {0}, frame {1}", queuedTabId, Frame.Index);
         }
 
         #endregion // Handlers

@@ -158,6 +158,7 @@ GameObject:
   - component: {fileID: 4673306683996144519}
   - component: {fileID: 4295522130762144046}
   - component: {fileID: 7507607852729686297}
+  - component: {fileID: 4123746591710833637}
   m_Layer: 5
   m_Name: Wiki Page Thumb
   m_TagString: Untagged
@@ -259,7 +260,6 @@ MonoBehaviour:
   m_Cursor: {fileID: 4673306683996144519}
   m_PrimaryGraphic: {fileID: 3916259799329018807}
   m_Style: {fileID: 7507607852729686297}
-  m_IsToggle: 0
 --- !u!114 &7507607852729686297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,6 +278,22 @@ MonoBehaviour:
   MaterialLabelGroup: {fileID: 3830130610982485371}
   MaterialLabel: {fileID: 6539479075654501426}
   MaterialLabelSizer: {fileID: 6562758055605540216}
+--- !u!114 &4123746591710833637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437054748629689750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd60b9a67a0443343b479b094c836759, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Offset0: {x: 0, y: 0}
+  m_Offset1: {x: 0, y: 0}
+  m_Offset2: {x: 0, y: 0}
+  m_Offset3: {x: 0, y: 0}
 --- !u!1 &7159709369486441305
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,7 +329,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 4, y: 4}
+  m_SizeDelta: {x: 2, y: 6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &814871809508716308
 CanvasRenderer:

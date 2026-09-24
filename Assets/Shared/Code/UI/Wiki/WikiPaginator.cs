@@ -1,4 +1,5 @@
 using BeauUtil;
+using BeauUtil.Debugger;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Scenes;
@@ -44,12 +45,14 @@ namespace SpaceFab.UI {
             Find.State(out WikiViewState viewState);
             viewState.QueuedTabId = -1;
             viewState.QueuedPageId = queuedPageId;
+            Log.Msg("[WikiPaginator] Queued page {0}, frame {1}", queuedPageId, Frame.Index);
         }
 
         static public void HandlePageScrollClicked(PointerListener.EventData data) {
             int queuedScrollDirection = GuiButton.GetData(data).AsInt();
             Find.State(out WikiViewState viewState);
             viewState.QueuedPageScrollDirection = queuedScrollDirection;
+            Log.Msg("[WikiPaginator] Queued scroll {0}, frame {1}", queuedScrollDirection, Frame.Index);
         }
 
         #endregion // Handlers

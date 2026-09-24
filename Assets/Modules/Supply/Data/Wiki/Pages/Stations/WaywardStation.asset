@@ -16,6 +16,7 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: 11eb2118b7b48944ca536e5d2baf800e, type: 3}
   IllustrationFrames: []
   IllustrationFPS: 0.5
+  IllustrationImageScale: 0.75
   BodyText: Originally a premiere Frontier Station, it has now become a neutral site
     between Frontier Robotics and The Independents following the recent conflict
     between the Kalvis Sector and it's former employer.
@@ -24,3 +25,4 @@ MonoBehaviour:
   IsObservationPage: 0
   ObservationType: 0
   PropertyCheck: {fileID: 0}
+  IsUnlockedByDefault: 0

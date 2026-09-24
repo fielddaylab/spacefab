@@ -113,7 +113,7 @@ namespace SpaceFab.UI {
             state.QueuedTabId = -1;
             state.QueuedPageByName = default;
             state.QueuedTabByName = default;
-            state.QueuedPageScrollDirection = -1;
+            state.QueuedPageScrollDirection = 0;
             state.QueuedPageScrollRestore = -1;
             state.DirtyFlags = WikiViewDirtyFlags.TabList;
             state.Expanded = false;
@@ -278,7 +278,7 @@ namespace SpaceFab.UI {
         static public void ChangeSelection(WikiViewState state, int tabId, int pageId = -1) {
             state.QueuedTabByName = default;
             state.QueuedPageByName = default;
-            state.QueuedPageId = tabId;
+            state.QueuedTabId = tabId;
             state.QueuedPageId = pageId;
             Open(state);
         }

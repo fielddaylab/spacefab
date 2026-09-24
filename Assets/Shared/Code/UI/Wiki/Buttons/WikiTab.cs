@@ -33,11 +33,10 @@ namespace SpaceFab.UI
         }
 
         public override void UpdateInteractionState(GuiWidgetInteractableState state, GuiWidget source, GuiWidgetUpdateFlags flags) {
-            
         }
 
         public override void UpdateState(GuiWidgetStateFlags state, GuiWidgetStateFlags changed, GuiWidget source, GuiWidgetUpdateFlags flags) {
-            if ((changed & GuiWidgetStateFlags.IsToggleOn) != 0) {
+            if ((changed & GuiWidgetStateFlags.IsToggleOn) != 0 || (flags & GuiWidgetUpdateFlags.Force) != 0) {
                 bool isToggleOn = (state & GuiWidgetStateFlags.IsToggleOn) != 0;
                 Outline.enabled = isToggleOn;
 

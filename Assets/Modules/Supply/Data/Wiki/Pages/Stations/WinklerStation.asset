@@ -16,6 +16,7 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: 11eb2118b7b48944ca536e5d2baf800e, type: 3}
   IllustrationFrames: []
   IllustrationFPS: 0.5
+  IllustrationImageScale: 0.75
   BodyText: Winkler Station is a Frontier Robotics first fully robotic operated station,
     serving as a model for Frontier Robotics' aspiration for a fully automated work-force
     system wide.
@@ -24,3 +25,4 @@ MonoBehaviour:
   IsObservationPage: 0
   ObservationType: 0
   PropertyCheck: {fileID: 0}
+  IsUnlockedByDefault: 0

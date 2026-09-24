@@ -1,12 +1,14 @@
-using System;
-using System.Collections.Generic;
 using BeauUtil;
 using BeauUtil.Debugger;
 using FieldDay;
 using FieldDay.Components;
 using FieldDay.Scenes;
 using FieldDay.SharedState;
+using SpaceFab.Comic;
 using SpaceFab.Materials;
+using System;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace SpaceFab.UI {
@@ -53,12 +55,6 @@ namespace SpaceFab.UI {
 
     public interface IWikiContentFilter {
         PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData);
-        MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId);
-
-        static public MaterialPropertyRecord GetDefaultMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
-            playerProgress.MaterialProperties.TryGetValue(materialId, out MaterialPropertyRecord record);
-            return record;
-        }
     }
        
     public enum PageAvailabilityOverride {
@@ -70,19 +66,12 @@ namespace SpaceFab.UI {
     public sealed class BaseWikiContentFilter : IWikiContentFilter {
         static public readonly BaseWikiContentFilter Instance = new BaseWikiContentFilter();
 
-        public MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
-            return IWikiContentFilter.GetDefaultMaterialProgress(playerProgress, materialId);
-        }
-
         public PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData) {
             return PageAvailabilityOverride.Default;
         }
     }
 
     public abstract class WikiContentFilterComponent : MonoBehaviour, IWikiContentFilter {
-        public virtual MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
-            return IWikiContentFilter.GetDefaultMaterialProgress(playerProgress, materialId);
-        }
         public virtual PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData) {
             return PageAvailabilityOverride.Default;
         }
@@ -119,6 +108,14 @@ namespace SpaceFab.UI {
 
         static private bool IsPageAvailable(PlayerProgressState progressState, WikiTabData tabData, WikiPageData pageData, IWikiContentFilter contentFilter) {
             Assert.NotNullOrDestroyed(contentFilter);
+            switch(GetDefaultPageAvailability(progressState, tabData, pageData)) {
+                case PageAvailabilityOverride.AlwaysHide: {
+                    return false;
+                }
+                case PageAvailabilityOverride.AlwaysShow: {
+                    return true;
+                }
+            }
             switch(contentFilter.GetPageAvailability(progressState, tabData, pageData)) {
                 case PageAvailabilityOverride.AlwaysHide: {
                     return false;
@@ -357,6 +354,129 @@ namespace SpaceFab.UI {
             WikiContentFilterComponent filter = Find.Any<WikiContentFilterComponent>();
             content.ContentFilter = filter ? filter : BaseWikiContentFilter.Instance;
             content.ResearchContext = WikiResearchContextUtility.Resolve();
+        }
+
+        /// <summary>
+        /// Evaluates if a material property has been "retired".
+        /// </summary>
+        static public bool IsMaterialPropertyExcluded(MaterialPropertyLabel propertyLabel, PlayerProgressState playerProgress) {
+            switch(propertyLabel) {
+                case MaterialPropertyLabel.ConductorNaive:
+                case MaterialPropertyLabel.InsulatorNaive:
+                    return playerProgress.ThermalChamberUnlocked;
+                case MaterialPropertyLabel.Conductor:
+                case MaterialPropertyLabel.Insulator:
+                case MaterialPropertyLabel.Semiconductor:
+                    return !playerProgress.ThermalChamberUnlocked;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Evaluates if an observation/property should be visible in the wiki.
+        /// </summary>
+        static public bool IsMaterialPropertyVisible(MaterialPropertyLabel propertyLabel, PlayerProgressState playerProgress) {
+            switch (propertyLabel) {
+                // conductive observations always available
+                case MaterialPropertyLabel.Conductive:
+                case MaterialPropertyLabel.NonConductive:
+                    return true;
+
+                // heat observations only available once thermal chamber is unlocked
+                case MaterialPropertyLabel.HeatActivated:
+                case MaterialPropertyLabel.HeatDeactivated:
+                case MaterialPropertyLabel.HeatUnaffected:
+                case MaterialPropertyLabel.HeatResistant:
+                case MaterialPropertyLabel.HeatVulnerable:
+                    return playerProgress.ThermalChamberUnlocked;
+
+                // doping observations only available once doping chamber is unlocked
+                case MaterialPropertyLabel.AtomicRadiusCompliant:
+                case MaterialPropertyLabel.ValenceOneLessThan:
+                case MaterialPropertyLabel.ValenceOneMoreThan:
+                    return playerProgress.DopingChamberUnlocked;
+
+                // special observations available chapter 9 onward
+                case MaterialPropertyLabel.LightEmitting:
+                case MaterialPropertyLabel.HighMobility:
+                    return playerProgress.SpecialPropertiesUnlocked;
+
+                // voltage resistance only available once big battery unlocked
+                case MaterialPropertyLabel.VoltageResistant:
+                    return playerProgress.BigBatteryUnlocked;
+
+                // naive properties rely on lack of thermal chamber
+                case MaterialPropertyLabel.ConductorNaive:
+                case MaterialPropertyLabel.InsulatorNaive:
+                    return !playerProgress.ThermalChamberUnlocked;
+
+                // proper electrical properties only available once thermal chamber unlocked
+                case MaterialPropertyLabel.Conductor:
+                case MaterialPropertyLabel.Insulator:
+                case MaterialPropertyLabel.Semiconductor:
+                    return playerProgress.ThermalChamberUnlocked;
+
+                // high voltage requires big battery
+                case MaterialPropertyLabel.HighVoltageSemiconductor:
+                    return playerProgress.BigBatteryUnlocked;
+
+                // high temperature requires thermal chamber
+                case MaterialPropertyLabel.HiTempConductor:
+                case MaterialPropertyLabel.HiTempSemiConductor:
+                    return playerProgress.ThermalChamberUnlocked;
+
+                // doping requires doping chamber
+                case MaterialPropertyLabel.PDopantFor:
+                case MaterialPropertyLabel.NDopantFor:
+                    return playerProgress.DopingChamberUnlocked;
+
+                // special properties available chapter 9 onward
+                case MaterialPropertyLabel.LightEmittingSemiconductor:
+                case MaterialPropertyLabel.HighMobilitySemiconductor:
+                    return playerProgress.SpecialPropertiesUnlocked;
+
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current material research progress to be displayed in the wiki.
+        /// </summary>
+        static public MaterialPropertyRecord GetMaterialRecord(StringHash32 materialId, PlayerProgressState playerProgress, WikiResearchContext researchContext) {
+            playerProgress.MaterialProperties.TryGetValue(materialId, out MaterialPropertyRecord record);
+            if (researchContext.Present) {
+                researchContext.MinigameState.SandboxProperties.TryGetValue(materialId, out MaterialPropertyRecord sandboxRecord);
+                MaterialPropertyRecordUtility.Merge(ref record, sandboxRecord);
+            }
+            return record;
+        }
+
+        static public PageAvailabilityOverride GetDefaultPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData) {
+            if (pageData.IsPropertyPage) {
+                if (IsMaterialPropertyVisible(pageData.PropertyCheck.Label, playerProgress)) {
+                    return PageAvailabilityOverride.AlwaysShow;
+                }
+                return PageAvailabilityOverride.AlwaysHide;
+            }
+
+            if (pageData.IsObservationPage) {
+                switch(pageData.ObservationType) {
+                    case ObservationType.Electrical:
+                        return PageAvailabilityOverride.AlwaysShow;
+                    case ObservationType.Thermal:
+                        return playerProgress.ThermalChamberUnlocked ? PageAvailabilityOverride.AlwaysShow : PageAvailabilityOverride.AlwaysHide;
+                    case ObservationType.Dopant:
+                        return playerProgress.ThermalChamberUnlocked ? PageAvailabilityOverride.AlwaysShow : PageAvailabilityOverride.AlwaysHide;
+                    case ObservationType.Special:
+                        return IsMaterialPropertyVisible(MaterialPropertyLabel.HighMobility, playerProgress)
+                            || IsMaterialPropertyVisible(MaterialPropertyLabel.VoltageResistant, playerProgress)
+                            ? PageAvailabilityOverride.AlwaysShow : PageAvailabilityOverride.AlwaysHide;
+                }
+            }
+
+            return PageAvailabilityOverride.Default;
         }
 
         #endregion // Context

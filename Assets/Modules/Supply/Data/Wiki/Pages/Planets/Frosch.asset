@@ -17,12 +17,11 @@ MonoBehaviour:
   IllustrationFrames:
   - {fileID: 21300000, guid: 282906d88725aea4f94411a83b02b008, type: 3}
   IllustrationFPS: 0.5
-  BodyText: '<b>Supplier Contact - Ovill</b>
-
-
-    Frosch is Frontier''s planetary
-    capital of the Auserine System and home of Frontier Robotics. This heavily urbanized
-    world is known for it''s corporate culture and desire for consumerism.'
+  IllustrationImageScale: 0.75
+  CaptionText: Supplier Contact - Ovill
+  BodyText: Frosch is Frontier's planetary capital of the Auserine System and home
+    of Frontier Robotics. This heavily urbanized world is known for it's corporate
+    culture and desire for consumerism.
   MaterialId:
     m_HashValue: 0
   IsObservationPage: 0

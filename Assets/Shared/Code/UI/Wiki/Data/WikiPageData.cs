@@ -39,6 +39,8 @@ namespace SpaceFab.UI {
         [FormerlySerializedAs("m_IllustrationFrames")] public Sprite[] IllustrationFrames;
         // Cycle rate for m_IllustrationFrames. Ignored by pages authoring fewer than two frames.
         [FormerlySerializedAs("m_IllustrationFPS")] public float IllustrationFPS = 0.5f;
+        public float IllustrationImageScale = 1;
+        [TextArea(1, 2)] public string CaptionText;
 
         [Header("Body Text")]
         [FormerlySerializedAs("m_Body"), TextArea(3, 20)] public string BodyText;
