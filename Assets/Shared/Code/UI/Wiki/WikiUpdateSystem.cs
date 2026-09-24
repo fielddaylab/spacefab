@@ -205,6 +205,7 @@ namespace SpaceFab.UI {
                 ScriptUtility.Trigger(ScriptTriggers.OnWikiClosed);
             } else {
                 ScriptUtility.Trigger(ScriptTriggers.OnWikiOpened);
+                WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageContent);
             }
             WikiLayoutUtility.SnapExpandedState(layout, state.Expanded);
         }
@@ -303,8 +304,9 @@ namespace SpaceFab.UI {
             if (seekMode == PageSeekMode.ChangeTab) {
                 state.QueuedPageId = FindFirstAvailablePage(tabContentList, tabMemoryRecord.PageId);
                 state.QueuedPageScrollRestore = tabMemoryRecord.Scroll;
-                state.CurrentPageId = -1;
             }
+
+            state.CurrentPageId = -1;
 
             return true;
         }

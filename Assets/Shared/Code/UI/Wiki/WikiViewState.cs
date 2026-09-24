@@ -23,7 +23,7 @@ namespace SpaceFab.UI {
         TabSelection = 0x02,
 
         PageList = 0x04,
-        PageSelection = 0x28,
+        PageSelection = 0x08,
         
         PageContent = 0x10,
         PageChips = 0x20,
@@ -116,6 +116,8 @@ namespace SpaceFab.UI {
             state.QueuedPageScrollDirection = 0;
             state.QueuedPageScrollRestore = -1;
             state.DirtyFlags = WikiViewDirtyFlags.TabList;
+            state.CurrentTabId = -1;
+            state.CurrentPageId = -1;
             state.Expanded = false;
             state.QueuedExpanded = false;
             WikiLayoutUtility.SnapExpandedState(layout, false);

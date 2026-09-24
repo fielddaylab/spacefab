@@ -46,7 +46,7 @@ namespace SpaceFab.Research {
                 SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState, wikiState);
                 if (panel.CompleteButton != null) {
                     Find.State(out PlayerProgressState progressState, out ContractState contractState);
-                    panel.CompleteButton.gameObject.SetActive(ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition));
+                    panel.CompleteButton.gameObject.SetActive(contractState.ContractDefinition && ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition));
                 }
             }
 
