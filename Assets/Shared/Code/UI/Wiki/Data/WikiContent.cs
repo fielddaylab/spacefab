@@ -52,7 +52,7 @@ namespace SpaceFab.UI {
     }
 
     public interface IWikiContentFilter {
-        PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiPageData pageData);
+        PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData);
         MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId);
 
         static public MaterialPropertyRecord GetDefaultMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
@@ -74,7 +74,7 @@ namespace SpaceFab.UI {
             return IWikiContentFilter.GetDefaultMaterialProgress(playerProgress, materialId);
         }
 
-        public PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiPageData pageData) {
+        public PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData) {
             return PageAvailabilityOverride.Default;
         }
     }
@@ -83,7 +83,7 @@ namespace SpaceFab.UI {
         public virtual MaterialPropertyRecord GetMaterialProgress(PlayerProgressState playerProgress, StringHash32 materialId) {
             return IWikiContentFilter.GetDefaultMaterialProgress(playerProgress, materialId);
         }
-        public virtual PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiPageData pageData) {
+        public virtual PageAvailabilityOverride GetPageAvailability(PlayerProgressState playerProgress, WikiTabData tabData, WikiPageData pageData) {
             return PageAvailabilityOverride.Default;
         }
     }
@@ -105,7 +105,7 @@ namespace SpaceFab.UI {
             pageList.Mask.Clear();
             pageList.Count = 0;
             for(int pageIndex = 0; pageIndex < tabData.Pages.Length; pageIndex++) {
-                if (IsPageAvailable(progressState, tabData.Pages[pageIndex], contentFilter)) {
+                if (IsPageAvailable(progressState, tabData, tabData.Pages[pageIndex], contentFilter)) {
                     pageList.Mask.Set(pageIndex);
                     pageList.Indices[pageList.Count++] = (sbyte) pageIndex;
                 }
@@ -117,9 +117,9 @@ namespace SpaceFab.UI {
             return WikiListUpdateResult.NoChange;
         }
 
-        static private bool IsPageAvailable(PlayerProgressState progressState, WikiPageData pageData, IWikiContentFilter contentFilter) {
+        static private bool IsPageAvailable(PlayerProgressState progressState, WikiTabData tabData, WikiPageData pageData, IWikiContentFilter contentFilter) {
             Assert.NotNullOrDestroyed(contentFilter);
-            switch(contentFilter.GetPageAvailability(progressState, pageData)) {
+            switch(contentFilter.GetPageAvailability(progressState, tabData, pageData)) {
                 case PageAvailabilityOverride.AlwaysHide: {
                     return false;
                 }

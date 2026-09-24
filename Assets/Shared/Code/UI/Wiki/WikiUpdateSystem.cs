@@ -23,12 +23,33 @@ namespace SpaceFab.UI {
             Find.State(out WikiViewState state, out WikiContent content, out WikiLayoutState layout, out PlayerProgressState playerProgress);
 
             WikiContentUtility.FlushContentChanges(content, playerProgress);
+            ResolveQueuedNameRequests(state, content);
+            RespondToContentUpdates(state, content);
 
+            // default to first available tab
+            if (state.CurrentTabId < 0 && content.AvailableTabs.Count > 0) {
+                state.QueuedTabId = content.AvailableTabs.Indices[0];
+            }
+
+            ResolvedQueuedNavigation(state, content, layout);
+
+            UpdateViewVisibility(state, layout);
+            RepaintDirtyLayout(state, content, layout);
+
+            if (state.Expanded) {
+                WikiUtility.FlushScriptAnnouncements(state, content);
+            }
+        }
+
+        /// <summary>
+        /// Resolves any queued tab/page changes that were specified by name.
+        /// </summary>
+        static private void ResolveQueuedNameRequests(WikiViewState state, WikiContent content) {
             if (!state.QueuedTabByName.IsEmpty) {
                 StringHash32 tabName = state.QueuedTabByName;
                 int tabId = WikiContentUtility.LookupTabId(content, tabName);
                 state.QueuedPageByName = default;
-                
+
                 if (tabId < 0 || !content.AvailableTabs.Mask.IsSet(tabId)) {
                     Log.Warn("[WikiUpdateSystem] Tab '{0}' requested but not available!", tabName);
                     state.QueuedPageByName = default;
@@ -64,7 +85,12 @@ namespace SpaceFab.UI {
                     state.QueuedPageId = pageAddress.PageId;
                 }
             }
+        }
 
+        /// <summary>
+        /// Changes tabs and pages if necessary in response to updated content.
+        /// </summary>
+        static private unsafe void RespondToContentUpdates(WikiViewState state, WikiContent content) {
             if (!content.QueuedContentUpdated.AvailableTabsUpdated.IsEmpty) {
                 WikiUtility.Invalidate(state, WikiViewDirtyFlags.TabList);
                 content.QueuedContentUpdated.AvailableTabsUpdated = default;
@@ -90,11 +116,12 @@ namespace SpaceFab.UI {
                 }
                 content.QueuedContentUpdated.PageListsUpdated = default;
             }
+        }
 
-            if (state.CurrentTabId < 0 && content.AvailableTabs.Count > 0) {
-                state.QueuedTabId = content.AvailableTabs.Indices[0];
-            }
-
+        /// <summary>
+        /// Resolves all queued tab, scroll, and page changes.
+        /// </summary>
+        static private unsafe void ResolvedQueuedNavigation(WikiViewState state, WikiContent content, WikiLayoutState layout) {
             PageSeekMode seekMode = PageSeekMode.NotSeeking;
 
             if (state.QueuedTabId >= 0) {
@@ -154,16 +181,12 @@ namespace SpaceFab.UI {
                     WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageList);
                 }
             }
-
-            FlushViewVisibility(state, layout);
-            FlushViewChanges(state, content, layout);
-
-            if (state.Expanded) {
-                WikiUtility.FlushScriptAnnouncements(state, content);
-            }
         }
 
-        static private void FlushViewVisibility(WikiViewState state, WikiLayoutState layout) {
+        /// <summary>
+        /// Responds to visibility change requests.
+        /// </summary>
+        static private void UpdateViewVisibility(WikiViewState state, WikiLayoutState layout) {
             if (state.Expanded == state.QueuedExpanded) {
                 return;
             }
@@ -179,7 +202,10 @@ namespace SpaceFab.UI {
             WikiLayoutUtility.SnapExpandedState(layout, state.Expanded);
         }
 
-        static private void FlushViewChanges(WikiViewState state, WikiContent content, WikiLayoutState layout) {
+        /// <summary>
+        /// Repaints all dirty layout domains.
+        /// </summary>
+        static private void RepaintDirtyLayout(WikiViewState state, WikiContent content, WikiLayoutState layout) {
             if (!state.Expanded) {
                 return;
             }
@@ -231,6 +257,8 @@ namespace SpaceFab.UI {
                 state.DirtyFlags &= ~WikiViewDirtyFlags.PageChips;
             }
         }
+
+        #region Swaps
 
         static private bool SwapTabs(WikiViewState state, WikiContent content, WikiLayoutState layout, int tabIndex, ref PageSeekMode seekMode) {
             Assert.True(tabIndex >= 0, "Tab index out of bounds");
@@ -300,13 +328,17 @@ namespace SpaceFab.UI {
             return false;
         }
 
+        #endregion // Swaps
+
+        #region Helpers
+
         static private unsafe int FindFirstAvailablePage(WikiContentList contentList, int targetId) {
             Assert.True(contentList.Count > 0, "Tab has no pages!");
 
             if (targetId < 0) {
                 return contentList.Indices[0];
             }
-            
+
             if (contentList.Mask.IsSet(targetId)) {
                 return targetId;
             }
@@ -314,7 +346,7 @@ namespace SpaceFab.UI {
             // content list is always sorted in ascending order
             // so we don't need to check against the current closest
             int closest = 0;
-            for(int i = 0; i < contentList.Count; i++) {
+            for (int i = 0; i < contentList.Count; i++) {
                 int index = contentList.Indices[i];
                 if (index < targetId) {
                     closest = i;
@@ -324,7 +356,7 @@ namespace SpaceFab.UI {
             }
             return closest;
         }
-    
+
         static private int FindCenteredScroll(int visualIndex, int count, int windowSize) {
             int lower = visualIndex - windowSize / 2;
             return ClampScroll(lower, count, windowSize);
@@ -350,7 +382,9 @@ namespace SpaceFab.UI {
         static private int ClampScroll(int scroll, int count, int windowSize) {
             return Math.Max(0, Math.Min(scroll, count - windowSize));
         }
-    
+
+        #endregion // Helpers
+
         private enum PageSeekMode {
             NotSeeking,
             ChangeTab,
