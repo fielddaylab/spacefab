@@ -5,15 +5,17 @@ name: Spacefab Build
 # way of doing this.
 on:
    push:
+   delete:
    workflow_dispatch:
   
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}-${{ github.event_name == 'delete' && github.run_id || github.ref }}
     cancel-in-progress: true
 
 jobs:
   build:
     name: Build Unity Project
+    if: github.event_name != 'delete'
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}
@@ -92,7 +94,7 @@ jobs:
     - name: Upload build as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}-webgl_${{ env.VERSION }}
+        name: ${{ github.event.repository.name }}-webgl-${{ github.sha }}
         path: build/WebGL/WebGL/
         overwrite: true
     
@@ -105,4 +107,27 @@ jobs:
         remote_host: ${{ secrets.FIELDDAY_WISC_EDU_DEPLOY_HOST }}
         remote_user: ${{ secrets.FIELDDAY_WISC_EDU_DEPLOY_USER }}
         remote_key: ${{ secrets.FIELDDAY_WISC_EDU_DEPLOY_KEY }}
-    
+
+  # Vault staging CDN preview of the same build, alongside the DoIT deploy above until DoIT is retired:
+  # https://cdn.vaultlearninggames-staging.org/fielddaylab/spacefab/<branch>/
+  # Runs even if the DoIT upload fails; needs only the build artifact.
+  preview:
+    needs: build
+    if: ${{ !cancelled() && github.event_name != 'delete' }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: fielddaylab/vault-publisher/.github/workflows/publish-preview.yml@v1
+    with:
+      game: spacefab
+      artifact: ${{ github.event.repository.name }}-webgl-${{ github.sha }}
+
+  # Deleting a branch removes its preview.
+  remove-preview:
+    if: github.event_name == 'delete'
+    permissions:
+      contents: read
+      id-token: write
+    uses: fielddaylab/vault-publisher/.github/workflows/publish-preview.yml@v1
+    with:
+      game: spacefab
