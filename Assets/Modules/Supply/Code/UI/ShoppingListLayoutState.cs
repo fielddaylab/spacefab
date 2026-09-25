@@ -51,6 +51,7 @@ namespace SpaceFab.Supply {
         [NonSerialized] public List<ShoppingListRow> ActiveRows;
 
         [NonSerialized] public Routine ToggleRoutine;
+        [NonSerialized] public bool IsCollapsedVisually;
 
         // Contract the rows were last built for; lets a rebuild detect a
         // contract change without re-reading every requirement each frame.
