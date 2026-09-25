@@ -18,7 +18,7 @@ namespace SpaceFab.Materials
         HeatActivated,
         HeatDeactivated,
         HeatUnaffected,
-        HeatVulnerable,
+        DEPRECATED_HeatVulnerable,
         HeatResistant,
 
         AtomicRadiusCompliant,

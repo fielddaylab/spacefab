@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32a2262c22269de49bca1259173cd969, type: 3}
   m_Name: ShipA
   m_EditorClassIdentifier: 
-  DisplayName: The Sphere
+  DisplayName: Quinn
   BodyImage: {fileID: 21300000, guid: 592d9ac6978f9e846aeb7c4d554f5848, type: 3}
   Icon: {fileID: 21300000, guid: 063e9405da1eb2d42be20daf0793194c, type: 3}
   IconColor:

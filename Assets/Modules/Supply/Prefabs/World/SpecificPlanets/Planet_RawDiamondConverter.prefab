@@ -85,6 +85,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8246077377192134889}
     - target: {fileID: 7488334245896658445, guid: 2479505f42e77544ab55898a175383cc, type: 3}
+      propertyPath: WikiPage.m_HashValue
+      value: 871709413
+      objectReference: {fileID: 0}
+    - target: {fileID: 7488334245896658445, guid: 2479505f42e77544ab55898a175383cc, type: 3}
       propertyPath: MaterialType.m_HashValue
       value: 3747167047
       objectReference: {fileID: 0}

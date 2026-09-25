@@ -6,13 +6,19 @@ using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab.Save;
 using SpaceFab.UI;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Research {
     public sealed class ResearchResultPanel : SharedPanel {
         public DynamicButton NextButton;
         public SceneReference NextScene;
         public ContractRequirementTable Table;
+
+        public Image Background;
+        public Image HeadingBackground;
+        public TMP_Text HeadingText;
 
         protected override void Awake() {
             base.Awake();
@@ -53,12 +59,20 @@ namespace SpaceFab.Research {
             AcquirePriority();
             Input.SetInputOverride(null);
 
-            Find.State(out ChapterState chapterState, out ContractState contractState, out ResearchMinigameState researchState);
+            Find.State(out ChapterState chapterState, out ContractState contractState, out ResearchMinigameState researchState, out PlayerProgressState progressState);
 
             ContractUIUtility.BuildRequirementData(Table, chapterState.ChapterIndex, contractState.ContractDefinition);
             ContractUIUtility.InitializeVisuals(Table);
             ContractUIUtility.UpdateVisualsWithCompletion(Table, researchState.SandboxProperties);
             Positioning.SetHeightDelta((RectTransform)Table.transform.parent, Table.Sizer.LastSize.y + 48);
+
+            if (Background == null || HeadingBackground == null || HeadingText == null) { return; }
+
+            Find.GlobalAsset(out ResultDisplayConfig config);
+            bool success = ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition);
+            Background.color = success ? config.SuccessBackgroundColor : config.FailureBackgroundColor;
+            HeadingText.text = success ? "RESEARCH COMPLETE" : "RESEARCH INCOMPLETE";
+            HeadingBackground.color = success ? config.SuccessHeaderColor : config.FailureHeaderColor;
         }
 
         public override void Hide() {

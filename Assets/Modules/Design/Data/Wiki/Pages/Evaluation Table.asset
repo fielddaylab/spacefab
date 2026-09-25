@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isPlanet: 0
   m_Title: Evaluation Table
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 21300000, guid: b7bed548f7b86e5468a68068c67a0fc0, type: 3}
   m_IllustrationFrames:
-  - {fileID: 21300000, guid: 7570dd41ac4cc90408e4975d4a96f5ba, type: 3}
+  - {fileID: 21300000, guid: 973624da8e9091948a120d7b20a9b733, type: 3}
   m_IllustrationFPS: 0.5
   m_Body: The Evaluation Table shows when the combinations of inputs match the desired
     outputs
   m_MaterialId:
     m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

@@ -38,6 +38,8 @@ namespace SpaceFab.Research {
         public CursorHint AddPropertyButton;
         public GameObject ChipPickerOverlay;
 
+        public DynamicButton CompleteButton;
+
         // Scene-wired RectTransform under ChipPickerOverlay that pool-
         // alloced picker chips are reparented under. The load utility
         // lays chips out here vertically and resizes the overlay to fit.
@@ -122,6 +124,9 @@ namespace SpaceFab.Research {
             if (DopingChamberButton != null) {
                 DopingChamberButton.Cursor.onClick.AddListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
+            if (CompleteButton != null) {
+                CompleteButton.onClick.AddListener(HandleCompleteMinigame);
+            }
 
             SamplePanelInputUtility.ClosePicker(this);
         }
@@ -164,6 +169,10 @@ namespace SpaceFab.Research {
             if (DopingChamberButton != null) {
                 DopingChamberButton.Cursor.onClick.RemoveListener(() => HandleChamberSwitch(ActiveChamberKind.Doping));
             }
+
+            if (CompleteButton != null) {
+                CompleteButton.onClick.RemoveListener(HandleCompleteMinigame);
+            }
         }
 
         private void HandleAddObservation() {
@@ -177,7 +186,7 @@ namespace SpaceFab.Research {
         private void HandleAddProperty() {
             ResearchUIInputUtility.RequestAddObservation(Find.State<ResearchUIInputState>());
             // Shortcut to the wiki page listing the material properties.
-            ResearchWikiInputUtility.OpenPropertyPage(Find.State<PlayerProgressState>(), Find.State<WikiState>());
+            ResearchWikiInputUtility.OpenPropertyPage(Find.State<PlayerProgressState>());
         }
 
         // Picker chip click. Public so ObservationPickerLoadUtility can
@@ -202,6 +211,10 @@ namespace SpaceFab.Research {
         private void HandleChamberSwitch(ActiveChamberKind kind)
         {
             ChamberInterfacerUtility.SetActiveChamber(Find.State<ChamberInterfacerState>(), kind);
+        }
+
+        public void HandleCompleteMinigame() {
+            Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.Requested;
         }
     }
 
@@ -294,6 +307,33 @@ namespace SpaceFab.Research {
             pools.ActivePickerChips.Clear();
             if (panel.PickerClickHandlers != null) panel.PickerClickHandlers.Clear();
             if (panel.PickerLabels != null) panel.PickerLabels.Clear();
+        }
+
+        public static void LockChamberButton(ResearchSamplePanel panel, ActiveChamberKind chamberKind, ResearchUIAssets config) {
+            ChamberButton chamberButton = chamberKind switch {
+                ActiveChamberKind.Thermal => panel.ThermalChamberButton,
+                ActiveChamberKind.Doping => panel.DopingChamberButton,
+                _ => null,
+            };
+
+            if (chamberButton == null) { return; }
+            chamberButton.Image.sprite = config.LockedChamber;
+            chamberButton.Cursor.enabled = false;
+        }
+
+        public static void UnlockChamberButton(ResearchSamplePanel panel, ActiveChamberKind chamberKind, ResearchUIAssets config) {
+            switch (chamberKind) {
+                case ActiveChamberKind.Thermal:
+                    panel.ThermalChamberButton.Image.sprite = config.ThermalNormal;
+                    panel.ThermalChamberButton.Cursor.enabled = true;
+                    break;
+                case ActiveChamberKind.Doping:
+                    panel.DopingChamberButton.Image.sprite = config.DopingNormal;
+                    panel.DopingChamberButton.Cursor.enabled = true;
+                    break;
+                default:
+                    return;
+            };
         }
     }
 }

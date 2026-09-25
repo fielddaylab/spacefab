@@ -1,5 +1,7 @@
 using BeauUtil;
+using FieldDay;
 using SpaceFab.Materials;
+using UnityEngine;
 
 namespace SpaceFab.Research
 {
@@ -22,6 +24,7 @@ namespace SpaceFab.Research
             {
                 researchState.Observations[materialId] = list;
             }
+            Debug.LogError($"{materialId.ToDebugString()} - Added {label} for {contextMaterialId.ToDebugString()}");
             return added;
         }
 
@@ -92,14 +95,12 @@ namespace SpaceFab.Research
             if (researchState == null) return false;
 
             // Filter out non-persistent labels - those are evidence, not confirmable.
-            if (!MaterialPropertyLabelUtility.IsPersistent(label))
-            {
+            if (!MaterialPropertyLabelUtility.IsPersistent(label)) {
                 return false;
             }
 
             // Idempotent: already confirmed means success without further work.
-            if (ResearchStateUtility.HasConfirmed(researchState, materialId, label, contextMaterialId))
-            {
+            if (ResearchStateUtility.HasConfirmed(researchState, materialId, label, contextMaterialId)) {
                 return true;
             }
 
@@ -109,8 +110,7 @@ namespace SpaceFab.Research
                 (obsLabel, obsContext) => HasObservation(researchState, materialId, obsLabel, obsContext);
 
             MaterialPropertyDefinition satisfied = MaterialPropertyDefinitionUtility.FindSatisfiedDefinition(label, contextMaterialId, record, hasObservation);
-            if (satisfied == null)
-            {
+            if (satisfied == null) {
                 return false;
             }
 

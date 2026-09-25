@@ -22,10 +22,10 @@ namespace SpaceFab.Narrative {
     /// </summary>
     public static class DialogueButtonActionUtility {
         // Asset name of the wiki tab OpenProperties targets.
-        private static readonly StringHash32 MaterialPropertiesTabId = "Material Properties_Tab";
+        private static readonly StringHash32 MaterialPropertiesTabId = "Properties";
 
         // Asset name of the wiki tab OpenObservations targets.
-        private static readonly StringHash32 MaterialObservationsTabId = "Observations_Tab";
+        private static readonly StringHash32 MaterialObservationsTabId = "Observations";
 
         // Resolves a DialogueButtonAction enum name (e.g. "OpenProperties") to its value,
         // case-insensitively. Returns false with action left as None for an empty or unrecognized
@@ -65,20 +65,18 @@ namespace SpaceFab.Narrative {
         /// </summary>
         public static void Invoke(DialogueButtonAction action) {
             switch (action) {
-                case DialogueButtonAction.OpenProperties:
-                    // WikiUtility.OpenTo resolves WikiState without a presence guard of its own, so
-                    // check here first (same contract as WikiScripting's Leaf members).
-                    if (!Game.SharedState.Has<WikiState>()) { return; }
-
-                    // Empty page id: open to the tab's remembered page, or its first unlocked one.
-                    // In a scene whose tab set has no Material Properties tab, the id is dropped by
-                    // the resolver and the wiki simply opens where it was.
-                    WikiUtility.OpenTo(MaterialPropertiesTabId, default);
+                case DialogueButtonAction.OpenProperties: {
+                    if (Game.SharedState.TryGet(out WikiViewState state)) {
+                        WikiUtility.OpenTo(state, MaterialPropertiesTabId, default);
+                    }
                     break;
-                case DialogueButtonAction.OpenObservations:
-                    if (!Game.SharedState.Has<WikiState>()) { return; }
-                    WikiUtility.OpenTo(MaterialObservationsTabId, default);
+                }
+                case DialogueButtonAction.OpenObservations: {
+                    if (Game.SharedState.TryGet(out WikiViewState state)) {
+                        WikiUtility.OpenTo(state, MaterialObservationsTabId, default);
+                    }
                     break;
+                }
                 default:
                     break;
             }
