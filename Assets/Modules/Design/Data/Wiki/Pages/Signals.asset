@@ -12,9 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Signals
   m_EditorClassIdentifier: 
+  m_isPlanet: 0
   m_Title: Signals
-  m_Icon: {fileID: 0}
-  m_IllustrationFrames: []
+  m_Icon: {fileID: 21300000, guid: bbe88eeda989f4e429cad8e14f38fa7f, type: 3}
+  m_IllustrationFrames:
+  - {fileID: 21300000, guid: 32147d6653a5b5d45b9e2d68611434e2, type: 3}
+  - {fileID: 21300000, guid: 9f6d28bae4fbd634cab02b7d33d48c04, type: 3}
   m_IllustrationFPS: 0.5
   m_Body: Chips process information in signals of HIGH and LOW. Mixed signals become
     UNSTABLE.
+  m_MaterialId:
+    m_HashValue: 0
+  m_IsObservationPage: 0
+  m_ObservationType: 0
+  m_PropertyCheck: {fileID: 0}

@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: Materials_Tabs
   m_EditorClassIdentifier: 
   m_Title: Materials
-  m_Icon: {fileID: 21300000, guid: b466c9938071d00418b42bd9993ab5dc, type: 3}
+  m_Icon: {fileID: 21300000, guid: 9b5ac30f2e663a4419590d48a63b223b, type: 3}
   m_Pages:
-  - {fileID: 11400000, guid: 473bf6c222f8c904d8fef8625ab6d2c5, type: 2}
   - {fileID: 11400000, guid: fb5562a8e36296641a88d125b73c6433, type: 2}
   - {fileID: 11400000, guid: f2ee54974959dd848955e2ada5272040, type: 2}
   - {fileID: 11400000, guid: ea7487cf719b47344a6941309cf11dbf, type: 2}

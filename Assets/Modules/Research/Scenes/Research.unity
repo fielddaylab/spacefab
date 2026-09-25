@@ -7679,10 +7679,6 @@ PrefabInstance:
       propertyPath: m_PlaneDistance
       value: 10
       objectReference: {fileID: 0}
-    - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
-      propertyPath: m_SortingLayerID
-      value: 1461900991
-      objectReference: {fileID: 0}
     - target: {fileID: 5111093539282069938, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

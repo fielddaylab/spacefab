@@ -186,7 +186,7 @@ namespace SpaceFab.Research {
         private void HandleAddProperty() {
             ResearchUIInputUtility.RequestAddObservation(Find.State<ResearchUIInputState>());
             // Shortcut to the wiki page listing the material properties.
-            ResearchWikiInputUtility.OpenPropertyPage(Find.State<PlayerProgressState>(), Find.State<WikiState>());
+            ResearchWikiInputUtility.OpenPropertyPage(Find.State<PlayerProgressState>());
         }
 
         // Picker chip click. Public so ObservationPickerLoadUtility can
