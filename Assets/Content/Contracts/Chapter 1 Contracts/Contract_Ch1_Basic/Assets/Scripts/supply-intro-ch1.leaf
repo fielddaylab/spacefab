@@ -2,113 +2,97 @@
 
 :: StartBuilding
 @trigger    OnSupplySetupCompleted
-$set    temp:researchTutorialStep = 0
-$call   HighlightElement(supply:ship0)
-{@PAL}  Build a route to complete the contract. \n\nStart by selecting a ship.
-
+$if     MinigameHasValidSolution()
+    $set    temp:researchTutorialStep = -1
+$else
+    $set    temp:researchTutorialStep = 0
+    $call   HighlightElement(supply:ship0)
+    $call   CloseWiki()
+    {@PAL}  Build a route to complete the contract.\n\nStart by selecting a Hauler.
+$endif
 
 :: FirstShipSelected
 @trigger    OnShipSelected
 @when       temp:researchTutorialStep == 0
 $set    temp:researchTutorialStep = 1
 $call   ReleaseAllHighlights()
-$call   HighlightElement(supply:planet_cu)
-{@PAL}  Hover over the planet with your mouse to see the time, cost, and risk level.
-
-
-:: FirstPlanetHovered
-@trigger    OnPlanetHovered
-@when       temp:researchTutorialStep == 1
-$if local:planet == "Planet_Cu"
-    $set   temp:researchTutorialStep = 2
-    {@PAL}  Click on the planet to select this route segment.
-$else 
-    // hovering over other planet
-    $set   temp:researchTutorialStep = 2
-    {@PAL}  Click on the planet to select this route segment.
+$call   CloseWiki()
+{@PAL}  You will need a CONDUCTOR for this contract.\n\nUse the wiki to identify the correct material.
+$if     !temp:wikiOpened
+    $wait   2
+    $call   OpenWikiTo("Materials", "Copper")
+    $set    temp:wikiOpened = true
 $endif
 
 
 :: FirstNodeClicked
 @trigger    OnNodeClicked
-@when       temp:researchTutorialStep == 2
+@when       temp:researchTutorialStep == 1
 $call   ReleaseAllHighlights()
 $call   HighlightElement(supply:home)
-{@PAL}  Great. Now click the Fab (your main ship).
+$call   CloseWiki()
+{@PAL}  Great. Now click your ship.
 
 
 :: FirstRouteCompleted
 @trigger    OnRouteCompleted
-@when       temp:researchTutorialStep == 2
+@when       temp:researchTutorialStep == 1
 $call   ReleaseAllHighlights()
+$call   CloseWiki()
 $if IsMaterialCollected("Copper")
-    $set    temp:researchTutorialStep = 5
-    $call   HighlightElement(supply:confirm-btn)
-    {@PAL}  Click CONFIRM to commit your entire supply chain.
-$else
     $set    temp:researchTutorialStep = 3
-    $call   HighlightElement(wiki:open-btn)
-    {@PAL}  Uh-oh, this material wasn't a conductor. \n\nCheck the wiki to identify the materials on the planets.
+    $call   HighlightElement(supply:confirm-btn)
+    {@PAL}  Click CONFIRM ROUTES to commit your supply routes.
+$else
+    $set    temp:researchTutorialStep = 2
+    {@PAL}  Uh-oh, this material wasn't a CONDUCTOR.\n\nUse the wiki to identify the correct material.
 $endif
-
-
-:: WikiOpened
-@trigger    OnWikiOpened
-@when       temp:researchTutorialStep == 3
-$call   ReleaseAllHighlights()
-$call   HighlightElement(wiki:close-btn)
-$call   OpenWikiTo("Planets_Tabs","Korbus")
 
 
 :: WikiClosed
 @trigger    OnWikiClosed
-@when       temp:researchTutorialStep == 3
+@when       temp:researchTutorialStep == 2
 $call   ReleaseAllHighlights()
 $call   HighlightElement(supply:ship0)
-{@PAL}  Select the ship again to correct the route.
+{@PAL}  Select the Hauler again to correct the route.
 
 
 :: OnSecondShipSelected
 @trigger    OnShipSelected
-@when       temp:researchTutorialStep == 3
+@when       temp:researchTutorialStep == 2
+$set    temp:researchTutorialStep = 1
 $call   ReleaseAllHighlights()
-// TODO: either current implementation isn't complete or instructions need to change
-// no support current for highlighting a route (or empty space)
-{@PAL}  Select the paths to delete the current route, then click into space to finalize the removal.
+$call   CloseWiki()
+{@PAL}  Select the paths to delete the current route, then draw a new path.
 
 
 :: OnRouteFullyRemoved
 @trigger    OnRouteFullyRemoved
 $call   ReleaseAllHighlights()
-$if     temp:researchTutorialStep == 3
-    $set    temp:researchTutorialStep = 4
-    $call   HighlightElement(supply:planet_si02)
-    {@PAL}  Draw your new path to the planet with the Conductor.
-$else
-    $set    temp:researchTutorialStep = 0
-    $call   HighlightElement(supply:ship0)
-    {@PAL}  Build a route to complete the contract. \n\nStart by selecting a ship.
-$endif
-
-
-:: MaterialGathered
-@trigger    OnNodeClicked
-@when       IsMaterialCollected("Copper"), node == "Home"
-$set    temp:researchTutorialStep = 5
-$call   ReleaseAllHighlights()
-// TODO: no support currently for highlighting empty space
-{@PAL}  Click on empty space or the Fab to finalize this route.
+$set    temp:researchTutorialStep = 0
+$call   HighlightElement(supply:ship0)
+$call   CloseWiki()
+{@PAL}  Build a route to complete the contract.\n\nStart by selecting a Hauler.
 
 
 :: LevelComplete
 @trigger    OnRouteCompleted
-@when       temp:researchTutorialStep >= 4
-$set    temp:researchTutorialStep = 6
+@when       temp:researchTutorialStep >= 3
 $call   ReleaseAllHighlights()
+$set    temp:researchTutorialStep = 4
 $call   HighlightElement(supply:confirm-btn)
-{@PAL}  Click CONFIRM to commit your entire supply chain.
+$call   CloseWiki()
+{@PAL}  Click CONFIRM ROUTES to commit your supply routes.
 
-:: OnShipSelectedAfterRouteCompleted
-@trigger    OnShipSelected
-@when       temp:researchTutorialStep >= 5
+:: OnRoutesConfirmed
+@trigger    OnRoutesConfirmed
+@when   temp:researchTutorialStep >= 3
 $call   ReleaseAllHighlights()
+{@PAL}  NOW you're ready to start the fabrication.
+
+
+:: OnShipSelectedAfterLevelComplete
+@trigger    OnShipSelected
+@when       temp:researchTutorialStep >= 3
+$call   ReleaseAllHighlights()
+$set    temp:researchTutorialStep = -1

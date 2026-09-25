@@ -36,7 +36,7 @@ $call   ResetCurrentChamber()
 $call   ReleaseAllHighlights()
 $call   HighlightElement(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(false)
-{@PAL}  Let's add voltage and observe if anything happens.
+{@PAL}  Let's add voltage and observe the electrical current.
 
 
 ::OnVoltageIncreased
@@ -45,19 +45,19 @@ $call   AddObsBtn->SetActive(false)
 $call   ReleaseHighlight(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(true)
 $call   CloseWiki()
-{@PAL}  Now add your observation.
+{@PAL}  Now press ADD OBSERVATION.
 
 ::OnObservationAdded
 @trigger    OnObservationAdded
 @when       !MinigameHasValidSolution()
 $call   CloseWiki()
-{@PAL}  Now add a hypothesis property that matches your observation.
+{@PAL}  Now choose a property that matches your observation.\nClick ADD PROPERTY.
 
 ::OnVerifyButtonShown
 @trigger    OnVerifyButtonShown
 @when   !MinigameHasValidSolution()
 $call   CloseWiki()
-{@PAL}  Select "VERIFY" to check if observation matches the selected hypothesis.
+{@PAL}  Click VERIFY to check your results.
 
 
 ::OnHypothesisCorrect
@@ -67,33 +67,29 @@ $call   ReleaseAllHighlights()
 $call   CloseWiki()
 $if MinigameHasValidSolution()
     $call   HighlightElement(return-button)
-    {@PAL}  Correct. You've completed all research tasks! Press "COMPLETE" to return to the ship.
+    {@PAL}  Correct. You've completed the Contract Requirements!\n\nPress LEAVE to leave the lab.
 $else
     $call   HighlightElement(research:primary-slot)
     {@PAL}  Correct. Now see if you can find a sample that satisfies the other hypothesis.
 $endif
-$wait 1
-$call   OpenWikiToLastDiscovery()
-$wait 1.5
-$call   CloseWiki()
 
 ::OnHypothesisIncorrectHypothesisMismatch
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "hypothesis_mismatch"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  Your hypothesis doesn't match the sample. Try changing the hypothesis.
+{@PAL}  Your Property was incorrect.\nTry again.
 
 ::OnHypothesisIncorrectObservationMismatch
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "observation_mismatch"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  Your hypothesis doesn't match the observation. Try a different observation or select another sample.
+{@PAL}  Your Property was incorrect.\nTry again.
 
 ::OnHypothesisIncorrectInvalidObservation
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "invalid_observation"
 $call   ReleaseAllHighlights()
 @call   CloseWiki()
-{@PAL}  Your observation doesn't match the sample. Try changing the observation.
+{@PAL}  One or more of your Observations were incorrect. Those are removed.\nTry again.
