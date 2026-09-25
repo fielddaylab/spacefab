@@ -265,7 +265,7 @@ namespace SpaceFab.Research {
                     MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
                     hypoLabel += " for " + hypoContext.ShortName; // only 'confirmed' semiconductors can be slotted -- always known
                 }
-                panel.HypothesisChip.SetProperty(hypoLabel, ChipFillState.Filled, false, hypo);
+                panel.HypothesisChip.SetProperty(hypoLabel, ChipFillState.Confirmed, false, hypo);
             } else {
                 panel.HypothesisChip.SetState(hypoLabel, ChipFillState.Empty, false, hypoType, true);
             }
