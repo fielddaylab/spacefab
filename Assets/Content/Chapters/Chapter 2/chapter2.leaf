@@ -5,8 +5,10 @@
 @cutscene
 @once
 
-{@Dorian}   Alright my friend, or "employee", this contract asks for a semi-conductore and conductor.
-{@Player}   Okay, great, so, when I go about doing it--
+{@Player}   Okay, Mr. Frontier Robotics, do you have a new contract for me to work on? 
+{@Dorian}   Actually, my dear "employee", I do. Ha, ha. 
+{@Dorian} This contract asks for a semi-conductore and conductor.
+{@Player}   Okay, great, so, do I have a list of which materials--
 // off-screen ring dial
 {@Dorian}   Oh shoot, sorry Locke, I'm getting a holo, I have to go. 
 {@Dorian}   P.A.L. should be able to help you out though!
@@ -14,7 +16,7 @@
 {@Dorian}   Chat soon. 
 
 {@PAL}      Sounded like you had a question Captain, can I be of assitance? 
-{@Player}   Uh... I forgot it...       
+{@Player}   Uh... yeah, but I think we should head to the lab and figure it out there...       
 {@PAL}      Alrighty then, Captian! 
 
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
@@ -29,15 +31,14 @@ $call   UnlockWikiPage("Insulator")
 @cutscene 
 @once
 
-{@Quinn}    Hey Cap, how is it that your friend is also your boss?
+{@PAL}    So Captain, did I overhear that Dorian was also your friend? 
 {@Player}   What? How do you- were you eavesdropping? 
-{@Quinn}    Oh, yea, I hear every convo you have. 
-{@Quinn}    Holo's broacasted to the all ships on the network. 
+{@PAL}    Oh, yea, I hear every convo you have. 
 {@Player}   ...I see...
 {@Player}   Well, don't feel like you have to listen. 
-{@Quinn}    Ah but I have to, in accordance to Frontier Robotics Code yadda yadda red-tape. 
-{@Quinn}    Even if I wanted to I can't turn it off. 
-{@Quinn}    And just so you know, I do want to listen. 
+{@PAL}    Ah but I have to, in accordance to Frontier Robotics Code. 
+{@PAL}    Even if I wanted to I can't access the controls to turn it off. 
+{@PAL}    And just so you know, I enjoy being in the know. 
 {@Player}   ...great. 
 
 ::BeforeSupplyChainCh2
@@ -46,11 +47,10 @@ $call   UnlockWikiPage("Insulator")
 @cutscene
 @once
 
-{@Player}   Hey P.A.L., why are there two sources of Phosphorus? 
-{@PAL}      Looks like both the Forsch and Kalvis sectors are offering that material. 
-{@Player}   What's the difference? 
-{@PAL}      Depending on which one they may have different costs and time sinks.
-{@Player}   Let me call each, then I'll decide. 
+//introduce the idea of the refining station. pick up at wayward and refine at frosch
+{@Player}   Hey P.A.L., it looks like I found two sources of Phosphorus. 
+{@PAL}      Ah good. ... ... My search shows that both the Forsch and Kalvis sectors are offering that material. 
+{@Player}   Ah, so I'll have options when I'm sourcing these. I'll look for the best deal. 
 
 {@Player}   Hi Taryn.
 {@Taryn}    Locke, hiya!
