@@ -274,6 +274,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6924086022814655278}
+    - targetCorrespondingSourceObject: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5990612655887869389}
   m_SourcePrefab: {fileID: 100100000, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
 --- !u!1 &175849044249034680 stripped
 GameObject:
@@ -351,6 +354,26 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -0.08}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &5990612655887869389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175849044249034680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a59a59fc4e9a014c8fbb22f00e5eeff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AlwaysFireClickEvents: 0
+  AcceptedMouseButtons: 1
+  CursorType:
+    m_HashValue: 2152495914
+  Flags: 0
+  TooltipHeader: 
+  Tooltip: 
+  TooltipFooter: 
 --- !u!4 &2236535373749526869 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3292708311143665810, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
@@ -456,7 +479,8 @@ PrefabInstance:
       propertyPath: m_fontSizeMin
       value: 2
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6562062753178373792, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 3292708311143665810, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}

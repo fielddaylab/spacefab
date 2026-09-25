@@ -9951,6 +9951,9 @@ PrefabInstance:
     - {fileID: 3417653701052577977, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3195501777523542549, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5846735789984306298}
     - targetCorrespondingSourceObject: {fileID: 4528643921093385725, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1767830037}
@@ -9960,12 +9963,40 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8976397329128207223, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
   m_PrefabInstance: {fileID: 5846735789984306294}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 5846735789984306297}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 906fb8621338e4a4aad55f85580e6292, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &5846735789984306296 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8365013297410223831, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
+  m_PrefabInstance: {fileID: 5846735789984306294}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5846735789984306297 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3195501777523542549, guid: ccb408836ce37bf4a9f5cb904f4dac7d, type: 3}
+  m_PrefabInstance: {fileID: 5846735789984306294}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5846735789984306298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5846735789984306297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: supply:confirm-btn
+    m_HashValue: 1465626105
+  RectTransform: {fileID: 5846735789984306296}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1001 &7015587884658692674
 PrefabInstance:
   m_ObjectHideFlags: 0
