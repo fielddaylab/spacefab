@@ -24,6 +24,20 @@ $call ComicOpenPage(0)
 $call ComicPreloadNextPage()
 $ComicOpenSpawnPanel(0, 0.5)
 $call ComicNextButton()
+$ComicOpenSpawnPanel(1, 0.5)
+$call ComicNextButton()
+$ComicOpenSpawnPanel(2, 0.5)
+$call ComicNextButton()
+$ComicOpenSpawnPanel(3, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(4, 1)
+$ComicOpenSpawnPanel(5, 1)
+$ComicOpenSpawnPanel(6, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(7, 0.5)
+$call ComicNextButton()
 
 // page 2
 
@@ -38,6 +52,14 @@ $call ComicNextButton()
 $call ComicPreloadNextPage()
 $ComicOpenSpawnPanel(1, 0.5)
 $call ComicNextButton()
+$ComicOpenSpawnPanel(2, 0.5)
+$call ComicNextButton()
+$ComicOpenSpawnPanel(3, 0.5)
+$call ComicNextButton()
+$ComicOpenSpawnPanel(4, 0.5)
+$call ComicNextButton()
+$ComicOpenSpawnPanel(5, 0.5)
+$call ComicNextButton()
 
 // page 3
 
@@ -45,18 +67,9 @@ $call ComicOpenNextPage()
 $call ComicSnapCamera("Camera")
 $call ComicUnloadPreviousPage()
 
-$ComicOpenSpawnPanel(0, 0.5)
-$ComicOpenSpawnPanel(1, 1)
-$call ComicNextButton()
-$ComicOpenSpawnPanel(2, 0.5)
-$call ComicNextButton()
-
 $call ComicPreloadNextPage()
-
-$ComicOpenSpawnPanel(3, 0.5)
+$ComicOpenSpawnPanel(0, 0.5)
 $call ComicNextButton()
-$call ComicSpawnLayerIndex(1)
-$wait 1
 
 // page 4
 
@@ -70,8 +83,11 @@ $call ComicNextButton()
 $call ComicUnloadPreviousPage()
 $ComicOpenSpawnPanel(1, 1)
 $ComicOpenSpawnPanel(2, 1)
+
 $call ComicPreloadNextPage()
 $ComicOpenSpawnPanel(3, 0.5)
+$call ComicNextButton()
+$ComicOpenSpawnPanel(4, 0.5)
 $call ComicNextButton()
 
 // page 5
@@ -91,6 +107,54 @@ $call ComicNextButton()
 $ComicOpenSpawnPanel(2, 0.5)
 $call ComicNextButton()
 
+$call ComicPreloadNextPage()
 $ComicOpenSpawnPanel(3, 1)
 $ComicOpenSpawnPanel(4, 0.5)
+$call ComicNextButton()
+
+// page 6
+
+$call ComicOpenNextPage()
+$call ComicSnapCamera("Camera")
+
+$ComicOpenSpawnPanel(0, 0.5)
+$call ComicNextButton()
+
+$call ComicUnloadPreviousPage()
+
+$ComicOpenSpawnPanel(1, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(2, 0.5)
+$call ComicNextButton()
+
+$call ComicPreloadNextPage()
+$ComicOpenSpawnPanel(3, 1)
+$ComicOpenSpawnPanel(4, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(5, 0.5)
+$call ComicNextButton()
+
+// page 7
+
+$call ComicOpenNextPage()
+$call ComicSnapCamera("Camera")
+
+$ComicOpenSpawnPanel(0, 0.5)
+$call ComicNextButton()
+
+$call ComicUnloadPreviousPage()
+
+$ComicOpenSpawnPanel(1, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(2, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(3, 1)
+$ComicOpenSpawnPanel(4, 0.5)
+$call ComicNextButton()
+
+$ComicOpenSpawnPanel(5, 0.5)
 $call ComicNextButton()
