@@ -2679,10 +2679,6 @@ PrefabInstance:
       propertyPath: WikiTabs.Array.data[1]
       value: 
       objectReference: {fileID: 11400000, guid: 9689ffd62083f5f4f824d792f32928bf, type: 2}
-    - target: {fileID: 7132706226959445814, guid: b69396a508bab5e439460784e128a6dc, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -5.159897
-      objectReference: {fileID: 0}
     - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: Id
       value: 2

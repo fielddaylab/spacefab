@@ -2862,7 +2862,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4278252909421648584, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 30.199982
+      value: 30.199997
       objectReference: {fileID: 0}
     - target: {fileID: 6840469943802103755, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_Camera
@@ -2888,10 +2888,6 @@ PrefabInstance:
       propertyPath: WikiTabs.Array.data[3]
       value: 
       objectReference: {fileID: 11400000, guid: 64bb228a83f3b184eb45a5510fef6e09, type: 2}
-    - target: {fileID: 7132706226959445814, guid: b69396a508bab5e439460784e128a6dc, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -5.159897
-      objectReference: {fileID: 0}
     - target: {fileID: 7460979648624716227, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: Id
       value: 1
