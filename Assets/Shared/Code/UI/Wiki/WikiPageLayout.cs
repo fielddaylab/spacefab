@@ -13,6 +13,7 @@ using SpaceFab.Research;
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -246,7 +247,7 @@ namespace SpaceFab.UI {
                     ? ResearchWikiInputUtility.GetObservationChipText(label, content.ResearchContext.InterfacerState)
                     : MaterialPropertyLabelDisplay.GetObservationName(label);
 
-                chip.SetState(labelText, ChipFillState.Filled, false, pageData.ObservationType);
+                chip.SetProperty(labelText, ChipFillState.Filled, false, label);
                 chip.Tag.SetId(WikiElementTagUtility.ObservationTypeObservationId(pageData.ObservationType, label));
                 layout.AssignedSlotIndices[allocatedProps] = (sbyte) allocatedProps;
 
@@ -257,6 +258,8 @@ namespace SpaceFab.UI {
 
             layout.CurrentObservationChipCount = allocatedProps;
         }
+
+        static private readonly StringHash32[] s_NullContext = new StringHash32[] { StringHash32.Null };
 
         static private void PopulatePropertyPage(WikiPageLayout layout, WikiPageData pageData, WikiContent content) {
             layout.CurrentPageType = WikiPageType.Property;
@@ -271,9 +274,42 @@ namespace SpaceFab.UI {
             layout.CurrentPropertyChip = prop.Label;
 
             layout.PropertyChip.gameObject.SetActive(true);
-            layout.PropertyChip.SetState(MaterialPropertyLabelDisplay.GetPropertyName(prop.Label), ChipFillState.Filled, false, MaterialObservationChamberLookup.GetChamberType(prop.Label));
-        
-            // TODO: Decompose into observations
+            layout.PropertyChip.SetProperty(MaterialPropertyLabelDisplay.GetPropertyName(prop.Label), ChipFillState.Confirmed, false, prop.Label);
+
+            MaterialPropertyDefinitionAsset registry = Find.GlobalAsset<MaterialPropertyDefinitionAsset>();
+            MaterialPropertyDefinition[] defs = registry.GetDefinitions(prop.Label);
+
+            using (PooledList<MaterialObservationEntry> entries = PooledList<MaterialObservationEntry>.Create()) {
+                MaterialPropertyDefinitionUtility.DecomposeToObservations(defs[0], s_NullContext, entries);
+
+                Assert.True(entries.Count <= layout.ObservationChips.Length, "Too many observations in decomposed property");
+
+                int allocatedProps = 0;
+                for (int i = 0; i < entries.Count; i++) {
+
+                    MaterialPropertyLabel label = entries[i].Label;
+                    ResearchObservationChip chip = layout.ObservationChips[allocatedProps];
+                    layout.CurrentObservationChipSlots[allocatedProps] = new WikiPageChipSlot() {
+                        PropertyChip = label,
+                        ContextIndex = -1
+                    };
+
+                    string labelText = content.ResearchContext.Present
+                        ? ResearchWikiInputUtility.GetObservationChipText(label, content.ResearchContext.InterfacerState)
+                        : MaterialPropertyLabelDisplay.GetObservationName(label);
+
+                    chip.SetProperty(labelText, ChipFillState.Filled, false, label);
+                    chip.ApplyUnselectableStyle();
+                    chip.Tag.SetId(WikiElementTagUtility.ObservationTypeObservationId(pageData.ObservationType, label));
+                    layout.AssignedSlotIndices[allocatedProps] = (sbyte)allocatedProps;
+
+                    chip.Click.enabled = false;
+                    chip.gameObject.SetActive(true);
+                    allocatedProps++;
+                }
+
+                layout.CurrentObservationChipCount = allocatedProps;
+            }
         }
 
         static private void PopulateDefaultPageContent(WikiPageLayout layout, WikiPageData pageData, WikiContent content) {
@@ -365,7 +401,7 @@ namespace SpaceFab.UI {
                     int bitMask = 1 << chipData.ContextIndex;
                     if ((recordMask & bitMask) == bitMask) {
                         ResearchObservationChip chip = pageLayout.ObservationChips[usedChips++];
-                        chip.SetState(MaterialPropertyLabelDisplay.GetPropertyName(chipData.PropertyChip), ChipFillState.Confirmed, false, ObservationType.ConfirmedProperty);
+                        chip.SetProperty(MaterialPropertyLabelDisplay.GetPropertyName(chipData.PropertyChip), ChipFillState.Confirmed, false, chipData.PropertyChip);
                         chip.Tag.SetId(WikiElementTagUtility.MaterialCharacteristicId(pageLayout.CurrentMaterialId, chipData.PropertyChip, materialOrder.GetId(chipData.ContextIndex)));
                         pageLayout.AssignedSlotIndices[usedChips - 1] = (sbyte) i;
                     }
@@ -374,7 +410,7 @@ namespace SpaceFab.UI {
                     int bitMask = 1 << bitIndex;
                     if ((record.StaticMask & bitMask) == bitMask) {
                         ResearchObservationChip chip = pageLayout.ObservationChips[usedChips++];
-                        chip.SetState(MaterialPropertyLabelDisplay.GetPropertyName(chipData.PropertyChip), ChipFillState.Confirmed, false, ObservationType.ConfirmedProperty);
+                        chip.SetProperty(MaterialPropertyLabelDisplay.GetPropertyName(chipData.PropertyChip), ChipFillState.Confirmed, false, chipData.PropertyChip);
                         chip.Tag.SetId(WikiElementTagUtility.MaterialCharacteristicId(pageLayout.CurrentMaterialId, chipData.PropertyChip));
                         pageLayout.AssignedSlotIndices[usedChips - 1] = (sbyte)i;
                     }

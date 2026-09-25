@@ -240,9 +240,11 @@ namespace SpaceFab.Research {
                         MaterialPropertyLabel slotLabel = hypoVm.SlotLabels[i];
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
+                        panel.SlotChips[i].SetProperty(label, ChipFillState.Filled, locked, slotLabel, useEmptyDashedSprite: true);
+                    } else {
+                        panel.SlotChips[i].SetState(label, ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                     }
                     panel.SlotChips[i].gameObject.SetActive(filled);
-                    panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
 
@@ -263,9 +265,10 @@ namespace SpaceFab.Research {
                     MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
                     hypoLabel += " for " + hypoContext.ShortName; // only 'confirmed' semiconductors can be slotted -- always known
                 }
+                panel.HypothesisChip.SetProperty(hypoLabel, ChipFillState.Filled, false, hypo);
+            } else {
+                panel.HypothesisChip.SetState(hypoLabel, ChipFillState.Empty, false, hypoType, true);
             }
-
-            panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
             // once on chamber load (ObservationPickerLoadUtility);

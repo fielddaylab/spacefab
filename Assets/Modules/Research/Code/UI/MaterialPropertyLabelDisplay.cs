@@ -18,7 +18,7 @@ namespace SpaceFab.Research {
                 case MaterialPropertyLabel.HeatDeactivated: return "Heat decreases current";
                 case MaterialPropertyLabel.HeatUnaffected: return "Current unchanged by heat";
                 case MaterialPropertyLabel.HeatResistant: return "Resists HIGH heat";
-                case MaterialPropertyLabel.AtomicRadiusCompliant: return "Atomic radius fits";
+                case MaterialPropertyLabel.AtomicRadiusCompliant: return "Atomic radius compliant";
                 case MaterialPropertyLabel.LightEmitting: return "Emits light when active";
                 case MaterialPropertyLabel.HighMobility: return "High electron mobility";
                 case MaterialPropertyLabel.VoltageResistant: return "Withstands extreme voltage";

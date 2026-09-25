@@ -88,19 +88,12 @@ namespace SpaceFab.Research {
 
             // 5. Property icons: Show confirmed properties
             if (rig.PropertyIcons != null && rig.PropertyIcons.Length > 0) {
-                PropertyIconSprites iconAssets = Find.GlobalAsset<PropertyIconSprites>();
+                ResearchObservationChipAssets iconAssets = Find.GlobalAsset<ResearchObservationChipAssets>();
                 int iconIdx = 0;
                 for (int i = 0; i < material.Properties.Length; i++) {
                     MaterialPropertyLabel label = material.Properties[i];
                     bool confirmed = ResearchStateUtility.HasConfirmed(researchState, material.AssetId, label, StringHash32.Null);
-                    Sprite sprite = label switch {
-                        MaterialPropertyLabel.Conductor => iconAssets.ConductorIcon,
-                        MaterialPropertyLabel.Insulator => iconAssets.InsulatorIcon,
-                        MaterialPropertyLabel.Semiconductor => iconAssets.SemiconductorIcon,
-                        MaterialPropertyLabel.PDopantFor => iconAssets.PDopantIcon,
-                        MaterialPropertyLabel.NDopantFor => iconAssets.NDopantIcon,
-                        _ => null
-                    };
+                    iconAssets.TryGetIcon(label, out Sprite sprite);
 
                     if (sprite == null) { continue; }
 

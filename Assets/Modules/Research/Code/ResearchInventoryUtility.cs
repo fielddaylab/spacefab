@@ -24,7 +24,7 @@ namespace SpaceFab.Research
             {
                 researchState.Observations[materialId] = list;
             }
-            Debug.LogError($"{materialId.ToDebugString()} - Added {label} for {contextMaterialId.ToDebugString()}");
+            //Debug.LogError($"{materialId.ToDebugString()} - Added {label} for {contextMaterialId.ToDebugString()}");
             return added;
         }
 

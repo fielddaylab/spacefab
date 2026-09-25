@@ -155,7 +155,7 @@ namespace SpaceFab.UI {
                 WikiContentList pageList = content.TabPages[state.CurrentTabId];
                 int pageCount = pageList.Count;
                 int windowSize = layout.Paginator.Pages.Length;
-                int nextScroll = ClampScroll(state.CurrentPageScroll + scrollDirection, pageCount, windowSize);
+                int nextScroll = ClampScroll(state.CurrentPageScroll + scrollDirection * 4, pageCount, windowSize);
                 if (state.CurrentPageScroll != nextScroll) {
                     state.CurrentPageScroll = nextScroll;
                     WikiUtility.Invalidate(state, WikiViewDirtyFlags.PageList);
