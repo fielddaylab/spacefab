@@ -19,7 +19,6 @@
 
 {@PAL}      Sounded like you had a question Captain, can I be of assitance? 
 {@Player}   Uh... yeah, but you can help me when I get to the lab.      
-{@PAL}      Alrighty then, Captian! 
 
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
 $call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the full version after first chapter 
@@ -33,14 +32,14 @@ $call   UnlockWikiPage("Insulator")
 @cutscene 
 @once
 
-{@PAL}    So Captain, did I overhear that Dorian was also your friend? 
+{@PAL}    So Captain, did I overhear that Dorian is your friend? 
 {@Player}   What? How do you- were you eavesdropping? 
 {@PAL}    Oh, yea, I hear every convo you have. 
 {@Player}   ...I see...
 {@Player}   Well, don't feel like you have to listen. 
-{@PAL}    Ah but I have to, in accordance to Frontier Robotics Code. 
-{@PAL}    Even if I wanted to I can't access the controls to turn it off. 
-{@PAL}    And just so you know, I enjoy this protocol. It helps me stay on top of things. 
+{@PAL}    Ah but I have to, in accordance with my Frontier Robotics system parameters. 
+{@PAL}    Even if I wanted to, I can't access the controls to turn it off. 
+{@PAL}    And actually, I enjoy this protocol. It helps me stay on top of things. 
 {@Player}   ...great. 
 
 ::BeforeSupplyChainCh2
