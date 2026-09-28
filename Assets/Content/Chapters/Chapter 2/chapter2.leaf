@@ -87,6 +87,12 @@ $call   UnlockWikiPage("Insulator")
 @cutscene 
 @once
 
+@{Player}	P.A.L. did you get the fab bay cleaned up? 
+@{PAL}		The fab bay is in perfect condition, as always. 
+@{PAL}		...at least as perfect as it can be on an old clunker of a ship.
+@{Player}	Clunker? As always? Looks like someone's system needs some updating...
+{@PAL}		Oh, I think I hear something... sounds like you have an incoming call...
+
 //call coming in from Quinn
 {@Quinn}    Got the materials loaded Cap'!
 {@Quinn}    Say, I noticed the last invoice I sent you was paid by Frontier Robots. What's up with that? 
