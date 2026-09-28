@@ -48,7 +48,7 @@ $call   ReleaseAllHighlights()
 {@Player}	I'm going to give Quinn a call to let her know she'll be working with me. 
 //phone dial character
 {@Quinn}    Oh, hi Locke! I was expecting to see Dorian. 
-{@Player}   Yeah, Dorian's not on the ship anyore. It's a long story but I'm planning the routes now. 
+{@Player}   Yeah, Dorian's not on the ship anyore. It's a long story -- I'll tell you later. Looks like I'm planning the routes now. 
 {@Quinn}    Okay, Cap'. I’ve got you.
 {@Quinn}    You decide where you want to get your materials. I’ll handle the haulers.
 {@Player} Sounds easy enough. Talk to you later.
