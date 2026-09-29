@@ -143,7 +143,7 @@ namespace SpaceFab.UI {
 
             layout.TitleText.SetText(materialData.DisplayName);
             layout.BodyText.SetTextAndActive(pageData.BodyText);
-            layout.CaptionText.SetTextAndActive(pageData.CaptionText);
+            layout.CaptionText.SetTextAndActive("Properties");
 
             Find.State(out PlayerProgressState playerProgress);
             Find.GlobalAsset(out MaterialOrderAsset materialOrder, out ResearchObservationChipAssets chipAssets);
