@@ -58,6 +58,7 @@ namespace SpaceFab.Research {
         [Header("Property Chips")]
         public ColorPalette2 UnidentifiedPropertyPalette;
         public Color UnidentifiedPropertyIconTint;
+        public Sprite UnknownPropertyIcon;
 
         [Header("Empty Chip")]
         public Sprite EmptyBackground;

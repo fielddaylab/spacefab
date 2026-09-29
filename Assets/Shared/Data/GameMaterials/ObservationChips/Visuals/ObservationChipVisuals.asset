@@ -120,6 +120,8 @@ MonoBehaviour:
     Icon: {fileID: 21300000, guid: 1f108a5e10d33ae47a81928ca64724c0, type: 3}
   - Label: 24
     Icon: {fileID: 21300000, guid: a69228bc3bb10854b9f43d0883383597, type: 3}
+  - Label: 17
+    Icon: {fileID: 21300000, guid: b49e6e9ded1697d4282dad61a01e2d85, type: 3}
   UnselectablePalette:
     Content:
       serializedVersion: 2
@@ -136,6 +138,7 @@ MonoBehaviour:
       serializedVersion: 2
       rgba: 4292080383
   UnidentifiedPropertyIconTint: {r: 0.9, g: 0.9, b: 0.623, a: 0.8509804}
+  UnknownPropertyIcon: {fileID: 21300000, guid: 11c6bffe34bb4ab46a51b067a451cd26, type: 3}
   EmptyBackground: {fileID: 0}
   EmptyOutline: {fileID: 0}
   EmptyColorPalette:
@@ -145,4 +148,3 @@ MonoBehaviour:
     Background:
       serializedVersion: 2
       rgba: 4281808695
-  m_EmptySlotSprite: {fileID: 21300000, guid: 717fc0b0465560744b70b21738e8a358, type: 3}

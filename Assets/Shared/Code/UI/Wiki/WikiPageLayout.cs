@@ -146,7 +146,7 @@ namespace SpaceFab.UI {
             layout.CaptionText.SetTextAndActive(pageData.CaptionText);
 
             Find.State(out PlayerProgressState playerProgress);
-            Find.GlobalAsset(out MaterialOrderAsset materialOrder);
+            Find.GlobalAsset(out MaterialOrderAsset materialOrder, out ResearchObservationChipAssets chipAssets);
 
             int allocatedProps = 0;
             bool isNDopant = false,
@@ -177,6 +177,8 @@ namespace SpaceFab.UI {
                     ContextIndex = -1
                 };
 
+                chip.ApplyShape(chipAssets, ObservationType.ConfirmedProperty, ChipFillState.Filled, false);
+
                 chip.Click.enabled = false;
                 chip.gameObject.SetActive(true);
 
@@ -205,6 +207,8 @@ namespace SpaceFab.UI {
                         PropertyChip = isPDopant ? MaterialPropertyLabel.PDopantFor : MaterialPropertyLabel.NDopantFor,
                         ContextIndex = (sbyte) contextIndices[i]
                     };
+
+                    chip.ApplyShape(chipAssets, ObservationType.ConfirmedProperty, ChipFillState.Filled, false);
 
                     chip.Click.enabled = false;
                     chip.gameObject.SetActive(true);
@@ -383,7 +387,7 @@ namespace SpaceFab.UI {
             }
 
             Find.State(out PlayerProgressState playerProgress);
-            Find.GlobalAsset(out MaterialOrderAsset materialOrder);
+            Find.GlobalAsset(out MaterialOrderAsset materialOrder, out ResearchObservationChipAssets chipAssets);
 
             MaterialPropertyRecord record = WikiContentUtility.GetMaterialRecord(pageLayout.CurrentMaterialId, playerProgress, content.ResearchContext);
 
@@ -418,6 +422,7 @@ namespace SpaceFab.UI {
 
             for(int i = usedChips; i < pageLayout.CurrentObservationChipCount; i++) {
                 ResearchObservationChip chip = pageLayout.ObservationChips[i];
+                chip.Icon.sprite = chipAssets.UnknownPropertyIcon;
                 chip.SetState("Unknown Property", ChipFillState.Filled, false, ObservationType.ConfirmedProperty, false);
             }
         }
