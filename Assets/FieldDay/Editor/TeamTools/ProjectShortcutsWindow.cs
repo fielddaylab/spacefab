@@ -70,8 +70,7 @@ namespace FieldDay.Editor {
                 m_ReadmeStyle.wordWrap = true;
             }
 
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            {
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar); {
                 if (GUILayout.Button(EditorGUIUtility.IconContent("d_Refresh"), EditorStyles.toolbarButton)) {
                     UpdateProjectShortcuts();
                 }
@@ -153,9 +152,8 @@ namespace FieldDay.Editor {
                     if (GUILayout.Button(content, m_ButtonStyle)) {
                         if (item.Object != null) {
                             Selection.activeObject = item.Object;
-                            if (PrefabUtility.IsPartOfAnyPrefab(item.Object)) {
-                                PrefabStageUtility.OpenPrefab(AssetDatabase.GetAssetPath(item.Object));
-                            }
+                            EditorGUIUtility.PingObject(item.Object);
+                            AssetDatabase.OpenAsset(item.Object);
                         } else {
                             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
                                 if (Event.current.shift) {
@@ -174,7 +172,7 @@ namespace FieldDay.Editor {
                     }
                 }
 
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
             }
         }
 
@@ -187,6 +185,10 @@ namespace FieldDay.Editor {
 
         [InitializeOnLoadMethod]
         static private void PresentInitially() {
+            if (EditorApplication.isUpdating) {
+                return;
+            }
+
             if (!File.Exists("Library/HasDisplayedProjectShortcutsPrompt.txt")) {
                 File.WriteAllText("Library/HasDisplayedProjectShortcutsPrompt.txt", " ");
                 if (EditorWindow.HasOpenInstances<ProjectShortcutsWindow>()) {
