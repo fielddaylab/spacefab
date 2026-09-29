@@ -16,8 +16,11 @@ namespace SpaceFab.Fabrication
 
         [Header("-- DEBUG --")]
         public FabricationLevel DEBUG_FabricationLevel;
+
+#if UNITY_EDITOR
         void IEditorOnlyData.ClearEditorData(bool isDevelopmentBuild) {
             DEBUG_FabricationLevel = null;
         }
+#endif // UNITY_EDITOR
     }
 }
