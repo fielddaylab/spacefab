@@ -27,17 +27,6 @@
 @cutscene
 @once 
 
-{@Joel}     Quinnie, how do I turn this thing on? 
-{@Quinn}    It's on Uncle Joel. And don't call me that. 
-{@Joel}     Awe Quinnie, don't be embarassed, you loved that name as a kiddo.
-{@Player}   Uh- PAL, whose that?
-{@PAL}      It's your gift, from me to you! You have a new hauler!
-{@Quinn}    I love that the bot takes all the credit. 
-{@Quinn}    PAL practically begged me, so, you're welcome I guess. 
-{@Joel}     Now, Quinnie, remember, respect the Captain.
-{@Quinn}    Right. Sorry Cap'. 
-{@Joel}     Pleasure to be of service Captain, let's get to haulin'!
-{@Player}   Glad to have you on board. 
 
 ::AfterDesignCh3
 @trigger    OnOverarchingLoaded
@@ -45,20 +34,6 @@
 @cutscene
 @once
 
-{@PAL}      Hey Captain, looks like there's a new supplier available! I'll patch him through. 
-{@Xavier}   ... 
-{@Player}   Uh... hi. 
-{@Xavier}   Hello. 
-{@Player}   So... are you the supplier or-- 
-{@Xavier}   Of course I'm the supplier. Isn't that obvious? 
-{@Xavier}   I sent a memo. Detes are in there. 
-{@Player}   A... wha- 
-{@Xavier}   Oh Dear Sol. I'm Xavier. Supplier contact for the Ralston sector.
-{@Xavier}   Planet of Gold and Golden Opportunities. 
-{@Xavier}   Any and all materials within this sector goes through me. Capiche? 
-{@Xavier}   Now. Let's talk business. You need material. I have it. You let me know what you want, it's done. 
-{@Player}   Uh... well... I'll let you know. 
-{@Xavier}   Hmph. Fine. Call me back when you grow a brain and are ready to beat that debt. 
 
 //endregion 
 
@@ -68,22 +43,26 @@
 @cutscene 
 @once 
 
-{@Callie}   A'hoy! I see a Frontier ship is interested in business... how scandalous. 
-{@Player}   Uh... you're the one who called me. 
-{@Callie}   Oh... regardless, be blessed in my presence mere corpo-lackey! Or as I like to call ye, Clackey!
-{@Callie}  	For it is, I, Callie Lee!
-{@Callie}  	The Boron Space Pirate Queen of Velos Station! 
-{@Player}  	Is... is that supposed to mean something? 
-{@Callie}   Seriously? You... you've never heard of me? 
-{@Callie}   The great revolt of the Velos Penal Station...
-{@Player}   ... I haven't left the ship in a while. 
-{@Callie}   I see… well it should be known that all Frontier ships are marked for pillaging!
-{@Callie}   However, if you do continued business with us... 
-{@Callie}   We may... avert our attention elsewhere. 
-{@Player}   That sounds illegal.
-{@Callie}   Illegal schmegal, sometimes bending rules is the only rules you can follow. 
-{@Callie}   Holler if you need some goods, Clackey. 
-{@Player}  	Don't call me that- aaaand she hung up. 
+//introduced idea of cost vs time
+
+{@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
+{@Player} 	Ummm... gold? Isn't that really expensive? 
+{@PAL} 		Sure it is but when you calculate travel time and cost of transport, sometimes the extra money is worth it. 
+{@Player}	Alright, let's give him a call. 
+//call Xavier
+{@Xavier}   ... 
+{@Xavier}   Hello. 
+{@Player}   So... are you the supplier or-- 
+{@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
+{@Xavier}   Planet of Gold and Golden Opportunities. 
+{@Xavier}   Any and all materials within this sector goes through me. Capiche? 
+{@Xavier}	And who are you? 
+{@Player}	I'm the Captain of the Constantine. I'm running a fab here and need some materials.
+{@Xavier}   Well now. Let's talk business. You need material. I have it. You let me know what you want, it's done. 
+{@Player}   Uh... well... I'll let you know. Gold seems kinda pricey...
+{@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
+
+
 
 ::AfterFabrication
 @trigger 

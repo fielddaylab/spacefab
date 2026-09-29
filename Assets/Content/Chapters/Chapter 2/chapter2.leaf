@@ -51,9 +51,9 @@ $call   UnlockWikiPage("Insulator")
 //introduce the idea of the refining station. pick up at wayward and refine at frosch
 {@Player}   Hey P.A.L., it looks like I'll need a semiconductor but there isn't any available in this sector. 
 {@PAL}      Ah yes. ... ... My search shows that you can get materials that can be refined at the Forsch station. 
-{@Player}   So the refining station takes one material and can turn it into another one? Cool.
+{@Player}   So the refining station takes one material and can turn it into another one? Cool
 
-//conversation with Taryn and Ovill arguing over who gets to source for Locke. Could switch the convo above to come from taryn or whoever is at the conversion planet. 
+//conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
 //{@Player}   Hi Taryn.
 //{@Taryn}    Locke, hiya!
 //{@Player}   Listen I saw... your face, you got uh... dirt all over it. 
