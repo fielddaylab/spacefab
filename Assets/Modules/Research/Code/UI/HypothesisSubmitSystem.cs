@@ -192,7 +192,7 @@ namespace SpaceFab.Research {
                     foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                         if (panel == null || !panel.PickerOpen) continue;
                         // TODO: change sprite for greyed out chips
-                        panel.SlotChips[i].Background.color = Color.grey;
+                        //panel.SlotChips[i].Background.color = Color.grey;
                     }
                 }
             }

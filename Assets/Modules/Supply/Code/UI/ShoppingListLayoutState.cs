@@ -4,6 +4,7 @@ using BeauUtil;
 using BeauUtil.UI;
 using FieldDay;
 using FieldDay.Scenes;
+using FieldDay.Scripting;
 using FieldDay.SharedState;
 using FieldDay.UI.Widgets;
 using SpaceFab.UI;
@@ -68,7 +69,7 @@ namespace SpaceFab.Supply {
 
             ConfirmButton.OnClick.AddListener(() => {
                 Find.Panel<SupplyResultPanel>().Show();
-
+                ScriptUtility.Trigger(SupplyScriptTriggers.OnRoutesConfirmed);
             });
 
             return null;
