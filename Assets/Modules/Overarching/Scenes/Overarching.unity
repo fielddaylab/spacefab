@@ -2267,7 +2267,7 @@ MonoBehaviour:
   CursorType:
     m_HashValue: 0
   Flags: 0
-  TooltipHeader: 
+  TooltipHeader: Materials Research
   Tooltip: 
   TooltipFooter: 
 --- !u!114 &1022372724
@@ -2694,7 +2694,7 @@ MonoBehaviour:
   CursorType:
     m_HashValue: 0
   Flags: 0
-  TooltipHeader: 
+  TooltipHeader: Supply Chain Planner
   Tooltip: 
   TooltipFooter: 
 --- !u!114 &1618859507
@@ -2802,7 +2802,7 @@ MonoBehaviour:
   CursorType:
     m_HashValue: 0
   Flags: 0
-  TooltipHeader: 
+  TooltipHeader: Fabrication Unit
   Tooltip: 
   TooltipFooter: 
 --- !u!114 &1981516454
@@ -3029,7 +3029,7 @@ MonoBehaviour:
   CursorType:
     m_HashValue: 0
   Flags: 0
-  TooltipHeader: 
+  TooltipHeader: Chip Design Lab
   Tooltip: 
   TooltipFooter: 
 --- !u!114 &2048587171

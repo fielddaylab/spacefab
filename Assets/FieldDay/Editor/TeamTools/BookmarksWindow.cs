@@ -9,10 +9,10 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace FieldDay.Editor {
-    public sealed class ProjectShortcutsWindow : EditorWindow {
+    public sealed class BookmarksWindow : EditorWindow {
         [SerializeField] private List<string> m_ExpandedGuids = new List<string>();
 
-        [SerializeField] private ProjectShortcutsAsset[] m_ProjectShortcuts;
+        [SerializeField] private BookmarksPageAsset[] m_ProjectShortcuts;
         [SerializeField] private Vector2 m_Scroll;
         [SerializeField] private bool m_HorizontalView;
 
@@ -23,7 +23,7 @@ namespace FieldDay.Editor {
         [NonSerialized] private GUIStyle m_ReadmeStyle;
 
         public void OnEnable() {
-            titleContent = new GUIContent("Project Shortcuts");
+            titleContent = new GUIContent("Bookmarks");
             minSize = new Vector2(200, 200);
             UpdateProjectShortcuts();
         }
@@ -33,7 +33,7 @@ namespace FieldDay.Editor {
         }
 
         private void UpdateProjectShortcuts() {
-            m_ProjectShortcuts = AssetDBUtils.FindAssets<ProjectShortcutsAsset>();
+            m_ProjectShortcuts = AssetDBUtils.FindAssets<BookmarksPageAsset>();
             Array.Sort(m_ProjectShortcuts, (a, b) => {
                 if (a.SortOrder != b.SortOrder) {
                     return a.SortOrder.CompareTo(b.SortOrder);
@@ -101,7 +101,7 @@ namespace FieldDay.Editor {
             EditorGUILayout.EndScrollView();
         }
 
-        private void RenderShortcutGroup(ProjectShortcutsAsset shortcutsGroup) {
+        private void RenderShortcutGroup(BookmarksPageAsset shortcutsGroup) {
             bool isExpanded = m_ExpandedGuids.Contains(shortcutsGroup.CachedGuid);
             bool newExpended = EditorGUILayout.Foldout(isExpanded, string.Format("{0} ({1})", shortcutsGroup.CachedName, shortcutsGroup.Items.Length));
             if (newExpended != isExpanded) {
@@ -176,25 +176,30 @@ namespace FieldDay.Editor {
             }
         }
 
-        [MenuItem("Field Day/Project Shortcuts Window", priority = -1000)]
+        [MenuItem("Field Day/Open Bookmarks Window", priority = -1000)]
         static private void OpenWindow() {
-            if (!EditorWindow.HasOpenInstances<ProjectShortcutsWindow>()) {
-                EditorWindow.GetWindow<ProjectShortcutsWindow>().Show();
+            if (!EditorWindow.HasOpenInstances<BookmarksWindow>()) {
+                EditorWindow.GetWindow<BookmarksWindow>().Show();
             }
         }
 
-        [InitializeOnLoadMethod]
-        static private void PresentInitially() {
-            if (EditorApplication.isUpdating) {
-                return;
-            }
+        [MenuItem("Field Day/Open Bookmarks Window", priority = -1000, validate = true)]
+        static private bool OpenWindow_Validate() {
+            return !EditorWindow.HasOpenInstances<BookmarksWindow>();
+        }
 
+        [InitializeOnLoadMethod]
+        static private void QueueInitialPrompt() {
+            EditorApplication.delayCall += TryPresentInitialPrompt;
+        }
+
+        static private void TryPresentInitialPrompt() {
             if (!File.Exists("Library/HasDisplayedProjectShortcutsPrompt.txt")) {
                 File.WriteAllText("Library/HasDisplayedProjectShortcutsPrompt.txt", " ");
-                if (EditorWindow.HasOpenInstances<ProjectShortcutsWindow>()) {
+                if (EditorWindow.HasOpenInstances<BookmarksWindow>()) {
                     return;
                 }
-                if (EditorUtility.DisplayDialog("Project Shortcuts", "\"Project Shortcuts\" are now available! Would you like to open them?", "Yes", "No")) {
+                if (EditorUtility.DisplayDialog("Bookmarks", "\"Bookmarks\" are now available! Would you like to open them?", "Yes", "No")) {
                     OpenWindow();
                 }
             }
