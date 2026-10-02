@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3946540190
+CRC: 3490173699
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 011091045978caddc7cde40a86cd83d2
+    Hash: 0d40fe279e923350cb6e7ddafb634c23
   TypeTreeHash:
     serializedVersion: 2
     Hash: 5c96aad99a185c07300ac1e0922e342d
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 011091045978caddc7cde40a86cd83d2
+    Hash: 0d40fe279e923350cb6e7ddafb634c23
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -40,5 +40,5 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: BeauUtil
   ClassName: BeauUtil.StringHash32
 Assets:
-- Assets/Content/Comics/Chapter4/Ch4ComicPack.asset
+- Assets/Content/Comics/Chapter6/Ch6ComicPack.asset
 Dependencies: []

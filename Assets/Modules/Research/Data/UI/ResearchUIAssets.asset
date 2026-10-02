@@ -26,5 +26,5 @@ MonoBehaviour:
   SuccessColor: {r: 0.039215688, g: 1, b: 0.3137255, a: 1}
   FailureColor: {r: 0.99215686, g: 0.34117648, b: 0.08235294, a: 1}
   ProcessingColor: {r: 0.039215688, g: 1, b: 0.8784314, a: 1}
-  SuccessIcon: {fileID: 21300000, guid: 09019f6da88d5ab46899106fc22ceb7f, type: 3}
-  FailureIcon: {fileID: 21300000, guid: ba64b1c70d81e57419e901926f1f88e4, type: 3}
+  SuccessIcon: {fileID: 21300000, guid: 32b76cc3c1402d94fa2ea4b09936d0ac, type: 3}
+  FailureIcon: {fileID: 21300000, guid: 6640efae2529fe8429faecfdde39c82c, type: 3}
