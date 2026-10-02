@@ -1155,6 +1155,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1316793691771253811, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
   m_PrefabInstance: {fileID: 699037342}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &632581350 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3810329257579434596, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
+  m_PrefabInstance: {fileID: 5429475297052697717}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &659472203 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8451518490773634358, guid: 338e5776d07785b40aa1a3c5ad36e4a1, type: 3}
@@ -2307,6 +2318,7 @@ MonoBehaviour:
   SequenceCardBG: {fileID: 5429475297052697721}
   SequenceCardHeaderBG: {fileID: 5429475297052697723}
   SequenceCardHeaderText: {fileID: 5429475297052697722}
+  GlitchedText: {fileID: 632581350}
   PanelCanvasGroup: {fileID: 5429475297052697720}
   CardSlotA: {fileID: 5429475297052697718}
   CardSlotB: {fileID: 5429475297052697719}

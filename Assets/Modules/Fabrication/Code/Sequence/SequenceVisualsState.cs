@@ -3,6 +3,7 @@ using FieldDay;
 using FieldDay.SharedState;
 using System;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,7 @@ namespace SpaceFab.Fabrication.Sequence
         public Image SequenceCardBG;
         public Image SequenceCardHeaderBG;
         public TMP_Text SequenceCardHeaderText;
+        public Image GlitchedText;
 
         public CanvasGroup PanelCanvasGroup;
         public SequenceCard CardSlotA;
@@ -116,7 +118,9 @@ namespace SpaceFab.Fabrication.Sequence
                 PopulateCard(visualsState, visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
                 SetCardVisible(visualsState.FrontCard, true);
-                SetPanelVisible(visualsState, !runtime.IsGlitched);
+                visualsState.GlitchedText.enabled = runtime.IsGlitched;
+                visualsState.FrontCard.StationLabelText.enabled = !runtime.IsGlitched;
+                visualsState.BackCard.StationLabelText.enabled = !runtime.IsGlitched;
             } else {
                 SetCardVisible(visualsState.FrontCard, false);
             }
@@ -169,7 +173,9 @@ namespace SpaceFab.Fabrication.Sequence
             StepRuntimeData incomingRuntime = GetRuntime(sequenceState, sequenceState.CurrentStepIndex);
             SetCardVisible(visualsState.BackCard, true);
             SetCardVisible(visualsState.FrontCard, false);
-            SetPanelVisible(visualsState, !incomingRuntime.IsGlitched);
+            visualsState.GlitchedText.enabled = incomingRuntime.IsGlitched;
+            visualsState.FrontCard.StationLabelText.enabled = !incomingRuntime.IsGlitched;
+            visualsState.BackCard.StationLabelText.enabled = !incomingRuntime.IsGlitched;
 
             yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
 
@@ -194,7 +200,6 @@ namespace SpaceFab.Fabrication.Sequence
             }
             SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[justCompletedIndex + 1].StepId.ToString(), false)));
             SetCardVisible(newBack, false);
-
         }
 
         public static IEnumerator MoveOffscreenRoutine(SequenceVisualsState visualsState)
@@ -252,6 +257,27 @@ namespace SpaceFab.Fabrication.Sequence
             card.StationLabelText.text = entry.StationLabel;
             card.InstructionLabelText.text = entry.InstructionLabel;
 
+            switch (step.Chunk)
+            {
+                case SequenceChunk.N:
+                    visualState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceBG;
+                    visualState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceHeaderBG;
+                    visualState.SequenceCardHeaderText.text = "N-Type Layer";
+                    break;
+                case SequenceChunk.P:
+                    visualState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceBG;
+                    visualState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceHeaderBG;
+                    visualState.SequenceCardHeaderText.text = "P-Type Layer";
+                    break;
+                case SequenceChunk.Metal:
+                    visualState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceBG;
+                    visualState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceHeaderBG;
+                    visualState.SequenceCardHeaderText.text = "Metal Layer";
+                    break;
+                default:
+                    break;
+            }
+
             // TODO: when runtime.IsGlitched, apply lookup.GlitchOverlaySprite / GlitchOverlayText.
             // Deferred until the card prefab carries a dedicated glitch overlay child
         }
@@ -284,15 +310,6 @@ namespace SpaceFab.Fabrication.Sequence
             card.Group.alpha = visible ? 1f : 0f;
             card.Group.interactable = visible;
             card.Group.blocksRaycasts = visible;
-        }
-
-        private static void SetPanelVisible(SequenceVisualsState visualsState, bool visible)
-        {
-            CanvasGroup group = visualsState.PanelCanvasGroup;
-            if (group == null) return;
-            group.alpha = visible ? 1f : 0f;
-            group.interactable = visible;
-            group.blocksRaycasts = visible;
         }
 
         // Puts a card on top by making it the last sibling under its parent. Sibling order is how
