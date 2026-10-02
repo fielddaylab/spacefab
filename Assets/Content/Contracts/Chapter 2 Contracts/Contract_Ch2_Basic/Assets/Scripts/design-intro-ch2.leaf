@@ -1,86 +1,70 @@
 # basePath DesignIntroCh2
 
+// Level 2: Lower Layer
+
 ::IntroSelectTrace
 @trigger    OnDesignSetupComplete
 @when       CurrLevelIndex() == 0
 $if IsLevelSolved(0) == true
-    $set temp:designTutorialStep = 4
+    $set temp:designTutorialStep = 5
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
 $else
     $set temp:designTutorialStep = 0
-    $call   HighlightElement(design:n-dopant-tool-btn)
+    $call   HighlightElement(design:n-transistor-tool-btn)
     {@PAL}  There is a layer below the metal layer. Use this semiconductor layer to complete the chip.
 $endif
 
 
-::OnToolSelected
+::OnNTransistorToolSelected
 @trigger    OnToolSelected
 @when       tool == "DrawNNodes", CurrLevelIndex() == 0, temp:designTutorialStep == 0
 $set temp:designTutorialStep = 1
 $call   ReleaseAllHighlights()
 $call   HighlightElement(design:input-a, false, 25)
+$call   HighlightElement(design:output-x, false, 25)
 {@PAL} Now click and drag to draw a connection between Input A and Output X.
 
 
-::TestConnectionDrag
+::OnNTransistorDrawn
 @trigger    OnDragReleased
 @when       CurrLevelIndex() == 0
-$call   HighlightElement(design:via-tool-btn)
+$call   ReleaseAllHighlights()
 $if temp:designTutorialStep == 1
     $set temp:designTutorialStep = 2
-    $call   ReleaseHighlight(design:input-a)
+    $call   HighlightElement(design:via-tool-btn)
     {@PAL}  Use the Via tool to connect metal and semiconductor in a single cell.
-$elseif temp:designTutorialStep == 2
-    $call   ReleaseHighlight(design:input-a)
-    // player has dragged again on the grid, potentially after running a single test
-    {@PAL}  Use the Via tool to connect metal and semiconductor in a single cell.
-$elseif temp:designTutorialStep == 3
-    // player has already tested at least one case before modifying the grid
-    {@PAL} You'll have to re-run all tests whenever you modify the grid.
-$elseif temp:designTutorialStep == 4
-    // player has already tested all test cases before modifying the grid
-    {@PAL} You'll have to re-run all tests whenever you modify the grid.
 $endif
 
-// TODO: after placing at least one via
-// {@PAL}  Click <color=yellow>TEST</color> to verify.
 
-::TestConnectionClick
+::OnViaToolSelected
+@trigger    OnToolSelected
+@when       CurrLevelIndex() == 0, temp:designTutorialStep == 2
+$if     tool == "DrawVia"
+    $call   ReleaseAllHighlights()
+    $set    temp:designTutorialStep = 3
+$endif
+
+
+::OnViaPlaced
 @trigger    OnClickReleased
-@when       CurrLevelIndex() == 0, temp:designTutorialStep == 1
-{@PAL}  You'll need to click and drag to form a solid path.
+@when       CurrLevelIndex() == 0, temp:designTutorialStep == 3
+$set    temp:designTutorialStep = 4
+{@PAL}  Click <color=yellow>TEST</color> to verify.
 
 
 ::TestIncorrect
 @trigger    OnSingleTestComplete
 @when       result == "failure", CurrLevelIndex() == 0, temp:designTutorialStep != 0
-// only show this after the player knows how to select the trace tool
-$call   ReleaseHighlight(design:test-btn)
+\$call   ReleaseHighlight(design:test-btn)
 {@PAL}  The test failed.\n\nMake sure the Via touches both metal and semiconductor.
 
 
 ::TestCorrect
 @trigger    OnSingleTestComplete
 @when       result == "success", CurrLevelIndex() == 0
-$if temp:designTutorialStep < 4
-    $call   ReleaseAllHighlights()
-    $call   HighlightElement(design:input-a, false, 25)
-    $if     IsInputInState("A", "LO")
-        {@PAL}  Correct!\n\nNow flip the switch on the input to change it from LO to HI.
-    $else
-        {@PAL}  Correct!\n\nNow flip the switch on the input to change it from HI to LO.
-    $endif
-$endif
-
-
-::InputSwitch
-@trigger    OnInputToggled
-@when       CurrLevelIndex() == 0, temp:designTutorialStep >= 2, temp:designTutorialStep <= 3
-$call   ReleaseHighlight(design:input-a)
-$call   HighlightElement(design:test-btn)
-$set temp:designTutorialStep = 3
-{@PAL}  Click TEST again.
-
+$call   ReleaseAllHighlights()
+$call   HighlightElement(design:input-a, false, 25)
+{@PAL}  Correct!\n\nNow flip the switch on the input and click <color=yellow>TEST</color> again.
 
 
 ::AllTestsPassed
@@ -88,11 +72,11 @@ $set temp:designTutorialStep = 3
 @when       CurrLevelIndex() == 0
 $call   ReleaseAllHighlights()
 {@PAL}  It looks like all test cases passed!
-$set    temp:designTutorialStep = 4
+$set    temp:designTutorialStep = 5
 
 
 
-// Puzzle 2
+// Level 3: Underpass
 
 ::IntroSelectTraceLv2
 @trigger    OnDesignSetupComplete
