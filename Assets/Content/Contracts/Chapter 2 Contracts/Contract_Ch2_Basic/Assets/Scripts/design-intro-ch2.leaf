@@ -18,11 +18,9 @@ $endif
 ::OnNTransistorToolSelected
 @trigger    OnToolSelected
 @when       tool == "DrawNNodes", CurrLevelIndex() == 0, temp:designTutorialStep == 0
-$set temp:designTutorialStep = 1
+$set    temp:designTutorialStep = 1
 $call   ReleaseAllHighlights()
-$call   HighlightElement(design:input-a, false, 25)
-$call   HighlightElement(design:output-x, false, 25)
-{@PAL} Now click and drag to draw a connection between Input A and Output X.
+{@PAL}  Now click and drag to complete a connection between Input A and Output X.
 
 
 ::OnNTransistorDrawn
@@ -38,11 +36,9 @@ $endif
 
 ::OnViaToolSelected
 @trigger    OnToolSelected
-@when       CurrLevelIndex() == 0, temp:designTutorialStep == 2
-$if     tool == "DrawVia"
-    $call   ReleaseAllHighlights()
-    $set    temp:designTutorialStep = 3
-$endif
+@when       tool == "DrawVia", CurrLevelIndex() == 0, temp:designTutorialStep == 2
+$set    temp:designTutorialStep = 3
+$call   ReleaseAllHighlights()
 
 
 ::OnViaPlaced
@@ -54,8 +50,8 @@ $set    temp:designTutorialStep = 4
 
 ::TestIncorrect
 @trigger    OnSingleTestComplete
-@when       result == "failure", CurrLevelIndex() == 0, temp:designTutorialStep != 0
-\$call   ReleaseHighlight(design:test-btn)
+@when       result == "failure", CurrLevelIndex() == 0
+$call   ReleaseAllHighlights()
 {@PAL}  The test failed.\n\nMake sure the Via touches both metal and semiconductor.
 
 
@@ -81,24 +77,72 @@ $set    temp:designTutorialStep = 5
 ::IntroSelectTraceLv2
 @trigger    OnDesignSetupComplete
 @when       CurrLevelIndex() == 1
+$set    temp:failureIndex = 0
 $if IsLevelSolved(1) == true
     $set temp:designTutorialStep = 4
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
 $else
     $set temp:designTutorialStep = 0
-    $call   HighlightElement(design:n-dopant-tool-btn)
-    {@PAL}  Look at the Verification table. Output Y is always <color=yellow>HI</color>. Input HI is a constant. Connect them with the metal.
+    $call   HighlightElement(design:metal-tool-btn)
+    {@PAL}  Look at the Verification table. Output Y is always <color=yellow>HI</color>. Input HI is a constant.\n\nConnect them with the metal.
 $endif
 
-// TODO: release drag
-{@PAL}  To connect input A to output X, use a semiconductor to cross under the metal layer. Remember, the inputs and outputs are on the metal layer.
+::OnMetalToolSelected
+@trigger    OnToolSelected
+@when       CurrLevelIndex() == 1, tool == "DrawMetal", temp:designTutorialStep == 0
+$set    temp:designTutorialStep = 1
+$call   ReleaseHighlight(design:metal-tool-btn)
 
 
-// fail
-Hint: The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+::OnToolChangedFromMetal
+@trigger    OnToolSelected
+@when   CurrLevelIndex() == 1, temp:designTutorialStep == 1, tool != "DrawMetal"
+$set    temp:designTutorialStep = 0
+$call   HighlightElement(design:metal-tool-btn)
 
-Hint: The paths should cross on different layers.
 
-Hint: Make sure the via touches both metal and semiconductor.
+::OnMetalDrawn
+@trigger    OnDragReleased
+@when   CurrLevelIndex() == 1, temp:designTutorialStep == 1
+$set    temp:designTutorialStep = 2
+{@PAL}  To connect input A to output X, use a semiconductor to cross under the metal layer.\n\nRemember, the inputs and outputs are on the metal layer.
+$call   HighlightElement(design:p-transistor-tool-btn)
+$call   HighlightElement(design:via-tool-btn)
 
-Hint: Constant HI must be connected to output Y.
+
+::OnPTransistorToolSelected
+@trigger    OnToolSelected
+@when   CurrLevelIndex() == 1, temp:designTutorialStep == 2, tool == "DrawPNodes"
+$set    temp:designTutorialStep = 3
+$call   ReleaseHighlight(design:p-transistor-tool-btn)
+
+
+::TestCorrectLv2
+@trigger    OnSingleTestComplete
+@when       result == "success"
+$call   ReleaseAllHighlights()
+$call   HighlightElement(design:input-a, false, 25)
+$if     IsInputInState("A", "LO")
+    {@PAL}  Correct!\n\nNow flip the switch on the input to change it from LO to HI.
+$else
+    {@PAL}  Correct!\n\nNow flip the switch on the input to change it from HI to LO.
+$endif
+
+
+::TestIncorrectLv2
+@trigger    OnSingleTestComplete
+@when       result == "failure"
+$call   ReleaseAllHighlights()
+$if     temp:failureIndex == 0
+    {@PAL}  <color=yellow>Hint:</color> The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+    $set    temp:failureIndex = 1
+$elseif temp:failureIndex == 1
+    {@PAL}  <color=yellow>Hint:</color> The paths should cross on different layers.
+    $set    temp:failureIndex = 2
+$elseif temp:failureIndex == 2
+    {@PAL}  <color=yellow>Hint:</color> Make sure the via touches both metal and semiconductor.
+    $set    temp:failureIndex = 3
+$else   temp:failureIndex == 3
+    {@PAL}  <color=yellow>Hint:</color> Constant HI must be connected to output Y.
+    $set    temp:failureIndex = 0
+$endif
