@@ -3,6 +3,7 @@
 ::IntroSelectTrace
 @trigger    OnDesignSetupComplete
 @when       CurrLevelIndex() == 0
+$set temp:hintGiven = 0
 $if IsLevelSolved(0) == true
     $set temp:designTutorialStep = 4
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
@@ -109,12 +110,22 @@ $endif
 // TODO: release drag
 {@PAL}  To connect input A to output X, use a semiconductor to cross under the metal layer. Remember, the inputs and outputs are on the metal layer.
 
+::TestIncorrectLv2
+@trigger    OnSingleTestComplete
+@when       result == "failure", CurrLevelIndex() == 1
+$call   ReleaseHighlight(design:test-btn)
+$if temp:hintGiven == 0
+    {@PAL}  Hint: The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+    $set temp:hintGiven == 1
+$elseif temp:hintGiven == 1
+    {@PAL}  Hint: The paths should cross on different layers.
+        $set temp:hintGiven == 2
+$elseif temp:hintGiven == 2
+    {@PAL}  Hint: Make sure the Via touches both metal and semiconductor.
+    $set temp:hintGiven == 3
+$elseif temp:hintGiven == 3
+    {@PAL}  Hint: Constant HI must be connected to output Y.
+    $set temp:hintGiven == 0
+$endif
 
 // fail
-Hint: The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
-
-Hint: The paths should cross on different layers.
-
-Hint: Make sure the via touches both metal and semiconductor.
-
-Hint: Constant HI must be connected to output Y.
