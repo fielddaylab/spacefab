@@ -1,3 +1,4 @@
+using BeauRoutine;
 using BeauUtil;
 using FieldDay;
 using FieldDay.Scripting;
@@ -5,8 +6,10 @@ using FieldDay.Systems;
 using SpaceFab;
 using SpaceFab.Design;
 using SpaceFab.Materials;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -65,49 +68,70 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            if (!viewModelState.HypothesisSelected) {
-                return;
+            if (viewModelState.HypothesisSelected)
+            {
+                viewModelState.VerifyRoutine.Replace(viewModelState, VerificationRoutine(Find.FirstComponent<ResearchSamplePanel>())).TryManuallyUpdate(0);
             }
 
-            // 1. Check if observations match the material
-            string failureReason = null;
-            bool anyPruned = PruneInvalidObservations(researchState, slotted, viewModelState);
-            if (anyPruned) {
-                HypothesisViewModelUtility.RequestRebuild(viewModelState);
-                failureReason = "invalid_observation";
-            }
-
-            bool hasRequiredObs = EvaluateObservations(viewModelState);
-            if (failureReason == null && !hasRequiredObs) {
-                failureReason = "observation_mismatch";
-            }
-
-            bool validHypothesis = ValidateProperty(slotted, viewModelState);
-            if (failureReason == null && !validHypothesis) {
-                failureReason = "hypothesis_mismatch";
-            }
-
-            bool success = !anyPruned && hasRequiredObs && validHypothesis;
-            if (success) {
-                if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, viewModelState.HypothesisLabel, viewModelState.HypothesisContext)) {
+            if (viewModelState.HypothesisVerified)
+            {
+                viewModelState.HypothesisVerified = false;
+                // 1. Check if observations match the material
+                string failureReason = null;
+                bool anyPruned = PruneInvalidObservations(researchState, slotted, viewModelState);
+                if (anyPruned) {
                     HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                    failureReason = "invalid_observation";
                 }
-                else {
-                    success = false;
+
+                bool hasRequiredObs = EvaluateObservations(viewModelState);
+                if (failureReason == null && !hasRequiredObs) {
+                    failureReason = "observation_mismatch";
+                }
+
+                bool validHypothesis = ValidateProperty(slotted, viewModelState);
+                if (failureReason == null && !validHypothesis) {
+                    failureReason = "hypothesis_mismatch";
+                }
+
+                bool success = !anyPruned && hasRequiredObs && validHypothesis;
+                if (success) {
+                    if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, viewModelState.HypothesisLabel, viewModelState.HypothesisContext)) {
+                        HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                    }
+                    else {
+                        success = false;
+                    }
+                }
+                
+                using (var table = TempVarTable.Alloc()) {
+                    var resultStr = success ? "success" : "failure";
+                    table.Set("result", resultStr);
+                    if (!success) {
+                        // "invalid_observation": observation does not match the material
+                        // "observation_mismatch": observation does not match the hypothesis and/or does not have all required observations for the hypothesis
+                        // "hypothesis_mismatch": hypothesis does not match the material
+                        table.Set("reason", failureReason);
+                    }
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
                 }
             }
             
-            using (var table = TempVarTable.Alloc()) {
-                var resultStr = success ? "success" : "failure";
-                table.Set("result", resultStr);
-                if (!success) {
-                    // "invalid_observation": observation does not match the material
-                    // "observation_mismatch": observation does not match the hypothesis and/or does not have all required observations for the hypothesis
-                    // "hypothesis_mismatch": hypothesis does not match the material
-                    table.Set("reason", failureReason);
-                }
-                ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
-            }
+        }
+
+        private static IEnumerator VerificationRoutine(ResearchSamplePanel panel)
+        {
+            Game.Input.PauseAll();
+
+            panel.VerifyButton.gameObject.SetActive(false);
+            
+            // Image fillBar;
+            // fillBar.fillAmount = 0;
+            // yield return fillBar.FillTo(1, 1).Ease(Curve.QuadInOut);
+            yield return 0.1f;
+
+            Find.State<HypothesisViewModelState>().HypothesisVerified = true;
+            Game.Input.ResumeAll();
         }
 
         // Checks if the hypothesis property matches the material. If the property does not
