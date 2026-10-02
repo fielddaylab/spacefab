@@ -1,0 +1,21 @@
+# basePath DesignInverter
+// Inverter
+
+::Intro
+@trigger    OnDesignSetupComplete
+$set temp:hintGiven = 0
+{@PAL} This chip has both HI and LO constants. So you can use the Input just to control Gates!
+
+::Hints
+@trigger    OnSingleTestComplete
+@when       result == "failure"
+$if temp:hintGiven == 0
+    {@PAL}  Hint: Check the Verification Table: When A is HI, let LO pass to X.\nWhen A is LO, let HI pass to X.
+    $set temp:hintGiven == 1
+$elseif temp:hintGiven == 1
+    {@PAL}  Hint: You’ll need two gates, both controlled by A.
+    $set temp:hintGiven == 2
+$elseif temp:hintGiven == 2
+    {@PAL}  Hint: Alternate N and P type to ensure no unstable signals leak backwards.
+    $set temp:hintGiven == 0
+$endif

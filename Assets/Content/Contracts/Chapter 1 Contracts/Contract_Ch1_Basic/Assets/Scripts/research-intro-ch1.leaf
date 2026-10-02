@@ -9,7 +9,7 @@ $else
     $call   UnlockWikiPage("Basic Insulator")
     $call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
     $call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter
-    {@PAL}  Start by selecting a sample on the left.
+    {@PAL}  Start by selecting a <color=yellow>SAMPLE</color> on the left.
 $endif
 
 
@@ -45,19 +45,19 @@ $call   AddObsBtn->SetActive(false)
 $call   ReleaseHighlight(research:increase-voltage-btn)
 $call   AddObsBtn->SetActive(true)
 $call   CloseWiki()
-{@PAL}  Now press ADD OBSERVATION.
+{@PAL}  Now press <color=yellow>ADD OBSERVATION</color>.
 
 ::OnObservationAdded
 @trigger    OnObservationAdded
 @when       !MinigameHasValidSolution()
 $call   CloseWiki()
-{@PAL}  Now choose a property that matches your observation.\nClick ADD PROPERTY.
+{@PAL}  Now choose a property that matches your observation.\nClick <color=yellow>ADD PROPERTY</color>.
 
 ::OnVerifyButtonShown
 @trigger    OnVerifyButtonShown
 @when   !MinigameHasValidSolution()
 $call   CloseWiki()
-{@PAL}  Click VERIFY to check your results.
+{@PAL}  Click <color=yellow>VERIFY</color> to check your results.
 
 
 ::OnHypothesisCorrect
@@ -67,10 +67,10 @@ $call   ReleaseAllHighlights()
 $call   CloseWiki()
 $if MinigameHasValidSolution()
     $call   HighlightElement(return-button)
-    {@PAL}  Correct. You've completed the Contract Requirements!\n\nPress LEAVE to leave the lab.
+    {@PAL}  Correct. You've completed the Contract Requirements!\n\nPress <color=yellow>LEAVE</color> to leave the lab.
 $else
     $call   HighlightElement(research:primary-slot)
-    {@PAL}  Correct. Now see if you can find a sample that satisfies the other hypothesis.
+    {@PAL}  Correct. Now see if you can find a sample that matches the other Property.
 $endif
 
 ::OnHypothesisIncorrectHypothesisMismatch
