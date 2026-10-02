@@ -51,7 +51,7 @@ $call   UnlockWikiPage("Insulator")
 //introduce the idea of the refining station. pick up at wayward and refine at frosch
 {@Player}   Hey P.A.L., it looks like I'll need a semiconductor but there isn't any available in this sector. 
 {@PAL}      Ah yes. ... ... My search shows that you can get silicon dioxide from Frosch that can be refined at the Wayward station. 
-{@Player}   So the refining station takes silicon dioxide and can refines it into silicon? Cool
+{@Player}   So the refining station takes silicon dioxide and can refine it into silicon? Cool
 
 //conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
 
@@ -115,5 +115,5 @@ $call   UnlockWikiPage("Insulator")
 {@PAL}      Yes, Locke? 
 {@Player}   What's the deal with Quinn and Frontier Robotics? Is there some kind of bad blood?  
 {@PAL}      Frontier Robotics has a stellar reputation! Just check our reviews. We have great cash flow and always pay our invoices.  
-{@PAL}      You know these cowboys out here. They can be pretty warry of outsiders.  
+{@PAL}      You know these cowboys out here. They can be pretty wary of outsiders.  
 {@Player}   ...I guess. That makes sense.  
