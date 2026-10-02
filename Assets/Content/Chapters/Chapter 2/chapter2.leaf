@@ -5,20 +5,12 @@
 @cutscene
 @once
 
-{@Player}   Okay, Mr. Frontier Robotics, do you have a new contract for me to work on? 
-{@Dorian}   I do. But bro, we are still best friends even though you work for me. 
-{@Player}	Totally. I really am glad I have this chance to try to make some money. 
-{@Player}	I had to take out a loan to get my ship repaired and if I don't pay it off, I'll lose it in a few months.  
-{@Dorian} You will definitley make it! This next contract will help.
-{@Player}   Okay, great, so what material do I need for the semiconductor--
-// off-screen ring dial
-{@Dorian}   Oh shoot, sorry Locke, I'm getting a holo, I have to go. 
-{@Dorian}   P.A.L. should be able to help you out though!
-{@Player}   Yea, no worries. 
-{@Dorian}   Chat soon. 
-
-{@PAL}      Sounded like you had a question Captain, can I be of assitance? 
-{@Player}   Uh... yeah, but you can help me when I get to the lab.      
+{@Player}   Okay, Mr. Frontier Robotics, got another contract for me?
+{@Dorian}   I do. But come on, we're friends first. None of this "Mr. Frontier Robotics" stuff.
+{@Player}   Fair. I really need the money though. If I don't pay off my ship repairs, I'll lose it in a few months.
+{@Dorian}   You'll make it. This next contract will help.
+{@Player}   Let's do it.
+    
 
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
 $call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the full version after first chapter 
@@ -31,16 +23,24 @@ $call   UnlockWikiPage("Insulator")
 @when       IsSolutionFoundFor(Research)
 @cutscene 
 @once
+{@Player}   P.A.L., turns out that material wasn't an insulator. It's a semiconductor.
+{@PAL}      Exactly! Great work, Captain.
+{@Player}   Exactly? You verified it as an insulator before.
+{@PAL}      You're right. Your research clearly shows that it's a semiconductor.
+{@Player}   But you seemed pretty sure before.
+{@PAL}      Absolutely! And now we have the correct answer.
+{@Player}   ...It's weird how you just keep agreeing with me.
 
-{@PAL}    So Captain, did I overhear that Dorian is your friend? 
-{@Player}   What? How do you- were you eavesdropping? 
-{@PAL}    Oh, yea, I hear every convo you have. 
-{@Player}   ...I see...
-{@Player}   Well, don't feel like you have to listen. 
-{@PAL}    Ah but I have to, in accordance with my Frontier Robotics system parameters. 
-{@PAL}    Even if I wanted to, I can't access the controls to turn it off. 
-{@PAL}    And actually, I enjoy this protocol. It helps me stay on top of things. 
-{@Player}   ...great. 
+//TODO: put this scene later. The purpose is to expose the fact that PAL is listening to everything. 
+//{@PAL}    So Captain, did I overhear that Dorian is your friend? 
+//{@Player}   What? How do you- were you eavesdropping? 
+//{@PAL}    Oh, yea, I hear every convo you have. 
+//{@Player}   ...I see...
+//{@Player}   Well, don't feel like you have to listen. 
+//{@PAL}    Ah but I have to, in accordance with my Frontier Robotics system parameters. 
+//{@PAL}    Even if I wanted to, I can't access the controls to turn it off. 
+//{@PAL}    And actually, I enjoy this protocol. It helps me stay on top of things. 
+//{@Player}   ...great. 
 
 ::BeforeSupplyChainCh2
 @trigger    OnOverarchingLoaded
@@ -90,19 +90,20 @@ $call   UnlockWikiPage("Insulator")
 @{PAL}		The fab bay is in perfect condition, as always. 
 @{PAL}		...at least as perfect as it can be on an old clunker of a ship.
 @{Player}	Clunker? As always? Looks like someone's system needs some updating...
-{@PAL}		Oh, I think I hear something... sounds like you have an incoming call...
+{@PAL}		[ >_< ]
 
 //call coming in from Quinn
+//call coming in from Quinn
 {@Quinn}    Got the materials loaded Cap'!
-{@Quinn}    Say, I noticed the last invoice I sent you was paid by Frontier Robots. What's up with that? 
-{@Player} 	Um... yeah. I... well, I had to take a job with them because I ran into some debt. My ship got pretty beat up and the repair bill was pretty steep.
-{@Quinn}	Oh dude. Bad luck. It can be rough out there. But I'm not sure about working with those guys.    
-{@Player}   Really? I didn't know that. 
-{@Player} 	Do you think you would be willing to continue as my hauler if I promise you'll be working with me directly?  
-{@Quinn}	Ok sob story. I'll stick around for now. 
-{@Player}  	You're a real friend. 
-{@Quinn}   	Sure, sure. Let's just make sure I get paid. I gotta pay my haulers or they get pretty mad. 
-{@Player}	Quinn, I promise you. See you later!
+{@Quinn}    Say, I noticed Frontier Robotics paid your last invoice. What's up with that?
+{@Player}   Yeah... I had to take a job with them. Ship repairs put me in some serious debt.
+{@Quinn}    Bad luck. I'm not sure about working with those guys...
+{@Quinn}    Given your sob story, I'll stick around for now.
+{@Player}   You're a real friend.
+{@Quinn}    Sure, sure. Just make sure I get paid.
+{@Player}   Quinn, I promise you. See you later!
+
+
 
 ::AfterFabricationCh2 
 @trigger OnOverarchingLoaded
