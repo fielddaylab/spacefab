@@ -69,7 +69,7 @@ namespace SpaceFab.Research {
             if (Background == null || HeadingBackground == null || HeadingText == null) { return; }
 
             Find.GlobalAsset(out ResultDisplayConfig config);
-            bool success = ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition);
+            bool success = contractState.ContractDefinition && ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition);
             Background.color = success ? config.SuccessBackgroundColor : config.FailureBackgroundColor;
             HeadingText.text = success ? "RESEARCH COMPLETE" : "RESEARCH INCOMPLETE";
             HeadingBackground.color = success ? config.SuccessHeaderColor : config.FailureHeaderColor;

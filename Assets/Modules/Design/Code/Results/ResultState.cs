@@ -1,6 +1,7 @@
 ﻿using System;
 using FieldDay;
 using FieldDay.SharedState;
+using FieldDay.UI;
 using SpaceFab.Design.Visuals;
 using SpaceFab.UI;
 using TMPro;
@@ -19,6 +20,7 @@ namespace SpaceFab.Design
         public DynamicButton DismissButton;
         public DynamicButton RetryButton;
         public SimTableLayout Table;
+        public CanvasInputLayer Input;
 
         // One-frame intent flag: the player clicked "Continue" on a passing results panel. Consumed
         // by DesignContinueSystem, which decides whether to advance to the next level (reload the
@@ -126,7 +128,11 @@ namespace SpaceFab.Design
             resultState.ResultsGroup.alpha = isEnabled ? 1f : 0f;
             resultState.ResultsGroup.blocksRaycasts = isEnabled;
             resultState.ResultsGroup.interactable = isEnabled;
-            //resultState.CopyRequested = true;
+            if (isEnabled) {
+                resultState.Input.TryPushPriority();
+            } else {
+                resultState.Input.TryPopPriority();
+            }
         }
 
         public static void ShowResults(ResultState resultState, bool allCorrect)

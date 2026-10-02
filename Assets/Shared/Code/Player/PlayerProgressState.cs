@@ -56,6 +56,7 @@ namespace SpaceFab
             MaterialProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
             UnlockedWikiPages ??= new HashSet<StringHash32>();
             SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
+            SpacefabGame.SaveBuffer.RegisterPostLoad(this);
         }
 
         #region Interfaces
@@ -125,9 +126,17 @@ namespace SpaceFab
         }
 
         void ISaveStatePostLoad.PostLoad(SaveStateChunkConsts consts) {
+            var chapterState = Find.State<ChapterState>();
+            if (consts.Version < 1) {
+                if (chapterState.ChapterIndex >= 1) {
+                    ThermalChamberUnlocked = true;
+                }
+                if (chapterState.ChapterIndex >= 2) {
+                    DopingChamberUnlocked = true;
+                }
+            }
             if (consts.Version < 2) {
                 // UPGRADE
-                var chapterState = Find.State<ChapterState>();
                 if (chapterState.ChapterIndex >= 8) {
                     SpecialPropertiesUnlocked = true;
                 }

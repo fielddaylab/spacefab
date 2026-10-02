@@ -1,0 +1,63 @@
+# basePath Chapter7 
+
+::FirstContractOpenCh7
+@trigger    OnContractSelectOpen
+@cutscene 
+@once 
+
+{@PAL}      Alrighty Captain, lets get started with another contract. 
+{@Player}  	P.A.L., before we do...
+{@Player}   Why does Frontier want an autonomous workforce? 
+{@PAL}      Simple! It's more cost-effective. 
+{@Player}  	But what about the people who work for Frontier?
+{@PAL} 	    Frontier Robotics' goal is to reduce the human’s need to work as it is our strongest belief that an autonomous future is a better future! 
+{@PAL}  	We hope to expand the economy, strengthen shareholder investment, and 
+
+::BeforeSupplyChainCh7
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene 
+@once
+                                               
+//dial tone              
+{@Mai}      ...Hi.
+{@Player}   Hi.
+{@Mai}      ...I'm Mai.
+{@Player}   I'm Locke...
+{@Mai}      Like... an Air-Lock? 
+{@Player}   Uh, no. It has an E at the end. 
+{@Mai}      Did your parents dislike you?
+{@Player}   Excuse me?  
+{@Mai}      I'm the supplier contact for the...
+{@Mai}      "Recently liberated" Wolfram. 
+{@Player}   Oh, the factory planet? 
+{@Mai}      Yeah, sure, if that's what you want to call it. 
+{@Player}   Oh, I didn't mean that, I- you're planet isn't just a factory planet- 
+{@Mai}      You're funny. 
+{@Mai}      If you need anything from my sector, call me. 
+{@Player}   Will do...
+//hang up tone. 
+{@Quinn}    Wow. That was rough. 
+{@Joel}     I've been taking an improv class if you want to join me Locke. 
+{@Joel}     Maybe that can help with your social skills!
+{@Player}   Thanks... I'll think about it. 
+
+::AfterSupplyChain
+@trigger 
+@when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply)
+@cutscene 
+@once 
+//dial tone 
+{@Taryn}    Hey Locke! 
+{@Player}   Taryn! Haven't heard from you for a while. 
+{@Taryn}    Yeah sorry, the festival took up a lot of my time. 
+{@Taryn}    That and the protests...
+{@Player}   How... are things on Kalvis? 
+{@Taryn}    Tense. But positive.
+{@Taryn}    I've been in charge of putting together a food-drive for the families of miners affected in the collapse. 
+{@Taryn}    Any and all business with us will help fund the food-drive, so you're business would be greatly appreciated! 
+{@Player}   That's... really awesome. 
+{@Taryn}    Oh, might as well let you know that our Phosphorus production is back. 
+{@Taryn}    You might experience some issues given the lockdowns, but Kalvis is in full swing again. 
+{@Player}   Thanks Taryn. 
+{@Taryn}    Yup yup! Gotta go, cya!

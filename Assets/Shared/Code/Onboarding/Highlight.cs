@@ -26,11 +26,14 @@ namespace SpaceFab.Onboarding {
 
         [Header("UI Path")]
         [SerializeField] private RectTransform m_UIRoot;
-        [SerializeField] private Image m_UIImage;
+        [SerializeField] private CanvasGroup m_UIGroup;
+        [SerializeField] private Image m_UICorners;
+        [SerializeField] private Image m_UIArrow;
 
         [Header("World Path")]
         [SerializeField] private Transform m_WorldRoot;
         [SerializeField] private SpriteRenderer m_WorldSprite;
+        [SerializeField] private SpriteRenderer m_WorldArrow;
 
         [Header("Pulse")]
         [SerializeField] private float m_PulseScale = 1.08f;
@@ -393,10 +396,7 @@ namespace SpaceFab.Onboarding {
         }
 
         private void SetUIAlpha(float a) {
-            if (m_UIImage == null) { return; }
-            Color c = m_UIImage.color;
-            c.a = a;
-            m_UIImage.color = c;
+            m_UIGroup.alpha = a;
         }
 
         private void SetWorldAlpha(float a) {
