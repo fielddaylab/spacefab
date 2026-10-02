@@ -2304,6 +2304,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SequencePanelGroup: {fileID: 20408019}
+  SequenceCardBG: {fileID: 5429475297052697721}
+  SequenceCardHeaderBG: {fileID: 5429475297052697723}
+  SequenceCardHeaderText: {fileID: 5429475297052697722}
   PanelCanvasGroup: {fileID: 5429475297052697720}
   CardSlotA: {fileID: 5429475297052697718}
   CardSlotB: {fileID: 5429475297052697719}
@@ -6327,6 +6330,39 @@ CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 50964461757892599, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
   m_PrefabInstance: {fileID: 5429475297052697717}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5429475297052697721 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 904118607324370000, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
+  m_PrefabInstance: {fileID: 5429475297052697717}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5429475297052697722 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6371453291784779526, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
+  m_PrefabInstance: {fileID: 5429475297052697717}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5429475297052697723 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3877974060269234435, guid: 51cb8b97c925dc2468d71ee048472171, type: 3}
+  m_PrefabInstance: {fileID: 5429475297052697717}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

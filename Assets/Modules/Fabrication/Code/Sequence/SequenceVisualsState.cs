@@ -3,7 +3,9 @@ using FieldDay;
 using FieldDay.SharedState;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpaceFab.Fabrication.Sequence
 {
@@ -18,6 +20,10 @@ namespace SpaceFab.Fabrication.Sequence
         // Authored on the Sequence Panel Group prefab — both cards live there at the same local
         // position. Which one is "in front" is controlled by sibling order, not by translation.
         public RectTransform SequencePanelGroup;
+        public Image SequenceCardBG;
+        public Image SequenceCardHeaderBG;
+        public TMP_Text SequenceCardHeaderText;
+
         public CanvasGroup PanelCanvasGroup;
         public SequenceCard CardSlotA;
         public SequenceCard CardSlotB;
@@ -107,7 +113,7 @@ namespace SpaceFab.Fabrication.Sequence
             // 4. Populate and show the front card with the current step (if in range).
             if (currentIndex >= 0 && currentIndex < steps.Length) {
                 StepRuntimeData runtime = GetRuntime(sequenceState, currentIndex);
-                PopulateCard(visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
+                PopulateCard(visualsState, visualsState.FrontCard, steps[currentIndex], runtime, lookup, waferLookup);
                 SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[currentIndex].StepId.ToString(), false)));
                 SetCardVisible(visualsState.FrontCard, true);
                 SetPanelVisible(visualsState, !runtime.IsGlitched);
@@ -119,11 +125,32 @@ namespace SpaceFab.Fabrication.Sequence
             //    only becomes visible when AdvanceRoutine reveals it during the transition.
             int nextIndex = currentIndex + 1;
             if (nextIndex < steps.Length) {
-                PopulateCard(visualsState.BackCard, steps[nextIndex], GetRuntime(sequenceState, nextIndex), lookup, waferLookup);
+                PopulateCard(visualsState, visualsState.BackCard, steps[nextIndex], GetRuntime(sequenceState, nextIndex), lookup, waferLookup);
             }
             SetCardVisible(visualsState.BackCard, false);
 
             visualsState.TransitionRoutine.Replace(InitialMoveIntoFrame(visualsState));
+
+            switch (steps[nextIndex].Chunk)
+            {
+                case SequenceChunk.N:
+                    visualsState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceBG;
+                    visualsState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceHeaderBG;
+                    visualsState.SequenceCardHeaderText.text = "N-Type Layer";
+                    break;
+                case SequenceChunk.P:
+                    visualsState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceBG;
+                    visualsState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceHeaderBG;
+                    visualsState.SequenceCardHeaderText.text = "P-Type Layer";
+                    break;
+                case SequenceChunk.Metal:
+                    visualsState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceBG;
+                    visualsState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceHeaderBG;
+                    visualsState.SequenceCardHeaderText.text = "Metal Layer";
+                    break;
+                default:
+                    break;
+            }
         }
 
         public static IEnumerator InitialMoveIntoFrame(SequenceVisualsState visualsState)
@@ -163,7 +190,7 @@ namespace SpaceFab.Fabrication.Sequence
             if (steps != null && newBackIndex < steps.Length) {
                 SequenceLookup lookup = Find.GlobalAsset<SequenceLookup>();
                 WaferStepUILookup waferLookup = Find.GlobalAsset<WaferStepUILookup>();
-                PopulateCard(newBack, steps[newBackIndex], GetRuntime(sequenceState, newBackIndex), lookup, waferLookup);
+                PopulateCard(visualsState, newBack, steps[newBackIndex], GetRuntime(sequenceState, newBackIndex), lookup, waferLookup);
             }
             SpacefabGame.Events.Dispatch(GameEvents.FabInstructionUpdated, EvtArgs.Box((steps[justCompletedIndex + 1].StepId.ToString(), false)));
             SetCardVisible(newBack, false);
@@ -187,7 +214,7 @@ namespace SpaceFab.Fabrication.Sequence
         // Pulls per-step display data from SequenceLookup and WaferStepUILookup and applies it to
         // the card. ConvertToB is optional: if no entry id is authored, the overlay renderer is
         // disabled so nothing layers on top of the base wafer.
-        private static void PopulateCard(SequenceCard card, FabricationStep step, StepRuntimeData runtime, SequenceLookup lookup, WaferStepUILookup waferLookup)
+        private static void PopulateCard(SequenceVisualsState visualState, SequenceCard card, FabricationStep step, StepRuntimeData runtime, SequenceLookup lookup, WaferStepUILookup waferLookup)
         {
             SequenceStepEntry entry = lookup.GetStep(step.StepId);
 
