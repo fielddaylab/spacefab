@@ -374,9 +374,16 @@ namespace FieldDay {
 #if UNITY_EDITOR
                     Baking.PrepareUndo(rect, "Horizontal alignment");
 #endif // UNITY_EDITOR
+                    bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                    if (hasLayoutOffset) {
+                        offset.BeginLayoutChanges();
+                    }
                     Vector2 anchoredPos = rect.anchoredPosition;
                     anchoredPos.x = basePosition + offsets[i];
                     rect.anchoredPosition = anchoredPos;
+                    if (hasLayoutOffset) {
+                        offset.EndLayoutChanges();
+                    }
                 }
             }
 
@@ -399,9 +406,16 @@ namespace FieldDay {
             Vector3 anchorPos;
             for(int i = 0; i < len; i++) {
                 rect = buffer[i];
+                bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                if (hasLayoutOffset) {
+                    offset.BeginLayoutChanges();
+                }
                 anchorPos = rect.anchoredPosition3D;
                 anchorPos.x = basePosition;
                 rect.anchoredPosition3D = anchorPos;
+                if (hasLayoutOffset) {
+                    offset.EndLayoutChanges();
+                }
             }
         }
 
@@ -531,9 +545,16 @@ namespace FieldDay {
 #if UNITY_EDITOR
                     Baking.PrepareUndo(rect, "Vertical alignment");
 #endif // UNITY_EDITOR
+                    bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                    if (hasLayoutOffset) {
+                        offset.BeginLayoutChanges();
+                    }
                     Vector2 anchoredPos = rect.anchoredPosition;
                     anchoredPos.y = basePosition + direction * offsets[i];
                     rect.anchoredPosition = anchoredPos;
+                    if (hasLayoutOffset) {
+                        offset.EndLayoutChanges();
+                    }
                 }
             }
 
@@ -556,9 +577,16 @@ namespace FieldDay {
             Vector3 anchorPos;
             for (int i = 0; i < len; i++) {
                 rect = buffer[i];
+                bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                if (hasLayoutOffset) {
+                    offset.BeginLayoutChanges();
+                }
                 anchorPos = rect.anchoredPosition3D;
                 anchorPos.y = basePosition;
                 rect.anchoredPosition3D = anchorPos;
+                if (hasLayoutOffset) {
+                    offset.EndLayoutChanges();
+                }
             }
         }
 
@@ -686,11 +714,37 @@ namespace FieldDay {
         #region Preferred
 
         /// <summary>
+        /// Resizes the given RectTransform to the given size.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetSizeWithCurrentAnchors(RectTransform rect, Vector2 size) {
+            SetSizeWithCurrentAnchors(rect, size.x, size.y);
+        }
+
+        /// <summary>
+        /// Resizes the given RectTransform to the given size.
+        /// </summary>
+        static public void SetSizeWithCurrentAnchors(RectTransform rect, float width, float height) {
+            Vector2 parentSize = default;
+            RectTransform parent = rect.parent as RectTransform;
+            if (parent) {
+                parentSize = parent.sizeDelta;
+            }
+
+            Vector2 anchorMin = rect.anchorMin,
+                anchorMax = rect.anchorMax;
+
+            Vector2 newSizeDelta;
+            newSizeDelta.x = width - parentSize.x * (anchorMax.x - anchorMin.x);
+            newSizeDelta.y = height - parentSize.y * (anchorMax.y - anchorMin.y);
+            rect.sizeDelta = newSizeDelta;
+        }
+
+        /// <summary>
         /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
         /// </summary>
         static public void ResizeToPreferred(RectTransform rect, ILayoutElement layoutElement) {
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, layoutElement.preferredWidth);
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, layoutElement.preferredHeight);
+            SetSizeWithCurrentAnchors(rect, layoutElement.preferredWidth, layoutElement.preferredHeight);
         }
 
         /// <summary>
@@ -711,8 +765,7 @@ namespace FieldDay {
         /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
         /// </summary>
         static public void ResizeToPreferred<TGraphic>(TGraphic graphic) where TGraphic : Graphic, ILayoutElement {
-            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, graphic.preferredWidth);
-            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, graphic.preferredHeight);
+            SetSizeWithCurrentAnchors(graphic.rectTransform, graphic.preferredWidth, graphic.preferredHeight);
         }
 
         /// <summary>
@@ -733,8 +786,7 @@ namespace FieldDay {
         /// Resizes the RectTransform to the given ILayoutElement's preferred width and height.
         /// </summary>
         static public void ResizeToPreferred(TMP_Text graphic) {
-            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, graphic.preferredWidth);
-            graphic.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, graphic.preferredHeight);
+            SetSizeWithCurrentAnchors(graphic.rectTransform, graphic.preferredWidth, graphic.preferredHeight);
         }
 
         /// <summary>
@@ -849,8 +901,8 @@ namespace FieldDay {
     public struct LayoutStyle {
         public Vector3 MarginLower;
         public Vector3 MarginUpper;
-        public Vector3 PaddingLower;
-        public Vector3 PaddingUpper;
+        //public Vector3 PaddingLower;
+        //public Vector3 PaddingUpper;
     }
 
     [Serializable]

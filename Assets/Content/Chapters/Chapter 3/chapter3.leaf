@@ -1,0 +1,79 @@
+# basePath Chapter3
+
+:: FirstContractOpenCh3
+@trigger    OnContractSelectOpen
+@cutscene
+@once
+
+{@PAL}      Okey-dokey Captain. 
+{@PAL}      Now, you're going to be working with Diodes! 
+{@Player}   ...
+{@PAL}      Now, diodes can enforce unidirectional current flow and they-
+{@Player}   ... 
+{@PAL}      Uh... Captain? 
+{@Player}   Huh? 
+{@PAL}      I'm talking about the diodes capacity to attenuate high signals and you seem...
+{@PAL}      Unenthused. 
+{@Player}   Sorry, P.A.L., my mind was somewhere else. 
+{@PAL}      Perhaps, it has something to do with your call with your former crew-mate?
+{@Player}   Doesn't matter, let's just do the contract. 
+{@PAL}      Sounds good Captain! 
+
+//endregion
+
+::AfterResearchCh3
+@trigger    OnOverarchingLoaded 
+@when       IsSolutionFoundFor(Research)
+@cutscene
+@once 
+
+
+::AfterDesignCh3
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design)
+@cutscene
+@once
+
+
+//endregion 
+
+::BeforeSupplyChainCh3
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene 
+@once 
+
+//introduced idea of cost vs time
+
+{@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
+{@Player} 	Ummm... gold? Isn't that really expensive? 
+{@PAL} 		Sure it is but when you calculate travel time and cost of transport, sometimes the extra money is worth it. 
+{@Player}	Alright, let's give him a call. 
+//call Xavier
+{@Xavier}   ... 
+{@Xavier}   Hello. 
+{@Player}   So... are you the supplier or-- 
+{@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
+{@Xavier}   Planet of Gold and Golden Opportunities. 
+{@Xavier}   Any and all materials within this sector goes through me. Capiche? 
+{@Xavier}	And who are you? 
+{@Player}	I'm the Captain of the Constantine. I'm running a fab here and need some materials.
+{@Xavier}   Well now. Let's talk business. You need material. I have it. You let me know what you want, it's done. 
+{@Player}   Uh... well... I'll let you know. Gold seems kinda pricey...
+{@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
+
+
+
+::AfterFabrication
+@trigger 
+@when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
+@cutscene
+@once 
+
+{@PAL}      Looks like this contract was a piece of cake!
+{@Player} 	You don’t even know what cake tastes like. 
+{@PAL} 	    According to my human empathy algorithm cake tastes…
+{@PAL}      10011000  10101000 10110000 !
+{@Player} 	…right. 	
+
+

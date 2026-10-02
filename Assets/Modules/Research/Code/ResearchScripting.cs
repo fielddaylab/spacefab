@@ -19,14 +19,11 @@ namespace SpaceFab.Research {
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
             if (!researchState.LastDiscovery.IsValid) { return; }
 
-            var contents = Find.Components<WikiContent>();
-            if (contents.Count == 0) { return; }
-
-            if (!WikiUtility.TryFindMaterialPage(contents[0], researchState.LastDiscovery.MaterialId, out StringHash32 tabId, out StringHash32 pageId)) {
-                return;
-            }
-
-            WikiUtility.OpenTo(tabId, pageId);
+            var contents = Find.State<WikiContent>();
+            var address = WikiContentUtility.LookupMaterialPageAddress(contents, researchState.LastDiscovery.MaterialId);
+            
+            // TODO: open to address
+            //WikiUtility.OpenTo(tabId, pageId);
         }
 
         // Resets the currently-active research chamber to its default state (e.g. the Battery's

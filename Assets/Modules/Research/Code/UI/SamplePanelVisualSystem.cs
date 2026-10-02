@@ -38,7 +38,7 @@ namespace SpaceFab.Research {
             Find.State(
                 out ChamberInterfacerState interfacerState,
                 out HypothesisViewModelState hypoVm,
-                out WikiState wikiState
+                out WikiViewState wikiState
             );
             ResearchMinigameState researchState = Find.State<ResearchMinigameState>();
 
@@ -46,7 +46,7 @@ namespace SpaceFab.Research {
                 SamplePanelVisualUtility.Apply(panel, interfacerState, hypoVm, researchState, wikiState);
                 if (panel.CompleteButton != null) {
                     Find.State(out PlayerProgressState progressState, out ContractState contractState);
-                    panel.CompleteButton.gameObject.SetActive(ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition));
+                    panel.CompleteButton.gameObject.SetActive(contractState.ContractDefinition && ContractProgressUtility.IsContractSatisfied(progressState, researchState, contractState.ContractDefinition));
                 }
             }
 
@@ -80,7 +80,7 @@ namespace SpaceFab.Research {
             ChamberInterfacerState interfacerState,
             HypothesisViewModelState hypoVm,
             ResearchMinigameState researchState,
-            WikiState wikiState
+            WikiViewState wikiState
         ) {
             if (panel == null) {
                 return;
@@ -102,21 +102,21 @@ namespace SpaceFab.Research {
                 panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
+            WikiContent contents = Find.State<WikiContent>();
+
             if (panel.AddObservationButton != null) {
-                var contents = Find.Components<WikiContent>();
                 bool obsTabOpen = false;
-                if (contents.Count != 0 && wikiState.Expanded) {
-                    obsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Observations";
+                if (wikiState.Expanded && wikiState.CurrentTabId >= 0) {
+                    obsTabOpen = contents.Tabs[wikiState.CurrentTabId].AssetId == "Observations";
                     // TODO: grey out button when obs tab is open
                 }
                 panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             if (panel.AddPropertyButton != null) {
-                var contents = Find.Components<WikiContent>();
                 bool propsTabOpen = false;
-                if (contents.Count != 0 && wikiState.Expanded) {
-                    propsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Properties";
+                if (wikiState.Expanded && wikiState.CurrentTabId >= 0) {
+                    propsTabOpen = contents.Tabs[wikiState.CurrentTabId].AssetId == "Properties";
                     // TODO: grey out button when obs tab is open
                 }
                 panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
@@ -242,9 +242,11 @@ namespace SpaceFab.Research {
                         MaterialPropertyLabel slotLabel = hypoVm.SlotLabels[i];
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
+                        panel.SlotChips[i].SetProperty(label, ChipFillState.Filled, locked, slotLabel, useEmptyDashedSprite: true);
+                    } else {
+                        panel.SlotChips[i].SetState(label, ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                     }
                     panel.SlotChips[i].gameObject.SetActive(filled);
-                    panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
 
@@ -265,9 +267,10 @@ namespace SpaceFab.Research {
                     MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
                     hypoLabel += " for " + hypoContext.ShortName; // only 'confirmed' semiconductors can be slotted -- always known
                 }
+                panel.HypothesisChip.SetProperty(hypoLabel, ChipFillState.Confirmed, false, hypo);
+            } else {
+                panel.HypothesisChip.SetState(hypoLabel, ChipFillState.Empty, false, hypoType, true);
             }
-
-            panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
             // once on chamber load (ObservationPickerLoadUtility);

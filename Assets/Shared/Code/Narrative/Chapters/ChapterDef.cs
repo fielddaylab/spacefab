@@ -23,6 +23,9 @@ namespace SpaceFab
         [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_availableMaterials")] public StringHash32[] AvailableMaterials;
         [AssetName(typeof(MaterialAsset)), FormerlySerializedAs("m_excludeFromResearch")] public StringHash32[] ExcludeFromResearch;
 
+        [Header("Unlocks")]
+        public bool UnlockSpecialProperties;
+
         [Header("Assets")]
         public LeafAsset Script;
         public Material SkyboxMaterial;
