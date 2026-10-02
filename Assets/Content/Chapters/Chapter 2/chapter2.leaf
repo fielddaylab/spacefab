@@ -1,10 +1,118 @@
 # basePath Chapter2
 
-:: FirstContractOpen
+:: FirstContractOpenCh2
 @trigger    OnContractSelectOpen
 @cutscene
 @once
+
+{@Player}   Okay, Mr. Frontier Robotics, do you have a new contract for me to work on? 
+{@Dorian}   I do. But bro, we are still best friends even though you work for me. 
+{@Player}	Totally. I really am glad I have this chance to try to make some money. 
+{@Player}	I had to take out a loan to get my ship repaired and if I don't pay it off, I'll lose it in a few months.  
+{@Dorian} You will definitley make it! This next contract will help.
+{@Player}   Okay, great, so what material do I need for the semiconductor--
+// off-screen ring dial
+{@Dorian}   Oh shoot, sorry Locke, I'm getting a holo, I have to go. 
+{@Dorian}   P.A.L. should be able to help you out though!
+{@Player}   Yea, no worries. 
+{@Dorian}   Chat soon. 
+
+{@PAL}      Sounded like you had a question Captain, can I be of assitance? 
+{@Player}   Uh... yeah, but you can help me when I get to the lab.      
+
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
 $call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the full version after first chapter 
 $call   UnlockWikiPage("Conductor")
 $call   UnlockWikiPage("Insulator")
+
+::AfterResearchCh2 
+
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Research)
+@cutscene 
+@once
+
+{@PAL}    So Captain, did I overhear that Dorian is your friend? 
+{@Player}   What? How do you- were you eavesdropping? 
+{@PAL}    Oh, yea, I hear every convo you have. 
+{@Player}   ...I see...
+{@Player}   Well, don't feel like you have to listen. 
+{@PAL}    Ah but I have to, in accordance with my Frontier Robotics system parameters. 
+{@PAL}    Even if I wanted to, I can't access the controls to turn it off. 
+{@PAL}    And actually, I enjoy this protocol. It helps me stay on top of things. 
+{@Player}   ...great. 
+
+::BeforeSupplyChainCh2
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
+@cutscene
+@once
+
+//introduce the idea of the refining station. pick up at wayward and refine at frosch
+{@Player}   Hey P.A.L., it looks like I'll need a semiconductor but there isn't any available in this sector. 
+{@PAL}      Ah yes. ... ... My search shows that you can get materials that can be refined at the Forsch station. 
+{@Player}   So the refining station takes one material and can turn it into another one? Cool
+
+//conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
+//{@Player}   Hi Taryn.
+//{@Taryn}    Locke, hiya!
+//{@Player}   Listen I saw... your face, you got uh... dirt all over it. 
+//{@Taryn}    Oh! I was in my garden earlier, got a bit lost in the weeds!  
+//{@Taryn}    Let me guess, you're calling about the Menuo Station? 
+//{@PAL}      Seems like a conference call can speed up your decision. Let me patch you to the Forsch Sector! 
+//{@Player}   Wait no, P.A.L.-
+// phone connection dial
+//{@Ovill}    Hello Locke! I got exciting news! You can access Hennig Station!
+//{@Taryn}    Ovill.
+//{@Ovill}    Oh...Taryn.
+//{@Taryn}    So, trying to steal my client? 
+//{@Ovill}    Rich, coming from a deserter. 
+//{@Player}   ...Do you guys know each other? 
+//{@Taryn}    I... worked at Frontier Robotics once upon a time.
+//{@Ovill}    Taryn here decided that working with traitors was a better option. 
+//{@Taryn}    At least I didn't sell my soul to a mega-corp.
+//{@Ovill}    I'll have you know I have the highest marks out of my entire department. 
+//{@Player}   Hey guys... the Phosphorus...
+//{@Ovill}    Hm? Oh yes! We can have Phosphorus available to you in rapid speed! 
+//{@Ovill}    Just to remind you that there will be a sourcing fee, a labor fee, a buying fee-
+//{@Taryn}    Oh, don't forget the breathing fee.
+//{@Ovill}    -_-
+//{@Taryn}    Or you can source from us! It'll take a bit longer but you'll have genunine product at a fair price. 
+//{@Player}   I'll think about it. Thanks guys. 
+
+::AfterSupplyChainCh2
+@trigger OnOverarchingLoaded
+@when   IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply)
+@cutscene 
+@once
+
+@{Player}	P.A.L. did you get the fab bay cleaned up? 
+@{PAL}		The fab bay is in perfect condition, as always. 
+@{PAL}		...at least as perfect as it can be on an old clunker of a ship.
+@{Player}	Clunker? As always? Looks like someone's system needs some updating...
+{@PAL}		Oh, I think I hear something... sounds like you have an incoming call...
+
+//call coming in from Quinn
+{@Quinn}    Got the materials loaded Cap'!
+{@Quinn}    Say, I noticed the last invoice I sent you was paid by Frontier Robots. What's up with that? 
+{@Player} 	Um... yeah. I... well, I had to take a job with them because I ran into some debt. My ship got pretty beat up and the repair bill was pretty steep.
+{@Quinn}	Oh dude. Bad luck. It can be rough out there. But I'm not sure about working with those guys.    
+{@Player}   Really? I didn't know that. 
+{@Player} 	Do you think you would be willing to continue as my hauler if I promise you'll be working with me directly?  
+{@Quinn}	Ok sob story. I'll stick around for now. 
+{@Player}  	You're a real friend. 
+{@Quinn}   	Sure, sure. Let's just make sure I get paid. I gotta pay my haulers or they get pretty mad. 
+{@Player}	Quinn, I promise you. See you later!
+
+::AfterFabricationCh2 
+@trigger OnOverarchingLoaded
+@when   IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
+@cutscene 
+@once
+
+{@Player}   P.A.L.? 
+{@PAL}      Yes, Locke? 
+{@Player}   What's the deal with Quinn and Frontier Robotics? Is there some kind of bad blood?  
+{@PAL}      Frontier Robotics has a stellar reputation! Just check our reviews. We have great cash flow and always pay our invoices.  
+{@PAL}      You know these cowboys out here. They can be pretty warry of outsiders.  
+{@Player}   ...I guess. That makes sense.  

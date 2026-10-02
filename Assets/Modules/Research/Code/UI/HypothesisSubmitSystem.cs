@@ -46,20 +46,17 @@ namespace SpaceFab.Research {
         private static void ProcessWork(float deltaTime) {
             Find.State(
                 out ResearchUIInputState inputState,
-                out HypothesisViewModelState viewModelState,
-                out ResearchMinigameState researchState
+                out ChamberInterfacerState interfacerState,
+                out HypothesisViewModelState viewModelState
             );
 
-            Find.State(
-                out PlayerProgressState progressState,
-                out ContractState contractState
-                );
-
-            if (!inputState.VerifyHypothesisClickedThisFrame) {
+            if (!inputState.VerifyHypothesisClickedThisFrame && !viewModelState.HypothesisVerified) {
                 return;
             }
 
-            Find.State(out ChamberInterfacerState interfacerState);
+            if (!viewModelState.HypothesisSelected) {
+                return;
+            }
 
             ResearchSlot slot = interfacerState.ActiveChamber == ActiveChamberKind.Doping ?
                 interfacerState.SecondarySlot : interfacerState.PrimarySlot;
@@ -68,69 +65,94 @@ namespace SpaceFab.Research {
                 return;
             }
 
-            if (viewModelState.HypothesisSelected)
-            {
-                viewModelState.VerifyRoutine.Replace(viewModelState, VerificationRoutine(Find.FirstComponent<ResearchSamplePanel>())).TryManuallyUpdate(0);
+            Find.State(
+                out ResearchMinigameState researchState,
+                out PlayerProgressState progressState,
+                out ContractState contractState
+            );
+            ResearchSamplePanel panel = Find.FirstComponent<ResearchSamplePanel>();
+
+            if (inputState.VerifyHypothesisClickedThisFrame) {
+                ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
+                viewModelState.VerifyRoutine.Replace(viewModelState, VerificationRoutine(panel, viewModelState, researchState, progressState, contractState, slotted, uiAssets)).TryManuallyUpdate(0);
             }
-
-            if (viewModelState.HypothesisVerified)
-            {
-                viewModelState.HypothesisVerified = false;
-                // 1. Check if observations match the material
-                string failureReason = null;
-                bool anyPruned = PruneInvalidObservations(researchState, slotted, viewModelState);
-                if (anyPruned) {
-                    HypothesisViewModelUtility.RequestRebuild(viewModelState);
-                    failureReason = "invalid_observation";
-                }
-
-                bool hasRequiredObs = EvaluateObservations(viewModelState);
-                if (failureReason == null && !hasRequiredObs) {
-                    failureReason = "observation_mismatch";
-                }
-
-                bool validHypothesis = ValidateProperty(slotted, viewModelState);
-                if (failureReason == null && !validHypothesis) {
-                    failureReason = "hypothesis_mismatch";
-                }
-
-                bool success = !anyPruned && hasRequiredObs && validHypothesis;
-                if (success) {
-                    if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, slotted.AssetId, viewModelState.HypothesisLabel, viewModelState.HypothesisContext)) {
-                        HypothesisViewModelUtility.RequestRebuild(viewModelState);
-                    }
-                    else {
-                        success = false;
-                    }
-                }
-                
-                using (var table = TempVarTable.Alloc()) {
-                    var resultStr = success ? "success" : "failure";
-                    table.Set("result", resultStr);
-                    if (!success) {
-                        // "invalid_observation": observation does not match the material
-                        // "observation_mismatch": observation does not match the hypothesis and/or does not have all required observations for the hypothesis
-                        // "hypothesis_mismatch": hypothesis does not match the material
-                        table.Set("reason", failureReason);
-                    }
-                    ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
-                }
-            }
-            
         }
 
-        private static IEnumerator VerificationRoutine(ResearchSamplePanel panel)
+        private static IEnumerator VerificationRoutine(ResearchSamplePanel panel, HypothesisViewModelState viewModelState, ResearchMinigameState researchState, PlayerProgressState progressState, ContractState contractState, MaterialAsset material, ResearchUIAssets config)
         {
             Game.Input.PauseAll();
 
-            panel.VerifyButton.gameObject.SetActive(false);
-            
-            // Image fillBar;
-            // fillBar.fillAmount = 0;
-            // yield return fillBar.FillTo(1, 1).Ease(Curve.QuadInOut);
-            yield return 0.1f;
+            viewModelState.HypothesisVerified = true;
+            panel.Lines.color = config.ProcessingColor;
+            panel.ResultText.text = "Verifying...";
+            panel.ResultText.color = config.ProcessingColor;
 
-            Find.State<HypothesisViewModelState>().HypothesisVerified = true;
+            panel.LoadingBar.SetActive(true);
+            panel.FilledBar.fillAmount = 0;
+
+            yield return 0.3f;
+
+            yield return panel.FilledBar.FillTo(1f, 2f).Ease(Curve.QuadInOut);
+
+            yield return 0.5f;
+
+            string failureReason = null;
+            bool anyPruned = PruneInvalidObservations(researchState, material, viewModelState);
+            if (anyPruned) {
+                HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                failureReason = "invalid_observation";
+            }
+
+            bool hasRequiredObs = EvaluateObservations(viewModelState);
+            if (failureReason == null && !hasRequiredObs) {
+                failureReason = "observation_mismatch";
+            }
+
+            yield return 0.5f;
+
+            bool validHypothesis = ValidateProperty(material, viewModelState);
+            if (failureReason == null && !validHypothesis) {
+                failureReason = "hypothesis_mismatch";
+            }
+
+            bool success = !anyPruned && hasRequiredObs && validHypothesis;
+            if (success) {
+                if (ResearchInventoryUtility.TryConfirmHypothesis(researchState, progressState, contractState, material.AssetId, viewModelState.HypothesisLabel, viewModelState.HypothesisContext)) {
+                    HypothesisViewModelUtility.RequestRebuild(viewModelState);
+                }
+                else {
+                    success = false;
+                }
+            }
+
+            yield return 0.5f;
+
+            panel.Lines.color = success ? config.SuccessColor : config.FailureColor;
+            panel.ResultIcon.gameObject.SetActive(true);
+            panel.ResultIcon.sprite = success ? config.SuccessIcon : config.FailureIcon;
+            panel.ResultText.text = success ? "Verified" : "Material not verified";
+            panel.ResultText.color = success ? config.SuccessColor : config.FailureColor;
+            panel.LoadingBar.SetActive(false);
+
+            yield return 2f;
+
+            panel.Lines.color = config.DefaultColor;
+            panel.ResultIcon.gameObject.SetActive(false);
+            panel.ResultText.text = "";
+
+            using (var table = TempVarTable.Alloc()) {
+                var resultStr = success ? "success" : "failure";
+                table.Set("result", resultStr);
+                if (!success) {
+                    // "invalid_observation": observation does not match the material
+                    // "observation_mismatch": observation does not match the hypothesis and/or does not have all required observations for the hypothesis
+                    // "hypothesis_mismatch": hypothesis does not match the material
+                    table.Set("reason", failureReason);
+                }
+                ScriptUtility.Trigger(ResearchScriptTriggers.OnHypothesisSubmitted, table);
+            }
+
+            viewModelState.HypothesisVerified = false;
             Game.Input.ResumeAll();
         }
 
@@ -216,7 +238,7 @@ namespace SpaceFab.Research {
                     foreach (var panel in Find.Components<ResearchSamplePanel>()) {
                         if (panel == null || !panel.PickerOpen) continue;
                         // TODO: change sprite for greyed out chips
-                        panel.SlotChips[i].Background.color = Color.grey;
+                        //panel.SlotChips[i].Background.color = Color.grey;
                     }
                 }
             }

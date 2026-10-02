@@ -99,7 +99,7 @@ namespace SpaceFab.Research {
             // and filled-state paths regardless of where the button
             // sits in the panel hierarchy.
             if (panel.VerifyButton != null) {
-                panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
+                panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             WikiContent contents = Find.State<WikiContent>();
@@ -108,16 +108,18 @@ namespace SpaceFab.Research {
                 bool obsTabOpen = false;
                 if (wikiState.Expanded && wikiState.CurrentTabId >= 0) {
                     obsTabOpen = contents.Tabs[wikiState.CurrentTabId].AssetId == "Observations";
+                    // TODO: grey out button when obs tab is open
                 }
-                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !obsTabOpen);
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             if (panel.AddPropertyButton != null) {
                 bool propsTabOpen = false;
                 if (wikiState.Expanded && wikiState.CurrentTabId >= 0) {
                     propsTabOpen = contents.Tabs[wikiState.CurrentTabId].AssetId == "Properties";
+                    // TODO: grey out button when obs tab is open
                 }
-                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !propsTabOpen);
+                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
@@ -240,9 +242,11 @@ namespace SpaceFab.Research {
                         MaterialPropertyLabel slotLabel = hypoVm.SlotLabels[i];
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
                         type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
+                        panel.SlotChips[i].SetProperty(label, ChipFillState.Filled, locked, slotLabel, useEmptyDashedSprite: true);
+                    } else {
+                        panel.SlotChips[i].SetState(label, ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                     }
                     panel.SlotChips[i].gameObject.SetActive(filled);
-                    panel.SlotChips[i].SetState(label, filled ? ChipFillState.Filled : ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);
                 }
             }
 
@@ -263,9 +267,10 @@ namespace SpaceFab.Research {
                     MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
                     hypoLabel += " for " + hypoContext.ShortName; // only 'confirmed' semiconductors can be slotted -- always known
                 }
+                panel.HypothesisChip.SetProperty(hypoLabel, ChipFillState.Confirmed, false, hypo);
+            } else {
+                panel.HypothesisChip.SetState(hypoLabel, ChipFillState.Empty, false, hypoType, true);
             }
-
-            panel.HypothesisChip.SetState(hypoLabel, hypoFilled ? ChipFillState.Filled : ChipFillState.Empty, false, hypoType);
 
             // 4. Picker overlay. Population + layout + resize happen
             // once on chamber load (ObservationPickerLoadUtility);

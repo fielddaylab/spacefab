@@ -53,10 +53,10 @@ namespace SpaceFab.Research
 
             if (interfacerState.LastUpdatedKind == ChamberSlotKind.Primary) {
                 UpdateSemiconductor(interfacerState, dopingChamberState, researchState, explosionState, pools);
-                foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
-                    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacerState, dopingChamberState.AvailableObservations);
-                    break;
-                }
+                //foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
+                //    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacerState, dopingChamberState.AvailableObservations);
+                //    break;
+                //}
             }
             else {
                 UpdateDopant(interfacerState, dopingChamberState, explosionState, pools);

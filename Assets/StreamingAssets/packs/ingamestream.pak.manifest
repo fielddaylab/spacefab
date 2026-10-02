@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3017436617
+CRC: 859106754
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 78bf45dd82559f4d1b0b5f4762c7ff67
+    Hash: 54013d13753f03e56fca13b7ac02de50
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 355f243410f7606d91b76e694cc89f1b
+    Hash: e3a1d7c3af530f5164ce219e0af017f9
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 78bf45dd82559f4d1b0b5f4762c7ff67
+    Hash: 54013d13753f03e56fca13b7ac02de50
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -42,11 +42,15 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
-  ClassName: SpaceFab.Research.ResearchObservationChipAssets/ObservationSpritePair
+  ClassName: SpaceFab.Research.ResearchObservationChipAssets/ObservationSpriteOverride
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.Research.ResearchObservationChipAssets/ObservationStyle
 - AssemblyName: BeauUtil
   ClassName: BeauUtil.SerializedHash32
 - AssemblyName: BeauUtil
   ClassName: BeauUtil.StringHash32
+- AssemblyName: FieldDay.Core
+  ClassName: FieldDay.ColorPalette2
 Assets:
 - Assets/Shared/Data/InGameStream.asset
 Dependencies: []

@@ -91,5 +91,5 @@ $call   CloseWiki()
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "invalid_observation"
 $call   ReleaseAllHighlights()
-@call   CloseWiki()
+$call   CloseWiki()
 {@PAL}  One or more of your Observations were incorrect. Those are removed.\nTry again.

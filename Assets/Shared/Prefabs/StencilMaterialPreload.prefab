@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23e532659347c0445a5d0b9a50d317e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MaxMaskDepth: 1
+  m_MaxMaskDepth: 2
   m_MaskMaterials:
   - {fileID: 2100000, guid: 504a7f784eb951041a2f58ae05f392ca, type: 2}
   - {fileID: 2100000, guid: c0806246a1632a24cabd9f134f7f8c0b, type: 2}

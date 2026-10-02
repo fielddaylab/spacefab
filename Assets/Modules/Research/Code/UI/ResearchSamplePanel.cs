@@ -64,6 +64,13 @@ namespace SpaceFab.Research {
         public Image SubstrateSprite;
         public TMP_Text SubstrateLabel;
 
+        [Header("Verification")]
+        public Image Lines;
+        public GameObject LoadingBar;
+        public Image FilledBar;
+        public TMP_Text ResultText;
+        public Image ResultIcon;
+
         // Whether the picker overlay is currently open. Per-instance
         // transient state; the visual system reads it to decide whether
         // to show the overlay.
@@ -126,6 +133,10 @@ namespace SpaceFab.Research {
             }
             if (CompleteButton != null) {
                 CompleteButton.onClick.AddListener(HandleCompleteMinigame);
+            }
+
+            if (ResultText != null) {
+                ResultText.text = "";
             }
 
             SamplePanelInputUtility.ClosePicker(this);

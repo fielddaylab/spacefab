@@ -374,9 +374,16 @@ namespace FieldDay {
 #if UNITY_EDITOR
                     Baking.PrepareUndo(rect, "Horizontal alignment");
 #endif // UNITY_EDITOR
+                    bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                    if (hasLayoutOffset) {
+                        offset.BeginLayoutChanges();
+                    }
                     Vector2 anchoredPos = rect.anchoredPosition;
                     anchoredPos.x = basePosition + offsets[i];
                     rect.anchoredPosition = anchoredPos;
+                    if (hasLayoutOffset) {
+                        offset.EndLayoutChanges();
+                    }
                 }
             }
 
@@ -399,9 +406,16 @@ namespace FieldDay {
             Vector3 anchorPos;
             for(int i = 0; i < len; i++) {
                 rect = buffer[i];
+                bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                if (hasLayoutOffset) {
+                    offset.BeginLayoutChanges();
+                }
                 anchorPos = rect.anchoredPosition3D;
                 anchorPos.x = basePosition;
                 rect.anchoredPosition3D = anchorPos;
+                if (hasLayoutOffset) {
+                    offset.EndLayoutChanges();
+                }
             }
         }
 
@@ -531,9 +545,16 @@ namespace FieldDay {
 #if UNITY_EDITOR
                     Baking.PrepareUndo(rect, "Vertical alignment");
 #endif // UNITY_EDITOR
+                    bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                    if (hasLayoutOffset) {
+                        offset.BeginLayoutChanges();
+                    }
                     Vector2 anchoredPos = rect.anchoredPosition;
                     anchoredPos.y = basePosition + direction * offsets[i];
                     rect.anchoredPosition = anchoredPos;
+                    if (hasLayoutOffset) {
+                        offset.EndLayoutChanges();
+                    }
                 }
             }
 
@@ -556,9 +577,16 @@ namespace FieldDay {
             Vector3 anchorPos;
             for (int i = 0; i < len; i++) {
                 rect = buffer[i];
+                bool hasLayoutOffset = rect.TryGetComponent(out LayoutOffset offset);
+                if (hasLayoutOffset) {
+                    offset.BeginLayoutChanges();
+                }
                 anchorPos = rect.anchoredPosition3D;
                 anchorPos.y = basePosition;
                 rect.anchoredPosition3D = anchorPos;
+                if (hasLayoutOffset) {
+                    offset.EndLayoutChanges();
+                }
             }
         }
 
