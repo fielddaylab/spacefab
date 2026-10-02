@@ -95,5 +95,5 @@ $call   CloseWiki()
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "invalid_observation"
 $call   ReleaseAllHighlights()
-@call   CloseWiki()
+$call   CloseWiki()
 {@PAL}  Your observation doesn't match the sample. Try changing the observation.

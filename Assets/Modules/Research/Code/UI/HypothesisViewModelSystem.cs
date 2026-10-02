@@ -193,8 +193,7 @@ namespace SpaceFab.Research {
                 }
             }
             viewModelState.HypothesisLeafCount = leafCount;
-            viewModelState.VerifyButtonVisible = viewModelState.HypothesisSelected
-                && slotCount > 0;
+            viewModelState.VerifyButtonVisible = viewModelState.HypothesisSelected && slotCount > 0;
 
             // 6. Frame-flag — any change drives the panel's LateUpdate render.
             viewModelState.HypothesisChangedThisFrame =

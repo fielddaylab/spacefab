@@ -99,7 +99,7 @@ namespace SpaceFab.Research {
             // and filled-state paths regardless of where the button
             // sits in the panel hierarchy.
             if (panel.VerifyButton != null) {
-                panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible);
+                panel.VerifyButton.gameObject.SetActive(hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             if (panel.AddObservationButton != null) {
@@ -107,8 +107,9 @@ namespace SpaceFab.Research {
                 bool obsTabOpen = false;
                 if (contents.Count != 0 && wikiState.Expanded) {
                     obsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Observations";
+                    // TODO: grey out button when obs tab is open
                 }
-                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !obsTabOpen);
+                panel.AddObservationButton.gameObject.SetActive(hypoVm.SlotCount <= 3 && !hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             if (panel.AddPropertyButton != null) {
@@ -116,8 +117,9 @@ namespace SpaceFab.Research {
                 bool propsTabOpen = false;
                 if (contents.Count != 0 && wikiState.Expanded) {
                     propsTabOpen = contents[0].Tabs[wikiState.ActiveTabIndex].AssetId == "Properties";
+                    // TODO: grey out button when obs tab is open
                 }
-                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !propsTabOpen);
+                panel.AddPropertyButton.gameObject.SetActive(hypoVm.SlotCount > 0 && !hypoVm.VerifyButtonVisible && !hypoVm.HypothesisVerified);
             }
 
             ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
