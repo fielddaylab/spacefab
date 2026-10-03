@@ -1,0 +1,131 @@
+# basePath DesignIntroCh2
+
+::IntroSelectTrace
+@trigger    OnDesignSetupComplete
+@when       CurrLevelIndex() == 0
+$set temp:hintGiven = 0
+$if IsLevelSolved(0) == true
+    $set temp:designTutorialStep = 4
+    {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
+$else
+    $set temp:designTutorialStep = 0
+    $call   HighlightElement(design:n-dopant-tool-btn)
+    {@PAL}  There is a layer below the metal layer. Use this semiconductor layer to complete the chip.
+$endif
+
+
+::OnToolSelected
+@trigger    OnToolSelected
+@when       tool == "DrawNNodes", CurrLevelIndex() == 0, temp:designTutorialStep == 0
+$set temp:designTutorialStep = 1
+$call   ReleaseAllHighlights()
+$call   HighlightElement(design:input-a, false, 25)
+{@PAL} Now click and drag to draw a connection between Input A and Output X.
+
+
+::TestConnectionDrag
+@trigger    OnDragReleased
+@when       CurrLevelIndex() == 0
+$call   HighlightElement(design:via-tool-btn)
+$if temp:designTutorialStep == 1
+    $set temp:designTutorialStep = 2
+    $call   ReleaseHighlight(design:input-a)
+    {@PAL}  Use the Via tool to connect metal and semiconductor in a single cell.
+$elseif temp:designTutorialStep == 2
+    $call   ReleaseHighlight(design:input-a)
+    // player has dragged again on the grid, potentially after running a single test
+    {@PAL}  Use the Via tool to connect metal and semiconductor in a single cell.
+$elseif temp:designTutorialStep == 3
+    // player has already tested at least one case before modifying the grid
+    {@PAL} You'll have to re-run all tests whenever you modify the grid.
+$elseif temp:designTutorialStep == 4
+    // player has already tested all test cases before modifying the grid
+    {@PAL} You'll have to re-run all tests whenever you modify the grid.
+$endif
+
+// TODO: after placing at least one via
+// {@PAL}  Click <color=yellow>TEST</color> to verify.
+
+::TestConnectionClick
+@trigger    OnClickReleased
+@when       CurrLevelIndex() == 0, temp:designTutorialStep == 1
+{@PAL}  You'll need to click and drag to form a solid path.
+
+
+::TestIncorrect
+@trigger    OnSingleTestComplete
+@when       result == "failure", CurrLevelIndex() == 0, temp:designTutorialStep != 0
+// only show this after the player knows how to select the trace tool
+$call   ReleaseHighlight(design:test-btn)
+{@PAL}  The test failed.\n\nMake sure the Via touches both metal and semiconductor.
+
+
+::TestCorrect
+@trigger    OnSingleTestComplete
+@when       result == "success", CurrLevelIndex() == 0
+$if temp:designTutorialStep < 4
+    $call   ReleaseAllHighlights()
+    $call   HighlightElement(design:input-a, false, 25)
+    $if     IsInputInState("A", "LO")
+        {@PAL}  Correct!\n\nNow flip the switch on the input to change it from LO to HI.
+    $else
+        {@PAL}  Correct!\n\nNow flip the switch on the input to change it from HI to LO.
+    $endif
+$endif
+
+
+::InputSwitch
+@trigger    OnInputToggled
+@when       CurrLevelIndex() == 0, temp:designTutorialStep >= 2, temp:designTutorialStep <= 3
+$call   ReleaseHighlight(design:input-a)
+$call   HighlightElement(design:test-btn)
+$set temp:designTutorialStep = 3
+{@PAL}  Click TEST again.
+
+
+
+::AllTestsPassed
+@trigger    OnAllTestsComplete
+@when       CurrLevelIndex() == 0
+$call   ReleaseAllHighlights()
+{@PAL}  It looks like all test cases passed!
+$set    temp:designTutorialStep = 4
+
+
+
+// Puzzle 2
+
+::IntroSelectTraceLv2
+@trigger    OnDesignSetupComplete
+@when       CurrLevelIndex() == 1
+$if IsLevelSolved(1) == true
+    $set temp:designTutorialStep = 4
+    {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
+$else
+    $set temp:designTutorialStep = 0
+    $call   HighlightElement(design:n-dopant-tool-btn)
+    {@PAL}  Look at the Verification table. Output Y is always <color=yellow>HI</color>. Input HI is a constant. Connect them with the metal.
+$endif
+
+// TODO: release drag
+{@PAL}  To connect input A to output X, use a semiconductor to cross under the metal layer. Remember, the inputs and outputs are on the metal layer.
+
+::TestIncorrectLv2
+@trigger    OnSingleTestComplete
+@when       result == "failure", CurrLevelIndex() == 1
+$call   ReleaseHighlight(design:test-btn)
+$if temp:hintGiven == 0
+    {@PAL}  Hint: The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+    $set temp:hintGiven == 1
+$elseif temp:hintGiven == 1
+    {@PAL}  Hint: The paths should cross on different layers.
+        $set temp:hintGiven == 2
+$elseif temp:hintGiven == 2
+    {@PAL}  Hint: Make sure the Via touches both metal and semiconductor.
+    $set temp:hintGiven == 3
+$elseif temp:hintGiven == 3
+    {@PAL}  Hint: Constant HI must be connected to output Y.
+    $set temp:hintGiven == 0
+$endif
+
+// fail

@@ -1,6 +1,7 @@
 using System;
 using BeauRoutine;
 using FieldDay;
+using FieldDay.Animation;
 using FieldDay.UI;
 using FieldDay.UI.Widgets;
 using SpaceFab.Fabrication;
@@ -16,6 +17,7 @@ namespace SpaceFab.Supply {
         public RectTransform[] Slots;
         public Image[] SlotMaterials;
         public TMP_Text ShipName;
+        public Image Flash;
 
         [Header("Links")]
         public Image LineLayer;
@@ -24,6 +26,7 @@ namespace SpaceFab.Supply {
 
         [NonSerialized] public int ShipIndex;
         [NonSerialized] public Vector2 TargetPos;
+        [NonSerialized] public AnimHandle Anim;
 
         protected override void OnDisable() {
             LineLayer.gameObject.SetActive(false);

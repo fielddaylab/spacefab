@@ -13,8 +13,7 @@ namespace FieldDay.Localization {
 
         internal void Initialize(LanguageId defaultLanguage) {
             Loc.ConfigureDefaultLanguage(defaultLanguage);
-
-            Loc.MarkLoaded();
+            Loc.SetLoadedLanguage(defaultLanguage);
 
             m_MainDb = new LocDb(16);
             m_SubDb = new LocDb(16);

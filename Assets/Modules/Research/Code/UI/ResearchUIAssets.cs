@@ -21,6 +21,7 @@ namespace SpaceFab.Research {
         public Sprite ThermalPressed;
         public Sprite DopingNormal;
         public Sprite DopingPressed;
+        public Sprite LockedChamber;
 
         [Header ("Atomic View Toggle")]
         public Sprite ButtonUp;

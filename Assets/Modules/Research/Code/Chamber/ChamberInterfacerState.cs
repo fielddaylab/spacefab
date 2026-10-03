@@ -3,8 +3,6 @@ using FieldDay.SharedState;
 using FieldDay.UI;
 using SpaceFab.Materials;
 using System;
-using TMPro;
-using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -62,6 +60,7 @@ namespace SpaceFab.Research {
         // short-circuit when this is not their own kind.
         [NonSerialized] public bool ActiveChamberChangedThisFrame;
         [NonSerialized] public ActiveChamberKind ActiveChamber;
+        [NonSerialized] public ActiveChamberKind LastUnlockedChamber;
 
         public void OnRegister()
         {

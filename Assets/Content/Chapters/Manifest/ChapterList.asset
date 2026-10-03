@@ -63,12 +63,12 @@ MonoBehaviour:
       m_HashValue: 2927225661
   ResidentData:
   - ResearchableMaterials:
-    - m_HashValue: 1571298950
-    - m_HashValue: 3821421172
-  - ResearchableMaterials:
-    - m_HashValue: 1571298950
     - m_HashValue: 3821421172
     - m_HashValue: 1163381446
+  - ResearchableMaterials:
+    - m_HashValue: 3821421172
+    - m_HashValue: 1163381446
+    - m_HashValue: 1571298950
   - ResearchableMaterials:
     - m_HashValue: 1571298950
     - m_HashValue: 3821421172

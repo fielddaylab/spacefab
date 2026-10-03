@@ -25,6 +25,8 @@ namespace SpaceFab
         [SerializeField] private ContractDifficulty m_difficulty;
 
         [SerializeField] private bool m_unlocksBigBattery; // whether Research unlocks the big battery
+        [SerializeField] private bool m_unlocksThermalChamber;
+        [SerializeField] private bool m_unlocksDopingChamber;
 
         [StreamedPackId] public StringHash32 StreamedPack;
         [AssetName(typeof(ContractAssetSet))] public StringHash32 AssetSet;
@@ -41,6 +43,8 @@ namespace SpaceFab
         public ContractClass ContractClass() { return m_contractType; }
         public ContractDifficulty Difficulty() { return m_difficulty; }
         public bool UnlocksBigBattery() { return m_unlocksBigBattery; }
+        public bool UnlocksThermalChamber() { return m_unlocksThermalChamber; }
+        public bool UnlocksDopingChamber() { return m_unlocksDopingChamber; }
     }
 
     public enum ContractClass : byte {

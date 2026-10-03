@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using SpaceFab.Fabrication.Sequence;
 using System.Linq;
+using FieldDay.UI;
 
 namespace SpaceFab.Fabrication
 {
@@ -18,6 +19,7 @@ namespace SpaceFab.Fabrication
         public Image Background;
         public RectTransform StationDisplayRow;
         public DynamicButton RetryButton, ContinueButton;
+        public CanvasInputLayer InputLayer;
 
         public ResultDisplaySection Heading, Accuracy, Time, ProductionTime;
         public StationResultDisplay[] StationResults;
@@ -62,6 +64,12 @@ namespace SpaceFab.Fabrication
             displayState.ResultsGroup.alpha = isEnabled ? 1 : 0;
             displayState.ResultsGroup.blocksRaycasts = isEnabled;
             displayState.ResultsGroup.interactable = isEnabled;
+
+            if (isEnabled) {
+                displayState.InputLayer.TryPushPriority();
+            } else {
+                displayState.InputLayer.TryPopPriority();
+            }
         }
 
         public static void ShowResults(ResultDisplayState displayState)

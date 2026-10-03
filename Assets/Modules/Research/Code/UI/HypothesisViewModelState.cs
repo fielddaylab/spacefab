@@ -1,3 +1,4 @@
+using BeauRoutine;
 using BeauUtil;
 using FieldDay.SharedState;
 using SpaceFab.Materials;
@@ -30,6 +31,7 @@ namespace SpaceFab.Research {
         // === Hypothesis selection ===
 
         [NonSerialized] public bool HypothesisSelected;
+        [NonSerialized] public bool HypothesisVerified;
 
         // Valid only while HypothesisSelected.
         [NonSerialized] public MaterialPropertyLabel HypothesisLabel;
@@ -52,8 +54,8 @@ namespace SpaceFab.Research {
 
         // === Submit ===
 
-        // True when a hypothesis is selected and the slot view is full
-        // against its leaf count. Drives the submit button's visibility.
+        // True when at least one observation is selected and a property chip is selected.
+        // Drives the submit button's visibility.
         [NonSerialized] public bool VerifyButtonVisible;
 
         // === Frame flags ===
@@ -64,6 +66,8 @@ namespace SpaceFab.Research {
         // invalidates the viewmodel. HypothesisViewModelSystem clears it
         // once it has recomputed.
         [NonSerialized] public bool NeedsRebuild;
+
+        [NonSerialized] public Routine VerifyRoutine;
 
         public void OnRegister() {
             SlotLabels = new MaterialPropertyLabel[MaxObservationSlots];

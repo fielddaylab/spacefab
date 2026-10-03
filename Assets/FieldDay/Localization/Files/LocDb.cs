@@ -36,9 +36,11 @@ namespace FieldDay.Localization {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Il2CppSetOption(Option.NullChecks, false)]
-        public string Find(LocId id) {
+        public string Find(LocId id, string defaultText) {
             string text;
-            m_Entries.TryGetValue(GetKey(id), out text);
+            if (!m_Entries.TryGetValue(GetKey(id), out text)) {
+                text = defaultText;
+            }
             return text;
         }
 

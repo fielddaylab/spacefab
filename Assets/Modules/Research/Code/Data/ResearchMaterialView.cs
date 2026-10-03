@@ -22,8 +22,8 @@ namespace SpaceFab.Research {
         // Gem color for atomic view
         public Color[] AtomColor = new Color[] { Color.white };
 
-        // Uniform scale applied to the gem renderer's transform.
-        public float GemScale = 1f;
+        // Uniform scale applied to the atom transform.
+        public float AtomScale = 1f;
 
         // Alternativel switch to strings for number labels (1, 2, 3)
         // retain sample number in case change later

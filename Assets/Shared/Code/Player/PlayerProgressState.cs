@@ -13,13 +13,16 @@ using UnityEngine;
 
 namespace SpaceFab
 {
-    public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks
+    public class PlayerProgressState : SharedStateComponent, ISaveStateChunkObject, IRegistrationCallbacks, ISaveStatePostLoad
     {
         #region Save State
 
         [NonSerialized] public StringHash32 RecentlyCompletedContract;
 
         [NonSerialized] public bool BigBatteryUnlocked;
+        [NonSerialized] public bool ThermalChamberUnlocked;
+        [NonSerialized] public bool DopingChamberUnlocked;
+        [NonSerialized] public bool SpecialPropertiesUnlocked;
 
         // Tracks whether the one-shot wiki initial-unlocks pass has
         // already run for this save. OverarchingStartupSequenceSystem
@@ -53,6 +56,7 @@ namespace SpaceFab
             MaterialProperties = new Dictionary<StringHash32, MaterialPropertyRecord>();
             UnlockedWikiPages ??= new HashSet<StringHash32>();
             SpacefabGame.SaveBuffer.RegisterHandler("PlayerProgressState", this);
+            SpacefabGame.SaveBuffer.RegisterPostLoad(this);
         }
 
         #region Interfaces
@@ -79,6 +83,20 @@ namespace SpaceFab
             // version gate. When SaveVersion is fixed, move into a
             // versioned slot.
             BigBatteryUnlocked = reader.Read<bool>();
+            if (consts.Version >= 1) {
+                ThermalChamberUnlocked = reader.Read<bool>();
+                DopingChamberUnlocked = reader.Read<bool>();
+            } else {
+                ThermalChamberUnlocked = false;
+                DopingChamberUnlocked = false;
+            }
+
+            if (consts.Version >= 2) {
+                SpecialPropertiesUnlocked = reader.Read<bool>();
+            } else {
+                SpecialPropertiesUnlocked = false;
+            }
+
             InitialUnlocksApplied = reader.Read<bool>();
             
         }
@@ -101,7 +119,28 @@ namespace SpaceFab
             writer.Write(PlayerProgressUtility.PackCompletedContracts(this));
             PlayerProgressUtility.PackMaterialProperties(this, ref writer);
             writer.Write(BigBatteryUnlocked);
+            writer.Write(ThermalChamberUnlocked);
+            writer.Write(DopingChamberUnlocked);
+            writer.Write(SpecialPropertiesUnlocked);
             writer.Write(InitialUnlocksApplied);
+        }
+
+        void ISaveStatePostLoad.PostLoad(SaveStateChunkConsts consts) {
+            var chapterState = Find.State<ChapterState>();
+            if (consts.Version < 1) {
+                if (chapterState.ChapterIndex >= 1) {
+                    ThermalChamberUnlocked = true;
+                }
+                if (chapterState.ChapterIndex >= 2) {
+                    DopingChamberUnlocked = true;
+                }
+            }
+            if (consts.Version < 2) {
+                // UPGRADE
+                if (chapterState.ChapterIndex >= 8) {
+                    SpecialPropertiesUnlocked = true;
+                }
+            }
         }
 
         #endregion // Interfaces

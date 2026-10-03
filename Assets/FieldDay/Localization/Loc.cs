@@ -22,6 +22,7 @@ namespace FieldDay.Localization {
         /// If the current localization package is available.
         /// </summary>
         static public bool IsReady {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return s_IsLoaded; }
         }
 
@@ -36,6 +37,7 @@ namespace FieldDay.Localization {
         /// <summary>
         /// Returns if the current language has all the given features.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public bool LanguageHasFeatures(LanguageFeatures features) {
             return (s_CurrentLangFeatures & features) == features;
         }
@@ -65,7 +67,8 @@ namespace FieldDay.Localization {
         #region File Paths
 
         /// <summary>
-        /// Returns if the given path is localized.
+        /// Returns if the given path contains the default language's two-letter code.
+        /// Specifically, the formats /en/, en/, and .en
         /// </summary>
         static public unsafe bool IsLocalizedPath(string path) {
             Assert.NotNull(path);
@@ -94,7 +97,7 @@ namespace FieldDay.Localization {
                         }
                         idx += 3;
                     } else if (c == '.') {
-                        if ((idx + 2 == pathLen) || ((idx + 3) < pathLen && buff[idx + 3] == '.')) {
+                        if ((idx + 3 == pathLen) || ((idx + 3) < pathLen && buff[idx + 3] == '.')) {
                             // two character extension
                             if (buff[idx + 1] == checkA && buff[idx + 2] == checkB) {
                                 return true;
@@ -109,7 +112,8 @@ namespace FieldDay.Localization {
         }
 
         /// <summary>
-        /// Returns if the given path is localized.
+        /// Returns if the given path contains the default language's two-letter code.
+        /// Specifically, the formats /en/, en/, and .en
         /// </summary>
         static public unsafe bool IsLocalizedPath(StringBuilder path) {
             Assert.NotNull(path);
@@ -136,7 +140,48 @@ namespace FieldDay.Localization {
                     }
                     idx += 3;
                 } else if (c == '.') {
-                    if ((idx + 2 == pathLen) || ((idx + 3) < pathLen && path[idx + 3] == '.')) {
+                    if ((idx + 3 == pathLen) || ((idx + 3) < pathLen && path[idx + 3] == '.')) {
+                        // two character extension
+                        if (path[idx + 1] == checkA && path[idx + 2] == checkB) {
+                            return true;
+                        }
+                        idx += 3;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns if the given path contains the default language's two-letter code.
+        /// Specifically, the formats /en/, en/, and .en
+        /// </summary>
+        static public unsafe bool IsLocalizedPath(char* path, int pathLength) {
+            Assert.NotNull((char*)path);
+
+            if (pathLength < 3) {
+                return false;
+            }
+
+            s_DefaultLang.ToChars(out char checkA, out char checkB);
+
+            int idx = 0;
+
+            if (path[0] == checkA && path[1] == checkB && path[2] == '/') {
+                return true;
+            }
+
+            for (; idx < pathLength - 2; idx++) {
+                char c = path[idx];
+                if (c == '/' && idx + 3 < pathLength && path[idx + 3] == '/') {
+                    // two character path
+                    if (path[idx + 1] == checkA && path[idx + 2] == checkB) {
+                        return true;
+                    }
+                    idx += 3;
+                } else if (c == '.') {
+                    if ((idx + 3 == pathLength) || ((idx + 3) < pathLength && path[idx + 3] == '.')) {
                         // two character extension
                         if (path[idx + 1] == checkA && path[idx + 2] == checkB) {
                             return true;
@@ -197,7 +242,7 @@ namespace FieldDay.Localization {
                     }
                     idx += 3;
                 } else if (c == '.') {
-                    if ((idx + 2 == pathLen) || ((idx + 3) < pathLen && buff[idx + 3] == '.')) {
+                    if ((idx + 3 == pathLen) || ((idx + 3) < pathLen && buff[idx + 3] == '.')) {
                         // two character extension
                         if (buff[idx + 1] == checkA && buff[idx + 2] == checkB) {
                             buff[idx + 1] = newA;
@@ -267,7 +312,7 @@ namespace FieldDay.Localization {
                     }
                     idx += 3;
                 } else if (c == '.') {
-                    if ((idx + 2 == pathLen) || ((idx + 3) < pathLen && path[idx + 3] == '.')) {
+                    if ((idx + 3 == pathLen) || ((idx + 3) < pathLen && path[idx + 3] == '.')) {
                         // two character extension
                         if (path[idx + 1] == checkA && path[idx + 2] == checkB) {
                             path[idx + 1] = newA;
@@ -323,7 +368,7 @@ namespace FieldDay.Localization {
                     }
                     idx += 3;
                 } else if (c == '.') {
-                    if ((idx + 2 == pathLen) || ((idx + 3) < pathLen && path[idx + 3] == '.')) {
+                    if ((idx + 3 == pathLen) || ((idx + 3) < pathLen && path[idx + 3] == '.')) {
                         // two character extension
                         if (path[idx + 1] == checkA && path[idx + 2] == checkB) {
                             path[idx + 1] = newA;
@@ -342,11 +387,20 @@ namespace FieldDay.Localization {
 
         #region Loading
 
+        static internal void ClearSettings() {
+            s_IsLoaded = false;
+            s_DefaultLang = default;
+            s_CurrentLang = default;
+            s_CurrentLangFeatures = default;
+        }
+
         static internal void MarkLoading() {
             s_IsLoaded = false;
         }
 
-        static internal void MarkLoaded() {
+        static internal void SetLoadedLanguage(LanguageId newLanguage) {
+            s_CurrentLang = newLanguage;
+            s_CurrentLangFeatures = Languages.GetFeatures(newLanguage);
             s_IsLoaded = true;
         }
 

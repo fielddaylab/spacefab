@@ -72,14 +72,6 @@ namespace SpaceFab
 
             Debug.Log("[MinigameLoadExitSystem] Exporting state...");
 
-            // Snap the shared wiki closed before the scene tears down, so the next minigame loads
-            // with the panel collapsed regardless of how the player left this one.
-            Find.State(
-                out WikiState wikiState,
-                out WikiLayoutState wikiLayout
-                );
-            WikiUtility.ForceCollapse(wikiState, wikiLayout);
-
             interfacer.MinigameState.MergeState();
             interfacer.MinigameState.ExportState(ref saveStates);
             SaveUtility.Save(SaveSlot.Main);

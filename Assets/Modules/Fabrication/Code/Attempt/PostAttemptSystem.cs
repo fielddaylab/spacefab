@@ -52,7 +52,7 @@ namespace SpaceFab.Fabrication {
                 // compute total cycles based on buckets
                 int stationNum = sequenceState.StepRuntime.Length;
                 FabricationSequence fabSequence = sequenceState.Level.Sequence;
-                float Coefficient = contractState.ContractAssets.fabCoefficient;
+                float Coefficient = contractState.ContractAssets?.fabCoefficient ?? 1;
 
                 float bucket1 = stationNum * fabSequence.bucketThreshold1 * Coefficient;
                 float bucket2 = stationNum * fabSequence.bucketthreshold2 * Coefficient;

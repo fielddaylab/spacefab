@@ -1,0 +1,64 @@
+
+#basePath Chapter11
+
+::OnContractSelectOpenCh11
+@trigger    OnContractSelectOpen
+@cutscene 
+@once 
+
+{@Arken}    How're feeling Locke? 
+{@Player}   Feeling relieved. 
+{@Arken} 	That’s good.
+{@Arken} 	I’m here to help out as much as I can. 
+{@Arken}	I’m not there physically but I am always there for you Locke. 
+{@Locke}	Thanks, Arken.
+
+::AfterResearchCh11
+@trigger 
+@when           IsSolutionFoundFor(Research)
+@cutscene 
+@once 
+
+{@Quinn}        Did you do it?
+{@Player}       I did it. 
+{@Quinn}        Good.
+{@Joel}         Good riddance. 
+{@Callie}       Yea, good riddance! 
+{@Player}       ...Callie? 
+{@Joel}         The Space Pirate Queen of Velos Station??
+{@Quinn}        I thought your station blew up. 
+{@Callie}       You thought correctly!
+{@Joel}         How did you even get on this channel?
+{@Callie}       Well... I may or more not have commandeered your smallest hauler.
+{@Quinn}        That's so rad. 
+{@Callie}       I was going to run, but I realized this was one of your ships Clackey. 
+{@Callie} 	    So I was thinking… what if I started working for ya? 
+{@Player}       Uh...
+{@Joel}         I mean, I'm not against it. 
+{@Quinn}	    C’mon Locke pleeeeease I want cool space pirate as a co-worker. 
+{@Player}       Sure, why not. 
+{@Callie}       Thanks Clackey-
+{@Callie}       Hmph- I mean, thanks, Captain!
+
+
+::AfterSupplyChainCh11
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research), IsSolutionFoundFor(Supply)
+@cutscene 
+@once
+
+{@Mai}      So, you got rid of the bots? 
+{@Player}   What don't you know? 
+{@Mai}      You're favorite color. 
+{@Player}   Oh, uh- 
+{@Mai}      It's orange. 
+{@Player}   Mai, how in the stars- 
+{@Mai}      I'm going to be leaving. 
+{@Player}   Oh-
+{@Mai}      Other things are taking priority. 
+{@Mai}      Who knows. 
+{@Mai}      Maybe we'll see each other around. 
+{@Mai}      Oh...
+{@Mai}      Keela says good job. 
+{@Player}   Heh... thanks Mai. See you around. Maybe. 
+

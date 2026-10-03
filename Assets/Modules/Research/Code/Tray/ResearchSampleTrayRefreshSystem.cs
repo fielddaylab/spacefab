@@ -1,6 +1,7 @@
 using FieldDay;
 using FieldDay.Systems;
 using SpaceFab;
+using UnityEngine;
 
 namespace SpaceFab.Research {
     /// <summary>
@@ -44,6 +45,9 @@ namespace SpaceFab.Research {
                 ResearchMaterialSource source = trayState.SpawnedSamples[i];
                 if (source == null || source.Rig == null || source.Material == null) continue;
                 ResearchMaterialVisualRigUtility.ApplyPropertiesToRig(source.Rig, source.Material, researchState);
+                for (int a = 0; a < source.Atoms.Count; a++) {
+                    MaterialAtomicViewUtility.RenderMaterialAtom(source.Atoms[a], source.Material, researchState, a);
+                }
             }
         }
     }
