@@ -47,7 +47,7 @@
 
 {@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
 {@Player} 	Ummm... gold? Isn't that really expensive? 
-{@PAL} 		Sure it is but when you calculate travel time and cost of transport, sometimes the extra money is worth it. 
+{@PAL} 		Sure it is but when you compare the travel time the extra money can be worth it. 
 {@Player}	Alright, let's give him a call. 
 //call Xavier
 {@Xavier}   ... 
@@ -55,12 +55,14 @@
 {@Player}   So... are you the supplier or-- 
 {@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
 {@Xavier}   Planet of Gold and Golden Opportunities. 
-{@Xavier}   Any and all materials within this sector goes through me. Capiche? 
-{@Xavier}	And who are you? 
-{@Player}	I'm the Captain of the Constantine. I'm running a fab here and need some materials.
-{@Xavier}   Well now. Let's talk business. You need material. I have it. You let me know what you want, it's done. 
-{@Player}   Uh... well... I'll let you know. Gold seems kinda pricey...
+{@Player}   Okay... well... I'll let you know. Gold seems kinda pricey...
 {@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
+
+//end call
+{@Player}	Hmmm... I wonder if I can afford the gold. I'm trying to actually make a profit.
+
+
+::AfterSupplyChainCh3
 
 
 
