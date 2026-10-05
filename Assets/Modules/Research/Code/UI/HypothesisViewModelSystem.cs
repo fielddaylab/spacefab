@@ -69,8 +69,7 @@ namespace SpaceFab.Research {
             // hypothesis viewmodel. The hypothesis input flags are listed
             // here because this system is their only consumer: nothing
             // else raises NeedsRebuild on their behalf.
-            bool slotChanged = interfacerState.SlotMaterialUpdatedThisFrame
-                && interfacerState.LastUpdatedKind == ChamberSlotKind.Primary;
+            bool slotChanged = interfacerState.SlotMaterialUpdatedThisFrame;
             bool hypothesisInput = inputState.HypothesisSelectedClickedThisFrame
                 || inputState.RemoveHypothesisClickedThisFrame;
             if (!viewModelState.NeedsRebuild && !slotChanged && !hypothesisInput) {
@@ -101,8 +100,6 @@ namespace SpaceFab.Research {
             if (slotChanged || inputState.RemoveHypothesisClickedThisFrame) {
                 viewModelState.HypothesisSelected = false;
                 viewModelState.HypothesisContext = StringHash32.Null;
-
-                ScriptUtility.WriteVariable(new TableKeyPair("research", "propertyId"), "null");
                 ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyRemoved);
             }
 

@@ -241,7 +241,6 @@ namespace SpaceFab.Research {
                     if (filled) {
                         MaterialPropertyLabel slotLabel = hypoVm.SlotLabels[i];
                         label = MaterialPropertyLabelDisplay.GetObservationName(slotLabel);
-                        type = MaterialObservationChamberLookup.GetChamberType(slotLabel);
                         panel.SlotChips[i].SetProperty(label, ChipFillState.Filled, locked, slotLabel, useEmptyDashedSprite: true);
                     } else {
                         panel.SlotChips[i].SetState(label, ChipFillState.Empty, locked, type, useEmptyDashedSprite: true);

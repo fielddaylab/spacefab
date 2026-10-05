@@ -93,6 +93,7 @@ namespace SpaceFab.Research {
                 for (int i = 0; i < material.Properties.Length; i++) {
                     MaterialPropertyLabel label = material.Properties[i];
                     bool confirmed = ResearchStateUtility.HasConfirmed(researchState, material.AssetId, label, StringHash32.Null);
+                    bool isNaiveProp = label == MaterialPropertyLabel.ConductorNaive || label == MaterialPropertyLabel.InsulatorNaive;
                     iconAssets.TryGetIcon(label, out Sprite sprite);
 
                     if (sprite == null) { continue; }
@@ -106,7 +107,7 @@ namespace SpaceFab.Research {
                         }
                     }
 
-                    if (confirmed) {
+                    if (confirmed && !isNaiveProp) {
                         rig.PropertyIcons[iconIdx].gameObject.SetActive(true);
                         rig.PropertyIcons[iconIdx].sprite = sprite;
                         iconIdx++;
