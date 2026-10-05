@@ -10,9 +10,9 @@ $set temp:hintGiven = 0
 @trigger    OnSingleTestComplete
 @when       result == "failure"
 $if temp:hintGiven == 0
-    {@PAL}  Hint: Check the Verification Table.\nWhen B is LO, X receives a signal.\nWhen B is HI, Y receives a signal.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> Check the Verification Table.\nWhen B is LO, X receives a signal.\nWhen B is HI, Y receives a signal.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: X and Y always receive signals from A.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> X and Y always receive signals from A.
+    $set temp:hintGiven = 0
 $endif

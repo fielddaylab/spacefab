@@ -15,12 +15,12 @@ $set temp:hintGiven = 0
 @trigger    OnSingleTestComplete
 @when       result == "failure"
 $if temp:hintGiven == 0
-    {@PAL}  Hint: Check the Verification Table. When B is LO, block signals from reaching the output.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> Check the Verification Table. When B is LO, block signals from reaching the output.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: A reaches the output, and B controls the gate.
-    $set temp:hintGiven == 2
+    {@PAL}  <color=yellow>Hint:</color> A reaches the output, and B controls the gate.
+    $set temp:hintGiven = 2
 $elseif temp:hintGiven == 2
-    {@PAL}  Hint: Use Vias to connect semiconductor back to the inputs and outputs on the metal layer.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> Use Vias to connect semiconductor back to the inputs and outputs on the metal layer.
+    $set temp:hintGiven = 0
 $endif

@@ -4,4 +4,4 @@
 ::Hints
 @trigger    OnSingleTestComplete
 @when       result == "failure"
-{@PAL}  Hint: You can use two Gates on a single transistor.
+{@PAL}  <color=yellow>Hint:</color> You can use two Gates on a single transistor.

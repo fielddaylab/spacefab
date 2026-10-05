@@ -10,9 +10,9 @@ $set temp:hintGiven = 0
 @trigger    OnSingleTestComplete
 @when       result == "failure"
 $if temp:hintGiven == 0
-    {@PAL}  Hint: When A is HI, block signal from reaching the output.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> When A is HI, block signal from reaching the output.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: Input A should control the Gate.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> Input A should control the Gate.
+    $set temp:hintGiven = 0
 $endif

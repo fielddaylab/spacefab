@@ -10,9 +10,9 @@ $set temp:hintGiven = 0
 @trigger    OnSingleTestComplete
 @when       result == "failure"
 $if temp:hintGiven == 0
-    {@PAL}  Hint: Check the Verification Table. Only LO should reach output X.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> Check the Verification Table. Only LO should reach output X.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: When A is LO, allow its own signal to pass.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> When A is LO, allow its own signal to pass.
+    $set temp:hintGiven = 0
 $endif

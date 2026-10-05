@@ -10,9 +10,9 @@ $set temp:hintGiven = 0
 @trigger    OnSingleTestComplete
 @when       result == "failure"
 $if temp:hintGiven == 0
-    {@PAL}  Hint: If A and B are LO, send HI. You can use transistors with two Gates.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> If A and B are LO, send HI. You can use transistors with two Gates.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: Use separate Gates for A HI and B HI to prevent Unstable signals.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> Use separate Gates for A HI and B HI to prevent Unstable signals.
+    $set temp:hintGiven = 0
 $endif

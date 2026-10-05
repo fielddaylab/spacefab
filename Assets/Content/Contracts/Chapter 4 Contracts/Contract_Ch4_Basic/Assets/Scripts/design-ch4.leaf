@@ -10,9 +10,9 @@ $set temp:hintGiven = 0
 @trigger    OnSingleTestComplete
 @when       result == "failure"
 $if temp:hintGiven == 0
-    {@PAL}  Hint: You will need two separate Diodes.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> You will need two separate Diodes.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: Make sure your Diode connects back to the output with a Via.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> Make sure your Diode connects back to the output with a Via.
+    $set temp:hintGiven = 0
 $endif

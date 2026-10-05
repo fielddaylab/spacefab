@@ -135,15 +135,15 @@ $endif
 @when       result == "failure", CurrLevelIndex() == 1
 $call   ReleaseHighlight(design:test-btn)
 $if temp:hintGiven == 0
-    {@PAL}  Hint: The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
-    $set temp:hintGiven == 1
+    {@PAL}  <color=yellow>Hint:</color> The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+    $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  Hint: The paths should cross on different layers.
-        $set temp:hintGiven == 2
+    {@PAL}  <color=yellow>Hint:</color> The paths should cross on different layers.
+        $set temp:hintGiven = 2
 $elseif temp:hintGiven == 2
-    {@PAL}  Hint: Make sure the Via touches both metal and semiconductor.
-    $set temp:hintGiven == 3
+    {@PAL}  <color=yellow>Hint:</color> Make sure the Via touches both metal and semiconductor.
+    $set temp:hintGiven = 3
 $elseif temp:hintGiven == 3
-    {@PAL}  Hint: Constant HI must be connected to output Y.
-    $set temp:hintGiven == 0
+    {@PAL}  <color=yellow>Hint:</color> Constant HI must be connected to output Y.
+    $set temp:hintGiven = 0
 $endif
