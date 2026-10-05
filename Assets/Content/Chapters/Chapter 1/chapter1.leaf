@@ -35,7 +35,15 @@ $call   LockWikiPage("Insulator") // only Basic Insulator is available in first 
 @once
 $call   ReleaseAllHighlights()
 
-
+//TODO can I add this here to fire after research?
+//::AfterResearchCh1
+//@trigger    OnOverarchingLoaded
+//@when       IsSolutionFoundFor(Research)
+//@cutscene
+//@once
+//{@PAL}      Research complete! Conductor and insulator verified.
+//{@Player}   You're sure?
+//{@PAL}      Absolutely, Captain.
 
 
 :: BeforeSupplyChainCh1
