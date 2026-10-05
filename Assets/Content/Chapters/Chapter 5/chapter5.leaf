@@ -4,14 +4,16 @@
 @trigger    OnContractSelectOpen
 @cutscene
 @once 
+//todo need a bridge between end of comic with keela not picking up the phone. 
 
-{@PAL}      	Captain, I have another surprise for you! 
-{@Player}   	Wait... finally someone else on my ship?
-{@PAL}      	No! 
+{@PAL}      	Captain, I have a surprise for you.  
+{@Player}   	Wait... did Keela call me back?
+{@PAL}      	No. 
 {@Player}   	Oh.
 {@PAL}      	Instead of one contract, you now have... two!
 {@PAL}      	Congratulations on achieving agency Captain! 
 {@Player}   	...thanks P.A.L. 
+{@Pal}			One of them is a little more complicated. You can switch back to the other one if you decide its too hard. 
 
 ::BeforeSupplyChainCh5
 @trigger    OnOverarchingLoaded
@@ -19,24 +21,34 @@
 @cutscene 
 @once 
 
-{@Ovill}    	Hi Locke.
-{@Ovill}    	I got a thrilling new update for the Forsch Sector!
-{@Callie}   	I wouldn’t listen to him, my Clackey friend.
-{@Ovill}    	How-how did you get this frequency?! This is an encrypted channel!
-{@Ovill}    	Who are you?
-{@Callie}   	Why, it is I...
-{@Player}  	    Here we go... 
-{@Callie}   	Callie Lee! The Space Pirate Queen of Velos Station! 
-{@Callie}   	Trying to steal me business huh?
-{@Ovill}    	Stealing- you stole a whole station from Frontier!
-{@Callie}   	You seriously want to conduct business with this fool, Clackey? 
-{@Player}   	My name is not Clackey. 
-{@Ovill}    	Get OFF this frequency!
-{@Callie}   	Seeesh! Okay I will! Don't forget to take some blood pressure meds. 
-{@Callie}   	See you later, Clackey.
-{@Ovill}   	    Hm-ph... sorry about that. 
-{@Player}   	No worries. 
-{@Ovill}    	...reach out if you want to do business. 
+{@Quinn}    Hey Cap', we're hauling farther out this time.
+{@Player}   How much farther?
+{@Quinn}    Far enough that some of these routes cut through pirate territory.
+{@Player}   Velos?
+{@Quinn}    Yep. Callie's neighborhood.
+{@Quinn}	Callie's been taunting ol'Ovill over in Forsch. I think he's going to have to get on blood pressure meds soon. 
+{@Player}	Are your haulers on good terms with her? 
+{@Quinn}   Well, she is a pirate. You never know.
+{@Quinn}    Just watch where you draw your routes.
+
+//{@Ovill}    	Hi Locke.
+//{@Ovill}    	I got a thrilling new update for the Forsch Sector!
+//{@Callie}   	I wouldn’t listen to him, my Clackey friend.
+//{@Ovill}    	How-how did you get this frequency?! This is an encrypted channel!
+//{@Ovill}    	Who are you?
+//{@Callie}   	Why, it is I...
+//{@Player}  	    Here we go... 
+//{@Callie}   	Callie Lee! The Space Pirate Queen of Velos Station! 
+//{@Callie}   	Trying to steal me business huh?
+//{@Ovill}    	Stealing- you stole a whole station from Frontier!
+//{@Callie}   	You seriously want to conduct business with this fool, Clackey? 
+//{@Player}   	My name is not Clackey. 
+//{@Ovill}    	Get OFF this frequency!
+//{@Callie}   	Seeesh! Okay I will! Don't forget to take some blood pressure meds. 
+//{@Callie}   	See you later, Clackey.
+//{@Ovill}   	    Hm-ph... sorry about that. 
+//{@Player}   	No worries. 
+//{@Ovill}    	...reach out if you want to do business. 
 
 ::AfterSupplyChain
 @trigger	    OnOverarchingLoaded 
@@ -47,4 +59,6 @@
 {@PAL}	        That percentage is based on the Frontier Robotics Productivity Database, which estimates the effectiveness of all Frontier Robotics Fabrication Ships. 
 {@Player} 	    Okay… what about my ship? 
 {@PAL}	        Unfortunately, I can't determine that percentage right now. 
-{@Player} 	    Of course. 
+{@PAL}			You can always look up the directions in your reference guide. 
+{@Player} 	    Of course. I thought you were supposed to speed things up not slow me down. I need to start memorizing this process.
+{@Player}		I'm really missing Arkan about now. 

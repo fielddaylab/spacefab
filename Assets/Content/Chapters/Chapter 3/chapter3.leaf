@@ -45,21 +45,21 @@
 
 //introduced idea of cost vs time
 
-{@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
-{@Player} 	Ummm... gold? Isn't that really expensive? 
-{@PAL} 		Sure it is but when you compare the travel time the extra money can be worth it. 
-{@Player}	Alright, let's give him a call. 
+//{@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
+//{@Player} 	Ummm... gold? Isn't that really expensive? 
+//{@PAL} 		Sure it is but when you compare the travel time the extra money can be worth it. 
+//{@Player}	Alright, let's give him a call. 
 //call Xavier
-{@Xavier}   ... 
-{@Xavier}   Hello. 
-{@Player}   So... are you the supplier or-- 
-{@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
-{@Xavier}   Planet of Gold and Golden Opportunities. 
-{@Player}   Okay... well... I'll let you know. Gold seems kinda pricey...
-{@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
+//{@Xavier}   ... 
+//{@Xavier}   Hello. 
+//{@Player}   So... are you the supplier or-- 
+//{@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
+//{@Xavier}   Planet of Gold and Golden Opportunities. 
+//{@Player}   Okay... well... I'll let you know. Gold seems kinda pricey...
+//{@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
 
 //end call
-{@Player}	Hmmm... I wonder if I can afford the gold. I'm trying to actually make a profit.
+//{@Player}	Hmmm... I wonder if I can afford the gold. I'm trying to actually make a profit.
 
 
 ::AfterSupplyChainCh3

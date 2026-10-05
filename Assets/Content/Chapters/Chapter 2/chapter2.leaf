@@ -31,7 +31,7 @@ $call   UnlockWikiPage("Insulator")
 {@PAL}      Absolutely! And now we have the correct answer.
 {@Player}   ...It's weird how you just keep agreeing with me.
 
-//TODO: put this scene later. The purpose is to expose the fact that PAL is listening to everything. 
+//HOLD for later scene. The purpose is to expose the fact that PAL is listening to everything. 
 //{@PAL}    So Captain, did I overhear that Dorian is your friend? 
 //{@Player}   What? How do you- were you eavesdropping? 
 //{@PAL}    Oh, yea, I hear every convo you have. 
@@ -50,36 +50,12 @@ $call   UnlockWikiPage("Insulator")
 
 //introduce the idea of the refining station. pick up at wayward and refine at frosch
 {@Player}   Hey P.A.L., it looks like I'll need a semiconductor but there isn't any available in this sector. 
-{@PAL}      Ah yes. ... ... My search shows that you can get silicon dioxide from Frosch that can be refined at the Wayward station. 
+{@PAL}      Ah yes. ... ... My search shows that you can get silicon dioxide from Forsch that can be refined at the Wayward Station. 
 {@Player}   So the refining station takes silicon dioxide and can refine it into silicon? Cool
 
 //conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
 
-//{@Player}   Hi Taryn.
-//{@Taryn}    Locke, hiya!
-//{@Player}   Listen I saw... your face, you got uh... dirt all over it. 
-//{@Taryn}    Oh! I was in my garden earlier, got a bit lost in the weeds!  
-//{@Taryn}    Let me guess, you're calling about the Menuo Station? 
-//{@PAL}      Seems like a conference call can speed up your decision. Let me patch you to the Forsch Sector! 
-//{@Player}   Wait no, P.A.L.-
-// phone connection dial
-//{@Ovill}    Hello Locke! I got exciting news! You can access Hennig Station!
-//{@Taryn}    Ovill.
-//{@Ovill}    Oh...Taryn.
-//{@Taryn}    So, trying to steal my client? 
-//{@Ovill}    Rich, coming from a deserter. 
-//{@Player}   ...Do you guys know each other? 
-//{@Taryn}    I... worked at Frontier Robotics once upon a time.
-//{@Ovill}    Taryn here decided that working with traitors was a better option. 
-//{@Taryn}    At least I didn't sell my soul to a mega-corp.
-//{@Ovill}    I'll have you know I have the highest marks out of my entire department. 
-//{@Player}   Hey guys... the Phosphorus...
-//{@Ovill}    Hm? Oh yes! We can have Phosphorus available to you in rapid speed! 
-//{@Ovill}    Just to remind you that there will be a sourcing fee, a labor fee, a buying fee-
-//{@Taryn}    Oh, don't forget the breathing fee.
-//{@Ovill}    -_-
-//{@Taryn}    Or you can source from us! It'll take a bit longer but you'll have genunine product at a fair price. 
-//{@Player}   I'll think about it. Thanks guys. 
+
 
 ::AfterSupplyChainCh2
 @trigger OnOverarchingLoaded

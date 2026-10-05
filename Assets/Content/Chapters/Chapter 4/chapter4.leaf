@@ -5,16 +5,22 @@
 @trigger    OnContractSelectOpen
 @cutscene
 @once 
-//change this to dorian. 
-{@PAL}      	Wow, what a thrilling game of laser-tag! 
-{@Dorian}    	Thanks P.A.L.. 
-{@Player}     	Oh, don't get ahead of yourself. I'm still way ahead of you.
-{@Dorian}     	Sure, sure. 
-{@Player}    	Plus you are a desk man now, right?  
-{@Dorian}    	Hey!!! 
-{@Player}	    I'm joking! Mostly...
-{@Dorian}   	Ok, ok. I've got to head out. That was fun. 
-{@Dorian} 		See you soon!
+
+{@Dorian}    I've got to head out. That was fun. 
+{@Player}    Thanks for visiting. We need a rematch soon!
+
+// New optional research sample: Gold
+{@PAL}       Hey Captain, Xavier from Ralston sent you a new material sample to research. Gold!
+{@PAL}       It came with a message: "A sample gift from the Planet of Gold and Golden Opportunities. Call us when you're ready for the good stuff. — Xavier"
+{@Player}    Gold? That sounds expensive.
+{@Player}    And I've already got the materials I need for this contract.
+{@PAL}       You do! But you don't know what properties this sample has yet.
+{@PAL}       It's nice to have options when you're sourcing materials.
+{@Player}    True. I guess it's worth checking out.
+
+
+
+//end call
 
 ::BeforeSupplyChainCh4
 @trigger    OnOverarchingLoaded
@@ -22,28 +28,64 @@
 @cutscene 
 @once 
 
+//quinn will introduce the idea that the hauling region you need is larger. She wants you to connect to callie to make sure she's willing to deal with you since you are frontier now. 
+
+//incoming call from quinn
+{@Quinn}	I heard you needed more boron.   
+{@Quinn}	And, I might have the perfect contact for you...its cheaper, but you know... Callie is a character.
+{@Quinn} 	I'm going to patch you through to Callie. 
+{@Quinn} 	By the way, make sure not to offend her. 
+
+//end call
+
+//call callie
+
+{@Callie}   A'hoy! I see a Frontier call sign... how scandalous. 
+{@Callie}   Be blessed in my presence mere corpo-lackey! Or as I like to call ye, Clackey!
+{@Callie}  	It is I, the Boron Space Pirate Queen of Velos Station! 
+{@Player}  	Nice to meet you... Callie. 
+{@Callie}   Since the great revolt of the Velos Penal Station...
+{@Callie}   ...all Frontier ships are marked for pillaging!
+{@Callie}   However, if you do continued business with us... 
+{@Callie}   We may... avert our attention elsewhere. 
+{@Player}   That sounds risky!
+{@Callie}   Risk, schmisk, sometimes a little  adventure is the only way to feel alive! 
+{@Callie}   Holler if you need some goods, Clackey. 
+{@Player}  	Don't call me that- aaaand she hung up. 
+
+//end call
+{@Player}    Wow, it looks like Callie can sell it to me for half the price. 
+{@Pal}    	Wait. Velos? The pirate station?
+{@Player}    That's the one.
+{@Player}   I mean, how risky could it really be?
+{@Pal}     They're pirates, Locke.
+
+
+
+
+//deleted convo with blaze
 //incoming call
 
-{@Blaze}     Hi Locke!
-{@Blaze}     Hey, if you're around for the Kalvis Festival, you should stop by.
-{@Player}    Well... I'm not sure how Mara would feel about that.
-{@Blaze}     What are you talking about? We'd love to see you.
-{@Player}    Thanks. Maybe I will.
+//{@Blaze}     Hi Locke!
+//{@Blaze}     Hey, if you're around for the Kalvis Festival, you should stop by.
+//{@Player}    Well... I'm not sure how Mara would feel about that.
+//{@Blaze}     What are you talking about? We'd love to see you.
+//{@Player}    Thanks. Maybe I will.
 
-{@Blaze}     Oh! Quinn said you were looking for boron.
-{@Player}    Yeah. Frontier has it at Lussac, but it's expensive.
-{@Blaze}     Right... well, there is another option.
-{@Player}    Why do I not like the sound of that?
-{@Blaze}     Ha! Velos Station. Callie can sell it to you for half the price. 
-{@Player}    Wait. Velos? The pirate station?
-{@Blaze}     That's the one.
-{@Player}    ...What's the catch?
-{@Blaze}     They're pirates, Locke.
+//{@Blaze}     Oh! Quinn said you were looking for boron.
+//{@Player}    Yeah. Frontier has it at Lussac, but it's expensive.
+//{@Blaze}     Right... well, there is another option.
+//{@Player}    Why do I not like the sound of that?
+//{@Blaze}     Ha! Velos Station. Callie can sell it to you for half the price. 
+//{@Player}    Wait. Velos? The pirate station?
+//{@Blaze}     That's the one.
+//{@Player}    ...What's the catch?
+//{@Blaze}     They're pirates, Locke.
 
 //phone hangs up
 
-{@PAL} 		I would advise caution in regards to the new boron source. 
-{@Pal}		Callie is considered a high-risk supplier.
+//{@PAL} 		I would advise caution in regards to the new boron source. 
+//{@Pal}		Callie is considered a high-risk supplier.
 
 ::AfterSupplyChainCh4 
 @trigger    OnOverarchingLoaded
