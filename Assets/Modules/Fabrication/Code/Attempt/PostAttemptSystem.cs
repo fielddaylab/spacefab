@@ -58,9 +58,9 @@ namespace SpaceFab.Fabrication {
                 float bucket2 = stationNum * fabSequence.bucketthreshold2 * Coefficient;
 
                 float elapsedTime = TimeStateUtility.GetElapsed(timeState);
-                if (elapsedTime <= bucket1) { fabState.TotalCycles = 2; }
-                else if (elapsedTime <= bucket2) { fabState.TotalCycles = 3; }
-                else { fabState.TotalCycles = 4; }
+                if (elapsedTime <= bucket1) { fabState.TotalCycles = 1; }
+                else if (elapsedTime <= bucket2) { fabState.TotalCycles = 2; }
+                else { fabState.TotalCycles = 3; }
                 
                 float accuracy = WaferStateUtility.GetAggregatedPrecision(waferState);
                 fabState.Precision = accuracy;
