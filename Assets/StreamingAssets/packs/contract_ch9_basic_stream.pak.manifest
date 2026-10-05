@@ -1,45 +1,37 @@
 ManifestFileVersion: 0
-CRC: 3284193719
+CRC: 1735029694
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-<<<<<<< HEAD
-    Hash: 49794c1180288e99c42e92c07ad0d654
-=======
-    Hash: fb5b85f1dafdbc6542efe820da2d0d24
->>>>>>> d12b721b86e9572fd506d36ab933ec55e4c29835
+    Hash: 296839b0ec6af664183b97a1f6e6975f
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 67f5605df732693641faafc8f17cbca1
+    Hash: 8c78fa0fa727a8880a841b48d0f50fe5
   IncrementalBuildHash:
     serializedVersion: 2
-<<<<<<< HEAD
-    Hash: 49794c1180288e99c42e92c07ad0d654
-=======
-    Hash: fb5b85f1dafdbc6542efe820da2d0d24
->>>>>>> d12b721b86e9572fd506d36ab933ec55e4c29835
+    Hash: 296839b0ec6af664183b97a1f6e6975f
 HashAppended: 0
 ClassTypes:
 - Class: 114
-  Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
+  Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0e92568ecc7a7614c9937680232609b9, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 2613736b2e35237448e4a0f57709855d, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 0706af4c126b34f88b210125a2c875b9, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d7de82cf62335d041bae34db3ff1041f, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: bb0260a7392db7742baaf91a4a9be63b, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 11040acf09980e54286911b24c1ffece, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: cdfb41291a9df764ea8382b0100074c2, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 0e92568ecc7a7614c9937680232609b9, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: be2b5b6395503174db99560628ec866b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0706af4c126b34f88b210125a2c875b9, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers:
