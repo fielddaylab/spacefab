@@ -77,7 +77,7 @@ $set    temp:designTutorialStep = 5
 ::IntroSelectTraceLv2
 @trigger    OnDesignSetupComplete
 @when       CurrLevelIndex() == 1
-$set    temp:failureIndex = 0
+$set    temp:hintGiven = 0
 $if IsLevelSolved(1) == true
     $set temp:designTutorialStep = 4
     {@PAL}  If you modify your grid, you'll need to re-rerun all tests.
@@ -86,6 +86,7 @@ $else
     $call   HighlightElement(design:metal-tool-btn)
     {@PAL}  Look at the Verification table. Output Y is always <color=yellow>HI</color>. Input HI is a constant.\n\nConnect them with the metal.
 $endif
+
 
 ::OnMetalToolSelected
 @trigger    OnToolSelected
@@ -131,18 +132,18 @@ $endif
 
 ::TestIncorrectLv2
 @trigger    OnSingleTestComplete
-@when       result == "failure"
-$call   ReleaseAllHighlights()
-$if     temp:failureIndex == 0
-    {@PAL}  <color=yellow>Hint:</color> The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
-    $set    temp:failureIndex = 1
-$elseif temp:failureIndex == 1
-    {@PAL}  <color=yellow>Hint:</color> The paths should cross on different layers.
-    $set    temp:failureIndex = 2
-$elseif temp:failureIndex == 2
-    {@PAL}  <color=yellow>Hint:</color> Make sure the via touches both metal and semiconductor.
-    $set    temp:failureIndex = 3
-$else   temp:failureIndex == 3
-    {@PAL}  <color=yellow>Hint:</color> Constant HI must be connected to output Y.
-    $set    temp:failureIndex = 0
+@when       result == "failure", CurrLevelIndex() == 1
+$call   ReleaseHighlight(design:test-btn)
+$if temp:hintGiven == 0
+    {@PAL}  Hint: The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+    $set temp:hintGiven == 1
+$elseif temp:hintGiven == 1
+    {@PAL}  Hint: The paths should cross on different layers.
+        $set temp:hintGiven == 2
+$elseif temp:hintGiven == 2
+    {@PAL}  Hint: Make sure the Via touches both metal and semiconductor.
+    $set temp:hintGiven == 3
+$elseif temp:hintGiven == 3
+    {@PAL}  Hint: Constant HI must be connected to output Y.
+    $set temp:hintGiven == 0
 $endif
