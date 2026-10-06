@@ -151,7 +151,11 @@ namespace FieldDay.Editor {
                         content.image = objContent.image;
                         isScene = false;
                     } else {
-                        content.image = EditorGUIUtility.LoadRequired("d_Scene") as Texture;
+                        if (Event.current.shift) {
+                            content.image = EditorGUIUtility.LoadRequired("d_CreateAddNew") as Texture;
+                        } else {
+                            content.image = EditorGUIUtility.LoadRequired("d_Scene") as Texture;
+                        }
                     }
 
                     bool wasGUIEnabled = GUI.enabled;
@@ -209,7 +213,7 @@ namespace FieldDay.Editor {
                 if (EditorWindow.HasOpenInstances<BookmarksWindow>()) {
                     return;
                 }
-                if (EditorUtility.DisplayDialog("Bookmarks", "\"Bookmarks\" are now available! Would you like to open them?", "Yes", "No")) {
+                if (EditorUtility.DisplayDialog("Bookmarks", "The \"Bookmarks\" tab is now available! Would you like to open it?", "Yes", "No")) {
                     OpenWindow();
                 }
             }
