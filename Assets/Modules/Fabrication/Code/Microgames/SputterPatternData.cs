@@ -8,7 +8,7 @@ namespace SpaceFab.Fabrication.Microgames
     {
         public SputterBoxCollider[] Colliders;
         public int m_FilledSlots, m_TotalSlots;
-        public float FillThreshold = 0.9f;
+        public float FillThreshold = 1f;
         public bool CompletelyFilled => m_TotalSlots > 0 && (float)m_FilledSlots / m_TotalSlots >= FillThreshold;
 
         public void SetPatternData(float size)

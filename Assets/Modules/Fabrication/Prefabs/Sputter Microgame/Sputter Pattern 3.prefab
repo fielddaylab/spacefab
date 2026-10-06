@@ -430,7 +430,7 @@ MonoBehaviour:
   - {fileID: 1679560925757690211}
   m_FilledSlots: 0
   m_TotalSlots: 0
-  FillThreshold: 0.9
+  FillThreshold: 1
 --- !u!212 &131169637601620033
 SpriteRenderer:
   m_ObjectHideFlags: 0
