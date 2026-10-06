@@ -11,7 +11,7 @@
 {@Player}   That Dorian was heir to Frontier Robotics? 
 {@MAL}      My-my records indica------
 {@MAL}      I have n000 recoll3ction iN my Arch1ves. 
-{@Player}   ...okay. 
+{@Player}   ...right. 
 
 ::BeforeSupplyChainCh10
 
@@ -19,23 +19,19 @@
 @when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design)
 @cutscene 
 @once 
-
+//do we want to switch this to talking to one of his friends?
 {@Quinn}    Hey... Cap'. 
 {@Player}   What?
 {@Quinn}    We just uh... wanted to check in with you. 
-{@Joel}     Given the whole... new CEO sitch. 
+{@Quinn}     Given the whole... new CEO sitch. 
 {@Player}   I just, I can't believe he lied to me. 
-{@Joel}     Certainly is bitter... and it ain't right. 
+{@Quinn}     Certainly is bitter... and it ain't right. 
 {@Quinn}    Whatever happens Cap' we got your back.     
-{@Joel}     Yup! We can even be your new laser-tag buds. 
+{@Quinn}     Yup! We can even be your new laser-tag buds. 
 {@Quinn}    Oh STARS YAY! 
 {@Player}   Thanks guys.
 {@Player}   I'm grateful to have you on my team. 
-{@Quinn}    Awe... that's gross. 
-{@Joel}     Quinnie appreciates you too. 
-{@Joel}     ...
-{@Joel}     Wait, you didn't correct me Quinnie. 
-{@Quinn}    ...I'm growing into the name... again. 
+
 
 ::AfterSupplyChainCh10
 @trigger    OnOverarchingLoaded
