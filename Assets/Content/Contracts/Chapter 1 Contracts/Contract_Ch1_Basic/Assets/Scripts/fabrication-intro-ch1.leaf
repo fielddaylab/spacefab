@@ -32,8 +32,6 @@ $call       RequireMicrogamePrecision(0.9)
 $if temp:fabTutorialStep == 2
     $set temp:fabTutorialStep = 3
     {@PAL}  Now follow the yellow cards and finish the rest of the tasks.
-$elseif temp:fabTutorialStep == 3
-    $call MinigameDismissDialogue(Box)
 $endif
 
 ::GeneralStun
@@ -43,6 +41,12 @@ $if temp:fabTutorialStep == 2
 $else temp:fabTutorialStep != 2
     {@PAL}  That's not the right step.\n\nFind the station shown on the yellow card.
 $endif 
+
+::MicrogameEntered
+@trigger    OnMicrogameEntered
+$if temp:fabTutorialStep == 3
+    $call MinigameDismissDialogue(Box)
+$endif
 
 ::GateSpinCoat
 @trigger    OnFabMicrogameCompleted
