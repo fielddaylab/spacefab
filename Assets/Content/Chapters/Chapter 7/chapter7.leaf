@@ -6,26 +6,62 @@
 @once 
 
 ::FirstContractOpenCh7
-{@PAL}      You seem distracted.
+//call to Keela
+//ringing... while he is talking
 
-{@Player}   I'm worried about Blaze. Things in the Kalvis sector keep getting worse.
-{@Player}   I just don't understand why Frontier isn't working something out with the miners.
-{@PAL}      Labor disruptions can be difficult to predict.
+{@Player}   Nothing. Again.
+{@PAL}      You seem distracted, Captain. Time to earn some money?
+{@Player}   What?...
+{@Player} 	I haven't heard from her in... months. 
+{@Player}	Keela's gone completely dark...
+{@Player}	She could shed some light on all this for me...
+{@Player}	...maybe even help Blaze and Mara. 
 
-{@Player}   Well if Frontier would negotiate with them and give them what they want, it would really help me do my job!
-{@Player}	And its probably the right thing to do...
+//no answer
 
-{@PAL}      Well, fortunately, you have other sourcing options!
 
-{@Player}   ...That's not really the point.
+
+::AfterDesignCh7
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Design)
+@cutscene 
+@once
+
+//call to Keela again
+//ringing... while he is talking
+
+
+{@Player}   What's going on with these bots? I'm worried...
+{@PAL}      I'm always available to answer your questions, Captain!
+{@Player}	Does she think I wrecked the ship and then sold out to Frontier?
+{@Player}	I'M DOING ALL THIS TO GET MY TEAM BACK TOGETHER. 
+{@Player}	Keela. I'm doing it for you guys. 
+
+//no answer
+
+{@PAL}		We have a contract to fill Captain.  
+
+::AfterResearchCh7
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(Research)
+@cutscene 
+@once
+
+//call Keela
+//ringing...
+//ringing...
+//no answer
+
+{@Player}   ...Keela.
+ 
 
 ::BeforeSupplyChainCh7
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
 @cutscene 
 @once
-                                               
-//dial tone              
+
+//call Mai              
 {@Mai}      ...Hi.
 {@Player}   Hi.
 {@Mai}      ...I'm Mai.
@@ -38,11 +74,12 @@
 {@Mai}      "Recently liberated" Wolfram. 
 {@Player}   Oh, the factory planet? 
 {@Mai}      Yeah, sure, if that's what you want to call it. 
-{@Player}   Oh, I didn't mean that, I- you're planet isn't just a factory planet- 
-{@Mai}      You're funny. Yeah, Its my home. 
+{@Player}   Oh, I didn't mean that, I- your planet isn't just a factory planet- 
+{@Mai}      You're funny. Yeah, It's my home. 
 {@Mai}      If you need anything from my sector, call me. 
 {@Player}   Will do...
-//hang up tone. 
+//end call
+
 {@Player}    Wow. That was rough. 
 {@Pal}		Yes, humans can be so sensitive. Robots are very pragmatic and easy to get along with. 
 {@Player}	But, that's what I like about my human friends. They have feelings.
@@ -53,6 +90,14 @@
 @when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply)
 @cutscene 
 @once 
+
+
+::AfterFabrication
+@trigger
+@when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply), IsSolutionFoundFor(Fabrication)
+@cutscene 
+@once 
+
 //call mara 
 {@Player}   Mara! How's Blaze?
 {@Mara}     He's alright. Frustrated, but alright.
