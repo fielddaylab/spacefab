@@ -18,6 +18,7 @@ MonoBehaviour:
   ConstituentElementNames: []
   ValenceElectronCounts: 05000000
   AtomicRadii: 42000000
+  SimpleAtomicRadii: 01000000
   Properties: 150f
   Contexts:
   - {fileID: 11400000, guid: dc22a706ffb89fc41b2a09a5bc892658, type: 2}

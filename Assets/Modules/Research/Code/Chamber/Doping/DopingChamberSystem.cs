@@ -150,7 +150,7 @@ namespace SpaceFab.Research
             }
 
             int index = dopingChamber.HostElementIndex;
-            bool validRadius = substrate.AtomicRadii[index] > dopant.AtomicRadii[0];
+            bool validRadius = substrate.SimpleAtomicRadii[index] > dopant.SimpleAtomicRadii[0];
             bool validElectronDiff = Mathf.Abs(substrate.ValenceElectronCounts[index] - dopant.ValenceElectronCounts[0]) == 1;
 
             if (validRadius && validElectronDiff) {
@@ -186,8 +186,8 @@ namespace SpaceFab.Research
                 substrateAtom.ElectronSprites[i].SetAlpha(i < cap ? 1f : 0f);
             }
 
-            float substrateScale = 0.7f + 0.3f * substrate.AtomicRadii[dopingChamber.HostElementIndex] / 200f;
-            substrateAtom.MaterialSprite.transform.SetScale(substrateScale);
+            float substrateScale = MaterialAtomicViewUtility.EvaluateAtomScale(substrate.SimpleAtomicRadii[dopingChamber.HostElementIndex]);
+            substrateAtom.MaterialSprite.transform.localScale = new Vector3(substrateScale, substrateScale, substrateScale);
 
             // Dopant atom -- empty
             Assert.False(dopingChamber.DopantAtom == null);
@@ -207,8 +207,8 @@ namespace SpaceFab.Research
 
             dopantAtom.MaterialSprite.color = dopantView.AtomColor[0];
             dopantAtom.Label.text = dopantKnown ? dopant.ShortName : "?";
-            float dopantScale = 0.6f + 0.4f * dopant.AtomicRadii[0] / 200f;
-            dopantAtom.MaterialSprite.transform.SetScale(dopantScale);
+            float dopantScale = MaterialAtomicViewUtility.EvaluateAtomScale(dopant.SimpleAtomicRadii[0]);
+            dopantAtom.MaterialSprite.transform.localScale = new Vector3(dopantScale, dopantScale, dopantScale);
 
             for (int i = 0; i < dopantAtom.ElectronSprites.Length; i++) {
                 SpriteRenderer electron = dopantAtom.ElectronSprites[i];
