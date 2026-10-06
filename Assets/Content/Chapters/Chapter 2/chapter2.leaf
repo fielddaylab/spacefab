@@ -7,9 +7,9 @@
 
 {@Player}   Okay, Mr. Frontier Robotics, got another contract for me?
 {@Dorian}   I do. But come on, we're friends first. None of this "Mr. Frontier Robotics" stuff.
-{@Player}   Fair. I really need the money though. If I don't pay off my ship repairs, I'll lose it in a few months.
-{@Dorian}   You'll make it. This next contract will help.
-{@Player}   Let's do it.
+{@Player}   That's good to hear. I'm not sure everyone else from the crew feels that way about me. 
+{@Player}	Don't they understand that I need to work so I can pay off my ship repairs? Otherwise I'll lose it in a few months.
+{@Dorian}   You'll make it. I've got your back, bro. 
     
 
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
@@ -31,7 +31,7 @@ $call   UnlockWikiPage("Insulator")
 {@PAL}      Absolutely! And now we have the correct answer.
 {@Player}   ...It's weird how you just keep agreeing with me.
 
-//HOLD for later scene. The purpose is to expose the fact that PAL is listening to everything. 
+//cut. better to leave the reveal in chapter 9.  The purpose was to expose the fact that PAL is listening to everything. 
 //{@PAL}    So Captain, did I overhear that Dorian is your friend? 
 //{@Player}   What? How do you- were you eavesdropping? 
 //{@PAL}    Oh, yea, I hear every convo you have. 
@@ -53,7 +53,7 @@ $call   UnlockWikiPage("Insulator")
 {@PAL}      Ah yes. ... ... My search shows that you can get silicon dioxide from Forsch that can be refined at the Wayward Station. 
 {@Player}   So the refining station takes silicon dioxide and can refine it into silicon? Cool
 
-//conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
+//cut ?conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
 
 
 

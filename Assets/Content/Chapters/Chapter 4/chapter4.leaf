@@ -92,8 +92,8 @@
 @when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply)
 @trigger
 @once 
-
-{@Player}    That Kalvis Festival does sound fun...
+//TODO - check to make sure this feels like it connects since Locke was talking to Blaze about the festival. 
+{@Player}    That Kalvis Festival sounds fun...
 {@PAL}       Another "holiday." Kalvis has had quite a few production delays lately. Unreliable.
 {@Player}    Yeah... but we both know it wasn't a festival that caused the others.
-{@Player}    ...Sounds fun though.
+{@Player}    ...Sounds fun though. Wish I could see it. 
