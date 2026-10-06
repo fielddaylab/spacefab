@@ -1,6 +1,3 @@
-using BeauUtil;
-using BeauUtil.Editor;
-using ScriptableBake;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +5,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace FieldDay.Editor {
+namespace Bookmarking {
     public sealed class BookmarksWindow : EditorWindow {
         [SerializeField] private List<string> m_ExpandedGuids = new List<string>();
 
@@ -25,31 +22,42 @@ namespace FieldDay.Editor {
         public void OnEnable() {
             titleContent = new GUIContent("Bookmarks", EditorGUIUtility.LoadRequired("d_Favorite") as Texture);
             minSize = new Vector2(200, 200);
-            UpdateProjectShortcuts();
+            UpdatePageList();
         }
 
         public void OnDisable() {
             m_ProjectShortcuts = null;
         }
 
-        private void UpdateProjectShortcuts() {
-            m_ProjectShortcuts = AssetDBUtils.FindAssets<BookmarksPageAsset>();
-            Array.Sort(m_ProjectShortcuts, (a, b) => {
+        private void UpdatePageList() {
+            m_ProjectShortcuts = FindPages();
+        }
+
+        static private BookmarksPageAsset[] FindPages() {
+            string[] guids = AssetDatabase.FindAssets("t:BookmarksPageAsset");
+            BookmarksPageAsset[] pages = new BookmarksPageAsset[guids.Length];
+            for(int i = 0; i < guids.Length; i++) {
+                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                BookmarksPageAsset page = AssetDatabase.LoadAssetAtPath<BookmarksPageAsset>(path);
+                pages[i] = page;
+            }
+            Array.Sort(pages, (a, b) => {
                 if (a.SortOrder != b.SortOrder) {
                     return a.SortOrder.CompareTo(b.SortOrder);
                 }
                 return a.name.CompareTo(b.name);
             });
 
-            foreach(var shortcut in m_ProjectShortcuts) {
-                shortcut.CachedName = shortcut.name;
+            foreach (var shortcut in pages) {
+                shortcut.CachedName = ObjectNames.NicifyVariableName(shortcut.name);
                 AssetDatabase.TryGetGUIDAndLocalFileIdentifier(shortcut, out shortcut.CachedGuid, out long _);
             }
+            return pages;
         }
 
         public void OnGUI() {
             if (!m_Rebuilt) {
-                UpdateProjectShortcuts();
+                UpdatePageList();
                 m_Rebuilt = true;
             }
 
@@ -72,12 +80,13 @@ namespace FieldDay.Editor {
 
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar); {
                 if (GUILayout.Button(EditorGUIUtility.IconContent("d_Refresh"), EditorStyles.toolbarButton)) {
-                    UpdateProjectShortcuts();
+                    UpdatePageList();
                 }
 
                 if (GUILayout.Button(EditorGUIUtility.IconContent(m_HorizontalView ? "d_align_horizontally" : "d_align_vertically"), EditorStyles.toolbarButton)) {
-                    Baking.PrepareUndo(this, "changing horizontal");
+                    Undo.RecordObject(this, "changing horizontal");
                     m_HorizontalView = !m_HorizontalView;
+                    EditorUtility.SetDirty(this);
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -92,37 +101,61 @@ namespace FieldDay.Editor {
 
             Vector2 newScroll = EditorGUILayout.BeginScrollView(m_Scroll);
             if (m_Scroll != newScroll) {
-                Baking.PrepareUndo(this, "scrolling");
+                Undo.RecordObject(this, "scrolling");
                 m_Scroll = newScroll;
+                EditorUtility.SetDirty(this);
             }
             foreach(var shortcutGroup in m_ProjectShortcuts) {
-                RenderShortcutGroup(shortcutGroup);
+                RenderPage(shortcutGroup);
             }
             EditorGUILayout.EndScrollView();
         }
 
-        private void RenderShortcutGroup(BookmarksPageAsset shortcutsGroup) {
-            bool isExpanded = m_ExpandedGuids.Contains(shortcutsGroup.CachedGuid);
-            bool newExpended = EditorGUILayout.Foldout(isExpanded, string.Format("{0} ({1})", shortcutsGroup.CachedName, shortcutsGroup.Items.Length));
+        private void RenderPage(BookmarksPageAsset page) {
+            bool isExpanded = m_ExpandedGuids.Contains(page.CachedGuid);
+            GUIContent headerContent = m_CachedContent;
+            headerContent.text = string.Format("{0} ({1})", page.CachedName, page.Items.Length);
+            if (page.IsLocked) {
+                headerContent.image = EditorGUIUtility.LoadRequired("d_AssemblyLock") as Texture;
+            } else {
+                headerContent.image = EditorGUIUtility.LoadRequired("d_ListView") as Texture;
+            }
+
+            bool newExpended = EditorGUILayout.Foldout(isExpanded, headerContent);
             if (newExpended != isExpanded) {
-                Baking.PrepareUndo(this, "change expand");
+                Undo.RecordObject(this, "change expand");
                 if (newExpended) {
-                    m_ExpandedGuids.Add(shortcutsGroup.CachedGuid);
+                    m_ExpandedGuids.Add(page.CachedGuid);
                 } else {
-                    m_ExpandedGuids.FastRemove(shortcutsGroup.CachedGuid);
+                    m_ExpandedGuids.Remove(page.CachedGuid);
+                }
+                EditorUtility.SetDirty(this);
+            }
+
+            Rect headerRect = GUILayoutUtility.GetLastRect();
+            if (Event.current.type == EventType.ContextClick) {
+                if (headerRect.Contains(Event.current.mousePosition)) {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("Jump to Page Definition"), false, () => {
+                        Selection.activeObject = page;
+                        EditorGUIUtility.PingObject(page);
+                        AssetDatabase.OpenAsset(page);
+                    });
+                    menu.ShowAsContext();
                 }
             }
+
             if (newExpended) {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-                if (!string.IsNullOrEmpty(shortcutsGroup.ReadMe)) {
-                    GUILayout.Box(shortcutsGroup.ReadMe, m_ReadmeStyle);
-                    if (shortcutsGroup.Items.Length > 0) {
+                if (!string.IsNullOrEmpty(page.ReadMe)) {
+                    GUILayout.Box(page.ReadMe, m_ReadmeStyle);
+                    if (page.Items.Length > 0) {
                         EditorGUILayout.Space();
                     }
                 }
 
-                if (shortcutsGroup.Items.Length > 0) {
+                if (page.Items.Length > 0) {
                     if (m_HorizontalView) {
                         EditorGUILayout.BeginHorizontal();
                     }
@@ -130,23 +163,20 @@ namespace FieldDay.Editor {
 
                 bool canLoadScenes = !EditorApplication.isPlayingOrWillChangePlaymode;
 
-                foreach (var item in shortcutsGroup.Items) {
-                    if (item.Object == null && !item.Scene.IsValid) {
+                for(int i = 0; i < page.Items.Length; i++) {
+                    var item = page.Items[i];
+                    if (item.Object == null) {
                         continue;
                     }
 
                     GUIContent content = m_CachedContent;
                     string buttonName = item.CustomName;
                     if (string.IsNullOrEmpty(buttonName)) {
-                        if (item.Object != null) {
-                            buttonName = item.Object.name;
-                        } else {
-                            buttonName = item.Scene.Name;
-                        }
+                        buttonName = item.Object.name;
                     }
                     content.text = buttonName;
                     bool isScene = true;
-                    if (item.Object != null) {
+                    if (item.Object is not SceneAsset) {
                         var objContent = EditorGUIUtility.ObjectContent(item.Object, item.Object.GetType());
                         content.image = objContent.image;
                         isScene = false;
@@ -162,16 +192,27 @@ namespace FieldDay.Editor {
                     GUI.enabled = !isScene || canLoadScenes;
 
                     if (GUILayout.Button(content, m_ButtonStyle)) {
-                        if (item.Object != null) {
-                            Selection.activeObject = item.Object;
-                            EditorGUIUtility.PingObject(item.Object);
-                            AssetDatabase.OpenAsset(item.Object);
+                        if (Event.current.type == EventType.ContextClick) { // right-click remove
+                            if (!page.IsLocked) {
+                                GenericMenu menu = new GenericMenu();
+                                menu.AddItem(new GUIContent("Remove from Page?"), false, () => {
+                                    BookmarksUtility.RemoveReference(page, item.Object);
+                                });
+                                menu.ShowAsContext();
+                            }
                         } else {
-                            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
-                                if (Event.current.shift) {
-                                    EditorSceneManager.OpenScene(item.Scene.Path, OpenSceneMode.Additive);
-                                } else {
-                                    EditorSceneManager.OpenScene(item.Scene.Path, OpenSceneMode.Single);
+                            if (item.Object is not SceneAsset) {
+                                Selection.activeObject = item.Object;
+                                EditorGUIUtility.PingObject(item.Object);
+                                AssetDatabase.OpenAsset(item.Object);
+                            } else {
+                                if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
+                                    string path = AssetDatabase.GetAssetOrScenePath(item.Object);
+                                    if (Event.current.shift) {
+                                        EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
+                                    } else {
+                                        EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+                                    }
                                 }
                             }
                         }
@@ -180,13 +221,37 @@ namespace FieldDay.Editor {
                     GUI.enabled = wasGUIEnabled;
                 }
 
-                if (shortcutsGroup.Items.Length > 0) {
+                if (page.Items.Length > 0) {
                     if (m_HorizontalView) {
                         EditorGUILayout.EndHorizontal();
                     }
                 }
 
                 EditorGUILayout.EndVertical();
+
+                Rect boxRect = GUILayoutUtility.GetLastRect();
+
+                if (!page.IsLocked) {
+                    EventType evtType = Event.current.type;
+                    if (evtType == EventType.DragUpdated || evtType == EventType.DragPerform) {
+                        if (boxRect.Contains(Event.current.mousePosition)) {
+                            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                            if (evtType == EventType.DragPerform) {
+                                DragAndDrop.AcceptDrag();
+                                bool displayedNotPersistentNotification = false;
+                                foreach(var obj in DragAndDrop.objectReferences) {
+                                    if (!EditorUtility.IsPersistent(obj)) {
+                                        if (!displayedNotPersistentNotification) {
+                                            displayedNotPersistentNotification = true;
+                                            ShowNotification(new GUIContent("Cannot add non-persistent objects to a Bookmark page!"), 1.0);
+                                        }
+                                    }
+                                    BookmarksUtility.AddReference(page, obj);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

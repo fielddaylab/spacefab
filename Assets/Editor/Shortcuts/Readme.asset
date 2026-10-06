@@ -16,8 +16,6 @@ MonoBehaviour:
   ReadMe: Welcome to the SpaceFab Unity project! Click on the "Boot" scene button
     below and hit Play!
   Items:
-  - Scene:
-      m_ScenePath: Assets/Scenes/Boot.unity
-      m_GUID: 854763376e35d50489ad0e0e49c8473a
-    Object: {fileID: 0}
-    CustomName: 
+  - Object: {fileID: 102900000, guid: 854763376e35d50489ad0e0e49c8473a, type: 3}
+    CustomName: First Scene
+  IsLocked: 1
