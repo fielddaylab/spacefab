@@ -228,13 +228,8 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 8651059817632191583, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
-      propertyPath: Label
-      value: 
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 2858722599152969089, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dd1a58da42f194aeaa7b5de0c783bec2, type: 3}
@@ -757,6 +752,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6338140221778585660}
+    - targetCorrespondingSourceObject: {fileID: 3516031579544637055, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2405551318524052118}
   m_SourcePrefab: {fileID: 100100000, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}
 --- !u!1 &5116064293709635689 stripped
 GameObject:
@@ -814,6 +812,18 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -0.08}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!210 &2405551318524052118
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5116064293709635689}
+  m_Enabled: 1
+  m_SortingLayerID: -2133937865
+  m_SortingLayer: 12
+  m_SortingOrder: 25
+  m_SortAtRoot: 0
 --- !u!4 &6595118729678225028 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3292708311143665810, guid: 2e20f8b1e4b2d8b4d85ecb418e6b3699, type: 3}

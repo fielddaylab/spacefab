@@ -924,6 +924,7 @@ MonoBehaviour:
   BatteryContainer: {fileID: 6779361194467327614}
   SampleHolder: {fileID: 3546955409230533120}
   Root: {fileID: 5309136019319705924}
+  PrimarySlotY: -0.26
   AvailableObservations: 00010b0c
   Temperature: 0
   NoCurrentSFX:

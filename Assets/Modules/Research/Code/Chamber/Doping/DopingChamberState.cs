@@ -38,9 +38,6 @@ namespace SpaceFab.Research
         public readonly float Temperature = 0f;
 
         // Toggle for polyelemental substrates
-        public GameObject Toggle;
-        public ResearchSpriteButton[] ElementToggle;
-        public TMP_Text[] ElementToggleLabel;
         public int HostElementIndex;
 
         public float PrimarySlotY;
@@ -60,15 +57,6 @@ namespace SpaceFab.Research
             if (SampleHolder != null)
             {
                 SampleHolder.SetActive(false);
-            }
-
-            if (ElementToggle != null) {
-                if (ElementToggle[0] != null) {
-                    ElementToggle[0].Cursor.onClick.AddListener(() => HandleToggle(0));
-                }
-                if (ElementToggle[1] != null) {
-                    ElementToggle[1].Cursor.onClick.AddListener(() => HandleToggle(1));
-                }
             }
 
             NoCurrentWarningPlayed = false;

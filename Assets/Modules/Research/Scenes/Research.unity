@@ -3252,7 +3252,7 @@ Transform:
   m_GameObject: {fileID: 774033812}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6, y: -0.3, z: 0}
+  m_LocalPosition: {x: -6, y: -0.3, z: -0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4106,10 +4106,6 @@ PrefabInstance:
     - target: {fileID: 2804408699917214800, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 3551964868300922241, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
-      propertyPath: PrimarySlotY
-      value: -0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5007784213695818132, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5419,7 +5415,7 @@ Transform:
   m_GameObject: {fileID: 1756578685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5684,7 +5680,7 @@ Transform:
   m_GameObject: {fileID: 1770166377}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6076,7 +6072,7 @@ Transform:
   m_GameObject: {fileID: 1988445107}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.3, y: 0.7, z: 0}
+  m_LocalPosition: {x: 0.3, y: 0.7, z: 0.02}
   m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7476,10 +7472,6 @@ PrefabInstance:
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 9067735912078474555, guid: 383442da04804ce4e82237595cc8dec6, type: 3}
-      propertyPath: PrimarySlotY
-      value: -0.26
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7632,10 +7624,6 @@ PrefabInstance:
     - target: {fileID: 2003659318436975884, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2007504904567801195, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
-      propertyPath: PrimarySlotY
-      value: -0.38
       objectReference: {fileID: 0}
     - target: {fileID: 2804408699917214800, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_LocalPosition.x

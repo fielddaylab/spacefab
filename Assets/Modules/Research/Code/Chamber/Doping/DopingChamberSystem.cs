@@ -75,9 +75,6 @@ namespace SpaceFab.Research
 
             if (!substrateSlotted) return;
             UpdateAtomicView(interfacerState, dopingChamberState, researchState);
-            ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
-            dopingChamberState.ElementToggle[0].Sprite.sprite = dopingChamberState.HostElementIndex == 0 ? uiAssets.ButtonDown : uiAssets.ButtonUp;
-            dopingChamberState.ElementToggle[1].Sprite.sprite = dopingChamberState.HostElementIndex == 1 ? uiAssets.ButtonDown : uiAssets.ButtonUp;
         }
 
         private static void UpdateSemiconductor(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchMinigameState researchState, ResearchExplosionState explosionState, ResearchPools vfxPool)
@@ -100,7 +97,13 @@ namespace SpaceFab.Research
             // Show toggle for polyelemental substrates
             dopingChamber.HostElementIndex = 0;
             bool isPolyelemental = material.AtomicRadii.Length > 1;
-            dopingChamber.Toggle.SetActive(isPolyelemental);
+            if (isPolyelemental) {
+                if (material.AtomicRadii[0] > material.AtomicRadii[1]) {
+                    dopingChamber.HostElementIndex = 0;
+                } else {
+                    dopingChamber.HostElementIndex = 1;
+                }
+            }
 
             // Substrates must be confirmed semiconductors.
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Primary);
@@ -113,11 +116,6 @@ namespace SpaceFab.Research
                 dopingChamber.AtomicViewChangedThisFrame = true;
 
                 return;
-            }
-
-            if (isPolyelemental) {
-                dopingChamber.ElementToggleLabel[0].text = material.ConstituentElementNames[0];
-                dopingChamber.ElementToggleLabel[1].text = material.ConstituentElementNames[1];
             }
         }
 

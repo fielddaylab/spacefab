@@ -993,7 +993,7 @@ MonoBehaviour:
   SampleHolder: {fileID: 3546955409230533120}
   Root: {fileID: 7576376653351747665}
   AvailableObservations: 02030406
-  PrimarySlotY: 0
+  PrimarySlotY: -0.2
   NoCurrentSFX:
     m_HashValue: 3469375626
 --- !u!1 &6411547017113234654
