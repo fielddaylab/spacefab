@@ -23,7 +23,7 @@ namespace FieldDay.Editor {
         [NonSerialized] private GUIStyle m_ReadmeStyle;
 
         public void OnEnable() {
-            titleContent = new GUIContent("Bookmarks");
+            titleContent = new GUIContent("Bookmarks", EditorGUIUtility.LoadRequired("d_Favorite") as Texture);
             minSize = new Vector2(200, 200);
             UpdateProjectShortcuts();
         }
@@ -128,6 +128,8 @@ namespace FieldDay.Editor {
                     }
                 }
 
+                bool canLoadScenes = !EditorApplication.isPlayingOrWillChangePlaymode;
+
                 foreach (var item in shortcutsGroup.Items) {
                     if (item.Object == null && !item.Scene.IsValid) {
                         continue;
@@ -143,12 +145,18 @@ namespace FieldDay.Editor {
                         }
                     }
                     content.text = buttonName;
+                    bool isScene = true;
                     if (item.Object != null) {
                         var objContent = EditorGUIUtility.ObjectContent(item.Object, item.Object.GetType());
                         content.image = objContent.image;
+                        isScene = false;
                     } else {
                         content.image = EditorGUIUtility.LoadRequired("d_Scene") as Texture;
                     }
+
+                    bool wasGUIEnabled = GUI.enabled;
+                    GUI.enabled = !isScene || canLoadScenes;
+
                     if (GUILayout.Button(content, m_ButtonStyle)) {
                         if (item.Object != null) {
                             Selection.activeObject = item.Object;
@@ -164,6 +172,8 @@ namespace FieldDay.Editor {
                             }
                         }
                     }
+
+                    GUI.enabled = wasGUIEnabled;
                 }
 
                 if (shortcutsGroup.Items.Length > 0) {
@@ -176,14 +186,14 @@ namespace FieldDay.Editor {
             }
         }
 
-        [MenuItem("Field Day/Open Bookmarks Window", priority = -1000)]
+        [MenuItem("Field Day/Open Bookmarks Window %[", priority = -1000)]
         static private void OpenWindow() {
             if (!EditorWindow.HasOpenInstances<BookmarksWindow>()) {
                 EditorWindow.GetWindow<BookmarksWindow>().Show();
             }
         }
 
-        [MenuItem("Field Day/Open Bookmarks Window", priority = -1000, validate = true)]
+        [MenuItem("Field Day/Open Bookmarks Window %[", priority = -1000, validate = true)]
         static private bool OpenWindow_Validate() {
             return !EditorWindow.HasOpenInstances<BookmarksWindow>();
         }

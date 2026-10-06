@@ -8,14 +8,14 @@ namespace FieldDay.Editor {
     public sealed class BookmarksPageAsset : ScriptableObject {
         public int SortOrder = 0;
         [TextArea(2, 16)] public string ReadMe;
-        public ProjectShortcutItem[] Items;
+        public BookmarkItem[] Items;
 
         [NonSerialized] public string CachedName;
         [NonSerialized] public string CachedGuid;
     }
 
     [Serializable]
-    public struct ProjectShortcutItem {
+    public struct BookmarkItem {
         public SceneReference Scene;
         public UnityEngine.Object Object;
         public string CustomName;
