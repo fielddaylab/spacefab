@@ -4,18 +4,18 @@ using UnityEditor;
 using UnityEngine;
 
 namespace FieldDay.Editor {
-    [CreateAssetMenu(menuName = "Field Day/Project Shorcuts Page", order = -250)]
-    public sealed class ProjectShortcutsAsset : ScriptableObject {
+    [CreateAssetMenu(menuName = "Field Day/Bookmarks Page", order = -250)]
+    public sealed class BookmarksPageAsset : ScriptableObject {
         public int SortOrder = 0;
         [TextArea(2, 16)] public string ReadMe;
-        public ProjectShortcutItem[] Items;
+        public BookmarkItem[] Items;
 
         [NonSerialized] public string CachedName;
         [NonSerialized] public string CachedGuid;
     }
 
     [Serializable]
-    public struct ProjectShortcutItem {
+    public struct BookmarkItem {
         public SceneReference Scene;
         public UnityEngine.Object Object;
         public string CustomName;
