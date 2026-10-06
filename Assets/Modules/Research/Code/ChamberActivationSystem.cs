@@ -38,24 +38,30 @@ namespace SpaceFab.Research
 
             ActiveChamberKind activeChamber = ChamberInterfacerUtility.GetActiveChamber(interfacer);
             ResearchPools pools = Find.State<ResearchPools>();
+            float primarySlotY = -0.26f;
 
             switch (activeChamber) {
                 case ActiveChamberKind.Voltage:
                     BatteryChamberUtility.ResetState(batteryChamber);
+                    primarySlotY = batteryChamber.PrimarySlotY;
                     if (pools != null) {
                     }
                     break;
                 case ActiveChamberKind.Thermal:
                     ThermalChamberUtility.ResetState(thermalChamber);
+                    primarySlotY = thermalChamber.PrimarySlotY;
                     if (pools != null) {
                     }
                     break;
                 case ActiveChamberKind.Doping:
                     DopingChamberUtility.ResetState(dopingChamber);
+                    primarySlotY = dopingChamber.PrimarySlotY;
                     if (pools != null) {
                     }
                     break;
             }
+
+            Positioning.SetLocalY(interfacer.PrimarySlot.transform, primarySlotY);
 
             ResearchSlotUtility.FillInSlot(interfacer, ChamberInterfacerUtility.GetSlot(interfacer, ChamberSlotKind.Secondary), ChamberSlotKind.Secondary, null);
             ChamberInterfacerUtility.SetReceptive(interfacer, ChamberSlotKind.Primary, activeChamber != ActiveChamberKind.None);

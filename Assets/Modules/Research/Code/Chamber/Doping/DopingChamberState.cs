@@ -43,6 +43,8 @@ namespace SpaceFab.Research
         public TMP_Text[] ElementToggleLabel;
         public int HostElementIndex;
 
+        public float PrimarySlotY;
+
         [NonSerialized] public bool AtomicViewChangedThisFrame;
 
         // Sound played when no current
