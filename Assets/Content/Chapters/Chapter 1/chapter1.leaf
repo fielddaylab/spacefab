@@ -16,8 +16,8 @@ $call   ReleaseAllHighlights()
 $call   HighlightElement(overarching:profit-section, false, 25, true)
 {@PAL}      ...and this is the full payment for a successful delivery.
 $call   ReleaseAllHighlights()
-{@Player}   I miss my old team. I've never done any of this myself. 
-{@PAL}      I'm your Personal Automation Liaison (P.A.L.) and I'm WAY more useful than human assistants.
+{@Player}   I miss my old team. I've never done any of this all by myself. 
+{@PAL}      As the Personal Automation Liaison and I'm WAY more useful than human assistants.
  {@Player} 	...hmmmm... 
  {@PAL}      You can start with the Research Lab or Chip Design. 
 
@@ -52,11 +52,14 @@ $call   ReleaseAllHighlights()
 @cutscene
 @once
 {@Player}    I think I'm ready to build the chips now, right? 
-{@PAL}       Not quite. You’ll need materials first. Nothing our new Supply Console system can’t handle.
-{@Player}	I'm going to give Quinn a call to let her know she'll be working with me. 
-//phone dial character
-{@Quinn}    Oh, hi Locke! I was expecting to see Dorian. 
-{@Player}   Yeah, Dorian's not on the ship anyore. It's a long story -- I'll tell you later. Looks like I'm planning the routes now. 
+{@PAL}       Not quite. You’ll need materials first. 
+{@Player}	Oh... Dorian used to manage all that...
+{@Pal}		Nothing the Supply console can’t handle!
+{@Player}	I'll call the Hauler company to let them know they'll be working with me. 
+//phone dial 
+{@Quinn}    Oh... hi Locke! I was expecting to see Dorian. 
+{@Player}   Hi Quinn. Nice to see you again. Yeah, Dorian's not on the ship anymore. Its just me now.
+@{Player}	It's a long story -- I'll tell you later. Looks like I'm planning the routes now. 
 {@Quinn}    Okay, Cap'. I’ve got you.
 {@Quinn}    You decide where you want to get your materials. I’ll handle the haulers.
 {@Player} Sounds easy enough. Talk to you later.
@@ -98,7 +101,7 @@ $call   ReleaseAllHighlights()
 {@PAL}      The conductor materials just arrived. Quinn is so efficient for a human. 
 {@PAL} 		Are you ready to work with our incredible new automation unit? You will have to keep up!
 {@Player}   Um... I think so. I used to work with Arkan at the Fab, so I know what to expect. 
-{@PAL}     	OOh, this will be much faster than your human teammate. 
+{@PAL}     	OOOh, this will be much faster than your human teammate. 
 {@Player}  	We'll see...
 
 //pickup tone
@@ -131,8 +134,8 @@ $call   ReleaseAllHighlights()
 {@Player}   Thanks... I think I am getting the hang of it. 
 {@PAL}      Positive.Affirmation.exe! 
 {@Player}   Back atcha bro. 
-{@PAL}      ...its P.A.L, not bro.
-{@Player} 	I.Compute.exe
-{@PAL} 	    ooookay...Submit your contract and Frontier will transfer payment into your account. 
+{@PAL}      ...my name is P.A.L, not bro.
+{@Player} 	Right...
+{@PAL} 	    Now submit your contract and Frontier will transfer payment into your account. 
 
 //endregion 

@@ -6,10 +6,11 @@
 @once
 
 {@Player}   Okay, Mr. Frontier Robotics, got another contract for me?
-{@Dorian}   I do. But come on, we're friends first. None of this "Mr. Frontier Robotics" stuff.
-{@Player}   Fair. I really need the money though. If I don't pay off my ship repairs, I'll lose it in a few months.
-{@Dorian}   You'll make it. This next contract will help.
-{@Player}   Let's do it.
+{@Dorian}   I do. But come on, we're bros. None of this "Mr. Frontier Robotics" stuff.
+{@Player}   That's good to hear. I'm not sure everyone else from our old crew feels that way. 
+{@Player}	Don't they understand that I need this job so I can pay off the repairs? 
+{@Player}	I could lose my ship in a few months.
+{@Dorian}   You'll make it. I've got your back. 
     
 
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
@@ -31,7 +32,7 @@ $call   UnlockWikiPage("Insulator")
 {@PAL}      Absolutely! And now we have the correct answer.
 {@Player}   ...It's weird how you just keep agreeing with me.
 
-//TODO: put this scene later. The purpose is to expose the fact that PAL is listening to everything. 
+//cut. better to leave the reveal in chapter 9.  The purpose was to expose the fact that PAL is listening to everything. 
 //{@PAL}    So Captain, did I overhear that Dorian is your friend? 
 //{@Player}   What? How do you- were you eavesdropping? 
 //{@PAL}    Oh, yea, I hear every convo you have. 
@@ -49,37 +50,15 @@ $call   UnlockWikiPage("Insulator")
 @once
 
 //introduce the idea of the refining station. pick up at wayward and refine at frosch
-{@Player}   Hey P.A.L., it looks like I'll need a semiconductor but there isn't any available in this sector. 
-{@PAL}      Ah yes. ... ... My search shows that you can get silicon dioxide from Frosch that can be refined at the Wayward station. 
-{@Player}   So the refining station takes silicon dioxide and can refine it into silicon? Cool
+{@Player}   Hmmm... looks like I'll need a semiconductor ...
+{@Player} I don't see any in this sector.
+{@PAL}  You can make one!
+{@PAL}     You can get silicon dioxide at Frosch and have the haulers take it to a refinery.
+{@Player} A two step process? That sounds pricey.
 
-//conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
+//cut ?conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
 
-//{@Player}   Hi Taryn.
-//{@Taryn}    Locke, hiya!
-//{@Player}   Listen I saw... your face, you got uh... dirt all over it. 
-//{@Taryn}    Oh! I was in my garden earlier, got a bit lost in the weeds!  
-//{@Taryn}    Let me guess, you're calling about the Menuo Station? 
-//{@PAL}      Seems like a conference call can speed up your decision. Let me patch you to the Forsch Sector! 
-//{@Player}   Wait no, P.A.L.-
-// phone connection dial
-//{@Ovill}    Hello Locke! I got exciting news! You can access Hennig Station!
-//{@Taryn}    Ovill.
-//{@Ovill}    Oh...Taryn.
-//{@Taryn}    So, trying to steal my client? 
-//{@Ovill}    Rich, coming from a deserter. 
-//{@Player}   ...Do you guys know each other? 
-//{@Taryn}    I... worked at Frontier Robotics once upon a time.
-//{@Ovill}    Taryn here decided that working with traitors was a better option. 
-//{@Taryn}    At least I didn't sell my soul to a mega-corp.
-//{@Ovill}    I'll have you know I have the highest marks out of my entire department. 
-//{@Player}   Hey guys... the Phosphorus...
-//{@Ovill}    Hm? Oh yes! We can have Phosphorus available to you in rapid speed! 
-//{@Ovill}    Just to remind you that there will be a sourcing fee, a labor fee, a buying fee-
-//{@Taryn}    Oh, don't forget the breathing fee.
-//{@Ovill}    -_-
-//{@Taryn}    Or you can source from us! It'll take a bit longer but you'll have genunine product at a fair price. 
-//{@Player}   I'll think about it. Thanks guys. 
+
 
 ::AfterSupplyChainCh2
 @trigger OnOverarchingLoaded
@@ -89,19 +68,17 @@ $call   UnlockWikiPage("Insulator")
 
 {@Player}	P.A.L. did you get the fab bay cleaned up? 
 {@PAL}		The fab bay is in perfect condition, as always. 
-{@PAL}		...at least as perfect as it can be on an old clunker of a ship.
+{@PAL}		...at least as perfect as it can be on a near obsolete ship.
 {@Player}	Clunker? As always? Looks like someone's system needs some updating...
+
 {@PAL}		[ >_< ]
 
 //call coming in from Quinn
-{@Quinn}    Got the materials loaded Cap'!
-{@Quinn}    Say, I noticed Frontier Robotics paid your last invoice. What's up with that?
+{@Quinn}    Hey Cap'... Frontier Robotics paid your last invoice. What's up with that?
 {@Player}   Yeah... I had to take a job with them. Ship repairs put me in some serious debt.
 {@Quinn}    Bad luck. I'm not sure about working with those guys...
-{@Quinn}    Given your sob story, I'll stick around for now.
-{@Player}   You're a real friend.
 {@Quinn}    Sure, sure. Just make sure I get paid.
-{@Player}   Quinn, I promise you. See you later!
+//end call
 
 
 
@@ -115,5 +92,4 @@ $call   UnlockWikiPage("Insulator")
 {@PAL}      Yes, Locke? 
 {@Player}   What's the deal with Quinn and Frontier Robotics? Is there some kind of bad blood?  
 {@PAL}      Frontier Robotics has a stellar reputation! Just check our reviews. We have great cash flow and always pay our invoices.  
-{@PAL}      You know these cowboys out here. They can be pretty wary of outsiders.  
-{@Player}   ...I guess. That makes sense.  
+

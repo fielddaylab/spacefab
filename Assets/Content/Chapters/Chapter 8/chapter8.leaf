@@ -12,7 +12,7 @@
 {@MAL}      Hi Captain, how can I help you t-today!
 {@Player}   Keela really messed you up huh? 
 {@MAL}      Whose Keela? 
-{@Player}   Never mind, let's just do a contract. 
+{@Player}   Never mind. 
 
 ::AfterResearchCh8
 @trigger 
@@ -20,57 +20,74 @@
 @cutsceme 
 @once 
 
-{@MAL}      <@P+@1N
-{@Player}   PAL- 
-{@MAL}      Wh0s3 P@1 !'m- 
-{@Player}   Ugh, what is it? 
-{@MAL}      Y0u h@v3 a N3\/\/ hAul3r
-{@Player}   A new hauler? Oh, uh great. Hello...!
-{@Joel}     Still just us Captian. 
-{@Quinn}    'Cept now we have a bot operating the new ship. 
-{@Player}   Oh...
-{@MAL}      Y-y-y0u'''rE we1C<>m3 C@p'
 
-
-
-::AfterDesignCh8
-@trigger 
-@when       IsSolutionFoundFor(Design)
-@cutscene 
-@once 
-
-//RingDial
-{@Ovill}    Locke! We've been trying to reach you.
-{@Xavier}   We're using a proxy channel outside of Frontier's network.
-{@Player}   Is this because of the hack? 
-{@Ovill}    All of our PAL systems and communication networks are shot! 
-{@Ovill}    Frontier's projection figures have dropped 80% and continuing to freefall. 
-{@Ovill}    I... I-... 
-{@Xavier}   What my hyper-ventalating friend here is trying to say...
-{@Xavier}   is using us as primary suppliers is vital. 
-{@Ovill}    Please Locke. 
-{@Xavier}   Don't let us down. 
 
 ::BeforeSupplyChainCh8
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
 @cutscene 
 @once
-
-{@Mai}      Hi. 
-{@Player}   Oh. Hi Mai.
-{@Mai}      The Juza-Hahn Station is now accesible to you. 
-{@Mai}      So if you need Gallium Nitride-
-{@MAL}      P-P@ch1ng Kalvis Sector into call. 
-{@Player}   What, no P.A.L.- 
-{@Taryn}    Heya Locke! Woah, conference call? Special occasion?
-{@Player}   Uh, no I didn't mean to call you, P.A.L.-
-{@MAL}      Whose P.A.L.? 
-{@Player}   -called, they've been on the fritz lately. 
-{@Mai}      Keela's hack worked? 
-{@Player}   Yeah- wait how do you know that? 
-{@Mai}      ... don't worry about that. 
-{@Taryn}    ... I don't mean to intrude...
+//too long - needs to be cut ore moved around. 
+//frontier supplies are super stressed about the fallout from the hack.
+//Incoming call
+{@Ovill}    Locke! We've been trying to reach you.
+{@Xavier}   We're using a proxy channel outside of Frontier's network.
+{@Player}   Is this because of the hack? 
+{@Ovill}    All of our P.A.L. systems and communication networks are shot! 
+{@Ovill}    I... I-... 
+{@Xavier}   What my hyperventalating friend here is trying to say...
+{@Xavier}   is using us as primary suppliers is vital. 
+{@Xavier}   Don't let us down. Stay loyal to Frontier suppliers! You won't be sorry.
+//End call
 
 
+
+{@MAL}      <@P+@1N
+{@Player}   PAL- 
+{@MAL}      Wh0s3 P@1 !'m- 
+{@Player}   Ugh, what is it? 
+{@MAL}      Y0u h@v3 a N3\/\/ hAul3r
+
+//incoming call
+{@Player}   A new hauler? Oh, uh great. Hello...!
+{@Quinn}    Still just me Captain. 
+{@Player}	Sorry, bot dial. Having some issues here. 
+Quinn: Later!—
+Quinn: Wait... I almost forgot. There's a new station that just came online.
+{@Quinn}	It's called Laima Station.
+{@Quinn} 	Laima's a little out of the way, but with all the commotion around there, that could be a good thing. 
+{@Player}	Frontier can't be happy with all these independent stations booting up. 
+{@Player} 	Kalvis Sector is really on their A game these days, depsite everything. 
+{@Quinn}	Yeah, but the area around Kalvis has been ...tricky to get through with the Lockdowns.
+{@Quinn} 	They are is causing paperwork slowdowns if we run into them. 
+{@Quinn}	All this drama won't make your life easy. Good luck!
+
+
+
+//HOLD this station isn't available till level 10 according to progression map on miro
+//{@Mai}      Hi. 
+//{@Player}   Oh. Hi Mai.
+//{@Mai}      The Juza-Hahn Station is now accesible to you. 
+//{@Mai}      So if you need Gallium Nitride-
+//{@MAL}      P-P@ch1ng Kalvis Sector into call. 
+//{@Player}   What, no P.A.L.- 
+//{@Taryn}    Heya Locke! Woah, conference call? Special occasion?
+//{@Player}   Uh, no I didn't mean to call you, P.A.L.-
+//{@MAL}      Whose P.A.L.? 
+//{@Player}   -called, they've been on the fritz lately. 
+//{@Mai}      Keela's hack worked? 
+//{@Player}   Yeah- wait how do you know that? 
+//{@Mai}      ... don't worry about that. 
+//{@Taryn}    ... I don't mean to intrude...
+
+::AfterSupplyChainCh8
+@trigger    OnOverarchingLoaded
+@when       IsSolutionFoundFor(SupplyChain)
+@cutscene 
+@once
+
+//locke worries that P...MAL won't be a help to him in fab. 
+{@Player}   Good thing I've been learning these steps without you.
+{@MAL}      L0o0o—cke, I-I @m in t0p sh@—sh@pe! N0 n0—n0 w0rr!3s.
+{@Player}   Yeah... I think I'm going to trust myself on this one.
 

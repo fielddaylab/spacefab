@@ -43,24 +43,44 @@
 @cutscene 
 @once 
 
-//introduced idea of cost vs time
+//Introduced idea of cost vs time. Au doesn't show up till next level but P now has two sources. Setting up onboarding to learn how to pick between two sources of materials with Hennig Station (P) and Menuo station (P)Menuo is new Kalvis sector statio and Hennig is Frontier where Ovill is. 
 
-{@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
-{@Player} 	Ummm... gold? Isn't that really expensive? 
-{@PAL} 		Sure it is but when you calculate travel time and cost of transport, sometimes the extra money is worth it. 
-{@Player}	Alright, let's give him a call. 
+//incoming call
+{@Ovill}    We have a super duper exclusive deal just for you! 
+{@Player}   Wait, wait, what are you even selling? 
+{@Ovill}    Phosphorus! Commit to Hennig Station in the Forsch sector today and I'll throw in a complimentary Frontier Robotics swag bag! 
+{@Player}   Ah... you are selling phosphorus. 
+{@Player}	I hear that there is a new station... Menuo Station... near Kalvis that is selling phosphorus for much cheaper!
+{@Ovill}    If you source with us, you will get the materials in a flash. We are fast, fast, fast. The fastest in the region!
+{@Player}   I'll...lll... think about it. 
+{@Ovill}    You didn't like my offer?  
+{@Player}   Well, like I said, I'll THINK ABOUT IT.  
+{@Ovill}	Fantastic! I'm glad you are excited! This is going to be a great deal for you. 
+{@Ovill}    Anyways. I'm Ovill. 
+{@Ovill}    Supplier and contact for the planets and stations of the Forsch sector. Holo back!
+//end call
+
+
+//move this to level 4 gold level
+
+//{@PAL}      Hey Captain, you have a new supplier who is selling gold which would work as a conductor. 
+//{@Player} 	Ummm... gold? Isn't that really expensive? 
+//{@PAL} 		Sure it is but when you compare the travel time the extra money can be worth it. 
+//{@Player}	Alright, let's give him a call. 
 //call Xavier
-{@Xavier}   ... 
-{@Xavier}   Hello. 
-{@Player}   So... are you the supplier or-- 
-{@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
-{@Xavier}   Planet of Gold and Golden Opportunities. 
-{@Xavier}   Any and all materials within this sector goes through me. Capiche? 
-{@Xavier}	And who are you? 
-{@Player}	I'm the Captain of the Constantine. I'm running a fab here and need some materials.
-{@Xavier}   Well now. Let's talk business. You need material. I have it. You let me know what you want, it's done. 
-{@Player}   Uh... well... I'll let you know. Gold seems kinda pricey...
-{@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
+//{@Xavier}   ... 
+//{@Xavier}   Hello. 
+//{@Player}   So... are you the supplier or-- 
+//{@Xavier}	I'm Xavier. Supplier contact for the Ralston sector.
+//{@Xavier}   Planet of Gold and Golden Opportunities. 
+//{@Player}   Okay... well... I'll let you know. Gold seems kinda pricey...
+//{@Xavier}   Hmph. Fine. Call me back when you are ready for the good stuff. 
+
+//end call
+//{@Player}	Hmmm... I wonder if I can afford the gold. I'm trying to actually make a profit.
+
+
+::AfterSupplyChainCh3
 
 
 

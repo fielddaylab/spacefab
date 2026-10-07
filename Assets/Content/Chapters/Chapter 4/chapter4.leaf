@@ -5,16 +5,25 @@
 @trigger    OnContractSelectOpen
 @cutscene
 @once 
-//change this to dorian. 
-{@PAL}      	Wow, what a thrilling game of laser-tag! 
-{@Dorian}    	Thanks P.A.L.. 
-{@Player}     	Oh, don't get ahead of yourself. I'm still way ahead of you.
-{@Dorian}     	Sure, sure. 
-{@Player}    	Plus you are a desk man now, right?  
-{@Dorian}    	Hey!!! 
-{@Player}	    I'm joking! Mostly...
-{@Dorian}   	Ok, ok. I've got to head out. That was fun. 
-{@Dorian} 		See you soon!
+
+{@Dorian}    I've got to head out. That was fun. 
+{@Player}    Thanks for visiting. We need a rematch soon!
+
+// New optional research sample- Gold
+{@Xavier}    Locke! Heard about the slowdowns at Kalvis. Copper prices are through the roof!
+{@Xavier}    Terrible news for Kalvis. Golden opportunity for you.
+{@Xavier}    Which is why I'm sending you a little sample, straight from the Planet of Gold and Golden Opportunities.
+{@Player}    Blaze and the others are doing the best they can. It's not their fault the automation and bots keep fritzing out.
+{@Xavier}    Well, here in the COMPETENTLY managed, Frontier-supported Ralston system, our bots are humming along...
+
+//end call
+
+{@PAL}       That call appears to have ended prematurely.
+
+
+
+
+//end call
 
 ::BeforeSupplyChainCh4
 @trigger    OnOverarchingLoaded
@@ -22,29 +31,18 @@
 @cutscene 
 @once 
 
-//incoming call
-{@Blaze}    	Hi Locke! 
-{@Blaze}    	Just a heads up that our copper production has shut-down for the next few cycles.
-{@Player}		Those bots giving you trouble again?
-{@Blaze}    	We're taking time to celebrate the Kalvis Festival! You should stop by.
-{@Player}		Well, I'm not sure how Mara would feel about that. 
-{@Blaze}		What you are talking about? We would love to see you.
-{@Blaze}    	Anyway, all the materials are available but they might be a little slower. I've updated new times so the Supply Chain Console will show the new delivery schedule. 
-{@Player}   	Thanks for letting me know but I'm in a bit of a crunch right now. 
-{@Blaze}		Sure thing! See you later. 
-//phone hangs up
-
-{@PAL}      	Kalvis tends to be... unrealiable with their... "holidays.”
-{@Player}		Sounds fun though...
-
-//introduce callie and extra boron
-
 //quinn will introduce the idea that the hauling region you need is larger. She wants you to connect to callie to make sure she's willing to deal with you since you are frontier now. 
 
-{@Quinn}	I heard you needed more boron.   
-{@Quinn}	And, I might have the perfect contact for you...its cheaper, but you know. A little more risky. 
-{@Quinn} 	I'm going to patch you through to Callie. 
-{@Quinn} 	By the way, make sure not to offend her. 
+//incoming call from quinn
+//incoming call from quinn
+{@Quinn}    I saw what those Frontier folks on Frosch are charging you for boron.
+{@Player}   Yeah. They love those high prices.
+{@Quinn}    I know someone who can beat that price. By a lot.
+{@Quinn}    But working with Callie can be a little... risky.
+{@Quinn}    Umm... so, when you talk to her, try not to offend her.
+
+//end call
+
 //call callie
 
 {@Callie}   A'hoy! I see a Frontier call sign... how scandalous. 
@@ -53,24 +51,51 @@
 {@Player}  	Nice to meet you... Callie. 
 {@Callie}   Since the great revolt of the Velos Penal Station...
 {@Callie}   ...all Frontier ships are marked for pillaging!
-{@Callie}   However, if you do continued business with us... 
-{@Callie}   We may... avert our attention elsewhere. 
-{@Player}   That sounds risky!
-{@Callie}   Risk, schmisk, sometimes a little  adventure is the only way to feel alive! 
+{@Callie}   If you do business with us... We may avert our attention. 
 {@Callie}   Holler if you need some goods, Clackey. 
-{@Player}  	Don't call me that- aaaand she hung up. 
+//end call
+
+{@Player}  	Hey! I'm not a Clackey- aaaand she hung up. 
+
+{@Pal}    	Wait. Velos? The pirate station? The prison station?
+{@Player}   Yeah. Looks like they have great prices.
+{@Player}   How risky could it really be?
+{@Pal}      They're pirates, Locke.
+
+
+
+
+//deleted convo with blaze
+//incoming call
+
+//{@Blaze}     Hi Locke!
+//{@Blaze}     Hey, if you're around for the Kalvis Festival, you should stop by.
+//{@Player}    Well... I'm not sure how Mara would feel about that.
+//{@Blaze}     What are you talking about? We'd love to see you.
+//{@Player}    Thanks. Maybe I will.
+
+//{@Blaze}     Oh! Quinn said you were looking for boron.
+//{@Player}    Yeah. Frontier has it at Lussac, but it's expensive.
+//{@Blaze}     Right... well, there is another option.
+//{@Player}    Why do I not like the sound of that?
+//{@Blaze}     Ha! Velos Station. Callie can sell it to you for half the price. 
+//{@Player}    Wait. Velos? The pirate station?
+//{@Blaze}     That's the one.
+//{@Player}    ...What's the catch?
+//{@Blaze}     They're pirates, Locke.
+
+//phone hangs up
+
+//{@PAL} 		I would advise caution in regards to the new boron source. 
+//{@Pal}		Callie is considered a high-risk supplier.
 
 ::AfterSupplyChainCh4 
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Research), IsSolutionFoundFor(Design), IsSolutionFoundFor(Supply)
 @trigger
 @once 
-
-//{@PAL}     	One thing to note Captain. 
-//{@PAL}     	The system is full of risks. 
-//{@PAL} 	    The higher the risk the more likely you’ll encounter a hiccup! 
-//{@Quinn} 	Good to know the bot has faith in us. 
-//{@Joel} 	With the pirates and the general deadly vacuum that is space…
-//{@Joel} 	P.A.L.’s not wrong. 
-//{@Player} 	Just stay safe you guys. 
-//{@Quinn} 	Aye aye, Cap’. 
+//TODO - check to make sure this feels like it connects since Locke was talking to Blaze about the festival. 
+{@Player}    That Kalvis Festival sounds fun...
+{@PAL}       Another "holiday." Kalvis has had quite a few production delays lately. Unreliable.
+{@Player}    Yeah... but we both know it wasn't a festival that caused the others.
+{@Player}    ...Sounds fun though. Wish I could see it. 
