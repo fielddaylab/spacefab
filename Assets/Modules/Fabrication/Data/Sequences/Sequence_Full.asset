@@ -118,5 +118,6 @@ MonoBehaviour:
       StepPrecisions: []
       RecordedStepCount: 0
     IsCheckpoint: 0
+  m_LayerInstruction: {fileID: 11400000, guid: 505fa85027649f14eb97ee1a791dacec, type: 2}
   bucketThreshold1: 13
   bucketthreshold2: 20
