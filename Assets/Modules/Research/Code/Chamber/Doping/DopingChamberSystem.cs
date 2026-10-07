@@ -75,9 +75,6 @@ namespace SpaceFab.Research
 
             if (!substrateSlotted) return;
             UpdateAtomicView(interfacerState, dopingChamberState, researchState);
-            ResearchUIAssets uiAssets = Find.GlobalAsset<ResearchUIAssets>();
-            dopingChamberState.ElementToggle[0].Sprite.sprite = dopingChamberState.HostElementIndex == 0 ? uiAssets.ButtonDown : uiAssets.ButtonUp;
-            dopingChamberState.ElementToggle[1].Sprite.sprite = dopingChamberState.HostElementIndex == 1 ? uiAssets.ButtonDown : uiAssets.ButtonUp;
         }
 
         private static void UpdateSemiconductor(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchMinigameState researchState, ResearchExplosionState explosionState, ResearchPools vfxPool)
@@ -100,7 +97,13 @@ namespace SpaceFab.Research
             // Show toggle for polyelemental substrates
             dopingChamber.HostElementIndex = 0;
             bool isPolyelemental = material.AtomicRadii.Length > 1;
-            dopingChamber.Toggle.SetActive(isPolyelemental);
+            if (isPolyelemental) {
+                if (material.AtomicRadii[0] > material.AtomicRadii[1]) {
+                    dopingChamber.HostElementIndex = 0;
+                } else {
+                    dopingChamber.HostElementIndex = 1;
+                }
+            }
 
             // Substrates must be confirmed semiconductors.
             ResearchSlot slot = ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Primary);
@@ -113,11 +116,6 @@ namespace SpaceFab.Research
                 dopingChamber.AtomicViewChangedThisFrame = true;
 
                 return;
-            }
-
-            if (isPolyelemental) {
-                dopingChamber.ElementToggleLabel[0].text = material.ConstituentElementNames[0];
-                dopingChamber.ElementToggleLabel[1].text = material.ConstituentElementNames[1];
             }
         }
 
@@ -152,7 +150,7 @@ namespace SpaceFab.Research
             }
 
             int index = dopingChamber.HostElementIndex;
-            bool validRadius = substrate.AtomicRadii[index] > dopant.AtomicRadii[0];
+            bool validRadius = substrate.SimpleAtomicRadii[index] > dopant.SimpleAtomicRadii[0];
             bool validElectronDiff = Mathf.Abs(substrate.ValenceElectronCounts[index] - dopant.ValenceElectronCounts[0]) == 1;
 
             if (validRadius && validElectronDiff) {
@@ -188,8 +186,8 @@ namespace SpaceFab.Research
                 substrateAtom.ElectronSprites[i].SetAlpha(i < cap ? 1f : 0f);
             }
 
-            float substrateScale = 0.7f + 0.3f * substrate.AtomicRadii[dopingChamber.HostElementIndex] / 200f;
-            substrateAtom.MaterialSprite.transform.SetScale(substrateScale);
+            float substrateScale = MaterialAtomicViewUtility.EvaluateAtomScale(substrate.SimpleAtomicRadii[dopingChamber.HostElementIndex]);
+            substrateAtom.MaterialSprite.transform.localScale = new Vector3(substrateScale, substrateScale, substrateScale);
 
             // Dopant atom -- empty
             Assert.False(dopingChamber.DopantAtom == null);
@@ -209,8 +207,8 @@ namespace SpaceFab.Research
 
             dopantAtom.MaterialSprite.color = dopantView.AtomColor[0];
             dopantAtom.Label.text = dopantKnown ? dopant.ShortName : "?";
-            float dopantScale = 0.6f + 0.4f * dopant.AtomicRadii[0] / 200f;
-            dopantAtom.MaterialSprite.transform.SetScale(dopantScale);
+            float dopantScale = MaterialAtomicViewUtility.EvaluateAtomScale(dopant.SimpleAtomicRadii[0]);
+            dopantAtom.MaterialSprite.transform.localScale = new Vector3(dopantScale, dopantScale, dopantScale);
 
             for (int i = 0; i < dopantAtom.ElectronSprites.Length; i++) {
                 SpriteRenderer electron = dopantAtom.ElectronSprites[i];

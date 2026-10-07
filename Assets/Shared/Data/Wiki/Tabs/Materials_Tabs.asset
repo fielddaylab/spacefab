@@ -12,16 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36fabafaf51e5ce47abdfc28005f7b8b, type: 3}
   m_Name: Materials_Tabs
   m_EditorClassIdentifier: 
-  m_Title: Materials
-  m_Icon: {fileID: 21300000, guid: 9b5ac30f2e663a4419590d48a63b223b, type: 3}
-  m_Pages:
+  Title: Materials
+  Icon: {fileID: 21300000, guid: 9b5ac30f2e663a4419590d48a63b223b, type: 3}
+  Pages:
   - {fileID: 11400000, guid: fb5562a8e36296641a88d125b73c6433, type: 2}
   - {fileID: 11400000, guid: f2ee54974959dd848955e2ada5272040, type: 2}
-  - {fileID: 11400000, guid: ea7487cf719b47344a6941309cf11dbf, type: 2}
   - {fileID: 11400000, guid: afdbc7a9507b0034ba28d42569b20f8a, type: 2}
   - {fileID: 11400000, guid: b8ea3539efda2e44cb9a4edde982122d, type: 2}
   - {fileID: 11400000, guid: 05786b55e55b6b245b9aafa400bea8e2, type: 2}
-  - {fileID: 11400000, guid: 05df6feb5f25fbe4184783ff2046b695, type: 2}
   - {fileID: 11400000, guid: d4941df030b3e0445aa560aa25469b6d, type: 2}
   - {fileID: 11400000, guid: 27b3a0c3feb78a0408096f296b5cc71b, type: 2}
   - {fileID: 11400000, guid: b7013db064c8a3243bc79268c735c5b7, type: 2}

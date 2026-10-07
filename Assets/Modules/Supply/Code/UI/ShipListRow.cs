@@ -14,6 +14,7 @@ namespace SpaceFab.Supply {
         public Image SpeedIcon;
         public Image ShipIcon;
         public Image[] ShipBody;
+        public Image[] ShipOutline;
         public RectTransform[] Slots;
         public Image[] SlotMaterials;
         public TMP_Text ShipName;
@@ -55,6 +56,12 @@ namespace SpaceFab.Supply {
                 Positioning.SetWidthDelta(bodySprite.rectTransform, bodySize);
                 bodySprite.sprite = shipAsset.BodyImage;
             }
+            foreach (var outlineSprite in row.ShipOutline) {
+                Positioning.SetWidthDelta(outlineSprite.rectTransform, bodySize);
+                outlineSprite.sprite = shipAsset.BodyOutline;
+                outlineSprite.color = shipAsset.IconColor;
+                outlineSprite.enabled = false;
+            }
 
             ShipListPanel.SpeedIconConfig speedIcon = panel.SpeedIcons[shipAsset.Speed];
             row.SpeedIcon.sprite = speedIcon.Image;
@@ -86,9 +93,15 @@ namespace SpaceFab.Supply {
             if (active) {
                 row.StatsLayer.gameObject.SetActive(true);
                 row.Style.Style.MarginLower.y = 52;
+                foreach(var outline in row.ShipOutline) {
+                    outline.enabled = false;
+                }
             } else {
                 row.Style.Style.MarginLower.y = 0;
                 row.StatsLayer.gameObject.SetActive(false);
+                foreach (var outline in row.ShipOutline) {
+                    outline.enabled = true;
+                }
             }
         }
     }

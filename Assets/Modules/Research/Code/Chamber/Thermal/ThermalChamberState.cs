@@ -33,6 +33,9 @@ namespace SpaceFab.Research
             MaterialPropertyLabel.HeatUnaffected,
             MaterialPropertyLabel.HeatResistant
         };
+
+        public float PrimarySlotY;
+
         [NonSerialized] public bool HeatChangedThisFrame;
 
         // Sound played when no current
