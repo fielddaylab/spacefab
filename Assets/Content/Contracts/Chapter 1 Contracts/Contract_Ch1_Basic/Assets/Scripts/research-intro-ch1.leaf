@@ -9,6 +9,7 @@ $else
     $call   UnlockWikiPage("Basic Insulator")
     $call   LockWikiPage("Conductor") // only Basic Conductor is available in first chapter 
     $call   LockWikiPage("Insulator") // only Basic Insulator is available in first chapter
+    $call   PointElement(research:sample-silicon)
     {@PAL}  Start by selecting a <color=yellow>SAMPLE</color> on the left.
 $endif
 
@@ -43,7 +44,6 @@ $call   AddObsBtn->SetActive(false)
 @trigger    OnVoltageIncreased
 @when       !MinigameHasValidSolution(), research:primaryMaterial != "null"
 $call   ReleaseHighlight(research:increase-voltage-btn)
-$call   AddObsBtn->SetActive(true)
 $call   CloseWiki()
 {@PAL}  Now press <color=yellow>ADD OBSERVATION</color>.
 
@@ -78,18 +78,18 @@ $endif
 @when       result == "failure", reason == "hypothesis_mismatch"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  Your Property was incorrect.\nTry again.
+{@PAL}  Your Property was incorrect.\n\nTry again.
 
 ::OnHypothesisIncorrectObservationMismatch
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "observation_mismatch"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  Your Property was incorrect.\nTry again.
+{@PAL}  Your Property was incorrect.\n\nTry again.
 
 ::OnHypothesisIncorrectInvalidObservation
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "invalid_observation"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  One or more of your Observations were incorrect. Those are removed.\nTry again.
+{@PAL}  One or more of your Observations were incorrect. Those are removed.\n\nTry again.

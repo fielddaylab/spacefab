@@ -10,12 +10,6 @@ $else
 $endif
 
 
-::OnPlaceIntoSlot
-@trigger    OnSlotFilled
-@when       slotType == "primary", !MinigameHasValidSolution()
-// TODO: auto-fill the voltage obs label for silicon and copper
-
-
 // Thermal Chamber
 ::OnThermalChamberSelected
 @trigger    OnChamberSwitched
@@ -56,7 +50,7 @@ $call   ReleaseAllHighlights()
 $if MinigameHasValidSolution()
     {@PAL}  Great. You've completed all research tasks! Let's return to the ship.
 $elseif research:primaryMaterial == "Silicon"
-    {@PAL}  The Thermal Chamber confirmed that silicon conducts current when heated. It's a semiconductor, not an insulator.
+    {@PAL}  The Thermal Chamber confirmed that silicon conducts current when heated.\n\nIt's a semiconductor, not an insulator.
 $else
     {@PAL}  Correct. Test your other samples.
 $endif
@@ -66,18 +60,18 @@ $endif
 @when       result == "failure", reason == "hypothesis_mismatch"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  Your Property was incorrect.\nTry again.
+{@PAL}  Your Property was incorrect.\n\nTry again.
 
 ::OnHypothesisIncorrectObservationMismatch
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "observation_mismatch"
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
-{@PAL}  Your Property was incorrect.\nTry again.
+{@PAL}  Your Property was incorrect.\n\nTry again.
 
 ::OnHypothesisIncorrectInvalidObservation
 @trigger    OnHypothesisSubmitted
 @when       result == "failure", reason == "invalid_observation"
 $call   ReleaseAllHighlights()
-@call   CloseWiki()
-{@PAL}  One or more of your Observations were incorrect. Those are removed.\nTry again.
+$call   CloseWiki()
+{@PAL}  One or more of your Observations were incorrect. Those are removed.\n\nTry again.

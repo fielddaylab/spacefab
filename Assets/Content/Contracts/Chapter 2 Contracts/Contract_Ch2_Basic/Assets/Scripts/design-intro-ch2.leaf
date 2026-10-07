@@ -108,7 +108,6 @@ $call   HighlightElement(design:metal-tool-btn)
 $set    temp:designTutorialStep = 2
 {@PAL}  To connect input A to output X, use a semiconductor to cross under the metal layer.\n\nRemember, the inputs and outputs are on the metal layer.
 $call   HighlightElement(design:p-transistor-tool-btn)
-$call   HighlightElement(design:via-tool-btn)
 
 
 ::OnPTransistorToolSelected
@@ -133,7 +132,7 @@ $endif
 ::TestIncorrectLv2
 @trigger    OnSingleTestComplete
 @when       result == "failure", CurrLevelIndex() == 1
-$call   ReleaseHighlight(design:test-btn)
+$call   ReleaseAllHighlights()
 $if temp:hintGiven == 0
     {@PAL}  <color=yellow>Hint:</color> The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
     $set temp:hintGiven = 1

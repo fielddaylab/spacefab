@@ -7389,8 +7389,34 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 8421174147107645775, guid: 88d822bfe08580b45a429a140b357837, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3045821825288395178, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4056313152462021290}
   m_SourcePrefab: {fileID: 100100000, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+--- !u!1 &4056313152462021289 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3045821825288395178, guid: 88d822bfe08580b45a429a140b357837, type: 3}
+  m_PrefabInstance: {fileID: 4056313152462021288}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4056313152462021290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4056313152462021289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id:
+    m_Source: research:contract-requirement
+    m_HashValue: 1783948898
+  RectTransform: {fileID: 0}
+  SpriteRenderer: {fileID: 0}
+  Collider: {fileID: 0}
 --- !u!1001 &5201276343860688403
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -44,6 +44,11 @@ namespace SpaceFab.Research {
                         ThermalChamberUtility.ResetState(Find.State<ThermalChamberState>());
                     }
                     break;
+                case ActiveChamberKind.Doping:
+                    if (Game.SharedState.Has<DopingChamberState>()) {
+                        DopingChamberUtility.ResetState(Find.State<DopingChamberState>());
+                    }
+                    break;
             }
         }
 

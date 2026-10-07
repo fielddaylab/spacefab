@@ -107,7 +107,7 @@ namespace SpaceFab.Research
             if (!ResearchStateUtility.HasConfirmed(researchState, material.AssetId, MaterialPropertyLabel.Semiconductor, StringHash32.Null)) {
                 ResearchExplosionUtility.ExplodeSlot(
                     explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Primary,
-                    ExplosionStyle.TooBig, delay: 1f); // TODO: add explosion style if needed
+                    ExplosionStyle.InvalidSubstrate, delay: 1f); // TODO: add explosion style if needed
                 CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
                 CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
                 dopingChamber.AtomicViewChangedThisFrame = true;
