@@ -1376,7 +1376,7 @@ PrefabInstance:
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 994501228}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_SortingLayerID
       value: 1461900991
@@ -1535,9 +1535,7 @@ MonoBehaviour:
   HypothesisChip: {fileID: 1460440611}
   AddObservationButton: {fileID: 593356837}
   AddPropertyButton: {fileID: 1769054418}
-  ChipPickerOverlay: {fileID: 0}
   CompleteButton: {fileID: 2081637708}
-  PickerChipContainer: {fileID: 0}
   VerifyButton: {fileID: 601895479}
   VoltageChamberButton: {fileID: 757854192}
   ThermalChamberButton: {fileID: 153333693}
@@ -2843,7 +2841,7 @@ PrefabInstance:
     - target: {fileID: 2353646413190301006, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 994501228}
     - target: {fileID: 2852105977866806387, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: SceneMask
       value: 2
@@ -3903,6 +3901,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1470425396}
     m_Modifications:
+    - target: {fileID: 130131968842501781, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
+      propertyPath: HighMobilityParticles
+      value: 
+      objectReference: {fileID: 2608935892718958072}
     - target: {fileID: 2003659318436975884, guid: 9fb9018788eebcc48b60bf751ba3c592, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -6881,7 +6883,7 @@ PrefabInstance:
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 994501228}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_SortingLayerID
       value: 1461900991
@@ -6921,6 +6923,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4130869201149222050, guid: 74eb29838923c8743a545a6ebb408efb, type: 3}
       propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7107768215286049527, guid: 74eb29838923c8743a545a6ebb408efb, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8077373166235233486, guid: 74eb29838923c8743a545a6ebb408efb, type: 3}
@@ -6972,6 +6978,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74eb29838923c8743a545a6ebb408efb, type: 3}
+--- !u!198 &2608935892718958072 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8403982194204531051, guid: 74eb29838923c8743a545a6ebb408efb, type: 3}
+  m_PrefabInstance: {fileID: 2608935892718958071}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4056313152462021288
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7136,6 +7147,10 @@ PrefabInstance:
       propertyPath: BulbOffSprite
       value: 
       objectReference: {fileID: 21300000, guid: 568beddbb741d8747a65aeecfa41327f, type: 3}
+    - target: {fileID: 130131968842501781, guid: 383442da04804ce4e82237595cc8dec6, type: 3}
+      propertyPath: HighMobilityParticles
+      value: 
+      objectReference: {fileID: 2608935892718958072}
     - target: {fileID: 2003659318436975884, guid: 383442da04804ce4e82237595cc8dec6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7310,6 +7325,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1470425396}
     m_Modifications:
+    - target: {fileID: 130131968842501781, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
+      propertyPath: HighMobilityParticles
+      value: 
+      objectReference: {fileID: 2608935892718958072}
     - target: {fileID: 2003659318436975884, guid: 3b021d80c505e4a48a70a478882b7cfd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7564,7 +7583,7 @@ PrefabInstance:
     - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 994501228}
     - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_PlaneDistance
       value: 10

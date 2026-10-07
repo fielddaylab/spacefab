@@ -343,20 +343,20 @@ namespace Bookmarking {
 
                     if (GUILayout.Button(content, m_ButtonStyle)) {
                         if (Event.current.button == 1 || Event.current.control) {
-                            if (!page.IsLocked || type == ItemType.Link) {
-                                GenericMenu menu = new GenericMenu();
-                                if (type == ItemType.Link) {
-                                    menu.AddItem(new GUIContent("Copy Link"), false, () => {
-                                        EditorGUIUtility.systemCopyBuffer = item.URL;
-                                    });
-                                }
-                                if (!page.IsLocked) {
-                                    menu.AddItem(new GUIContent("Remove from Page?"), false, () => {
-                                        BookmarksUtility.RemoveReference(page, item.Object);
-                                    });
-                                }
-                                menu.ShowAsContext();
+                            GenericMenu menu = new GenericMenu();
+                            if (type == ItemType.Link) {
+                                menu.AddItem(new GUIContent("Copy link"), false, () => {
+                                    EditorGUIUtility.systemCopyBuffer = item.URL;
+                                });
                             }
+                            if (!page.IsLocked) {
+                                menu.AddItem(new GUIContent("Remove from page?"), false, () => {
+                                    BookmarksUtility.RemoveReference(page, item.Object);
+                                });
+                            } else {
+                                menu.AddDisabledItem(new GUIContent("Cannot remove from locked page"), false);
+                            }
+                            menu.ShowAsContext();
                         } else {
                             switch (type) {
                                 case ItemType.Link: {
