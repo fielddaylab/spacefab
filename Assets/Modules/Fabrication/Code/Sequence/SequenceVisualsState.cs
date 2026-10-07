@@ -1,6 +1,7 @@
 using BeauRoutine;
 using FieldDay;
 using FieldDay.SharedState;
+using SpaceFab.Fabrication.LayerInstructions;
 using System;
 using System.Collections;
 using System.Linq;
@@ -27,6 +28,9 @@ namespace SpaceFab.Fabrication.Sequence
         public Image GlitchedText;
 
         public CanvasGroup PanelCanvasGroup;
+
+        // Layer progress panel (one row per layer). Rebuilt on reset, updated on advance/completion.
+        public LayerInstructionPanel LayerInstructionPanel;
         public SequenceCard CardSlotA;
         public SequenceCard CardSlotB;
 
@@ -135,24 +139,30 @@ namespace SpaceFab.Fabrication.Sequence
 
             visualsState.TransitionRoutine.Replace(InitialMoveIntoFrame(visualsState));
 
-            switch (steps[nextIndex].Chunk)
+            // The panel background/header is shared by both cards, so it follows the current
+            // (front) step's chunk, not the pre-loaded next step.
+            if (currentIndex >= 0 && currentIndex < steps.Length) {
+                ApplyChunkVisuals(visualsState, steps[currentIndex].Chunk, lookup);
+            }
+        }
+
+        // Sets the shared sequence panel background, header background, and header text for the
+        // given chunk.
+        private static void ApplyChunkVisuals(SequenceVisualsState visualsState, SequenceChunk chunk, SequenceLookup lookup)
+        {
+            SequenceChunkEntry chunkEntry = lookup.GetChunk(chunk);
+            visualsState.SequenceCardBG.sprite = chunkEntry.ChunkSequenceBG;
+            visualsState.SequenceCardHeaderBG.sprite = chunkEntry.ChunkSequenceHeaderBG;
+            switch (chunk)
             {
                 case SequenceChunk.N:
-                    visualsState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceBG;
-                    visualsState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceHeaderBG;
                     visualsState.SequenceCardHeaderText.text = "N-Type Layer";
                     break;
                 case SequenceChunk.P:
-                    visualsState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceBG;
-                    visualsState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceHeaderBG;
                     visualsState.SequenceCardHeaderText.text = "P-Type Layer";
                     break;
                 case SequenceChunk.Metal:
-                    visualsState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceBG;
-                    visualsState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceHeaderBG;
                     visualsState.SequenceCardHeaderText.text = "Metal Layer";
-                    break;
-                default:
                     break;
             }
         }
@@ -176,6 +186,12 @@ namespace SpaceFab.Fabrication.Sequence
             visualsState.GlitchedText.enabled = incomingRuntime.IsGlitched;
             visualsState.FrontCard.StationLabelText.enabled = !incomingRuntime.IsGlitched;
             visualsState.BackCard.StationLabelText.enabled = !incomingRuntime.IsGlitched;
+
+            // Switch the shared panel BG/header to the incoming step's chunk.
+            FabricationStep[] advanceSteps = sequenceState.Level != null ? sequenceState.Level.Sequence.Steps : null;
+            if (advanceSteps != null && sequenceState.CurrentStepIndex < advanceSteps.Length) {
+                ApplyChunkVisuals(visualsState, advanceSteps[sequenceState.CurrentStepIndex].Chunk, Find.GlobalAsset<SequenceLookup>());
+            }
 
             yield return visualsState.SequencePanelGroup.AnchorPosTo(new Vector2(0, 10), visualsState.TransitionDurationSeconds);
 
@@ -257,26 +273,8 @@ namespace SpaceFab.Fabrication.Sequence
             card.StationLabelText.text = entry.StationLabel;
             card.InstructionLabelText.text = entry.InstructionLabel;
 
-            switch (step.Chunk)
-            {
-                case SequenceChunk.N:
-                    visualState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceBG;
-                    visualState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.N).ChunkSequenceHeaderBG;
-                    visualState.SequenceCardHeaderText.text = "N-Type Layer";
-                    break;
-                case SequenceChunk.P:
-                    visualState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceBG;
-                    visualState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.P).ChunkSequenceHeaderBG;
-                    visualState.SequenceCardHeaderText.text = "P-Type Layer";
-                    break;
-                case SequenceChunk.Metal:
-                    visualState.SequenceCardBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceBG;
-                    visualState.SequenceCardHeaderBG.sprite = lookup.GetChunk(SequenceChunk.Metal).ChunkSequenceHeaderBG;
-                    visualState.SequenceCardHeaderText.text = "Metal Layer";
-                    break;
-                default:
-                    break;
-            }
+            // Shared panel BG/header is NOT set here: this also runs for the hidden back card, so
+            // it would show the next step's chunk early. See ApplyChunkVisuals.
 
             // TODO: when runtime.IsGlitched, apply lookup.GlitchOverlaySprite / GlitchOverlayText.
             // Deferred until the card prefab carries a dedicated glitch overlay child

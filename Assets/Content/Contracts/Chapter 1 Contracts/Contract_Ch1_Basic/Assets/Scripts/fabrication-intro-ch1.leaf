@@ -42,6 +42,11 @@ $else temp:fabTutorialStep != 2
     {@PAL}  That's not the right step.\n\nFind the station shown on the yellow card.
 $endif 
 
+::MicrogameEntered
+@trigger    OnMicrogameEntered
+$if temp:fabTutorialStep == 3
+    $call MinigameDismissDialogue(Box)
+$endif
 
 ::GateSpinCoat
 @trigger    OnFabMicrogameCompleted
