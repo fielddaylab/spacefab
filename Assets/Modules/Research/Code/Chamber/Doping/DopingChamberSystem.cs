@@ -53,10 +53,6 @@ namespace SpaceFab.Research
 
             if (interfacerState.LastUpdatedKind == ChamberSlotKind.Primary) {
                 UpdateSemiconductor(interfacerState, dopingChamberState, researchState, explosionState, pools);
-                //foreach (var samplePanel in Find.Components<ResearchSamplePanel>()) {
-                //    ObservationPickerLoadUtility.LoadFor(samplePanel, pools, interfacerState, dopingChamberState.AvailableObservations);
-                //    break;
-                //}
             }
             else {
                 UpdateDopant(interfacerState, dopingChamberState, explosionState, pools);
@@ -117,22 +113,26 @@ namespace SpaceFab.Research
 
                 return;
             }
+
+            float current = MaterialPhysicsUtility.GetCurrent(profile, dopingChamber.Voltage, dopingChamber.Temperature);
+            CircuitUtility.SetLightStrength(dopingChamber.Circuit, current);
+            CircuitUtility.SetFlowStrength(dopingChamber.Circuit, current);
         }
 
         private static void UpdateDopant(ChamberInterfacerState interfacerState, DopingChamberState dopingChamber, ResearchExplosionState explosionState, ResearchPools vfxPool)
         {
             MaterialAsset substrate = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Primary);
-            if (substrate == null) {
+            MaterialPhysicsProfile profile = substrate == null ? null : Find.NamedAsset<MaterialPhysicsProfile>(substrate.AssetId);
+
+            if (substrate == null || profile == null) {
                 return;
             }
 
+            float current = MaterialPhysicsUtility.GetCurrent(profile, dopingChamber.Voltage, dopingChamber.Temperature);
             MaterialAsset dopant = ChamberInterfacerUtility.GetCurrent(interfacerState, ChamberSlotKind.Secondary);
-            MaterialPhysicsProfile profile = dopant == null ? null : Find.NamedAsset<MaterialPhysicsProfile>(dopant.AssetId);
-
-            if (dopant == null || profile == null) {
-                CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
-                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
-
+            if (dopant == null) {
+                CircuitUtility.SetLightStrength(dopingChamber.Circuit, current);
+                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, current);
                 return;
             }
 
@@ -142,8 +142,8 @@ namespace SpaceFab.Research
                 ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
                 ExplosionStyle.Polyelemental, delay: 1f); // TODO: add explosion style if needed
-                CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
-                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
+                CircuitUtility.SetLightStrength(dopingChamber.Circuit, current);
+                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, current);
                 dopingChamber.AtomicViewChangedThisFrame = true;
 
                 return;
@@ -154,11 +154,9 @@ namespace SpaceFab.Research
             bool validElectronDiff = Mathf.Abs(substrate.ValenceElectronCounts[index] - dopant.ValenceElectronCounts[0]) == 1;
 
             if (validRadius && validElectronDiff) {
-                // TODO: increased conduction multiplier
-                float current = MaterialPhysicsUtility.GetCurrent(profile, dopingChamber.Voltage, dopingChamber.Temperature);
-                if (current == 0) Sfx.Play(dopingChamber.NoCurrentSFX);
-                CircuitUtility.SetLightStrength(dopingChamber.Circuit, current);
-                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, current);
+                float dopedCurrent = MaterialPhysicsUtility.GetCurrent(profile, dopingChamber.Voltage, 1f);
+                CircuitUtility.SetLightStrength(dopingChamber.Circuit, dopedCurrent);
+                CircuitUtility.SetFlowStrength(dopingChamber.Circuit, dopedCurrent);
 
                 return;
             }
@@ -167,8 +165,8 @@ namespace SpaceFab.Research
             ResearchExplosionUtility.ExplodeSlot(
                 explosionState, vfxPool, interfacerState, slot, ChamberSlotKind.Secondary,
                 explosionStyle, delay: 1f);
-            CircuitUtility.SetLightStrength(dopingChamber.Circuit, 0f);
-            CircuitUtility.SetFlowStrength(dopingChamber.Circuit, 0f);
+            CircuitUtility.SetLightStrength(dopingChamber.Circuit, current);
+            CircuitUtility.SetFlowStrength(dopingChamber.Circuit, current);
             dopingChamber.AtomicViewChangedThisFrame = true;
         }
 

@@ -46,6 +46,8 @@ namespace SpaceFab.Research {
                     break;
                 case ActiveChamberKind.Doping:
                     if (Game.SharedState.Has<DopingChamberState>()) {
+                        Find.State(out ChamberInterfacerState interfacerState);
+                        ResearchSlotUtility.FillInSlot(interfacerState, ChamberInterfacerUtility.GetSlot(interfacerState, ChamberSlotKind.Primary), ChamberSlotKind.Primary, null);
                         DopingChamberUtility.ResetState(Find.State<DopingChamberState>());
                     }
                     break;
