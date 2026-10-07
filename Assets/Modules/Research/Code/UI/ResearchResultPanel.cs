@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 namespace SpaceFab.Research {
     public sealed class ResearchResultPanel : SharedPanel {
+        public DynamicButton BackButton;
         public DynamicButton NextButton;
         public SceneReference NextScene;
         public ContractRequirementTable Table;
@@ -23,6 +24,7 @@ namespace SpaceFab.Research {
         protected override void Awake() {
             base.Awake();
 
+            BackButton.onClick.AddListener(Cancel);
             NextButton.onClick.AddListener(Commit);
         }
 
@@ -32,6 +34,11 @@ namespace SpaceFab.Research {
 
         private void Commit() {
             Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.Confirmed;
+        }
+
+        private void Cancel() {
+            Find.State<MinigameRequestExitState>().ExitRequestState = RequestState.None;
+            Hide();
         }
 
         // Safety net for the pushed priority: OnDisable fires both on Hide() (SetActive(false)) and

@@ -38,6 +38,7 @@ namespace SpaceFab.UI {
 
         private void Awake() {
             CloseButton.OnClick.Register(OnClickClose);
+            RootCanvas.enabled = false;
         }
 
         static private void OnClickClose() {

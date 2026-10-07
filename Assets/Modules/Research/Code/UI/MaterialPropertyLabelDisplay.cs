@@ -1,3 +1,5 @@
+using BeauUtil;
+using FieldDay;
 using SpaceFab.Materials;
 
 namespace SpaceFab.Research {
@@ -30,7 +32,7 @@ namespace SpaceFab.Research {
 
         // Header phrasing for a persistent property. Used in the hypothesis
         // panel's "FIND A ..." title.
-        public static string GetPropertyName(MaterialPropertyLabel label) {
+        public static string GetPropertyName(MaterialPropertyLabel label, StringHash32 contextId = default) {
             switch (label) {
                 case MaterialPropertyLabel.ConductorNaive: return "CONDUCTOR";
                 case MaterialPropertyLabel.InsulatorNaive: return "INSULATOR";
@@ -39,13 +41,21 @@ namespace SpaceFab.Research {
                 case MaterialPropertyLabel.Semiconductor: return "SEMICONDUCTOR";
                 case MaterialPropertyLabel.HiTempConductor: return "HIGH-TEMP CONDUCTOR";
                 case MaterialPropertyLabel.HiTempSemiConductor: return "HIGH-TEMP SEMICONDUCTOR";
-                case MaterialPropertyLabel.PDopantFor: return "P-TYPE DOPANT";
-                case MaterialPropertyLabel.NDopantFor: return "N-TYPE DOPANT";
+                case MaterialPropertyLabel.PDopantFor: return GetContextualPropertyName("P-TYPE DOPANT", contextId);
+                case MaterialPropertyLabel.NDopantFor: return GetContextualPropertyName("N-TYPE DOPANT", contextId);
                 case MaterialPropertyLabel.LightEmittingSemiconductor: return "LIGHT-EMITTING SEMICONDUCTOR";
                 case MaterialPropertyLabel.HighVoltageSemiconductor: return "HIGH VOLTAGE SEMICONDUCTOR";
                 case MaterialPropertyLabel.HighMobilitySemiconductor: return "HIGH MOBILITY SEMICONDUCTOR";
                 default: return label.ToString().ToUpperInvariant();
             }
+        }
+
+        private static string GetContextualPropertyName(string prefix, StringHash32 contextId) {
+            if (contextId.IsEmpty) {
+                return prefix;
+            }
+
+            return prefix + " FOR " + Find.NamedAsset<MaterialAsset>(contextId).DisplayName.ToUpperInvariant();
         }
     }
 }

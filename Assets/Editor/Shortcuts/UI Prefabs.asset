@@ -13,14 +13,25 @@ MonoBehaviour:
   m_Name: UI Prefabs
   m_EditorClassIdentifier: 
   SortOrder: 0
+  IsLocked: 0
+  ShowDuringContexts: 
+  HideDuringContexts: 
   ReadMe: Important UI prefabs
   Items:
   - Object: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
+    URL: 
+    MenuPath: 
     CustomName: 
   - Object: {fileID: 387483060091562675, guid: 6d94a6ff69d197247862f909aeedd431, type: 3}
+    URL: 
+    MenuPath: 
     CustomName: 
   - Object: {fileID: 8009370429197515178, guid: a0bac6cbba6ff514e8ebbc8bde509d87, type: 3}
+    URL: 
+    MenuPath: 
     CustomName: 
   - Object: {fileID: 1483081977996295771, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
+    URL: 
+    MenuPath: 
     CustomName: 
-  IsLocked: 0
+  ProjectSearchFilter: 

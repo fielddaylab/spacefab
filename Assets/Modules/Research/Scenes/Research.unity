@@ -573,81 +573,6 @@ MonoBehaviour:
   RectTransform: {fileID: 153333688}
   SpriteRenderer: {fileID: 0}
   Collider: {fileID: 0}
---- !u!1 &154977751
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 154977752}
-  - component: {fileID: 154977754}
-  - component: {fileID: 154977753}
-  m_Layer: 5
-  m_Name: Observation Picker Panel
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &154977752
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 154977751}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 656744435}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 217, y: 145}
-  m_SizeDelta: {x: 308, y: 200}
-  m_Pivot: {x: 0.5, y: 0}
---- !u!114 &154977753
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 154977751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 09bc71c53bfdfc0489881730d5e4e1cc, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &154977754
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 154977751}
-  m_CullTransparentMesh: 1
 --- !u!1 &174963529
 GameObject:
   m_ObjectHideFlags: 0
@@ -1451,7 +1376,7 @@ PrefabInstance:
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 994501228}
+      objectReference: {fileID: 0}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_SortingLayerID
       value: 1461900991
@@ -1610,9 +1535,9 @@ MonoBehaviour:
   HypothesisChip: {fileID: 1460440611}
   AddObservationButton: {fileID: 593356837}
   AddPropertyButton: {fileID: 1769054418}
-  ChipPickerOverlay: {fileID: 154977751}
+  ChipPickerOverlay: {fileID: 0}
   CompleteButton: {fileID: 2081637708}
-  PickerChipContainer: {fileID: 154977752}
+  PickerChipContainer: {fileID: 0}
   VerifyButton: {fileID: 601895479}
   VoltageChamberButton: {fileID: 757854192}
   ThermalChamberButton: {fileID: 153333693}
@@ -2688,7 +2613,6 @@ RectTransform:
   - {fileID: 593356836}
   - {fileID: 1769054415}
   - {fileID: 601895476}
-  - {fileID: 154977752}
   m_Father: {fileID: 622772031}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2919,7 +2843,7 @@ PrefabInstance:
     - target: {fileID: 2353646413190301006, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 994501228}
+      objectReference: {fileID: 0}
     - target: {fileID: 2852105977866806387, guid: b69396a508bab5e439460784e128a6dc, type: 3}
       propertyPath: SceneMask
       value: 2
@@ -6957,7 +6881,7 @@ PrefabInstance:
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 994501228}
+      objectReference: {fileID: 0}
     - target: {fileID: 6020711289955171844, guid: cd1458b82b6e44540aa9f7550f80d4ef, type: 3}
       propertyPath: m_SortingLayerID
       value: 1461900991
@@ -7640,7 +7564,7 @@ PrefabInstance:
     - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 994501228}
+      objectReference: {fileID: 0}
     - target: {fileID: 5003753746140000421, guid: 196311a986822f145bcb2da6b1de8f61, type: 3}
       propertyPath: m_PlaneDistance
       value: 10

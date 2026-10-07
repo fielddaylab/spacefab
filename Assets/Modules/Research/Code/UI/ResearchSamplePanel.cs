@@ -36,14 +36,8 @@ namespace SpaceFab.Research {
 
         public CursorHint AddObservationButton;
         public CursorHint AddPropertyButton;
-        public GameObject ChipPickerOverlay;
 
         public DynamicButton CompleteButton;
-
-        // Scene-wired RectTransform under ChipPickerOverlay that pool-
-        // alloced picker chips are reparented under. The load utility
-        // lays chips out here vertically and resizes the overlay to fit.
-        public RectTransform PickerChipContainer;
 
         public CursorHint VerifyButton;
 
@@ -245,9 +239,6 @@ namespace SpaceFab.Research {
         public static void ClosePicker(ResearchSamplePanel panel) {
             if (panel == null) return;
             panel.PickerOpen = false;
-            if (panel.ChipPickerOverlay != null) {
-                panel.ChipPickerOverlay.SetActive(false);
-            }
         }
 
         // Picker chip click. Resolves the bound label, requests the add.

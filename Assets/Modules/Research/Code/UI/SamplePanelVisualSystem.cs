@@ -258,26 +258,11 @@ namespace SpaceFab.Research {
             ObservationType hypoType = ObservationType.Component;
             if (hypoFilled) {
                 MaterialPropertyLabel hypo = hypoVm.HypothesisLabel;
-                hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo);
+                hypoLabel = MaterialPropertyLabelDisplay.GetPropertyName(hypo, hypoVm.HypothesisContext);
                 hypoType = MaterialObservationChamberLookup.GetChamberType(hypo);
-
-                if (hypoVm.HypothesisContext != StringHash32.Null)
-                {
-                    MaterialAsset hypoContext = Find.NamedAsset<MaterialAsset>(hypoVm.HypothesisContext);
-                    hypoLabel += " for " + hypoContext.ShortName; // only 'confirmed' semiconductors can be slotted -- always known
-                }
                 panel.HypothesisChip.SetProperty(hypoLabel, ChipFillState.Confirmed, false, hypo);
             } else {
                 panel.HypothesisChip.SetState(hypoLabel, ChipFillState.Empty, false, hypoType, true);
-            }
-
-            // 4. Picker overlay. Population + layout + resize happen
-            // once on chamber load (ObservationPickerLoadUtility);
-            // disabled-state refresh happens in
-            // ObservationPickerRefreshSystem when the viewmodel changes.
-            // Here we only mirror the transient PickerOpen flag.
-            if (panel.ChipPickerOverlay != null) {
-                panel.ChipPickerOverlay.SetActive(panel.PickerOpen);
             }
         }
     }

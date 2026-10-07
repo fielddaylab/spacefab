@@ -403,9 +403,10 @@ namespace SpaceFab.UI {
                     int recordMask = chipData.PropertyChip == MaterialPropertyLabel.PDopantFor ? record.DynamicMask_PDopant : record.DynamicMask_NDopant;
                     int bitMask = 1 << chipData.ContextIndex;
                     if ((recordMask & bitMask) == bitMask) {
+                        StringHash32 contextId = materialOrder.GetId(chipData.ContextIndex);
                         ResearchObservationChip chip = pageLayout.ObservationChips[usedChips++];
-                        chip.SetProperty(MaterialPropertyLabelDisplay.GetPropertyName(chipData.PropertyChip), ChipFillState.Confirmed, false, chipData.PropertyChip);
-                        chip.Tag.SetId(WikiElementTagUtility.MaterialCharacteristicId(pageLayout.CurrentMaterialId, chipData.PropertyChip, materialOrder.GetId(chipData.ContextIndex)));
+                        chip.SetProperty(MaterialPropertyLabelDisplay.GetPropertyName(chipData.PropertyChip, contextId), ChipFillState.Confirmed, false, chipData.PropertyChip);
+                        chip.Tag.SetId(WikiElementTagUtility.MaterialCharacteristicId(pageLayout.CurrentMaterialId, chipData.PropertyChip, contextId));
                         pageLayout.AssignedSlotIndices[usedChips - 1] = (sbyte) i;
                     }
                 } else {

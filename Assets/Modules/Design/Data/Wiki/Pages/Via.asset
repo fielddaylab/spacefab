@@ -12,17 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b542328d11c09ec4a8a6c8c0b18d8b98, type: 3}
   m_Name: Via
   m_EditorClassIdentifier: 
-  m_isPlanet: 0
-  m_Title: Via
-  m_Icon: {fileID: 21300000, guid: 6d755e4c668eee24fbf2a0a7a524fc7e, type: 3}
-  m_IllustrationFrames:
+  Title: Via
+  Icon: {fileID: 21300000, guid: 6d755e4c668eee24fbf2a0a7a524fc7e, type: 3}
+  IllustrationFrames:
   - {fileID: 21300000, guid: 956b2a98244378c4cb70a48188e472a1, type: 3}
   - {fileID: 21300000, guid: 775be72d9d7537944ad5e0b13ebd0b20, type: 3}
-  m_IllustrationFPS: 0.5
-  m_Body: Vias connect the Metal layer to the Semiconductor layer, passing signals
+  IllustrationFPS: 0.5
+  IllustrationImageScale: 1
+  CaptionText: 
+  BodyText: Vias connect the Metal layer to the bottom Silicon layer, passing signals
     between them.
-  m_MaterialId:
+  MaterialId:
     m_HashValue: 0
-  m_IsObservationPage: 0
-  m_ObservationType: 0
-  m_PropertyCheck: {fileID: 0}
+  IsObservationPage: 0
+  ObservationType: 0
+  PropertyCheck: {fileID: 0}
+  IsUnlockedByDefault: 0

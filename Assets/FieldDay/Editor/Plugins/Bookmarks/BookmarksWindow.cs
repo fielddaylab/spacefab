@@ -1,68 +1,114 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Bookmarking {
     public sealed class BookmarksWindow : EditorWindow {
         [SerializeField] private List<string> m_ExpandedGuids = new List<string>();
 
-        [SerializeField] private BookmarksPageAsset[] m_ProjectShortcuts;
+        [SerializeField] private BookmarksPage[] m_Pages;
         [SerializeField] private Vector2 m_Scroll;
         [SerializeField] private bool m_HorizontalView;
+        [SerializeField] private bool m_ShowHidden;
 
-        [NonSerialized] private bool m_Rebuilt = false;
+        [NonSerialized] private bool m_PagesDirty = true;
+        [NonSerialized] private bool m_ContextsDirty = true;
 
-        [NonSerialized] private GUIContent m_CachedContent;
         [NonSerialized] private GUIStyle m_ButtonStyle;
         [NonSerialized] private GUIStyle m_ReadmeStyle;
+        [NonSerialized] private GUIStyle m_PageFoldoutStyle;
 
-        public void OnEnable() {
-            titleContent = new GUIContent("Bookmarks", EditorGUIUtility.LoadRequired("d_Favorite") as Texture);
-            minSize = new Vector2(200, 200);
+        [NonSerialized] private HashSet<string> m_CurrentContexts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        [NonSerialized] static private GUIContent s_CachedContent;
+
+        private void OnEnable() {
+            titleContent = new GUIContent("Bookmarks", LoadIcon("d_Favorite"));
+            minSize = new Vector2(300, 200);
+
             UpdatePageList();
+
+            EditorSceneManager.sceneClosed += OnSceneClosed;
+            EditorSceneManager.sceneOpened += OnSceneOpened;
+
+            m_ContextsDirty = true;
         }
 
-        public void OnDisable() {
-            m_ProjectShortcuts = null;
+        private void OnDisable() {
+            m_Pages = null;
+            EditorSceneManager.sceneClosed -= OnSceneClosed;
+            EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
+
+        #region Data
 
         private void UpdatePageList() {
-            m_ProjectShortcuts = FindPages();
+            m_Pages = BookmarksUtility.LoadAllPages();
+            Console.WriteLine("[BookmarksWindow] Updated bookmarks list");
+            m_ContextsDirty = true;
         }
 
-        static private BookmarksPageAsset[] FindPages() {
-            string[] guids = AssetDatabase.FindAssets("t:BookmarksPageAsset");
-            BookmarksPageAsset[] pages = new BookmarksPageAsset[guids.Length];
-            for(int i = 0; i < guids.Length; i++) {
-                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                BookmarksPageAsset page = AssetDatabase.LoadAssetAtPath<BookmarksPageAsset>(path);
-                pages[i] = page;
+        private void UpdateContexts() {
+            m_CurrentContexts.Clear();
+
+            int sceneCount = SceneManager.loadedSceneCount;
+            for(int i = 0; i < sceneCount; i++) {
+                var scene = SceneManager.GetSceneAt(i);
+                string contextName = "scene-" + scene.name;
+                m_CurrentContexts.Add(contextName);
             }
-            Array.Sort(pages, (a, b) => {
-                if (a.SortOrder != b.SortOrder) {
-                    return a.SortOrder.CompareTo(b.SortOrder);
+
+            try {
+                string userName = Environment.UserName;
+                if (!string.IsNullOrEmpty(userName)) {
+                    m_CurrentContexts.Add("user-" + userName);
                 }
-                return a.name.CompareTo(b.name);
-            });
-
-            foreach (var shortcut in pages) {
-                shortcut.CachedName = ObjectNames.NicifyVariableName(shortcut.name);
-                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(shortcut, out shortcut.CachedGuid, out long _);
+            } catch {
             }
-            return pages;
+
+            // TODO: roles
+
+            Console.WriteLine("[BookmarksWindow] Found {0} contexts", m_CurrentContexts.Count);
+            foreach(var context in m_CurrentContexts) {
+                Console.WriteLine(context);
+            }
+
+            foreach(var page in m_Pages) {
+                bool forceHide = false;
+                bool show = true;
+                if (!string.IsNullOrEmpty(page.ShowDuringContexts)) {
+                    show = false;
+                    foreach(var context in ExtractContexts(page.ShowDuringContexts)) {
+                        if (m_CurrentContexts.Contains(context)) {
+                            show = true;
+                            break;
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(page.HideDuringContexts)) {
+                    forceHide = false;
+                    foreach (var context in ExtractContexts(page.HideDuringContexts)) {
+                        if (m_CurrentContexts.Contains(context)) {
+                            forceHide = true;
+                            break;
+                        }
+                    }
+                }
+
+                page.IsHidden = forceHide || !show;
+            }
+
+            Console.WriteLine("[BookmarksWindow] Updated project contexts");
         }
 
-        public void OnGUI() {
-            if (!m_Rebuilt) {
-                UpdatePageList();
-                m_Rebuilt = true;
-            }
-
-            if (m_CachedContent == null) {
-                m_CachedContent = new GUIContent();
+        private void InitializeResources() {
+            if (s_CachedContent == null) {
+                s_CachedContent = new GUIContent();
             }
 
             if (m_ButtonStyle == null) {
@@ -76,16 +122,72 @@ namespace Bookmarking {
                 m_ReadmeStyle = new GUIStyle(EditorStyles.miniLabel);
                 m_ReadmeStyle.alignment = TextAnchor.MiddleLeft;
                 m_ReadmeStyle.wordWrap = true;
+
+            }
+            if (m_PageFoldoutStyle == null) {
+                m_PageFoldoutStyle = new GUIStyle(EditorStyles.foldout);
+                m_PageFoldoutStyle.fixedHeight = 20; 
+                m_PageFoldoutStyle.alignment = TextAnchor.MiddleLeft;
+                m_PageFoldoutStyle.imagePosition = ImagePosition.ImageLeft;
+            }
+        }
+
+        private bool ProcessChanges() {
+            bool changed = false;
+
+            if (m_PagesDirty) {
+                UpdatePageList();
+                m_PagesDirty = false;
+                changed = true;
             }
 
+            if (m_ContextsDirty) {
+                UpdateContexts();
+                m_ContextsDirty = false;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        #endregion // Data
+
+        private void Update() {
+            if (ProcessChanges()) {
+                Repaint();
+            }
+        }
+
+        private void OnGUI() {
+            InitializeResources();
+            ProcessChanges();
+
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar); {
-                if (GUILayout.Button(EditorGUIUtility.IconContent("d_Refresh"), EditorStyles.toolbarButton)) {
-                    UpdatePageList();
+                if (GUILayout.Button(IconContent("d_Refresh", "Refresh page list"), EditorStyles.toolbarButton)) {
+                    m_PagesDirty = true;
                 }
 
-                if (GUILayout.Button(EditorGUIUtility.IconContent(m_HorizontalView ? "d_align_horizontally" : "d_align_vertically"), EditorStyles.toolbarButton)) {
+                GUIContent layoutChangeContent;
+                if (m_HorizontalView) {
+                    layoutChangeContent = IconContent("d_align_horizontally", "Items are aligned horizontally.");
+                } else {
+                    layoutChangeContent = IconContent("d_align_vertically", "Items are aligned vertically.");
+                }
+                if (GUILayout.Button(layoutChangeContent, EditorStyles.toolbarButton)) {
                     Undo.RecordObject(this, "changing horizontal");
                     m_HorizontalView = !m_HorizontalView;
+                    EditorUtility.SetDirty(this);
+                }
+
+                GUIContent hideContent;
+                if (m_ShowHidden) {
+                    hideContent = IconContent("d_scenevis_visible_hover", "All pages are shown, even ones normally hidden by the current context");
+                } else {
+                    hideContent = IconContent("d_scenevis_hidden", "Some pages may be hidden based on the current context");
+                }
+                if (GUILayout.Button(hideContent, EditorStyles.toolbarButton)) {
+                    Undo.RecordObject(this, "changing visibility");
+                    m_ShowHidden= !m_ShowHidden;
                     EditorUtility.SetDirty(this);
                 }
 
@@ -94,7 +196,7 @@ namespace Bookmarking {
 
             EditorGUILayout.Space();
 
-            if (m_ProjectShortcuts.Length <= 0) {
+            if (m_Pages.Length <= 0) {
                 EditorGUILayout.HelpBox("No shortcut assets are in the project", MessageType.Info);
                 return;
             }
@@ -105,23 +207,38 @@ namespace Bookmarking {
                 m_Scroll = newScroll;
                 EditorUtility.SetDirty(this);
             }
-            foreach(var shortcutGroup in m_ProjectShortcuts) {
-                RenderPage(shortcutGroup);
+
+            EditorGUIUtility.SetIconSize(new Vector2(16, 16));
+
+            foreach(var page in m_Pages) {
+                if (m_ShowHidden || !page.IsHidden) {
+                    RenderPage(page);
+                }
             }
+
+            EditorGUIUtility.SetIconSize(default);
+
             EditorGUILayout.EndScrollView();
         }
 
-        private void RenderPage(BookmarksPageAsset page) {
+        private void RenderPage(BookmarksPage page) {
             bool isExpanded = m_ExpandedGuids.Contains(page.CachedGuid);
-            GUIContent headerContent = m_CachedContent;
-            headerContent.text = string.Format("{0} ({1})", page.CachedName, page.Items.Length);
-            if (page.IsLocked) {
-                headerContent.image = EditorGUIUtility.LoadRequired("d_AssemblyLock") as Texture;
-            } else {
-                headerContent.image = EditorGUIUtility.LoadRequired("d_ListView") as Texture;
+            GUIContent headerContent = s_CachedContent;
+            int contentCount = page.Items.Length;
+            if (page.FilteredObjects != null) {
+                contentCount += page.FilteredObjects.Length;
             }
+            headerContent.text = string.Format("{0} ({1})", page.CachedName, contentCount);
+            if (page.IsHidden) {
+                headerContent.image = LoadIcon("d_scenevis_hidden");
+            } else if (page.IsLocked) {
+                headerContent.image = LoadIcon("d_AssemblyLock");
+            } else {
+                headerContent.image = LoadIcon("d_ListView");
+            }
+            headerContent.tooltip = null;
 
-            bool newExpended = EditorGUILayout.Foldout(isExpanded, headerContent);
+            bool newExpended = EditorGUILayout.Foldout(isExpanded, headerContent, true, m_PageFoldoutStyle);
             if (newExpended != isExpanded) {
                 Undo.RecordObject(this, "change expand");
                 if (newExpended) {
@@ -132,6 +249,7 @@ namespace Bookmarking {
                 EditorUtility.SetDirty(this);
             }
 
+            // Jump
             Rect headerRect = GUILayoutUtility.GetLastRect();
             if (Event.current.type == EventType.ContextClick) {
                 if (headerRect.Contains(Event.current.mousePosition)) {
@@ -155,7 +273,9 @@ namespace Bookmarking {
                     }
                 }
 
-                if (page.Items.Length > 0) {
+                bool hasContent = contentCount > 0;
+
+                if (hasContent) {
                     if (m_HorizontalView) {
                         EditorGUILayout.BeginHorizontal();
                     }
@@ -165,34 +285,64 @@ namespace Bookmarking {
 
                 for(int i = 0; i < page.Items.Length; i++) {
                     var item = page.Items[i];
-                    if (item.Object == null) {
+                    ItemType type = GetItemType(item);
+
+                    if (type == ItemType.None) {
                         continue;
                     }
 
-                    GUIContent content = m_CachedContent;
+                    GUIContent content = s_CachedContent;
                     string buttonName = item.CustomName;
                     if (string.IsNullOrEmpty(buttonName)) {
-                        buttonName = item.Object.name;
-                    }
-                    content.text = buttonName;
-                    bool isScene = true;
-                    if (item.Object is not SceneAsset) {
-                        var objContent = EditorGUIUtility.ObjectContent(item.Object, item.Object.GetType());
-                        content.image = objContent.image;
-                        isScene = false;
-                    } else {
-                        if (Event.current.shift) {
-                            content.image = EditorGUIUtility.LoadRequired("d_CreateAddNew") as Texture;
-                        } else {
-                            content.image = EditorGUIUtility.LoadRequired("d_Scene") as Texture;
+                        switch(type) {
+                            case ItemType.Asset:
+                            case ItemType.Scene:
+                                buttonName = item.Object.name;
+                                break;
+                            case ItemType.Link:
+                                buttonName = item.URL;
+                                break;
+                            case ItemType.MenuItem:
+                                buttonName = item.MenuPath;
+                                break;
                         }
                     }
 
+                    content.text = buttonName;
+
+                    switch(type) {
+                        case ItemType.Asset: {
+                            content.image = EditorGUIUtility.ObjectContent(item.Object, item.Object.GetType()).image;
+                            content.tooltip = "Open asset";
+                            break;
+                        }
+                        case ItemType.Scene: {
+                            if (Event.current.shift) {
+                                content.image = LoadIcon("d_CreateAddNew");
+                                content.tooltip = "Load scene (additive)";
+                            } else {
+                                content.image = LoadIcon("d_Scene");
+                                content.tooltip = "Load scene (exclusive)";
+                            }
+                            break;
+                        }
+                        case ItemType.Link: {
+                            content.image = LoadIcon("d_Linked");
+                            content.tooltip = "Open URL in default browser";
+                            break;
+                        }
+                        case ItemType.MenuItem: {
+                            content.image = LoadIcon("d__Menu");
+                            content.tooltip = "Open menu item";
+                            break;
+                        }
+                    }
+                    
                     bool wasGUIEnabled = GUI.enabled;
-                    GUI.enabled = !isScene || canLoadScenes;
+                    GUI.enabled = type != ItemType.Scene || canLoadScenes;
 
                     if (GUILayout.Button(content, m_ButtonStyle)) {
-                        if (Event.current.type == EventType.ContextClick) { // right-click remove
+                        if (Event.current.button == 1 || Event.current.control) {
                             if (!page.IsLocked) {
                                 GenericMenu menu = new GenericMenu();
                                 menu.AddItem(new GUIContent("Remove from Page?"), false, () => {
@@ -201,18 +351,33 @@ namespace Bookmarking {
                                 menu.ShowAsContext();
                             }
                         } else {
-                            if (item.Object is not SceneAsset) {
-                                Selection.activeObject = item.Object;
-                                EditorGUIUtility.PingObject(item.Object);
-                                AssetDatabase.OpenAsset(item.Object);
-                            } else {
-                                if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
-                                    string path = AssetDatabase.GetAssetOrScenePath(item.Object);
+                            switch (type) {
+                                case ItemType.Link: {
+                                    Application.OpenURL(item.URL);
+                                    break;
+                                }
+                                case ItemType.MenuItem: {
+                                    EditorApplication.ExecuteMenuItem(item.MenuPath);
+                                    break;
+                                }
+                                case ItemType.Asset: {
                                     if (Event.current.shift) {
-                                        EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
-                                    } else {
-                                        EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+                                        Selection.activeObject = item.Object;
+                                        EditorGUIUtility.PingObject(item.Object);
                                     }
+                                    AssetDatabase.OpenAsset(item.Object);
+                                    break;
+                                }
+                                case ItemType.Scene: {
+                                    if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
+                                        string path = AssetDatabase.GetAssetOrScenePath(item.Object);
+                                        if (Event.current.shift) {
+                                            EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
+                                        } else {
+                                            EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+                                        }
+                                    }
+                                    break;
                                 }
                             }
                         }
@@ -221,7 +386,74 @@ namespace Bookmarking {
                     GUI.enabled = wasGUIEnabled;
                 }
 
-                if (page.Items.Length > 0) {
+                if (page.FilteredObjects != null) {
+                    for(int i = 0; i < page.FilteredObjects.Length; i++) {
+                        var item = page.FilteredObjects[i];
+                        ItemType type = GetItemType(item);
+
+                        if (type == ItemType.None) {
+                            continue;
+                        }
+
+                        GUIContent content = s_CachedContent;
+                        string buttonName = item.name;
+                        
+                        content.text = buttonName;
+
+                        switch (type) {
+                            case ItemType.Asset: {
+                                content.image = EditorGUIUtility.ObjectContent(item, item.GetType()).image;
+                                content.tooltip = "Open asset";
+                                break;
+                            }
+                            case ItemType.Scene: {
+                                if (Event.current.shift) {
+                                    content.image = LoadIcon("d_CreateAddNew");
+                                    content.tooltip = "Load scene (additive)";
+                                } else {
+                                    content.image = LoadIcon("d_Scene");
+                                    content.tooltip = "Load scene (exclusive)";
+                                }
+                                break;
+                            }
+                        }
+
+                        bool wasGUIEnabled = GUI.enabled;
+                        GUI.enabled = type != ItemType.Scene || canLoadScenes;
+
+                        if (GUILayout.Button(content, m_ButtonStyle)) {
+                            if (Event.current.button == 1 || Event.current.control) {
+                                
+                            } else {
+                                switch (type) {
+                                    case ItemType.Asset: {
+                                        if (Event.current.shift) {
+                                            Selection.activeObject = item;
+                                            EditorGUIUtility.PingObject(item);
+                                        }
+                                        AssetDatabase.OpenAsset(item);
+                                        break;
+                                    }
+                                    case ItemType.Scene: {
+                                        if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
+                                            string path = AssetDatabase.GetAssetOrScenePath(item);
+                                            if (Event.current.shift) {
+                                                EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
+                                            } else {
+                                                EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        GUI.enabled = wasGUIEnabled;
+                    }
+                }
+
+                if (hasContent) {
                     if (m_HorizontalView) {
                         EditorGUILayout.EndHorizontal();
                     }
@@ -255,17 +487,97 @@ namespace Bookmarking {
             }
         }
 
-        [MenuItem("Field Day/Open Bookmarks Window %[", priority = -1000)]
-        static private void OpenWindow() {
-            if (!EditorWindow.HasOpenInstances<BookmarksWindow>()) {
-                EditorWindow.GetWindow<BookmarksWindow>().Show();
+        static private ItemType GetItemType(BookmarkItem item) {
+            if (!string.IsNullOrEmpty(item.URL)) {
+                return ItemType.Link;
+            } else if (!string.IsNullOrEmpty(item.MenuPath)) {
+                return ItemType.MenuItem;
+            } else if (item.Object is SceneAsset) {
+                return ItemType.Scene;
+            } else if (item.Object != null) {
+                return ItemType.Asset;
+            } else {
+                return ItemType.None;
             }
         }
 
-        [MenuItem("Field Day/Open Bookmarks Window %[", priority = -1000, validate = true)]
-        static private bool OpenWindow_Validate() {
-            return !EditorWindow.HasOpenInstances<BookmarksWindow>();
+        static private ItemType GetItemType(UnityEngine.Object item) {
+            if (item is SceneAsset) {
+                return ItemType.Scene;
+            } else if (item != null) {
+                return ItemType.Asset;
+            } else {
+                return ItemType.None;
+            }
         }
+
+        private enum ItemType {
+            None,
+            Scene,
+            Asset,
+            Link,
+            MenuItem
+        }
+
+        #region Helpers
+
+        static private GUIContent IconContent(string iconName, string tooltip = null) {
+            if (s_CachedContent == null) {
+                s_CachedContent = new GUIContent();
+            }
+
+            s_CachedContent.text = null;
+            s_CachedContent.tooltip = tooltip;
+            s_CachedContent.image = LoadIcon(iconName);
+            return s_CachedContent;
+        }
+
+        static private Texture2D LoadIcon(string iconName) {
+            return EditorGUIUtility.LoadRequired(iconName) as Texture2D;
+        }
+
+        static private readonly char[] ContextListSplitChars = new char[] { ';', ',', '\r', '\n' };
+
+        static private IEnumerable<string> ExtractContexts(string contextList) {
+            if (!string.IsNullOrEmpty(contextList)) {
+                foreach (var contextString in contextList.Split(ContextListSplitChars, StringSplitOptions.RemoveEmptyEntries)) {
+                    yield return contextString.Trim();
+                }
+            }
+        }
+
+        #endregion // Helpers
+
+        #region Handlers
+
+        private void OnSceneClosed(Scene scene) {
+            m_ContextsDirty = true;
+        }
+
+        private void OnSceneOpened(Scene scene, OpenSceneMode mode) {
+            m_ContextsDirty = true;
+        }
+
+        #endregion // Handlers
+
+        #region Shortcut
+
+        [MenuItem("Window/Bookmarks %'", priority = 1270)]
+        static private void OpenWindow() {
+            if (!EditorWindow.HasOpenInstances<BookmarksWindow>()) {
+                EditorWindow.GetWindow<BookmarksWindow>().Show();
+            } else {
+                EditorWindow.GetWindow<BookmarksWindow>().Focus();
+            }
+        }
+
+        #endregion // Shortcut
+
+        #region Initialization
+
+        private const string DisplayedInitialPageSentinelFilePath = "Library/HasDisplayedProjectShortcutsPrompt.txt";
+        private const string InitialPageHeader = "Bookmarks";
+        private const string InitialPagePrompt = "The \"Bookmarks\" tab is available. Would you like to open it?";
 
         [InitializeOnLoadMethod]
         static private void QueueInitialPrompt() {
@@ -273,15 +585,17 @@ namespace Bookmarking {
         }
 
         static private void TryPresentInitialPrompt() {
-            if (!File.Exists("Library/HasDisplayedProjectShortcutsPrompt.txt")) {
-                File.WriteAllText("Library/HasDisplayedProjectShortcutsPrompt.txt", " ");
+            if (!File.Exists(DisplayedInitialPageSentinelFilePath)) {
+                File.WriteAllText(DisplayedInitialPageSentinelFilePath, " ");
                 if (EditorWindow.HasOpenInstances<BookmarksWindow>()) {
                     return;
                 }
-                if (EditorUtility.DisplayDialog("Bookmarks", "The \"Bookmarks\" tab is now available! Would you like to open it?", "Yes", "No")) {
+                if (EditorUtility.DisplayDialog(InitialPageHeader, InitialPagePrompt, "Yes", "No")) {
                     OpenWindow();
                 }
             }
         }
+
+        #endregion // Initialization
     }
 }

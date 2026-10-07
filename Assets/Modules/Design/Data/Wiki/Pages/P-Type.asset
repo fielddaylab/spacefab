@@ -18,7 +18,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 19b26d3487a5e3f4585cfbb27341b126, type: 3}
   - {fileID: 21300000, guid: b8b9dab9f6c2b7f4ca7425d362810629, type: 3}
   IllustrationFPS: 0.5
-  BodyText: P-Type semiconductor conducts electrical signals in the lower Semiconductor
+  IllustrationImageScale: 1
+  CaptionText: 
+  BodyText: P-Type semiconductor conducts electrical signals in the bottom Silicon
     layer. It forms Diodes with N-Type.
   MaterialId:
     m_HashValue: 0

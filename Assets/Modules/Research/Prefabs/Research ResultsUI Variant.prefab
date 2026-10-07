@@ -97,8 +97,7 @@ PrefabInstance:
       value: Research ResultsUI Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 1789452169174819127, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 7173146612041189541, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
       insertIndex: 2
@@ -127,6 +126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PanelGroup:
     m_HashValue: 0
+  BackButton: {fileID: 4456717743778448214}
   NextButton: {fileID: 7089881876818660206}
   NextScene:
     m_ScenePath: Assets/Modules/Overarching/Scenes/Overarching.unity
@@ -151,6 +151,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7173146612041189541, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
   m_PrefabInstance: {fileID: 6303430063580436907}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4456717743778448214 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7684048139503966973, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
+  m_PrefabInstance: {fileID: 6303430063580436907}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eee9c2c266d7b04086359698c88f959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4909799380270644078 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1394238721872372421, guid: ea185a722f921254e93e4e17a1c779fd, type: 3}
