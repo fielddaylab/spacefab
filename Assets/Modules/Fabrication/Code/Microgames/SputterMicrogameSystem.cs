@@ -41,7 +41,7 @@ namespace SpaceFab.Fabrication.Microgames
             }
         }
 
-        static private async Task ProcessActive(SputterMicrogameState state, float deltaTime)
+        static private void ProcessActive(SputterMicrogameState state, float deltaTime)
         {
             if (!state.InputAccepted)
                 return;

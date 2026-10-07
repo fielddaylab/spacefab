@@ -2,6 +2,7 @@ using FieldDay;
 using FieldDay.Components;
 using FieldDay.Scripting;
 using System;
+using TMPro;
 using UnityEngine;
 
 namespace SpaceFab.Research
@@ -20,6 +21,12 @@ namespace SpaceFab.Research
         [NonSerialized] public int HeatIndex;
         [NonSerialized] public float CurrentTemperature;
         public SpriteRenderer HeatLevelSlot;
+
+        [Header("Level Placard")]
+        public SpriteRenderer PlacardBG;
+        public TMP_Text PlacardText;
+        public Color32[] PlacardColors;
+        public string[] PlacardLabels;
 
         public void OnRegister()
         {
@@ -139,6 +146,9 @@ namespace SpaceFab.Research
                 SpriteRenderer slot = control.HeatLevelSlot;
                 slot.sprite = config.HeatLevels[control.HeatIndex];
             }
+
+            control.PlacardBG.color = control.PlacardColors[control.HeatIndex];
+            control.PlacardText.SetText(control.PlacardLabels[control.HeatIndex]);
 
             RefreshButtonVisibility(control, config);
         }

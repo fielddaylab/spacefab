@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace SpaceFab.Onboarding {
+    public enum HighlightStyle {
+        Corner,
+        Arrow
+    }
+
     /// <summary>
     /// Pooled tutorial highlight visual. Carries one 9-sliced UI Image child and one
     /// 9-sliced world SpriteRenderer child; Bind enables exactly one of them depending
@@ -71,9 +76,10 @@ namespace SpaceFab.Onboarding {
         /// under that canvas (drawing above the target's siblings) rather than beside the
         /// target; null selects the legacy sibling-parent path. Ignored for world targets.
         /// </summary>
-        public void Bind(ElementTag tag, float margin, RectTransform highlightCanvasRect = null) {
+        public void Bind(ElementTag tag, float margin, RectTransform highlightCanvasRect = null, HighlightStyle style = HighlightStyle.Corner) {
             DisableBothPaths();
             ClearTarget();
+            SetHighlightStyle(style);
 
             if (tag.RectTransform != null) {
                 m_TargetKind = TargetKind.UI;
@@ -404,6 +410,26 @@ namespace SpaceFab.Onboarding {
             Color c = m_WorldSprite.color;
             c.a = a;
             m_WorldSprite.color = c;
+        }
+
+        private void SetHighlightStyle(HighlightStyle style = HighlightStyle.Corner) {
+            bool useArrow = style == HighlightStyle.Arrow;
+
+            if (m_UICorners != null) {
+                m_UICorners.enabled = !useArrow;
+            }
+
+            if (m_UIArrow != null) {
+                m_UIArrow.enabled = useArrow;
+            }
+
+            if (m_WorldSprite != null) {
+                m_WorldSprite.enabled = !useArrow;
+            }
+
+            if (m_WorldArrow != null) {
+                m_WorldArrow.enabled = useArrow;
+            }
         }
     }
 }

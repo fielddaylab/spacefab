@@ -23,6 +23,7 @@ namespace SpaceFab.Research {
         TemperatureBreakdownHot,
         TemperatureBreakdownCold,
         Polyelemental,
+        InvalidSubstrate
     }
 
     /// <summary>

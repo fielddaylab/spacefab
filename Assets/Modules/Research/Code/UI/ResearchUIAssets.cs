@@ -33,5 +33,13 @@ namespace SpaceFab.Research {
         // routing as observation pages, minus the grey styling). When
         // false they are display-only.
         public bool PropertyPageObservationChipsClickable;
+
+        [Header("Verification")]
+        public Color DefaultColor;
+        public Color SuccessColor;
+        public Color FailureColor;
+        public Color ProcessingColor;
+        public Sprite SuccessIcon;
+        public Sprite FailureIcon;
     }
 }

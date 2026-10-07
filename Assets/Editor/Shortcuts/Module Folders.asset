@@ -15,38 +15,18 @@ MonoBehaviour:
   SortOrder: -10
   ReadMe: 
   Items:
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: 7920b3ae664ff20409b5bc63b9ae01a2, type: 3}
+  - Object: {fileID: 102900000, guid: 7920b3ae664ff20409b5bc63b9ae01a2, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: 778ba138be21e2748bf872474d1cb98a, type: 3}
+  - Object: {fileID: 102900000, guid: 778ba138be21e2748bf872474d1cb98a, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: b9e306cf0bc84734cb25014aff45804d, type: 3}
+  - Object: {fileID: 102900000, guid: b9e306cf0bc84734cb25014aff45804d, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: 96b26f8b754f8bb439fcfc2ad84520e2, type: 3}
+  - Object: {fileID: 102900000, guid: 96b26f8b754f8bb439fcfc2ad84520e2, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: 79eb20666390acb4ea3dbb16b530735f, type: 3}
+  - Object: {fileID: 102900000, guid: 79eb20666390acb4ea3dbb16b530735f, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: 6d7338f6a9d21694d9f7482eefec6351, type: 3}
+  - Object: {fileID: 102900000, guid: 6d7338f6a9d21694d9f7482eefec6351, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 102900000, guid: 774914f39f2be744396cffd7bc5307ab, type: 3}
+  - Object: {fileID: 102900000, guid: 774914f39f2be744396cffd7bc5307ab, type: 3}
     CustomName: 
+  IsLocked: 1

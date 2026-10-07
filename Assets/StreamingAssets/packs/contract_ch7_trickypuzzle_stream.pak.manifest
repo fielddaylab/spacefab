@@ -1,21 +1,25 @@
 ManifestFileVersion: 0
-CRC: 4259623063
+CRC: 2796880499
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a1b53474df92211c25bbb6d69af12323
+    Hash: 4a896ae2056171f6297f74df59b74cf9
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 4d3cab661fbc82b6286b74598a6758a6
+    Hash: 8c78fa0fa727a8880a841b48d0f50fe5
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a1b53474df92211c25bbb6d69af12323
+    Hash: 4a896ae2056171f6297f74df59b74cf9
 HashAppended: 0
 ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: a5b78d150942f694b932cb7f1886573b, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 0e92568ecc7a7614c9937680232609b9, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: b4be90a9d33d3784caac2e5eb4b5636c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2613736b2e35237448e4a0f57709855d, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d7de82cf62335d041bae34db3ff1041f, type: 3}
 - Class: 114
@@ -41,6 +45,8 @@ SerializeReferenceClassIdentifiers:
   ClassName: SpaceFab.Fabrication.Sequence.FabricationStep
 - AssemblyName: Assembly-CSharp
   ClassName: SpaceFab.Fabrication.WaferSnapshot
+- AssemblyName: Assembly-CSharp
+  ClassName: SpaceFab.ScopedScriptsAsset/Binding
 Assets:
 - Assets/Content/Contracts/Chapter 7 Contracts/Contract_Ch7_TrickyPuzzle/Assets/Contract_Ch7_TrickyPuzzle_Stream.asset
 Dependencies: []

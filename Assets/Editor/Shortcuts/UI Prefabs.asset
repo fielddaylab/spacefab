@@ -15,23 +15,12 @@ MonoBehaviour:
   SortOrder: 0
   ReadMe: Important UI prefabs
   Items:
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
+  - Object: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 387483060091562675, guid: 6d94a6ff69d197247862f909aeedd431, type: 3}
+  - Object: {fileID: 387483060091562675, guid: 6d94a6ff69d197247862f909aeedd431, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 8009370429197515178, guid: a0bac6cbba6ff514e8ebbc8bde509d87, type: 3}
+  - Object: {fileID: 8009370429197515178, guid: a0bac6cbba6ff514e8ebbc8bde509d87, type: 3}
     CustomName: 
-  - Scene:
-      m_ScenePath: 
-      m_GUID: 
-    Object: {fileID: 1483081977996295771, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
+  - Object: {fileID: 1483081977996295771, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
     CustomName: 
+  IsLocked: 0

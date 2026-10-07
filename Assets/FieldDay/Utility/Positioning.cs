@@ -265,6 +265,31 @@ namespace FieldDay {
 
         #endregion // Pivot
 
+        #region Local Position
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetLocalX(Transform transform, float x) {
+            Vector3 pos = transform.localPosition;
+            pos.x = x;
+            transform.localPosition = pos;
+        }
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetLocalY(Transform transform, float y) {
+            Vector3 pos = transform.localPosition;
+            pos.y = y;
+            transform.localPosition = pos;
+        }
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void SetLocalZ(Transform transform, float z) {
+            Vector3 pos = transform.localPosition;
+            pos.z = z;
+            transform.localPosition = pos;
+        }
+
+        #endregion // Local Position
+
         #region Size Delta
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

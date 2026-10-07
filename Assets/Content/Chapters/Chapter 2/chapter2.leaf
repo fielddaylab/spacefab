@@ -66,10 +66,11 @@ $call   UnlockWikiPage("Insulator")
 @cutscene 
 @once
 
-@{Player}	P.A.L. did you get the fab bay cleaned up? 
-@{PAL}		The fab bay is in perfect condition, as always. 
-@{PAL}		...at least as perfect as it can be on a near obsolete ship.
-@{Player}	Clunker? As always? Looks like someone's system needs some updating...
+{@Player}	P.A.L. did you get the fab bay cleaned up? 
+{@PAL}		The fab bay is in perfect condition, as always. 
+{@PAL}		...at least as perfect as it can be on a near obsolete ship.
+{@Player}	Clunker? As always? Looks like someone's system needs some updating...
+
 {@PAL}		[ >_< ]
 
 //call coming in from Quinn
