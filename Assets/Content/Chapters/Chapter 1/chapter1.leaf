@@ -6,20 +6,19 @@
 
 {@PAL}      Welcome to the Frontier Robotics employee orientation! 
 {@Player}   Wait... I own this ship. I'm not an employee!
-{@PAL}      When you signed up to automate your ship’s fabrication system with Frontier Robotics you technically became an employee.
-
+{@PAL}      The agreement you signed says otherwise.
 
 {@PAL}      Your first “contract” is your orientation. 
 $call   HighlightElement(overarching:costs-section, false, 25, true)
-{@PAL}      This shows how long we expect the contract to take you.
+{@PAL}      This is how long the contract should take.
 $call   ReleaseAllHighlights()
 $call   HighlightElement(overarching:profit-section, false, 25, true)
-{@PAL}      ...and this is the full payment for a successful delivery.
+{@PAL}      ...and this is what you'll be paid.
 $call   ReleaseAllHighlights()
 {@Player}   I miss my old team. I've never done any of this all by myself. 
 {@PAL}      As the Personal Automation Liaison and I'm WAY more useful than human assistants.
  {@Player} 	...hmmmm... 
- {@PAL}      You can start with the Research Lab or Chip Design. 
+ {@PAL}      Sart with either the Research Lab or Chip Design. 
 
 
 $call   HighlightElement(overarching:select-contract-btn)
@@ -51,8 +50,8 @@ $call   ReleaseAllHighlights()
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
 @cutscene
 @once
-{@Player}    I think I'm ready to build the chips now, right? 
-{@PAL}       Not quite. You’ll need materials first. 
+{@Player}    I'm ready to build the chips now, right? 
+{@PAL}      You need materials first. 
 {@Player}	Oh... Dorian used to manage all that...
 {@Pal}		Nothing the Supply console can’t handle!
 {@Player}	I'll call the Hauler company to let them know they'll be working with me. 
