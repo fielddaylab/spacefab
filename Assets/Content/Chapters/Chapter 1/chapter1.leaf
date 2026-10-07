@@ -53,7 +53,7 @@ $call   ReleaseAllHighlights()
 {@Player}    I'm ready to build the chips now, right? 
 {@PAL}      You need materials first. 
 {@Player}	Oh... Dorian used to manage all that...
-{@Pal}		Nothing the Supply console can’t handle!
+{@PAL}		Nothing the Supply console can’t handle!
 {@Player}	I'll call the Hauler company to let them know they'll be working with me. 
 //phone dial 
 {@Quinn}    Oh... hi Locke! I was expecting to see Dorian. 
