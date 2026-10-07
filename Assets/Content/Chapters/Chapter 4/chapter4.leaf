@@ -9,14 +9,17 @@
 {@Dorian}    I've got to head out. That was fun. 
 {@Player}    Thanks for visiting. We need a rematch soon!
 
-// New optional research sample: Gold
-{@PAL}       Hey Captain, Xavier from Ralston sent you a new material sample to research. Gold!
-{@PAL}       It came with a message: "A sample gift from the Planet of Gold and Golden Opportunities. Call us when you're ready for the good stuff. — Xavier"
-{@Player}    Gold? That sounds expensive.
-{@Player}    And I've already got the materials I need for this contract.
-{@PAL}       You do! But you don't know what properties this sample has yet.
-{@PAL}       It's nice to have options when you're sourcing materials.
-{@Player}    True. I guess it's worth checking out.
+// New optional research sample- Gold
+{@Xavier}    Locke! Heard about the slowdowns at Kalvis. Copper prices are through the roof!
+{@Xavier}    Terrible news for Kalvis. Golden opportunity for you.
+{@Xavier}    Which is why I'm sending you a little sample, straight from the Planet of Gold and Golden Opportunities.
+{@Player}    Blaze and the others are doing the best they can. It's not their fault the automation and bots keep fritzing out.
+{@Xavier}    Well, here in the COMPETENTLY managed, Frontier-supported Ralston system, our bots are humming along...
+
+//end call
+
+{@PAL}       That call appears to have ended prematurely.
+
 
 
 
@@ -31,10 +34,12 @@
 //quinn will introduce the idea that the hauling region you need is larger. She wants you to connect to callie to make sure she's willing to deal with you since you are frontier now. 
 
 //incoming call from quinn
-{@Quinn}	I heard you needed more boron.   
-{@Quinn}	And, I might have the perfect contact for you...its cheaper, but you know... Callie is a character.
-{@Quinn} 	I'm going to patch you through to Callie. 
-{@Quinn} 	By the way, make sure not to offend her. 
+//incoming call from quinn
+{@Quinn}    I saw what those Frontier folks on Frosch are charging you for boron.
+{@Player}   Yeah. They love those high prices.
+{@Quinn}    I know someone who can beat that price. By a lot.
+{@Quinn}    But working with Callie can be a little... risky.
+{@Quinn}    Umm... so, when you talk to her, try not to offend her.
 
 //end call
 
@@ -46,19 +51,16 @@
 {@Player}  	Nice to meet you... Callie. 
 {@Callie}   Since the great revolt of the Velos Penal Station...
 {@Callie}   ...all Frontier ships are marked for pillaging!
-{@Callie}   However, if you do continued business with us... 
-{@Callie}   We may... avert our attention elsewhere. 
-{@Player}   That sounds risky!
-{@Callie}   Risk, schmisk, sometimes a little  adventure is the only way to feel alive! 
+{@Callie}   If you do business with us... We may avert our attention. 
 {@Callie}   Holler if you need some goods, Clackey. 
-{@Player}  	Don't call me that- aaaand she hung up. 
-
 //end call
-{@Player}    Wow, it looks like Callie can sell it to me for half the price. 
-{@Pal}    	Wait. Velos? The pirate station?
-{@Player}    That's the one.
-{@Player}   I mean, how risky could it really be?
-{@Pal}     They're pirates, Locke.
+
+{@Player}  	Hey! I'm not a Clackey- aaaand she hung up. 
+
+{@Pal}    	Wait. Velos? The pirate station? The prison station?
+{@Player}   Yeah. Looks like they have great prices.
+{@Player}   How risky could it really be?
+{@Pal}      They're pirates, Locke.
 
 
 
