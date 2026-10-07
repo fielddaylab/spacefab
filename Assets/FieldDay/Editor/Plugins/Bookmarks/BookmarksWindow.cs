@@ -343,11 +343,18 @@ namespace Bookmarking {
 
                     if (GUILayout.Button(content, m_ButtonStyle)) {
                         if (Event.current.button == 1 || Event.current.control) {
-                            if (!page.IsLocked) {
+                            if (!page.IsLocked || type == ItemType.Link) {
                                 GenericMenu menu = new GenericMenu();
-                                menu.AddItem(new GUIContent("Remove from Page?"), false, () => {
-                                    BookmarksUtility.RemoveReference(page, item.Object);
-                                });
+                                if (type == ItemType.Link) {
+                                    menu.AddItem(new GUIContent("Copy Link"), false, () => {
+                                        EditorGUIUtility.systemCopyBuffer = item.URL;
+                                    });
+                                }
+                                if (!page.IsLocked) {
+                                    menu.AddItem(new GUIContent("Remove from Page?"), false, () => {
+                                        BookmarksUtility.RemoveReference(page, item.Object);
+                                    });
+                                }
                                 menu.ShowAsContext();
                             }
                         } else {
