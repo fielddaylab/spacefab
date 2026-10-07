@@ -5,7 +5,9 @@
 $if MinigameHasValidSolution()
     {@PAL}  You've already researched everything you need to!
 $else
+    $call   LockChamber("Thermal")
     {@PAL}  You now have access to the Thermal Chamber.\n\nIt shows how a material's properties change when heated.
+    $call   UnlockChamber("Thermal")
     $call   HighlightElement(research:thermal-chamber-btn, false, -1, true)
 $endif
 
