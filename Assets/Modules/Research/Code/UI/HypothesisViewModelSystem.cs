@@ -98,9 +98,11 @@ namespace SpaceFab.Research {
             // swapping the sample abandons a claim about the material that
             // just left the chamber.
             if (slotChanged || inputState.RemoveHypothesisClickedThisFrame) {
-                viewModelState.HypothesisSelected = false;
-                viewModelState.HypothesisContext = StringHash32.Null;
-                ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyRemoved);
+                if (viewModelState.HypothesisSelected) {
+                    viewModelState.HypothesisSelected = false;
+                    viewModelState.HypothesisContext = StringHash32.Null;
+                    ScriptUtility.Trigger(ResearchScriptTriggers.OnPropertyRemoved);
+                }
             }
 
             // Dynamic labels need a substrate context, which only the
