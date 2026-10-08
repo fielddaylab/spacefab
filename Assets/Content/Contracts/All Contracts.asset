@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: All Contracts
   m_EditorClassIdentifier: 
   SortOrder: 0
-  IsLocked: 0
-  ShowDuringContexts: 
+  IsLocked: 1
+  ShowDuringContexts: 'role-content
+
+    role-writer'
   HideDuringContexts: 
   ReadMe: 
   Items: []

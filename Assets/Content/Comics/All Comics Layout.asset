@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: All Comics Layout
   m_EditorClassIdentifier: 
   SortOrder: 0
-  IsLocked: 0
-  ShowDuringContexts: []
-  HideDuringContexts: []
+  IsLocked: 1
+  ShowDuringContexts: 'role-content
+
+    role-writer'
+  HideDuringContexts: 
   ReadMe: 
   Items: []
   ProjectSearchFilter: t:Prefab ComicLayout

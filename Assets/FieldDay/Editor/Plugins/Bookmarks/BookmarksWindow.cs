@@ -9,28 +9,73 @@ using UnityEngine.SceneManagement;
 
 namespace Bookmarking {
     public sealed class BookmarksWindow : EditorWindow {
+        #region Serialized 
+
         [SerializeField] private List<string> m_ExpandedGuids = new List<string>();
 
         [SerializeField] private BookmarksPage[] m_Pages;
+        [SerializeField] private BookmarksRole[] m_Roles;
         [SerializeField] private Vector2 m_Scroll;
         [SerializeField] private bool m_HorizontalView;
         [SerializeField] private bool m_ShowHidden;
+        [SerializeField] private string m_CurrentRole = null;
+
+        #endregion // Serialized
+
+        #region State
 
         [NonSerialized] private bool m_PagesDirty = true;
         [NonSerialized] private bool m_ContextsDirty = true;
+
+        [NonSerialized] private HashSet<string> m_CurrentContexts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        #endregion // State
+
+        #region GUI Objects
 
         [NonSerialized] private GUIStyle m_ButtonStyle;
         [NonSerialized] private GUIStyle m_ReadmeStyle;
         [NonSerialized] private GUIStyle m_PageFoldoutStyle;
 
-        [NonSerialized] private HashSet<string> m_CurrentContexts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        [NonSerialized] private string[] m_RoleNames;
 
         [NonSerialized] static private GUIContent s_CachedContent;
+
+        private void InitializeResources() {
+            if (s_CachedContent == null) {
+                s_CachedContent = new GUIContent();
+            }
+
+            if (m_ButtonStyle == null) {
+                m_ButtonStyle = new GUIStyle(EditorStyles.miniButtonLeft);
+                m_ButtonStyle.imagePosition = ImagePosition.ImageLeft;
+                m_ButtonStyle.alignment = TextAnchor.MiddleLeft;
+                m_ButtonStyle.fixedHeight = 20;
+            }
+
+            if (m_ReadmeStyle == null) {
+                m_ReadmeStyle = new GUIStyle(EditorStyles.miniLabel);
+                m_ReadmeStyle.alignment = TextAnchor.MiddleLeft;
+                m_ReadmeStyle.wordWrap = true;
+
+            }
+            if (m_PageFoldoutStyle == null) {
+                m_PageFoldoutStyle = new GUIStyle(EditorStyles.foldout);
+                m_PageFoldoutStyle.fixedHeight = 20;
+                m_PageFoldoutStyle.alignment = TextAnchor.MiddleLeft;
+                m_PageFoldoutStyle.imagePosition = ImagePosition.ImageLeft;
+            }
+        }
+
+        #endregion // GUI Objects
+
+        #region Events
 
         private void OnEnable() {
             titleContent = new GUIContent("Bookmarks", LoadIcon("d_Favorite"));
             minSize = new Vector2(300, 200);
 
+            UpdateRoleList();
             UpdatePageList();
 
             EditorSceneManager.sceneClosed += OnSceneClosed;
@@ -45,7 +90,27 @@ namespace Bookmarking {
             EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
 
+        private void Update() {
+            if (ProcessChanges()) {
+                Repaint();
+            }
+        }
+
+        #endregion // Events
+
         #region Data
+
+        private void UpdateRoleList() {
+            m_Roles = BookmarksUtility.LoadAllRoles();
+
+            m_RoleNames = new string[m_Roles.Length];
+            for(int i = 0; i < m_Roles.Length; i++) {
+                m_RoleNames[i] = m_Roles[i].CachedName;
+            }
+
+            Console.WriteLine("[BookmarksWindow] Updated roles list");
+            m_ContextsDirty = true;
+        }
 
         private void UpdatePageList() {
             m_Pages = BookmarksUtility.LoadAllPages();
@@ -71,7 +136,9 @@ namespace Bookmarking {
             } catch {
             }
 
-            // TODO: roles
+            if (!string.IsNullOrEmpty(m_CurrentRole)) {
+                m_CurrentContexts.Add("role-" + m_CurrentRole);
+            }
 
             Console.WriteLine("[BookmarksWindow] Found {0} contexts", m_CurrentContexts.Count);
             foreach(var context in m_CurrentContexts) {
@@ -106,36 +173,11 @@ namespace Bookmarking {
             Console.WriteLine("[BookmarksWindow] Updated project contexts");
         }
 
-        private void InitializeResources() {
-            if (s_CachedContent == null) {
-                s_CachedContent = new GUIContent();
-            }
-
-            if (m_ButtonStyle == null) {
-                m_ButtonStyle = new GUIStyle(EditorStyles.miniButtonLeft);
-                m_ButtonStyle.imagePosition = ImagePosition.ImageLeft;
-                m_ButtonStyle.alignment = TextAnchor.MiddleLeft;
-                m_ButtonStyle.fixedHeight = 20;
-            }
-
-            if (m_ReadmeStyle == null) {
-                m_ReadmeStyle = new GUIStyle(EditorStyles.miniLabel);
-                m_ReadmeStyle.alignment = TextAnchor.MiddleLeft;
-                m_ReadmeStyle.wordWrap = true;
-
-            }
-            if (m_PageFoldoutStyle == null) {
-                m_PageFoldoutStyle = new GUIStyle(EditorStyles.foldout);
-                m_PageFoldoutStyle.fixedHeight = 20; 
-                m_PageFoldoutStyle.alignment = TextAnchor.MiddleLeft;
-                m_PageFoldoutStyle.imagePosition = ImagePosition.ImageLeft;
-            }
-        }
-
         private bool ProcessChanges() {
             bool changed = false;
 
             if (m_PagesDirty) {
+                UpdateRoleList();
                 UpdatePageList();
                 m_PagesDirty = false;
                 changed = true;
@@ -152,11 +194,7 @@ namespace Bookmarking {
 
         #endregion // Data
 
-        private void Update() {
-            if (ProcessChanges()) {
-                Repaint();
-            }
-        }
+        #region Rendering
 
         private void OnGUI() {
             InitializeResources();
@@ -210,8 +248,18 @@ namespace Bookmarking {
 
             EditorGUIUtility.SetIconSize(new Vector2(16, 16));
 
+            int order = m_Pages[0].SortOrder;
+
             foreach(var page in m_Pages) {
                 if (m_ShowHidden || !page.IsHidden) {
+                    if (page.SortOrder > order + 10) {
+                        GUILayout.Space(2);
+                        Rect lineRect = EditorGUILayout.GetControlRect(false, 2);
+                        lineRect.height = 2;
+                        EditorGUI.DrawRect(lineRect, Color.grey);
+                        GUILayout.Space(2);
+                    }
+                    order = page.SortOrder;
                     RenderPage(page);
                 }
             }
@@ -219,6 +267,19 @@ namespace Bookmarking {
             EditorGUIUtility.SetIconSize(default);
 
             EditorGUILayout.EndScrollView();
+
+            if (m_Roles.Length > 0) {
+                Rect lineRect = EditorGUILayout.GetControlRect(false, 2);
+                lineRect.height = 2;
+                EditorGUI.DrawRect(lineRect, Color.grey);
+                GUILayout.Space(2);
+                int currentIndex = Array.IndexOf(m_RoleNames, m_CurrentRole);
+                int popupIndex = EditorGUILayout.Popup("Role", currentIndex, m_RoleNames);
+                if (popupIndex != currentIndex) {
+                    m_CurrentRole = m_RoleNames[popupIndex];
+                    m_ContextsDirty = true;
+                }
+            }
         }
 
         private void RenderPage(BookmarksPage page) {
@@ -466,6 +527,10 @@ namespace Bookmarking {
                     }
                 }
 
+                if (!hasContent) {
+                    EditorGUILayout.LabelField("Drag and drop assets here", EditorStyles.miniLabel);
+                }
+
                 EditorGUILayout.EndVertical();
 
                 Rect boxRect = GUILayoutUtility.GetLastRect();
@@ -525,6 +590,8 @@ namespace Bookmarking {
             Link,
             MenuItem
         }
+
+        #endregion // Rendering
 
         #region Helpers
 
