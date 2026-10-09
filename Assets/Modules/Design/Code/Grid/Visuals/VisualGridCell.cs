@@ -46,6 +46,7 @@ namespace SpaceFab.Design
             // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
              visualCell.FlowIndicator.sortingOrder += 1;
+            Vector2 flowSize = visualCell.FlowIndicator.size;
 
             switch (flow)
             {
@@ -62,6 +63,8 @@ namespace SpaceFab.Design
                     UpdateDefaultFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
             }
+
+            visualCell.FlowIndicator.size = flowSize;
         }
 
         private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, GridSpriteDB spriteDB)
@@ -151,6 +154,8 @@ namespace SpaceFab.Design
             switch (cellData.CellType)
             {
                 case CellType.Metal:
+                case CellType.Input:
+                case CellType.Output:
                     spriteDB.MetalLibrary.Lookup(EdgeUtility.CondenseEdges(cellData.Edges), out pathData);
                     lookedUpEdge = true;
                     break;
@@ -160,16 +165,16 @@ namespace SpaceFab.Design
                 case CellType.PTransistor:
                     RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, scratch, cellIndex, layerIndex, col, row, spriteDB);
                     break;
-                case CellType.Input:
-                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
-                    visualCell.SubRenderer.sprite = spriteDB.IOInner;
-                    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
-                    break;
-                case CellType.Output:
-                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
-                    visualCell.SubRenderer.sprite = spriteDB.IOInner;
-                    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
-                    break;
+                //case CellType.Input:
+                //    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                //    visualCell.SubRenderer.sprite = spriteDB.IOInner;
+                //    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
+                //    break;
+                //case CellType.Output:
+                //    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                //    visualCell.SubRenderer.sprite = spriteDB.IOInner;
+                //    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
+                //    break;
                 default:
                     break;
             }
@@ -177,12 +182,10 @@ namespace SpaceFab.Design
             switch (cellData.SubtypeLabel)
             {
                 case InputOutputNodeTypeFlags.VPLUS:
-                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
                     visualCell.SubRenderer.sprite = spriteDB.InputConstantHigh;
                     visualCell.SubRenderer.transform.localScale = Vector3.one * 0.75f;
                     break;
                 case InputOutputNodeTypeFlags.VMINUS:
-                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
                     visualCell.SubRenderer.sprite = spriteDB.InputConstantLow;
                     visualCell.SubRenderer.transform.localScale = Vector3.one * 0.75f;
                     break;

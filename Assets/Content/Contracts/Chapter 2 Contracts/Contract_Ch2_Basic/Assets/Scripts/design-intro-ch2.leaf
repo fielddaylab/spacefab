@@ -11,7 +11,7 @@ $if IsLevelSolved(0) == true
 $else
     $set temp:designTutorialStep = 0
     $call   HighlightElement(design:n-transistor-tool-btn)
-    {@PAL}  There is a layer below the metal layer. Use this semiconductor layer to complete the chip.
+    {@PAL}  You can build paths on two layers: semiconductor and metal.\n\nSelect <color=yellow>N-type dopant</color> and connect the output to the input.
 $endif
 
 
@@ -30,7 +30,7 @@ $call   ReleaseAllHighlights()
 $if temp:designTutorialStep == 1
     $set temp:designTutorialStep = 2
     $call   HighlightElement(design:via-tool-btn)
-    {@PAL}  Use the Via tool to connect metal and semiconductor in a single cell.
+    {@PAL}  Place a <color=yellow>Via</color> in a cell with both silicon and metal to connect the two layers.
 $endif
 
 
@@ -84,7 +84,7 @@ $if IsLevelSolved(1) == true
 $else
     $set temp:designTutorialStep = 0
     $call   HighlightElement(design:metal-tool-btn)
-    {@PAL}  Look at the Verification table. Output Y is always <color=yellow>HI</color>. Input HI is a constant.\n\nConnect them with the metal.
+    {@PAL}  The Verification table shows that <color=yellow>Output Y</color> must always be <color=yellow>HI</color>.\n\nConnect the <color=yellow>constant HI input</color> to output Y.
 $endif
 
 
@@ -106,7 +106,7 @@ $call   HighlightElement(design:metal-tool-btn)
 @trigger    OnDragReleased
 @when   CurrLevelIndex() == 1, temp:designTutorialStep == 1
 $set    temp:designTutorialStep = 2
-{@PAL}  To connect input A to output X, use a semiconductor to cross under the metal layer.\n\nRemember, the inputs and outputs are on the metal layer.
+{@PAL}  The Verification table shows that <color=yellow>Output X</color> must be both <color=yellow>HI</color> and <color=yellow>LO</color>\n\nTry connecting the variable <color=yellow>Input A</color> to <color=yellow>Output X</color>  without crossing the circuit you just built.
 $call   HighlightElement(design:p-transistor-tool-btn)
 
 
@@ -134,15 +134,9 @@ $endif
 @when       result == "failure", CurrLevelIndex() == 1
 $call   ReleaseAllHighlights()
 $if temp:hintGiven == 0
-    {@PAL}  <color=yellow>Hint:</color> The inputs and outputs are on the metal layer, so you'll need vias to connect the two layers.
+    {@PAL}  HINT: Inputs and outputs are on the <color=yellow>metal layer</color>.
     $set temp:hintGiven = 1
 $elseif temp:hintGiven == 1
-    {@PAL}  <color=yellow>Hint:</color> The paths should cross on different layers.
-        $set temp:hintGiven = 2
-$elseif temp:hintGiven == 2
-    {@PAL}  <color=yellow>Hint:</color> Make sure the Via touches both metal and semiconductor.
-    $set temp:hintGiven = 3
-$elseif temp:hintGiven == 3
-    {@PAL}  <color=yellow>Hint:</color> Constant HI must be connected to output Y.
+    {@PAL}  HINT: Use a <color=yellow>via</color> to connect the metal and semiconductor layers.
     $set temp:hintGiven = 0
 $endif
