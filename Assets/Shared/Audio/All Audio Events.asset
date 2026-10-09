@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a8d4ce805ac1ac4581172e8e407b18f, type: 3}
-  m_Name: All Chapters
+  m_Name: All Audio Events
   m_EditorClassIdentifier: 
-  SortOrder: 10
-  IsLocked: 1
-  ShowDuringContexts: role-content
+  SortOrder: 0
+  IsLocked: 0
+  ShowDuringContexts: role-audio
   HideDuringContexts: 
   ReadMe: 
   Items: []
-  ProjectSearchFilter: t:ChapterDef Chapter
+  ProjectSearchFilter: t:AudioEvent
