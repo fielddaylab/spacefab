@@ -18,7 +18,7 @@ $call   ReleaseAllHighlights()
 {@Player}   I miss my old team. I've never done any of this all by myself. 
 {@PAL}      As the Personal Automation Liaison and I'm WAY more useful than human assistants.
  {@Player} 	...hmmmm... 
- {@PAL}      Sart with either the Research Lab or Chip Design. 
+ {@PAL}      Start with either the Research Lab or Chip Design. 
 
 
 $call   HighlightElement(overarching:select-contract-btn)
@@ -58,10 +58,9 @@ $call   ReleaseAllHighlights()
 //phone dial 
 {@Quinn}    Oh... hi Locke! I was expecting to see Dorian. 
 {@Player}   Hi Quinn. Nice to see you again. Yeah, Dorian's not on the ship anymore. Its just me now.
-@{Player}	It's a long story -- I'll tell you later. Looks like I'm planning the routes now. 
+{@Player}	It's a long story -- I'll tell you later. Looks like I'm planning the routes now. 
 {@Quinn}    Okay, Cap'. I’ve got you.
 {@Quinn}    You decide where you want to get your materials. I’ll handle the haulers.
-{@Player} Sounds easy enough. Talk to you later.
 
 
 //region Supply Chain - Taryn Intro 
