@@ -2377,14 +2377,14 @@ MonoBehaviour:
   - {fileID: 3193658941828479465}
   - {fileID: 3193658941828479464}
   SlotSpacing: {x: 260, y: 0, z: 0}
-  OffscreenLeftLocalPos: {x: 0, y: 600, z: 0}
-  OffscreenRightLocalPos: {x: 0, y: -600, z: 0}
+  OffscreenLeftLocalPos: {x: 0, y: 200, z: 0}
+  OffscreenRightLocalPos: {x: 0, y: -200, z: 0}
   UnknownStepId:
     m_Source: mystery
     m_HashValue: 834242614
   WaferAppearSeconds: 0.35
   CardStampSeconds: 0.2
-  SlideSeconds: 0.3
+  SlideSeconds: 0.25
   LabelFadeInSeconds: 0.15
   HoldSeconds: 1.2
   FadeOutSeconds: 0.3

@@ -419,5 +419,5 @@ MonoBehaviour:
   Group: {fileID: 5341204398287394889}
   RowPrefab: {fileID: 1255724108249466722, guid: 6ec1e4e8614e7e743b1ffa27285a3e2a, type: 3}
   Rows: {fileID: 5021930160809795037}
-  FadeSeconds: 0.3
-  HoldSeconds: 2
+  FadeSeconds: 0.2
+  HoldSeconds: 1
