@@ -46,6 +46,7 @@ namespace SpaceFab.Design
             // visualCell.FlowIndicator.sortingOrder = FLOW_SORT_ORDER;
             visualCell.FlowIndicator.sortingOrder = layerIndex == 0 ? METAL_SORT_ORDER : TRANSISTOR_SORT_ORDER;
              visualCell.FlowIndicator.sortingOrder += 1;
+            Vector2 flowSize = visualCell.FlowIndicator.size;
 
             switch (flow)
             {
@@ -62,6 +63,8 @@ namespace SpaceFab.Design
                     UpdateDefaultFlow(visualCell, cell, layerIndex, spriteDB);
                     break;
             }
+
+            visualCell.FlowIndicator.size = flowSize;
         }
 
         private static void UpdateHiFlow(VisualGridCell visualCell, GridCell cell, int layerIndex, GridSpriteDB spriteDB)
