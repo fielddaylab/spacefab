@@ -154,6 +154,8 @@ namespace SpaceFab.Design
             switch (cellData.CellType)
             {
                 case CellType.Metal:
+                case CellType.Input:
+                case CellType.Output:
                     spriteDB.MetalLibrary.Lookup(EdgeUtility.CondenseEdges(cellData.Edges), out pathData);
                     lookedUpEdge = true;
                     break;
@@ -163,16 +165,16 @@ namespace SpaceFab.Design
                 case CellType.PTransistor:
                     RenderPTransistor(visualCell, ref cellData, ref pathData, ref lookedUpEdge, scratch, cellIndex, layerIndex, col, row, spriteDB);
                     break;
-                case CellType.Input:
-                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
-                    visualCell.SubRenderer.sprite = spriteDB.IOInner;
-                    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
-                    break;
-                case CellType.Output:
-                    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
-                    visualCell.SubRenderer.sprite = spriteDB.IOInner;
-                    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
-                    break;
+                //case CellType.Input:
+                //    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                //    visualCell.SubRenderer.sprite = spriteDB.IOInner;
+                //    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
+                //    break;
+                //case CellType.Output:
+                //    visualCell.PathRenderer.sprite = spriteDB.IOOuter;
+                //    visualCell.SubRenderer.sprite = spriteDB.IOInner;
+                //    // visualCell.TextRenderer.SetText(cellData.SubtypeLabel);
+                //    break;
                 default:
                     break;
             }

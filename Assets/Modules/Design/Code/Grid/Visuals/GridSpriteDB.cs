@@ -30,8 +30,6 @@ namespace SpaceFab.Design.Visuals
         public Sprite Gate;
 
         [Header("IO")]
-        public Sprite IOInner;
-        public Sprite IOOuter;
         public Sprite InputConstantHigh;
         public Sprite InputConstantLow;
 
