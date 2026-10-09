@@ -473,6 +473,12 @@ namespace Bookmarking {
             if (clicked) {
                 if (isContextClick) {
                     GenericMenu menu = new GenericMenu();
+                    if (type == ItemType.Asset || type == ItemType.Scene) {
+                        menu.AddItem(new GUIContent("Select asset"), false, () => {
+                            Selection.activeObject = item.Object;
+                            EditorGUIUtility.PingObject(item.Object);
+                        });
+                    }
                     if (type == ItemType.Link) {
                         menu.AddItem(new GUIContent("Copy link"), false, () => {
                             EditorGUIUtility.systemCopyBuffer = item.URL;
