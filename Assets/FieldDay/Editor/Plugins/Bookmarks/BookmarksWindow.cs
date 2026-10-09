@@ -254,7 +254,7 @@ namespace Bookmarking {
 
             foreach(var page in m_Pages) {
                 if (m_ShowHidden || !page.IsHidden) {
-                    if (page.SortOrder > order + 10) {
+                    if (page.SortOrder >= order + 10) {
                         GUILayout.Space(2);
                         Rect lineRect = EditorGUILayout.GetControlRect(false, 2);
                         lineRect.height = 2;

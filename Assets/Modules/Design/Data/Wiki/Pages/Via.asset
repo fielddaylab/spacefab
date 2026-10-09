@@ -20,8 +20,8 @@ MonoBehaviour:
   IllustrationFPS: 0.5
   IllustrationImageScale: 1
   CaptionText: 
-  BodyText: Vias connect the Metal layer to the bottom Silicon layer, passing signals
-    between them.
+  BodyText: Vias connect the Metal layer to the bottom Semiconductor layer, passing
+    signals between them.
   MaterialId:
     m_HashValue: 0
   IsObservationPage: 0

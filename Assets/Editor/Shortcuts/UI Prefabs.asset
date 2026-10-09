@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8d4ce805ac1ac4581172e8e407b18f, type: 3}
   m_Name: UI Prefabs
   m_EditorClassIdentifier: 
-  SortOrder: 0
+  SortOrder: 20
   IsLocked: 0
   ShowDuringContexts: 
-  HideDuringContexts: 
+  HideDuringContexts: t:Writer
   ReadMe: Important UI prefabs
   Items:
   - Object: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
