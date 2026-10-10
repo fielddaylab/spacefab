@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Fabrication_Ch3
   m_EditorClassIdentifier: 
   m_sequence: {fileID: 11400000, guid: 27fcaf7c2c8b34daea4736e6cfacb51e, type: 2}
-  m_GlitchChance: 0.1
+  m_GlitchChance: 0
   m_PatternIndex: 2

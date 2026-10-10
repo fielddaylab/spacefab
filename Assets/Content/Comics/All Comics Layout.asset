@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8d4ce805ac1ac4581172e8e407b18f, type: 3}
   m_Name: All Comics Layout
   m_EditorClassIdentifier: 
-  SortOrder: 0
-  IsLocked: 0
-  ShowDuringContexts: []
-  HideDuringContexts: []
+  SortOrder: 10
+  IsLocked: 1
+  ShowDuringContexts: role-content
+  HideDuringContexts: 
   ReadMe: 
   Items: []
   ProjectSearchFilter: t:Prefab ComicLayout

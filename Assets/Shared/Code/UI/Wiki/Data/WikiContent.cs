@@ -178,6 +178,14 @@ namespace SpaceFab.UI {
                 }
             }
 
+            StringHash32 extendedTabName = tabName.FastConcat("_Tab");
+            for (int tabIndex = 0; tabIndex < content.Tabs.Length; tabIndex++) {
+                WikiTabData tabData = content.Tabs[tabIndex];
+                if (tabData.AssetId == extendedTabName) {
+                    return tabIndex;
+                }
+            }
+
             Log.Error("[WikiUtility] Tab with name '{0}' not found in loaded set of Wiki Content", tabName);
             return -1;
         }

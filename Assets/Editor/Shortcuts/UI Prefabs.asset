@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8d4ce805ac1ac4581172e8e407b18f, type: 3}
   m_Name: UI Prefabs
   m_EditorClassIdentifier: 
-  SortOrder: 0
+  SortOrder: 20
   IsLocked: 0
   ShowDuringContexts: 
-  HideDuringContexts: 
+  HideDuringContexts: t:Writer
   ReadMe: Important UI prefabs
   Items:
   - Object: {fileID: 4113217339503403467, guid: 0ed7604c68709e34ca58483f51e1cf0f, type: 3}
@@ -31,6 +31,14 @@ MonoBehaviour:
     MenuPath: 
     CustomName: 
   - Object: {fileID: 1483081977996295771, guid: 2139e596b66bec84fadc906ebe2968d7, type: 3}
+    URL: 
+    MenuPath: 
+    CustomName: 
+  - Object: {fileID: 7858774295019505386, guid: a9dc6942db3f84042aba8fb3ac3f06ed, type: 3}
+    URL: 
+    MenuPath: 
+    CustomName: 
+  - Object: {fileID: 6210911571537687538, guid: 12194cea89d380a4d8a5da9093fdaeb5, type: 3}
     URL: 
     MenuPath: 
     CustomName: 

@@ -60,6 +60,7 @@ namespace SpaceFab.Design
                     // build Sim table
                     SimulateUIUtility.BuildTable(simUIState, suiteData, simRunState, designState, suiteDB);
                     ResultStateUtility.BuildResultsTable(resultState, suiteData, suiteDB);
+                    DesignLevelUtility.ApplyWikiPageUnlocks(progressState, levelData);
 
                     // If the player has already passed this contract's suite, present all rows as
                     // Correct on entry rather than forcing them to re-run. FoundValidSolution is

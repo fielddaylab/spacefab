@@ -281,42 +281,5 @@ namespace SpaceFab
                 }
             }
         }
-
-        /// <summary>
-        /// Applies the WikiInitialUnlocksConfig page-id list on first
-        /// startup per save. Short-circuits when the save has already
-        /// had its initial-unlock pass run (the InitialUnlocksApplied
-        /// flag is persisted), so this is a one-shot per save —
-        /// editing the config afterwards only affects fresh saves.
-        /// Missing config and empty/null id arrays are treated as
-        /// no-ops (still sets the flag so the system doesn't keep
-        /// checking the asset forever). UnlockPage itself
-        /// short-circuits per-id duplicates via HashSet.Add.
-        ///
-        /// Called from OverarchingStartupSequenceSystem on entry to
-        /// the Overarching scene; could be called from any startup
-        /// site that runs once per save after the save buffer has
-        /// been read.
-        /// </summary>
-        public static void TryApplyInitialWikiUnlocks(PlayerProgressState progressState)
-        {
-            if (progressState == null || progressState.InitialUnlocksApplied)
-            {
-                return;
-            }
-            WikiInitialUnlocksConfig config = Find.GlobalAsset<WikiInitialUnlocksConfig>();
-            if (config != null)
-            {
-                StringHash32[] ids = config.InitialUnlockedPages;
-                if (ids != null)
-                {
-                    for (int i = 0; i < ids.Length; i++)
-                    {
-                        WikiUtility.UnlockPage(progressState, ids[i]);
-                    }
-                }
-            }
-            progressState.InitialUnlocksApplied = true;
-        }
     }
 }

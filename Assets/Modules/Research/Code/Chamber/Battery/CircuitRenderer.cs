@@ -1,4 +1,5 @@
 using FieldDay.Components;
+using FieldDay.Rendering;
 using System;
 using UnityEngine;
 
@@ -30,6 +31,8 @@ namespace SpaceFab.Research
 
         public SpriteRenderer[] BulbShines;
         public float AnimSpeedMultiplier = 1f;
+
+        public ParticleSystem HighMobilityParticles;
 
         // Magnitude drives flow speed. Set by CircuitUtility.SetFlowStrength.
         [NonSerialized] public float CircuitCurrent;
@@ -109,7 +112,7 @@ namespace SpaceFab.Research
         }
 
         // Sets the flow tube's density. The animation system reads CircuitSpriteSpeed each frame.
-        public static void SetFlowStrength(CircuitRenderer circuit, float strength)
+        public static void SetFlowStrength(CircuitRenderer circuit, float strength, bool isHighMobility = false)
         {
             if (circuit == null) return;
             circuit.CircuitCurrent = strength;
@@ -117,6 +120,17 @@ namespace SpaceFab.Research
             foreach (Electron electron in circuit.Electrons)
             {
                 electron.gameObject.SetActive(strength > 0);
+            }
+
+            if (circuit.HighMobilityParticles) {
+                if (isHighMobility && strength > 0) {
+                    if (!circuit.HighMobilityParticles.isPlaying) {
+                        circuit.HighMobilityParticles.Play();
+                    }
+                    circuit.HighMobilityParticles.SetEmissionMultiplier(strength * 32);
+                } else {
+                    circuit.HighMobilityParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                }
             }
         }
 

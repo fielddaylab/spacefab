@@ -1,7 +1,9 @@
 using System;
 using BeauUtil;
+using BeauUtil.Debugger;
 using FieldDay;
 using Leaf.Runtime;
+using SpaceFab.Materials;
 using SpaceFab.UI;
 using UnityEngine;
 
@@ -22,8 +24,7 @@ namespace SpaceFab.Research {
             var contents = Find.State<WikiContent>();
             var address = WikiContentUtility.LookupMaterialPageAddress(contents, researchState.LastDiscovery.MaterialId);
             
-            // TODO: open to address
-            //WikiUtility.OpenTo(tabId, pageId);
+            WikiUtility.OpenTo(Find.State<WikiViewState>(), address);
         }
 
         // Resets the currently-active research chamber to its default state (e.g. the Battery's
@@ -80,6 +81,23 @@ namespace SpaceFab.Research {
                     SamplePanelInputUtility.UnlockChamberButton(panel, chamberKind, uiAssets);
                 }
             }
+        }
+
+        [LeafMember("AddResearchObservation")]
+        public static void Leaf_AddObservation(StringHash32 materialId, MaterialPropertyLabel observationType) {
+            Assert.True(!MaterialPropertyLabelUtility.IsPersistent(observationType), "Property '{0}' is persistent!", observationType);
+            Find.State(out ResearchMinigameState minigameState, out HypothesisViewModelState viewModelState);
+            if (ResearchInventoryUtility.AddObservation(minigameState, materialId, observationType, null)) {
+                HypothesisViewModelUtility.RequestRebuild(viewModelState);
+            }
+        }
+
+        [LeafMember("HasConfirmedProperty")]
+        public static bool Leaf_HasConfirmedProperty(StringHash32 materialId, MaterialPropertyLabel observationType) {
+            Assert.True(MaterialPropertyLabelUtility.IsPersistent(observationType), "Property '{0}' is not persistent!", observationType);
+            Find.State(out PlayerProgressState playerProgress, out WikiContent wikiContent);
+            MaterialPropertyRecord propRecord = WikiContentUtility.GetMaterialRecord(materialId, playerProgress, wikiContent.ResearchContext);
+            return MaterialPropertyRecordUtility.Has(propRecord, observationType, null);
         }
     }
 }

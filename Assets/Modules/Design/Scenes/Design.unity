@@ -603,24 +603,6 @@ PolygonCollider2D:
       - {x: 2.618138, y: -0.83435607}
       - {x: 2.6207485, y: -5.476233}
   m_UseDelaunayMesh: 1
---- !u!114 &267227041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1471737176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Id:
-    m_Source: design:n-transistor-tool-btn
-    m_HashValue: 3807281023
-  RectTransform: {fileID: 1471737175}
-  SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
 --- !u!1 &296846309
 GameObject:
   m_ObjectHideFlags: 0
@@ -2266,19 +2248,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7960918399105618607, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1125850521}
-    - targetCorrespondingSourceObject: {fileID: 7207237991697251993, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1471737183}
-    - targetCorrespondingSourceObject: {fileID: 5026080510150474462, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1471737182}
-    - targetCorrespondingSourceObject: {fileID: 3064359002681294540, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 267227041}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
 --- !u!224 &1125850515 stripped
 RectTransform:
@@ -2306,29 +2276,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5724322985175658540, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
   m_PrefabInstance: {fileID: 1125850514}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1125850519 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7960918399105618607, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1125850521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1125850519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Id:
-    m_Source: design:gate-tool-btn
-    m_HashValue: 1520393932
-  RectTransform: {fileID: 1471737181}
-  SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
 --- !u!43 &1209063521
 Mesh:
   m_ObjectHideFlags: 0
@@ -2693,77 +2640,6 @@ MonoBehaviour:
   Recursive: 0
   DestroyGameObject: 0
   IgnoreAnimators: 1
---- !u!224 &1471737175 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 1747709713592822574, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1471737176 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3064359002681294540, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &1471737177 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 8577087242322702140, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1471737178 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5026080510150474462, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &1471737179 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 6251724416665119611, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1471737180 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7207237991697251993, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &1471737181 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 6682510502455297869, guid: e4b710c7d1a990343a45c652e83cfa6d, type: 3}
-  m_PrefabInstance: {fileID: 1125850514}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1471737182
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1471737178}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Id:
-    m_Source: design:p-transistor-tool-btn
-    m_HashValue: 265702473
-  RectTransform: {fileID: 1471737177}
-  SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
---- !u!114 &1471737183
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1471737180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2b4854730e970a4abb8b0d80ce8c5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Id:
-    m_Source: design:via-tool-btn
-    m_HashValue: 2602561567
-  RectTransform: {fileID: 1471737179}
-  SpriteRenderer: {fileID: 0}
-  Collider: {fileID: 0}
 --- !u!1001 &2054010281
 PrefabInstance:
   m_ObjectHideFlags: 0

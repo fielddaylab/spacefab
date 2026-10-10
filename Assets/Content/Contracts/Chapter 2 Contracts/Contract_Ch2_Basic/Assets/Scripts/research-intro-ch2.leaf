@@ -77,3 +77,13 @@ $call   CloseWiki()
 $call   ReleaseAllHighlights()
 $call   CloseWiki()
 {@PAL}  One or more of your Observations were incorrect. Those are removed.\n\nTry again.
+
+:: CopperNaiveObservationFillIn
+@function	OnSlotFilled
+@when	research:primaryMaterial == "Copper", !HasConfirmedProperty("Copper", Conductor)
+$call AddResearchObservation("Copper", Conductive)
+
+:: SiliconNaiveObservationFillIn
+@function	OnSlotFilled
+@when	research:primaryMaterial == "Silicon", !HasConfirmedProperty("Silicon", Semiconductor)
+$call AddResearchObservation("Silicon", NonConductive)

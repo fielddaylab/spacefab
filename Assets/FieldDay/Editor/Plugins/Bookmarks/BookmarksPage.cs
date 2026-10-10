@@ -15,8 +15,7 @@ namespace Bookmarking {
         private const string ContextsFormatHelpString = @"Contexts are of one of several formats.
 <b>""user-""</b> represents a specific user, based on the operating system's reported user name.
 <b>""scene-""</b> represents a specific open scene, based on the scene name.
-<b>""role-""</b> represents a specific developer role, based on the project setup.
-";
+<b>""role-""</b> represents a specific developer role, based on the project setup.";
 
         private const string ShowContextHelpString = ContextsListHelpString + @"
 
@@ -42,7 +41,7 @@ If set, this page will always be hidden if any of the given contexts are present
 
         [Header("Contents")]
         [Tooltip("Displays before the list of items. Try to keep it short.")] [TextArea(2, 16)] public string ReadMe;
-        public BookmarkItem[] Items;
+        public BookmarkItem[] Items = Array.Empty<BookmarkItem>();
         [Tooltip("If set, all results from a project search with the given filter will be appended to the page")] public string ProjectSearchFilter;
 
         [NonSerialized] internal UnityEngine.Object[] FilteredObjects;
