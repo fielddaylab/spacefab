@@ -14,11 +14,7 @@
 {@Pal}		You have three contracts to pick from. 
 {@Player}   ...Yeah. Sure.
 
-::BeforeSupplyChainCh6
-@trigger    OnOverarchingLoaded
-@when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
-@cutscene 
-@once 
+
 ::BeforeSupplyChainCh6
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)

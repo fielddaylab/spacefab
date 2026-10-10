@@ -6,12 +6,14 @@
 @once
 
 {@Player}   Okay, Mr. Frontier Robotics, got another contract for me?
-{@Dorian}   I do. But come on, we're bros. None of this "Mr. Frontier Robotics" stuff.
+{@Dorian}   I do, but bro, c'mon! None of this "Mr. Frontier Robotics" stuff. You're still my friend.
 {@Player}   That's good to hear. I'm not sure everyone else from our old crew feels that way. 
 {@Player}	Don't they understand that I need this job so I can pay off the repairs? 
 {@Player}	I could lose my ship in a few months.
-{@Dorian}   You'll make it. I've got your back. 
-    
+{@Dorian}   Hey man, you'll make it. I've got your back. 
+
+// EDIT - KACY 
+// Minor changes with Dorian's dialogue. 
 
 $call   LockWikiPage("Basic Conductor") // Basic Conductor is replaced with the full version after first chapter 
 $call   LockWikiPage("Basic Insulator") // Basic Insulator is replaced with the full version after first chapter 
@@ -27,8 +29,13 @@ $call   UnlockWikiPage("Insulator")
 {@Player}   P.A.L., turns out that material wasn't an insulator. It's a semiconductor.
 {@PAL}      Exactly! Great work, Captain.
 {@Player}   Exactly? You verified it as an insulator before.
+<<<<<<< Updated upstream
 {@PAL}      You're absolutely right. Your research clearly shows that it's a semiconductor.
 {@Player}   But you seemed pretty sure before.
+=======
+{@PAL}      You're right. Your research clearly shows that it's a semiconductor.
+{@Player}   But you seemed pretty sure before...
+>>>>>>> Stashed changes
 {@PAL}      Absolutely! And now we have the correct answer.
 {@Player}   ...It's weird how you just keep agreeing with me.
 
@@ -51,10 +58,10 @@ $call   UnlockWikiPage("Insulator")
 
 //introduce the idea of the refining station. pick up at wayward and refine at frosch
 {@Player}   Hmmm... looks like I'll need a semiconductor ...
-{@Player} I don't see any in this sector.
-{@PAL}  You can make one!
-{@PAL}     You can get silicon dioxide at Frosch and have the haulers take it to a refinery.
-{@Player} A two step process? That sounds pricey.
+{@Player}   I don't see any in this sector.
+{@PAL}      You can make one!
+{@PAL}      You can get silicon dioxide at Frosch and have the haulers take it to a refinery.
+{@Player}   A two step process? That sounds pricey.
 
 //cut ?conversation with Taryn and Ovill arguing over who gets to source for Locke. This isn't relevant till level 3 when they can use multiple options.
 

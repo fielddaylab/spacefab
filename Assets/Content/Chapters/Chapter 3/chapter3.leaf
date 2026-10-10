@@ -5,15 +5,12 @@
 @cutscene
 @once
 
-{@PAL}      Okey-dokey Captain. 
-{@PAL}      Now, you're going to be working with Diodes! 
+{@PAL}      Okey-dokey Captain, you're going to be working with Diodes! 
 {@Player}   ...
 {@PAL}      Now, diodes can enforce unidirectional current flow and they-
-{@Player}   ... 
 {@PAL}      Uh... Captain? 
 {@Player}   Huh? 
-{@PAL}      I'm talking about the diodes capacity to attenuate high signals and you seem...
-{@PAL}      Unenthused. 
+{@PAL}      I'm talking about the diodes capacity to attenuate high signals and you seem... unenthused
 {@Player}   Sorry, P.A.L., my mind was somewhere else. 
 {@PAL}      Perhaps, it has something to do with your call with your former crew-mate?
 {@Player}   Doesn't matter, let's just do the contract. 
@@ -21,21 +18,7 @@
 
 //endregion
 
-::AfterResearchCh3
-@trigger    OnOverarchingLoaded 
-@when       IsSolutionFoundFor(Research)
-@cutscene
-@once 
-
-
-::AfterDesignCh3
-@trigger    OnOverarchingLoaded
-@when       IsSolutionFoundFor(Design)
-@cutscene
-@once
-
-
-//endregion 
+//EDIT - Cut lines for 10 line max. 
 
 ::BeforeSupplyChainCh3
 @trigger    OnOverarchingLoaded
@@ -47,7 +30,7 @@
 
 //incoming call
 {@Ovill}    We have a super duper exclusive deal just for you! 
-{@Player}   Wait, wait, what are you even selling? 
+{@Player}   Wait. Who are you? What are you even selling?
 {@Ovill}    Phosphorus! Commit to Hennig Station in the Forsch sector today and I'll throw in a complimentary Frontier Robotics swag bag! 
 {@Player}   Ah... you are selling phosphorus. 
 {@Player}	I hear that there is a new station... Menuo Station... near Kalvis that is selling phosphorus for much cheaper!
@@ -78,11 +61,6 @@
 
 //end call
 //{@Player}	Hmmm... I wonder if I can afford the gold. I'm trying to actually make a profit.
-
-
-::AfterSupplyChainCh3
-
-
 
 ::AfterFabrication
 @trigger 

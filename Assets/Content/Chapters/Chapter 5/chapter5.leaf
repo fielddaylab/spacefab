@@ -13,8 +13,10 @@
 {@PAL}      	Instead of one contract, you now have... two!
 {@PAL}      	Congratulations on achieving agency Captain! 
 {@Player}   	...thanks P.A.L. 
-{@Pal}			One of them is a little more complicated. You can switch back to the other one if you decide its too hard. 
+{@PAL}			One of them is a little more complicated. You can switch back to the other one if you decide its too hard. 
 
+//EDIT - KACY 
+// Changed PAL's ID to match with Unity Display. 
 ::BeforeSupplyChainCh5
 @trigger    OnOverarchingLoaded
 @when       IsSolutionFoundFor(Design), IsSolutionFoundFor(Research)
@@ -61,4 +63,4 @@
 {@PAL}	        Unfortunately, I can't determine that percentage right now. 
 {@PAL}			You can always look up the directions in your reference guide. 
 {@Player} 	    Of course. I thought you were supposed to speed things up not slow me down. I need to start memorizing this process.
-{@Player}		I'm really missing Arkan about now. 
+{@Player}		I'm really missing Arken right about now. 

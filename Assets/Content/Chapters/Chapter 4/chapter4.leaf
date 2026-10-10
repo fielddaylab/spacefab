@@ -6,8 +6,12 @@
 @cutscene
 @once 
 
-{@Dorian}    I've got to head out. That was fun. 
+{@Dorian}    I've got to head out.  
 {@Player}    Thanks for visiting. We need a rematch soon!
+
+//EDIT - KACY 
+// Add a bit more to Dorian and Locke's dialogue 
+// QUESTION - do we want to keep this? Will this confuse the player thinking this is a call? Or am I overhtinking this? 
 
 // New optional research sample- Gold
 {@Xavier}    Locke! Heard about the slowdowns at Kalvis. Copper prices are through the roof!
@@ -57,10 +61,14 @@
 
 {@Player}  	Hey! I'm not a Clackey- aaaand she hung up. 
 
-{@Pal}    	Wait. Velos? The pirate station? The prison station?
+{@PAL}    	Wait. Velos? The pirate station? The prison station?
 {@Player}   Yeah. Looks like they have great prices.
 {@Player}   How risky could it really be?
-{@Pal}      They're pirates, Locke.
+{@PAL}      They're pirates, Locke.
+
+// QUESTION - KACY 
+// Frontier Call-Sign, does this make sense? Isn't Locke's ship his own ship? He is just in debt with Frontier?
+// Would any of this dialogue make sense with the direction we are heading? 
 
 
 
